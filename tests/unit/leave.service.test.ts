@@ -1130,6 +1130,67 @@ describe('Leave Service Unit Tests', () => {
 				remaining_days: 22.0
 			}));
 		});
+
+		describe('max_annual_carry_forward_days and max_carry_forward_days Integration Scenarios', () => {
+			const scenarios = [
+				{ prevCf: 0.0, unusedEl: 12.0, annualCap: 6.0, totalCap: 24.0, expectedCf: 6.0 },
+				{ prevCf: 6.0, unusedEl: 12.0, annualCap: 6.0, totalCap: 24.0, expectedCf: 12.0 },
+				{ prevCf: 20.0, unusedEl: 12.0, annualCap: 6.0, totalCap: 24.0, expectedCf: 24.0 },
+				{ prevCf: 20.0, unusedEl: 12.0, annualCap: 4.0, totalCap: 24.0, expectedCf: 24.0 },
+				{ prevCf: 0.0, unusedEl: 12.0, annualCap: 4.0, totalCap: 24.0, expectedCf: 4.0 }
+			];
+
+			scenarios.forEach(({ prevCf, unusedEl, annualCap, totalCap, expectedCf }, idx) => {
+				it(`should calculate carry-forward correctly for Scenario ${idx + 1}: prevCf=${prevCf}, unusedEl=${unusedEl}, annualCap=${annualCap}, totalCap=${totalCap} => expectedCf=${expectedCf}`, async () => {
+					// We mock the previous year's balance (2025)
+					// allocated_days = unusedEl + used_days (let's say used_days is 0, so allocated_days = unusedEl)
+					const prevBalance = {
+						cuid: 'prev-bal-el',
+						allocated_days: unusedEl,
+						carried_forward_days: prevCf,
+						used_days: 0.0,
+						remaining_days: unusedEl + prevCf
+					};
+
+					vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid: string, typeCuid: string, year?: number) => {
+						if (typeCuid === 'cuid-el' && year === 2025) return prevBalance as any;
+						return null;
+					});
+
+					// Mock the custom policy
+					const customPolicy = {
+						cuid: 'p-el',
+						leave_type_cuid: 'cuid-el',
+						annual_limit: 12.0,
+						max_per_month: 1.0,
+						carry_forward_allowed: true,
+						min_service_days: 365,
+						allow_half_day: false,
+						gender_specific: false,
+						status: true,
+						max_annual_carry_forward_days: annualCap,
+						max_carry_forward_days: totalCap
+					};
+					vi.mocked(leaveDao.getLeavePolicyByLeaveType).mockImplementation(async (cuid: string) => {
+						if (cuid === 'cuid-el') return customPolicy as any;
+						return mockPolicies[cuid as keyof typeof mockPolicies] || null;
+					});
+
+					const testEmployment = {
+						...mockEmployment,
+						date_of_joining: new Date('2024-01-01T00:00:00.000Z')
+					};
+					vi.mocked(db.employment.findFirst).mockResolvedValue(testEmployment as any);
+
+					await leaveService.accrueLeaves('emp-cuid', 2026);
+
+					expect(leaveDao.createLeaveBalance).toHaveBeenCalledWith(expect.objectContaining({
+						leave_type_cuid: 'cuid-el',
+						carried_forward_days: expectedCf
+					}));
+				});
+			});
+		});
 	});
 
 	describe('Loss of Pay (LOP) Specific Logic', () => {

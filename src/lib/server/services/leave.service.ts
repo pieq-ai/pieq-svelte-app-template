@@ -284,13 +284,21 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 				// Leave usage in the previous year (prevUsed) is deducted from that year's allocated_days (prevAllocated) first.
 				const unusedAllocated = Math.max(0.0, prevAllocated - prevUsed);
 				
-				// Carry-Forward Cap:
-				// Only the unused portion of the current year's allocated_days is eligible for carry-forward, subject to a maximum limit of 6 days.
-				const cfFromAllocated = Math.min(6.0, unusedAllocated);
+				// Carry-Forward Caps:
+				const annualCap = policy.max_annual_carry_forward_days !== null && policy.max_annual_carry_forward_days !== undefined
+					? Number(policy.max_annual_carry_forward_days)
+					: 6.0;
+
+				const totalCap = policy.max_carry_forward_days !== null && policy.max_carry_forward_days !== undefined
+					? Number(policy.max_carry_forward_days)
+					: 24.0;
+
+				// Only the unused portion of the current year's allocated_days is eligible for carry-forward, subject to the annual limit.
+				const cfFromAllocated = Math.min(annualCap, unusedAllocated);
 
 				// Carry-Forward Retained As-Is (No Cap):
 				// If leave usage (prevUsed) exceeds the year's allocated_days, the excess usage (prevUsed - prevAllocated) is deducted from the previously carried-forward days (prevCarried).
-				// Any unused previously carried-forward days are retained as-is, and carried forward to the new year without the 6-day limit.
+				// Any unused previously carried-forward days are retained as-is, and carried forward to the new year without the annual limit.
 				const unusedPreviousCarriedForward = Math.max(0.0, prevCarried - Math.max(0.0, prevUsed - prevAllocated));
 
 				// The total carried forward balance for the new year is the sum of both components.
