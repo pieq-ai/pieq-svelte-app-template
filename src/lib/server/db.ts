@@ -1,11 +1,9 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../../generated/prisma/client.js';
 
-/** @type {PrismaClient | undefined} */
-let prisma;
+let prisma: PrismaClient | undefined;
 
-/** @returns {PrismaClient} */
-function createClient() {
+function createClient(): PrismaClient {
 	const connectionString = process.env.DATABASE_URL;
 
 	if (!connectionString) {
@@ -16,18 +14,16 @@ function createClient() {
 	return new PrismaClient({ adapter });
 }
 
-/** @returns {PrismaClient} */
-function isValidClient(client) {
+function isValidClient(client: PrismaClient | undefined): client is PrismaClient {
 	return Boolean(client?.employee);
 }
 
-/** @returns {PrismaClient} */
-function getDb() {
+function getDb(): PrismaClient {
 	const cached = prisma ?? globalThis.__db;
 
 	if (isValidClient(cached)) {
 		prisma = cached;
-		return prisma;
+		return cached;
 	}
 
 	prisma = createClient();
@@ -36,14 +32,13 @@ function getDb() {
 		globalThis.__db = prisma;
 	}
 
-	return /** @type {PrismaClient} */ (prisma);
+	return prisma;
 }
 
-/** @type {PrismaClient} */
-export const db = new Proxy(/** @type {PrismaClient} */ ({}), {
+export const db = new Proxy({} as PrismaClient, {
 	get(_target, prop) {
 		const client = getDb();
-		const value = client[/** @type {keyof PrismaClient} */ (prop)];
+		const value = client[prop as keyof PrismaClient];
 
 		return typeof value === 'function' ? value.bind(client) : value;
 	}

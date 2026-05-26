@@ -116,7 +116,7 @@ API route (+server.ts)          ← HTTP layer: parse body, status codes, JSON s
 DAO ($lib/server/dao)           ← database queries only
     │  db.employee.findMany()
     ▼
-Prisma client (src/lib/server/db.js)
+Prisma client (src/lib/server/db.ts)
     │  @prisma/adapter-pg + pg driver
     ▼
 PostgreSQL
@@ -153,7 +153,7 @@ This is the simplest path to understand the template:
 | [`src/routes/employees/+page.svelte`](src/routes/employees/+page.svelte) | UI: loads list on mount, POSTs new employees |
 | [`src/routes/api/employees/+server.ts`](src/routes/api/employees/+server.ts) | REST handler: `GET` list, `POST` create |
 | [`src/lib/server/dao/employee.dao.ts`](src/lib/server/dao/employee.dao.ts) | `list()` and `create()` Prisma calls |
-| [`src/lib/server/db.js`](src/lib/server/db.js) | Singleton Prisma client |
+| [`src/lib/server/db.ts`](src/lib/server/db.ts) | Singleton Prisma client |
 | [`prisma/schema.prisma`](prisma/schema.prisma) | `Employee` model → `employees` table |
 
 **Data flow on page load:**
@@ -193,7 +193,7 @@ yarn db:generate
 yarn db:migrate
 ```
 
-**Dev server note:** [`src/lib/server/db.js`](src/lib/server/db.js) caches the Prisma client in memory during development. After changing the schema and running `db:generate`, **restart `yarn dev`** so the client picks up new models (e.g. adding a new table).
+**Dev server note:** [`src/lib/server/db.ts`](src/lib/server/db.ts) caches the Prisma client in memory during development. After changing the schema and running `db:generate`, **restart `yarn dev`** so the client picks up new models (e.g. adding a new table).
 
 ### Authentication (Keycloak + Auth.js)
 
@@ -344,7 +344,7 @@ src/
 │   ├── server/
 │   │   ├── auth.js                 # Keycloak OIDC (Auth.js)
 │   │   ├── config.js               # Env → server config
-│   │   ├── db.js                   # Prisma singleton
+│   │   ├── db.ts                   # Prisma singleton
 │   │   ├── dao/
 │   │   │   └── employee.dao.ts
 │   ├── config/                     # Client runtime config reader
