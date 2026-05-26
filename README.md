@@ -11,7 +11,7 @@ Use this template to build full-stack features quickly while keeping a clear sep
 | Area | Technology |
 | --- | --- |
 | Framework | [SvelteKit 2](https://kit.svelte.dev/) + [Svelte 5](https://svelte.dev/) |
-| Styling | [Tailwind CSS 4](https://tailwindcss.com/) |
+| Styling | [Tailwind CSS 4](https://tailwindcss.com/) + [shadcn-svelte](https://www.shadcn-svelte.com/) |
 | Database | PostgreSQL + [Prisma 7](https://www.prisma.io/) |
 | Auth | [Auth.js](https://authjs.dev/) + Keycloak OIDC |
 | Deployment | `@sveltejs/adapter-node` (Node.js) |
@@ -350,7 +350,10 @@ src/
 │   ├── config/                     # Client runtime config reader
 │   ├── auth/                       # Client OIDC helpers
 │   ├── api/client.ts               # External Pieq API client
-│   ├── components/                 # Shared UI (Button, Card, Input)
+│   ├── utils.ts                    # cn() helper for shadcn components
+│   ├── components/
+│   │   ├── index.ts                # Re-exports shadcn UI components
+│   │   └── ui/                     # shadcn-svelte components (button, input, card, …)
 │   └── types/
 ├── generated/prisma/               # Generated Prisma client (do not edit)
 ├── routes/
@@ -382,6 +385,29 @@ Use the employees module as a template:
 6. **Restart dev server** after Prisma schema changes
 
 For external Pieq API calls from the browser, use `$lib/api/client` after the layout has set `window.__PIEQ_CONFIG__`.
+
+---
+
+## UI components (shadcn-svelte)
+
+This template uses [shadcn-svelte](https://www.shadcn-svelte.com/) for accessible, theme-aware UI. Components live in `src/lib/components/ui/` and are re-exported from `$lib/components` for convenience.
+
+**Import examples:**
+
+```svelte
+import { Button, Input, Label, Card, CardHeader, CardTitle, CardContent } from '$lib/components';
+```
+
+**Add a new component:**
+
+```bash
+npx shadcn-svelte@latest add dialog
+npx shadcn-svelte@latest add dropdown-menu
+```
+
+Configuration is in [`components.json`](components.json). Global theme variables are in [`src/routes/layout.css`](src/routes/layout.css).
+
+**Installed components:** `button`, `input`, `label`, `card`, `table`, `badge`, `alert`
 
 ---
 
