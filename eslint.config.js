@@ -34,6 +34,9 @@ export default defineConfig(
 		}
 	},
 	{
+		ignores: ['src/lib/components/ui/**']
+	},
+	{
 		// Override or add rule settings here, such as:
 		// 'svelte/button-has-type': 'error'
 		rules: {}
