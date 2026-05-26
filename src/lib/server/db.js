@@ -17,12 +17,20 @@ function createClient() {
 }
 
 /** @returns {PrismaClient} */
+function isValidClient(client) {
+	return Boolean(client?.employee);
+}
+
+/** @returns {PrismaClient} */
 function getDb() {
-	if (prisma) {
+	const cached = prisma ?? globalThis.__db;
+
+	if (isValidClient(cached)) {
+		prisma = cached;
 		return prisma;
 	}
 
-	prisma = globalThis.__db ?? createClient();
+	prisma = createClient();
 
 	if (process.env.NODE_ENV !== 'production') {
 		globalThis.__db = prisma;

@@ -33,8 +33,9 @@
 <div class="min-h-screen bg-slate-50 text-slate-900">
 		<header class="border-b border-slate-200 bg-white">
 			<div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-				<a href={resolve('/')} class="text-lg font-semibold tracking-tight">Pieq App</a>
+				<a href={resolve('/')} class="text-lg font-semibold tracking-tight">Pieq.AI HRMS</a>
 				<nav class="flex items-center gap-3">
+					<Button href="/employees" variant="ghost">Employees</Button>
 					{#if data.user}
 						<span class="hidden text-sm text-slate-600 sm:inline">{data.user.email}</span>
 						<Button href="/dashboard" variant="secondary">Dashboard</Button>

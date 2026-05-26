@@ -3,7 +3,7 @@
 	import { resolve } from '$app/paths';
 
 	type Variant = 'primary' | 'secondary' | 'ghost';
-	type AppRoute = '/' | '/dashboard' | '/auth/signin';
+	type AppRoute = '/' | '/dashboard' | '/auth/signin' | '/employees';
 
 	interface Props {
 		type?: 'button' | 'submit' | 'reset';
