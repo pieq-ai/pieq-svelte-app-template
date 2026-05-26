@@ -1,7 +1,16 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { signInWithKeycloak } from '$lib/auth';
-	import { Button, Card } from '$lib/components';
+	import {
+		Alert,
+		AlertDescription,
+		Button,
+		Card,
+		CardContent,
+		CardDescription,
+		CardHeader,
+		CardTitle
+	} from '$lib/components';
 
 	let { data } = $props();
 
@@ -18,16 +27,23 @@
 	<title>Sign in</title>
 </svelte:head>
 
-<Card title="Sign in">
-	{#if configReady && oidc}
-		<p class="mb-4 text-sm text-slate-600">
-			Authenticate with Keycloak realm <strong>{oidc.realm}</strong> (client: {oidc.clientId}).
-		</p>
-		<Button onclick={handleSignIn}>Sign in with Keycloak</Button>
-	{:else}
-		<p class="text-sm text-red-600">
-			Authentication configuration is missing. Ensure <code>API_BASE_URL</code> and OIDC settings are
-			set in <code>.env</code> and reload the app.
-		</p>
-	{/if}
+<Card>
+	<CardHeader>
+		<CardTitle>Sign in</CardTitle>
+	</CardHeader>
+	<CardContent>
+		{#if configReady && oidc}
+			<CardDescription class="mb-4">
+				Authenticate with Keycloak realm <strong>{oidc.realm}</strong> (client: {oidc.clientId}).
+			</CardDescription>
+			<Button onclick={handleSignIn}>Sign in with Keycloak</Button>
+		{:else}
+			<Alert variant="destructive">
+				<AlertDescription>
+					Authentication configuration is missing. Ensure <code>API_BASE_URL</code> and OIDC settings are
+					set in <code>.env</code> and reload the app.
+				</AlertDescription>
+			</Alert>
+		{/if}
+	</CardContent>
 </Card>
