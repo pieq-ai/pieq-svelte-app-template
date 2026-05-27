@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
+	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
 	import {
@@ -37,6 +38,7 @@
 	let isSubmitting = $state(false);
 	let errorMessage = $state('');
 	let successMessage = $state('');
+	let isCreateModalOpen = $state(false);
 
 	let filteredEmployees = $derived.by(() => {
 		let result = [...employeesList];
@@ -141,6 +143,7 @@
 				employeesList = [resData.data, ...employeesList];
 				newName = '';
 				newAge = '';
+				isCreateModalOpen = false;
 				successMessage = 'Employee added successfully!';
 				setTimeout(() => {
 					successMessage = '';
@@ -162,12 +165,22 @@
 </svelte:head>
 
 <div class="mx-auto max-w-5xl space-y-8 px-1 py-4">
-	<div class="space-y-1 border-b border-border pb-6">
-		<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
-		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">System Employees</h1>
-		<p class="text-muted-foreground">
-			Manage and monitor employee records with dynamic metrics and seamless creation.
-		</p>
+	<div class="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+		<div class="space-y-1">
+			<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">System Employees</h1>
+			<p class="text-muted-foreground">
+				Manage and monitor employee records with dynamic metrics and seamless creation.
+			</p>
+		</div>
+		<Button
+			type="button"
+			class="bg-[#C2652A] text-white hover:bg-[#8C3C3C]"
+			onclick={() => (isCreateModalOpen = true)}
+		>
+			<PlusIcon class="size-4" />
+			Add Employee
+		</Button>
 	</div>
 
 	<div class="grid gap-4 sm:grid-cols-3">
@@ -191,12 +204,19 @@
 		</Card>
 	</div>
 
-	<div class="grid items-start gap-8 lg:grid-cols-3">
-		<div class="space-y-4 lg:col-span-2">
+	<div class="space-y-4">
+		<div class="space-y-4">
 			{#if loadError}
 				<Alert variant="destructive">
 					<AlertDescription>{loadError}</AlertDescription>
 				</Alert>
+			{/if}
+			{#if successMessage}
+				<div transition:slide>
+					<Alert>
+						<AlertDescription>{successMessage}</AlertDescription>
+					</Alert>
+				</div>
 			{/if}
 
 			<div class="relative">
@@ -277,59 +297,65 @@
 			</p>
 		</div>
 
-		<Card>
-			<CardHeader>
-				<CardTitle>Add New Employee</CardTitle>
-				<CardDescription>
-					Persist a new employee record in PostgreSQL via the API endpoint.
-				</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<form onsubmit={handleAddEmployee} class="space-y-4">
-					<div class="space-y-2">
-						<Label for="name">Full Name</Label>
-						<Input id="name" bind:value={newName} placeholder="e.g. Charlie Brown" required />
-					</div>
-
-					<div class="space-y-2">
-						<Label for="age">Age</Label>
-						<Input
-							id="age"
-							type="number"
-							bind:value={newAge}
-							placeholder="e.g. 29"
-							min="1"
-							max="120"
-							required
-						/>
-					</div>
-
-					{#if errorMessage}
-						<div transition:slide>
-							<Alert variant="destructive">
-								<AlertDescription>{errorMessage}</AlertDescription>
-							</Alert>
-						</div>
-					{/if}
-
-					{#if successMessage}
-						<div transition:slide>
-							<Alert>
-								<AlertDescription>{successMessage}</AlertDescription>
-							</Alert>
-						</div>
-					{/if}
-
-					<Button type="submit" class="w-full" disabled={isSubmitting}>
-						{#if isSubmitting}
-							<LoaderCircleIcon class="size-4 animate-spin" />
-							Saving Employee...
-						{:else}
-							Save Employee Record
-						{/if}
-					</Button>
-				</form>
-			</CardContent>
-		</Card>
 	</div>
+
+	{#if isCreateModalOpen}
+		<div class="fixed inset-0 z-50 flex items-center justify-center bg-[#262626]/70 px-4 py-6">
+			<Card class="w-full max-w-md">
+				<CardHeader class="flex-row items-start justify-between gap-4">
+					<div>
+						<CardTitle>Add New Employee</CardTitle>
+						<CardDescription>Persist a new employee record in PostgreSQL via the API endpoint.</CardDescription>
+					</div>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						aria-label="Close add employee modal"
+						onclick={() => (isCreateModalOpen = false)}
+					>
+						<XIcon class="size-4" />
+					</Button>
+				</CardHeader>
+				<CardContent>
+					<form onsubmit={handleAddEmployee} class="space-y-4">
+						<div class="space-y-2">
+							<Label for="name">Full Name</Label>
+							<Input id="name" bind:value={newName} placeholder="e.g. Charlie Brown" required />
+						</div>
+
+						<div class="space-y-2">
+							<Label for="age">Age</Label>
+							<Input
+								id="age"
+								type="number"
+								bind:value={newAge}
+								placeholder="e.g. 29"
+								min="1"
+								max="120"
+								required
+							/>
+						</div>
+
+						{#if errorMessage}
+							<div transition:slide>
+								<Alert variant="destructive">
+									<AlertDescription>{errorMessage}</AlertDescription>
+								</Alert>
+							</div>
+						{/if}
+
+						<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting}>
+							{#if isSubmitting}
+								<LoaderCircleIcon class="size-4 animate-spin" />
+								Saving Employee...
+							{:else}
+								Save Employee Record
+							{/if}
+						</Button>
+					</form>
+				</CardContent>
+			</Card>
+		</div>
+	{/if}
 </div>

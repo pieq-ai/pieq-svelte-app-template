@@ -4,9 +4,26 @@
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
 	import { Button } from '$lib/components';
 	import { resolve } from '$app/paths';
+	import Building2Icon from '@lucide/svelte/icons/building-2';
+	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
+	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
+	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
+	import LogInIcon from '@lucide/svelte/icons/log-in';
+	import LogOutIcon from '@lucide/svelte/icons/log-out';
+	import SettingsIcon from '@lucide/svelte/icons/settings';
+	import UserRoundIcon from '@lucide/svelte/icons/user-round';
+	import UsersRoundIcon from '@lucide/svelte/icons/users-round';
 
 	let { children, data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);
+	let isSidebarCollapsed = $state(false);
+
+	const protectedNavItems = [
+		{ label: 'Dashboard', href: resolve('/dashboard'), icon: LayoutDashboardIcon },
+		{ label: 'Employee', href: resolve('/employees'), icon: UsersRoundIcon },
+		{ label: 'Department', href: resolve('/departments'), icon: Building2Icon },
+		{ label: 'Designation', href: resolve('/designations'), icon: UserRoundIcon }
+	];
 
 	$effect(() => {
 		if (typeof window !== 'undefined' && data.config) {
@@ -31,28 +48,112 @@
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
-<div class="min-h-screen bg-background text-foreground">
-	<header class="border-b border-border bg-card">
-		<div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-			<a href={resolve('/')} class="text-lg font-semibold tracking-tight">Pieq App</a>
-			<nav class="flex items-center gap-3">
-				{#if authenticatedUser}
-					<Button href={resolve('/employees')} variant="ghost">Employees</Button>
-					<Button href={resolve('/departments')} variant="ghost">Departments</Button>
-					<Button href={resolve('/designations')} variant="ghost">Designations</Button>
-					<Button href={resolve('/dashboard')} variant="ghost">Dashboard</Button>
-					<span class="hidden text-sm text-muted-foreground sm:inline">{authenticatedUser.email}</span>
-					<form method="POST" action="/auth/signout">
-						<Button type="submit" variant="ghost">Sign out</Button>
-					</form>
-				{:else}
-					<Button href={resolve('/auth/signin')}>Sign in</Button>
+<div class="flex min-h-screen bg-background text-foreground">
+	<aside
+		class={`fixed inset-y-0 left-0 z-30 flex flex-col border-r border-[#737373]/25 bg-[#262626] text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
+		aria-label="Primary navigation"
+	>
+		<div class="flex h-16 items-center justify-between border-b border-white/10 px-4">
+			<a
+				href={resolve('/')}
+				class="flex min-w-0 items-center gap-3 font-semibold tracking-tight"
+				title="PieQ HRMS"
+			>
+				<span class="flex size-9 shrink-0 items-center justify-center rounded-md bg-[#C2652A] text-white">
+					<Building2Icon class="size-5" />
+				</span>
+				{#if !isSidebarCollapsed}
+					<span class="truncate text-base">PieQ HRMS</span>
 				{/if}
-			</nav>
+			</a>
+			<Button
+				type="button"
+				size="icon-sm"
+				variant="ghost"
+				class="text-white hover:bg-white/10 hover:text-white"
+				aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+				title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+				onclick={() => (isSidebarCollapsed = !isSidebarCollapsed)}
+			>
+				{#if isSidebarCollapsed}
+					<ChevronRightIcon class="size-4" />
+				{:else}
+					<ChevronLeftIcon class="size-4" />
+				{/if}
+			</Button>
 		</div>
-	</header>
 
-	<main class="mx-auto max-w-5xl px-6 py-10">
+		<nav class="flex flex-1 flex-col gap-1 px-3 py-4">
+			{#if authenticatedUser}
+				{#each protectedNavItems as item (item.href)}
+					{@const Icon = item.icon}
+					<Button
+						href={item.href}
+						variant="ghost"
+						class={`h-10 justify-start gap-3 text-white hover:bg-[#C2652A] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						title={isSidebarCollapsed ? item.label : undefined}
+						aria-label={item.label}
+					>
+						<Icon class="size-4 shrink-0" />
+						{#if !isSidebarCollapsed}
+							<span>{item.label}</span>
+						{/if}
+					</Button>
+				{/each}
+			{:else}
+				<Button
+					href={resolve('/auth/signin')}
+					variant="ghost"
+					class={`h-10 justify-start gap-3 text-white hover:bg-[#C2652A] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+					title={isSidebarCollapsed ? 'Sign in' : undefined}
+					aria-label="Sign in"
+				>
+					<LogInIcon class="size-4 shrink-0" />
+					{#if !isSidebarCollapsed}
+						<span>Sign in</span>
+					{/if}
+				</Button>
+			{/if}
+		</nav>
+
+		<div class="space-y-2 border-t border-white/10 p-3">
+			{#if authenticatedUser}
+				<Button
+					href={resolve('/settings')}
+					variant="ghost"
+					class={`h-10 justify-start gap-3 text-white hover:bg-[#8C3C3C] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+					title={isSidebarCollapsed ? 'Settings' : undefined}
+					aria-label="Settings"
+				>
+					<SettingsIcon class="size-4 shrink-0" />
+					{#if !isSidebarCollapsed}
+						<span>Settings</span>
+					{/if}
+				</Button>
+				<form method="POST" action="/auth/signout">
+					<Button
+						type="submit"
+						variant="ghost"
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#8C3C3C] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						title={isSidebarCollapsed ? 'Sign out' : undefined}
+						aria-label="Sign out"
+					>
+						<LogOutIcon class="size-4 shrink-0" />
+						{#if !isSidebarCollapsed}
+							<span>Sign out</span>
+						{/if}
+					</Button>
+				</form>
+			{/if}
+			{#if authenticatedUser && !isSidebarCollapsed}
+				<p class="truncate px-3 text-xs text-[#737373]">{authenticatedUser.email}</p>
+			{/if}
+		</div>
+	</aside>
+
+	<main
+		class={`min-h-screen flex-1 px-6 py-10 transition-[margin] duration-300 ease-in-out ${isSidebarCollapsed ? 'ml-20' : 'ml-64'}`}
+	>
 		{@render children()}
 	</main>
 </div>

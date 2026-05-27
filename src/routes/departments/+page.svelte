@@ -52,6 +52,7 @@
 	let formError = $state('');
 	let formSuccess = $state('');
 	let isNewNameTouched = $state(false);
+	let isCreateModalOpen = $state(false);
 
 	// Inline Edit State
 	let editingUuid = $state<string | null>(null);
@@ -190,6 +191,7 @@
 				departmentsList = [resData.data, ...departmentsList];
 				newDeptName = '';
 				isNewNameTouched = false;
+				isCreateModalOpen = false;
 				formSuccess = 'Department created successfully!';
 				setTimeout(() => {
 					formSuccess = '';
@@ -287,12 +289,22 @@
 </svelte:head>
 
 <div class="mx-auto max-w-5xl space-y-8 px-1 py-4">
-	<div class="space-y-1 border-b border-border pb-6">
-		<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
-		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Department Directory</h1>
-		<p class="text-muted-foreground">
-			Manage and configure enterprise organizational units, monitor status, and register new departments.
-		</p>
+	<div class="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+		<div class="space-y-1">
+			<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Department Directory</h1>
+			<p class="text-muted-foreground">
+				Manage and configure enterprise organizational units, monitor status, and register new departments.
+			</p>
+		</div>
+		<Button
+			type="button"
+			class="bg-[#C2652A] text-white hover:bg-[#8C3C3C]"
+			onclick={() => (isCreateModalOpen = true)}
+		>
+			<PlusIcon class="size-4" />
+			Add Department
+		</Button>
 	</div>
 
 	<!-- Metrics Cards -->
@@ -317,13 +329,20 @@
 		</Card>
 	</div>
 
-	<div class="grid items-start gap-8 lg:grid-cols-3">
+	<div class="space-y-4">
 		<!-- Left: Directory List -->
-		<div class="space-y-4 lg:col-span-2">
+		<div class="space-y-4">
 			{#if loadError}
 				<Alert variant="destructive">
 					<AlertDescription>{loadError}</AlertDescription>
 				</Alert>
+			{/if}
+			{#if formSuccess}
+				<div transition:slide>
+					<Alert>
+						<AlertDescription>{formSuccess}</AlertDescription>
+					</Alert>
+				</div>
 			{/if}
 
 			<!-- Filters Bar -->
@@ -350,29 +369,15 @@
 					{/if}
 				</div>
 
-				<div class="flex gap-2">
-					<Button
-						variant={statusFilter === 'all' ? 'default' : 'outline'}
-						size="sm"
-						onclick={() => (statusFilter = 'all')}
-					>
-						All
-					</Button>
-					<Button
-						variant={statusFilter === 'active' ? 'default' : 'outline'}
-						size="sm"
-						onclick={() => (statusFilter = 'active')}
-					>
-						Active
-					</Button>
-					<Button
-						variant={statusFilter === 'inactive' ? 'default' : 'outline'}
-						size="sm"
-						onclick={() => (statusFilter = 'inactive')}
-					>
-						Inactive
-					</Button>
-				</div>
+				<select
+					bind:value={statusFilter}
+					aria-label="Filter departments by status"
+					class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C2652A]"
+				>
+					<option value="all">All</option>
+					<option value="active">Active</option>
+					<option value="inactive">Inactive</option>
+				</select>
 			</div>
 
 			<!-- Main Directory Card -->
@@ -525,58 +530,65 @@
 			</p>
 		</div>
 
-		<!-- Right: Create Department Form -->
-		<Card>
-			<CardHeader>
-				<CardTitle>Create Department</CardTitle>
-				<CardDescription>
-					Register a new organizational unit. Names must be unique and contain at least 2 characters.
-				</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<form onsubmit={handleAddDepartment} class="space-y-4">
-					<div class="space-y-2">
-						<Label for="dept_name">Department Name</Label>
-						<Input
-							id="dept_name"
-							bind:value={newDeptName}
-							placeholder="e.g. Finance & Auditing"
-							class={newNameValidationError ? 'border-destructive' : ''}
-							oninput={() => (isNewNameTouched = true)}
-							required
-						/>
-						{#if newNameValidationError}
-							<p class="text-xs text-destructive">{newNameValidationError}</p>
-						{/if}
-					</div>
-
-					{#if formError}
-						<div transition:slide>
-							<Alert variant="destructive">
-								<AlertDescription>{formError}</AlertDescription>
-							</Alert>
-						</div>
-					{/if}
-
-					{#if formSuccess}
-						<div transition:slide>
-							<Alert class="border-emerald-600 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-400">
-								<AlertDescription>{formSuccess}</AlertDescription>
-							</Alert>
-						</div>
-					{/if}
-
-					<Button type="submit" class="w-full" disabled={isSubmitting}>
-						{#if isSubmitting}
-							<LoaderCircleIcon class="size-4 animate-spin mr-2" />
-							Creating...
-						{:else}
-							<PlusIcon class="size-4 mr-2" />
-							Create Department
-						{/if}
-					</Button>
-				</form>
-			</CardContent>
-		</Card>
 	</div>
+
+	{#if isCreateModalOpen}
+		<div class="fixed inset-0 z-50 flex items-center justify-center bg-[#262626]/70 px-4 py-6">
+			<Card class="w-full max-w-md">
+				<CardHeader class="flex-row items-start justify-between gap-4">
+					<div>
+						<CardTitle>Create Department</CardTitle>
+						<CardDescription>
+							Register a new organizational unit. Names must be unique and contain at least 2 characters.
+						</CardDescription>
+					</div>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						aria-label="Close create department modal"
+						onclick={() => (isCreateModalOpen = false)}
+					>
+						<XIcon class="size-4" />
+					</Button>
+				</CardHeader>
+				<CardContent>
+					<form onsubmit={handleAddDepartment} class="space-y-4">
+						<div class="space-y-2">
+							<Label for="dept_name">Department Name</Label>
+							<Input
+								id="dept_name"
+								bind:value={newDeptName}
+								placeholder="e.g. Finance"
+								class={newNameValidationError ? 'border-destructive' : ''}
+								oninput={() => (isNewNameTouched = true)}
+								required
+							/>
+							{#if newNameValidationError}
+								<p class="text-xs text-destructive">{newNameValidationError}</p>
+							{/if}
+						</div>
+
+						{#if formError}
+							<div transition:slide>
+								<Alert variant="destructive">
+									<AlertDescription>{formError}</AlertDescription>
+								</Alert>
+							</div>
+						{/if}
+
+						<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting}>
+							{#if isSubmitting}
+								<LoaderCircleIcon class="mr-2 size-4 animate-spin" />
+								Creating...
+							{:else}
+								<PlusIcon class="mr-2 size-4" />
+								Create Department
+							{/if}
+						</Button>
+					</form>
+				</CardContent>
+			</Card>
+		</div>
+	{/if}
 </div>

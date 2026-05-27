@@ -51,6 +51,7 @@
 	let formError = $state('');
 	let formSuccess = $state('');
 	let isNewNameTouched = $state(false);
+	let isCreateModalOpen = $state(false);
 
 	let editingId = $state<number | null>(null);
 	let editingName = $state('');
@@ -180,6 +181,7 @@
 				designationsList = [resData.data, ...designationsList];
 				newDesignationName = '';
 				isNewNameTouched = false;
+				isCreateModalOpen = false;
 				formSuccess = 'Designation created successfully.';
 				setTimeout(() => {
 					formSuccess = '';
@@ -277,12 +279,22 @@
 </svelte:head>
 
 <div class="mx-auto max-w-5xl space-y-8 px-1 py-4">
-	<div class="space-y-1 border-b border-border pb-6">
-		<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
-		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Designation Directory</h1>
-		<p class="text-muted-foreground">
-			Manage enterprise job titles used by employment records and reporting structures.
-		</p>
+	<div class="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+		<div class="space-y-1">
+			<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Designation Directory</h1>
+			<p class="text-muted-foreground">
+				Manage enterprise job titles used by employment records and reporting structures.
+			</p>
+		</div>
+		<Button
+			type="button"
+			class="bg-[#C2652A] text-white hover:bg-[#8C3C3C]"
+			onclick={() => (isCreateModalOpen = true)}
+		>
+			<PlusIcon class="size-4" />
+			Add Designation
+		</Button>
 	</div>
 
 	<div class="grid gap-4 sm:grid-cols-3">
@@ -306,12 +318,19 @@
 		</Card>
 	</div>
 
-	<div class="grid items-start gap-8 lg:grid-cols-3">
-		<div class="space-y-4 lg:col-span-2">
+	<div class="space-y-4">
+		<div class="space-y-4">
 			{#if loadError}
 				<Alert variant="destructive">
 					<AlertDescription>{loadError}</AlertDescription>
 				</Alert>
+			{/if}
+			{#if formSuccess}
+				<div transition:slide>
+					<Alert>
+						<AlertDescription>{formSuccess}</AlertDescription>
+					</Alert>
+				</div>
 			{/if}
 
 			<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -337,29 +356,15 @@
 					{/if}
 				</div>
 
-				<div class="flex gap-2">
-					<Button
-						variant={statusFilter === 'all' ? 'default' : 'outline'}
-						size="sm"
-						onclick={() => (statusFilter = 'all')}
-					>
-						All
-					</Button>
-					<Button
-						variant={statusFilter === 'active' ? 'default' : 'outline'}
-						size="sm"
-						onclick={() => (statusFilter = 'active')}
-					>
-						Active
-					</Button>
-					<Button
-						variant={statusFilter === 'inactive' ? 'default' : 'outline'}
-						size="sm"
-						onclick={() => (statusFilter = 'inactive')}
-					>
-						Inactive
-					</Button>
-				</div>
+				<select
+					bind:value={statusFilter}
+					aria-label="Filter designations by status"
+					class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C2652A]"
+				>
+					<option value="all">All</option>
+					<option value="active">Active</option>
+					<option value="inactive">Inactive</option>
+				</select>
 			</div>
 
 			<Card>
@@ -514,57 +519,65 @@
 			</p>
 		</div>
 
-		<Card>
-			<CardHeader>
-				<CardTitle>Create Designation</CardTitle>
-				<CardDescription>
-					Register a job title for assignment in employee employment records.
-				</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<form onsubmit={handleAddDesignation} class="space-y-4">
-					<div class="space-y-2">
-						<Label for="designation_name">Designation Name</Label>
-						<Input
-							id="designation_name"
-							bind:value={newDesignationName}
-							placeholder="e.g. Senior HR Manager"
-							class={newNameValidationError ? 'border-destructive' : ''}
-							oninput={() => (isNewNameTouched = true)}
-							required
-						/>
-						{#if newNameValidationError}
-							<p class="text-xs text-destructive">{newNameValidationError}</p>
-						{/if}
-					</div>
-
-					{#if formError}
-						<div transition:slide>
-							<Alert variant="destructive">
-								<AlertDescription>{formError}</AlertDescription>
-							</Alert>
-						</div>
-					{/if}
-
-					{#if formSuccess}
-						<div transition:slide>
-							<Alert class="border-emerald-600 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-400">
-								<AlertDescription>{formSuccess}</AlertDescription>
-							</Alert>
-						</div>
-					{/if}
-
-					<Button type="submit" class="w-full" disabled={isSubmitting}>
-						{#if isSubmitting}
-							<LoaderCircleIcon class="mr-2 size-4 animate-spin" />
-							Creating...
-						{:else}
-							<PlusIcon class="mr-2 size-4" />
-							Create Designation
-						{/if}
-					</Button>
-				</form>
-			</CardContent>
-		</Card>
 	</div>
+
+	{#if isCreateModalOpen}
+		<div class="fixed inset-0 z-50 flex items-center justify-center bg-[#262626]/70 px-4 py-6">
+			<Card class="w-full max-w-md">
+				<CardHeader class="flex-row items-start justify-between gap-4">
+					<div>
+						<CardTitle>Create Designation</CardTitle>
+						<CardDescription>
+							Register a job title for assignment in employee employment records.
+						</CardDescription>
+					</div>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						aria-label="Close create designation modal"
+						onclick={() => (isCreateModalOpen = false)}
+					>
+						<XIcon class="size-4" />
+					</Button>
+				</CardHeader>
+				<CardContent>
+					<form onsubmit={handleAddDesignation} class="space-y-4">
+						<div class="space-y-2">
+							<Label for="designation_name">Designation Name</Label>
+							<Input
+								id="designation_name"
+								bind:value={newDesignationName}
+								placeholder="e.g. Senior HR Manager"
+								class={newNameValidationError ? 'border-destructive' : ''}
+								oninput={() => (isNewNameTouched = true)}
+								required
+							/>
+							{#if newNameValidationError}
+								<p class="text-xs text-destructive">{newNameValidationError}</p>
+							{/if}
+						</div>
+
+						{#if formError}
+							<div transition:slide>
+								<Alert variant="destructive">
+									<AlertDescription>{formError}</AlertDescription>
+								</Alert>
+							</div>
+						{/if}
+
+						<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting}>
+							{#if isSubmitting}
+								<LoaderCircleIcon class="mr-2 size-4 animate-spin" />
+								Creating...
+							{:else}
+								<PlusIcon class="mr-2 size-4" />
+								Create Designation
+							{/if}
+						</Button>
+					</form>
+				</CardContent>
+			</Card>
+		</div>
+	{/if}
 </div>
