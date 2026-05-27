@@ -83,9 +83,10 @@
 		return '';
 	}
 
-	// Reactive error states
+	// Reactive inline validation errors (consumes the isXxxTouched flags)
 	let newNameValidationError = $derived(isNewNameTouched ? getValidationError(newDeptName) : '');
 	let editNameValidationError = $derived(isEditNameTouched ? getValidationError(editingName) : '');
+
 
 	let filteredDepartments = $derived.by(() => {
 		let result = [...departmentsList];
@@ -424,11 +425,14 @@
 												<Input
 													type="text"
 													bind:value={editingName}
-													class="h-8 max-w-xs"
+													class={`h-8 max-w-xs${editNameValidationError ? ' border-destructive' : ''}`}
 													placeholder="Department Name"
+													oninput={() => (isEditNameTouched = true)}
 													required
 												/>
-												{#if editError}
+												{#if editNameValidationError}
+													<p class="text-xs text-destructive">{editNameValidationError}</p>
+												{:else if editError}
 													<p class="text-xs text-destructive">{editError}</p>
 												{/if}
 											</div>
@@ -537,8 +541,13 @@
 							id="dept_name"
 							bind:value={newDeptName}
 							placeholder="e.g. Finance & Auditing"
+							class={newNameValidationError ? 'border-destructive' : ''}
+							oninput={() => (isNewNameTouched = true)}
 							required
 						/>
+						{#if newNameValidationError}
+							<p class="text-xs text-destructive">{newNameValidationError}</p>
+						{/if}
 					</div>
 
 					{#if formError}

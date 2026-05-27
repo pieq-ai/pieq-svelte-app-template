@@ -1,4 +1,5 @@
 import { json } from '@sveltejs/kit';
+import type { RequestEvent } from '@sveltejs/kit';
 import * as departmentService from '$lib/server/services/department.service.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 
@@ -7,12 +8,13 @@ import * as permissionGuard from '$lib/server/guards/permission.guard.js';
  * GET /api/departments?uuid=
  * Handles listing all departments or finding one by UUID.
  */
-export async function GET({ url, locals }) {
+export async function GET(event: RequestEvent) {
 	try {
-		// Enforce auth permission guard
-		permissionGuard.requireAuth(locals.user);
+		permissionGuard.requireAuth(event.locals.user);
 
+		const url = new URL(event.request.url);
 		const uuid = url.searchParams.get('uuid');
+
 		if (uuid) {
 			const department = await departmentService.getDepartmentByUuid(uuid);
 			return json({ data: department });
@@ -31,13 +33,12 @@ export async function GET({ url, locals }) {
  * POST /api/departments
  * Handles creating a new department.
  */
-export async function POST({ request, locals }) {
+export async function POST(event: RequestEvent) {
 	try {
-		// Enforce auth + admin permission guards
-		permissionGuard.requireAuth(locals.user);
-		permissionGuard.requireAdmin(locals.user);
+		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requireAdmin(event.locals.user);
 
-		const body = await request.json();
+		const body = await event.request.json();
 		const newDepartment = await departmentService.createDepartment(body);
 		return json({ data: newDepartment }, { status: 201 });
 	} catch (error) {
@@ -49,18 +50,19 @@ export async function POST({ request, locals }) {
  * PUT /api/departments?uuid=
  * Handles updating an existing department.
  */
-export async function PUT({ url, request, locals }) {
+export async function PUT(event: RequestEvent) {
 	try {
-		// Enforce auth + admin permission guards
-		permissionGuard.requireAuth(locals.user);
-		permissionGuard.requireAdmin(locals.user);
+		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requireAdmin(event.locals.user);
 
+		const url = new URL(event.request.url);
 		const uuid = url.searchParams.get('uuid');
+
 		if (!uuid) {
 			return json({ error: 'Department UUID is required as a query parameter' }, { status: 400 });
 		}
 
-		const body = await request.json();
+		const body = await event.request.json();
 		const updatedDepartment = await departmentService.updateDepartment(uuid, body);
 		return json({ data: updatedDepartment });
 	} catch (error) {
@@ -74,13 +76,14 @@ export async function PUT({ url, request, locals }) {
  * DELETE /api/departments?uuid=
  * Handles soft deleting a department (sets status = inactive).
  */
-export async function DELETE({ url, locals }) {
+export async function DELETE(event: RequestEvent) {
 	try {
-		// Enforce auth + admin permission guards
-		permissionGuard.requireAuth(locals.user);
-		permissionGuard.requireAdmin(locals.user);
+		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requireAdmin(event.locals.user);
 
+		const url = new URL(event.request.url);
 		const uuid = url.searchParams.get('uuid');
+
 		if (!uuid) {
 			return json({ error: 'Department UUID is required as a query parameter' }, { status: 400 });
 		}
