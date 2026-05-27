@@ -7,12 +7,708 @@ datasource db {
   provider = "postgresql"
 }
 
-model Employee {
-  id   Int    @id @default(autoincrement())
-  uuid String @unique @default(uuid())
-  name String
-  age  Int
-
-  @@map("employees")
+enum GenderEnum {
+  Male
+  Female
+  Others
 }
 
+enum MaritalStatusEnum {
+  married
+  single
+  divorced
+  widowed
+}
+
+enum SkillLevel {
+  Beginner
+  Intermediate
+  Advanced
+  Expert
+}
+
+enum LanguageProficiency {
+  Basic
+  Conversational
+  Professional
+  Native
+}
+
+enum EducationLevelEnum {
+  TENTH
+  TWELFTH
+  DIPLOMA
+  UG
+  PG
+  PHD
+}
+
+enum ApplicableGenderEnum {
+  Male
+  Female
+  Others
+}
+
+enum HalfDaySessionEnum {
+  AN
+  FN
+}
+
+enum HolidayTypeEnum {
+  national
+  regional
+  restricted
+}
+
+enum SalaryComponentTypeEnum {
+  earning
+  deduction
+}
+
+enum PaymentFrequencyEnum {
+  monthly
+  weekly
+  daily
+}
+
+enum CalculationTypeEnum {
+  percentage
+  fixed
+}
+
+enum NotificationTypeEnum {
+  info
+  warning
+  success
+  error
+}
+
+enum ThemeEnum {
+  light
+  dark
+  system
+}
+
+enum EmploymentStatusEnum {
+  Active
+  OnNotice
+  Resigned
+  Terminated
+  Onboarding
+}
+
+enum LeaveRequestStatusEnum {
+  pending
+  approved
+  rejected
+  withdrawn
+}
+
+enum AttendanceStatusEnum {
+  Present
+  Absent
+  On_Leave
+  HalfDay
+  Holiday
+  WFH
+}
+
+enum PayrollStatusEnum {
+  pending
+  processed
+  failed
+}
+
+model Employee {
+  id                     BigInt            @id @default(autoincrement())
+  emp_code               String            @unique @db.VarChar(20)
+  uuid                   String            @unique @default(uuid()) @db.Uuid
+  first_name             String            @db.VarChar(100)
+  last_name              String            @db.VarChar(100)
+  dob                    DateTime          @db.Date
+  gender                 GenderEnum
+  blood_group_id         Int
+  marital_status         MaritalStatusEnum
+  nationality_id         Int
+  mobile_no              String            @unique @db.VarChar(15)
+  personal_email         String            @unique @db.VarChar(255)
+  aadhar_no              String            @unique @db.VarChar(12)
+  pan_no                 String            @unique @db.VarChar(10)
+  emergency_contact_name String?           @db.VarChar(150)
+  emergency_contact_no   String?           @db.VarChar(15)
+  relation_id            Int?
+  created_at             DateTime          @default(now()) @db.Timestamptz()
+  last_modified          DateTime          @updatedAt @db.Timestamptz()
+
+  @@map("employee")
+}
+
+model Employment {
+  id                 BigInt               @id @default(autoincrement())
+  uuid               String               @unique @default(uuid()) @db.Uuid
+  emp_id             BigInt               @unique
+  dept_id            Int
+  role_id            Int
+  designation_id     Int
+  reporting_to       BigInt?
+  employment_status  EmploymentStatusEnum @default(Active)
+  doj                DateTime             @db.Date
+  confirmation_date  DateTime?            @db.Date
+  exit_date          DateTime?            @db.Date
+  official_email     String               @unique @db.VarChar(255)
+  pay_grade_id       Int
+  employment_type_id Int
+  location_id        Int
+
+  @@map("employment")
+}
+
+model EmployeeLanguage {
+  id          BigInt              @id @default(autoincrement())
+  uuid        String              @unique @default(uuid()) @db.Uuid
+  emp_id      BigInt
+  language_id Int
+  proficiency LanguageProficiency @default(Professional)
+
+  @@unique([emp_id, language_id])
+  @@map("employee_language")
+}
+
+model EmployeeSkill {
+  id                BigInt     @id @default(autoincrement())
+  uuid              String     @unique @default(uuid()) @db.Uuid
+  emp_id            BigInt
+  skill_id          Int
+  proficiency_level SkillLevel @default(Intermediate)
+  years_of_exp      Int?
+
+  @@unique([emp_id, skill_id])
+  @@map("employee_skill")
+}
+
+model UserAccount {
+  id             BigInt    @id @default(autoincrement())
+  uuid           String    @unique @default(uuid()) @db.Uuid
+  emp_id         BigInt    @unique
+  username       String    @unique @db.VarChar(100)
+  password_hash  String    @db.Text
+  last_login     DateTime? @db.Timestamptz()
+  system_role_id Int
+  status         Boolean   @default(true)
+
+  @@map("user_account")
+}
+
+model SystemRoles {
+  id               Int     @id @default(autoincrement())
+  uuid             String  @unique @default(uuid()) @db.Uuid
+  system_role_name String  @unique @db.VarChar(100)
+  status           Boolean @default(true)
+
+  @@map("system_roles")
+}
+
+model Address {
+  id         BigInt  @id @default(autoincrement())
+  uuid       String  @unique @default(uuid()) @db.Uuid
+  emp_id     BigInt
+  door_no    String? @db.VarChar(20)
+  line1      String  @db.VarChar(255)
+  line2      String? @db.VarChar(255)
+  city       String  @db.VarChar(100)
+  state_id   Int
+  country_id Int
+  pin_code   String  @db.VarChar(10)
+
+  @@map("address")
+}
+
+model Department {
+  id        Int     @id @default(autoincrement())
+  uuid      String  @unique @default(uuid()) @db.Uuid
+  dept_name String  @unique @db.VarChar(150)
+  status    Boolean @default(true)
+
+  @@map("department")
+}
+
+model Role {
+  id        Int     @id @default(autoincrement())
+  uuid      String  @unique @default(uuid()) @db.Uuid
+  role_name String  @unique @db.VarChar(150)
+  status    Boolean @default(true)
+
+  @@map("role")
+}
+
+model BankDetails {
+  id                  BigInt @id @default(autoincrement())
+  uuid                String @unique @default(uuid()) @db.Uuid
+  account_number      String @db.VarChar(30)
+  bank_name           String @db.VarChar(150)
+  ifsc_code           String @db.VarChar(11)
+  branch_name         String @db.VarChar(150)
+  account_holder_name String @db.VarChar(200)
+  emp_id              BigInt @unique
+
+  @@map("bank_details")
+}
+
+model EmployeeDocuments {
+  id               BigInt   @id @default(autoincrement())
+  uuid             String   @unique @default(uuid()) @db.Uuid
+  emp_id           BigInt
+  document_type_id Int
+  mime_type        String   @db.VarChar(100)
+  file_name        String   @db.VarChar(255)
+  file_size        BigInt
+  document         Bytes    @db.ByteA
+  uploaded_at      DateTime @default(now()) @db.Timestamptz()
+
+  @@map("employee_documents")
+}
+
+model EmployeeEducation {
+  id             BigInt             @id @default(autoincrement())
+  uuid           String             @unique @default(uuid()) @db.Uuid
+  emp_id         BigInt
+  education      EducationLevelEnum
+  specialization String?            @db.VarChar(200)
+  institution    String             @db.VarChar(300)
+  percentage     Decimal            @db.Decimal(5, 2)
+  completed_at   DateTime           @db.Date
+
+  @@map("employee_education")
+}
+
+model Experience {
+  id           BigInt    @id @default(autoincrement())
+  uuid         String    @unique @default(uuid()) @db.Uuid
+  emp_id       BigInt
+  company_name String    @db.VarChar(300)
+  role         String    @db.VarChar(200)
+  description  String?   @db.Text
+  from_date    DateTime  @db.Date
+  to_date      DateTime? @db.Date
+
+  @@map("experience")
+}
+
+model LeaveType {
+  id                Int     @id @default(autoincrement())
+  uuid              String  @unique @default(uuid()) @db.Uuid
+  leave_name        String  @unique @db.VarChar(100)
+  leave_code        String  @unique @db.VarChar(20)
+  description       String? @db.Text
+  is_paid           Boolean @default(true)
+  requires_approval Boolean @default(true)
+  status            Boolean @default(true)
+
+  @@map("leave_type")
+}
+
+model LeavePolicy {
+  id                     Int                   @id @default(autoincrement())
+  uuid                   String                @unique @default(uuid()) @db.Uuid
+  leave_type_id          Int
+  annual_quota           Decimal               @db.Decimal(5, 1)
+  max_per_month          Decimal?              @db.Decimal(4, 1)
+  carry_forward_allowed  Boolean               @default(false)
+  max_carry_forward_days Decimal?              @db.Decimal(4, 1)
+  requires_document      Boolean               @default(false)
+  min_service_days       Int                   @default(0)
+  allow_half_day         Boolean               @default(false)
+  gender_specific        Boolean               @default(false)
+  applicable_gender      ApplicableGenderEnum?
+  status                 Boolean               @default(true)
+
+  @@map("leave_policy")
+}
+
+model LeaveBalance {
+  id                   BigInt   @id @default(autoincrement())
+  uuid                 String   @unique @default(uuid()) @db.Uuid
+  emp_id               BigInt
+  leave_type_id        Int
+  year                 Int      @db.SmallInt
+  allocated_days       Decimal  @db.Decimal(5, 1)
+  used_days            Decimal  @default(0) @db.Decimal(5, 1)
+  remaining_days       Decimal  @db.Decimal(5, 1)
+  carried_forward_days Decimal  @default(0) @db.Decimal(5, 1)
+  last_updated         DateTime @updatedAt @db.Timestamptz()
+
+  @@unique([emp_id, leave_type_id, year])
+  @@map("leave_balance")
+}
+
+model LeaveRequest {
+  id               BigInt                 @id @default(autoincrement())
+  uuid             String                 @unique @default(uuid()) @db.Uuid
+  emp_id           BigInt
+  leave_type_id    Int
+  start_date       DateTime               @db.Date
+  end_date         DateTime               @db.Date
+  total_days       Decimal                @db.Decimal(4, 1)
+  is_half_day      Boolean                @default(false)
+  half_day_session HalfDaySessionEnum?
+  reason           String                 @db.Text
+  document_url     String?                @db.Text
+  request_status   LeaveRequestStatusEnum @default(pending)
+  approved_by      BigInt?
+  approved_at      DateTime?              @db.Timestamptz()
+  created_at       DateTime               @default(now()) @db.Timestamptz()
+
+  @@map("leave_request")
+}
+
+model AttendanceRecord {
+  id                    BigInt               @id @default(autoincrement())
+  uuid                  String               @unique @default(uuid()) @db.Uuid
+  emp_id                BigInt
+  attendance_date       DateTime             @db.Date
+  check_in_time         DateTime?            @db.Time(6)
+  check_out_time        DateTime?            @db.Time(6)
+  work_duration_minutes Int?
+  attendance_status     AttendanceStatusEnum @default(Present)
+  attendance_source_id  Int?
+  remarks               String?              @db.Text
+  updated_at            DateTime             @updatedAt @db.Timestamptz()
+
+  @@unique([emp_id, attendance_date])
+  @@map("attendance_record")
+}
+
+model HolidayCalendar {
+  id           Int             @id @default(autoincrement())
+  uuid         String          @unique @default(uuid()) @db.Uuid
+  holiday_name String          @db.VarChar(200)
+  holiday_date DateTime        @db.Date
+  holiday_type HolidayTypeEnum
+
+  @@unique([holiday_name, holiday_date])
+  @@map("holiday_calendar")
+}
+
+model Payroll {
+  id                  BigInt            @id @default(autoincrement())
+  uuid                String            @unique @default(uuid()) @db.Uuid
+  emp_id              BigInt
+  salary_structure_id BigInt
+  pay_period_start    DateTime          @db.Date
+  pay_period_end      DateTime          @db.Date
+  working_days        Int               @db.SmallInt
+  present_days        Decimal           @db.Decimal(4, 1)
+  paid_leave_days     Decimal           @db.Decimal(4, 1)
+  lop_days            Decimal           @db.Decimal(4, 1)
+  gross_salary        Decimal           @db.Decimal(14, 2)
+  total_earnings      Decimal           @db.Decimal(14, 2)
+  total_deductions    Decimal           @db.Decimal(14, 2)
+  net_salary          Decimal           @db.Decimal(14, 2)
+  payroll_status      PayrollStatusEnum @default(pending)
+  generated_at        DateTime          @default(now()) @db.Timestamptz()
+  processed_by        BigInt?
+  generated_doc       Bytes?
+
+  @@unique([emp_id, pay_period_start, pay_period_end])
+  @@map("payroll")
+}
+
+model SalaryComponent {
+  id             Int                     @id @default(autoincrement())
+  uuid           String                  @unique @default(uuid()) @db.Uuid
+  component_name String                  @db.VarChar(150)
+  component_type SalaryComponentTypeEnum
+  is_taxable     Boolean                 @default(false)
+  status         Boolean                 @default(true)
+
+  @@unique([component_name, component_type])
+  @@map("salary_component")
+}
+
+model SalaryStructure {
+  id                BigInt               @id @default(autoincrement())
+  uuid              String               @unique @default(uuid()) @db.Uuid
+  emp_id            BigInt
+  effective_from    DateTime             @db.Date
+  effective_to      DateTime?            @db.Date
+  gross_salary      Decimal              @db.Decimal(14, 2)
+  payment_frequency PaymentFrequencyEnum @default(monthly)
+  status            Boolean              @default(true)
+  created_at        DateTime             @default(now()) @db.Timestamptz()
+
+  @@map("salary_structure")
+}
+
+model SalaryStructureItem {
+  id                  BigInt              @id @default(autoincrement())
+  uuid                String              @unique @default(uuid()) @db.Uuid
+  salary_structure_id BigInt
+  component_id        Int
+  calculation_type    CalculationTypeEnum
+  value               Decimal             @db.Decimal(10, 4)
+  created_at          DateTime            @default(now()) @db.Timestamptz()
+
+  @@unique([salary_structure_id, component_id])
+  @@map("salary_structure_item")
+}
+
+model PayrollItem {
+  id           BigInt  @id @default(autoincrement())
+  uuid         String  @unique @default(uuid()) @db.Uuid
+  payroll_id   BigInt
+  component_id Int
+  amount       Decimal @db.Decimal(14, 2)
+
+  @@unique([payroll_id, component_id])
+  @@map("payroll_item")
+}
+
+model Shift {
+  id                 Int      @id @default(autoincrement())
+  uuid               String   @unique @default(uuid()) @db.Uuid
+  shift_name         String   @db.VarChar(100)
+  start_time         DateTime @db.Time(6)
+  end_time           DateTime @db.Time(6)
+  minimum_work_hours Decimal  @db.Decimal(4, 2)
+  status             Boolean  @default(true)
+
+  @@unique([shift_name])
+  @@map("shift")
+}
+
+model ShiftAssignment {
+  id             BigInt    @id @default(autoincrement())
+  uuid           String    @unique @default(uuid()) @db.Uuid
+  emp_id         BigInt
+  shift_id       Int
+  effective_from DateTime  @db.Date
+  effective_to   DateTime? @db.Date
+
+  @@map("shift_assignment")
+}
+
+model AuditLog {
+  id          BigInt   @id @default(autoincrement())
+  uuid        String   @unique @default(uuid()) @db.Uuid
+  user_id     BigInt
+  action_type String   @db.VarChar(50)
+  entity_name String   @db.VarChar(100)
+  entity_id   String
+  old_value   Json?
+  new_value   Json?
+  ip_address  String?  @db.Inet
+  created_at  DateTime @default(now()) @db.Timestamptz()
+
+  @@index([user_id])
+  @@index([entity_name, entity_id])
+  @@index([created_at])
+  @@map("audit_log")
+}
+
+model Permissions {
+  id             Int     @id @default(autoincrement())
+  uuid           String  @unique @default(uuid()) @db.Uuid
+  permission_key String  @unique @db.VarChar(100)
+  status         Boolean @default(true)
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  id             Int    @id @default(autoincrement())
+  uuid           String @unique @default(uuid()) @db.Uuid
+  system_role_id Int
+  permission_id  Int
+
+  @@unique([system_role_id, permission_id])
+  @@map("role_permission")
+}
+
+model UserSession {
+  id                 BigInt    @id @default(autoincrement())
+  uuid               String    @unique @default(uuid()) @db.Uuid
+  user_id            BigInt
+  refresh_token_hash String
+  device_info        String?
+  ip_address         String?   @db.Inet
+  expires_at         DateTime  @db.Timestamptz()
+  is_revoked         Boolean   @default(false)
+  created_at         DateTime  @default(now()) @db.Timestamptz()
+  last_used_at       DateTime? @db.Timestamptz()
+
+  @@index([user_id])
+  @@index([expires_at])
+  @@index([is_revoked])
+  @@map("user_session")
+}
+
+model Notification {
+  id                BigInt               @id @default(autoincrement())
+  uuid              String               @unique @default(uuid()) @db.Uuid
+  user_id           BigInt
+  title             String               @db.VarChar(255)
+  message           String               @db.Text
+  notification_type NotificationTypeEnum @default(info)
+  reference_type    String?              @db.VarChar(100)
+  reference_id      BigInt?
+  is_read           Boolean              @default(false)
+  created_at        DateTime             @default(now()) @db.Timestamptz()
+
+  @@index([user_id])
+  @@index([is_read])
+  @@index([created_at])
+  @@map("notification")
+}
+
+model UserSettings {
+  id                          BigInt    @id @default(autoincrement())
+  uuid                        String    @unique @default(uuid()) @db.Uuid
+  user_id                     BigInt    @unique
+  theme                       ThemeEnum @default(system)
+  email_notifications_enabled Boolean   @default(true)
+  push_notifications_enabled  Boolean   @default(true)
+  two_factor_enabled          Boolean   @default(false)
+  created_at                  DateTime  @default(now()) @db.Timestamptz()
+  updated_at                  DateTime  @updatedAt @db.Timestamptz()
+
+  @@map("user_settings")
+}
+
+model CompanyLocation {
+  id            Int      @id @default(autoincrement())
+  uuid          String   @unique @default(uuid()) @db.Uuid
+  location_name String   @db.VarChar(150)
+  address_line1 String   @db.VarChar(255)
+  address_line2 String?  @db.VarChar(255)
+  city          String   @db.VarChar(100)
+  state_id      Int
+  country_id    Int
+  pin_code      String   @db.VarChar(10)
+  timezone      String   @db.VarChar(60)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now()) @db.Timestamptz()
+  updated_at    DateTime @updatedAt @db.Timestamptz()
+
+  @@unique([location_name])
+  @@map("company_location")
+}
+
+model BloodGroup {
+  id               Int    @id @default(autoincrement())
+  uuid             String @unique @default(uuid()) @db.Uuid
+  blood_group_name String @unique @db.VarChar(5)
+
+  @@map("blood_group")
+}
+
+model Designation {
+  id               Int     @id @default(autoincrement())
+  uuid             String  @unique @default(uuid()) @db.Uuid
+  designation_name String  @unique @db.VarChar(150)
+  status           Boolean @default(true)
+
+  @@map("designation")
+}
+
+model PayGrade {
+  id            Int     @id @default(autoincrement())
+  uuid          String  @unique @default(uuid()) @db.Uuid
+  paygrade_name String  @unique @db.VarChar(100)
+  status        Boolean @default(true)
+
+  @@map("pay_grade")
+}
+
+model Nationality {
+  id               Int     @id @default(autoincrement())
+  uuid             String  @unique @default(uuid()) @db.Uuid
+  nationality_name String  @unique @db.VarChar(100)
+  status           Boolean @default(true)
+
+  @@map("nationality")
+}
+
+model EmploymentType {
+  id              Int     @id @default(autoincrement())
+  uuid            String  @unique @default(uuid()) @db.Uuid
+  employment_name String  @unique @db.VarChar(50)
+  status          Boolean @default(true)
+
+  @@map("employment_type")
+}
+
+model RelationType {
+  id            Int     @id @default(autoincrement())
+  uuid          String  @unique @default(uuid()) @db.Uuid
+  relation_name String  @unique @db.VarChar(50)
+  status        Boolean @default(true)
+
+  @@map("relation_type")
+}
+
+model DocumentType {
+  id                 Int     @id @default(autoincrement())
+  uuid               String  @unique @default(uuid()) @db.Uuid
+  document_type_name String  @unique @db.VarChar(100)
+  status             Boolean @default(true)
+
+  @@map("document_type")
+}
+
+model State {
+  id         Int    @id @default(autoincrement())
+  uuid       String @unique @default(uuid()) @db.Uuid
+  country_id Int
+  state_name String @db.VarChar(100)
+
+  @@unique([country_id, state_name])
+  @@index([country_id])
+  @@map("state")
+}
+
+model Country {
+  id           Int    @id @default(autoincrement())
+  uuid         String @unique @default(uuid()) @db.Uuid
+  country_name String @unique @db.VarChar(100)
+
+  @@map("country")
+}
+
+model Skills {
+  id          Int     @id @default(autoincrement())
+  uuid        String  @unique @default(uuid()) @db.Uuid
+  skills_name String  @unique @db.VarChar(100)
+  status      Boolean @default(true)
+
+  @@map("skills")
+}
+
+model AttendanceSource {
+  id                     Int     @id @default(autoincrement())
+  uuid                   String  @unique @default(uuid()) @db.Uuid
+  attendance_source_name String  @unique @db.VarChar(100)
+  status                 Boolean @default(true)
+
+  @@map("attendance_source")
+}
+
+model Languages {
+  id             Int     @id @default(autoincrement())
+  uuid           String  @unique @default(uuid()) @db.Uuid
+  languages_name String  @unique @db.VarChar(100)
+  status         Boolean @default(true)
+
+  @@map("languages")
+}
+
+model LeavePolicyEmploymentType {
+  id                 Int    @id @default(autoincrement())
+  uuid               String @unique @default(uuid()) @db.Uuid
+  policy_id          Int
+  employment_type_id Int
+
+  @@unique([policy_id, employment_type_id])
+  @@index([policy_id])
+  @@index([employment_type_id])
+  @@map("leave_policy_employment_type")
+}
