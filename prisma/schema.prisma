@@ -292,6 +292,8 @@ model Address {
 model Department {
   dept_id      Int               @id @default(autoincrement())
 
+  uuid         String            @unique @default(uuid()) @db.Uuid
+
   dept_name    String            @unique @db.VarChar(150)
 
   status       MasterStatusEnum  @default(active)

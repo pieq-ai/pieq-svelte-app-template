@@ -36,6 +36,7 @@
 			<a href={resolve('/')} class="text-lg font-semibold tracking-tight">Pieq App</a>
 			<nav class="flex items-center gap-3">
 				<Button href={resolve('/employees')} variant="ghost">Employees</Button>
+				<Button href={resolve('/departments')} variant="ghost">Departments</Button>
 				{#if data.user}
 					<span class="hidden text-sm text-muted-foreground sm:inline">{data.user.email}</span>
 					<Button href={resolve('/dashboard')} variant="outline">Dashboard</Button>
