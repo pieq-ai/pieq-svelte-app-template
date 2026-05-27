@@ -848,6 +848,8 @@ model BloodGroup {
 model Designation {
   designation_id          Int               @id @default(autoincrement())
 
+  uuid                    String            @unique @default(uuid()) @db.Uuid
+
   designation_name        String            @unique @db.VarChar(150)
 
   status                  MasterStatusEnum  @default(active)
