@@ -30,7 +30,7 @@ test-results
 # Prisma
 prisma/*.db
 prisma/*.db-journal
-src/generated
+src/lib/generated
 
 # Playwright
 playwright-report/

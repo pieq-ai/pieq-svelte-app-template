@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
+	import { enhance } from '$app/forms';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
@@ -23,23 +23,32 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components';
+	import type { PageData, ActionData } from './$types';
 
-	let employeesList = $state<Array<{ id: number; uuid: string; name: string; age: number }>>([]);
-	let isLoading = $state(true);
-	let loadError = $state('');
+	let { data, form }: { data: PageData; form: ActionData } = $props();
+
+	type Employee = PageData['employees'][number];
+	type SortColumn = 'id' | 'name' | 'age';
+
+	let employees: Employee[] = $derived([...data.employees]);
 
 	let searchQuery = $state('');
-	let sortColumn = $state('id');
+	let sortColumn = $state<SortColumn>('id');
 	let sortDirection = $state<'asc' | 'desc'>('asc');
 
-	let newName = $state('');
-	let newAge = $state('');
+	let newName: string = $derived(
+		form && 'name' in form && typeof form.name === 'string' ? form.name : ''
+	);
+	let newAge: string = $derived(
+		form && 'age' in form && typeof form.age === 'string' ? form.age : ''
+	);
 	let isSubmitting = $state(false);
-	let errorMessage = $state('');
 	let successMessage = $state('');
 
+	let formError = $derived(form && 'error' in form ? form.error : null);
+
 	let filteredEmployees = $derived.by(() => {
-		let result = [...employeesList];
+		let result = [...employees];
 
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
@@ -52,8 +61,8 @@
 		}
 
 		result.sort((a, b) => {
-			const valA = a[sortColumn as keyof typeof a];
-			const valB = b[sortColumn as keyof typeof b];
+			const valA = a[sortColumn];
+			const valB = b[sortColumn];
 
 			if (typeof valA === 'string' && typeof valB === 'string') {
 				return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
@@ -67,42 +76,17 @@
 		return result;
 	});
 
-	let totalEmployees = $derived(employeesList.length);
+	let totalEmployees = $derived(employees.length);
 	let averageAge = $derived(
 		totalEmployees > 0
-			? Math.round(employeesList.reduce((acc, emp) => acc + emp.age, 0) / totalEmployees)
+			? Math.round(employees.reduce((acc, emp) => acc + emp.age, 0) / totalEmployees)
 			: 0
 	);
 	let maxAge = $derived(
-		totalEmployees > 0 ? Math.max(...employeesList.map((e) => e.age)) : 0
+		totalEmployees > 0 ? Math.max(...employees.map((e) => e.age)) : 0
 	);
 
-	async function loadEmployees() {
-		isLoading = true;
-		loadError = '';
-
-		try {
-			const response = await fetch('/api/employees');
-			const resData = await response.json();
-
-			if (response.ok) {
-				employeesList = resData.data ?? [];
-			} else {
-				loadError = resData.error || 'Failed to load employees.';
-			}
-		} catch (err) {
-			loadError = 'An error occurred while loading employees.';
-			console.error(err);
-		} finally {
-			isLoading = false;
-		}
-	}
-
-	onMount(() => {
-		loadEmployees();
-	});
-
-	function handleSort(column: string) {
+	function handleSort(column: SortColumn) {
 		if (sortColumn === column) {
 			sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
 		} else {
@@ -111,49 +95,9 @@
 		}
 	}
 
-	function sortIndicator(column: string) {
+	function sortIndicator(column: SortColumn) {
 		if (sortColumn !== column) return '';
 		return sortDirection === 'asc' ? '↑' : '↓';
-	}
-
-	async function handleAddEmployee(e: Event) {
-		e.preventDefault();
-		const ageValue = Number(newAge);
-		if (!newName.trim() || newAge === '' || newAge == null || isNaN(ageValue)) {
-			errorMessage = 'Please provide both Name and Age.';
-			return;
-		}
-
-		errorMessage = '';
-		successMessage = '';
-		isSubmitting = true;
-
-		try {
-			const response = await fetch('/api/employees', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name: newName.trim(), age: ageValue })
-			});
-
-			const resData = await response.json();
-
-			if (response.ok && resData.data) {
-				employeesList = [resData.data, ...employeesList];
-				newName = '';
-				newAge = '';
-				successMessage = 'Employee added successfully!';
-				setTimeout(() => {
-					successMessage = '';
-				}, 3000);
-			} else {
-				errorMessage = resData.error || 'Failed to add employee.';
-			}
-		} catch (err) {
-			errorMessage = 'An error occurred. Please try again.';
-			console.error(err);
-		} finally {
-			isSubmitting = false;
-		}
 	}
 </script>
 
@@ -193,12 +137,6 @@
 
 	<div class="grid items-start gap-8 lg:grid-cols-3">
 		<div class="space-y-4 lg:col-span-2">
-			{#if loadError}
-				<Alert variant="destructive">
-					<AlertDescription>{loadError}</AlertDescription>
-				</Alert>
-			{/if}
-
 			<div class="relative">
 				<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
 				<Input
@@ -226,17 +164,32 @@
 					<TableHeader>
 						<TableRow>
 							<TableHead>
-								<Button variant="ghost" size="sm" class="-ml-2 h-8" onclick={() => handleSort('id')}>
+								<Button
+									variant="ghost"
+									size="sm"
+									class="-ml-2 h-8"
+									onclick={() => handleSort('id')}
+								>
 									ID {sortIndicator('id')}
 								</Button>
 							</TableHead>
 							<TableHead>
-								<Button variant="ghost" size="sm" class="-ml-2 h-8" onclick={() => handleSort('name')}>
+								<Button
+									variant="ghost"
+									size="sm"
+									class="-ml-2 h-8"
+									onclick={() => handleSort('name')}
+								>
 									Name {sortIndicator('name')}
 								</Button>
 							</TableHead>
 							<TableHead>
-								<Button variant="ghost" size="sm" class="-ml-2 h-8" onclick={() => handleSort('age')}>
+								<Button
+									variant="ghost"
+									size="sm"
+									class="-ml-2 h-8"
+									onclick={() => handleSort('age')}
+								>
 									Age {sortIndicator('age')}
 								</Button>
 							</TableHead>
@@ -244,13 +197,7 @@
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{#if isLoading}
-							<TableRow>
-								<TableCell colspan={4} class="py-12 text-center text-muted-foreground">
-									Loading employees...
-								</TableCell>
-							</TableRow>
-						{:else if filteredEmployees.length === 0}
+						{#if filteredEmployees.length === 0}
 							<TableRow>
 								<TableCell colspan={4} class="py-12 text-center text-muted-foreground">
 									No employees match the criteria.
@@ -264,7 +211,9 @@
 									<TableCell>
 										<Badge variant="secondary">{emp.age} yrs old</Badge>
 									</TableCell>
-									<TableCell class="font-mono text-xs text-muted-foreground">{emp.uuid}</TableCell>
+									<TableCell class="font-mono text-xs text-muted-foreground">
+										{emp.uuid}
+									</TableCell>
 								</TableRow>
 							{/each}
 						{/if}
@@ -285,16 +234,48 @@
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
-				<form onsubmit={handleAddEmployee} class="space-y-4">
+				<form
+					method="POST"
+					action="?/create"
+					class="space-y-4"
+					use:enhance={() => {
+						isSubmitting = true;
+						return async ({ result, update }) => {
+							if (
+								result.type === 'success' &&
+								result.data &&
+								'created' in result.data
+							) {
+								const created = result.data.created as Employee;
+								employees = [created, ...employees];
+								successMessage = 'Employee added successfully!';
+								setTimeout(() => {
+									successMessage = '';
+								}, 3000);
+								await update({ reset: true });
+							} else {
+								await update({ reset: false });
+							}
+							isSubmitting = false;
+						};
+					}}
+				>
 					<div class="space-y-2">
 						<Label for="name">Full Name</Label>
-						<Input id="name" bind:value={newName} placeholder="e.g. Charlie Brown" required />
+						<Input
+							id="name"
+							name="name"
+							bind:value={newName}
+							placeholder="e.g. Charlie Brown"
+							required
+						/>
 					</div>
 
 					<div class="space-y-2">
 						<Label for="age">Age</Label>
 						<Input
 							id="age"
+							name="age"
 							type="number"
 							bind:value={newAge}
 							placeholder="e.g. 29"
@@ -304,10 +285,10 @@
 						/>
 					</div>
 
-					{#if errorMessage}
+					{#if formError}
 						<div transition:slide>
 							<Alert variant="destructive">
-								<AlertDescription>{errorMessage}</AlertDescription>
+								<AlertDescription>{formError}</AlertDescription>
 							</Alert>
 						</div>
 					{/if}

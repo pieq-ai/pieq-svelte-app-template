@@ -6,14 +6,9 @@ export interface CreateEmployeeData {
 }
 
 export async function list() {
-	try {
-		return await db.employee.findMany({
-			orderBy: { id: 'asc' }
-		});
-	} catch (error) {
-		console.error('Error fetching employees from database:', error);
-		return [];
-	}
+	return db.employee.findMany({
+		orderBy: { id: 'asc' }
+	});
 }
 
 export async function create(data: CreateEmployeeData) {
