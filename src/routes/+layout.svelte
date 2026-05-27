@@ -37,6 +37,7 @@
 			<nav class="flex items-center gap-3">
 				<Button href={resolve('/employees')} variant="ghost">Employees</Button>
 				<Button href={resolve('/holidays')} variant="ghost">Holidays</Button>
+				<Button href={resolve('/blood-groups')} variant="ghost">Blood Groups</Button>
 				{#if data.user}
 					<span class="hidden text-sm text-muted-foreground sm:inline">{data.user.email}</span>
 					<Button href={resolve('/dashboard')} variant="outline">Dashboard</Button>
