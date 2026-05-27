@@ -30,7 +30,7 @@ export async function GET(event: RequestEvent) {
 		return json({ data: designations });
 	} catch (error) {
 		const message = (error as Error).message;
-		const status = message.includes('not found') ? 404 : 400;
+		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
 		return json({ error: message }, { status });
 	}
 }
@@ -44,7 +44,9 @@ export async function POST(event: RequestEvent) {
 		const newDesignation = await designationService.createDesignation(body);
 		return json({ data: newDesignation }, { status: 201 });
 	} catch (error) {
-		return json({ error: (error as Error).message }, { status: 400 });
+		const message = (error as Error).message;
+		const status = message === 'Unauthorized' ? 401 : 400;
+		return json({ error: message }, { status });
 	}
 }
 
@@ -59,7 +61,7 @@ export async function PUT(event: RequestEvent) {
 		return json({ data: updatedDesignation });
 	} catch (error) {
 		const message = (error as Error).message;
-		const status = message.includes('not found') ? 404 : 400;
+		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
 		return json({ error: message }, { status });
 	}
 }
@@ -74,7 +76,7 @@ export async function DELETE(event: RequestEvent) {
 		return json({ data: deletedDesignation });
 	} catch (error) {
 		const message = (error as Error).message;
-		const status = message.includes('not found') ? 404 : 400;
+		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
 		return json({ error: message }, { status });
 	}
 }

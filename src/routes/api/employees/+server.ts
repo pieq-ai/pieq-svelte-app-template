@@ -1,17 +1,29 @@
 import { json } from '@sveltejs/kit';
+import type { RequestEvent } from '@sveltejs/kit';
 import * as employeeDao from '$lib/server/dao/employee.dao';
+import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 
-export async function GET() {
+function getErrorStatus(message: string, fallback = 500) {
+	return message === 'Unauthorized' ? 401 : fallback;
+}
+
+export async function GET(event: RequestEvent) {
 	try {
+		permissionGuard.requireAuth(event.locals.user);
+
 		const employees = await employeeDao.list();
 		return json({ data: employees });
 	} catch (error) {
-		return json({ error: (error as Error).message }, { status: 500 });
+		const message = (error as Error).message;
+		return json({ error: message }, { status: getErrorStatus(message) });
 	}
 }
 
-export async function POST({ request }) {
+export async function POST(event: RequestEvent) {
 	try {
+		permissionGuard.requireAuth(event.locals.user);
+
+		const { request } = event;
 		const body = await request.json();
 		const { name, age } = body;
 
@@ -26,6 +38,7 @@ export async function POST({ request }) {
 		const employee = await employeeDao.create({ name, age: Number(age) });
 		return json({ data: employee }, { status: 201 });
 	} catch (error) {
-		return json({ error: (error as Error).message }, { status: 500 });
+		const message = (error as Error).message;
+		return json({ error: message }, { status: getErrorStatus(message) });
 	}
 }

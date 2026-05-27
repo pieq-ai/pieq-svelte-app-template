@@ -1,27 +1,27 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { error } from '@sveltejs/kit';
 import type { User } from '$lib/types/user';
+
+const UNAUTHORIZED_MESSAGE = 'Unauthorized';
 
 /**
  * Ensures that the user is authenticated.
- * Stub implementation: currently allows all access but enforces presence of checks.
  */
-export function requireAuth(_user: User | null | undefined): void {
-  // Future implementation will throw error if user is missing
+export function requireAuth(user: User | null | undefined): void {
+	if (!user) {
+		throw new Error(UNAUTHORIZED_MESSAGE);
+	}
 }
 
 /**
  * Ensures that the user has administrator privileges.
- * Stub implementation: currently allows all access but enforces presence of checks.
  */
-export function requireAdmin(_user: User | null | undefined): void {
-  // Future implementation will verify admin role
+export function requireAdmin(user: User | null | undefined): void {
+	requireAuth(user);
 }
 
 /**
  * Ensures that the user has a specific permission.
- * Stub implementation: currently allows all access but enforces presence of checks.
  */
-export function requirePermission(_user: User | null | undefined, _permission: string): void {
-  // Future implementation will check permission string
+export function requirePermission(user: User | null | undefined, _permission: string): void {
+	void _permission;
+	requireAuth(user);
 }

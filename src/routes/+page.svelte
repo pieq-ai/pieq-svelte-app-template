@@ -4,6 +4,7 @@
 	import { resolve } from '$app/paths';
 
 	let { data } = $props();
+	let authenticatedUser = $derived(data.user ?? null);
 
 	function handleSignIn() {
 		signInWithKeycloak('/dashboard');
@@ -24,7 +25,7 @@
 	</div>
 
 	<div class="flex flex-wrap gap-3">
-		{#if data.user}
+		{#if authenticatedUser}
 			<Button href={resolve('/dashboard')}>Go to dashboard</Button>
 		{:else}
 			<Button onclick={handleSignIn}>Sign in with Keycloak</Button>
