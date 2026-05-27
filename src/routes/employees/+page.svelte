@@ -118,7 +118,8 @@
 
 	async function handleAddEmployee(e: Event) {
 		e.preventDefault();
-		if (!newName.trim() || !newAge.trim()) {
+		const ageValue = Number(newAge);
+		if (!newName.trim() || newAge === '' || newAge == null || isNaN(ageValue)) {
 			errorMessage = 'Please provide both Name and Age.';
 			return;
 		}
@@ -131,7 +132,7 @@
 			const response = await fetch('/api/employees', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name: newName, age: Number(newAge) })
+				body: JSON.stringify({ name: newName.trim(), age: ageValue })
 			});
 
 			const resData = await response.json();
