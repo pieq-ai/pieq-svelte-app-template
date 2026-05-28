@@ -14,9 +14,13 @@ function getMaster(event: RequestEvent) {
 	return event.params.master ?? '';
 }
 
-function getId(event: RequestEvent) {
+function getCuid2(event: RequestEvent) {
 	const url = new URL(event.request.url);
-	return Number(url.searchParams.get('id'));
+	const cuid2 = url.searchParams.get('cuid2');
+	if (!cuid2) {
+		throw new Error('Master data CUID2 is required as a query parameter');
+	}
+	return cuid2;
 }
 
 export async function GET(event: RequestEvent) {
@@ -24,11 +28,10 @@ export async function GET(event: RequestEvent) {
 		permissionGuard.requireAuth(event.locals.user);
 		const url = new URL(event.request.url);
 		const search = url.searchParams.get('search') ?? undefined;
-		const countryIdParam = url.searchParams.get('countryId');
-		const countryId = countryIdParam ? Number(countryIdParam) : undefined;
+		const countryCuid2 = url.searchParams.get('countryCuid2') ?? undefined;
 
 		return json({
-			data: await masterDataService.getMasterData(getMaster(event), search, countryId)
+			data: await masterDataService.getMasterData(getMaster(event), search, countryCuid2)
 		});
 	} catch (error) {
 		const message = (error as Error).message;
@@ -55,7 +58,7 @@ export async function PUT(event: RequestEvent) {
 		permissionGuard.requireAuth(event.locals.user);
 		const body = await event.request.json();
 		return json({
-			data: await masterDataService.updateMasterData(getMaster(event), getId(event), body)
+			data: await masterDataService.updateMasterData(getMaster(event), getCuid2(event), body)
 		});
 	} catch (error) {
 		const message = (error as Error).message;

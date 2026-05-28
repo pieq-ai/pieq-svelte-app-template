@@ -26,10 +26,10 @@ export async function findById(designation_id: number) {
 	});
 }
 
-export async function findByUuid(uuid: string) {
+export async function findByCuid2(cuid2: string) {
 	return db.designation.findUnique({
 		where: {
-			uuid
+			cuid2
 		}
 	});
 }
@@ -43,10 +43,10 @@ export async function create(data: CreateDesignationInput) {
 	});
 }
 
-export async function update(uuid: string, data: UpdateDesignationInput) {
+export async function update(cuid2: string, data: UpdateDesignationInput) {
 	return db.designation.update({
 		where: {
-			uuid
+			cuid2
 		},
 		data
 	});

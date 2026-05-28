@@ -25,12 +25,12 @@
 		TableRow
 	} from '$lib/components';
 
-	let employeesList = $state<Array<{ id: number; uuid: string; name: string; age: number }>>([]);
+	let employeesList = $state<Array<{ cuid2: string; name: string; age: number }>>([]);
 	let isLoading = $state(true);
 	let loadError = $state('');
 
 	let searchQuery = $state('');
-	let sortColumn = $state('id');
+	let sortColumn = $state('name');
 	let sortDirection = $state<'asc' | 'desc'>('asc');
 
 	let newName = $state('');
@@ -48,8 +48,7 @@
 			result = result.filter(
 				(emp) =>
 					emp.name.toLowerCase().includes(query) ||
-					emp.uuid.toLowerCase().includes(query) ||
-					emp.id.toString().includes(query)
+					emp.cuid2.toLowerCase().includes(query)
 			);
 		}
 
@@ -223,7 +222,7 @@
 				<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
 				<Input
 					type="search"
-					placeholder="Search by name, ID or UUID..."
+					placeholder="Search by name or CUID2..."
 					bind:value={searchQuery}
 					class="pl-9 pr-9"
 				/>
@@ -246,11 +245,6 @@
 					<TableHeader>
 						<TableRow>
 							<TableHead>
-								<Button variant="ghost" size="sm" class="-ml-2 h-8" onclick={() => handleSort('id')}>
-									ID {sortIndicator('id')}
-								</Button>
-							</TableHead>
-							<TableHead>
 								<Button variant="ghost" size="sm" class="-ml-2 h-8" onclick={() => handleSort('name')}>
 									Name {sortIndicator('name')}
 								</Button>
@@ -260,31 +254,30 @@
 									Age {sortIndicator('age')}
 								</Button>
 							</TableHead>
-							<TableHead>UUID</TableHead>
+							<TableHead>CUID2</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{#if isLoading}
 							<TableRow>
-								<TableCell colspan={4} class="py-12 text-center text-muted-foreground">
+								<TableCell colspan={3} class="py-12 text-center text-muted-foreground">
 									Loading employees...
 								</TableCell>
 							</TableRow>
 						{:else if filteredEmployees.length === 0}
 							<TableRow>
-								<TableCell colspan={4} class="py-12 text-center text-muted-foreground">
+								<TableCell colspan={3} class="py-12 text-center text-muted-foreground">
 									No employees match the criteria.
 								</TableCell>
 							</TableRow>
 						{:else}
-							{#each filteredEmployees as emp (emp.uuid)}
+							{#each filteredEmployees as emp (emp.cuid2)}
 								<TableRow>
-									<TableCell class="font-medium">#{emp.id}</TableCell>
 									<TableCell class="font-semibold">{emp.name}</TableCell>
 									<TableCell>
 										<Badge variant="secondary">{emp.age} yrs old</Badge>
 									</TableCell>
-									<TableCell class="font-mono text-xs text-muted-foreground">{emp.uuid}</TableCell>
+									<TableCell class="font-mono text-xs text-muted-foreground">{emp.cuid2}</TableCell>
 								</TableRow>
 							{/each}
 						{/if}

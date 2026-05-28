@@ -10,6 +10,18 @@ export interface UpdateDesignationDto {
 	status?: 'active' | 'inactive';
 }
 
+function toPublicDesignation(designation: {
+	cuid2: string;
+	designation_name: string;
+	status: 'active' | 'inactive';
+}) {
+	return {
+		cuid2: designation.cuid2,
+		designation_name: designation.designation_name,
+		status: designation.status
+	};
+}
+
 function validateDesignationName(name: string | null | undefined): string {
 	if (name === undefined || name === null) {
 		throw new Error('Designation name is required');
@@ -27,12 +39,12 @@ function validateDesignationName(name: string | null | undefined): string {
 	return trimmed;
 }
 
-async function ensureDesignationNameIsUnique(designation_name: string, currentUuid?: string) {
+async function ensureDesignationNameIsUnique(designation_name: string, currentCuid2?: string) {
 	const normalizedName = designation_name.toLowerCase();
 	const designations = await designationDao.list();
 	const duplicate = designations.find(
 		(designation) =>
-			designation.uuid !== currentUuid &&
+			designation.cuid2 !== currentCuid2 &&
 			designation.designation_name.trim().toLowerCase() === normalizedName
 	);
 
@@ -42,7 +54,7 @@ async function ensureDesignationNameIsUnique(designation_name: string, currentUu
 }
 
 export async function getDesignations() {
-	return designationDao.list();
+	return (await designationDao.list()).map(toPublicDesignation);
 }
 
 export async function getDesignationById(designation_id: number) {
@@ -55,20 +67,20 @@ export async function getDesignationById(designation_id: number) {
 		throw new Error(`Designation with ID "${designation_id}" not found`);
 	}
 
-	return designation;
+	return toPublicDesignation(designation);
 }
 
-export async function getDesignationByUuid(uuid: string) {
-	if (!uuid) {
-		throw new Error('Designation UUID is required');
+export async function getDesignationByCuid2(cuid2: string) {
+	if (!cuid2) {
+		throw new Error('Designation CUID2 is required');
 	}
 
-	const designation = await designationDao.findByUuid(uuid);
+	const designation = await designationDao.findByCuid2(cuid2);
 	if (!designation) {
-		throw new Error(`Designation with UUID "${uuid}" not found`);
+		throw new Error(`Designation with CUID2 "${cuid2}" not found`);
 	}
 
-	return designation;
+	return toPublicDesignation(designation);
 }
 
 export async function createDesignation(dto: CreateDesignationDto) {
@@ -76,20 +88,20 @@ export async function createDesignation(dto: CreateDesignationDto) {
 
 	await ensureDesignationNameIsUnique(designation_name);
 
-	return designationDao.create({
+	return toPublicDesignation(await designationDao.create({
 		designation_name,
 		status: dto.status ?? 'active'
-	});
+	}));
 }
 
-export async function updateDesignation(uuid: string, dto: UpdateDesignationDto) {
-	const existing = await getDesignationByUuid(uuid);
+export async function updateDesignation(cuid2: string, dto: UpdateDesignationDto) {
+	const existing = await getDesignationByCuid2(cuid2);
 	const updateData: designationDao.UpdateDesignationInput = {};
 
 	if (dto.designation_name !== undefined) {
 		const designation_name = validateDesignationName(dto.designation_name);
 
-		await ensureDesignationNameIsUnique(designation_name, existing.uuid);
+		await ensureDesignationNameIsUnique(designation_name, existing.cuid2);
 
 		updateData.designation_name = designation_name;
 	}
@@ -101,13 +113,13 @@ export async function updateDesignation(uuid: string, dto: UpdateDesignationDto)
 		updateData.status = dto.status;
 	}
 
-	return designationDao.update(uuid, updateData);
+	return toPublicDesignation(await designationDao.update(cuid2, updateData));
 }
 
-export async function deleteDesignation(uuid: string) {
-	await getDesignationByUuid(uuid);
+export async function deleteDesignation(cuid2: string) {
+	await getDesignationByCuid2(cuid2);
 
-	return designationDao.update(uuid, {
+	return toPublicDesignation(await designationDao.update(cuid2, {
 		status: 'inactive'
-	});
+	}));
 }

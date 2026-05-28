@@ -11,8 +11,7 @@ export async function list() {
 			orderBy: { emp_id: 'asc' }
 		});
 		return employees.map((emp) => ({
-			id: Number(emp.emp_id),
-			uuid: emp.uuid,
+			cuid2: emp.cuid2,
 			name: `${emp.first_name} ${emp.last_name}`,
 			age: emp.dob ? new Date().getFullYear() - new Date(emp.dob).getFullYear() : 30
 		}));
@@ -53,8 +52,7 @@ export async function create(data: CreateEmployeeData) {
 	});
 
 	return {
-		id: Number(created.emp_id),
-		uuid: created.uuid,
+		cuid2: created.cuid2,
 		name: `${created.first_name} ${created.last_name}`,
 		age: data.age
 	};

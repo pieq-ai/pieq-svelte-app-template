@@ -26,6 +26,14 @@ export async function findById(system_role_id: number) {
 	});
 }
 
+export async function findByCuid2(cuid2: string) {
+	return db.systemRoles.findUnique({
+		where: {
+			cuid2
+		}
+	});
+}
+
 export async function create(data: CreateSystemRoleInput) {
 	return db.systemRoles.create({
 		data: {

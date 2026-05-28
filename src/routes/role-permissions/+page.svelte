@@ -1,40 +1,34 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import Trash2Icon from '@lucide/svelte/icons/trash-2';
+	import SearchIcon from '@lucide/svelte/icons/search';
+	import { toast } from '$lib/toast';
 	import {
 		Alert,
 		AlertDescription,
 		Badge,
-		Button,
 		Card,
 		CardContent,
-		CardDescription,
-		CardHeader,
-		CardTitle,
-		CrudModal,
-		Label
+		Input,
+		PermissionMatrixCell
 	} from '$lib/components';
 
 	interface SystemRole {
-		system_role_id: number;
+		cuid2: string;
 		system_role_name: string;
 		status: 'active' | 'inactive';
 	}
 
 	interface Permission {
-		permission_id: number;
+		cuid2: string;
 		permission_key: string;
 		status: 'active' | 'inactive';
 	}
 
 	interface RolePermission {
-		role_permission_id: number;
-		system_role_id: number;
-		permission_id: number;
-		role: SystemRole | null;
-		permission: Permission | null;
+		cuid2: string;
+		system_role_cuid2: string | null;
+		permission_cuid2: string | null;
 	}
 
 	interface MatrixData {
@@ -52,30 +46,32 @@
 	});
 	let isLoading = $state(true);
 	let loadError = $state('');
-	let formError = $state('');
-	let successMessage = $state('');
-	let isModalOpen = $state(false);
-	let isSubmitting = $state(false);
-	let selectedRoleId = $state('');
-	let selectedPermissionIds = $state<number[]>([]);
+	let searchQuery = $state('');
+	let assignmentKeys = $state<string[]>([]);
+	let pendingKeys = $state<string[]>([]);
 
 	let activeRoles = $derived(data.roles.filter((role) => role.status === 'active'));
-	let activeGroupedPermissions = $derived.by(() => {
-		const groups: Record<string, Permission[]> = {};
-		for (const [moduleName, permissions] of Object.entries(data.groupedPermissions)) {
-			groups[moduleName] = permissions.filter((permission) => permission.status === 'active');
-		}
-		return groups;
+	let activePermissions = $derived(
+		data.permissions.filter((permission) => permission.status === 'active')
+	);
+	let filteredPermissions = $derived.by(() => {
+		const query = searchQuery.trim().toLowerCase();
+		if (!query) return activePermissions;
+		return activePermissions.filter((permission) =>
+			permission.permission_key.toLowerCase().includes(query)
+		);
 	});
 
-	function roleMappings(roleId: number) {
-		return data.mappings.filter((mapping) => mapping.system_role_id === roleId && mapping.permission);
+	function assignmentKey(roleCuid2: string, permissionCuid2: string) {
+		return `${roleCuid2}:${permissionCuid2}`;
 	}
 
-	function hasMapping(roleId: number, permissionId: number) {
-		return data.mappings.some(
-			(mapping) => mapping.system_role_id === roleId && mapping.permission_id === permissionId
-		);
+	function buildAssignmentSet(mappings: RolePermission[]) {
+		return mappings
+			.filter((mapping) => mapping.system_role_cuid2 && mapping.permission_cuid2)
+			.map((mapping) =>
+				assignmentKey(mapping.system_role_cuid2 as string, mapping.permission_cuid2 as string)
+			);
 	}
 
 	async function loadMatrix() {
@@ -86,8 +82,10 @@
 			const body = await response.json();
 			if (response.ok) {
 				data = body.data;
+				assignmentKeys = buildAssignmentSet(body.data.mappings ?? []);
 			} else {
 				loadError = body.error || 'Failed to load role permissions.';
+				toast.error(loadError);
 			}
 		} finally {
 			isLoading = false;
@@ -96,63 +94,45 @@
 
 	onMount(loadMatrix);
 
-	function openAssignModal(role?: SystemRole) {
-		selectedRoleId = role ? String(role.system_role_id) : '';
-		selectedPermissionIds = [];
-		formError = '';
-		isModalOpen = true;
-	}
+	async function togglePermission(role: SystemRole, permission: Permission) {
+		const key = assignmentKey(role.cuid2, permission.cuid2);
+		if (pendingKeys.includes(key)) return;
 
-	function togglePermission(permissionId: number) {
-		selectedPermissionIds = selectedPermissionIds.includes(permissionId)
-			? selectedPermissionIds.filter((id) => id !== permissionId)
-			: [...selectedPermissionIds, permissionId];
-	}
+		const wasAssigned = assignmentKeys.includes(key);
+		pendingKeys = [...pendingKeys, key];
 
-	async function assignPermissions(event: Event) {
-		event.preventDefault();
-		const roleId = Number(selectedRoleId);
-		if (!Number.isInteger(roleId) || roleId <= 0) {
-			formError = 'Select a role';
-			return;
-		}
-		if (selectedPermissionIds.length === 0) {
-			formError = 'Select at least one permission';
-			return;
-		}
+		assignmentKeys = wasAssigned
+			? assignmentKeys.filter((assignment) => assignment !== key)
+			: [...assignmentKeys, key];
 
-		isSubmitting = true;
-		formError = '';
 		try {
-			const response = await fetch('/api/role-permissions', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ system_role_id: roleId, permission_ids: selectedPermissionIds })
-			});
+			const response = await fetch(
+				wasAssigned
+					? `/api/role-permissions?roleCuid2=${role.cuid2}&permissionCuid2=${permission.cuid2}`
+					: '/api/role-permissions',
+				{
+					method: wasAssigned ? 'DELETE' : 'POST',
+					headers: wasAssigned ? undefined : { 'Content-Type': 'application/json' },
+					body: wasAssigned
+						? undefined
+						: JSON.stringify({
+								system_role_cuid2: role.cuid2,
+								permission_cuid2s: [permission.cuid2]
+							})
+				}
+			);
 			const body = await response.json();
-			if (response.ok) {
-				successMessage = `Assigned ${body.data.created.length} permission(s).`;
-				isModalOpen = false;
-				await loadMatrix();
-			} else {
-				formError = body.error || 'Unable to assign permissions.';
+			if (!response.ok) {
+				throw new Error(body.error || 'Unable to update permission assignment.');
 			}
+			toast.success(wasAssigned ? 'Permission removed from role.' : 'Permission assigned to role.');
+		} catch (error) {
+			assignmentKeys = wasAssigned
+				? [...assignmentKeys, key]
+				: assignmentKeys.filter((assignment) => assignment !== key);
+			toast.error((error as Error).message);
 		} finally {
-			isSubmitting = false;
-		}
-	}
-
-	async function removePermission(roleId: number, permissionId: number) {
-		if (!confirm('Remove this permission from the role?')) return;
-		const response = await fetch(`/api/role-permissions?roleId=${roleId}&permissionId=${permissionId}`, {
-			method: 'DELETE'
-		});
-		const body = await response.json();
-		if (response.ok) {
-			successMessage = 'Permission removed from role.';
-			await loadMatrix();
-		} else {
-			alert(body.error || 'Unable to remove permission.');
+			pendingKeys = pendingKeys.filter((pendingKey) => pendingKey !== key);
 		}
 	}
 </script>
@@ -161,118 +141,78 @@
 	<title>Role Permissions</title>
 </svelte:head>
 
-<div class="mx-auto max-w-6xl space-y-8 px-1 py-4">
-	<div class="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+<div class="mx-auto max-w-full space-y-6 px-1 py-4">
+	<div class="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-end lg:justify-between">
 		<div class="space-y-1">
 			<Badge variant="secondary" class="uppercase">RBAC Foundation</Badge>
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Role Permission Mapping</h1>
-			<p class="text-muted-foreground">Assign and remove permissions for system roles.</p>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Role Permission Matrix</h1>
+			<p class="text-muted-foreground">Toggle permissions across active system roles.</p>
 		</div>
-		<Button class="bg-[#C2652A] text-white hover:bg-[#8C3C3C]" onclick={() => openAssignModal()}>
-			<PlusIcon class="size-4" />
-			Assign Permissions
-		</Button>
+		<div class="relative w-full lg:max-w-xs">
+			<SearchIcon class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+			<Input bind:value={searchQuery} class="pl-9" placeholder="Search permissions..." />
+		</div>
 	</div>
 
 	{#if loadError}
 		<Alert variant="destructive"><AlertDescription>{loadError}</AlertDescription></Alert>
 	{/if}
-	{#if successMessage}
-		<Alert><AlertDescription>{successMessage}</AlertDescription></Alert>
-	{/if}
 
 	{#if isLoading}
-		<Card><CardContent class="py-12 text-center"><LoaderCircleIcon class="mx-auto size-6 animate-spin" /></CardContent></Card>
+		<Card>
+			<CardContent class="py-12 text-center">
+				<LoaderCircleIcon class="mx-auto size-6 animate-spin" />
+			</CardContent>
+		</Card>
+	{:else if activeRoles.length === 0 || activePermissions.length === 0}
+		<Card>
+			<CardContent class="py-12 text-center text-muted-foreground">
+				Add active roles and permissions before assigning mappings.
+			</CardContent>
+		</Card>
 	{:else}
-		<div class="grid gap-4 lg:grid-cols-2">
-			{#each activeRoles as role (role.system_role_id)}
-				<Card>
-					<CardHeader class="flex-row items-start justify-between gap-4">
-						<div>
-							<CardTitle>{role.system_role_name}</CardTitle>
-							<CardDescription>{roleMappings(role.system_role_id).length} permission(s)</CardDescription>
-						</div>
-						<Button variant="outline" size="sm" onclick={() => openAssignModal(role)}>
-							<PlusIcon class="size-4" />
-							Assign
-						</Button>
-					</CardHeader>
-					<CardContent>
-						{#if roleMappings(role.system_role_id).length === 0}
-							<p class="text-sm text-muted-foreground">No permissions assigned.</p>
-						{:else}
-							<div class="flex flex-wrap gap-2">
-								{#each roleMappings(role.system_role_id) as mapping (mapping.role_permission_id)}
-									<div class="flex items-center gap-1 rounded-md border border-border px-2 py-1">
-										<span class="font-mono text-xs">{mapping.permission?.permission_key}</span>
-										<Button
-											size="icon-xs"
-											variant="ghost"
-											aria-label="Remove permission"
-											onclick={() => removePermission(mapping.system_role_id, mapping.permission_id)}
-										>
-											<Trash2Icon class="size-3" />
-										</Button>
+		<div class="rounded-md border border-border bg-background">
+			<div class="max-h-[70vh] overflow-auto">
+				<table class="min-w-max border-collapse text-sm">
+					<thead class="sticky top-0 z-20 bg-[#262626] text-white shadow-sm">
+						<tr>
+							<th class="sticky left-0 z-30 min-w-64 bg-[#262626] px-4 py-3 text-left font-semibold">
+								Permission
+							</th>
+							{#each activeRoles as role (role.cuid2)}
+								<th class="min-w-40 border-l border-white/10 px-4 py-3 text-center font-semibold">
+									{role.system_role_name}
+								</th>
+							{/each}
+						</tr>
+					</thead>
+					<tbody>
+						{#each filteredPermissions as permission (permission.cuid2)}
+							<tr class="border-t border-border hover:bg-[#C2652A]/5">
+								<td class="sticky left-0 z-10 min-w-64 border-r border-border bg-background px-4 py-3">
+									<div class="font-mono text-xs font-semibold text-[#262626]">
+										{permission.permission_key}
 									</div>
+									<div class="mt-1 text-[11px] uppercase text-[#737373]">
+										{permission.permission_key.split('_')[0] || 'general'}
+									</div>
+								</td>
+								{#each activeRoles as role (role.cuid2)}
+									{@const key = assignmentKey(role.cuid2, permission.cuid2)}
+									<td class="border-l border-border px-4 py-3 text-center">
+										<PermissionMatrixCell
+											checked={assignmentKeys.includes(key)}
+											pending={pendingKeys.includes(key)}
+											label={`${role.system_role_name}: ${permission.permission_key}`}
+											onToggle={() => togglePermission(role, permission)}
+										/>
+									</td>
 								{/each}
-							</div>
-						{/if}
-					</CardContent>
-				</Card>
-			{/each}
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	{/if}
 </div>
-
-<CrudModal
-	open={isModalOpen}
-	title="Assign Permissions"
-	description="Select a role and one or more permissions to assign. Existing mappings are skipped."
-	onClose={() => (isModalOpen = false)}
->
-	<form class="space-y-5" onsubmit={assignPermissions}>
-		<div class="space-y-2">
-			<Label for="role_id">System Role</Label>
-			<select id="role_id" bind:value={selectedRoleId} class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
-				<option value="">Select role</option>
-				{#each activeRoles as role (role.system_role_id)}
-					<option value={String(role.system_role_id)}>{role.system_role_name}</option>
-				{/each}
-			</select>
-		</div>
-
-		<div class="space-y-3">
-			<Label>Permissions</Label>
-			<div class="max-h-80 space-y-4 overflow-y-auto rounded-md border border-border p-3">
-				{#each Object.entries(activeGroupedPermissions) as [moduleName, permissions] (moduleName)}
-					{#if permissions.length > 0}
-						<div class="space-y-2">
-							<p class="text-xs font-semibold uppercase text-[#737373]">{moduleName}</p>
-							<div class="grid gap-2 sm:grid-cols-2">
-								{#each permissions as permission (permission.permission_id)}
-									<label class="flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm">
-										<input
-											type="checkbox"
-											checked={selectedPermissionIds.includes(permission.permission_id)}
-											disabled={selectedRoleId !== '' && hasMapping(Number(selectedRoleId), permission.permission_id)}
-											onchange={() => togglePermission(permission.permission_id)}
-										/>
-										<span class="font-mono text-xs">{permission.permission_key}</span>
-									</label>
-								{/each}
-							</div>
-						</div>
-					{/if}
-				{/each}
-			</div>
-		</div>
-
-		{#if formError}
-			<Alert variant="destructive"><AlertDescription>{formError}</AlertDescription></Alert>
-		{/if}
-
-		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting}>
-			{isSubmitting ? 'Assigning...' : 'Assign Permissions'}
-		</Button>
-	</form>
-</CrudModal>

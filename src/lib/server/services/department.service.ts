@@ -11,25 +11,33 @@ export interface UpdateDepartmentDto {
 	status?: 'active' | 'inactive';
 }
 
+function toPublicDepartment(department: { cuid2: string; dept_name: string; status: 'active' | 'inactive' }) {
+	return {
+		cuid2: department.cuid2,
+		dept_name: department.dept_name,
+		status: department.status
+	};
+}
+
 /**
  * Retrieves all departments.
  */
 export async function getDepartments() {
-	return departmentDao.list();
+	return (await departmentDao.list()).map(toPublicDepartment);
 }
 
 /**
- * Retrieves a single department by its UUID.
+ * Retrieves a single department by its public CUID2.
  */
-export async function getDepartmentByUuid(uuid: string) {
-	if (!uuid) {
-		throw new Error('Department UUID is required');
+export async function getDepartmentByCuid2(cuid2: string) {
+	if (!cuid2) {
+		throw new Error('Department CUID2 is required');
 	}
-	const department = await departmentDao.findByUuid(uuid);
+	const department = await departmentDao.findByCuid2(cuid2);
 	if (!department) {
-		throw new Error(`Department with UUID "${uuid}" not found`);
+		throw new Error(`Department with CUID2 "${cuid2}" not found`);
 	}
-	return department;
+	return toPublicDepartment(department);
 }
 
 /**
@@ -45,24 +53,24 @@ export async function createDepartment(dto: CreateDepartmentDto) {
 		throw new Error(`Department name "${dept_name}" already exists`);
 	}
 
-	return departmentDao.create({
+	return toPublicDepartment(await departmentDao.create({
 		dept_name,
 		status: dto.status ?? 'active'
-	});
+	}));
 }
 
 /**
  * Updates a department.
  * Enforces business rules: trimmed name (if provided), min length 2, and uniqueness.
  */
-export async function updateDepartment(uuid: string, dto: UpdateDepartmentDto) {
-	if (!uuid) {
-		throw new Error('Department UUID is required');
+export async function updateDepartment(cuid2: string, dto: UpdateDepartmentDto) {
+	if (!cuid2) {
+		throw new Error('Department CUID2 is required');
 	}
 
-	const existing = await departmentDao.findByUuid(uuid);
+	const existing = await departmentDao.findByCuid2(cuid2);
 	if (!existing) {
-		throw new Error(`Department with UUID "${uuid}" not found`);
+		throw new Error(`Department with CUID2 "${cuid2}" not found`);
 	}
 
 	const updateData: departmentDao.UpdateDepartmentInput = {};
@@ -87,23 +95,23 @@ export async function updateDepartment(uuid: string, dto: UpdateDepartmentDto) {
 		updateData.status = dto.status;
 	}
 
-	return departmentDao.update(uuid, updateData);
+	return toPublicDepartment(await departmentDao.update(cuid2, updateData));
 }
 
 /**
  * Performs a soft delete by marking the department status as 'inactive'.
  */
-export async function deleteDepartment(uuid: string) {
-	if (!uuid) {
-		throw new Error('Department UUID is required');
+export async function deleteDepartment(cuid2: string) {
+	if (!cuid2) {
+		throw new Error('Department CUID2 is required');
 	}
 
-	const existing = await departmentDao.findByUuid(uuid);
+	const existing = await departmentDao.findByCuid2(cuid2);
 	if (!existing) {
-		throw new Error(`Department with UUID "${uuid}" not found`);
+		throw new Error(`Department with CUID2 "${cuid2}" not found`);
 	}
 
-	return departmentDao.update(uuid, {
+	return toPublicDepartment(await departmentDao.update(cuid2, {
 		status: 'inactive'
-	});
+	}));
 }

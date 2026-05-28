@@ -3,6 +3,7 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
 	import { Button } from '$lib/components';
+	import Toaster from '$lib/components/ui/toaster.svelte';
 	import { resolve } from '$app/paths';
 	import Building2Icon from '@lucide/svelte/icons/building-2';
 	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
@@ -55,6 +56,7 @@
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
 <div class="flex min-h-screen bg-background text-foreground">
+	<Toaster />
 	<aside
 		class={`fixed inset-y-0 left-0 z-30 flex flex-col border-r border-[#737373]/25 bg-[#262626] text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
 		aria-label="Primary navigation"
@@ -127,7 +129,7 @@
 				<Button
 					href={resolve('/settings')}
 					variant="ghost"
-					class={`h-10 justify-start gap-3 text-white hover:bg-[#8C3C3C] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+					class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#8C3C3C] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 					title={isSidebarCollapsed ? 'Settings' : undefined}
 					aria-label="Settings"
 				>

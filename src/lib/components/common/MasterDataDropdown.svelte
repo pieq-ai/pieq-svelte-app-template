@@ -9,7 +9,7 @@
 		master: MasterKey;
 		label?: string;
 		value: string;
-		countryId?: number;
+		countryCuid2?: string;
 		placeholder?: string;
 		permissions?: Partial<MasterPermissionConfig>;
 		onSelect: (id: string) => void;
@@ -19,7 +19,7 @@
 		master,
 		label,
 		value,
-		countryId,
+		countryCuid2,
 		placeholder = 'Search or select...',
 		permissions = getMasterPermissions(),
 		onSelect
@@ -47,7 +47,7 @@
 		if (master !== 'blood-groups' && master !== 'languages' && !/^[A-Za-z0-9 ]+$/.test(trimmed)) {
 			return 'Only letters, numbers, and spaces are allowed';
 		}
-		if (master === 'states' && !countryId) {
+		if (master === 'states' && !countryCuid2) {
 			return 'Select a country before adding a state';
 		}
 		return '';
@@ -58,7 +58,7 @@
 	async function loadOptions() {
 		isLoading = true;
 		errorMessage = '';
-		const query = countryId ? `?countryId=${encodeURIComponent(String(countryId))}` : '';
+		const query = countryCuid2 ? `?countryCuid2=${encodeURIComponent(countryCuid2)}` : '';
 		try {
 			const response = await fetch(`/api/master-data/${master}${query}`);
 			const body = await response.json();
@@ -112,12 +112,12 @@
 		try {
 			const response = await fetch(
 				editingOption
-					? `/api/master-data/${master}?id=${editingOption.id}`
+					? `/api/master-data/${master}?cuid2=${editingOption.id}`
 					: `/api/master-data/${master}`,
 				{
 					method: editingOption ? 'PUT' : 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ name: masterValue.trim(), country_id: countryId })
+					body: JSON.stringify({ name: masterValue.trim(), country_cuid2: countryCuid2 })
 				}
 			);
 			const body = await response.json();

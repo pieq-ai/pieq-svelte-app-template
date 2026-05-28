@@ -5,18 +5,18 @@ import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 
 /**
  * GET /api/departments
- * GET /api/departments?uuid=
- * Handles listing all departments or finding one by UUID.
+ * GET /api/departments?cuid2=
+ * Handles listing all departments or finding one by CUID2.
  */
 export async function GET(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
 
 		const url = new URL(event.request.url);
-		const uuid = url.searchParams.get('uuid');
+		const cuid2 = url.searchParams.get('cuid2');
 
-		if (uuid) {
-			const department = await departmentService.getDepartmentByUuid(uuid);
+		if (cuid2) {
+			const department = await departmentService.getDepartmentByCuid2(cuid2);
 			return json({ data: department });
 		}
 
@@ -49,7 +49,7 @@ export async function POST(event: RequestEvent) {
 }
 
 /**
- * PUT /api/departments?uuid=
+ * PUT /api/departments?cuid2=
  * Handles updating an existing department.
  */
 export async function PUT(event: RequestEvent) {
@@ -58,14 +58,14 @@ export async function PUT(event: RequestEvent) {
 		permissionGuard.requireAdmin(event.locals.user);
 
 		const url = new URL(event.request.url);
-		const uuid = url.searchParams.get('uuid');
+		const cuid2 = url.searchParams.get('cuid2');
 
-		if (!uuid) {
-			return json({ error: 'Department UUID is required as a query parameter' }, { status: 400 });
+		if (!cuid2) {
+			return json({ error: 'Department CUID2 is required as a query parameter' }, { status: 400 });
 		}
 
 		const body = await event.request.json();
-		const updatedDepartment = await departmentService.updateDepartment(uuid, body);
+		const updatedDepartment = await departmentService.updateDepartment(cuid2, body);
 		return json({ data: updatedDepartment });
 	} catch (error) {
 		const message = (error as Error).message;
@@ -75,7 +75,7 @@ export async function PUT(event: RequestEvent) {
 }
 
 /**
- * DELETE /api/departments?uuid=
+ * DELETE /api/departments?cuid2=
  * Handles soft deleting a department (sets status = inactive).
  */
 export async function DELETE(event: RequestEvent) {
@@ -84,13 +84,13 @@ export async function DELETE(event: RequestEvent) {
 		permissionGuard.requireAdmin(event.locals.user);
 
 		const url = new URL(event.request.url);
-		const uuid = url.searchParams.get('uuid');
+		const cuid2 = url.searchParams.get('cuid2');
 
-		if (!uuid) {
-			return json({ error: 'Department UUID is required as a query parameter' }, { status: 400 });
+		if (!cuid2) {
+			return json({ error: 'Department CUID2 is required as a query parameter' }, { status: 400 });
 		}
 
-		const deletedDepartment = await departmentService.deleteDepartment(uuid);
+		const deletedDepartment = await departmentService.deleteDepartment(cuid2);
 		return json({ data: deletedDepartment });
 	} catch (error) {
 		const message = (error as Error).message;

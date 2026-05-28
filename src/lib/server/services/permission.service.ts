@@ -10,6 +10,18 @@ export interface UpdatePermissionDto {
 	status?: 'active' | 'inactive';
 }
 
+function toPublicPermission(permission: {
+	cuid2: string;
+	permission_key: string;
+	status: 'active' | 'inactive';
+}) {
+	return {
+		cuid2: permission.cuid2,
+		permission_key: permission.permission_key,
+		status: permission.status
+	};
+}
+
 function validateStatus(status: string | undefined) {
 	if (status !== undefined && status !== 'active' && status !== 'inactive') {
 		throw new Error('Status must be "active" or "inactive"');
@@ -53,7 +65,7 @@ async function ensurePermissionKeyIsUnique(permission_key: string, currentId?: n
 }
 
 export async function getPermissions() {
-	return permissionDao.list();
+	return (await permissionDao.list()).map(toPublicPermission);
 }
 
 export async function getPermissionById(permission_id: number) {
@@ -66,7 +78,20 @@ export async function getPermissionById(permission_id: number) {
 		throw new Error(`Permission with ID "${permission_id}" not found`);
 	}
 
-	return permission;
+	return toPublicPermission(permission);
+}
+
+export async function getPermissionByCuid2(cuid2: string) {
+	if (!cuid2) {
+		throw new Error('Permission CUID2 is required');
+	}
+
+	const permission = await permissionDao.findByCuid2(cuid2);
+	if (!permission) {
+		throw new Error(`Permission with CUID2 "${cuid2}" not found`);
+	}
+
+	return toPublicPermission(permission);
 }
 
 export async function createPermission(dto: CreatePermissionDto) {
@@ -74,14 +99,17 @@ export async function createPermission(dto: CreatePermissionDto) {
 	validateStatus(dto.status);
 	await ensurePermissionKeyIsUnique(permission_key);
 
-	return permissionDao.create({
+	return toPublicPermission(await permissionDao.create({
 		permission_key,
 		status: dto.status ?? 'active'
-	});
+	}));
 }
 
-export async function updatePermission(permission_id: number, dto: UpdatePermissionDto) {
-	const existing = await getPermissionById(permission_id);
+export async function updatePermission(cuid2: string, dto: UpdatePermissionDto) {
+	const existing = await permissionDao.findByCuid2(cuid2);
+	if (!existing) {
+		throw new Error(`Permission with CUID2 "${cuid2}" not found`);
+	}
 	const updateData: permissionDao.UpdatePermissionInput = {};
 
 	if (dto.permission_key !== undefined) {
@@ -95,12 +123,15 @@ export async function updatePermission(permission_id: number, dto: UpdatePermiss
 		updateData.status = dto.status;
 	}
 
-	return permissionDao.update(permission_id, updateData);
+	return toPublicPermission(await permissionDao.update(existing.permission_id, updateData));
 }
 
-export async function deletePermission(permission_id: number) {
-	await getPermissionById(permission_id);
-	return permissionDao.update(permission_id, {
+export async function deletePermission(cuid2: string) {
+	const existing = await permissionDao.findByCuid2(cuid2);
+	if (!existing) {
+		throw new Error(`Permission with CUID2 "${cuid2}" not found`);
+	}
+	return toPublicPermission(await permissionDao.update(existing.permission_id, {
 		status: 'inactive'
-	});
+	}));
 }

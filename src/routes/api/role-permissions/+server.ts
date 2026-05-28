@@ -34,10 +34,13 @@ export async function DELETE(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
 		const url = new URL(event.request.url);
-		const systemRoleId = Number(url.searchParams.get('roleId'));
-		const permissionId = Number(url.searchParams.get('permissionId'));
+		const systemRoleCuid2 = url.searchParams.get('roleCuid2') ?? '';
+		const permissionCuid2 = url.searchParams.get('permissionCuid2') ?? '';
 		return json({
-			data: await rolePermissionService.removePermissionFromRole(systemRoleId, permissionId)
+			data: await rolePermissionService.removePermissionFromRoleByCuid2(
+				systemRoleCuid2,
+				permissionCuid2
+			)
 		});
 	} catch (error) {
 		const message = (error as Error).message;

@@ -66,6 +66,33 @@ export async function findById(master: MasterKey, id: number) {
 	}
 }
 
+export async function findByCuid2(master: MasterKey, cuid2: string) {
+	switch (master) {
+		case 'blood-groups':
+			return db.bloodGroup.findUnique({ where: { cuid2 } });
+		case 'pay-grades':
+			return db.payGrade.findUnique({ where: { cuid2 } });
+		case 'nationalities':
+			return db.nationality.findUnique({ where: { cuid2 } });
+		case 'employment-types':
+			return db.employmentType.findUnique({ where: { cuid2 } });
+		case 'relation-types':
+			return db.relationType.findUnique({ where: { cuid2 } });
+		case 'document-types':
+			return db.documentType.findUnique({ where: { cuid2 } });
+		case 'states':
+			return db.state.findUnique({ where: { cuid2 } });
+		case 'countries':
+			return db.country.findUnique({ where: { cuid2 } });
+		case 'skills':
+			return db.skills.findUnique({ where: { cuid2 } });
+		case 'attendance-sources':
+			return db.attendanceSource.findUnique({ where: { cuid2 } });
+		case 'languages':
+			return db.languages.findUnique({ where: { cuid2 } });
+	}
+}
+
 export async function create(master: MasterKey, data: MasterCreateInput) {
 	switch (master) {
 		case 'blood-groups':

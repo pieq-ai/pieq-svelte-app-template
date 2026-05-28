@@ -9,22 +9,22 @@ function getStatus(message: string) {
 	return 400;
 }
 
-function parseRoleId(event: RequestEvent) {
+function parseRoleCuid2(event: RequestEvent) {
 	const url = new URL(event.request.url);
-	const id = Number(url.searchParams.get('id'));
-	if (!Number.isInteger(id) || id <= 0) {
-		throw new Error('System role ID is required as a positive query parameter');
+	const cuid2 = url.searchParams.get('cuid2');
+	if (!cuid2) {
+		throw new Error('System role CUID2 is required as a query parameter');
 	}
-	return id;
+	return cuid2;
 }
 
 export async function GET(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
 		const url = new URL(event.request.url);
-		const id = url.searchParams.get('id');
-		if (id) {
-			return json({ data: await systemRoleService.getSystemRoleById(Number(id)) });
+		const cuid2 = url.searchParams.get('cuid2');
+		if (cuid2) {
+			return json({ data: await systemRoleService.getSystemRoleByCuid2(cuid2) });
 		}
 		return json({ data: await systemRoleService.getSystemRoles() });
 	} catch (error) {
@@ -47,9 +47,9 @@ export async function POST(event: RequestEvent) {
 export async function PUT(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
-		const id = parseRoleId(event);
+		const cuid2 = parseRoleCuid2(event);
 		const body = await event.request.json();
-		return json({ data: await systemRoleService.updateSystemRole(id, body) });
+		return json({ data: await systemRoleService.updateSystemRole(cuid2, body) });
 	} catch (error) {
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getStatus(message) });
@@ -59,8 +59,8 @@ export async function PUT(event: RequestEvent) {
 export async function DELETE(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
-		const id = parseRoleId(event);
-		return json({ data: await systemRoleService.deleteSystemRole(id) });
+		const cuid2 = parseRoleCuid2(event);
+		return json({ data: await systemRoleService.deleteSystemRole(cuid2) });
 	} catch (error) {
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getStatus(message) });

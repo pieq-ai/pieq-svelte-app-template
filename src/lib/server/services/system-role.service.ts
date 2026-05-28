@@ -10,6 +10,18 @@ export interface UpdateSystemRoleDto {
 	status?: 'active' | 'inactive';
 }
 
+function toPublicSystemRole(role: {
+	cuid2: string;
+	system_role_name: string;
+	status: 'active' | 'inactive';
+}) {
+	return {
+		cuid2: role.cuid2,
+		system_role_name: role.system_role_name,
+		status: role.status
+	};
+}
+
 function validateStatus(status: string | undefined) {
 	if (status !== undefined && status !== 'active' && status !== 'inactive') {
 		throw new Error('Status must be "active" or "inactive"');
@@ -53,7 +65,7 @@ async function ensureRoleNameIsUnique(system_role_name: string, currentId?: numb
 }
 
 export async function getSystemRoles() {
-	return systemRoleDao.list();
+	return (await systemRoleDao.list()).map(toPublicSystemRole);
 }
 
 export async function getSystemRoleById(system_role_id: number) {
@@ -66,7 +78,20 @@ export async function getSystemRoleById(system_role_id: number) {
 		throw new Error(`System role with ID "${system_role_id}" not found`);
 	}
 
-	return role;
+	return toPublicSystemRole(role);
+}
+
+export async function getSystemRoleByCuid2(cuid2: string) {
+	if (!cuid2) {
+		throw new Error('System role CUID2 is required');
+	}
+
+	const role = await systemRoleDao.findByCuid2(cuid2);
+	if (!role) {
+		throw new Error(`System role with CUID2 "${cuid2}" not found`);
+	}
+
+	return toPublicSystemRole(role);
 }
 
 export async function createSystemRole(dto: CreateSystemRoleDto) {
@@ -74,14 +99,17 @@ export async function createSystemRole(dto: CreateSystemRoleDto) {
 	validateStatus(dto.status);
 	await ensureRoleNameIsUnique(system_role_name);
 
-	return systemRoleDao.create({
+	return toPublicSystemRole(await systemRoleDao.create({
 		system_role_name,
 		status: dto.status ?? 'active'
-	});
+	}));
 }
 
-export async function updateSystemRole(system_role_id: number, dto: UpdateSystemRoleDto) {
-	const existing = await getSystemRoleById(system_role_id);
+export async function updateSystemRole(cuid2: string, dto: UpdateSystemRoleDto) {
+	const existing = await systemRoleDao.findByCuid2(cuid2);
+	if (!existing) {
+		throw new Error(`System role with CUID2 "${cuid2}" not found`);
+	}
 	const updateData: systemRoleDao.UpdateSystemRoleInput = {};
 
 	if (dto.system_role_name !== undefined) {
@@ -95,12 +123,15 @@ export async function updateSystemRole(system_role_id: number, dto: UpdateSystem
 		updateData.status = dto.status;
 	}
 
-	return systemRoleDao.update(system_role_id, updateData);
+	return toPublicSystemRole(await systemRoleDao.update(existing.system_role_id, updateData));
 }
 
-export async function deleteSystemRole(system_role_id: number) {
-	await getSystemRoleById(system_role_id);
-	return systemRoleDao.update(system_role_id, {
+export async function deleteSystemRole(cuid2: string) {
+	const existing = await systemRoleDao.findByCuid2(cuid2);
+	if (!existing) {
+		throw new Error(`System role with CUID2 "${cuid2}" not found`);
+	}
+	return toPublicSystemRole(await systemRoleDao.update(existing.system_role_id, {
 		status: 'inactive'
-	});
+	}));
 }

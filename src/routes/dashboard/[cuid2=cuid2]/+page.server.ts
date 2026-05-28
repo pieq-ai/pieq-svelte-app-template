@@ -6,7 +6,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		redirect(303, '/');
 	}
 
-	if (params.id !== locals.user.id) {
+	if (params.cuid2 !== locals.user.id) {
 		error(403, 'You can only view your own profile');
 	}
 

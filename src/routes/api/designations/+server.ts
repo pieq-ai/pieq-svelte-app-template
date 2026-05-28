@@ -3,15 +3,15 @@ import type { RequestEvent } from '@sveltejs/kit';
 import * as designationService from '$lib/server/services/designation.service.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 
-function parseDesignationUuid(event: RequestEvent) {
+function parseDesignationCuid2(event: RequestEvent) {
 	const url = new URL(event.request.url);
-	const uuid = url.searchParams.get('uuid');
+	const cuid2 = url.searchParams.get('cuid2');
 
-	if (!uuid) {
-		throw new Error('Designation UUID is required as a query parameter');
+	if (!cuid2) {
+		throw new Error('Designation CUID2 is required as a query parameter');
 	}
 
-	return uuid;
+	return cuid2;
 }
 
 export async function GET(event: RequestEvent) {
@@ -19,10 +19,10 @@ export async function GET(event: RequestEvent) {
 		permissionGuard.requireAuth(event.locals.user);
 
 		const url = new URL(event.request.url);
-		const uuid = url.searchParams.get('uuid');
+		const cuid2 = url.searchParams.get('cuid2');
 
-		if (uuid) {
-			const designation = await designationService.getDesignationByUuid(uuid);
+		if (cuid2) {
+			const designation = await designationService.getDesignationByCuid2(cuid2);
 			return json({ data: designation });
 		}
 
@@ -55,9 +55,9 @@ export async function PUT(event: RequestEvent) {
 		permissionGuard.requireAuth(event.locals.user);
 		permissionGuard.requireAdmin(event.locals.user);
 
-		const uuid = parseDesignationUuid(event);
+		const cuid2 = parseDesignationCuid2(event);
 		const body = await event.request.json();
-		const updatedDesignation = await designationService.updateDesignation(uuid, body);
+		const updatedDesignation = await designationService.updateDesignation(cuid2, body);
 		return json({ data: updatedDesignation });
 	} catch (error) {
 		const message = (error as Error).message;
@@ -71,8 +71,8 @@ export async function DELETE(event: RequestEvent) {
 		permissionGuard.requireAuth(event.locals.user);
 		permissionGuard.requireAdmin(event.locals.user);
 
-		const uuid = parseDesignationUuid(event);
-		const deletedDesignation = await designationService.deleteDesignation(uuid);
+		const cuid2 = parseDesignationCuid2(event);
+		const deletedDesignation = await designationService.deleteDesignation(cuid2);
 		return json({ data: deletedDesignation });
 	} catch (error) {
 		const message = (error as Error).message;

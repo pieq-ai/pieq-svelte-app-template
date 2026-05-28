@@ -22,12 +22,12 @@ export async function list() {
 }
 
 /**
- * Finds a department by its unique UUID.
+ * Finds a department by its public CUID2.
  */
-export async function findByUuid(uuid: string) {
+export async function findByCuid2(cuid2: string) {
 	return db.department.findUnique({
 		where: {
-			uuid
+			cuid2
 		}
 	});
 }
@@ -59,12 +59,12 @@ export async function create(data: CreateDepartmentInput) {
 }
 
 /**
- * Updates an existing department record by its UUID.
+ * Updates an existing department record by its public CUID2.
  */
-export async function update(uuid: string, data: UpdateDepartmentInput) {
+export async function update(cuid2: string, data: UpdateDepartmentInput) {
 	return db.department.update({
 		where: {
-			uuid
+			cuid2
 		},
 		data
 	});

@@ -161,14 +161,14 @@ This is the simplest path to understand the template:
 1. `onMount` in `+page.svelte` calls `GET /api/employees`
 2. `+server.ts` calls `employeeDao.list()`
 3. DAO runs `db.employee.findMany()`
-4. Response: `{ "data": [ { "id", "uuid", "name", "age" }, ... ] }`
+4. Response: `{ "data": [ { "cuid2", "name", "age" }, ... ] }`
 5. UI binds the array to the table
 
 **Data flow on form submit:**
 
 1. Form POSTs JSON `{ "name", "age" }` to `/api/employees`
 2. API validates input, calls `employeeDao.create()`
-3. Response: `{ "data": { "id", "uuid", "name", "age" } }` with status `201`
+3. Response: `{ "data": { "cuid2", "name", "age" } }` with status `201`
 4. UI prepends the new row without a full page reload
 
 ### Database and Prisma
@@ -239,8 +239,7 @@ Base path: `/api/employees`
 {
   "data": [
     {
-      "id": 1,
-      "uuid": "4f2ef1d9-dae1-44e8-a80c-d84235c61a19",
+      "cuid2": "ckv8l4m6p0000qzrmn831i7rn",
       "name": "Jane Doe",
       "age": 32
     }
@@ -264,8 +263,7 @@ Base path: `/api/employees`
 ```json
 {
   "data": {
-    "id": 2,
-    "uuid": "af1dbc38-820b-4c1d-be94-06bc7944abcc",
+    "cuid2": "ckv8l4m6p0001qzrmxggqsx7k",
     "name": "Jane Doe",
     "age": 32
   }

@@ -26,6 +26,14 @@ export async function findById(permission_id: number) {
 	});
 }
 
+export async function findByCuid2(cuid2: string) {
+	return db.permissions.findUnique({
+		where: {
+			cuid2
+		}
+	});
+}
+
 export async function create(data: CreatePermissionInput) {
 	return db.permissions.create({
 		data: {

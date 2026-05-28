@@ -16,18 +16,23 @@
 
 {#if open}
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-[#262626]/70 px-4 py-6">
-		<Card class="max-h-[90vh] w-full max-w-lg overflow-y-auto">
-			<CardHeader class="flex-row items-start justify-between gap-4">
-				<div class="space-y-1">
-					<CardTitle>{title}</CardTitle>
-					{#if description}
-						<CardDescription>{description}</CardDescription>
-					{/if}
-				</div>
-				<Button type="button" variant="ghost" size="icon-sm" aria-label={closeLabel} onclick={onClose}>
-					<XIcon class="size-4" />
-				</Button>
+		<Card class="relative max-h-[90vh] w-full max-w-lg overflow-y-auto">
+			<CardHeader class="flex-col items-start gap-1 pr-12">
+				<CardTitle>{title}</CardTitle>
+				{#if description}
+					<CardDescription>{description}</CardDescription>
+				{/if}
 			</CardHeader>
+			<Button 
+				type="button" 
+				variant="ghost" 
+				size="icon-sm" 
+				class="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
+				aria-label={closeLabel} 
+				onclick={onClose}
+			>
+				<XIcon class="size-4" />
+			</Button>
 			<CardContent>
 				{@render children?.()}
 			</CardContent>
