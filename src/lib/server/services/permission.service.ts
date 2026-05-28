@@ -55,7 +55,7 @@ async function ensurePermissionKeyIsUnique(permission_key: string, currentId?: n
 	const permissions = await permissionDao.list();
 	const duplicate = permissions.find(
 		(permission) =>
-			permission.permission_id !== currentId &&
+			permission.id !== currentId &&
 			permission.permission_key.trim().toLowerCase() === normalizedKey
 	);
 
@@ -68,14 +68,14 @@ export async function getPermissions() {
 	return (await permissionDao.list()).map(toPublicPermission);
 }
 
-export async function getPermissionById(permission_id: number) {
-	if (!Number.isInteger(permission_id) || permission_id <= 0) {
+export async function getPermissionById(id: number) {
+	if (!Number.isInteger(id) || id <= 0) {
 		throw new Error('Permission ID must be a positive integer');
 	}
 
-	const permission = await permissionDao.findById(permission_id);
+	const permission = await permissionDao.findById(id);
 	if (!permission) {
-		throw new Error(`Permission with ID "${permission_id}" not found`);
+		throw new Error(`Permission with ID "${id}" not found`);
 	}
 
 	return toPublicPermission(permission);
@@ -114,7 +114,7 @@ export async function updatePermission(cuid2: string, dto: UpdatePermissionDto) 
 
 	if (dto.permission_key !== undefined) {
 		const permission_key = validatePermissionKey(dto.permission_key);
-		await ensurePermissionKeyIsUnique(permission_key, existing.permission_id);
+		await ensurePermissionKeyIsUnique(permission_key, existing.id);
 		updateData.permission_key = permission_key;
 	}
 
@@ -123,7 +123,7 @@ export async function updatePermission(cuid2: string, dto: UpdatePermissionDto) 
 		updateData.status = dto.status;
 	}
 
-	return toPublicPermission(await permissionDao.update(existing.permission_id, updateData));
+	return toPublicPermission(await permissionDao.update(existing.id, updateData));
 }
 
 export async function deletePermission(cuid2: string) {
@@ -131,7 +131,7 @@ export async function deletePermission(cuid2: string) {
 	if (!existing) {
 		throw new Error(`Permission with CUID2 "${cuid2}" not found`);
 	}
-	return toPublicPermission(await permissionDao.update(existing.permission_id, {
+	return toPublicPermission(await permissionDao.update(existing.id, {
 		status: false
 	}));
 }

@@ -18,10 +18,10 @@ export async function list() {
 	});
 }
 
-export async function findById(system_role_id: number) {
+export async function findById(id: number) {
 	return db.systemRoles.findUnique({
 		where: {
-			system_role_id
+			id
 		}
 	});
 }
@@ -43,10 +43,10 @@ export async function create(data: CreateSystemRoleInput) {
 	});
 }
 
-export async function update(system_role_id: number, data: UpdateSystemRoleInput) {
+export async function update(id: number, data: UpdateSystemRoleInput) {
 	return db.systemRoles.update({
 		where: {
-			system_role_id
+			id
 		},
 		data
 	});

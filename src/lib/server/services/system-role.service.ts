@@ -55,7 +55,7 @@ async function ensureRoleNameIsUnique(system_role_name: string, currentId?: numb
 	const roles = await systemRoleDao.list();
 	const duplicate = roles.find(
 		(role) =>
-			role.system_role_id !== currentId &&
+			role.id !== currentId &&
 			role.system_role_name.trim().toLowerCase() === normalizedName
 	);
 
@@ -68,14 +68,14 @@ export async function getSystemRoles() {
 	return (await systemRoleDao.list()).map(toPublicSystemRole);
 }
 
-export async function getSystemRoleById(system_role_id: number) {
-	if (!Number.isInteger(system_role_id) || system_role_id <= 0) {
+export async function getSystemRoleById(id: number) {
+	if (!Number.isInteger(id) || id <= 0) {
 		throw new Error('System role ID must be a positive integer');
 	}
 
-	const role = await systemRoleDao.findById(system_role_id);
+	const role = await systemRoleDao.findById(id);
 	if (!role) {
-		throw new Error(`System role with ID "${system_role_id}" not found`);
+		throw new Error(`System role with ID "${id}" not found`);
 	}
 
 	return toPublicSystemRole(role);
@@ -114,7 +114,7 @@ export async function updateSystemRole(cuid2: string, dto: UpdateSystemRoleDto) 
 
 	if (dto.system_role_name !== undefined) {
 		const system_role_name = validateRoleName(dto.system_role_name);
-		await ensureRoleNameIsUnique(system_role_name, existing.system_role_id);
+		await ensureRoleNameIsUnique(system_role_name, existing.id);
 		updateData.system_role_name = system_role_name;
 	}
 
@@ -123,7 +123,7 @@ export async function updateSystemRole(cuid2: string, dto: UpdateSystemRoleDto) 
 		updateData.status = dto.status;
 	}
 
-	return toPublicSystemRole(await systemRoleDao.update(existing.system_role_id, updateData));
+	return toPublicSystemRole(await systemRoleDao.update(existing.id, updateData));
 }
 
 export async function deleteSystemRole(cuid2: string) {
@@ -131,7 +131,7 @@ export async function deleteSystemRole(cuid2: string) {
 	if (!existing) {
 		throw new Error(`System role with CUID2 "${cuid2}" not found`);
 	}
-	return toPublicSystemRole(await systemRoleDao.update(existing.system_role_id, {
+	return toPublicSystemRole(await systemRoleDao.update(existing.id, {
 		status: false
 	}));
 }

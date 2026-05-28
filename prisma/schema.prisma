@@ -51,7 +51,7 @@ enum ThemeEnum {
 }
 
 model Employee {
-  emp_id BigInt @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   emp_code   String @unique @db.VarChar(20)
   cuid2      String @unique @default(cuid())
@@ -62,11 +62,13 @@ model Employee {
 
   gender GenderEnum
 
-  blood_group_id Int
+  blood_group_cuid2 String
+  blood_group       BloodGroup @relation(fields: [blood_group_cuid2], references: [cuid2])
 
   marital_status MaritalStatusEnum
 
-  nationality_id Int
+  nationality_cuid2 String
+  nationality       Nationality @relation(fields: [nationality_cuid2], references: [cuid2])
 
   mobile_no String @unique @db.VarChar(15)
 
@@ -80,7 +82,8 @@ model Employee {
 
   emergency_contact_no String? @db.VarChar(15)
 
-  relation_id Int?
+  relation_cuid2 String?
+  relation_type  RelationType? @relation(fields: [relation_cuid2], references: [cuid2])
 
   created_at DateTime @default(now()) @db.Timestamptz()
 
@@ -91,20 +94,21 @@ model Employee {
 }
 
 model SystemRoles {
-  system_role_id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   cuid2 String @unique @default(cuid())
 
   system_role_name String @unique @db.VarChar(100)
 
-  status Boolean @default(true)
+  status          Boolean          @default(true)
+  rolePermissions RolePermission[]
 
   @@index([cuid2])
   @@map("system_roles")
 }
 
 model Department {
-  dept_id   Int    @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
   cuid2     String @unique @default(cuid())
   dept_name String @unique @db.VarChar(150)
 
@@ -115,45 +119,49 @@ model Department {
 }
 
 model Permissions {
-  permission_id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   cuid2 String @unique @default(cuid())
 
   permission_key String @unique @db.VarChar(100)
 
-  status Boolean @default(true)
+  status          Boolean          @default(true)
+  rolePermissions RolePermission[]
 
   @@index([cuid2])
   @@map("permissions")
 }
 
 model RolePermission {
-  role_permission_id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   cuid2 String @unique @default(cuid())
 
-  system_role_id Int
+  system_role_cuid2 String
+  system_role       SystemRoles @relation(fields: [system_role_cuid2], references: [cuid2])
 
-  permission_id Int
+  permission_cuid2 String
+  permission       Permissions @relation(fields: [permission_cuid2], references: [cuid2])
 
-  @@unique([system_role_id, permission_id])
+  @@unique([system_role_cuid2, permission_cuid2])
   @@index([cuid2])
   @@map("role_permission")
 }
 
 model BloodGroup {
-  blood_group_id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   cuid2 String @unique @default(cuid())
 
-  blood_group_name String @unique @db.VarChar(5)
+  blood_group_name String     @unique @db.VarChar(5)
+  employees        Employee[]
 
   @@index([cuid2])
   @@map("blood_group")
 }
 
 model Designation {
-  designation_id   Int    @id @default(autoincrement())
+  id               Int    @id @default(autoincrement())
   cuid2            String @unique @default(cuid())
   designation_name String @unique @db.VarChar(150)
 
@@ -164,7 +172,7 @@ model Designation {
 }
 
 model PayGrade {
-  paygrade_id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   cuid2 String @unique @default(cuid())
 
@@ -177,20 +185,21 @@ model PayGrade {
 }
 
 model Nationality {
-  nationality_id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   cuid2 String @unique @default(cuid())
 
   nationality_name String @unique @db.VarChar(100)
 
-  status Boolean @default(true)
+  status    Boolean    @default(true)
+  employees Employee[]
 
   @@index([cuid2])
   @@map("nationality")
 }
 
 model EmploymentType {
-  employment_type_id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   cuid2 String @unique @default(cuid())
 
@@ -203,20 +212,21 @@ model EmploymentType {
 }
 
 model RelationType {
-  relation_id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   cuid2 String @unique @default(cuid())
 
   relation_name String @unique @db.VarChar(50)
 
-  status Boolean @default(true)
+  status    Boolean    @default(true)
+  employees Employee[]
 
   @@index([cuid2])
   @@map("relation_type")
 }
 
 model DocumentType {
-  document_type_id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   cuid2 String @unique @default(cuid())
 
@@ -229,33 +239,35 @@ model DocumentType {
 }
 
 model State {
-  state_id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   cuid2 String @unique @default(cuid())
 
-  country_id Int
+  country_cuid2 String
+  country       Country @relation(fields: [country_cuid2], references: [cuid2])
 
   state_name String @db.VarChar(100)
 
-  @@unique([country_id, state_name])
-  @@index([country_id])
+  @@unique([country_cuid2, state_name])
+  @@index([country_cuid2])
   @@index([cuid2])
   @@map("state")
 }
 
 model Country {
-  country_id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   cuid2 String @unique @default(cuid())
 
-  country_name String @unique @db.VarChar(100)
+  country_name String  @unique @db.VarChar(100)
+  states       State[]
 
   @@index([cuid2])
   @@map("country")
 }
 
 model Skills {
-  skills_id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   cuid2 String @unique @default(cuid())
 
@@ -268,7 +280,7 @@ model Skills {
 }
 
 model AttendanceSource {
-  attendance_source_id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   cuid2 String @unique @default(cuid())
 
@@ -281,7 +293,7 @@ model AttendanceSource {
 }
 
 model Languages {
-  languages_id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   cuid2 String @unique @default(cuid())
 

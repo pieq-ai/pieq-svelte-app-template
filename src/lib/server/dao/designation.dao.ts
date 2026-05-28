@@ -18,10 +18,10 @@ export async function list() {
 	});
 }
 
-export async function findById(designation_id: number) {
+export async function findById(id: number) {
 	return db.designation.findUnique({
 		where: {
-			designation_id
+			id
 		}
 	});
 }

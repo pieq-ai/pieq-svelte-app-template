@@ -8,7 +8,7 @@ export interface CreateEmployeeData {
 export async function list() {
 	try {
 		const employees = await db.employee.findMany({
-			orderBy: { emp_id: 'asc' }
+			orderBy: { id: 'asc' }
 		});
 		return employees.map((emp) => ({
 			cuid2: emp.cuid2,
@@ -41,9 +41,9 @@ export async function create(data: CreateEmployeeData) {
 			last_name: lastName,
 			dob: new Date(new Date().getFullYear() - data.age, 0, 1),
 			gender: 'Male', // GenderEnum
-			blood_group_id: 1,
+			blood_group: { connect: { id: 1 } },
 			marital_status: 'single', // MaritalStatusEnum
-			nationality_id: 1,
+			nationality: { connect: { id: 1 } },
 			mobile_no: mobileNo,
 			personal_email: personalEmail,
 			aadhar_no: aadharNo,

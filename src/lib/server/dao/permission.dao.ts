@@ -18,10 +18,10 @@ export async function list() {
 	});
 }
 
-export async function findById(permission_id: number) {
+export async function findById(id: number) {
 	return db.permissions.findUnique({
 		where: {
-			permission_id
+			id
 		}
 	});
 }
@@ -43,10 +43,10 @@ export async function create(data: CreatePermissionInput) {
 	});
 }
 
-export async function update(permission_id: number, data: UpdatePermissionInput) {
+export async function update(id: number, data: UpdatePermissionInput) {
 	return db.permissions.update({
 		where: {
-			permission_id
+			id
 		},
 		data
 	});

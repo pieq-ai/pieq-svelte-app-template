@@ -1,6 +1,5 @@
 <script lang="ts">
 	import './layout.css';
-	import favicon from '$lib/assets/favicon.svg';
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
 	import { Button } from '$lib/components';
 	import Toaster from '$lib/components/ui/toaster.svelte';
@@ -53,7 +52,7 @@
 	});
 </script>
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<svelte:head><link rel="icon" href="/favicon.svg" /></svelte:head>
 
 <div class="flex min-h-screen bg-background text-foreground">
 	<Toaster />

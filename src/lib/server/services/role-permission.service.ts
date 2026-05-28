@@ -36,15 +36,10 @@ export async function getRolePermissionMatrix() {
 		rolePermissionDao.list()
 	]);
 
-	const roleById = new Map(roles.map((role) => [role.system_role_id, role]));
-	const permissionById = new Map(
-		permissions.map((permission) => [permission.permission_id, permission])
-	);
-
-	const enrichedMappings = mappings.map((mapping) => ({
+		const enrichedMappings = mappings.map((mapping) => ({
 		cuid2: mapping.cuid2,
-		system_role_cuid2: roleById.get(mapping.system_role_id)?.cuid2 ?? null,
-		permission_cuid2: permissionById.get(mapping.permission_id)?.cuid2 ?? null
+		system_role_cuid2: mapping.system_role_cuid2,
+		permission_cuid2: mapping.permission_cuid2
 	}));
 
 	const groupedPermissions = permissions.reduce(
@@ -93,8 +88,8 @@ export async function assignPermissionsToRole(dto: AssignRolePermissionsDto) {
 		}
 
 		const existing = await rolePermissionDao.findByRoleAndPermission(
-			role.system_role_id,
-			permission.permission_id
+			role.cuid2,
+			permission.cuid2
 		);
 		if (existing) {
 			skipped.push(existing);
@@ -103,8 +98,8 @@ export async function assignPermissionsToRole(dto: AssignRolePermissionsDto) {
 
 		created.push(
 			await rolePermissionDao.create({
-				system_role_id: role.system_role_id,
-				permission_id: permission.permission_id
+				system_role_cuid2: role.cuid2,
+				permission_cuid2: permission.cuid2
 			})
 		);
 	}
@@ -129,10 +124,10 @@ export async function removePermissionFromRoleByCuid2(system_role_cuid2: string,
 		throw new Error('Permission not found');
 	}
 
-	const existing = await rolePermissionDao.findByRoleAndPermission(role.system_role_id, permission.permission_id);
+	const existing = await rolePermissionDao.findByRoleAndPermission(role.cuid2, permission.cuid2);
 	if (!existing) {
 		throw new Error('Role permission mapping not found');
 	}
 
-	return rolePermissionDao.removeByRoleAndPermission(role.system_role_id, permission.permission_id);
+	return rolePermissionDao.removeByRoleAndPermission(role.cuid2, permission.cuid2);
 }

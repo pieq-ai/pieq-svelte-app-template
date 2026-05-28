@@ -78,28 +78,15 @@ function toOption(record: Record<string, unknown>, master: MasterKey): MasterDat
 	return option;
 }
 
-async function resolveStateCountryId(dto: MasterDataDto) {
-	if (!dto.country_cuid2) {
-		throw new Error('Country CUID2 is required');
-	}
 
-	const country = (await masterDataDao.findByCuid2('countries', dto.country_cuid2)) as
-		| Record<string, unknown>
-		| null;
-	if (!country) {
-		throw new Error('Country not found');
-	}
 
-	return readId(country, 'countries');
-}
-
-async function ensureUnique(master: MasterKey, name: string, countryId?: number, currentCuid2?: string) {
+async function ensureUnique(master: MasterKey, name: string, countryCuid2?: string, currentCuid2?: string) {
 	const records = (await masterDataDao.list(master)) as Record<string, unknown>[];
 	const normalizedName = name.trim().toLowerCase();
 	const duplicate = records.find((record) => {
 		const isSameRecord = readCuid2(record) === currentCuid2;
 		const isSameName = readName(record, master).trim().toLowerCase() === normalizedName;
-		const isSameCountry = master !== 'states' || Number(record.country_id) === Number(countryId);
+		const isSameCountry = master !== 'states' || record.country_cuid2 === countryCuid2;
 		return !isSameRecord && isSameName && isSameCountry;
 	});
 
@@ -112,7 +99,7 @@ export async function getMasterData(masterKey: string, search?: string, countryC
 	const master = resolveMaster(masterKey);
 	const records = (await masterDataDao.list(master)) as Record<string, unknown>[];
 	const query = search?.trim().toLowerCase() ?? '';
-	let countryId: number | undefined;
+	
 	if (master === 'states' && countryCuid2) {
 		const country = (await masterDataDao.findByCuid2('countries', countryCuid2)) as
 			| Record<string, unknown>
@@ -120,12 +107,12 @@ export async function getMasterData(masterKey: string, search?: string, countryC
 		if (!country) {
 			throw new Error('Country not found');
 		}
-		countryId = readId(country, 'countries');
+		
 	}
 
 	return records
 		.filter((record) => {
-			if (master === 'states' && countryId && Number(record.country_id) !== countryId) {
+			if (master === 'states' && countryCuid2 && record.country_cuid2 !== countryCuid2) {
 				return false;
 			}
 			return !query || readName(record, master).toLowerCase().includes(query);
@@ -136,17 +123,17 @@ export async function getMasterData(masterKey: string, search?: string, countryC
 export async function createMasterData(masterKey: string, dto: MasterDataDto) {
 	const master = resolveMaster(masterKey);
 	const name = normalizeName(dto.name, master);
-	let countryId: number | undefined;
+	
 
 	if (master === 'states') {
-		countryId = await resolveStateCountryId(dto);
+		
 	}
 
-	await ensureUnique(master, name, countryId);
+	await ensureUnique(master, name, dto.country_cuid2);
 
 	const created = (await masterDataDao.create(master, {
 		name,
-		country_id: countryId
+		country_cuid2: dto.country_cuid2
 	})) as Record<string, unknown>;
 
 	return toOption(created, master);
@@ -161,18 +148,18 @@ export async function updateMasterData(masterKey: string, cuid2: string, dto: Ma
 	}
 
 	const name = normalizeName(dto.name, master);
-	let countryId: number | undefined;
+	
 
 	if (master === 'states') {
-		countryId = await resolveStateCountryId(dto);
+		
 	}
 
-	await ensureUnique(master, name, countryId, cuid2);
+	await ensureUnique(master, name, dto.country_cuid2, cuid2);
 
 	const updated = (await masterDataDao.update(master, {
 		id: readId(existing, master),
 		name,
-		country_id: countryId
+		country_cuid2: dto.country_cuid2
 	})) as Record<string, unknown>;
 
 	return toOption(updated, master);
