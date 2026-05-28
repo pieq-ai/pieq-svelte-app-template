@@ -29,6 +29,9 @@ const routeGuard = async ({ event, resolve }) => {
 		'/department',
 		'/designations',
 		'/designation',
+		'/system-roles',
+		'/permissions',
+		'/role-permissions',
 		'/dashboard'
 	];
 	const isProtectedRoute = protectedRoutes.some(

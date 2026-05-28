@@ -10,6 +10,9 @@
 	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
 	import LogInIcon from '@lucide/svelte/icons/log-in';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
+	import KeyRoundIcon from '@lucide/svelte/icons/key-round';
+	import LinkIcon from '@lucide/svelte/icons/link';
+	import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 	import SettingsIcon from '@lucide/svelte/icons/settings';
 	import UserRoundIcon from '@lucide/svelte/icons/user-round';
 	import UsersRoundIcon from '@lucide/svelte/icons/users-round';
@@ -22,7 +25,10 @@
 		{ label: 'Dashboard', href: resolve('/dashboard'), icon: LayoutDashboardIcon },
 		{ label: 'Employee', href: resolve('/employees'), icon: UsersRoundIcon },
 		{ label: 'Department', href: resolve('/departments'), icon: Building2Icon },
-		{ label: 'Designation', href: resolve('/designations'), icon: UserRoundIcon }
+		{ label: 'Designation', href: resolve('/designations'), icon: UserRoundIcon },
+		{ label: 'System Roles', href: resolve('/system-roles'), icon: ShieldCheckIcon },
+		{ label: 'Permissions', href: resolve('/permissions'), icon: KeyRoundIcon },
+		{ label: 'Role Permissions', href: resolve('/role-permissions'), icon: LinkIcon }
 	];
 
 	$effect(() => {
