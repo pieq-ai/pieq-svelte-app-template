@@ -11,6 +11,7 @@
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
 	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
 	import HomeIcon from '@lucide/svelte/icons/home';
+	import ClockIcon from '@lucide/svelte/icons/clock';
 
 	interface Props {
 		user?: { email?: string; name?: string } | null;
@@ -51,7 +52,8 @@
 	const mainNavItems = [
 		{ href: '/dashboard', label: 'Dashboard', icon: LayoutDashboardIcon },
 		{ href: '/employees', label: 'Employees', icon: UsersIcon },
-		{ href: '/roles', label: 'Roles', icon: ShieldIcon }
+		{ href: '/roles', label: 'Roles', icon: ShieldIcon },
+		{ href: '/shifts', label: 'Shifts', icon: ClockIcon }
 	];
 </script>
 

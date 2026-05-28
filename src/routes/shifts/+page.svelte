@@ -1,0 +1,362 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import type { Shift } from '$lib/types/shift';
+	import PlusIcon from '@lucide/svelte/icons/plus';
+	import Pencil2Icon from '@lucide/svelte/icons/pencil';
+	import Trash2Icon from '@lucide/svelte/icons/trash-2';
+	import ClockIcon from '@lucide/svelte/icons/clock';
+	import XIcon from '@lucide/svelte/icons/x';
+	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
+	import CheckIcon from '@lucide/svelte/icons/check';
+
+	let shifts = $state<Shift[]>([]);
+	let page = $state(1);
+	let limit = $state(10);
+	let total = $state(0);
+	let loading = $state(false);
+
+	// Modal state
+	let showForm = $state(false);
+	let editShift = $state<Shift | null>(null);
+	let formName = $state('');
+	let formError = $state('');
+	let formLoading = $state(false);
+
+	// Filter
+	let filterStatus = $state<'all' | 'active' | 'inactive'>('all');
+
+	let totalPages = $derived(Math.max(1, Math.ceil(total / limit)));
+
+	let filteredShifts = $derived.by(() => {
+		if (filterStatus === 'active') return shifts.filter((s) => s.status === 'active');
+		if (filterStatus === 'inactive') return shifts.filter((s) => s.status === 'inactive');
+		return shifts;
+	});
+
+	async function fetchShifts() {
+		loading = true;
+		try {
+			const res = await fetch(`/api/shifts?page=${page}&limit=${limit}&includeInactive=true`);
+			const json = await res.json();
+			if (res.ok) {
+				shifts = json.data ?? [];
+				total = json.pagination?.total ?? 0;
+			}
+		} catch (e) {
+			console.error('Failed to fetch shifts', e);
+		} finally {
+			loading = false;
+		}
+	}
+
+	function openCreate() {
+		editShift = null;
+		formName = '';
+		formError = '';
+		showForm = true;
+	}
+
+	function openEdit(shift: Shift) {
+		editShift = shift;
+		formName = shift.shift_name;
+		formError = '';
+		showForm = true;
+	}
+
+	function closeForm() {
+		showForm = false;
+		formName = '';
+		formError = '';
+		editShift = null;
+	}
+
+	async function submitForm(e: Event) {
+		e.preventDefault();
+		const nameTrimmed = formName.trim();
+		if (!nameTrimmed) {
+			formError = 'Shift name is required.';
+			return;
+		}
+		if (nameTrimmed.length < 2) {
+			formError = 'Shift name must be at least 2 characters.';
+			return;
+		}
+		if (/\d/.test(nameTrimmed)) {
+			formError = 'Shift name cannot contain numbers.';
+			return;
+		}
+		if (!/^[A-Za-z ]+$/.test(nameTrimmed)) {
+			formError = 'Shift name cannot contain special characters.';
+			return;
+		}
+		if (nameTrimmed.length > 255) {
+			formError = 'Shift name exceeds maximum length of 255 characters.';
+			return;
+		}
+		formLoading = true;
+		formError = '';
+		try {
+			const url = editShift ? `/api/shifts/${editShift.shift_id}` : '/api/shifts';
+			const method = editShift ? 'PUT' : 'POST';
+			const res = await fetch(url, {
+				method,
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ shift_name: nameTrimmed })
+			});
+			const json = await res.json();
+			if (res.ok) {
+				closeForm();
+				await fetchShifts();
+			} else {
+				formError = json.error || 'Something went wrong.';
+			}
+		} catch {
+			formError = 'Network error.';
+		} finally {
+			formLoading = false;
+		}
+	}
+
+	async function deactivateShift(id: number) {
+		if (!confirm('Deactivate this shift? It will remain visible but marked as inactive.')) return;
+		const res = await fetch(`/api/shifts/${id}`, { method: 'DELETE' });
+		if (res.ok) await fetchShifts();
+	}
+
+	async function activateShift(id: number) {
+		if (!confirm('Activate this shift? It will be marked as active.')) return;
+		const res = await fetch(`/api/shifts/${id}`, { method: 'PATCH' });
+		if (res.ok) await fetchShifts();
+	}
+
+	async function prevPage() {
+		if (page > 1) {
+			page -= 1;
+			await fetchShifts();
+		}
+	}
+
+	async function nextPage() {
+		if (page < totalPages) {
+			page += 1;
+			await fetchShifts();
+		}
+	}
+
+	onMount(fetchShifts);
+</script>
+
+<svelte:head>
+	<title>Shift Master – PieQ HRMS</title>
+</svelte:head>
+
+<!-- Page header -->
+<div class="page-topbar">
+	<div>
+		<span
+			style="display:inline-block;background:#C2652A1a;color:#C2652A;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:99px;margin-bottom:6px"
+		>HRMS Module</span>
+		<h1 style="font-size:26px;font-weight:700;color:var(--foreground);margin:0;line-height:1.2">
+			Shift Master
+		</h1>
+		<p style="color:var(--muted-foreground);font-size:13px;margin-top:4px">
+			Create and manage employee work shifts and timing constraints.
+		</p>
+	</div>
+
+	<button class="btn-add-entity" onclick={openCreate} id="add-shift-btn">
+		<PlusIcon size={16} />
+		Add Shift
+	</button>
+</div>
+
+<!-- Toolbar: filter -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+	<div style="display:flex;align-items:center;gap:8px">
+		<span style="font-size:13px;color:var(--muted-foreground)">Filter:</span>
+		<select
+			bind:value={filterStatus}
+			class="filter-select"
+			id="shift-filter-select"
+		>
+			<option value="all">All</option>
+			<option value="active">Active</option>
+			<option value="inactive">Inactive</option>
+		</select>
+	</div>
+	<p style="font-size:12px;color:var(--muted-foreground)">
+		{filteredShifts.length} of {shifts.length} shift{shifts.length !== 1 ? 's' : ''}
+	</p>
+</div>
+
+<!-- Table card -->
+<div class="enterprise-table-card">
+	{#if loading}
+		<div style="padding:64px;text-align:center;color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;gap:10px">
+			<LoaderCircleIcon class="animate-spin" size={18} />
+			Loading shifts...
+		</div>
+	{:else if filteredShifts.length === 0}
+		<div style="padding:64px;text-align:center;color:var(--muted-foreground)">
+			{shifts.length === 0
+				? 'No shifts found. Click Add Shift to create one.'
+				: 'No shifts match the current filter.'}
+		</div>
+	{:else}
+		<table style="width:100%;border-collapse:collapse">
+			<thead style="background:var(--muted)">
+				<tr>
+					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">#</th>
+					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Shift Name</th>
+					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Status</th>
+					<th style="padding:12px 20px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				{#each filteredShifts as shift (shift.shift_id)}
+					<tr
+						style="border-top:1px solid var(--border);transition:background-color .2s ease"
+						onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}
+						onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = ''; }}
+					>
+						<td style="padding:14px 20px;font-size:13px;color:var(--muted-foreground)">{shift.shift_id}</td>
+						<td style="padding:14px 20px">
+							<div style="display:flex;align-items:center;gap:8px">
+								<span style="color:#C2652A">
+									<ClockIcon size={15} />
+								</span>
+								<span style="font-size:14px;font-weight:600">{shift.shift_name}</span>
+							</div>
+						</td>
+						<td style="padding:14px 20px">
+							{#if shift.status === 'active'}
+								<span class="badge-active">Active</span>
+							{:else}
+								<span class="badge-inactive">Inactive</span>
+							{/if}
+						</td>
+						<td style="padding:14px 20px;text-align:right">
+							<div style="display:flex;align-items:center;justify-content:flex-end;gap:8px">
+								<button
+									onclick={() => openEdit(shift)}
+									aria-label="Edit shift"
+									title="Edit shift"
+									style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid var(--border);background:none;cursor:pointer;transition:background .15s;color:var(--foreground)"
+									onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = 'var(--muted)')}
+									onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '')}
+								>
+									<Pencil2Icon size={14} />
+								</button>
+								{#if shift.status === 'active'}
+									<button
+										onclick={() => deactivateShift(shift.shift_id)}
+										aria-label="Deactivate shift"
+										title="Deactivate shift"
+										style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid #fca5a520;background:none;cursor:pointer;transition:background .15s;color:#dc2626"
+										onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = '#fef2f2')}
+										onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '')}
+									>
+										<Trash2Icon size={14} />
+									</button>
+								{:else}
+									<button
+										onclick={() => activateShift(shift.shift_id)}
+										aria-label="Activate shift"
+										title="Activate shift"
+										style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid #bbf7d040;background:none;cursor:pointer;transition:background .15s;color:#16a34a"
+										onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = '#f0fdf4')}
+										onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '')}
+									>
+										<CheckIcon size={14} />
+									</button>
+								{/if}
+							</div>
+						</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+
+		<!-- Pagination -->
+		<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--border)">
+			<p style="font-size:12px;color:var(--muted-foreground)">
+				Page {page} of {totalPages} &bull; {total} total shift{total !== 1 ? 's' : ''}
+			</p>
+			<div style="display:flex;gap:8px">
+				<button
+					disabled={page <= 1}
+					onclick={prevPage}
+					style="padding:6px 14px;border-radius:7px;border:1px solid var(--border);background:none;font-size:12px;cursor:pointer;opacity:{page <= 1 ? 0.4 : 1}"
+				>← Prev</button>
+				<button
+					disabled={page >= totalPages}
+					onclick={nextPage}
+					style="padding:6px 14px;border-radius:7px;border:1px solid var(--border);background:none;font-size:12px;cursor:pointer;opacity:{page >= totalPages ? 0.4 : 1}"
+				>Next →</button>
+			</div>
+		</div>
+	{/if}
+</div>
+
+<!-- Create / Edit Modal -->
+{#if showForm}
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div
+		class="modal-overlay"
+		onclick={(e) => { if (e.target === e.currentTarget) closeForm(); }}
+	>
+		<div class="modal-card">
+			<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+				<h2 style="font-size:18px;font-weight:700;margin:0">
+					{editShift ? 'Edit Shift' : 'Create New Shift'}
+				</h2>
+				<button
+					onclick={closeForm}
+					style="background:none;border:none;cursor:pointer;color:var(--muted-foreground);padding:4px;border-radius:6px"
+					aria-label="Close modal"
+				>
+					<XIcon size={18} />
+				</button>
+			</div>
+
+			<form onsubmit={submitForm} style="display:flex;flex-direction:column;gap:16px">
+				<div style="display:flex;flex-direction:column;gap:6px">
+					<label for="shift-name" style="font-size:13px;font-weight:600">
+						Shift Name <span style="color:#C2652A">*</span>
+					</label>
+					<input
+						id="shift-name"
+						type="text"
+						bind:value={formName}
+						placeholder="e.g. Morning Shift"
+						style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
+						onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+						onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+					/>
+					{#if formError}
+						<p style="color:#dc2626;font-size:12px;margin:0">{formError}</p>
+					{/if}
+				</div>
+
+				<div style="display:flex;justify-content:flex-end;gap:10px;padding-top:4px">
+					<button
+						type="button"
+						onclick={closeForm}
+						style="padding:9px 18px;border-radius:8px;border:1px solid var(--border);background:none;font-size:13px;font-weight:500;cursor:pointer"
+					>Cancel</button>
+					<button
+						type="submit"
+						disabled={formLoading}
+						style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;opacity:{formLoading ? 0.7 : 1};display:inline-flex;align-items:center;gap:6px"
+					>
+						{#if formLoading}
+							<LoaderCircleIcon class="animate-spin" size={14} />
+						{/if}
+						{formLoading ? 'Saving...' : editShift ? 'Update Shift' : 'Create Shift'}
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+{/if}
