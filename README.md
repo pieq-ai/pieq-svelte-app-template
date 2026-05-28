@@ -668,3 +668,59 @@ Authenticated e2e flows require Keycloak in CI (test realm + secrets).
 ## Service worker
 
 A service worker lives at `src/service-worker.js`. Registration is disabled by default in `svelte.config.js`. Set `kit.serviceWorker.register` to `true` to enable PWA caching.
+
+---
+
+## Current Project State (Codebase Reality)
+
+### 1. Project Overview
+This project is an enterprise HRMS (Human Resource Management System) built on top of the SvelteKit boilerplate. It implements a layered server architecture with strict separation between UI, HTTP controllers, Service logic, and DAO (Data Access Object) database interactions. 
+
+### 2. Implemented Modules
+The following modules are actively implemented and present in the codebase:
+- **Auth**: Keycloak OIDC integration via Auth.js (`/auth/signin`)
+- **Dashboard**: Protected landing page (`/dashboard`)
+- **Departments**: Master data management (`/departments`)
+- **Designations**: Master data management (`/designations`)
+- **System Roles**: Role management (`/system-roles`)
+- **Permissions**: Permission key definitions (`/permissions`)
+- **Role Permissions**: Matrix mapping between roles and permissions (`/role-permissions`)
+- **Settings**: Application settings (`/settings`)
+- **API**: Full REST API endpoints mapping to all the above modules (`/api/*`)
+
+### 3. UI & Design System
+The application utilizes a consistent design system with the following characteristics:
+- **Styling System**: Tailwind CSS v4 using utility classes and CSS variables.
+- **Component Library**: `shadcn-svelte` (accessible, theme-aware components).
+- **Core UI Components**: `Alert`, `Badge`, `Button`, `Card`, `DropdownMenu`, `Input`, `Label`, `Select`, `Separator`, `Sonner` (Toast notifications), and `Table`.
+- **Custom UI Patterns** (located in `src/lib/components/common`):
+  - `CrudModal.svelte` & `ConfirmModal.svelte`: Reusable dialogs for creating/editing/deleting records.
+  - `MasterDataDropdown.svelte` & `SearchableDropdown.svelte`: Dynamic dropdowns that load master data (e.g., departments, designations) via API.
+  - `FilterDropdown.svelte`: Table filtering component.
+  - `TableActions.svelte`: Standardized row-level action buttons (Edit/Delete).
+  - `PermissionMatrixCell.svelte`: Interactive cell for role-permission assignments.
+- **Icon System**: Lucide Icons via `@lucide/svelte`.
+
+### 4. Tech Stack
+- **Core**: Svelte 5, SvelteKit 2 (Node.js adapter)
+- **Styling**: Tailwind CSS 4, `shadcn-svelte`, `tailwind-merge`, `tailwind-variants`, `clsx`
+- **Database**: PostgreSQL
+- **ORM**: Prisma 7 (using `@prisma/adapter-pg` + `pg` driver for ESM support)
+- **Auth**: Auth.js (`@auth/sveltekit`)
+- **Testing**: Playwright (`@playwright/test`), Vitest (`vitest`)
+- **Tooling**: TypeScript, ESLint, `svelte-check`
+
+### 5. Testing Status
+The project has a comprehensive testing infrastructure:
+- **Unit Tests (`npm run test:unit`)**: Configured with Vitest for server configs and utilities (`tests/unit/`).
+- **E2E Tests (`npx playwright test`)**: Full Playwright test suite mapped out in `tests/`. It includes:
+  - Global Setup/Teardown (`tests/setup/global.setup.ts`) with DB truncation and seeding.
+  - API Integration Tests (`tests/api/*.spec.ts`)
+  - Authentication Flows (`tests/auth/*.spec.ts`)
+  - Feature UI Tests (`tests/employees/`, `tests/masters/`, `tests/role-permissions/`, `tests/e2e/`)
+*(Note: Protected API/E2E test flows currently skip or require valid Keycloak session cookies for full pass in CI).*
+
+### 6. Architecture Notes
+- **CUID2 standard**: The database schema uses numeric `id` for internal primary keys, but strictly exposes `cuid2` for all external API operations and relational bindings (e.g., `department_cuid2`).
+- **ESM DB Adapter**: The Prisma client connects via the `PrismaPg` adapter, correctly initialized in `src/lib/server/db.ts` to support SvelteKit's ESM requirements.
+- **Separation of Concerns**: Client components strictly communicate through REST API routes (`src/routes/api/*`), which in turn call the isolated DAO layer (`$lib/server/dao`), ensuring no direct database imports occur on the client side.
