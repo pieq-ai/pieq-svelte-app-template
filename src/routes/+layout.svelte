@@ -2,7 +2,7 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
-	import { Button } from '$lib/components';
+	import { Button, ToastContainer } from '$lib/components';
 	import { resolve } from '$app/paths';
 	import Building2Icon from '@lucide/svelte/icons/building-2';
 	import MenuIcon from '@lucide/svelte/icons/menu';
@@ -154,4 +154,6 @@
 	>
 		{@render children()}
 	</main>
+
+	<ToastContainer />
 </div>

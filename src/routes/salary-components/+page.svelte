@@ -3,9 +3,6 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import Edit2Icon from '@lucide/svelte/icons/edit-2';
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
-	import InfoIcon from '@lucide/svelte/icons/info';
-	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
-
 	import {
 		Badge,
 		Button,
@@ -15,8 +12,6 @@
 		CardTitle,
 		Input,
 		Label,
-		Alert,
-		AlertDescription,
 		TableRow,
 		TableCell,
 		StatusBadge,
@@ -33,14 +28,15 @@
 	} from '$lib/types/salary-component';
 	import { validateComponentName } from '$lib/validators/salary-component';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
-	import { slide } from 'svelte/transition';
+	import { toast } from '$lib/toast.svelte';
+	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import { scale } from 'svelte/transition';
 
 	let items = $state<SalaryComponent[]>([]);
 	let totalItems = $state(0);
 	let totalPages = $state(1);
 
 	let isLoading = $state(false);
-	let fetchError = $state('');
 
 	let searchQuery = $state('');
 	let filterType = $state<'all' | SalaryComponentType>('all');
@@ -55,9 +51,6 @@
 
 	let isModalOpen = $state(false);
 	let isSubmitting = $state(false);
-
-	let modalError = $state('');
-	let modalSuccess = $state('');
 
 	let editingId = $state<string | null>(null);
 
@@ -106,7 +99,6 @@
 	async function loadComponents() {
 		try {
 			isLoading = true;
-			fetchError = '';
 
 			const params = new SvelteURLSearchParams();
 
@@ -154,11 +146,11 @@
 				json.data.totalPages;
 		} catch (e) {
 			console.error(e);
-
-			fetchError =
+			toast.error(
 				e instanceof Error
 					? e.message
-					: 'Failed loading salary components';
+					: 'Failed loading salary components'
+			);
 		} finally {
 			isLoading = false;
 		}
@@ -230,9 +222,6 @@
 		formIsActive = true;
 		formIsTaxable = false;
 
-		modalError = '';
-		modalSuccess = '';
-
 		isModalOpen = true;
 	}
 
@@ -254,9 +243,6 @@
 		formIsTaxable =
 			component.is_taxable;
 
-		modalError = '';
-		modalSuccess = '';
-
 		isModalOpen = true;
 	}
 
@@ -270,13 +256,12 @@
 
 		const nameError = validateComponentName(trimmedName);
 		if (nameError) {
-			modalError = nameError;
+			toast.error(nameError);
 			return;
 		}
 
 		try {
 			isSubmitting = true;
-			modalError = '';
 
 			const payload = {
 				component_name:
@@ -323,12 +308,18 @@
 				loadStats()
 			]);
 
+			toast.success(
+				editingId
+					? 'Salary Component updated successfully'
+					: 'Salary Component created successfully'
+			);
 			isModalOpen = false;
 		} catch (e) {
-			modalError =
+			toast.error(
 				e instanceof Error
 					? e.message
-					: 'Failed';
+					: 'Failed to save salary component'
+			);
 		} finally {
 			isSubmitting = false;
 		}
@@ -370,15 +361,41 @@
 				loadStats()
 			]);
 
+			toast.success('Salary Component deactivated successfully');
 			isConfirmOpen = false;
 		} catch (e) {
+			toast.error(
+				e instanceof Error
+					? e.message
+					: 'Failed to deactivate salary component'
+			);
 			console.error(e);
-		} finally {
-			isConfirming = false;
-			deactivatingId = null;
+		}
+	}
+
+	let activeDropdown = $state<string | null>(null);
+
+	function toggleDropdown(name: string, e: MouseEvent) {
+		e.stopPropagation();
+		if (activeDropdown === name) {
+			activeDropdown = null;
+		} else {
+			activeDropdown = name;
+		}
+	}
+
+	function closeAllDropdowns() {
+		activeDropdown = null;
+	}
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') {
+			activeDropdown = null;
 		}
 	}
 </script>
+
+<svelte:window onkeydown={handleKeydown} onclick={closeAllDropdowns} />
 
 <svelte:head>
 	<title>Salary Components | PieQ HRMS</title>
@@ -435,13 +452,7 @@
 		</Card>
 	</div>
 
-	<!-- Error state -->
-	{#if fetchError}
-		<Alert variant="destructive">
-			<AlertCircleIcon class="size-4" />
-			<AlertDescription class="ml-2">{fetchError}</AlertDescription>
-		</Alert>
-	{/if}
+
 
 	<!-- Filter + Table Card -->
 	<Card class="pt-1 gap-2">
@@ -451,22 +462,91 @@
 				<SearchBar bind:value={searchQuery} placeholder="Search component name..." />
 			</div>
 			<div class="flex flex-wrap items-center gap-2">
-				<select
-					bind:value={filterType}
-					class="h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-				>
-					<option value="all">All Types</option>
-					<option value="earning">Earning</option>
-					<option value="deduction">Deduction</option>
-				</select>
-				<select
-					bind:value={filterActive}
-					class="h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-				>
-					<option value="all">All Statuses</option>
-					<option value="true">Active</option>
-					<option value="false">Inactive</option>
-				</select>
+				<!-- Filter Type Dropdown -->
+				<div class="relative">
+					<button
+						type="button"
+						onclick={(e) => toggleDropdown('filterType', e)}
+						class="h-9 w-40 rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
+					>
+						<span>
+							{filterType === 'all' ? 'All Types' : (filterType === 'earning' ? 'Earning' : 'Deduction')}
+						</span>
+						<span class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70">
+							<ChevronDownIcon class="size-4" />
+						</span>
+					</button>
+
+					{#if activeDropdown === 'filterType'}
+						<div
+							transition:scale={{ start: 0.95, duration: 100 }}
+							class="absolute left-0 mt-1.5 z-50 w-full min-w-[10rem] rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
+						>
+							{#each [
+								{ value: 'all', label: 'All Types' },
+								{ value: 'earning', label: 'Earning' },
+								{ value: 'deduction', label: 'Deduction' }
+							] as opt (opt.value)}
+								<button
+									type="button"
+									onclick={() => {
+										filterType = opt.value as 'all' | SalaryComponentType;
+										activeDropdown = null;
+									}}
+									class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium
+										{filterType === opt.value
+											? 'bg-[#C2652A]/10 text-[#C2652A] dark:bg-[#C2652A]/20'
+											: 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'}"
+								>
+									{opt.label}
+								</button>
+							{/each}
+						</div>
+					{/if}
+				</div>
+
+				<!-- Filter Active Dropdown -->
+				<div class="relative">
+					<button
+						type="button"
+						onclick={(e) => toggleDropdown('filterActive', e)}
+						class="h-9 w-40 rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
+					>
+						<span>
+							{filterActive === 'all' ? 'All Statuses' : (filterActive === 'true' ? 'Active' : 'Inactive')}
+						</span>
+						<span class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70">
+							<ChevronDownIcon class="size-4" />
+						</span>
+					</button>
+
+					{#if activeDropdown === 'filterActive'}
+						<div
+							transition:scale={{ start: 0.95, duration: 100 }}
+							class="absolute left-0 mt-1.5 z-50 w-full min-w-[10rem] rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
+						>
+							{#each [
+								{ value: 'all', label: 'All Statuses' },
+								{ value: 'true', label: 'Active' },
+								{ value: 'false', label: 'Inactive' }
+							] as opt (opt.value)}
+								<button
+									type="button"
+									onclick={() => {
+										filterActive = opt.value as 'all' | 'true' | 'false';
+										activeDropdown = null;
+									}}
+									class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium
+										{filterActive === opt.value
+											? 'bg-[#C2652A]/10 text-[#C2652A] dark:bg-[#C2652A]/20'
+											: 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'}"
+								>
+									{opt.label}
+								</button>
+							{/each}
+						</div>
+					{/if}
+				</div>
 			</div>
 		</div>
 
@@ -551,7 +631,6 @@
 	isOpen={isModalOpen}
 	title={editingId ? 'Edit Salary Component' : 'Create Salary Component'}
 	isSubmitting={isSubmitting}
-	errorMessage={modalError}
 	onclose={() => (isModalOpen = false)}
 	onsubmit={handleFormSubmit}
 >
@@ -568,28 +647,88 @@
 		</div>
 
 		<div class="grid grid-cols-2 gap-4">
-			<div class="space-y-2">
+			<!-- Component Type Custom Dropdown -->
+			<div class="space-y-2 relative">
 				<Label for="component_type">Component Type</Label>
-				<select
+				<button
 					id="component_type"
-					bind:value={formType}
-					class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+					type="button"
+					onclick={(e) => toggleDropdown('formType', e)}
+					class="h-9 w-full rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
 				>
-					<option value="earning">Earning</option>
-					<option value="deduction">Deduction</option>
-				</select>
+					<span>{formType === 'earning' ? 'Earning' : 'Deduction'}</span>
+					<span class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70">
+						<ChevronDownIcon class="size-4" />
+					</span>
+				</button>
+
+				{#if activeDropdown === 'formType'}
+					<div
+						transition:scale={{ start: 0.95, duration: 100 }}
+						class="absolute left-0 top-[4.25rem] z-50 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
+					>
+						{#each [
+							{ value: 'earning', label: 'Earning' },
+							{ value: 'deduction', label: 'Deduction' }
+						] as opt (opt.value)}
+							<button
+								type="button"
+								onclick={() => {
+									formType = opt.value as SalaryComponentType;
+									activeDropdown = null;
+								}}
+								class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium
+									{formType === opt.value
+										? 'bg-[#C2652A]/10 text-[#C2652A] dark:bg-[#C2652A]/20'
+										: 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'}"
+							>
+								{opt.label}
+							</button>
+						{/each}
+					</div>
+				{/if}
 			</div>
 
-			<div class="space-y-2">
+			<!-- Status Custom Dropdown -->
+			<div class="space-y-2 relative">
 				<Label for="is_active">Status</Label>
-				<select
+				<button
 					id="is_active"
-					bind:value={formIsActive}
-					class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+					type="button"
+					onclick={(e) => toggleDropdown('formIsActive', e)}
+					class="h-9 w-full rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-all duration-200 text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
 				>
-					<option value={true}>Active</option>
-					<option value={false}>Inactive</option>
-				</select>
+					<span>{formIsActive ? 'Active' : 'Inactive'}</span>
+					<span class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70">
+						<ChevronDownIcon class="size-4" />
+					</span>
+				</button>
+
+				{#if activeDropdown === 'formIsActive'}
+					<div
+						transition:scale={{ start: 0.95, duration: 100 }}
+						class="absolute left-0 top-[4.25rem] z-50 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
+					>
+						{#each [
+							{ value: true, label: 'Active' },
+							{ value: false, label: 'Inactive' }
+						] as opt (opt.value)}
+							<button
+								type="button"
+								onclick={() => {
+									formIsActive = opt.value;
+									activeDropdown = null;
+								}}
+								class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium
+									{formIsActive === opt.value
+										? 'bg-[#C2652A]/10 text-[#C2652A] dark:bg-[#C2652A]/20'
+										: 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'}"
+							>
+								{opt.label}
+							</button>
+						{/each}
+					</div>
+				{/if}
 			</div>
 		</div>
 
@@ -607,15 +746,7 @@
 			</div>
 		</div>
 
-		<!-- Success notice -->
-		{#if modalSuccess}
-			<div transition:slide class="mt-1">
-				<Alert>
-					<InfoIcon class="size-4" />
-					<AlertDescription class="ml-2">{modalSuccess}</AlertDescription>
-				</Alert>
-			</div>
-		{/if}
+
 	</div>
 </MasterFormModal>
 

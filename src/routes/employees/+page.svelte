@@ -1,12 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { slide } from 'svelte/transition';
+	import { toast } from '$lib/toast.svelte';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
 	import {
-		Alert,
-		AlertDescription,
 		Badge,
 		Button,
 		Card,
@@ -26,7 +24,6 @@
 
 	let employeesList = $state<Array<{ id: number; uuid: string; name: string; age: number }>>([]);
 	let isLoading = $state(true);
-	let loadError = $state('');
 
 	let searchQuery = $state('');
 	let sortColumn = $state('id');
@@ -35,8 +32,6 @@
 	let newName = $state('');
 	let newAge = $state('');
 	let isSubmitting = $state(false);
-	let errorMessage = $state('');
-	let successMessage = $state('');
 
 	let filteredEmployees = $derived.by(() => {
 		let result = [...employeesList];
@@ -79,7 +74,6 @@
 
 	async function loadEmployees() {
 		isLoading = true;
-		loadError = '';
 
 		try {
 			const response = await fetch('/api/employees');
@@ -88,10 +82,10 @@
 			if (response.ok) {
 				employeesList = resData.data ?? [];
 			} else {
-				loadError = resData.error || 'Failed to load employees.';
+				toast.error(resData.error || 'Failed to load employees.');
 			}
 		} catch (err) {
-			loadError = 'An error occurred while loading employees.';
+			toast.error('An error occurred while loading employees.');
 			console.error(err);
 		} finally {
 			isLoading = false;
@@ -120,12 +114,10 @@
 		e.preventDefault();
 		const ageValue = Number(newAge);
 		if (!newName.trim() || newAge === '' || newAge == null || isNaN(ageValue)) {
-			errorMessage = 'Please provide both Name and Age.';
+			toast.error('Please provide both Name and Age.');
 			return;
 		}
 
-		errorMessage = '';
-		successMessage = '';
 		isSubmitting = true;
 
 		try {
@@ -141,15 +133,12 @@
 				employeesList = [resData.data, ...employeesList];
 				newName = '';
 				newAge = '';
-				successMessage = 'Employee added successfully!';
-				setTimeout(() => {
-					successMessage = '';
-				}, 3000);
+				toast.success('Employee added successfully!');
 			} else {
-				errorMessage = resData.error || 'Failed to add employee.';
+				toast.error(resData.error || 'Failed to add employee.');
 			}
 		} catch (err) {
-			errorMessage = 'An error occurred. Please try again.';
+			toast.error('An error occurred. Please try again.');
 			console.error(err);
 		} finally {
 			isSubmitting = false;
@@ -193,11 +182,7 @@
 
 	<div class="grid items-start gap-8 lg:grid-cols-3">
 		<div class="space-y-4 lg:col-span-2">
-			{#if loadError}
-				<Alert variant="destructive">
-					<AlertDescription>{loadError}</AlertDescription>
-				</Alert>
-			{/if}
+
 
 			<div class="relative">
 				<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
@@ -304,21 +289,7 @@
 						/>
 					</div>
 
-					{#if errorMessage}
-						<div transition:slide>
-							<Alert variant="destructive">
-								<AlertDescription>{errorMessage}</AlertDescription>
-							</Alert>
-						</div>
-					{/if}
 
-					{#if successMessage}
-						<div transition:slide>
-							<Alert>
-								<AlertDescription>{successMessage}</AlertDescription>
-							</Alert>
-						</div>
-					{/if}
 
 					<Button type="submit" class="w-full" disabled={isSubmitting}>
 						{#if isSubmitting}

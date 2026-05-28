@@ -48,14 +48,14 @@
 			onclick={(e) => e.stopPropagation()}
 		>
 			<!-- Header -->
-			<div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 px-6 py-4.5 bg-slate-50/50">
-				<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+			<div class="flex items-center border-b border-slate-100 dark:border-slate-800 px-6 py-4.5 bg-slate-50/50">
+				<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight pr-12">
 					{title}
 				</h3>
 				<Button
 					variant="ghost"
 					size="icon-sm"
-					class="text-slate-400 hover:text-slate-600 rounded-full h-8 w-8 hover:bg-slate-100"
+					class="absolute right-4 top-4 text-slate-400 hover:text-slate-600 rounded-full h-8 w-8 hover:bg-slate-100 transition-all duration-200 z-10 flex items-center justify-center"
 					onclick={onclose}
 					aria-label="Close modal"
 				>
