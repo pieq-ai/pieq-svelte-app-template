@@ -16,13 +16,13 @@
 	interface SystemRole {
 		cuid2: string;
 		system_role_name: string;
-		status: 'active' | 'inactive';
+		status: boolean;
 	}
 
 	interface Permission {
 		cuid2: string;
 		permission_key: string;
-		status: 'active' | 'inactive';
+		status: boolean;
 	}
 
 	interface RolePermission {
@@ -50,9 +50,9 @@
 	let assignmentKeys = $state<string[]>([]);
 	let pendingKeys = $state<string[]>([]);
 
-	let activeRoles = $derived(data.roles.filter((role) => role.status === 'active'));
+	let activeRoles = $derived(data.roles.filter((role) => role.status === true));
 	let activePermissions = $derived(
-		data.permissions.filter((permission) => permission.status === 'active')
+		data.permissions.filter((permission) => permission.status === true)
 	);
 	let filteredPermissions = $derived.by(() => {
 		const query = searchQuery.trim().toLowerCase();

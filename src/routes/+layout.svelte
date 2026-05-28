@@ -5,9 +5,9 @@
 	import { Button } from '$lib/components';
 	import Toaster from '$lib/components/ui/toaster.svelte';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/stores';
 	import Building2Icon from '@lucide/svelte/icons/building-2';
-	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
-	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
+	import MenuIcon from '@lucide/svelte/icons/menu';
 	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
 	import LogInIcon from '@lucide/svelte/icons/log-in';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
@@ -61,33 +61,29 @@
 		class={`fixed inset-y-0 left-0 z-30 flex flex-col border-r border-[#737373]/25 bg-[#262626] text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
 		aria-label="Primary navigation"
 	>
-		<div class="flex h-16 items-center justify-between border-b border-white/10 px-4">
-			<a
-				href={resolve('/')}
-				class="flex min-w-0 items-center gap-3 font-semibold tracking-tight"
-				title="PieQ HRMS"
-			>
-				<span class="flex size-9 shrink-0 items-center justify-center rounded-md bg-[#C2652A] text-white">
-					<Building2Icon class="size-5" />
-				</span>
-				{#if !isSidebarCollapsed}
+		<div class={`flex h-16 items-center border-b border-white/10 transition-all ${isSidebarCollapsed ? 'justify-center gap-2 px-2' : 'justify-between px-4'}`}>
+			{#if !isSidebarCollapsed}
+				<a
+					href={resolve('/')}
+					class="flex min-w-0 items-center gap-3 font-semibold tracking-tight"
+					title="PieQ HRMS"
+				>
+					<span class="flex size-8 shrink-0 items-center justify-center rounded-md bg-[#C2652A] text-white">
+						<Building2Icon class="size-4" />
+					</span>
 					<span class="truncate text-base">PieQ HRMS</span>
-				{/if}
-			</a>
+				</a>
+			{/if}
 			<Button
 				type="button"
 				size="icon-sm"
 				variant="ghost"
-				class="text-white hover:bg-white/10 hover:text-white"
+				class="shrink-0 text-white hover:bg-white/10 hover:text-white"
 				aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
 				title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
 				onclick={() => (isSidebarCollapsed = !isSidebarCollapsed)}
 			>
-				{#if isSidebarCollapsed}
-					<ChevronRightIcon class="size-4" />
-				{:else}
-					<ChevronLeftIcon class="size-4" />
-				{/if}
+				<MenuIcon class="size-4" />
 			</Button>
 		</div>
 
@@ -95,10 +91,11 @@
 			{#if authenticatedUser}
 				{#each protectedNavItems as item (item.href)}
 					{@const Icon = item.icon}
+					{@const isActive = $page.url.pathname === item.href || $page.url.pathname.startsWith(item.href + '/')}
 					<Button
 						href={item.href}
 						variant="ghost"
-						class={`h-10 justify-start gap-3 text-white hover:bg-[#C2652A] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						class={`h-10 justify-start gap-3 text-white hover:bg-[#C2652A] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-[#C2652A]' : ''}`}
 						title={isSidebarCollapsed ? item.label : undefined}
 						aria-label={item.label}
 					>
@@ -126,10 +123,11 @@
 
 		<div class="space-y-2 border-t border-white/10 p-3">
 			{#if authenticatedUser}
+				{@const isSettingsActive = $page.url.pathname.startsWith('/settings')}
 				<Button
 					href={resolve('/settings')}
 					variant="ghost"
-					class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#8C3C3C] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+					class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#8C3C3C] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isSettingsActive ? 'bg-[#8C3C3C]' : ''}`}
 					title={isSidebarCollapsed ? 'Settings' : undefined}
 					aria-label="Settings"
 				>

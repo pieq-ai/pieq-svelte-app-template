@@ -2,12 +2,12 @@ import { db } from '$lib/server/db.js';
 
 export interface CreateSystemRoleInput {
 	system_role_name: string;
-	status?: 'active' | 'inactive';
+	status?: boolean;
 }
 
 export interface UpdateSystemRoleInput {
 	system_role_name?: string;
-	status?: 'active' | 'inactive';
+	status?: boolean;
 }
 
 export async function list() {
@@ -38,7 +38,7 @@ export async function create(data: CreateSystemRoleInput) {
 	return db.systemRoles.create({
 		data: {
 			system_role_name: data.system_role_name,
-			status: data.status ?? 'active'
+			status: data.status ?? true
 		}
 	});
 }

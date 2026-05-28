@@ -3,15 +3,15 @@ import { validateDepartmentName } from '$lib/server/validators/department.valida
 
 export interface CreateDepartmentDto {
 	dept_name: string;
-	status?: 'active' | 'inactive';
+	status?: boolean;
 }
 
 export interface UpdateDepartmentDto {
 	dept_name?: string;
-	status?: 'active' | 'inactive';
+	status?: boolean;
 }
 
-function toPublicDepartment(department: { cuid2: string; dept_name: string; status: 'active' | 'inactive' }) {
+function toPublicDepartment(department: { cuid2: string; dept_name: string; status: boolean }) {
 	return {
 		cuid2: department.cuid2,
 		dept_name: department.dept_name,
@@ -55,7 +55,7 @@ export async function createDepartment(dto: CreateDepartmentDto) {
 
 	return toPublicDepartment(await departmentDao.create({
 		dept_name,
-		status: dto.status ?? 'active'
+		status: dto.status ?? true
 	}));
 }
 
@@ -89,8 +89,8 @@ export async function updateDepartment(cuid2: string, dto: UpdateDepartmentDto) 
 	}
 
 	if (dto.status !== undefined) {
-		if (dto.status !== 'active' && dto.status !== 'inactive') {
-			throw new Error('Status must be "active" or "inactive"');
+		if (dto.status !== true && dto.status !== false) {
+			throw new Error('Status must be a boolean');
 		}
 		updateData.status = dto.status;
 	}
@@ -112,6 +112,6 @@ export async function deleteDepartment(cuid2: string) {
 	}
 
 	return toPublicDepartment(await departmentDao.update(cuid2, {
-		status: 'inactive'
+		status: false
 	}));
 }

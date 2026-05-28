@@ -2,12 +2,12 @@ import { db } from '$lib/server/db.js';
 
 export interface CreateDesignationInput {
 	designation_name: string;
-	status?: 'active' | 'inactive';
+	status?: boolean;
 }
 
 export interface UpdateDesignationInput {
 	designation_name?: string;
-	status?: 'active' | 'inactive';
+	status?: boolean;
 }
 
 export async function list() {
@@ -38,7 +38,7 @@ export async function create(data: CreateDesignationInput) {
 	return db.designation.create({
 		data: {
 			designation_name: data.designation_name,
-			status: data.status ?? 'active'
+			status: data.status ?? true
 		}
 	});
 }

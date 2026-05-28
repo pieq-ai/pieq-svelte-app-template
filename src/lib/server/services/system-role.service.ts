@@ -2,18 +2,18 @@ import * as systemRoleDao from '$lib/server/dao/system-role.dao.js';
 
 export interface CreateSystemRoleDto {
 	system_role_name: string;
-	status?: 'active' | 'inactive';
+	status?: boolean;
 }
 
 export interface UpdateSystemRoleDto {
 	system_role_name?: string;
-	status?: 'active' | 'inactive';
+	status?: boolean;
 }
 
 function toPublicSystemRole(role: {
 	cuid2: string;
 	system_role_name: string;
-	status: 'active' | 'inactive';
+	status: boolean;
 }) {
 	return {
 		cuid2: role.cuid2,
@@ -22,9 +22,9 @@ function toPublicSystemRole(role: {
 	};
 }
 
-function validateStatus(status: string | undefined) {
-	if (status !== undefined && status !== 'active' && status !== 'inactive') {
-		throw new Error('Status must be "active" or "inactive"');
+function validateStatus(status: boolean | undefined) {
+	if (status !== undefined && status !== true && status !== false) {
+		throw new Error('Status must be a boolean');
 	}
 }
 
@@ -101,7 +101,7 @@ export async function createSystemRole(dto: CreateSystemRoleDto) {
 
 	return toPublicSystemRole(await systemRoleDao.create({
 		system_role_name,
-		status: dto.status ?? 'active'
+		status: dto.status ?? true
 	}));
 }
 
@@ -132,6 +132,6 @@ export async function deleteSystemRole(cuid2: string) {
 		throw new Error(`System role with CUID2 "${cuid2}" not found`);
 	}
 	return toPublicSystemRole(await systemRoleDao.update(existing.system_role_id, {
-		status: 'inactive'
+		status: false
 	}));
 }

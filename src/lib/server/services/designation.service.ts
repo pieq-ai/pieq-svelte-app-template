@@ -2,18 +2,18 @@ import * as designationDao from '$lib/server/dao/designation.dao.js';
 
 export interface CreateDesignationDto {
 	designation_name: string;
-	status?: 'active' | 'inactive';
+	status?: boolean;
 }
 
 export interface UpdateDesignationDto {
 	designation_name?: string;
-	status?: 'active' | 'inactive';
+	status?: boolean;
 }
 
 function toPublicDesignation(designation: {
 	cuid2: string;
 	designation_name: string;
-	status: 'active' | 'inactive';
+	status: boolean;
 }) {
 	return {
 		cuid2: designation.cuid2,
@@ -90,7 +90,7 @@ export async function createDesignation(dto: CreateDesignationDto) {
 
 	return toPublicDesignation(await designationDao.create({
 		designation_name,
-		status: dto.status ?? 'active'
+		status: dto.status ?? true
 	}));
 }
 
@@ -107,8 +107,8 @@ export async function updateDesignation(cuid2: string, dto: UpdateDesignationDto
 	}
 
 	if (dto.status !== undefined) {
-		if (dto.status !== 'active' && dto.status !== 'inactive') {
-			throw new Error('Status must be "active" or "inactive"');
+		if (dto.status !== true && dto.status !== false) {
+			throw new Error('Status must be a boolean');
 		}
 		updateData.status = dto.status;
 	}
@@ -120,6 +120,6 @@ export async function deleteDesignation(cuid2: string) {
 	await getDesignationByCuid2(cuid2);
 
 	return toPublicDesignation(await designationDao.update(cuid2, {
-		status: 'inactive'
+		status: false
 	}));
 }

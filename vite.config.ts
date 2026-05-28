@@ -35,6 +35,9 @@ export default defineConfig(({ mode }) => {
 		server: {
 			port: devPort
 		},
+		ssr: {
+			noExternal: ['bits-ui', 'svelte-sonner']
+		},
 		test: {
 			expect: { requireAssertions: true },
 			projects: [

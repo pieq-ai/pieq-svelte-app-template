@@ -2,12 +2,12 @@ import { db } from '$lib/server/db.js';
 
 export interface CreateDepartmentInput {
 	dept_name: string;
-	status?: 'active' | 'inactive';
+	status?: boolean;
 }
 
 export interface UpdateDepartmentInput {
 	dept_name?: string;
-	status?: 'active' | 'inactive';
+	status?: boolean;
 }
 
 /**
@@ -53,7 +53,7 @@ export async function create(data: CreateDepartmentInput) {
 	return db.department.create({
 		data: {
 			dept_name: data.dept_name,
-			status: data.status ?? 'active'
+			status: data.status ?? true
 		}
 	});
 }

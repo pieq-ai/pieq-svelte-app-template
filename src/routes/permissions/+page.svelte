@@ -28,7 +28,7 @@
 	interface Permission {
 		cuid2: string;
 		permission_key: string;
-		status: 'active' | 'inactive';
+		status: boolean;
 	}
 
 	const masterPermissions = getMasterPermissions();
@@ -36,13 +36,13 @@
 	let isLoading = $state(true);
 	let loadError = $state('');
 	let searchQuery = $state('');
-	let statusFilter = $state<'all' | 'active' | 'inactive'>('all');
+	let statusFilter = $state<'all' | boolean>('all');
 	
 	let isModalOpen = $state(false);
 	let isSubmitting = $state(false);
 	let editingPermission = $state<Permission | null>(null);
 	let permissionKey = $state('');
-	let permissionStatus = $state<'active' | 'inactive'>('active');
+	let permissionStatus = $state<boolean>(true);
 	let isKeyTouched = $state(false);
 
 	let itemToDelete = $state<Permission | null>(null);
@@ -95,7 +95,7 @@
 	function openCreateModal() {
 		editingPermission = null;
 		permissionKey = '';
-		permissionStatus = 'active';
+		permissionStatus = true;
 		isKeyTouched = false;
 		isModalOpen = true;
 	}
@@ -222,11 +222,11 @@
 					{#each filteredPermissions as permission (permission.cuid2)}
 						<TableRow>
 							<TableCell class="font-mono text-sm font-semibold">{permission.permission_key}</TableCell>
-							<TableCell><Badge variant={permission.status === 'active' ? 'default' : 'secondary'}>{permission.status}</Badge></TableCell>
+							<TableCell><Badge variant={permission.status === true ? 'default' : 'secondary'}>{permission.status ? 'Active' : 'Inactive'}</Badge></TableCell>
 							<TableCell class="text-right">
 								<TableActions
 									canEdit={masterPermissions.canEdit}
-									canDelete={masterPermissions.canDelete && permission.status === 'active'}
+									canDelete={masterPermissions.canDelete && permission.status === true}
 									editLabel="Edit permission"
 									deleteLabel="Deactivate permission"
 									onEdit={() => openEditModal(permission)}
@@ -265,8 +265,8 @@
 			<div class="space-y-2">
 				<Label for="permission_status">Status</Label>
 				<select id="permission_status" bind:value={permissionStatus} class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
-					<option value="active">Active</option>
-					<option value="inactive">Inactive</option>
+					<option value={true}>Active</option>
+					<option value={false}>Inactive</option>
 				</select>
 			</div>
 		{/if}

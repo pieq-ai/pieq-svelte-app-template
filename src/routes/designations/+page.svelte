@@ -29,7 +29,7 @@
 	interface Designation {
 		cuid2: string;
 		designation_name: string;
-		status: 'active' | 'inactive';
+		status: boolean;
 	}
 
 	let designationsList = $state<Designation[]>([]);
@@ -37,14 +37,14 @@
 	let loadError = $state('');
 
 	let searchQuery = $state('');
-	let statusFilter = $state<'all' | 'active' | 'inactive'>('all');
+	let statusFilter = $state<'all' | boolean>('all');
 	let sortColumn = $state('designation_name');
 	let sortDirection = $state<'asc' | 'desc'>('asc');
 
 	// Shared Form State
 	let editingDesignation = $state<Designation | null>(null);
 	let formDesignationName = $state('');
-	let formDesignationStatus = $state<'active' | 'inactive'>('active');
+	let formDesignationStatus = $state<boolean>(true);
 	let isSubmitting = $state(false);
 	let isModalOpen = $state(false);
 	let isNameTouched = $state(false);
@@ -96,8 +96,8 @@
 	});
 
 	let totalCount = $derived(designationsList.length);
-	let activeCount = $derived(designationsList.filter((d) => d.status === 'active').length);
-	let inactiveCount = $derived(designationsList.filter((d) => d.status === 'inactive').length);
+	let activeCount = $derived(designationsList.filter((d) => d.status === true).length);
+	let inactiveCount = $derived(designationsList.filter((d) => d.status === false).length);
 
 	async function loadDesignations() {
 		isLoading = true;
@@ -143,7 +143,7 @@
 	function openCreateModal() {
 		editingDesignation = null;
 		formDesignationName = '';
-		formDesignationStatus = 'active';
+		formDesignationStatus = true;
 		isNameTouched = false;
 		isModalOpen = true;
 	}
@@ -316,14 +316,12 @@
 									</div>
 								</TableCell>
 								<TableCell>
-									<Badge variant={designation.status === 'active' ? 'default' : 'secondary'}>
-										{designation.status}
-									</Badge>
+									<Badge variant={designation.status === true ? 'default' : 'secondary'}>{designation.status ? 'Active' : 'Inactive'}</Badge>
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
 										canEdit={true}
-										canDelete={designation.status === 'active'}
+										canDelete={designation.status === true}
 										editLabel="Edit designation"
 										deleteLabel="Deactivate designation"
 										onEdit={() => openEditModal(designation)}
@@ -366,8 +364,8 @@
 			<div class="space-y-2">
 				<Label for="designation_status">Status</Label>
 				<select id="designation_status" bind:value={formDesignationStatus} class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
-					<option value="active">Active</option>
-					<option value="inactive">Inactive</option>
+					<option value={true}>Active</option>
+					<option value={false}>Inactive</option>
 				</select>
 			</div>
 		{/if}

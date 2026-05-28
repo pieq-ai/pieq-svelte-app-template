@@ -29,7 +29,7 @@
 	interface Department {
 		cuid2: string;
 		dept_name: string;
-		status: 'active' | 'inactive';
+		status: boolean;
 	}
 
 	let departmentsList = $state<Department[]>([]);
@@ -37,14 +37,14 @@
 	let loadError = $state('');
 
 	let searchQuery = $state('');
-	let statusFilter = $state<'all' | 'active' | 'inactive'>('all');
+	let statusFilter = $state<'all' | boolean>('all');
 	let sortColumn = $state('dept_name');
 	let sortDirection = $state<'asc' | 'desc'>('asc');
 
 	// Shared Form State
 	let editingDept = $state<Department | null>(null);
 	let formDeptName = $state('');
-	let formDeptStatus = $state<'active' | 'inactive'>('active');
+	let formDeptStatus = $state<boolean>(true);
 	let isSubmitting = $state(false);
 	let isModalOpen = $state(false);
 	let isNameTouched = $state(false);
@@ -102,8 +102,8 @@
 	});
 
 	let totalCount = $derived(departmentsList.length);
-	let activeCount = $derived(departmentsList.filter((d) => d.status === 'active').length);
-	let inactiveCount = $derived(departmentsList.filter((d) => d.status === 'inactive').length);
+	let activeCount = $derived(departmentsList.filter((d) => d.status === true).length);
+	let inactiveCount = $derived(departmentsList.filter((d) => d.status === false).length);
 
 	async function loadDepartments() {
 		isLoading = true;
@@ -147,7 +147,7 @@
 	function openCreateModal() {
 		editingDept = null;
 		formDeptName = '';
-		formDeptStatus = 'active';
+		formDeptStatus = true;
 		isNameTouched = false;
 		isModalOpen = true;
 	}
@@ -320,14 +320,12 @@
 									</div>
 								</TableCell>
 								<TableCell>
-									<Badge variant={dept.status === 'active' ? 'default' : 'secondary'}>
-										{dept.status}
-									</Badge>
+									<Badge variant={dept.status === true ? 'default' : 'secondary'}>{dept.status ? 'Active' : 'Inactive'}</Badge>
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
 										canEdit={true}
-										canDelete={dept.status === 'active'}
+										canDelete={dept.status === true}
 										editLabel="Edit department"
 										deleteLabel="Deactivate department"
 										onEdit={() => openEditModal(dept)}
@@ -370,8 +368,8 @@
 			<div class="space-y-2">
 				<Label for="dept_status">Status</Label>
 				<select id="dept_status" bind:value={formDeptStatus} class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
-					<option value="active">Active</option>
-					<option value="inactive">Inactive</option>
+					<option value={true}>Active</option>
+					<option value={false}>Inactive</option>
 				</select>
 			</div>
 		{/if}

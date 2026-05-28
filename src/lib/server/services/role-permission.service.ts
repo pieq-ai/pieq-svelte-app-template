@@ -20,7 +20,7 @@ function getPermissionModule(permissionKey: string) {
 function toPublicPermission(permission: {
 	cuid2: string;
 	permission_key: string;
-	status: 'active' | 'inactive';
+	status: boolean;
 }) {
 	return {
 		cuid2: permission.cuid2,

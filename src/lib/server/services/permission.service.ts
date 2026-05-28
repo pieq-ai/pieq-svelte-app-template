@@ -2,18 +2,18 @@ import * as permissionDao from '$lib/server/dao/permission.dao.js';
 
 export interface CreatePermissionDto {
 	permission_key: string;
-	status?: 'active' | 'inactive';
+	status?: boolean;
 }
 
 export interface UpdatePermissionDto {
 	permission_key?: string;
-	status?: 'active' | 'inactive';
+	status?: boolean;
 }
 
 function toPublicPermission(permission: {
 	cuid2: string;
 	permission_key: string;
-	status: 'active' | 'inactive';
+	status: boolean;
 }) {
 	return {
 		cuid2: permission.cuid2,
@@ -22,9 +22,9 @@ function toPublicPermission(permission: {
 	};
 }
 
-function validateStatus(status: string | undefined) {
-	if (status !== undefined && status !== 'active' && status !== 'inactive') {
-		throw new Error('Status must be "active" or "inactive"');
+function validateStatus(status: boolean | undefined) {
+	if (status !== undefined && status !== true && status !== false) {
+		throw new Error('Status must be a boolean');
 	}
 }
 
@@ -101,7 +101,7 @@ export async function createPermission(dto: CreatePermissionDto) {
 
 	return toPublicPermission(await permissionDao.create({
 		permission_key,
-		status: dto.status ?? 'active'
+		status: dto.status ?? true
 	}));
 }
 
@@ -132,6 +132,6 @@ export async function deletePermission(cuid2: string) {
 		throw new Error(`Permission with CUID2 "${cuid2}" not found`);
 	}
 	return toPublicPermission(await permissionDao.update(existing.permission_id, {
-		status: 'inactive'
+		status: false
 	}));
 }

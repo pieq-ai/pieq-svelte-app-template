@@ -2,12 +2,12 @@ import { db } from '$lib/server/db.js';
 
 export interface CreatePermissionInput {
 	permission_key: string;
-	status?: 'active' | 'inactive';
+	status?: boolean;
 }
 
 export interface UpdatePermissionInput {
 	permission_key?: string;
-	status?: 'active' | 'inactive';
+	status?: boolean;
 }
 
 export async function list() {
@@ -38,7 +38,7 @@ export async function create(data: CreatePermissionInput) {
 	return db.permissions.create({
 		data: {
 			permission_key: data.permission_key,
-			status: data.status ?? 'active'
+			status: data.status ?? true
 		}
 	});
 }

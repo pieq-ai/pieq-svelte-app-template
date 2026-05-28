@@ -28,7 +28,7 @@
 	interface SystemRole {
 		cuid2: string;
 		system_role_name: string;
-		status: 'active' | 'inactive';
+		status: boolean;
 	}
 
 	const permissions = getMasterPermissions();
@@ -36,13 +36,13 @@
 	let isLoading = $state(true);
 	let loadError = $state('');
 	let searchQuery = $state('');
-	let statusFilter = $state<'all' | 'active' | 'inactive'>('all');
+	let statusFilter = $state<'all' | boolean>('all');
 	
 	let isModalOpen = $state(false);
 	let isSubmitting = $state(false);
 	let editingRole = $state<SystemRole | null>(null);
 	let roleName = $state('');
-	let roleStatus = $state<'active' | 'inactive'>('active');
+	let roleStatus = $state<boolean>(true);
 	let isNameTouched = $state(false);
 
 	let itemToDelete = $state<SystemRole | null>(null);
@@ -95,7 +95,7 @@
 	function openCreateModal() {
 		editingRole = null;
 		roleName = '';
-		roleStatus = 'active';
+		roleStatus = true;
 		isNameTouched = false;
 		isModalOpen = true;
 	}
@@ -216,11 +216,11 @@
 					{#each filteredRoles as role (role.cuid2)}
 						<TableRow>
 							<TableCell class="font-semibold">{role.system_role_name}</TableCell>
-							<TableCell><Badge variant={role.status === 'active' ? 'default' : 'secondary'}>{role.status}</Badge></TableCell>
+							<TableCell><Badge variant={role.status === true ? 'default' : 'secondary'}>{role.status ? 'Active' : 'Inactive'}</Badge></TableCell>
 							<TableCell class="text-right">
 								<TableActions
 									canEdit={permissions.canEdit}
-									canDelete={permissions.canDelete && role.status === 'active'}
+									canDelete={permissions.canDelete && role.status === true}
 									editLabel="Edit role"
 									deleteLabel="Deactivate role"
 									onEdit={() => openEditModal(role)}
@@ -259,8 +259,8 @@
 			<div class="space-y-2">
 				<Label for="role_status">Status</Label>
 				<select id="role_status" bind:value={roleStatus} class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
-					<option value="active">Active</option>
-					<option value="inactive">Inactive</option>
+					<option value={true}>Active</option>
+					<option value={false}>Inactive</option>
 				</select>
 			</div>
 		{/if}
