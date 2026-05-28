@@ -3,11 +3,19 @@ import type { RoleCreateDTO, RoleUpdateDTO } from '$lib/types/role';
 import * as roleDao from '$lib/server/dao/role.dao.js';
 import { validateCreatePayload, validateUpdatePayload, validatePaginationParams } from '$lib/server/validators/role.validator.js';
 
-/** List roles with pagination. */
+/** List only active roles with pagination. */
 export async function listRoles(query: Record<string, any>) {
   const { page, limit } = validatePaginationParams(query);
   const total = await roleDao.countRoles();
   const data = await roleDao.getRoles(page, limit);
+  return { data, pagination: { page, limit, total } };
+}
+
+/** List ALL roles (active + inactive) with pagination — used by UI role management. */
+export async function listAllRoles(query: Record<string, any>) {
+  const { page, limit } = validatePaginationParams(query);
+  const total = await roleDao.countAllRoles();
+  const data = await roleDao.getAllRoles(page, limit);
   return { data, pagination: { page, limit, total } };
 }
 

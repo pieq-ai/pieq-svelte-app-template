@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { signInWithKeycloak } from '$lib/auth';
-	import { Button, Card, CardContent, CardHeader, CardTitle } from '$lib/components';
 	import { resolve } from '$app/paths';
+	import LogInIcon from '@lucide/svelte/icons/log-in';
+	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
 
 	let { data } = $props();
 
@@ -11,37 +12,56 @@
 </script>
 
 <svelte:head>
-	<title>Pieq Svelte App Template</title>
+	<title>PieQ HRMS – Enterprise HR Management</title>
+	<meta name="description" content="PieQ HRMS — Manage employees, roles, departments, and more in one enterprise-grade platform." />
 </svelte:head>
 
-<div class="space-y-8">
-	<div class="space-y-3">
-		<p class="text-sm font-medium uppercase tracking-wide text-muted-foreground">Boilerplate</p>
-		<h1 class="text-4xl font-bold tracking-tight">SvelteKit layered architecture</h1>
-		<p class="max-w-2xl text-lg text-muted-foreground">
-			DAO, service, controller, and view layers with PostgreSQL, Prisma, and Keycloak authentication.
+<div style="min-height:70vh;display:flex;align-items:center;justify-content:center">
+	<div style="text-align:center;max-width:520px;padding:40px 24px">
+		<!-- Brand mark -->
+		<div style="width:72px;height:72px;background:#C2652A;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 24px #C2652A40">
+			<span style="font-size:28px;font-weight:800;color:white;letter-spacing:-1px">PQ</span>
+		</div>
+
+		<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#C2652A;margin-bottom:12px">
+			Enterprise HR Suite
 		</p>
-	</div>
 
-	<div class="flex flex-wrap gap-3">
+		<h1 style="font-size:36px;font-weight:800;color:var(--foreground);line-height:1.15;margin-bottom:16px;letter-spacing:-0.5px">
+			PieQ HRMS
+		</h1>
+
+		<p style="font-size:15px;color:var(--muted-foreground);line-height:1.6;margin-bottom:36px">
+			Streamline your workforce — manage employees, roles, and permissions with a powerful, modern HR platform.
+		</p>
+
 		{#if data.user}
-			<Button href={resolve('/dashboard')}>Go to dashboard</Button>
+			<a
+				href={resolve('/dashboard')}
+				style="display:inline-flex;align-items:center;gap:8px;background:#C2652A;color:white;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;transition:background .2s,transform .1s;box-shadow:0 4px 16px #C2652A30"
+				onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = '#a8541f'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+				onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = '#C2652A'; (e.currentTarget as HTMLElement).style.transform = ''; }}
+			>
+				<LayoutDashboardIcon size={17} />
+				Go to Dashboard
+			</a>
 		{:else}
-			<Button onclick={handleSignIn}>Sign in with Keycloak</Button>
+			<button
+				onclick={handleSignIn}
+				style="display:inline-flex;align-items:center;gap:8px;background:#C2652A;color:white;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;border:none;cursor:pointer;transition:background .2s,transform .1s;box-shadow:0 4px 16px #C2652A30"
+				onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = '#a8541f'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+				onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = '#C2652A'; (e.currentTarget as HTMLElement).style.transform = ''; }}
+			>
+				<LogInIcon size={17} />
+				Sign in with Keycloak
+			</button>
 		{/if}
-	</div>
 
-	<Card>
-		<CardHeader>
-			<CardTitle>Architecture</CardTitle>
-		</CardHeader>
-		<CardContent>
-			<ul class="space-y-2 text-sm text-muted-foreground">
-				<li><strong class="text-foreground">DAO</strong> — Prisma data access in <code>$lib/server/dao</code></li>
-				<li><strong class="text-foreground">Service</strong> — business logic in <code>$lib/server/services</code></li>
-				<li><strong class="text-foreground">Controller</strong> — route loaders/actions in <code>+page.server.ts</code></li>
-				<li><strong class="text-foreground">View</strong> — UI in Svelte components and routes</li>
-			</ul>
-		</CardContent>
-	</Card>
+		<!-- Feature pills -->
+		<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:40px">
+			{#each ['Employee Management', 'Role-Based Access', 'Secure Auth', 'Real-time Data'] as feat}
+				<span style="padding:5px 14px;border:1px solid var(--border);border-radius:99px;font-size:12px;color:var(--muted-foreground);background:var(--card)">{feat}</span>
+			{/each}
+		</div>
+	</div>
 </div>

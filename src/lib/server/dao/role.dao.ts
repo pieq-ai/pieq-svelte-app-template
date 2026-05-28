@@ -27,6 +27,26 @@ export async function getRoles(page: number, limit: number): Promise<Role[]> {
 }
 
 /**
+ * Get a paginated list of ALL roles (active + inactive).
+ * Used by the UI to display soft-deleted roles.
+ */
+export async function getAllRoles(page: number, limit: number): Promise<Role[]> {
+  const skip = (page - 1) * limit;
+  return db.role.findMany({
+    orderBy: { role_id: 'asc' },
+    skip,
+    take: limit,
+  });
+}
+
+/**
+ * Count ALL roles including inactive.
+ */
+export async function countAllRoles(): Promise<number> {
+  return db.role.count();
+}
+
+/**
  * Count active roles (used for pagination metadata).
  */
 export async function countRoles(): Promise<number> {

@@ -1,24 +1,42 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { Role } from '$lib/types/role';
+	import PlusIcon from '@lucide/svelte/icons/plus';
+	import Pencil2Icon from '@lucide/svelte/icons/pencil';
+	import Trash2Icon from '@lucide/svelte/icons/trash-2';
+	import ShieldIcon from '@lucide/svelte/icons/shield';
+	import XIcon from '@lucide/svelte/icons/x';
+	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 
 	let roles = $state<Role[]>([]);
 	let page = $state(1);
 	let limit = $state(10);
 	let total = $state(0);
 	let loading = $state(false);
+
+	// Modal state
 	let showForm = $state(false);
 	let editRole = $state<Role | null>(null);
 	let formName = $state('');
 	let formError = $state('');
 	let formLoading = $state(false);
 
+	// Filter
+	let filterStatus = $state<'all' | 'active' | 'inactive'>('all');
+
 	let totalPages = $derived(Math.max(1, Math.ceil(total / limit)));
+
+	let filteredRoles = $derived.by(() => {
+		if (filterStatus === 'active') return roles.filter((r) => r.is_active);
+		if (filterStatus === 'inactive') return roles.filter((r) => !r.is_active);
+		return roles;
+	});
 
 	async function fetchRoles() {
 		loading = true;
 		try {
-			const res = await fetch(`/api/roles?page=${page}&limit=${limit}`);
+			// Fetch all (active + inactive) by not filtering on backend
+			const res = await fetch(`/api/roles?page=${page}&limit=${limit}&includeInactive=true`);
 			const json = await res.json();
 			if (res.ok) {
 				roles = json.data ?? [];
@@ -54,8 +72,22 @@
 
 	async function submitForm(e: Event) {
 		e.preventDefault();
-		if (!formName.trim()) {
+		const nameTrimmed = formName.trim();
+		if (!nameTrimmed) {
 			formError = 'Role name is required.';
+			return;
+		}
+		if (nameTrimmed.length < 2) {
+			formError = 'Role name must be at least 2 characters.';
+			return;
+		}
+		const nameRegex = /^[A-Za-z ]+$/;
+		if (!nameRegex.test(nameTrimmed)) {
+			formError = 'Role name must contain only letters and spaces.';
+			return;
+		}
+		if (nameTrimmed.length > 255) {
+			formError = 'Role name exceeds maximum length of 255 characters.';
 			return;
 		}
 		formLoading = true;
@@ -82,149 +114,225 @@
 		}
 	}
 
-	async function deleteRole(id: number) {
-		if (!confirm('Deactivate this role?')) return;
+	async function deactivateRole(id: number) {
+		if (!confirm('Deactivate this role? It will remain visible but marked as inactive.')) return;
 		const res = await fetch(`/api/roles/${id}`, { method: 'DELETE' });
 		if (res.ok) await fetchRoles();
 	}
 
 	async function prevPage() {
-		if (page > 1) { page -= 1; await fetchRoles(); }
+		if (page > 1) {
+			page -= 1;
+			await fetchRoles();
+		}
 	}
 
 	async function nextPage() {
-		if (page < totalPages) { page += 1; await fetchRoles(); }
+		if (page < totalPages) {
+			page += 1;
+			await fetchRoles();
+		}
 	}
 
 	onMount(fetchRoles);
 </script>
 
 <svelte:head>
-	<title>Role Master – HRMS</title>
+	<title>Role Master – PieQ HRMS</title>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl space-y-8 px-1 py-4">
-	<!-- Header -->
-	<div class="flex items-center justify-between border-b border-border pb-6">
-		<div class="space-y-1">
-			<span class="inline-block rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold uppercase text-secondary-foreground">HRMS Module</span>
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Role Master</h1>
-			<p class="text-muted-foreground">Create and manage system roles for access control.</p>
-		</div>
-		<button
-			onclick={openCreate}
-			class="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 transition"
-		>
-			+ Create Role
-		</button>
+<!-- Page header -->
+<div class="page-topbar">
+	<div>
+		<span
+			style="display:inline-block;background:#C2652A1a;color:#C2652A;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:99px;margin-bottom:6px"
+		>HRMS Module</span>
+		<h1 style="font-size:26px;font-weight:700;color:var(--foreground);margin:0;line-height:1.2">
+			Role Master
+		</h1>
+		<p style="color:var(--muted-foreground);font-size:13px;margin-top:4px">
+			Create and manage system roles for access control.
+		</p>
 	</div>
 
-	<!-- Table Card -->
-	<div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm overflow-hidden">
-		{#if loading}
-			<div class="py-16 text-center text-muted-foreground">Loading roles...</div>
-		{:else if roles.length === 0}
-			<div class="py-16 text-center text-muted-foreground">
-				No roles found. Click <strong>+ Create Role</strong> to add one.
-			</div>
-		{:else}
-			<table class="min-w-full divide-y divide-border">
-				<thead class="bg-muted/50">
-					<tr>
-						<th class="px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">ID</th>
-						<th class="px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Role Name</th>
-						<th class="px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
-						<th class="px-6 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-border">
-					{#each roles as role (role.role_id)}
-						<tr class="hover:bg-muted/30 transition">
-							<td class="px-6 py-4 text-sm text-muted-foreground">{role.role_id}</td>
-							<td class="px-6 py-4 text-sm font-semibold">{role.name}</td>
-							<td class="px-6 py-4">
-								<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {role.is_active ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'}">
-									{role.is_active ? 'Active' : 'Inactive'}
-								</span>
-							</td>
-							<td class="px-6 py-4 text-right space-x-2">
-								<button
-									onclick={() => openEdit(role)}
-									class="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted transition"
-								>Edit</button>
-								<button
-									onclick={() => deleteRole(role.role_id)}
-									class="rounded-md border border-destructive/40 px-3 py-1.5 text-sm text-destructive hover:bg-destructive/10 transition"
-								>Delete</button>
-							</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-
-			<!-- Pagination -->
-			<div class="flex items-center justify-between border-t border-border px-6 py-3">
-				<p class="text-xs text-muted-foreground">
-					Page {page} of {totalPages} &bull; {total} total role{total !== 1 ? 's' : ''}
-				</p>
-				<div class="flex gap-2">
-					<button
-						disabled={page <= 1}
-						onclick={prevPage}
-						class="rounded-md border border-border px-3 py-1.5 text-sm disabled:opacity-40 hover:bg-muted transition"
-					>← Prev</button>
-					<button
-						disabled={page >= totalPages}
-						onclick={nextPage}
-						class="rounded-md border border-border px-3 py-1.5 text-sm disabled:opacity-40 hover:bg-muted transition"
-					>Next →</button>
-				</div>
-			</div>
-		{/if}
-	</div>
+	<button class="btn-add-entity" onclick={openCreate} id="add-role-btn">
+		<PlusIcon size={16} />
+		Add Role
+	</button>
 </div>
 
-<!-- Modal -->
+<!-- Toolbar: filter -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+	<div style="display:flex;align-items:center;gap:8px">
+		<span style="font-size:13px;color:var(--muted-foreground)">Filter:</span>
+		<select
+			bind:value={filterStatus}
+			class="filter-select"
+			id="role-filter-select"
+		>
+			<option value="all">All</option>
+			<option value="active">Active</option>
+			<option value="inactive">Inactive</option>
+		</select>
+	</div>
+	<p style="font-size:12px;color:var(--muted-foreground)">
+		{filteredRoles.length} of {roles.length} role{roles.length !== 1 ? 's' : ''}
+	</p>
+</div>
+
+<!-- Table card -->
+<div class="enterprise-table-card">
+	{#if loading}
+		<div style="padding:64px;text-align:center;color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;gap:10px">
+			<LoaderCircleIcon class="animate-spin" size={18} />
+			Loading roles...
+		</div>
+	{:else if filteredRoles.length === 0}
+		<div style="padding:64px;text-align:center;color:var(--muted-foreground)">
+			{roles.length === 0
+				? 'No roles found. Click Add Role to create one.'
+				: 'No roles match the current filter.'}
+		</div>
+	{:else}
+		<table style="width:100%;border-collapse:collapse">
+			<thead style="background:var(--muted)">
+				<tr>
+					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">#</th>
+					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Role Name</th>
+					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Status</th>
+					<th style="padding:12px 20px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				{#each filteredRoles as role (role.role_id)}
+					<tr
+						style="border-top:1px solid var(--border);transition:background-color .2s ease"
+						onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}
+						onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = ''; }}
+					>
+						<td style="padding:14px 20px;font-size:13px;color:var(--muted-foreground)">{role.role_id}</td>
+						<td style="padding:14px 20px">
+							<div style="display:flex;align-items:center;gap:8px">
+								<span style="color:#C2652A">
+									<ShieldIcon size={15} />
+								</span>
+								<span style="font-size:14px;font-weight:600">{role.name}</span>
+							</div>
+						</td>
+						<td style="padding:14px 20px">
+							{#if role.is_active}
+								<span class="badge-active">Active</span>
+							{:else}
+								<span class="badge-inactive">Inactive</span>
+							{/if}
+						</td>
+						<td style="padding:14px 20px;text-align:right">
+							<div style="display:flex;align-items:center;justify-content:flex-end;gap:8px">
+								<button
+									onclick={() => openEdit(role)}
+									aria-label="Edit role"
+									title="Edit role"
+									style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid var(--border);background:none;cursor:pointer;transition:background .15s;color:var(--foreground)"
+									onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = 'var(--muted)')}
+									onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '')}
+								>
+									<Pencil2Icon size={14} />
+								</button>
+								{#if role.is_active}
+									<button
+										onclick={() => deactivateRole(role.role_id)}
+										aria-label="Deactivate role"
+										title="Deactivate role"
+										style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid #fca5a520;background:none;cursor:pointer;transition:background .15s;color:#dc2626"
+										onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = '#fef2f2')}
+										onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '')}
+									>
+										<Trash2Icon size={14} />
+									</button>
+								{/if}
+							</div>
+						</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+
+		<!-- Pagination -->
+		<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--border)">
+			<p style="font-size:12px;color:var(--muted-foreground)">
+				Page {page} of {totalPages} &bull; {total} total role{total !== 1 ? 's' : ''}
+			</p>
+			<div style="display:flex;gap:8px">
+				<button
+					disabled={page <= 1}
+					onclick={prevPage}
+					style="padding:6px 14px;border-radius:7px;border:1px solid var(--border);background:none;font-size:12px;cursor:pointer;opacity:{page <= 1 ? 0.4 : 1}"
+				>← Prev</button>
+				<button
+					disabled={page >= totalPages}
+					onclick={nextPage}
+					style="padding:6px 14px;border-radius:7px;border:1px solid var(--border);background:none;font-size:12px;cursor:pointer;opacity:{page >= totalPages ? 0.4 : 1}"
+				>Next →</button>
+			</div>
+		</div>
+	{/if}
+</div>
+
+<!-- Create / Edit Modal -->
 {#if showForm}
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+		class="modal-overlay"
 		onclick={(e) => { if (e.target === e.currentTarget) closeForm(); }}
 	>
-		<div class="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl mx-4">
-			<h2 class="mb-4 text-xl font-bold">
-				{editRole ? 'Edit Role' : 'Create New Role'}
-			</h2>
+		<div class="modal-card">
+			<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+				<h2 style="font-size:18px;font-weight:700;margin:0">
+					{editRole ? 'Edit Role' : 'Create New Role'}
+				</h2>
+				<button
+					onclick={closeForm}
+					style="background:none;border:none;cursor:pointer;color:var(--muted-foreground);padding:4px;border-radius:6px"
+					aria-label="Close modal"
+				>
+					<XIcon size={18} />
+				</button>
+			</div>
 
-			<form onsubmit={submitForm} class="space-y-4">
-				<div class="space-y-1.5">
-					<label class="text-sm font-medium" for="role-name">
-						Role Name <span class="text-destructive">*</span>
+			<form onsubmit={submitForm} style="display:flex;flex-direction:column;gap:16px">
+				<div style="display:flex;flex-direction:column;gap:6px">
+					<label for="role-name" style="font-size:13px;font-weight:600">
+						Role Name <span style="color:#C2652A">*</span>
 					</label>
 					<input
 						id="role-name"
 						type="text"
 						bind:value={formName}
 						placeholder="e.g. HR Manager"
-						class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+						style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
+						onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+						onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
 					/>
 					{#if formError}
-						<p class="text-sm text-destructive">{formError}</p>
+						<p style="color:#dc2626;font-size:12px;margin:0">{formError}</p>
 					{/if}
 				</div>
 
-				<div class="flex justify-end gap-3 pt-2">
+				<div style="display:flex;justify-content:flex-end;gap:10px;padding-top:4px">
 					<button
 						type="button"
 						onclick={closeForm}
-						class="rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted transition"
+						style="padding:9px 18px;border-radius:8px;border:1px solid var(--border);background:none;font-size:13px;font-weight:500;cursor:pointer"
 					>Cancel</button>
 					<button
 						type="submit"
 						disabled={formLoading}
-						class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60 transition"
+						style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;opacity:{formLoading ? 0.7 : 1};display:inline-flex;align-items:center;gap:6px"
 					>
+						{#if formLoading}
+							<LoaderCircleIcon class="animate-spin" size={14} />
+						{/if}
 						{formLoading ? 'Saving...' : editRole ? 'Update Role' : 'Create Role'}
 					</button>
 				</div>

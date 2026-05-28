@@ -4,11 +4,16 @@ import * as roleService from '$lib/server/services/role.service.js';
 
 /**
  * GET /api/roles
- * Returns paginated list of active roles.
+ * Returns paginated list of roles.
+ * Pass ?includeInactive=true to include deactivated roles (used by role management UI).
  */
 export async function GET({ url }) {
   try {
-    const result = await roleService.listRoles(Object.fromEntries(url.searchParams.entries()));
+    const params = Object.fromEntries(url.searchParams.entries());
+    const includeInactive = params.includeInactive === 'true';
+    const result = includeInactive
+      ? await roleService.listAllRoles(params)
+      : await roleService.listRoles(params);
     return json(result);
   } catch (err: any) {
     const status = err.status ?? 500;
