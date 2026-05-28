@@ -1,8 +1,37 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db.js';
 
+import { createId } from '@paralleldrive/cuid2';
+
 export async function GET() {
 	try {
+		// Populate Role cuids
+		const roles = await db.role.findMany({ where: { cuid: null } });
+		for (const r of roles) {
+			await db.role.update({
+				where: { role_id: r.role_id },
+				data: { cuid: createId() }
+			});
+		}
+
+		// Populate Shift cuids
+		const shifts = await db.shift.findMany({ where: { cuid: null } });
+		for (const s of shifts) {
+			await db.shift.update({
+				where: { shift_id: s.shift_id },
+				data: { cuid: createId() }
+			});
+		}
+
+		// Populate CompanyLocation cuids
+		const locations = await db.companyLocation.findMany({ where: { cuid: null } });
+		for (const loc of locations) {
+			await db.companyLocation.update({
+				where: { location_id: loc.location_id },
+				data: { cuid: createId() }
+			});
+		}
+
 		const result = {
 			bloodGroups: await db.bloodGroup.findMany(),
 			nationalities: await db.nationality.findMany(),

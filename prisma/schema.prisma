@@ -301,7 +301,7 @@ model Department {
 
 model Role {
   role_id Int @id @default(autoincrement())
-  uuid String @unique @default(uuid()) @db.Uuid
+  uuid    String  @unique @default(uuid()) @db.Uuid
   name String @db.VarChar(255)
   is_active Boolean @default(true)
   @@map("roles")
@@ -641,6 +641,7 @@ model PayrollItem {
 
 model Shift {
   shift_id                 Int               @id @default(autoincrement())
+  cuid               String            @unique @default(cuid())
 
   shift_name               String            @db.VarChar(100)
 
@@ -807,6 +808,7 @@ model UserSettings {
 
 model CompanyLocation {
   location_id             Int          @id @default(autoincrement())
+  cuid          String   @unique @default(cuid())
 
   location_name           String       @db.VarChar(150)
 

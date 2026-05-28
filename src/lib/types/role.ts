@@ -1,7 +1,7 @@
 // src/lib/types/role.ts
 export interface Role {
   role_id: number;
-  uuid: string;
+  cuid: string;
   name: string;
   is_active: boolean;
 }
