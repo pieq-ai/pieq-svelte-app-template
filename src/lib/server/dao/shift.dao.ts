@@ -16,7 +16,7 @@ export async function createShift(data: ShiftCreateDTO): Promise<Shift> {
       start_time: startTime,
       end_time: endTime,
       minimum_work_hours: minHours,
-      status: 'active'
+      status: true
     },
   }) as unknown as Promise<Shift>;
 }
@@ -27,7 +27,7 @@ export async function createShift(data: ShiftCreateDTO): Promise<Shift> {
 export async function getShifts(page: number, limit: number): Promise<Shift[]> {
   const skip = (page - 1) * limit;
   return db.shift.findMany({
-    where: { status: 'active' },
+    where: { status: true },
     orderBy: { shift_id: 'asc' },
     skip,
     take: limit,
@@ -57,7 +57,7 @@ export async function countAllShifts(): Promise<number> {
  * Count active shifts (used for pagination metadata).
  */
 export async function countShifts(): Promise<number> {
-  return db.shift.count({ where: { status: 'active' } });
+  return db.shift.count({ where: { status: true } });
 }
 
 /**
@@ -100,7 +100,7 @@ export async function updateShift(shiftId: number, data: ShiftUpdateDTO): Promis
 export async function deactivateShift(shiftId: number): Promise<Shift> {
   return db.shift.update({
     where: { shift_id: shiftId },
-    data: { status: 'inactive' }
+    data: { status: false }
   }) as unknown as Promise<Shift>;
 }
 
@@ -110,6 +110,6 @@ export async function deactivateShift(shiftId: number): Promise<Shift> {
 export async function activateShift(shiftId: number): Promise<Shift> {
   return db.shift.update({
     where: { shift_id: shiftId },
-    data: { status: 'active' }
+    data: { status: true }
   }) as unknown as Promise<Shift>;
 }

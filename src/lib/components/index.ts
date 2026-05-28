@@ -24,3 +24,8 @@ export {
 	Title as AlertTitle,
 	Description as AlertDescription
 } from './ui/alert/index.js';
+
+export { default as Sidebar } from './Sidebar.svelte';
+export { default as Modal } from './Modal.svelte';
+export { default as ToastContainer } from './ToastContainer.svelte';
+export { default as ConfirmationModal } from './ConfirmationModal.svelte';

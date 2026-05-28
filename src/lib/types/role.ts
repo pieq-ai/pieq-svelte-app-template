@@ -3,7 +3,7 @@ export interface Role {
   role_id: number;
   cuid: string;
   name: string;
-  is_active: boolean;
+  status: boolean;
 }
 
 export interface RoleCreateDTO {

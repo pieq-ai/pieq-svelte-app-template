@@ -24,7 +24,7 @@ export async function createRole(payload: any) {
   const valid = validateCreatePayload(payload);
   // Ensure unique active name
   const existing = await roleDao.getRoles(1, 1000);
-  if (existing.some((r) => r.name.toLowerCase() === valid.name.toLowerCase() && r.is_active)) {
+  if (existing.some((r) => r.name.toLowerCase() === valid.name.toLowerCase() && r.status)) {
     const err: any = new Error('Role name already exists');
     err.status = 409;
     throw err;
@@ -44,7 +44,7 @@ export async function updateRole(id: number, payload: any) {
   // Duplicate name check if name provided
   if (valid.name) {
     const existing = await roleDao.getRoles(1, 1000);
-    if (existing.some((r) => r.name.toLowerCase() === valid.name.toLowerCase() && r.is_active && r.role_id !== id)) {
+    if (existing.some((r) => r.name.toLowerCase() === valid.name.toLowerCase() && r.status && r.role_id !== id)) {
       const err: any = new Error('Role name already exists');
       err.status = 409;
       throw err;

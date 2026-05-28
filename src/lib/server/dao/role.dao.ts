@@ -19,7 +19,7 @@ export async function createRole(data: RoleCreateDTO): Promise<Role> {
 export async function getRoles(page: number, limit: number): Promise<Role[]> {
   const skip = (page - 1) * limit;
   return db.role.findMany({
-    where: { is_active: true },
+    where: { status: true },
     orderBy: { role_id: 'asc' },
     skip,
     take: limit,
@@ -50,7 +50,7 @@ export async function countAllRoles(): Promise<number> {
  * Count active roles (used for pagination metadata).
  */
 export async function countRoles(): Promise<number> {
-  return db.role.count({ where: { is_active: true } });
+  return db.role.count({ where: { status: true } });
 }
 
 /**
@@ -79,6 +79,6 @@ export async function updateRole(roleId: number, data: RoleUpdateDTO): Promise<R
 export async function deactivateRole(roleId: number, deletedBy?: number): Promise<Role> {
   return db.role.update({
     where: { role_id: roleId },
-    data: { is_active: false }
+    data: { status: false }
   });
 }

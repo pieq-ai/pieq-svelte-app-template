@@ -303,9 +303,8 @@ model Role {
   role_id Int @id @default(autoincrement())
   cuid    String  @unique @default(cuid())
   name String @db.VarChar(255)
-  is_active Boolean @default(true)
+  status Boolean @default(true)
   @@map("roles")
-  
 }
 
 model BankDetails {
@@ -652,7 +651,7 @@ model Shift {
 
   minimum_work_hours       Decimal           @db.Decimal(4, 2)
 
-  status                   MasterStatusEnum  @default(active)
+  status                   Boolean           @default(true)
 
   @@unique([shift_name])
 

@@ -5,9 +5,11 @@
 	import Pencil2Icon from '@lucide/svelte/icons/pencil';
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import ClockIcon from '@lucide/svelte/icons/clock';
-	import XIcon from '@lucide/svelte/icons/x';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import CheckIcon from '@lucide/svelte/icons/check';
+	import { Modal } from '$lib/components';
+	import { toast } from '$lib/toast.svelte.js';
+	import { confirmation } from '$lib/confirmation.svelte.js';
 
 	let shifts = $state<Shift[]>([]);
 	let page = $state(1);
@@ -28,8 +30,8 @@
 	let totalPages = $derived(Math.max(1, Math.ceil(total / limit)));
 
 	let filteredShifts = $derived.by(() => {
-		if (filterStatus === 'active') return shifts.filter((s) => s.status === 'active');
-		if (filterStatus === 'inactive') return shifts.filter((s) => s.status === 'inactive');
+		if (filterStatus === 'active') return shifts.filter((s) => s.status);
+		if (filterStatus === 'inactive') return shifts.filter((s) => !s.status);
 		return shifts;
 	});
 
@@ -75,22 +77,27 @@
 		const nameTrimmed = formName.trim();
 		if (!nameTrimmed) {
 			formError = 'Shift name is required.';
+			toast.error(formError);
 			return;
 		}
 		if (nameTrimmed.length < 2) {
 			formError = 'Shift name must be at least 2 characters.';
+			toast.error(formError);
 			return;
 		}
 		if (/\d/.test(nameTrimmed)) {
 			formError = 'Shift name cannot contain numbers.';
+			toast.error(formError);
 			return;
 		}
 		if (!/^[A-Za-z ]+$/.test(nameTrimmed)) {
 			formError = 'Shift name cannot contain special characters.';
+			toast.error(formError);
 			return;
 		}
 		if (nameTrimmed.length > 255) {
 			formError = 'Shift name exceeds maximum length of 255 characters.';
+			toast.error(formError);
 			return;
 		}
 		formLoading = true;
@@ -105,28 +112,68 @@
 			});
 			const json = await res.json();
 			if (res.ok) {
+				const isEdit = !!editShift;
 				closeForm();
 				await fetchShifts();
+				toast.success(isEdit ? 'Shift updated successfully' : 'Shift created successfully');
 			} else {
 				formError = json.error || 'Something went wrong.';
+				toast.error(formError);
 			}
 		} catch {
 			formError = 'Network error.';
+			toast.error(formError);
 		} finally {
 			formLoading = false;
 		}
 	}
 
 	async function deactivateShift(id: number) {
-		if (!confirm('Deactivate this shift? It will remain visible but marked as inactive.')) return;
-		const res = await fetch(`/api/shifts/${id}`, { method: 'DELETE' });
-		if (res.ok) await fetchShifts();
+		confirmation.ask({
+			title: 'Deactivate Shift',
+			message: 'Deactivate this shift? It will remain visible but marked as inactive.',
+			confirmText: 'Deactivate',
+			cancelText: 'Cancel',
+			isDestructive: true,
+			onConfirm: async () => {
+				try {
+					const res = await fetch(`/api/shifts/${id}`, { method: 'DELETE' });
+					const json = await res.json();
+					if (res.ok) {
+						await fetchShifts();
+						toast.success('Shift deactivated successfully');
+					} else {
+						toast.error(json.error || 'Failed to deactivate shift');
+					}
+				} catch {
+					toast.error('Network error occurred while deactivating shift');
+				}
+			}
+		});
 	}
 
 	async function activateShift(id: number) {
-		if (!confirm('Activate this shift? It will be marked as active.')) return;
-		const res = await fetch(`/api/shifts/${id}`, { method: 'PATCH' });
-		if (res.ok) await fetchShifts();
+		confirmation.ask({
+			title: 'Activate Shift',
+			message: 'Activate this shift? It will be marked as active.',
+			confirmText: 'Activate',
+			cancelText: 'Cancel',
+			isDestructive: false,
+			onConfirm: async () => {
+				try {
+					const res = await fetch(`/api/shifts/${id}`, { method: 'PATCH' });
+					const json = await res.json();
+					if (res.ok) {
+						await fetchShifts();
+						toast.success('Shift activated successfully');
+					} else {
+						toast.error(json.error || 'Failed to activate shift');
+					}
+				} catch {
+					toast.error('Network error occurred while activating shift');
+				}
+			}
+		});
 	}
 
 	async function prevPage() {
@@ -229,7 +276,7 @@
 							</div>
 						</td>
 						<td style="padding:14px 20px">
-							{#if shift.status === 'active'}
+							{#if shift.status}
 								<span class="badge-active">Active</span>
 							{:else}
 								<span class="badge-inactive">Inactive</span>
@@ -247,7 +294,7 @@
 								>
 									<Pencil2Icon size={14} />
 								</button>
-								{#if shift.status === 'active'}
+								{#if shift.status}
 									<button
 										onclick={() => deactivateShift(shift.shift_id)}
 										aria-label="Deactivate shift"
@@ -299,64 +346,42 @@
 </div>
 
 <!-- Create / Edit Modal -->
-{#if showForm}
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div
-		class="modal-overlay"
-		onclick={(e) => { if (e.target === e.currentTarget) closeForm(); }}
-	>
-		<div class="modal-card">
-			<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-				<h2 style="font-size:18px;font-weight:700;margin:0">
-					{editShift ? 'Edit Shift' : 'Create New Shift'}
-				</h2>
-				<button
-					onclick={closeForm}
-					style="background:none;border:none;cursor:pointer;color:var(--muted-foreground);padding:4px;border-radius:6px"
-					aria-label="Close modal"
-				>
-					<XIcon size={18} />
-				</button>
-			</div>
-
-			<form onsubmit={submitForm} style="display:flex;flex-direction:column;gap:16px">
-				<div style="display:flex;flex-direction:column;gap:6px">
-					<label for="shift-name" style="font-size:13px;font-weight:600">
-						Shift Name <span style="color:#C2652A">*</span>
-					</label>
-					<input
-						id="shift-name"
-						type="text"
-						bind:value={formName}
-						placeholder="e.g. Morning Shift"
-						style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
-						onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
-						onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
-					/>
-					{#if formError}
-						<p style="color:#dc2626;font-size:12px;margin:0">{formError}</p>
-					{/if}
-				</div>
-
-				<div style="display:flex;justify-content:flex-end;gap:10px;padding-top:4px">
-					<button
-						type="button"
-						onclick={closeForm}
-						style="padding:9px 18px;border-radius:8px;border:1px solid var(--border);background:none;font-size:13px;font-weight:500;cursor:pointer"
-					>Cancel</button>
-					<button
-						type="submit"
-						disabled={formLoading}
-						style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;opacity:{formLoading ? 0.7 : 1};display:inline-flex;align-items:center;gap:6px"
-					>
-						{#if formLoading}
-							<LoaderCircleIcon class="animate-spin" size={14} />
-						{/if}
-						{formLoading ? 'Saving...' : editShift ? 'Update Shift' : 'Create Shift'}
-					</button>
-				</div>
-			</form>
+<Modal bind:show={showForm} title={editShift ? 'Edit Shift' : 'Create New Shift'} onclose={closeForm}>
+	<form onsubmit={submitForm} style="display:flex;flex-direction:column;gap:16px">
+		<div style="display:flex;flex-direction:column;gap:6px">
+			<label for="shift-name" style="font-size:13px;font-weight:600">
+				Shift Name <span style="color:#C2652A">*</span>
+			</label>
+			<input
+				id="shift-name"
+				type="text"
+				bind:value={formName}
+				placeholder="e.g. Morning Shift"
+				style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
+				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+				onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+			/>
+			{#if formError}
+				<p style="color:#dc2626;font-size:12px;margin:0">{formError}</p>
+			{/if}
 		</div>
-	</div>
-{/if}
+
+		<div style="display:flex;justify-content:flex-end;gap:10px;padding-top:4px">
+			<button
+				type="button"
+				onclick={closeForm}
+				style="padding:9px 18px;border-radius:8px;border:1px solid var(--border);background:none;font-size:13px;font-weight:500;cursor:pointer"
+			>Cancel</button>
+			<button
+				type="submit"
+				disabled={formLoading}
+				style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;opacity:{formLoading ? 0.7 : 1};display:inline-flex;align-items:center;gap:6px"
+			>
+				{#if formLoading}
+					<LoaderCircleIcon class="animate-spin" size={14} />
+				{/if}
+				{formLoading ? 'Saving...' : editShift ? 'Update Shift' : 'Create Shift'}
+			</button>
+		</div>
+	</form>
+</Modal>

@@ -243,7 +243,7 @@
 	color: var(--sidebar-fg);
 	text-decoration: none;
 	border-radius: 0;
-	transition: background 0.15s, color 0.15s;
+	transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s, box-shadow 0.2s;
 	white-space: nowrap;
 	overflow: hidden;
 	position: relative;
@@ -254,13 +254,14 @@
 }
 
 .sidebar-nav-item:hover {
-	background: var(--sidebar-accent);
+	background: var(--pieq-primary);
 	color: white;
 }
 
 .sidebar-nav-item.active {
-	background: var(--sidebar-accent);
+	background: var(--pieq-primary);
 	color: white;
+	box-shadow: 0 4px 12px rgba(194, 101, 42, 0.25);
 }
 
 .sidebar-nav-item.active .nav-item-icon {

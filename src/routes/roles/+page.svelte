@@ -5,8 +5,10 @@
 	import Pencil2Icon from '@lucide/svelte/icons/pencil';
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import ShieldIcon from '@lucide/svelte/icons/shield';
-	import XIcon from '@lucide/svelte/icons/x';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
+	import { Modal } from '$lib/components';
+	import { toast } from '$lib/toast.svelte.js';
+	import { confirmation } from '$lib/confirmation.svelte.js';
 
 	let roles = $state<Role[]>([]);
 	let page = $state(1);
@@ -27,8 +29,8 @@
 	let totalPages = $derived(Math.max(1, Math.ceil(total / limit)));
 
 	let filteredRoles = $derived.by(() => {
-		if (filterStatus === 'active') return roles.filter((r) => r.is_active);
-		if (filterStatus === 'inactive') return roles.filter((r) => !r.is_active);
+		if (filterStatus === 'active') return roles.filter((r) => r.status);
+		if (filterStatus === 'inactive') return roles.filter((r) => !r.status);
 		return roles;
 	});
 
@@ -75,19 +77,23 @@
 		const nameTrimmed = formName.trim();
 		if (!nameTrimmed) {
 			formError = 'Role name is required.';
+			toast.error(formError);
 			return;
 		}
 		if (nameTrimmed.length < 2) {
 			formError = 'Role name must be at least 2 characters.';
+			toast.error(formError);
 			return;
 		}
 		const nameRegex = /^[A-Za-z ]+$/;
 		if (!nameRegex.test(nameTrimmed)) {
 			formError = 'Role name must contain only letters and spaces.';
+			toast.error(formError);
 			return;
 		}
 		if (nameTrimmed.length > 255) {
 			formError = 'Role name exceeds maximum length of 255 characters.';
+			toast.error(formError);
 			return;
 		}
 		formLoading = true;
@@ -98,26 +104,48 @@
 			const res = await fetch(url, {
 				method,
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name: formName.trim() })
+				body: JSON.stringify({ name: nameTrimmed })
 			});
 			const json = await res.json();
 			if (res.ok) {
+				const isEdit = !!editRole;
 				closeForm();
 				await fetchRoles();
+				toast.success(isEdit ? 'Role updated successfully' : 'Role created successfully');
 			} else {
 				formError = json.error || 'Something went wrong.';
+				toast.error(formError);
 			}
 		} catch {
 			formError = 'Network error.';
+			toast.error(formError);
 		} finally {
 			formLoading = false;
 		}
 	}
 
 	async function deactivateRole(id: number) {
-		if (!confirm('Deactivate this role? It will remain visible but marked as inactive.')) return;
-		const res = await fetch(`/api/roles/${id}`, { method: 'DELETE' });
-		if (res.ok) await fetchRoles();
+		confirmation.ask({
+			title: 'Deactivate Role',
+			message: 'Deactivate this role? It will remain visible but marked as inactive.',
+			confirmText: 'Deactivate',
+			cancelText: 'Cancel',
+			isDestructive: true,
+			onConfirm: async () => {
+				try {
+					const res = await fetch(`/api/roles/${id}`, { method: 'DELETE' });
+					const json = await res.json();
+					if (res.ok) {
+						await fetchRoles();
+						toast.success('Role deactivated successfully');
+					} else {
+						toast.error(json.error || 'Failed to deactivate role');
+					}
+				} catch {
+					toast.error('Network error occurred while deactivating role');
+				}
+			}
+		});
 	}
 
 	async function prevPage() {
@@ -220,7 +248,7 @@
 							</div>
 						</td>
 						<td style="padding:14px 20px">
-							{#if role.is_active}
+							{#if role.status}
 								<span class="badge-active">Active</span>
 							{:else}
 								<span class="badge-inactive">Inactive</span>
@@ -238,7 +266,7 @@
 								>
 									<Pencil2Icon size={14} />
 								</button>
-								{#if role.is_active}
+								{#if role.status}
 									<button
 										onclick={() => deactivateRole(role.role_id)}
 										aria-label="Deactivate role"
@@ -279,64 +307,42 @@
 </div>
 
 <!-- Create / Edit Modal -->
-{#if showForm}
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div
-		class="modal-overlay"
-		onclick={(e) => { if (e.target === e.currentTarget) closeForm(); }}
-	>
-		<div class="modal-card">
-			<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-				<h2 style="font-size:18px;font-weight:700;margin:0">
-					{editRole ? 'Edit Role' : 'Create New Role'}
-				</h2>
-				<button
-					onclick={closeForm}
-					style="background:none;border:none;cursor:pointer;color:var(--muted-foreground);padding:4px;border-radius:6px"
-					aria-label="Close modal"
-				>
-					<XIcon size={18} />
-				</button>
-			</div>
-
-			<form onsubmit={submitForm} style="display:flex;flex-direction:column;gap:16px">
-				<div style="display:flex;flex-direction:column;gap:6px">
-					<label for="role-name" style="font-size:13px;font-weight:600">
-						Role Name <span style="color:#C2652A">*</span>
-					</label>
-					<input
-						id="role-name"
-						type="text"
-						bind:value={formName}
-						placeholder="e.g. HR Manager"
-						style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
-						onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
-						onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
-					/>
-					{#if formError}
-						<p style="color:#dc2626;font-size:12px;margin:0">{formError}</p>
-					{/if}
-				</div>
-
-				<div style="display:flex;justify-content:flex-end;gap:10px;padding-top:4px">
-					<button
-						type="button"
-						onclick={closeForm}
-						style="padding:9px 18px;border-radius:8px;border:1px solid var(--border);background:none;font-size:13px;font-weight:500;cursor:pointer"
-					>Cancel</button>
-					<button
-						type="submit"
-						disabled={formLoading}
-						style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;opacity:{formLoading ? 0.7 : 1};display:inline-flex;align-items:center;gap:6px"
-					>
-						{#if formLoading}
-							<LoaderCircleIcon class="animate-spin" size={14} />
-						{/if}
-						{formLoading ? 'Saving...' : editRole ? 'Update Role' : 'Create Role'}
-					</button>
-				</div>
-			</form>
+<Modal bind:show={showForm} title={editRole ? 'Edit Role' : 'Create New Role'} onclose={closeForm}>
+	<form onsubmit={submitForm} style="display:flex;flex-direction:column;gap:16px">
+		<div style="display:flex;flex-direction:column;gap:6px">
+			<label for="role-name" style="font-size:13px;font-weight:600">
+				Role Name <span style="color:#C2652A">*</span>
+			</label>
+			<input
+				id="role-name"
+				type="text"
+				bind:value={formName}
+				placeholder="e.g. HR Manager"
+				style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
+				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+				onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+			/>
+			{#if formError}
+				<p style="color:#dc2626;font-size:12px;margin:0">{formError}</p>
+			{/if}
 		</div>
-	</div>
-{/if}
+
+		<div style="display:flex;justify-content:flex-end;gap:10px;padding-top:4px">
+			<button
+				type="button"
+				onclick={closeForm}
+				style="padding:9px 18px;border-radius:8px;border:1px solid var(--border);background:none;font-size:13px;font-weight:500;cursor:pointer"
+			>Cancel</button>
+			<button
+				type="submit"
+				disabled={formLoading}
+				style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;opacity:{formLoading ? 0.7 : 1};display:inline-flex;align-items:center;gap:6px"
+			>
+				{#if formLoading}
+					<LoaderCircleIcon class="animate-spin" size={14} />
+				{/if}
+				{formLoading ? 'Saving...' : editRole ? 'Update Role' : 'Create Role'}
+			</button>
+		</div>
+	</form>
+</Modal>

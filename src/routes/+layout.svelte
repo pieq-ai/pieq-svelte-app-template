@@ -2,7 +2,7 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
-	import Sidebar from '$lib/components/Sidebar.svelte';
+	import { Sidebar, ToastContainer, ConfirmationModal } from '$lib/components';
 
 	let { children, data } = $props();
 
@@ -48,3 +48,6 @@
 		</div>
 	</div>
 </div>
+
+<ToastContainer />
+<ConfirmationModal />

@@ -105,7 +105,7 @@ export function validateUpdatePayload(payload: any) {
     start_time?: any;
     end_time?: any;
     minimum_work_hours?: any;
-    status?: 'active' | 'inactive';
+    status?: boolean;
   } = {};
 
   if (payload.shift_name !== undefined) {
@@ -166,8 +166,8 @@ export function validateUpdatePayload(payload: any) {
     result.minimum_work_hours = payload.minimum_work_hours;
   }
   if (payload.status !== undefined) {
-    if (payload.status !== 'active' && payload.status !== 'inactive') {
-      const err: any = new Error('Status must be active or inactive');
+    if (typeof payload.status !== 'boolean') {
+      const err: any = new Error('Status must be a boolean');
       err.status = 400;
       throw err;
     }

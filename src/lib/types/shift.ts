@@ -5,7 +5,7 @@ export interface Shift {
   start_time: Date | string;
   end_time: Date | string;
   minimum_work_hours: number | string | any;
-  status: 'active' | 'inactive';
+  status: boolean;
 }
 
 export interface ShiftCreateDTO {
@@ -20,5 +20,5 @@ export interface ShiftUpdateDTO {
   start_time?: Date | string;
   end_time?: Date | string;
   minimum_work_hours?: number | string | any;
-  status?: 'active' | 'inactive';
+  status?: boolean;
 }
