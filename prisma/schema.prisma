@@ -122,7 +122,7 @@ enum PayrollStatusEnum {
 model Employee {
   id                     BigInt            @id @default(autoincrement())
   emp_code               String            @unique @db.VarChar(20)
-  uuid                   String            @unique @default(uuid()) @db.Uuid
+  uuid                   String            @unique @default(cuid())
   first_name             String            @db.VarChar(100)
   last_name              String            @db.VarChar(100)
   dob                    DateTime          @db.Date
@@ -145,7 +145,7 @@ model Employee {
 
 model Employment {
   id                 BigInt               @id @default(autoincrement())
-  uuid               String               @unique @default(uuid()) @db.Uuid
+  uuid               String               @unique @default(cuid())
   emp_id             BigInt               @unique
   dept_id            Int
   role_id            Int
@@ -165,7 +165,7 @@ model Employment {
 
 model EmployeeLanguage {
   id          BigInt              @id @default(autoincrement())
-  uuid        String              @unique @default(uuid()) @db.Uuid
+  uuid        String              @unique @default(cuid())
   emp_id      BigInt
   language_id Int
   proficiency LanguageProficiency @default(Professional)
@@ -176,7 +176,7 @@ model EmployeeLanguage {
 
 model EmployeeSkill {
   id                BigInt     @id @default(autoincrement())
-  uuid              String     @unique @default(uuid()) @db.Uuid
+  uuid              String     @unique @default(cuid())
   emp_id            BigInt
   skill_id          Int
   proficiency_level SkillLevel @default(Intermediate)
@@ -188,7 +188,7 @@ model EmployeeSkill {
 
 model UserAccount {
   id             BigInt    @id @default(autoincrement())
-  uuid           String    @unique @default(uuid()) @db.Uuid
+  uuid           String    @unique @default(cuid())
   emp_id         BigInt    @unique
   username       String    @unique @db.VarChar(100)
   password_hash  String    @db.Text
@@ -201,7 +201,7 @@ model UserAccount {
 
 model SystemRoles {
   id               Int     @id @default(autoincrement())
-  uuid             String  @unique @default(uuid()) @db.Uuid
+  uuid             String  @unique @default(cuid())
   system_role_name String  @unique @db.VarChar(100)
   status           Boolean @default(true)
 
@@ -210,7 +210,7 @@ model SystemRoles {
 
 model Address {
   id         BigInt  @id @default(autoincrement())
-  uuid       String  @unique @default(uuid()) @db.Uuid
+  uuid       String  @unique @default(cuid())
   emp_id     BigInt
   door_no    String? @db.VarChar(20)
   line1      String  @db.VarChar(255)
@@ -225,7 +225,7 @@ model Address {
 
 model Department {
   id        Int     @id @default(autoincrement())
-  uuid      String  @unique @default(uuid()) @db.Uuid
+  uuid      String  @unique @default(cuid())
   dept_name String  @unique @db.VarChar(150)
   status    Boolean @default(true)
 
@@ -234,7 +234,7 @@ model Department {
 
 model Role {
   id        Int     @id @default(autoincrement())
-  uuid      String  @unique @default(uuid()) @db.Uuid
+  uuid      String  @unique @default(cuid())
   role_name String  @unique @db.VarChar(150)
   status    Boolean @default(true)
 
@@ -243,7 +243,7 @@ model Role {
 
 model BankDetails {
   id                  BigInt @id @default(autoincrement())
-  uuid                String @unique @default(uuid()) @db.Uuid
+  uuid                String @unique @default(cuid())
   account_number      String @db.VarChar(30)
   bank_name           String @db.VarChar(150)
   ifsc_code           String @db.VarChar(11)
@@ -256,7 +256,7 @@ model BankDetails {
 
 model EmployeeDocuments {
   id               BigInt   @id @default(autoincrement())
-  uuid             String   @unique @default(uuid()) @db.Uuid
+  uuid             String   @unique @default(cuid())
   emp_id           BigInt
   document_type_id Int
   mime_type        String   @db.VarChar(100)
@@ -270,7 +270,7 @@ model EmployeeDocuments {
 
 model EmployeeEducation {
   id             BigInt             @id @default(autoincrement())
-  uuid           String             @unique @default(uuid()) @db.Uuid
+  uuid           String             @unique @default(cuid())
   emp_id         BigInt
   education      EducationLevelEnum
   specialization String?            @db.VarChar(200)
@@ -283,7 +283,7 @@ model EmployeeEducation {
 
 model Experience {
   id           BigInt    @id @default(autoincrement())
-  uuid         String    @unique @default(uuid()) @db.Uuid
+  uuid         String    @unique @default(cuid())
   emp_id       BigInt
   company_name String    @db.VarChar(300)
   role         String    @db.VarChar(200)
@@ -296,7 +296,7 @@ model Experience {
 
 model LeaveType {
   id                Int     @id @default(autoincrement())
-  uuid              String  @unique @default(uuid()) @db.Uuid
+  uuid              String  @unique @default(cuid())
   leave_name        String  @unique @db.VarChar(100)
   leave_code        String  @unique @db.VarChar(20)
   description       String? @db.Text
@@ -309,7 +309,7 @@ model LeaveType {
 
 model LeavePolicy {
   id                     Int                   @id @default(autoincrement())
-  uuid                   String                @unique @default(uuid()) @db.Uuid
+  uuid                   String                @unique @default(cuid())
   leave_type_id          Int
   annual_quota           Decimal               @db.Decimal(5, 1)
   max_per_month          Decimal?              @db.Decimal(4, 1)
@@ -327,7 +327,7 @@ model LeavePolicy {
 
 model LeaveBalance {
   id                   BigInt   @id @default(autoincrement())
-  uuid                 String   @unique @default(uuid()) @db.Uuid
+  uuid                 String   @unique @default(cuid())
   emp_id               BigInt
   leave_type_id        Int
   year                 Int      @db.SmallInt
@@ -343,7 +343,7 @@ model LeaveBalance {
 
 model LeaveRequest {
   id               BigInt                 @id @default(autoincrement())
-  uuid             String                 @unique @default(uuid()) @db.Uuid
+  uuid             String                 @unique @default(cuid())
   emp_id           BigInt
   leave_type_id    Int
   start_date       DateTime               @db.Date
@@ -363,7 +363,7 @@ model LeaveRequest {
 
 model AttendanceRecord {
   id                    BigInt               @id @default(autoincrement())
-  uuid                  String               @unique @default(uuid()) @db.Uuid
+  uuid                  String               @unique @default(cuid())
   emp_id                BigInt
   attendance_date       DateTime             @db.Date
   check_in_time         DateTime?            @db.Time(6)
@@ -380,7 +380,7 @@ model AttendanceRecord {
 
 model HolidayCalendar {
   id           Int             @id @default(autoincrement())
-  uuid         String          @unique @default(uuid()) @db.Uuid
+  uuid         String          @unique @default(cuid())
   holiday_name String          @db.VarChar(200)
   holiday_date DateTime        @db.Date
   holiday_type HolidayTypeEnum
@@ -391,7 +391,7 @@ model HolidayCalendar {
 
 model Payroll {
   id                  BigInt            @id @default(autoincrement())
-  uuid                String            @unique @default(uuid()) @db.Uuid
+  uuid                String            @unique @default(cuid())
   emp_id              BigInt
   salary_structure_id BigInt
   pay_period_start    DateTime          @db.Date
@@ -415,7 +415,7 @@ model Payroll {
 
 model SalaryComponent {
   id             Int                     @id @default(autoincrement())
-  uuid           String                  @unique @default(uuid()) @db.Uuid
+  uuid           String                  @unique @default(cuid())
   component_name String                  @db.VarChar(150)
   component_type SalaryComponentTypeEnum
   is_taxable     Boolean                 @default(false)
@@ -427,7 +427,7 @@ model SalaryComponent {
 
 model SalaryStructure {
   id                BigInt               @id @default(autoincrement())
-  uuid              String               @unique @default(uuid()) @db.Uuid
+  uuid              String               @unique @default(cuid())
   emp_id            BigInt
   effective_from    DateTime             @db.Date
   effective_to      DateTime?            @db.Date
@@ -441,7 +441,7 @@ model SalaryStructure {
 
 model SalaryStructureItem {
   id                  BigInt              @id @default(autoincrement())
-  uuid                String              @unique @default(uuid()) @db.Uuid
+  uuid                String              @unique @default(cuid())
   salary_structure_id BigInt
   component_id        Int
   calculation_type    CalculationTypeEnum
@@ -454,7 +454,7 @@ model SalaryStructureItem {
 
 model PayrollItem {
   id           BigInt  @id @default(autoincrement())
-  uuid         String  @unique @default(uuid()) @db.Uuid
+  uuid         String  @unique @default(cuid())
   payroll_id   BigInt
   component_id Int
   amount       Decimal @db.Decimal(14, 2)
@@ -465,7 +465,7 @@ model PayrollItem {
 
 model Shift {
   id                 Int      @id @default(autoincrement())
-  uuid               String   @unique @default(uuid()) @db.Uuid
+  uuid               String   @unique @default(cuid())
   shift_name         String   @db.VarChar(100)
   start_time         DateTime @db.Time(6)
   end_time           DateTime @db.Time(6)
@@ -478,7 +478,7 @@ model Shift {
 
 model ShiftAssignment {
   id             BigInt    @id @default(autoincrement())
-  uuid           String    @unique @default(uuid()) @db.Uuid
+  uuid           String    @unique @default(cuid())
   emp_id         BigInt
   shift_id       Int
   effective_from DateTime  @db.Date
@@ -489,7 +489,7 @@ model ShiftAssignment {
 
 model AuditLog {
   id          BigInt   @id @default(autoincrement())
-  uuid        String   @unique @default(uuid()) @db.Uuid
+  uuid        String   @unique @default(cuid())
   user_id     BigInt
   action_type String   @db.VarChar(50)
   entity_name String   @db.VarChar(100)
@@ -507,7 +507,7 @@ model AuditLog {
 
 model Permissions {
   id             Int     @id @default(autoincrement())
-  uuid           String  @unique @default(uuid()) @db.Uuid
+  uuid           String  @unique @default(cuid())
   permission_key String  @unique @db.VarChar(100)
   status         Boolean @default(true)
 
@@ -516,7 +516,7 @@ model Permissions {
 
 model RolePermission {
   id             Int    @id @default(autoincrement())
-  uuid           String @unique @default(uuid()) @db.Uuid
+  uuid           String @unique @default(cuid())
   system_role_id Int
   permission_id  Int
 
@@ -526,7 +526,7 @@ model RolePermission {
 
 model UserSession {
   id                 BigInt    @id @default(autoincrement())
-  uuid               String    @unique @default(uuid()) @db.Uuid
+  uuid               String    @unique @default(cuid())
   user_id            BigInt
   refresh_token_hash String
   device_info        String?
@@ -544,7 +544,7 @@ model UserSession {
 
 model Notification {
   id                BigInt               @id @default(autoincrement())
-  uuid              String               @unique @default(uuid()) @db.Uuid
+  uuid              String               @unique @default(cuid())
   user_id           BigInt
   title             String               @db.VarChar(255)
   message           String               @db.Text
@@ -562,7 +562,7 @@ model Notification {
 
 model UserSettings {
   id                          BigInt    @id @default(autoincrement())
-  uuid                        String    @unique @default(uuid()) @db.Uuid
+  uuid                        String    @unique @default(cuid())
   user_id                     BigInt    @unique
   theme                       ThemeEnum @default(system)
   email_notifications_enabled Boolean   @default(true)
@@ -576,7 +576,7 @@ model UserSettings {
 
 model CompanyLocation {
   id            Int      @id @default(autoincrement())
-  uuid          String   @unique @default(uuid()) @db.Uuid
+  uuid          String   @unique @default(cuid())
   location_name String   @db.VarChar(150)
   address_line1 String   @db.VarChar(255)
   address_line2 String?  @db.VarChar(255)
@@ -595,7 +595,7 @@ model CompanyLocation {
 
 model BloodGroup {
   id               Int    @id @default(autoincrement())
-  uuid             String @unique @default(uuid()) @db.Uuid
+  uuid             String @unique @default(cuid())
   blood_group_name String @unique @db.VarChar(5)
 
   @@map("blood_group")
@@ -603,7 +603,7 @@ model BloodGroup {
 
 model Designation {
   id               Int     @id @default(autoincrement())
-  uuid             String  @unique @default(uuid()) @db.Uuid
+  uuid             String  @unique @default(cuid())
   designation_name String  @unique @db.VarChar(150)
   status           Boolean @default(true)
 
@@ -612,7 +612,7 @@ model Designation {
 
 model PayGrade {
   id            Int     @id @default(autoincrement())
-  uuid          String  @unique @default(uuid()) @db.Uuid
+  uuid          String  @unique @default(cuid())
   paygrade_name String  @unique @db.VarChar(100)
   status        Boolean @default(true)
 
@@ -621,7 +621,7 @@ model PayGrade {
 
 model Nationality {
   id               Int     @id @default(autoincrement())
-  uuid             String  @unique @default(uuid()) @db.Uuid
+  uuid             String  @unique @default(cuid())
   nationality_name String  @unique @db.VarChar(100)
   status           Boolean @default(true)
 
@@ -630,7 +630,7 @@ model Nationality {
 
 model EmploymentType {
   id              Int     @id @default(autoincrement())
-  uuid            String  @unique @default(uuid()) @db.Uuid
+  uuid            String  @unique @default(cuid())
   employment_name String  @unique @db.VarChar(50)
   status          Boolean @default(true)
 
@@ -639,7 +639,7 @@ model EmploymentType {
 
 model RelationType {
   id            Int     @id @default(autoincrement())
-  uuid          String  @unique @default(uuid()) @db.Uuid
+  uuid          String  @unique @default(cuid())
   relation_name String  @unique @db.VarChar(50)
   status        Boolean @default(true)
 
@@ -648,7 +648,7 @@ model RelationType {
 
 model DocumentType {
   id                 Int     @id @default(autoincrement())
-  uuid               String  @unique @default(uuid()) @db.Uuid
+  uuid               String  @unique @default(cuid())
   document_type_name String  @unique @db.VarChar(100)
   status             Boolean @default(true)
 
@@ -657,7 +657,7 @@ model DocumentType {
 
 model State {
   id         Int    @id @default(autoincrement())
-  uuid       String @unique @default(uuid()) @db.Uuid
+  uuid       String @unique @default(cuid())
   country_id Int
   state_name String @db.VarChar(100)
 
@@ -668,7 +668,7 @@ model State {
 
 model Country {
   id           Int    @id @default(autoincrement())
-  uuid         String @unique @default(uuid()) @db.Uuid
+  uuid         String @unique @default(cuid())
   country_name String @unique @db.VarChar(100)
 
   @@map("country")
@@ -676,7 +676,7 @@ model Country {
 
 model Skills {
   id          Int     @id @default(autoincrement())
-  uuid        String  @unique @default(uuid()) @db.Uuid
+  uuid        String  @unique @default(cuid())
   skills_name String  @unique @db.VarChar(100)
   status      Boolean @default(true)
 
@@ -685,7 +685,7 @@ model Skills {
 
 model AttendanceSource {
   id                     Int     @id @default(autoincrement())
-  uuid                   String  @unique @default(uuid()) @db.Uuid
+  uuid                   String  @unique @default(cuid())
   attendance_source_name String  @unique @db.VarChar(100)
   status                 Boolean @default(true)
 
@@ -694,7 +694,7 @@ model AttendanceSource {
 
 model Languages {
   id             Int     @id @default(autoincrement())
-  uuid           String  @unique @default(uuid()) @db.Uuid
+  uuid           String  @unique @default(cuid())
   languages_name String  @unique @db.VarChar(100)
   status         Boolean @default(true)
 
@@ -703,7 +703,7 @@ model Languages {
 
 model LeavePolicyEmploymentType {
   id                 Int    @id @default(autoincrement())
-  uuid               String @unique @default(uuid()) @db.Uuid
+  uuid               String @unique @default(cuid())
   policy_id          Int
   employment_type_id Int
 

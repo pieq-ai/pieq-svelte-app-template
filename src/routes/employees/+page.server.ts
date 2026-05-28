@@ -1,16 +1,10 @@
 import { fail } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
+import type { Actions } from './$types';
 import {
 	createEmployee,
-	EmployeeValidationError,
-	listEmployees
+	EmployeeValidationError
 } from '$lib/server/services/employee.service';
 
-export const load: PageServerLoad = async () => {
-	return {
-		employees: await listEmployees()
-	};
-};
 
 export const actions: Actions = {
 	create: async ({ request }) => {

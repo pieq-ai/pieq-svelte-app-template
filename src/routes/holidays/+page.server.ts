@@ -1,26 +1,12 @@
 import { fail } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
+import type { Actions } from './$types';
 import {
 	createHoliday,
 	deleteHoliday,
 	HolidayValidationError,
-	listHolidays,
 	updateHoliday
 } from '$lib/server/services/holiday.service.js';
 
-export const load: PageServerLoad = async () => {
-	try {
-		return {
-			holidays: await listHolidays()
-		};
-	} catch (error) {
-		console.error('Failed to load holidays:', error);
-		return {
-			holidays: [],
-			error: 'Failed to load holiday data from database'
-		};
-	}
-};
 
 export const actions: Actions = {
 	create: async ({ request }) => {

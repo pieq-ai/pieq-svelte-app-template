@@ -3,6 +3,16 @@ import { redirect } from '@sveltejs/kit';
 import { handle as authHandle } from '$lib/server/auth.js';
 
 /** @type {import('@sveltejs/kit').Handle} */
+const customAuthHandle = async ({ event, resolve }) => {
+	if (event.url.pathname === '/auth/signin' && event.request.method === 'GET') {
+		event.locals.auth = async () => null;
+		event.locals.getSession = async () => null;
+		return resolve(event);
+	}
+	return authHandle({ event, resolve });
+};
+
+/** @type {import('@sveltejs/kit').Handle} */
 const injectLocals = async ({ event, resolve }) => {
 	const session = await event.locals.auth?.();
 
@@ -23,11 +33,22 @@ const injectLocals = async ({ event, resolve }) => {
 
 /** @type {import('@sveltejs/kit').Handle} */
 const routeGuard = async ({ event, resolve }) => {
-	if (event.url.pathname.startsWith('/dashboard') && !event.locals.user) {
-		redirect(303, '/');
+	const protectedPaths = [
+		'/dashboard',
+		'/leave-types',
+		'/leave-policies',
+		'/holidays',
+		'/employees',
+		'/settings'
+	];
+	const pathname = event.url.pathname;
+	const isProtected = protectedPaths.some((p) => pathname === p || pathname.startsWith(p + '/'));
+
+	if (isProtected && !event.locals.user) {
+		redirect(303, '/auth/signin');
 	}
 
 	return resolve(event);
 };
 
-export const handle = sequence(authHandle, injectLocals, routeGuard);
+export const handle = sequence(customAuthHandle, injectLocals, routeGuard);

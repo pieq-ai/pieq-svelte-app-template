@@ -1,26 +1,12 @@
 import { fail } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types.js';
+import type { Actions } from './$types.js';
 import {
 	createLeaveType,
 	getLeaveTypeByUuid,
-	listLeaveTypes,
 	updateLeaveType,
 	LeaveValidationError
 } from '$lib/server/services/leave-type.service.js';
 
-export const load: PageServerLoad = async () => {
-	try {
-		return {
-			leaveTypes: await listLeaveTypes()
-		};
-	} catch (error) {
-		console.error('Failed to load leave types:', error);
-		return {
-			leaveTypes: [],
-			error: 'Failed to load leave types from database'
-		};
-	}
-};
 
 export const actions: Actions = {
 	create: async ({ request }) => {

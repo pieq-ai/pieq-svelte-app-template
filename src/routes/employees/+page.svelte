@@ -10,7 +10,6 @@
 		Badge,
 		Button,
 		Card,
-		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle,
@@ -21,7 +20,8 @@
 		TableCell,
 		TableHead,
 		TableHeader,
-		TableRow
+		TableRow,
+		Modal
 	} from '$lib/components';
 	import type { PageData, ActionData } from './$types';
 
@@ -30,20 +30,29 @@
 	type Employee = PageData['employees'][number];
 	type SortColumn = 'id' | 'name' | 'age';
 
-	let employees: Employee[] = $derived([...data.employees]);
+	let employees = $derived(data.employees);
 
 	let searchQuery = $state('');
 	let sortColumn = $state<SortColumn>('id');
 	let sortDirection = $state<'asc' | 'desc'>('asc');
 
-	let newName: string = $derived(
-		form && 'name' in form && typeof form.name === 'string' ? form.name : ''
-	);
-	let newAge: string = $derived(
-		form && 'age' in form && typeof form.age === 'string' ? form.age : ''
-	);
+	let newName = $state('');
+	let newAge = $state('');
+
+	$effect(() => {
+		if (form) {
+			if ('name' in form && typeof form.name === 'string') {
+				newName = form.name;
+			}
+			if ('age' in form && typeof form.age === 'string') {
+				newAge = form.age;
+			}
+		}
+	});
+
 	let isSubmitting = $state(false);
 	let successMessage = $state('');
+	let isAddModalOpen = $state(false);
 
 	let formError = $derived(form && 'error' in form ? form.error : null);
 
@@ -76,14 +85,14 @@
 		return result;
 	});
 
-	let totalEmployees = $derived(employees.length);
+	let totalEmployees = $derived(data.employees.length);
 	let averageAge = $derived(
 		totalEmployees > 0
-			? Math.round(employees.reduce((acc, emp) => acc + emp.age, 0) / totalEmployees)
+			? Math.round(data.employees.reduce((acc, emp) => acc + emp.age, 0) / totalEmployees)
 			: 0
 	);
 	let maxAge = $derived(
-		totalEmployees > 0 ? Math.max(...employees.map((e) => e.age)) : 0
+		totalEmployees > 0 ? Math.max(...data.employees.map((e) => e.age)) : 0
 	);
 
 	function handleSort(column: SortColumn) {
@@ -106,12 +115,21 @@
 </svelte:head>
 
 <div class="mx-auto max-w-5xl space-y-8 px-1 py-4">
-	<div class="space-y-1 border-b border-border pb-6">
-		<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
-		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">System Employees</h1>
-		<p class="text-muted-foreground">
-			Manage and monitor employee records with dynamic metrics and seamless creation.
-		</p>
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-6">
+		<div class="space-y-1">
+			<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">System Employees</h1>
+			<p class="text-muted-foreground">
+				Manage and monitor employee records with dynamic metrics and seamless creation.
+			</p>
+		</div>
+		<div>
+			<Button onclick={() => {
+				isAddModalOpen = true;
+				newName = '';
+				newAge = '';
+			}}>Add Employee</Button>
+		</div>
 	</div>
 
 	<div class="grid gap-4 sm:grid-cols-3">
@@ -136,7 +154,15 @@
 	</div>
 
 	<div class="grid items-start gap-8 lg:grid-cols-3">
-		<div class="space-y-4 lg:col-span-2">
+		<div class="space-y-4 lg:col-span-3">
+			{#if successMessage}
+				<div transition:slide>
+					<Alert class="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+						<AlertDescription>{successMessage}</AlertDescription>
+					</Alert>
+				</div>
+			{/if}
+
 			<div class="relative">
 				<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
 				<Input
@@ -225,92 +251,71 @@
 				Showing {filteredEmployees.length} of {totalEmployees} entries
 			</p>
 		</div>
-
-		<Card>
-			<CardHeader>
-				<CardTitle>Add New Employee</CardTitle>
-				<CardDescription>
-					Persist a new employee record in PostgreSQL via the API endpoint.
-				</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<form
-					method="POST"
-					action="?/create"
-					class="space-y-4"
-					use:enhance={() => {
-						isSubmitting = true;
-						return async ({ result, update }) => {
-							if (
-								result.type === 'success' &&
-								result.data &&
-								'created' in result.data
-							) {
-								const created = result.data.created as Employee;
-								employees = [created, ...employees];
-								successMessage = 'Employee added successfully!';
-								setTimeout(() => {
-									successMessage = '';
-								}, 3000);
-								await update({ reset: true });
-							} else {
-								await update({ reset: false });
-							}
-							isSubmitting = false;
-						};
-					}}
-				>
-					<div class="space-y-2">
-						<Label for="name">Full Name</Label>
-						<Input
-							id="name"
-							name="name"
-							bind:value={newName}
-							placeholder="e.g. Charlie Brown"
-							required
-						/>
-					</div>
-
-					<div class="space-y-2">
-						<Label for="age">Age</Label>
-						<Input
-							id="age"
-							name="age"
-							type="number"
-							bind:value={newAge}
-							placeholder="e.g. 29"
-							min="1"
-							max="120"
-							required
-						/>
-					</div>
-
-					{#if formError}
-						<div transition:slide>
-							<Alert variant="destructive">
-								<AlertDescription>{formError}</AlertDescription>
-							</Alert>
-						</div>
-					{/if}
-
-					{#if successMessage}
-						<div transition:slide>
-							<Alert>
-								<AlertDescription>{successMessage}</AlertDescription>
-							</Alert>
-						</div>
-					{/if}
-
-					<Button type="submit" class="w-full" disabled={isSubmitting}>
-						{#if isSubmitting}
-							<LoaderCircleIcon class="size-4 animate-spin" />
-							Saving Employee...
-						{:else}
-							Save Employee Record
-						{/if}
-					</Button>
-				</form>
-			</CardContent>
-		</Card>
 	</div>
 </div>
+
+<Modal bind:isOpen={isAddModalOpen} title="Add New Employee">
+	<form
+		method="POST"
+		action="?/create"
+		class="space-y-4"
+		use:enhance={() => {
+			isSubmitting = true;
+			return async ({ result, update }) => {
+				if (result.type === 'success') {
+					successMessage = 'Employee added successfully!';
+					isAddModalOpen = false;
+					setTimeout(() => {
+						successMessage = '';
+					}, 3000);
+					await update({ reset: true });
+				} else {
+					await update({ reset: false });
+				}
+				isSubmitting = false;
+			};
+		}}
+	>
+		<div class="space-y-2">
+			<Label for="name">Full Name</Label>
+			<Input
+				id="name"
+				name="name"
+				bind:value={newName}
+				placeholder="e.g. Charlie Brown"
+				required
+			/>
+		</div>
+
+		<div class="space-y-2">
+			<Label for="age">Age</Label>
+			<Input
+				id="age"
+				name="age"
+				type="number"
+				bind:value={newAge}
+				placeholder="e.g. 29"
+				min="1"
+				max="120"
+				required
+			/>
+		</div>
+
+		{#if formError}
+			<div transition:slide>
+				<Alert variant="destructive">
+					<AlertDescription>{formError}</AlertDescription>
+				</Alert>
+			</div>
+		{/if}
+
+		<Button type="submit" class="w-full" disabled={isSubmitting}>
+			{#if isSubmitting}
+				<LoaderCircleIcon class="size-4 animate-spin" />
+				Saving Employee...
+			{:else}
+				Save Employee Record
+			{/if}
+		</Button>
+	</form>
+</Modal>

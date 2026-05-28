@@ -1,41 +1,12 @@
 import { fail } from '@sveltejs/kit';
-import { db } from '$lib/server/db.js';
-import type { Actions, PageServerLoad } from './$types.js';
+import type { Actions } from './$types.js';
 import {
 	createLeavePolicy,
 	getLeavePolicyByUuid,
-	listLeavePolicies,
 	updateLeavePolicy
 } from '$lib/server/services/leave-policy.service.js';
 import { LeaveValidationError } from '$lib/server/services/leave-type.service.js';
 
-export const load: PageServerLoad = async () => {
-	try {
-		const [policies, leaveTypes, employmentTypes] = await Promise.all([
-			listLeavePolicies(),
-			db.leaveType.findMany({
-				orderBy: { leave_name: 'asc' }
-			}),
-			db.employmentType.findMany({
-				orderBy: { employment_name: 'asc' }
-			})
-		]);
-
-		return {
-			policies,
-			leaveTypes,
-			employmentTypes
-		};
-	} catch (error) {
-		console.error('Failed to load leave policies load data:', error);
-		return {
-			policies: [],
-			leaveTypes: [],
-			employmentTypes: [],
-			error: 'Failed to load leave policies'
-		};
-	}
-};
 
 export const actions: Actions = {
 	create: async ({ request }) => {

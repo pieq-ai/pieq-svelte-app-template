@@ -13,7 +13,7 @@
 		<CardTitle>User detail</CardTitle>
 	</CardHeader>
 	<CardContent>
-		<p class="text-sm text-muted-foreground">Route param validated with the <code>uuid</code> matcher.</p>
+		<p class="text-sm text-muted-foreground">Route param validated with the <code>cuid</code> matcher.</p>
 		<dl class="mt-4 space-y-3 text-sm">
 			<div>
 				<dt class="font-medium text-muted-foreground">ID</dt>
