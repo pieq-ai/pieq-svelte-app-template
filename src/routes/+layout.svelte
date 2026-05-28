@@ -5,8 +5,7 @@
 	import { Button } from '$lib/components';
 	import { resolve } from '$app/paths';
 	import Building2Icon from '@lucide/svelte/icons/building-2';
-	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
-	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
+	import MenuIcon from '@lucide/svelte/icons/menu';
 	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
 	import LogInIcon from '@lucide/svelte/icons/log-in';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
@@ -53,19 +52,19 @@
 		aria-label="Primary navigation"
 	>
 		<!-- Brand -->
-		<div class="flex h-16 items-center justify-between border-b border-white/10 px-4">
-			<a
-				href={resolve('/')}
-				class="flex min-w-0 items-center gap-3 font-semibold tracking-tight"
-				title="PieQ HRMS"
-			>
-				<span class="flex size-9 shrink-0 items-center justify-center rounded-md bg-[#C2652A] text-white">
-					<Building2Icon class="size-5" />
-				</span>
-				{#if !isSidebarCollapsed}
-					<span class="truncate text-base">PieQ HRMS</span>
-				{/if}
-			</a>
+		<div class={`flex h-16 items-center border-b border-white/10 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'justify-center px-0' : 'justify-between px-4'}`}>
+			{#if !isSidebarCollapsed}
+				<a
+					href={resolve('/')}
+					class="flex min-w-0 items-center gap-3 font-semibold tracking-tight"
+					title="PieQ HRMS"
+				>
+					<span class="flex size-9 shrink-0 items-center justify-center rounded-md bg-[#C2652A] text-white">
+						<Building2Icon class="size-5" />
+					</span>
+					<span class="truncate text-base text-white font-medium">PieQ HRMS</span>
+				</a>
+			{/if}
 			<Button
 				type="button"
 				size="icon-sm"
@@ -75,11 +74,7 @@
 				title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
 				onclick={() => (isSidebarCollapsed = !isSidebarCollapsed)}
 			>
-				{#if isSidebarCollapsed}
-					<ChevronRightIcon class="size-4" />
-				{:else}
-					<ChevronLeftIcon class="size-4" />
-				{/if}
+				<MenuIcon class="size-5" />
 			</Button>
 		</div>
 
@@ -123,7 +118,7 @@
 				<Button
 					href={resolve('/settings')}
 					variant="ghost"
-					class={`h-10 justify-start gap-3 text-white hover:bg-[#8C3C3C] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+					class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#8C3C3C] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 					title={isSidebarCollapsed ? 'Settings' : undefined}
 					aria-label="Settings"
 				>
@@ -155,7 +150,7 @@
 
 	<!-- Main content -->
 	<main
-		class={`min-h-screen flex-1 px-6 py-10 transition-[margin] duration-300 ease-in-out ${isSidebarCollapsed ? 'ml-20' : 'ml-64'}`}
+		class={`min-h-screen flex-1 px-6 py-6 transition-[margin] duration-300 ease-in-out ${isSidebarCollapsed ? 'ml-20' : 'ml-64'}`}
 	>
 		{@render children()}
 	</main>

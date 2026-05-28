@@ -32,6 +32,7 @@
 		SalaryComponentType,
 		MasterStatus
 	} from '$lib/types/salary-component';
+	import { validateComponentName } from '$lib/validators/salary-component';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { slide } from 'svelte/transition';
 
@@ -266,19 +267,22 @@
 	) {
 		e.preventDefault();
 
-		if (!formName.trim()) {
-			modalError =
-				'Component name required';
+		const trimmedName = formName.trim();
+		formName = trimmedName;
 
+		const nameError = validateComponentName(trimmedName);
+		if (nameError) {
+			modalError = nameError;
 			return;
 		}
 
 		try {
 			isSubmitting = true;
+			modalError = '';
 
 			const payload = {
 				component_name:
-					formName,
+					trimmedName,
 				component_type:
 					formType,
 				status:
@@ -382,7 +386,7 @@
 	<title>Salary Components | PieQ HRMS</title>
 </svelte:head>
 
-<div class="space-y-6">
+<div class="space-y-5">
 	<!-- Page Header -->
 	<div class="flex items-center justify-between">
 		<div>
@@ -442,9 +446,9 @@
 	{/if}
 
 	<!-- Filter + Table Card -->
-	<Card>
+	<Card class="pt-1 gap-2">
 		<!-- Toolbar -->
-		<div class="flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
+		<div class="flex flex-col gap-3 border-b p-3 sm:flex-row sm:items-center sm:justify-between">
 			<div class="w-full max-w-xs">
 				<SearchBar bind:value={searchQuery} placeholder="Search component name..." />
 			</div>
@@ -532,7 +536,7 @@
 
 		<!-- Pagination -->
 		{#if totalItems > 0}
-			<div class="border-t p-4">
+			<div class="border-t p-3">
 				<Pagination
 					bind:page={page}
 					totalPages={totalPages}

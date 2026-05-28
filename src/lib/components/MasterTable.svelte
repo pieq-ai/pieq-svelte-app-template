@@ -62,7 +62,7 @@
 		<TableHeader class="bg-slate-50/50 dark:bg-slate-900/10">
 			<TableRow class="hover:bg-transparent">
 				{#each headers as header (header.key)}
-					<TableHead class="text-slate-600 dark:text-slate-400 font-semibold py-3.5">
+					<TableHead class="text-slate-600 dark:text-slate-400 font-semibold py-2">
 						{#if header.sortable && sortBy !== undefined && sortOrder !== undefined}
 							<Button
 								variant="ghost"
