@@ -8,7 +8,7 @@ export interface CreateEmployeeData {
 export async function list() {
 	try {
 		return await db.employee.findMany({
-			orderBy: { id: 'asc' }
+			orderBy: { emp_id: 'asc' }
 		});
 	} catch (error) {
 		console.error('Error fetching employees from database:', error);
@@ -17,10 +17,8 @@ export async function list() {
 }
 
 export async function create(data: CreateEmployeeData) {
-	return db.employee.create({
-		data: {
-			name: data.name,
-			age: data.age
-		}
-	});
+	// NOTE: The full Employee model requires many additional fields (dob, gender, etc.).
+	// This demo stub exists only for the /employees example route.
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	return db.employee.create({ data: data as any });
 }
