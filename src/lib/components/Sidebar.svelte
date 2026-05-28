@@ -12,6 +12,7 @@
 	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
 	import HomeIcon from '@lucide/svelte/icons/home';
 	import ClockIcon from '@lucide/svelte/icons/clock';
+	import MapPinIcon from '@lucide/svelte/icons/map-pin';
 
 	interface Props {
 		user?: { email?: string; name?: string } | null;
@@ -53,7 +54,8 @@
 		{ href: '/dashboard', label: 'Dashboard', icon: LayoutDashboardIcon },
 		{ href: '/employees', label: 'Employees', icon: UsersIcon },
 		{ href: '/roles', label: 'Roles', icon: ShieldIcon },
-		{ href: '/shifts', label: 'Shifts', icon: ClockIcon }
+		{ href: '/shifts', label: 'Shifts', icon: ClockIcon },
+		{ href: '/organization_locations', label: 'Locations', icon: MapPinIcon }
 	];
 </script>
 
