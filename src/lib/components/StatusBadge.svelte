@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { Badge } from '$lib/components';
-	import type { MasterStatus } from '$lib/types/salary-component.js';
 
-	let { status }: { status: MasterStatus } = $props();
+	let { is_active }: { is_active: boolean } = $props();
 </script>
 
-{#if status === 'active'}
+{#if is_active}
 	<Badge class="bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 border-emerald-500/20 px-2.5 py-0.5 font-medium transition-colors">
 		Active
 	</Badge>

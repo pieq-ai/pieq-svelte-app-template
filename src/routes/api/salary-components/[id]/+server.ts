@@ -4,8 +4,8 @@ import { validateUpdateSalaryComponent } from '$lib/server/validators/salary-com
 
 export async function GET({ params }) {
 	try {
-		const id = Number(params.id);
-		if (isNaN(id)) {
+		const id = params.id;
+		if (!id) {
 			return json(
 				{
 					success: false,
@@ -36,8 +36,8 @@ export async function GET({ params }) {
 
 export async function PUT({ params, request }) {
 	try {
-		const id = Number(params.id);
-		if (isNaN(id)) {
+		const id = params.id;
+		if (!id) {
 			return json(
 				{
 					success: false,
@@ -87,8 +87,8 @@ export async function PUT({ params, request }) {
 
 export async function DELETE({ params }) {
 	try {
-		const id = Number(params.id);
-		if (isNaN(id)) {
+		const id = params.id;
+		if (!id) {
 			return json(
 				{
 					success: false,
@@ -98,8 +98,8 @@ export async function DELETE({ params }) {
 			);
 		}
 
-		// Perform soft delete by setting status to inactive
-		const softDeleted = await service.toggleComponentStatus(id, 'inactive');
+		// Perform soft delete by setting is_active to false
+		const softDeleted = await service.toggleComponentStatus(id, false);
 
 		return json({
 			success: true,

@@ -11,14 +11,14 @@ describe('salary-component.validator', () => {
 				component_name: 'Basic Pay',
 				component_type: 'earning',
 				is_taxable: true,
-				status: 'active'
+				is_active: true
 			});
 			expect(res.errors).toHaveLength(0);
 			expect(res.validatedData).toEqual({
 				component_name: 'Basic Pay',
 				component_type: 'earning',
 				is_taxable: true,
-				status: 'active'
+				is_active: true
 			});
 		});
 
@@ -32,7 +32,7 @@ describe('salary-component.validator', () => {
 				component_name: 'HRA',
 				component_type: 'earning',
 				is_taxable: false,
-				status: 'active'
+				is_active: true
 			});
 		});
 
@@ -129,15 +129,15 @@ describe('salary-component.validator', () => {
 			});
 		});
 
-		it('should fail on invalid status', () => {
+		it('should fail on invalid is_active', () => {
 			const res = validateCreateSalaryComponent({
 				component_name: 'Basic Pay',
 				component_type: 'earning',
-				status: 'deleted'
+				is_active: 'deleted'
 			});
 			expect(res.errors).toContainEqual({
-				field: 'status',
-				message: 'Status must be either "active" or "inactive"'
+				field: 'is_active',
+				message: 'is_active must be a boolean'
 			});
 		});
 	});
@@ -155,23 +155,23 @@ describe('salary-component.validator', () => {
 			});
 		});
 
-		it('should validate status update', () => {
+		it('should validate is_active update', () => {
 			const res = validateUpdateSalaryComponent({
-				status: 'inactive'
+				is_active: false
 			});
 			expect(res.errors).toHaveLength(0);
 			expect(res.validatedData).toEqual({
-				status: 'inactive'
+				is_active: false
 			});
 		});
 
-		it('should fail on invalid status in update', () => {
+		it('should fail on invalid is_active in update', () => {
 			const res = validateUpdateSalaryComponent({
-				status: 'archived'
+				is_active: 'archived'
 			});
 			expect(res.errors).toContainEqual({
-				field: 'status',
-				message: 'Status must be either "active" or "inactive"'
+				field: 'is_active',
+				message: 'is_active must be a boolean'
 			});
 		});
 

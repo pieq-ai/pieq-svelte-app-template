@@ -12,21 +12,21 @@ export async function create(data: CreateSalaryComponentDto) {
 			component_name: data.component_name,
 			component_type: data.component_type,
 			is_taxable: data.is_taxable ?? false,
-			status: data.status ?? 'active'
+			is_active: data.is_active ?? true
 		}
 	});
 }
 
-export async function update(id: number, data: UpdateSalaryComponentDto) {
+export async function update(id: string, data: UpdateSalaryComponentDto) {
 	return db.salaryComponent.update({
-		where: { component_id: id },
+		where: { id },
 		data
 	});
 }
 
-export async function findById(id: number) {
+export async function findById(id: string) {
 	return db.salaryComponent.findUnique({
-		where: { component_id: id }
+		where: { id }
 	});
 }
 
@@ -56,8 +56,8 @@ export async function findMany(filters: SalaryComponentFilters) {
 		where.component_type = filters.component_type;
 	}
 
-	if (filters.status) {
-		where.status = filters.status;
+	if (filters.is_active !== undefined) {
+		where.is_active = filters.is_active;
 	}
 
 	const page = Math.max(1, filters.page ?? 1);
@@ -65,7 +65,7 @@ export async function findMany(filters: SalaryComponentFilters) {
 	const skip = (page - 1) * pageSize;
 
 	const orderBy: Prisma.SalaryComponentOrderByWithRelationInput = {};
-	if (filters.sortBy === 'component_name' || filters.sortBy === 'component_type' || filters.sortBy === 'status') {
+	if (filters.sortBy === 'component_name' || filters.sortBy === 'component_type' || filters.sortBy === 'is_active') {
 		orderBy[filters.sortBy] = filters.sortOrder ?? 'asc';
 	} else {
 		orderBy.component_name = 'asc';

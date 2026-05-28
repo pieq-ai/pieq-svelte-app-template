@@ -46,19 +46,12 @@ export function validateCreateSalaryComponent(data: unknown): {
 		errors.push({ field: 'is_taxable', message: 'is_taxable must be a boolean' });
 	}
 
-	// Validate status
-	let status = body.status;
-	if (status !== undefined && status !== null) {
-		if (typeof status !== 'string') {
-			errors.push({ field: 'status', message: 'Status must be a string' });
-		} else {
-			status = status.trim();
-			if (status !== 'active' && status !== 'inactive') {
-				errors.push({ field: 'status', message: 'Status must be either "active" or "inactive"' });
-			}
-		}
-	} else {
-		status = 'active';
+	// Validate is_active (optional, defaults to true)
+	let is_active = body.is_active;
+	if (is_active === undefined || is_active === null) {
+		is_active = true;
+	} else if (typeof is_active !== 'boolean') {
+		errors.push({ field: 'is_active', message: 'is_active must be a boolean' });
 	}
 
 	if (errors.length > 0) {
@@ -71,7 +64,7 @@ export function validateCreateSalaryComponent(data: unknown): {
 			component_name: (body.component_name as string).trim(),
 			component_type: component_type as 'earning' | 'deduction',
 			is_taxable: is_taxable as boolean,
-			status: status as 'active' | 'inactive'
+			is_active: is_active as boolean
 		}
 	};
 }
@@ -126,20 +119,15 @@ export function validateUpdateSalaryComponent(data: unknown): {
 		}
 	}
 
-	// Validate status if provided
-	if (body.status !== undefined) {
-		const rawStatus = body.status;
-		if (rawStatus === null) {
-			errors.push({ field: 'status', message: 'Status cannot be null' });
-		} else if (typeof rawStatus !== 'string') {
-			errors.push({ field: 'status', message: 'Status must be a string' });
+	// Validate is_active if provided
+	if (body.is_active !== undefined) {
+		const rawActive = body.is_active;
+		if (rawActive === null) {
+			errors.push({ field: 'is_active', message: 'is_active cannot be null' });
+		} else if (typeof rawActive !== 'boolean') {
+			errors.push({ field: 'is_active', message: 'is_active must be a boolean' });
 		} else {
-			const trimmed = rawStatus.trim();
-			if (trimmed !== 'active' && trimmed !== 'inactive') {
-				errors.push({ field: 'status', message: 'Status must be either "active" or "inactive"' });
-			} else {
-				validatedData.status = trimmed as 'active' | 'inactive';
-			}
+			validatedData.is_active = rawActive;
 		}
 	}
 

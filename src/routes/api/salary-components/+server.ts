@@ -1,22 +1,27 @@
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/salary-component.service.js';
 import { validateCreateSalaryComponent } from '$lib/server/validators/salary-component.validator.js';
-import type { SalaryComponentType, MasterStatus } from '$lib/types/salary-component.js';
+import type { SalaryComponentType } from '$lib/types/salary-component.js';
 
 export async function GET({ url }) {
 	try {
 		const search = url.searchParams.get('search') || undefined;
 		const component_type = (url.searchParams.get('component_type') as SalaryComponentType) || undefined;
-		const status = (url.searchParams.get('status') as MasterStatus) || undefined;
+
+		// Parse is_active filter: 'true' → true, 'false' → false, absent → undefined
+		const isActiveParam = url.searchParams.get('is_active');
+		const is_active =
+			isActiveParam === 'true' ? true : isActiveParam === 'false' ? false : undefined;
+
 		const page = url.searchParams.get('page') ? Number(url.searchParams.get('page')) : 1;
 		const pageSize = url.searchParams.get('pageSize') ? Number(url.searchParams.get('pageSize')) : 10;
-		const sortBy = (url.searchParams.get('sortBy') as 'component_name' | 'component_type' | 'status') || 'component_name';
+		const sortBy = (url.searchParams.get('sortBy') as 'component_name' | 'component_type' | 'is_active') || 'component_name';
 		const sortOrder = (url.searchParams.get('sortOrder') as 'asc' | 'desc') || 'asc';
 
 		const result = await service.getComponents({
 			search,
 			component_type,
-			status,
+			is_active,
 			page,
 			pageSize,
 			sortBy,

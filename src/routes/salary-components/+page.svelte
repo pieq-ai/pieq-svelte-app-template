@@ -29,8 +29,7 @@
 
 	import type {
 		SalaryComponent,
-		SalaryComponentType,
-		MasterStatus
+		SalaryComponentType
 	} from '$lib/types/salary-component';
 	import { validateComponentName } from '$lib/validators/salary-component';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
@@ -45,7 +44,8 @@
 
 	let searchQuery = $state('');
 	let filterType = $state<'all' | SalaryComponentType>('all');
-	let filterStatus = $state<'all' | MasterStatus>('all');
+	// 'all' | 'true' | 'false' maps to undefined | true | false for the API
+	let filterActive = $state<'all' | 'true' | 'false'>('all');
 
 	let page = $state(1);
 	let pageSize = $state(10);
@@ -59,16 +59,16 @@
 	let modalError = $state('');
 	let modalSuccess = $state('');
 
-	let editingId = $state<number | null>(null);
+	let editingId = $state<string | null>(null);
 
 	let formName = $state('');
 	let formType = $state<SalaryComponentType>('earning');
 	let formIsTaxable = $state(false);
-	let formStatus = $state<MasterStatus>('active');
+	let formIsActive = $state(true);
 
 	let isConfirmOpen = $state(false);
 	let isConfirming = $state(false);
-	let deactivatingId = $state<number | null>(null);
+	let deactivatingId = $state<string | null>(null);
 
 	let earningsCount = $state(0);
 	let deductionsCount = $state(0);
@@ -93,7 +93,7 @@
 			label: 'Taxable'
 		},
 		{
-			key: 'status',
+			key: 'is_active',
 			label: 'Status',
 			sortable: true
 		},
@@ -119,10 +119,10 @@
 					filterType
 				);
 
-			if (filterStatus !== 'all')
+			if (filterActive !== 'all')
 				params.set(
-					'status',
-					filterStatus
+					'is_active',
+					filterActive
 				);
 
 			params.set('page', page.toString());
@@ -182,8 +182,7 @@
 					(x: SalaryComponent) =>
 						x.component_type ===
 							'earning' &&
-						x.status ===
-							'active'
+						x.is_active === true
 				).length;
 
 			deductionsCount =
@@ -191,8 +190,7 @@
 					(x: SalaryComponent) =>
 						x.component_type ===
 							'deduction' &&
-						x.status ===
-							'active'
+						x.is_active === true
 				).length;
 		} catch (e) {
 			console.error(e);
@@ -201,7 +199,7 @@
 
 	$effect(() => {
 		const currentFilters =
-			`${searchQuery}-${filterType}-${filterStatus}`;
+			`${searchQuery}-${filterType}-${filterActive}`;
 
 		if (
 			previousFilters &&
@@ -229,7 +227,7 @@
 
 		formName = '';
 		formType = 'earning';
-		formStatus = 'active';
+		formIsActive = true;
 		formIsTaxable = false;
 
 		modalError = '';
@@ -242,7 +240,7 @@
 		component: SalaryComponent
 	) {
 		editingId =
-			component.component_id;
+			component.id;
 
 		formName =
 			component.component_name;
@@ -250,8 +248,8 @@
 		formType =
 			component.component_type;
 
-		formStatus =
-			component.status;
+		formIsActive =
+			component.is_active;
 
 		formIsTaxable =
 			component.is_taxable;
@@ -285,8 +283,8 @@
 					trimmedName,
 				component_type:
 					formType,
-				status:
-					formStatus,
+				is_active:
+					formIsActive,
 				is_taxable:
 					formIsTaxable
 			};
@@ -337,7 +335,7 @@
 	}
 
 	function handleTriggerDeactivate(
-		id: number
+		id: string
 	) {
 		deactivatingId = id;
 		isConfirmOpen = true;
@@ -462,12 +460,12 @@
 					<option value="deduction">Deduction</option>
 				</select>
 				<select
-					bind:value={filterStatus}
+					bind:value={filterActive}
 					class="h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
 				>
 					<option value="all">All Statuses</option>
-					<option value="active">Active</option>
-					<option value="inactive">Inactive</option>
+					<option value="true">Active</option>
+					<option value="false">Inactive</option>
 				</select>
 			</div>
 		</div>
@@ -504,7 +502,7 @@
 						{/if}
 					</TableCell>
 					<TableCell>
-						<StatusBadge status={comp.status} />
+						<StatusBadge is_active={comp.is_active} />
 					</TableCell>
 					<TableCell>
 						<div class="flex items-center gap-1">
@@ -517,12 +515,12 @@
 							>
 								<Edit2Icon class="size-3.5" />
 							</Button>
-							{#if comp.status === 'active'}
+							{#if comp.is_active}
 								<Button
 									variant="ghost"
 									size="icon-sm"
 									class="h-8 w-8 text-muted-foreground hover:text-destructive"
-									onclick={() => handleTriggerDeactivate(comp.component_id)}
+									onclick={() => handleTriggerDeactivate(comp.id)}
 									title="Deactivate component"
 								>
 									<Trash2Icon class="size-3.5" />
@@ -583,14 +581,14 @@
 			</div>
 
 			<div class="space-y-2">
-				<Label for="status">Status</Label>
+				<Label for="is_active">Status</Label>
 				<select
-					id="status"
-					bind:value={formStatus}
+					id="is_active"
+					bind:value={formIsActive}
 					class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
 				>
-					<option value="active">Active</option>
-					<option value="inactive">Inactive</option>
+					<option value={true}>Active</option>
+					<option value={false}>Inactive</option>
 				</select>
 			</div>
 		</div>

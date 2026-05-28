@@ -20,7 +20,7 @@ export class DuplicateComponentError extends BusinessValidationError {
 }
 
 export class ComponentNotFoundError extends Error {
-	constructor(id: number) {
+	constructor(id: string) {
 		super(`Salary component with ID ${id} not found.`);
 		this.name = 'ComponentNotFoundError';
 	}
@@ -49,7 +49,7 @@ export async function createComponent(dto: CreateSalaryComponentDto) {
  * Updates an existing Salary Component master entry.
  * Implements business validation rules (trimming and duplicate checks).
  */
-export async function updateComponent(id: number, dto: UpdateSalaryComponentDto) {
+export async function updateComponent(id: string, dto: UpdateSalaryComponentDto) {
 	// First check if it exists
 	const current = await repository.findById(id);
 	if (!current) {
@@ -65,7 +65,7 @@ export async function updateComponent(id: number, dto: UpdateSalaryComponentDto)
 		dto.component_type !== undefined
 	) {
 		const existing = await repository.findByNameAndType(updatedName, updatedType);
-		if (existing && existing.component_id !== id) {
+		if (existing && existing.id !== id) {
 			throw new DuplicateComponentError(updatedName, updatedType);
 		}
 	}
@@ -79,7 +79,7 @@ export async function updateComponent(id: number, dto: UpdateSalaryComponentDto)
 /**
  * Retrieves a single Salary Component by ID.
  */
-export async function getComponentById(id: number) {
+export async function getComponentById(id: string) {
 	const component = await repository.findById(id);
 	if (!component) {
 		throw new ComponentNotFoundError(id);
@@ -103,13 +103,13 @@ export async function getComponents(filters: SalaryComponentFilters) {
 }
 
 /**
- * Toggles or sets the status of a Salary Component (soft delete/deactivation).
+ * Toggles or sets the active state of a Salary Component (soft delete/deactivation).
  */
-export async function toggleComponentStatus(id: number, status: 'active' | 'inactive') {
+export async function toggleComponentStatus(id: string, is_active: boolean) {
 	const current = await repository.findById(id);
 	if (!current) {
 		throw new ComponentNotFoundError(id);
 	}
 
-	return repository.update(id, { status });
+	return repository.update(id, { is_active });
 }
