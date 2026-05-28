@@ -10,7 +10,6 @@
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
 	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
-	import UsersIcon from '@lucide/svelte/icons/users';
 
 	let {
 		isCollapsed = $bindable(false),
@@ -25,11 +24,6 @@
 			name: 'Dashboard',
 			href: '/dashboard',
 			icon: LayoutDashboardIcon
-		},
-		{
-			name: 'Employees',
-			href: '/employees',
-			icon: UsersIcon
 		},
 		{
 			name: 'Leave Type',

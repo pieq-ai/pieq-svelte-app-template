@@ -2,7 +2,7 @@ import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types.js';
 import {
 	createLeavePolicy,
-	getLeavePolicyByUuid,
+	getLeavePolicyByCuid,
 	updateLeavePolicy
 } from '$lib/server/services/leave-policy.service.js';
 import { LeaveValidationError } from '$lib/server/services/leave-type.service.js';
@@ -11,8 +11,8 @@ import { LeaveValidationError } from '$lib/server/services/leave-type.service.js
 export const actions: Actions = {
 	create: async ({ request }) => {
 		const form = await request.formData();
-		const leave_type_id = form.get('leave_type_id');
-		const employment_type_ids = form.getAll('employment_type_ids').map(Number);
+		const leave_type_uuid = form.get('leave_type_uuid');
+		const employment_type_uuids = form.getAll('employment_type_uuids').map(String);
 		const annual_quota = form.get('annual_quota');
 		const max_per_month = form.get('max_per_month');
 		const carry_forward_allowed = form.get('carry_forward_allowed') === 'true' || form.get('carry_forward_allowed') === 'on';
@@ -26,8 +26,8 @@ export const actions: Actions = {
 
 		try {
 			const data = await createLeavePolicy({
-				leave_type_id,
-				employment_type_ids,
+				leave_type_uuid,
+				employment_type_uuids,
 				annual_quota,
 				max_per_month,
 				carry_forward_allowed,
@@ -46,8 +46,8 @@ export const actions: Actions = {
 					error: error.message,
 					field: error.field,
 					action: 'create',
-					leave_type_id: typeof leave_type_id === 'string' ? leave_type_id : '',
-					employment_type_ids,
+					leave_type_uuid: typeof leave_type_uuid === 'string' ? leave_type_uuid : '',
+					employment_type_uuids,
 					annual_quota: typeof annual_quota === 'string' ? annual_quota : '',
 					max_per_month: typeof max_per_month === 'string' ? max_per_month : '',
 					carry_forward_allowed,
@@ -71,9 +71,9 @@ export const actions: Actions = {
 
 	update: async ({ request }) => {
 		const form = await request.formData();
-		const uuid = form.get('uuid');
-		const leave_type_id = form.get('leave_type_id');
-		const employment_type_ids = form.getAll('employment_type_ids').map(Number);
+		const cuid = form.get('cuid');
+		const leave_type_uuid = form.get('leave_type_uuid');
+		const employment_type_uuids = form.getAll('employment_type_uuids').map(String);
 		const annual_quota = form.get('annual_quota');
 		const max_per_month = form.get('max_per_month');
 		const carry_forward_allowed = form.get('carry_forward_allowed') === 'true' || form.get('carry_forward_allowed') === 'on';
@@ -85,17 +85,17 @@ export const actions: Actions = {
 		const applicable_gender = form.get('applicable_gender');
 		const status = form.get('status') === 'true' || form.get('status') === 'on';
 
-		if (typeof uuid !== 'string' || !uuid) {
+		if (typeof cuid !== 'string' || !cuid) {
 			return fail(400, {
-				error: 'Leave policy UUID is missing.',
+				error: 'Leave policy CUID is missing.',
 				action: 'update'
 			});
 		}
 
 		try {
-			const data = await updateLeavePolicy(uuid, {
-				leave_type_id,
-				employment_type_ids,
+			const data = await updateLeavePolicy(cuid, {
+				leave_type_uuid,
+				employment_type_uuids,
 				annual_quota,
 				max_per_month,
 				carry_forward_allowed,
@@ -114,9 +114,9 @@ export const actions: Actions = {
 					error: error.message,
 					field: error.field,
 					action: 'update',
-					uuid,
-					leave_type_id: typeof leave_type_id === 'string' ? leave_type_id : '',
-					employment_type_ids,
+					cuid,
+					leave_type_uuid: typeof leave_type_uuid === 'string' ? leave_type_uuid : '',
+					employment_type_uuids,
 					annual_quota: typeof annual_quota === 'string' ? annual_quota : '',
 					max_per_month: typeof max_per_month === 'string' ? max_per_month : '',
 					carry_forward_allowed,
@@ -130,28 +130,28 @@ export const actions: Actions = {
 				});
 			}
 
-			console.error(`Action update policy failed for ${uuid}`, error);
+			console.error(`Action update policy failed for ${cuid}`, error);
 			return fail(500, {
 				error: 'Failed to update leave policy. Please try again.',
 				action: 'update',
-				uuid
+				cuid
 			});
 		}
 	},
 
 	delete: async ({ request }) => {
 		const form = await request.formData();
-		const uuid = form.get('uuid');
+		const cuid = form.get('cuid');
 
-		if (typeof uuid !== 'string' || !uuid) {
+		if (typeof cuid !== 'string' || !cuid) {
 			return fail(400, {
-				error: 'Leave policy UUID is missing.',
+				error: 'Leave policy CUID is missing.',
 				action: 'delete'
 			});
 		}
 
 		try {
-			const existing = await getLeavePolicyByUuid(uuid);
+			const existing = await getLeavePolicyByCuid(cuid);
 			if (!existing) {
 				return fail(404, {
 					error: 'Leave policy not found.',
@@ -159,33 +159,33 @@ export const actions: Actions = {
 				});
 			}
 
-			const updated = await updateLeavePolicy(uuid, {
+			const updated = await updateLeavePolicy(cuid, {
 				status: !existing.status
 			});
 			return { success: true, action: 'delete', status: updated.status, updated };
 		} catch (error) {
-			console.error(`Action delete policy failed for ${uuid}`, error);
+			console.error(`Action delete policy failed for ${cuid}`, error);
 			return fail(500, {
 				error: 'Failed to toggle leave policy status. Please try again.',
 				action: 'delete',
-				uuid
+				cuid
 			});
 		}
 	},
 
 	toggleStatus: async ({ request }) => {
 		const form = await request.formData();
-		const uuid = form.get('uuid');
+		const cuid = form.get('cuid');
 
-		if (typeof uuid !== 'string' || !uuid) {
+		if (typeof cuid !== 'string' || !cuid) {
 			return fail(400, {
-				error: 'Leave policy UUID is missing.',
+				error: 'Leave policy CUID is missing.',
 				action: 'toggleStatus'
 			});
 		}
 
 		try {
-			const existing = await getLeavePolicyByUuid(uuid);
+			const existing = await getLeavePolicyByCuid(cuid);
 			if (!existing) {
 				return fail(404, {
 					error: 'Leave policy not found.',
@@ -193,17 +193,17 @@ export const actions: Actions = {
 				});
 			}
 
-			const updated = await updateLeavePolicy(uuid, {
+			const updated = await updateLeavePolicy(cuid, {
 				status: !existing.status
 			});
 
 			return { success: true, updated };
 		} catch (error) {
-			console.error(`Action toggleStatus failed for ${uuid}`, error);
+			console.error(`Action toggleStatus failed for ${cuid}`, error);
 			return fail(500, {
 				error: 'Failed to toggle status. Please try again.',
 				action: 'toggleStatus',
-				uuid
+				cuid
 			});
 		}
 	}

@@ -7,7 +7,6 @@ import {
 	updateHoliday
 } from '$lib/server/services/holiday.service.js';
 
-
 export const actions: Actions = {
 	create: async ({ request }) => {
 		const form = await request.formData();
@@ -43,20 +42,20 @@ export const actions: Actions = {
 
 	update: async ({ request }) => {
 		const form = await request.formData();
-		const uuid = form.get('uuid');
+		const cuid = form.get('cuid');
 		const holiday_name = form.get('holiday_name');
 		const holiday_date = form.get('holiday_date');
 		const holiday_type = form.get('holiday_type');
 
-		if (typeof uuid !== 'string' || !uuid) {
+		if (typeof cuid !== 'string' || !cuid) {
 			return fail(400, {
-				error: 'Holiday identification (UUID) is missing.',
+				error: 'Holiday identification (CUID) is missing.',
 				action: 'update'
 			});
 		}
 
 		try {
-			const holiday = await updateHoliday(uuid, { holiday_name, holiday_date, holiday_type });
+			const holiday = await updateHoliday(cuid, { holiday_name, holiday_date, holiday_type });
 			return { success: true, updated: holiday };
 		} catch (error) {
 			if (error instanceof HolidayValidationError) {
@@ -64,18 +63,18 @@ export const actions: Actions = {
 					error: error.message,
 					field: error.field,
 					action: 'update',
-					uuid,
+					cuid,
 					holiday_name: typeof holiday_name === 'string' ? holiday_name : '',
 					holiday_date: typeof holiday_date === 'string' ? holiday_date : '',
 					holiday_type: typeof holiday_type === 'string' ? holiday_type : ''
 				});
 			}
 
-			console.error(`POST /holidays?/update failed for ${uuid}`, error);
+			console.error(`POST /holidays?/update failed for ${cuid}`, error);
 			return fail(500, {
 				error: 'Failed to update holiday. Please try again.',
 				action: 'update',
-				uuid,
+				cuid,
 				holiday_name: typeof holiday_name === 'string' ? holiday_name : '',
 				holiday_date: typeof holiday_date === 'string' ? holiday_date : '',
 				holiday_type: typeof holiday_type === 'string' ? holiday_type : ''
@@ -85,24 +84,24 @@ export const actions: Actions = {
 
 	delete: async ({ request }) => {
 		const form = await request.formData();
-		const uuid = form.get('uuid');
+		const cuid = form.get('cuid');
 
-		if (typeof uuid !== 'string' || !uuid) {
+		if (typeof cuid !== 'string' || !cuid) {
 			return fail(400, {
-				error: 'Holiday identification (UUID) is missing for deletion.',
+				error: 'Holiday identification (CUID) is missing for deletion.',
 				action: 'delete'
 			});
 		}
 
 		try {
-			const deleted = await deleteHoliday(uuid);
-			return { success: true, deletedUuid: uuid, deleted };
+			const deleted = await deleteHoliday(cuid);
+			return { success: true, deletedCuid: cuid, deleted };
 		} catch (error) {
-			console.error(`POST /holidays?/delete failed for ${uuid}`, error);
+			console.error(`POST /holidays?/delete failed for ${cuid}`, error);
 			return fail(500, {
 				error: 'Failed to delete holiday. Please try again.',
 				action: 'delete',
-				uuid
+				cuid
 			});
 		}
 	}

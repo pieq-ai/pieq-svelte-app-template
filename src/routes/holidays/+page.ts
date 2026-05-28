@@ -2,7 +2,7 @@ import type { PageLoad } from './$types';
 
 export interface Holiday {
 	id: number;
-	uuid: string;
+	cuid: string;
 	holiday_name: string;
 	holiday_date: string | Date;
 	holiday_type: 'national' | 'regional' | 'restricted';

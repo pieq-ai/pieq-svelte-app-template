@@ -56,8 +56,8 @@
 	}
 
 	// Active Edit Mode Detection from URL query parameter
-	let editUuid = $derived(page.url.searchParams.get('edit'));
-	let editingType = $derived(data.leaveTypes.find((t) => t.uuid === editUuid));
+	let editCuid = $derived(page.url.searchParams.get('edit'));
+	let editingType = $derived(data.leaveTypes.find((t) => t.cuid === editCuid));
 
 	// Form local state
 	let leaveName = $state('');
@@ -69,14 +69,14 @@
 
 	// Synchronise form inputs when URL edit parameter changes
 	$effect(() => {
-		if (form && 'action' in form && form.action === 'update' && 'uuid' in form && form.uuid === editUuid) {
+		if (form && 'action' in form && form.action === 'update' && 'cuid' in form && form.cuid === editCuid) {
 			if ('leave_name' in form) leaveName = String(form.leave_name);
 			if ('leave_code' in form) leaveCode = String(form.leave_code);
 			if ('description' in form) description = String(form.description);
 			if ('is_paid' in form) isPaid = Boolean(form.is_paid);
 			if ('requires_approval' in form) requiresApproval = Boolean(form.requires_approval);
 			if ('status' in form) status = Boolean(form.status);
-		} else if (form && 'action' in form && form.action === 'create' && !editUuid) {
+		} else if (form && 'action' in form && form.action === 'create' && !editCuid) {
 			if ('leave_name' in form) leaveName = String(form.leave_name);
 			if ('leave_code' in form) leaveCode = String(form.leave_code);
 			if ('description' in form) description = String(form.description);
@@ -100,16 +100,16 @@
 		}
 	});
 
-	// Sync isFormModalOpen with editUuid
+	// Sync isFormModalOpen with editCuid
 	$effect(() => {
-		if (editUuid) {
+		if (editCuid) {
 			isFormModalOpen = true;
 		}
 	});
 
 	// Clear query parameter on modal close
 	$effect(() => {
-		if (!isFormModalOpen && editUuid) {
+		if (!isFormModalOpen && editCuid) {
 			goto(resolve('/leave-types'), { replaceState: true });
 		}
 	});
@@ -244,7 +244,7 @@
 							</TableCell>
 						</TableRow>
 					{:else}
-						{#each filteredTypes as type (type.uuid)}
+						{#each filteredTypes as type (type.cuid)}
 							<TableRow class={!type.status ? 'opacity-60' : ''}>
 								<TableCell class="font-semibold">
 									<div>{type.leave_name}</div>
@@ -276,7 +276,7 @@
 								</TableCell>
 								<TableCell class="text-right space-x-1">
 									<a
-										href={resolve(('/leave-types?edit=' + type.uuid) as '/leave-types')}
+										href={resolve(('/leave-types?edit=' + type.cuid) as '/leave-types')}
 										class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-8 w-8"
 										title="Edit Leave Type"
 									>
@@ -305,7 +305,7 @@
 											};
 										}}
 									>
-										<input type="hidden" name="uuid" value={type.uuid} />
+										<input type="hidden" name="cuid" value={type.cuid} />
 										<Button
 											type="button"
 											variant="ghost"
@@ -344,19 +344,19 @@
 
 <FormModal
 	bind:isOpen={isFormModalOpen}
-	title={editUuid ? 'Edit Leave Type' : 'Add Leave Type'}
-	action={editUuid ? '?/update' : '?/create'}
+	title={editCuid ? 'Edit Leave Type' : 'Add Leave Type'}
+	action={editCuid ? '?/update' : '?/create'}
 	useEnhance={() => {
 		isSubmitting = true;
 		return async ({ result, update }) => {
 			if (result.type === 'success') {
 				toast.success(
-					editUuid
+					editCuid
 						? 'Leave type updated successfully!'
 						: 'Leave type created successfully!'
 				);
 				isFormModalOpen = false;
-				if (editUuid) {
+				if (editCuid) {
 					await goto(resolve('/leave-types'), { replaceState: true });
 				}
 				await update({ reset: true });
@@ -370,8 +370,8 @@
 		};
 	}}
 >
-	{#if editUuid}
-		<input type="hidden" name="uuid" value={editUuid} />
+	{#if editCuid}
+		<input type="hidden" name="cuid" value={editCuid} />
 	{/if}
 
 	<div class="space-y-2">
@@ -431,7 +431,7 @@
 		<Label for="modal_requires_approval" class="cursor-pointer select-none">Requires Approval</Label>
 	</div>
 
-	{#if editUuid}
+	{#if editCuid}
 		<div class="flex items-center space-x-2 pb-2">
 			<input type="checkbox" id="modal_status" name="status" bind:checked={status} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
 			<Label for="modal_status" class="cursor-pointer select-none">Active Status</Label>
@@ -451,7 +451,7 @@
 			<LoaderCircleIcon class="size-4 animate-spin" />
 			Saving...
 		{:else}
-			{editUuid ? 'Update Leave Type' : 'Save Leave Type'}
+			{editCuid ? 'Update Leave Type' : 'Save Leave Type'}
 		{/if}
 	</Button>
 </FormModal>
@@ -464,4 +464,3 @@
 		activeDeleteForm?.requestSubmit();
 	}}
 />
-

@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types.js';
 import {
-	getLeaveTypeByUuid,
+	getLeaveTypeByCuid,
 	updateLeaveType,
 	LeaveValidationError
 } from '$lib/server/services/leave-type.service.js';
@@ -10,7 +10,7 @@ export const GET: RequestHandler = async ({ params }) => {
 	const { id } = params;
 
 	try {
-		const type = await getLeaveTypeByUuid(id);
+		const type = await getLeaveTypeByCuid(id);
 		if (!type) {
 			return json({
 				success: false,

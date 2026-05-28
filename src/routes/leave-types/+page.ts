@@ -2,7 +2,7 @@ import type { PageLoad } from './$types';
 
 export interface LeaveType {
 	id: number;
-	uuid: string;
+	cuid: string;
 	leave_name: string;
 	leave_code: string;
 	description: string | null;

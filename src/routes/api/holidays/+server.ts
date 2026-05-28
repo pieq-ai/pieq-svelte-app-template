@@ -55,19 +55,19 @@ export const PUT: RequestHandler = async ({ request }) => {
 		return json({ error: 'Request body must be valid JSON' }, { status: 400 });
 	}
 
-	const { uuid, holiday_name, holiday_date, holiday_type } = (body ?? {}) as {
-		uuid?: unknown;
+	const { cuid, holiday_name, holiday_date, holiday_type } = (body ?? {}) as {
+		cuid?: unknown;
 		holiday_name?: unknown;
 		holiday_date?: unknown;
 		holiday_type?: unknown;
 	};
 
-	if (typeof uuid !== 'string' || !uuid) {
-		return json({ error: 'uuid is required' }, { status: 400 });
+	if (typeof cuid !== 'string' || !cuid) {
+		return json({ error: 'cuid is required' }, { status: 400 });
 	}
 
 	try {
-		const holiday = await updateHoliday(uuid, { holiday_name, holiday_date, holiday_type });
+		const holiday = await updateHoliday(cuid, { holiday_name, holiday_date, holiday_type });
 		return json({ data: holiday }, { status: 200 });
 	} catch (error) {
 		if (error instanceof HolidayValidationError) {
@@ -80,25 +80,25 @@ export const PUT: RequestHandler = async ({ request }) => {
 };
 
 export const DELETE: RequestHandler = async ({ request, url }) => {
-	let uuid = url.searchParams.get('uuid');
+	let cuid = url.searchParams.get('cuid');
 
-	if (!uuid) {
+	if (!cuid) {
 		try {
-			const body = (await request.json()) as { uuid?: unknown };
-			if (body && typeof body.uuid === 'string') {
-				uuid = body.uuid;
+			const body = (await request.json()) as { cuid?: unknown };
+			if (body && typeof body.cuid === 'string') {
+				cuid = body.cuid;
 			}
 		} catch {
-			// Body parse failure is ignored if uuid was expected in query param
+			// Body parse failure is ignored if cuid was expected in query param
 		}
 	}
 
-	if (!uuid) {
-		return json({ error: 'uuid is required' }, { status: 400 });
+	if (!cuid) {
+		return json({ error: 'cuid is required' }, { status: 400 });
 	}
 
 	try {
-		const holiday = await deleteHoliday(uuid);
+		const holiday = await deleteHoliday(cuid);
 		return json({ data: holiday }, { status: 200 });
 	} catch (error) {
 		console.error('DELETE /api/holidays failed', error);

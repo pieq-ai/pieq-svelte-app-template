@@ -1,7 +1,7 @@
 import { db } from '$lib/server/db.js';
 
 export interface CreateLeavePolicyData {
-	leave_type_id: number;
+	leave_type_uuid: string;
 	annual_quota: number;
 	max_per_month: number | null;
 	carry_forward_allowed: boolean;
@@ -19,19 +19,19 @@ export async function list() {
 		orderBy: { id: 'asc' }
 	});
 
-	const policyIds = policies.map((p) => p.id);
+	const policyCuids = policies.map((p) => p.cuid);
 	const mappings = await db.leavePolicyEmploymentType.findMany({
 		where: {
-			policy_id: { in: policyIds }
+			leave_policy_uuid: { in: policyCuids }
 		}
 	});
 
-	const mappingsMap = new Map<number, number[]>();
+	const mappingsMap = new Map<string, string[]>();
 	for (const m of mappings) {
-		if (!mappingsMap.has(m.policy_id)) {
-			mappingsMap.set(m.policy_id, []);
+		if (!mappingsMap.has(m.leave_policy_uuid)) {
+			mappingsMap.set(m.leave_policy_uuid, []);
 		}
-		mappingsMap.get(m.policy_id)!.push(m.employment_type_id);
+		mappingsMap.get(m.leave_policy_uuid)!.push(m.employment_type_uuid);
 	}
 
 	return policies.map((p) => ({
@@ -39,15 +39,15 @@ export async function list() {
 		annual_quota: Number(p.annual_quota),
 		max_per_month: p.max_per_month !== null ? Number(p.max_per_month) : null,
 		max_carry_forward_days: p.max_carry_forward_days !== null ? Number(p.max_carry_forward_days) : null,
-		employment_type_ids: mappingsMap.get(p.id) || []
+		employment_type_uuids: mappingsMap.get(p.cuid) || []
 	}));
 }
 
-export async function create(policyData: CreateLeavePolicyData, employmentTypeIds: number[]) {
+export async function create(policyData: CreateLeavePolicyData, employmentTypeUuids: string[]) {
 	return db.$transaction(async (tx) => {
 		const createdPolicy = await tx.leavePolicy.create({
 			data: {
-				leave_type_id: policyData.leave_type_id,
+				leave_type_uuid: policyData.leave_type_uuid,
 				annual_quota: policyData.annual_quota,
 				max_per_month: policyData.max_per_month,
 				carry_forward_allowed: policyData.carry_forward_allowed,
@@ -61,11 +61,11 @@ export async function create(policyData: CreateLeavePolicyData, employmentTypeId
 			}
 		});
 
-		if (employmentTypeIds.length > 0) {
+		if (employmentTypeUuids.length > 0) {
 			await tx.leavePolicyEmploymentType.createMany({
-				data: employmentTypeIds.map((id) => ({
-					policy_id: createdPolicy.id,
-					employment_type_id: id
+				data: employmentTypeUuids.map((uuid) => ({
+					leave_policy_uuid: createdPolicy.cuid,
+					employment_type_uuid: uuid
 				}))
 			});
 		}
@@ -75,17 +75,17 @@ export async function create(policyData: CreateLeavePolicyData, employmentTypeId
 			annual_quota: Number(createdPolicy.annual_quota),
 			max_per_month: createdPolicy.max_per_month !== null ? Number(createdPolicy.max_per_month) : null,
 			max_carry_forward_days: createdPolicy.max_carry_forward_days !== null ? Number(createdPolicy.max_carry_forward_days) : null,
-			employment_type_ids: employmentTypeIds
+			employment_type_uuids: employmentTypeUuids
 		};
 	});
 }
 
-export async function update(uuid: string, policyData: Partial<CreateLeavePolicyData>, employmentTypeIds?: number[]) {
+export async function update(cuid: string, policyData: Partial<CreateLeavePolicyData>, employmentTypeUuids?: string[]) {
 	return db.$transaction(async (tx) => {
 		const updatedPolicy = await tx.leavePolicy.update({
-			where: { uuid },
+			where: { cuid },
 			data: {
-				leave_type_id: policyData.leave_type_id,
+				leave_type_uuid: policyData.leave_type_uuid,
 				annual_quota: policyData.annual_quota,
 				max_per_month: policyData.max_per_month,
 				carry_forward_allowed: policyData.carry_forward_allowed,
@@ -99,18 +99,18 @@ export async function update(uuid: string, policyData: Partial<CreateLeavePolicy
 			}
 		});
 
-		if (employmentTypeIds !== undefined) {
+		if (employmentTypeUuids !== undefined) {
 			await tx.leavePolicyEmploymentType.deleteMany({
 				where: {
-					policy_id: updatedPolicy.id
+					leave_policy_uuid: updatedPolicy.cuid
 				}
 			});
 
-			if (employmentTypeIds.length > 0) {
+			if (employmentTypeUuids.length > 0) {
 				await tx.leavePolicyEmploymentType.createMany({
-					data: employmentTypeIds.map((id) => ({
-						policy_id: updatedPolicy.id,
-						employment_type_id: id
+					data: employmentTypeUuids.map((uuid) => ({
+						leave_policy_uuid: updatedPolicy.cuid,
+						employment_type_uuid: uuid
 					}))
 				});
 			}
@@ -118,7 +118,7 @@ export async function update(uuid: string, policyData: Partial<CreateLeavePolicy
 
 		const mappings = await tx.leavePolicyEmploymentType.findMany({
 			where: {
-				policy_id: updatedPolicy.id
+				leave_policy_uuid: updatedPolicy.cuid
 			}
 		});
 
@@ -127,14 +127,14 @@ export async function update(uuid: string, policyData: Partial<CreateLeavePolicy
 			annual_quota: Number(updatedPolicy.annual_quota),
 			max_per_month: updatedPolicy.max_per_month !== null ? Number(updatedPolicy.max_per_month) : null,
 			max_carry_forward_days: updatedPolicy.max_carry_forward_days !== null ? Number(updatedPolicy.max_carry_forward_days) : null,
-			employment_type_ids: mappings.map((m) => m.employment_type_id)
+			employment_type_uuids: mappings.map((m) => m.employment_type_uuid)
 		};
 	});
 }
 
-export async function deletePolicy(uuid: string) {
+export async function deletePolicy(cuid: string) {
 	const policy = await db.leavePolicy.findUnique({
-		where: { uuid }
+		where: { cuid }
 	});
 
 	if (!policy) {
@@ -144,28 +144,28 @@ export async function deletePolicy(uuid: string) {
 	return db.$transaction(async (tx) => {
 		await tx.leavePolicyEmploymentType.deleteMany({
 			where: {
-				policy_id: policy.id
+				leave_policy_uuid: policy.cuid
 			}
 		});
 
 		await tx.leavePolicy.delete({
-			where: { uuid }
+			where: { cuid }
 		});
 
 		return policy;
 	});
 }
 
-export async function findByUuid(uuid: string) {
+export async function findByCuid(cuid: string) {
 	const policy = await db.leavePolicy.findUnique({
-		where: { uuid }
+		where: { cuid }
 	});
 
 	if (!policy) return null;
 
 	const mappings = await db.leavePolicyEmploymentType.findMany({
 		where: {
-			policy_id: policy.id
+			leave_policy_uuid: policy.cuid
 		}
 	});
 
@@ -174,21 +174,21 @@ export async function findByUuid(uuid: string) {
 		annual_quota: Number(policy.annual_quota),
 		max_per_month: policy.max_per_month !== null ? Number(policy.max_per_month) : null,
 		max_carry_forward_days: policy.max_carry_forward_days !== null ? Number(policy.max_carry_forward_days) : null,
-		employment_type_ids: mappings.map((m) => m.employment_type_id)
+		employment_type_uuids: mappings.map((m) => m.employment_type_uuid)
 	};
 }
 
 export async function findActivePolicyForEmploymentType(
-	leave_type_id: number,
-	employment_type_id: number,
-	excludePolicyId?: number
+	leave_type_uuid: string,
+	employment_type_uuid: string,
+	excludePolicyCuid?: string
 ) {
 	const mappings = await db.leavePolicyEmploymentType.findMany({
 		where: {
-			employment_type_id
+			employment_type_uuid
 		},
 		select: {
-			policy_id: true
+			leave_policy_uuid: true
 		}
 	});
 
@@ -196,14 +196,14 @@ export async function findActivePolicyForEmploymentType(
 		return null;
 	}
 
-	const policyIds = mappings.map((m) => m.policy_id);
+	const policyCuids = mappings.map((m) => m.leave_policy_uuid);
 
 	return db.leavePolicy.findFirst({
 		where: {
-			id: { in: policyIds },
-			leave_type_id,
+			cuid: { in: policyCuids },
+			leave_type_uuid,
 			status: true,
-			NOT: excludePolicyId ? { id: excludePolicyId } : undefined
+			NOT: excludePolicyCuid ? { cuid: excludePolicyCuid } : undefined
 		}
 	});
 }

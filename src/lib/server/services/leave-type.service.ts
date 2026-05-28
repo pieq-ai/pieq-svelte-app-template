@@ -85,8 +85,8 @@ export async function listLeaveTypes() {
 	return leaveTypeDao.list();
 }
 
-export async function getLeaveTypeByUuid(uuid: string) {
-	return leaveTypeDao.findByUuid(uuid);
+export async function getLeaveTypeByCuid(cuid: string) {
+	return leaveTypeDao.findByCuid(cuid);
 }
 
 export async function createLeaveType(input: CreateLeaveTypeInput) {
@@ -118,12 +118,12 @@ export async function createLeaveType(input: CreateLeaveTypeInput) {
 	});
 }
 
-export async function updateLeaveType(uuid: string, input: UpdateLeaveTypeInput) {
-	if (!uuid || typeof uuid !== 'string') {
-		throw new Error('Leave type UUID is required for updates');
+export async function updateLeaveType(cuid: string, input: UpdateLeaveTypeInput) {
+	if (!cuid || typeof cuid !== 'string') {
+		throw new Error('Leave type CUID is required for updates');
 	}
 
-	const existingType = await leaveTypeDao.findByUuid(uuid);
+	const existingType = await leaveTypeDao.findByCuid(cuid);
 	if (!existingType) {
 		throw new Error('Leave type not found');
 	}
@@ -135,22 +135,22 @@ export async function updateLeaveType(uuid: string, input: UpdateLeaveTypeInput)
 	const requires_approval = input.requires_approval !== undefined ? Boolean(input.requires_approval) : existingType.requires_approval;
 	const status = input.status !== undefined ? Boolean(input.status) : existingType.status;
 
-	// Duplicate checks excluding this uuid
+	// Duplicate checks excluding this cuid
 	if (input.leave_name !== undefined) {
-		const duplicateName = await leaveTypeDao.findDuplicateName(leave_name, uuid);
+		const duplicateName = await leaveTypeDao.findDuplicateName(leave_name, cuid);
 		if (duplicateName) {
 			throw new LeaveValidationError('leave_name', 'Leave name already exists');
 		}
 	}
 
 	if (input.leave_code !== undefined) {
-		const duplicateCode = await leaveTypeDao.findDuplicateCode(leave_code, uuid);
+		const duplicateCode = await leaveTypeDao.findDuplicateCode(leave_code, cuid);
 		if (duplicateCode) {
 			throw new LeaveValidationError('leave_code', 'Leave code already exists');
 		}
 	}
 
-	return leaveTypeDao.update(uuid, {
+	return leaveTypeDao.update(cuid, {
 		leave_name,
 		leave_code,
 		description,
@@ -160,15 +160,15 @@ export async function updateLeaveType(uuid: string, input: UpdateLeaveTypeInput)
 	});
 }
 
-export async function deleteLeaveType(uuid: string) {
-	if (!uuid || typeof uuid !== 'string') {
-		throw new Error('Leave type UUID is required for deletion');
+export async function deleteLeaveType(cuid: string) {
+	if (!cuid || typeof cuid !== 'string') {
+		throw new Error('Leave type CUID is required for deletion');
 	}
 
-	const existingType = await leaveTypeDao.findByUuid(uuid);
+	const existingType = await leaveTypeDao.findByCuid(cuid);
 	if (!existingType) {
 		throw new Error('Leave type not found');
 	}
 
-	return leaveTypeDao.deleteLeaveType(uuid);
+	return leaveTypeDao.deleteLeaveType(cuid);
 }

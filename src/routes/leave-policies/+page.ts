@@ -2,8 +2,8 @@ import type { PageLoad } from './$types';
 
 export interface LeavePolicy {
 	id: number;
-	uuid: string;
-	leave_type_id: number;
+	cuid: string;
+	leave_type_uuid: string;
 	annual_quota: number;
 	max_per_month: number | null;
 	carry_forward_allowed: boolean;
@@ -14,12 +14,12 @@ export interface LeavePolicy {
 	gender_specific: boolean;
 	applicable_gender: 'Male' | 'Female' | 'Others' | null;
 	status: boolean;
-	employment_type_ids: number[];
+	employment_type_uuids: string[];
 }
 
 export interface LeaveType {
 	id: number;
-	uuid: string;
+	cuid: string;
 	leave_name: string;
 	leave_code: string;
 	description: string | null;
@@ -30,7 +30,7 @@ export interface LeaveType {
 
 export interface EmploymentType {
 	id: number;
-	uuid: string;
+	cuid: string;
 	employment_name: string;
 	status: boolean;
 }

@@ -21,22 +21,22 @@ export async function create(data: CreateLeaveTypeData) {
 	});
 }
 
-export async function update(uuid: string, data: Partial<CreateLeaveTypeData>) {
+export async function update(cuid: string, data: Partial<CreateLeaveTypeData>) {
 	return db.leaveType.update({
-		where: { uuid },
+		where: { cuid },
 		data
 	});
 }
 
-export async function deleteLeaveType(uuid: string) {
+export async function deleteLeaveType(cuid: string) {
 	return db.leaveType.delete({
-		where: { uuid }
+		where: { cuid }
 	});
 }
 
-export async function findByUuid(uuid: string) {
+export async function findByCuid(cuid: string) {
 	return db.leaveType.findUnique({
-		where: { uuid }
+		where: { cuid }
 	});
 }
 
@@ -62,26 +62,26 @@ export async function findByCode(leave_code: string) {
 	});
 }
 
-export async function findDuplicateName(leave_name: string, excludeUuid: string) {
+export async function findDuplicateName(leave_name: string, excludeCuid: string) {
 	return db.leaveType.findFirst({
 		where: {
 			leave_name: {
 				equals: leave_name,
 				mode: 'insensitive'
 			},
-			NOT: { uuid: excludeUuid }
+			NOT: { cuid: excludeCuid }
 		}
 	});
 }
 
-export async function findDuplicateCode(leave_code: string, excludeUuid: string) {
+export async function findDuplicateCode(leave_code: string, excludeCuid: string) {
 	return db.leaveType.findFirst({
 		where: {
 			leave_code: {
 				equals: leave_code,
 				mode: 'insensitive'
 			},
-			NOT: { uuid: excludeUuid }
+			NOT: { cuid: excludeCuid }
 		}
 	});
 }

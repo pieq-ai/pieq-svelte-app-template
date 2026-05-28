@@ -38,7 +38,6 @@ const routeGuard = async ({ event, resolve }) => {
 		'/leave-types',
 		'/leave-policies',
 		'/holidays',
-		'/employees',
 		'/settings'
 	];
 	const pathname = event.url.pathname;

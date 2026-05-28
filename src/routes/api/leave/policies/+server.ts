@@ -36,8 +36,8 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	const {
-		leave_type_id,
-		employment_type_ids,
+		leave_type_uuid,
+		employment_type_uuids,
 		annual_quota,
 		max_per_month,
 		carry_forward_allowed,
@@ -49,8 +49,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		applicable_gender,
 		status
 	} = (body ?? {}) as {
-		leave_type_id?: unknown;
-		employment_type_ids?: unknown;
+		leave_type_uuid?: unknown;
+		employment_type_uuids?: unknown;
 		annual_quota?: unknown;
 		max_per_month?: unknown;
 		carry_forward_allowed?: unknown;
@@ -65,8 +65,8 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	try {
 		const data = await createLeavePolicy({
-			leave_type_id,
-			employment_type_ids,
+			leave_type_uuid,
+			employment_type_uuids,
 			annual_quota,
 			max_per_month,
 			carry_forward_allowed,

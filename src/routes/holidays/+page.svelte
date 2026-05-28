@@ -79,8 +79,8 @@
 	});
 
 	// Active Edit Mode Detection from URL query parameter
-	let editUuid = $derived(page.url.searchParams.get('edit'));
-	let editingHoliday = $derived(data.holidays.find((h) => h.uuid === editUuid));
+	let editCuid = $derived(page.url.searchParams.get('edit'));
+	let editingHoliday = $derived(data.holidays.find((h) => h.cuid === editCuid));
 
 	// Form local state
 	let holidayName = $state('');
@@ -89,11 +89,11 @@
 
 	// Synchronise form inputs when URL edit parameter changes
 	$effect(() => {
-		if (form && 'action' in form && form.action === 'update' && 'uuid' in form && form.uuid === editUuid) {
+		if (form && 'action' in form && form.action === 'update' && 'cuid' in form && form.cuid === editCuid) {
 			if ('holiday_name' in form) holidayName = String(form.holiday_name);
 			if ('holiday_date' in form) holidayDate = String(form.holiday_date);
 			if ('holiday_type' in form) holidayType = form.holiday_type as 'national' | 'regional' | 'restricted';
-		} else if (form && 'action' in form && form.action === 'create' && !editUuid) {
+		} else if (form && 'action' in form && form.action === 'create' && !editCuid) {
 			if ('holiday_name' in form) holidayName = String(form.holiday_name);
 			if ('holiday_date' in form) holidayDate = String(form.holiday_date);
 			if ('holiday_type' in form) holidayType = form.holiday_type as 'national' | 'regional' | 'restricted';
@@ -112,16 +112,16 @@
 		}
 	});
 
-	// Sync isFormModalOpen with editUuid
+	// Sync isFormModalOpen with editCuid
 	$effect(() => {
-		if (editUuid) {
+		if (editCuid) {
 			isFormModalOpen = true;
 		}
 	});
 
 	// Clear query parameter on modal close
 	$effect(() => {
-		if (!isFormModalOpen && editUuid) {
+		if (!isFormModalOpen && editCuid) {
 			goto(resolve('/holidays'), { replaceState: true });
 		}
 	});
@@ -138,7 +138,7 @@
 				(h) =>
 					h.holiday_name.toLowerCase().includes(query) ||
 					h.holiday_type.toLowerCase().includes(query) ||
-					h.uuid.toLowerCase().includes(query)
+					h.cuid.toLowerCase().includes(query)
 			);
 		}
 
@@ -289,7 +289,7 @@
 							</TableCell>
 						</TableRow>
 					{:else}
-						{#each filteredHolidays as holiday (holiday.uuid)}
+						{#each filteredHolidays as holiday (holiday.cuid)}
 							<TableRow>
 								<TableCell class="font-medium">
 									{formatDate(holiday.holiday_date)}
@@ -323,7 +323,7 @@
 								<TableCell class="text-right space-x-1">
 									<!-- Edit Action -->
 									<a
-										href={resolve(('/holidays?edit=' + holiday.uuid) as '/holidays')}
+										href={resolve(('/holidays?edit=' + holiday.cuid) as '/holidays')}
 										class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-8 w-8"
 										title="Edit Holiday"
 									>
@@ -348,7 +348,7 @@
 											};
 										}}
 									>
-										<input type="hidden" name="uuid" value={holiday.uuid} />
+										<input type="hidden" name="cuid" value={holiday.cuid} />
 										<Button
 											type="button"
 											variant="ghost"
@@ -382,19 +382,19 @@
 
 <FormModal
 	bind:isOpen={isFormModalOpen}
-	title={editUuid ? 'Edit Holiday' : 'Add Holiday'}
-	action={editUuid ? '?/update' : '?/create'}
+	title={editCuid ? 'Edit Holiday' : 'Add Holiday'}
+	action={editCuid ? '?/update' : '?/create'}
 	useEnhance={() => {
 		isSubmitting = true;
 		return async ({ result, update }) => {
 			if (result.type === 'success') {
 				toast.success(
-					editUuid
+					editCuid
 						? 'Holiday updated successfully!'
 						: 'Holiday created successfully!'
 				);
 				isFormModalOpen = false;
-				if (editUuid) {
+				if (editCuid) {
 					await goto(resolve('/holidays'), { replaceState: true });
 				}
 				await update({ reset: true });
@@ -408,8 +408,8 @@
 		};
 	}}
 >
-	{#if editUuid}
-		<input type="hidden" name="uuid" value={editUuid} />
+	{#if editCuid}
+		<input type="hidden" name="cuid" value={editCuid} />
 	{/if}
 
 	<div class="space-y-2">
@@ -479,7 +479,7 @@
 			<LoaderCircleIcon class="size-4 animate-spin" />
 			Saving...
 		{:else}
-			{editUuid ? 'Update Holiday Record' : 'Save Holiday Record'}
+			{editCuid ? 'Update Holiday Record' : 'Save Holiday Record'}
 		{/if}
 	</Button>
 </FormModal>
@@ -492,4 +492,3 @@
 		activeDeleteForm?.requestSubmit();
 	}}
 />
-

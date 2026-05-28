@@ -23,22 +23,22 @@ export async function create(data: CreateHolidayData) {
 	});
 }
 
-export async function update(uuid: string, data: Partial<CreateHolidayData>) {
+export async function update(cuid: string, data: Partial<CreateHolidayData>) {
 	return db.holidayCalendar.update({
-		where: { uuid },
+		where: { cuid },
 		data
 	});
 }
 
-export async function deleteHoliday(uuid: string) {
+export async function deleteHoliday(cuid: string) {
 	return db.holidayCalendar.delete({
-		where: { uuid }
+		where: { cuid }
 	});
 }
 
-export async function findByUuid(uuid: string) {
+export async function findByCuid(cuid: string) {
 	return db.holidayCalendar.findUnique({
-		where: { uuid }
+		where: { cuid }
 	});
 }
 
@@ -51,16 +51,16 @@ export async function findByNameAndDate(holiday_name: string, holiday_date: Date
 	});
 }
 
-export async function findDuplicateExcludingUuid(
+export async function findDuplicateExcludingCuid(
 	holiday_name: string,
 	holiday_date: Date,
-	uuid: string
+	cuid: string
 ) {
 	return db.holidayCalendar.findFirst({
 		where: {
 			holiday_name,
 			holiday_date,
-			NOT: { uuid }
+			NOT: { cuid }
 		}
 	});
 }
@@ -71,11 +71,11 @@ export async function findByDate(holiday_date: Date) {
 	});
 }
 
-export async function findByDateExcludingUuid(holiday_date: Date, uuid: string) {
+export async function findByDateExcludingCuid(holiday_date: Date, cuid: string) {
 	return db.holidayCalendar.findFirst({
 		where: {
 			holiday_date,
-			NOT: { uuid }
+			NOT: { cuid }
 		}
 	});
 }
@@ -97,10 +97,10 @@ export async function findByNameAndYear(holiday_name: string, year: number) {
 	});
 }
 
-export async function findByNameAndYearExcludingUuid(
+export async function findByNameAndYearExcludingCuid(
 	holiday_name: string,
 	year: number,
-	uuid: string
+	cuid: string
 ) {
 	const startOfYear = new Date(Date.UTC(year, 0, 1));
 	const endOfYear = new Date(Date.UTC(year, 11, 31, 23, 59, 59, 999));
@@ -114,8 +114,7 @@ export async function findByNameAndYearExcludingUuid(
 				gte: startOfYear,
 				lte: endOfYear
 			},
-			NOT: { uuid }
+			NOT: { cuid }
 		}
 	});
 }
-

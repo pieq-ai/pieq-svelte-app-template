@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types.js';
 import {
-	getLeavePolicyByUuid,
+	getLeavePolicyByCuid,
 	updateLeavePolicy
 } from '$lib/server/services/leave-policy.service.js';
 import { LeaveValidationError } from '$lib/server/services/leave-type.service.js';
@@ -10,7 +10,7 @@ export const GET: RequestHandler = async ({ params }) => {
 	const { id } = params;
 
 	try {
-		const policy = await getLeavePolicyByUuid(id);
+		const policy = await getLeavePolicyByCuid(id);
 		if (!policy) {
 			return json({
 				success: false,
@@ -46,8 +46,8 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 	}
 
 	const {
-		leave_type_id,
-		employment_type_ids,
+		leave_type_uuid,
+		employment_type_uuids,
 		annual_quota,
 		max_per_month,
 		carry_forward_allowed,
@@ -59,8 +59,8 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 		applicable_gender,
 		status
 	} = (body ?? {}) as {
-		leave_type_id?: unknown;
-		employment_type_ids?: unknown;
+		leave_type_uuid?: unknown;
+		employment_type_uuids?: unknown;
 		annual_quota?: unknown;
 		max_per_month?: unknown;
 		carry_forward_allowed?: unknown;
@@ -75,8 +75,8 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 
 	try {
 		const data = await updateLeavePolicy(id, {
-			leave_type_id,
-			employment_type_ids,
+			leave_type_uuid,
+			employment_type_uuids,
 			annual_quota,
 			max_per_month,
 			carry_forward_allowed,

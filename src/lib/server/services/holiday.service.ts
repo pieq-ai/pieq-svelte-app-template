@@ -131,6 +131,10 @@ export async function listHolidays() {
 	return holidayDao.list();
 }
 
+export async function getHolidayByCuid(cuid: string) {
+	return holidayDao.findByCuid(cuid);
+}
+
 export async function createHoliday(input: CreateHolidayInput) {
 	const holiday_name = validateHolidayName(input.holiday_name);
 	const holiday_date = validateHolidayDate(input.holiday_date);
@@ -160,12 +164,12 @@ export async function createHoliday(input: CreateHolidayInput) {
 	return holidayDao.create({ holiday_name, holiday_date, holiday_type });
 }
 
-export async function updateHoliday(uuid: string, input: UpdateHolidayInput) {
-	if (!uuid || typeof uuid !== 'string') {
-		throw new Error('Holiday UUID is required for updates');
+export async function updateHoliday(cuid: string, input: UpdateHolidayInput) {
+	if (!cuid || typeof cuid !== 'string') {
+		throw new Error('Holiday CUID is required for updates');
 	}
 
-	const existingHoliday = await holidayDao.findByUuid(uuid);
+	const existingHoliday = await holidayDao.findByCuid(cuid);
 	if (!existingHoliday) {
 		throw new Error('Holiday not found');
 	}
@@ -174,8 +178,8 @@ export async function updateHoliday(uuid: string, input: UpdateHolidayInput) {
 	const holiday_date = validateHolidayDate(input.holiday_date);
 	const holiday_type = validateHolidayType(input.holiday_type);
 
-	// Unique date check excluding this UUID
-	const duplicateDate = await holidayDao.findByDateExcludingUuid(holiday_date, uuid);
+	// Unique date check excluding this CUID
+	const duplicateDate = await holidayDao.findByDateExcludingCuid(holiday_date, cuid);
 	if (duplicateDate) {
 		throw new HolidayValidationError(
 			'holiday_date',
@@ -183,11 +187,11 @@ export async function updateHoliday(uuid: string, input: UpdateHolidayInput) {
 		);
 	}
 
-	// Unique name per calendar year check excluding this UUID
-	const duplicateNameInYear = await holidayDao.findByNameAndYearExcludingUuid(
+	// Unique name per calendar year check excluding this CUID
+	const duplicateNameInYear = await holidayDao.findByNameAndYearExcludingCuid(
 		holiday_name,
 		holiday_date.getUTCFullYear(),
-		uuid
+		cuid
 	);
 	if (duplicateNameInYear) {
 		throw new HolidayValidationError(
@@ -196,18 +200,18 @@ export async function updateHoliday(uuid: string, input: UpdateHolidayInput) {
 		);
 	}
 
-	return holidayDao.update(uuid, { holiday_name, holiday_date, holiday_type });
+	return holidayDao.update(cuid, { holiday_name, holiday_date, holiday_type });
 }
 
-export async function deleteHoliday(uuid: string) {
-	if (!uuid || typeof uuid !== 'string') {
-		throw new Error('Holiday UUID is required for deletion');
+export async function deleteHoliday(cuid: string) {
+	if (!cuid || typeof cuid !== 'string') {
+		throw new Error('Holiday CUID is required for deletion');
 	}
 
-	const existingHoliday = await holidayDao.findByUuid(uuid);
+	const existingHoliday = await holidayDao.findByCuid(cuid);
 	if (!existingHoliday) {
 		throw new Error('Holiday not found');
 	}
 
-	return holidayDao.deleteHoliday(uuid);
+	return holidayDao.deleteHoliday(cuid);
 }

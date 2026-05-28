@@ -63,11 +63,11 @@
 
 	// Active Edit Mode Detection from URL query parameter
 	let editUuid = $derived(page.url.searchParams.get('edit'));
-	let editingPolicy = $derived(data.policies.find((p) => p.uuid === editUuid));
+	let editingPolicy = $derived(data.policies.find((p) => p.cuid === editUuid));
 
 	// Form local state
 	let leaveTypeId = $state('');
-	let selectedEmploymentTypes = $state<number[]>([]);
+	let selectedEmploymentTypes = $state<string[]>([]);
 	let annualQuota = $state('');
 	let maxPerMonth = $state('');
 	let carryForwardAllowed = $state(false);
@@ -81,9 +81,9 @@
 
 	// Synchronise form inputs when URL edit parameter changes
 	$effect(() => {
-		if (form && 'action' in form && form.action === 'update' && 'uuid' in form && form.uuid === editUuid) {
-			if ('leave_type_id' in form) leaveTypeId = String(form.leave_type_id);
-			if ('employment_type_ids' in form) selectedEmploymentTypes = form.employment_type_ids as number[];
+		if (form && 'action' in form && form.action === 'update' && 'cuid' in form && form.cuid === editUuid) {
+			if ('leave_type_uuid' in form) leaveTypeId = String(form.leave_type_uuid);
+			if ('employment_type_uuids' in form) selectedEmploymentTypes = form.employment_type_uuids as string[];
 			if ('annual_quota' in form) annualQuota = String(form.annual_quota);
 			if ('max_per_month' in form) maxPerMonth = String(form.max_per_month);
 			if ('carry_forward_allowed' in form) carryForwardAllowed = Boolean(form.carry_forward_allowed);
@@ -95,8 +95,8 @@
 			if ('applicable_gender' in form) applicableGender = form.applicable_gender as 'Male' | 'Female' | 'Others' | '';
 			if ('status' in form) status = Boolean(form.status);
 		} else if (form && 'action' in form && form.action === 'create' && !editUuid) {
-			if ('leave_type_id' in form) leaveTypeId = String(form.leave_type_id);
-			if ('employment_type_ids' in form) selectedEmploymentTypes = form.employment_type_ids as number[];
+			if ('leave_type_uuid' in form) leaveTypeId = String(form.leave_type_uuid);
+			if ('employment_type_uuids' in form) selectedEmploymentTypes = form.employment_type_uuids as string[];
 			if ('annual_quota' in form) annualQuota = String(form.annual_quota);
 			if ('max_per_month' in form) maxPerMonth = String(form.max_per_month);
 			if ('carry_forward_allowed' in form) carryForwardAllowed = Boolean(form.carry_forward_allowed);
@@ -108,8 +108,8 @@
 			if ('applicable_gender' in form) applicableGender = form.applicable_gender as 'Male' | 'Female' | 'Others' | '';
 			if ('status' in form) status = Boolean(form.status);
 		} else if (editingPolicy) {
-			leaveTypeId = String(editingPolicy.leave_type_id);
-			selectedEmploymentTypes = editingPolicy.employment_type_ids;
+			leaveTypeId = String(editingPolicy.leave_type_uuid);
+			selectedEmploymentTypes = editingPolicy.employment_type_uuids;
 			annualQuota = String(editingPolicy.annual_quota);
 			maxPerMonth = editingPolicy.max_per_month !== null ? String(editingPolicy.max_per_month) : '';
 			carryForwardAllowed = editingPolicy.carry_forward_allowed;
@@ -216,25 +216,25 @@
 		return '';
 	});
 
-	function toggleEmploymentType(id: number) {
-		if (selectedEmploymentTypes.includes(id)) {
-			selectedEmploymentTypes = selectedEmploymentTypes.filter((x) => x !== id);
+	function toggleEmploymentType(uuid: string) {
+		if (selectedEmploymentTypes.includes(uuid)) {
+			selectedEmploymentTypes = selectedEmploymentTypes.filter((x) => x !== uuid);
 		} else {
-			selectedEmploymentTypes = [...selectedEmploymentTypes, id];
+			selectedEmploymentTypes = [...selectedEmploymentTypes, uuid];
 		}
 	}
 
-	function getLeaveTypeName(id: number): string {
-		const found = data.leaveTypes.find((t) => t.id === id);
-		return found ? found.leave_name : `ID: ${id}`;
+	function getLeaveTypeName(uuid: string): string {
+		const found = data.leaveTypes.find((t) => t.cuid === uuid);
+		return found ? found.leave_name : `UUID: ${uuid}`;
 	}
 
-	function getEmploymentTypeNames(ids: number[]): string {
-		if (ids.length === 0) return 'None';
-		return ids
-			.map((id) => {
-				const found = data.employmentTypes.find((et) => et.id === id);
-				return found ? found.employment_name : `ID: ${id}`;
+	function getEmploymentTypeNames(uuids: string[]): string {
+		if (uuids.length === 0) return 'None';
+		return uuids
+			.map((uuid) => {
+				const found = data.employmentTypes.find((et) => et.cuid === uuid);
+				return found ? found.employment_name : `UUID: ${uuid}`;
 			})
 			.join(', ');
 	}
@@ -246,8 +246,8 @@
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
 			result = result.filter((p) => {
-				const leaveName = getLeaveTypeName(p.leave_type_id).toLowerCase();
-				const empNames = getEmploymentTypeNames(p.employment_type_ids).toLowerCase();
+				const leaveName = getLeaveTypeName(p.leave_type_uuid).toLowerCase();
+				const empNames = getEmploymentTypeNames(p.employment_type_uuids).toLowerCase();
 				return leaveName.includes(query) || empNames.includes(query);
 			});
 		}
@@ -341,10 +341,10 @@
 							</TableCell>
 						</TableRow>
 					{:else}
-						{#each filteredPolicies as policy (policy.uuid)}
+						{#each filteredPolicies as policy (policy.cuid)}
 							<TableRow class={!policy.status ? 'opacity-60' : ''}>
-								<TableCell class="font-semibold">{getLeaveTypeName(policy.leave_type_id)}</TableCell>
-								<TableCell class="text-xs">{getEmploymentTypeNames(policy.employment_type_ids)}</TableCell>
+								<TableCell class="font-semibold">{getLeaveTypeName(policy.leave_type_uuid)}</TableCell>
+								<TableCell class="text-xs">{getEmploymentTypeNames(policy.employment_type_uuids)}</TableCell>
 								<TableCell class="text-right font-mono font-semibold">{policy.annual_quota}</TableCell>
 								<TableCell class="text-center text-xs">
 									{#if policy.carry_forward_allowed}
@@ -376,7 +376,7 @@
 								</TableCell>
 								<TableCell class="text-right space-x-1">
 									<a
-										href={resolve(('/leave-policies?edit=' + policy.uuid) as '/leave-policies')}
+										href={resolve(('/leave-policies?edit=' + policy.cuid) as '/leave-policies')}
 										class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-8 w-8"
 										title="Edit Leave Policy"
 									>
@@ -405,7 +405,7 @@
 											};
 										}}
 									>
-										<input type="hidden" name="uuid" value={policy.uuid} />
+										<input type="hidden" name="cuid" value={policy.cuid} />
 										<Button
 											type="button"
 											variant="ghost"
@@ -471,41 +471,41 @@
 	}}
 >
 	{#if editUuid}
-		<input type="hidden" name="uuid" value={editUuid} />
+		<input type="hidden" name="cuid" value={editUuid} />
 	{/if}
 
 	<!-- Leave Type Dropdown -->
 	<div class="space-y-2">
-		<Label for="modal_leave_type_id" class={form && 'field' in form && form.field === 'leave_type_id' ? 'text-destructive' : ''}>Leave Type</Label>
+		<Label for="modal_leave_type_uuid" class={form && 'field' in form && form.field === 'leave_type_uuid' ? 'text-destructive' : ''}>Leave Type</Label>
 		<select
-			id="modal_leave_type_id"
-			name="leave_type_id"
+			id="modal_leave_type_uuid"
+			name="leave_type_uuid"
 			bind:value={leaveTypeId}
-			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {form && 'field' in form && form.field === 'leave_type_id' ? 'border-destructive' : ''}"
+			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {form && 'field' in form && form.field === 'leave_type_uuid' ? 'border-destructive' : ''}"
 			required
 		>
 			<option value="">Select Leave Type</option>
-			{#each data.leaveTypes.filter((t) => t.status || (editingPolicy && editingPolicy.leave_type_id === t.id)) as type (type.id)}
-				<option value={type.id}>{type.leave_name}</option>
+			{#each data.leaveTypes.filter((t) => t.status || (editingPolicy && editingPolicy.leave_type_uuid === t.cuid)) as type (type.cuid)}
+				<option value={type.cuid}>{type.leave_name}</option>
 			{/each}
 		</select>
-		{#if form && 'field' in form && form.field === 'leave_type_id'}
+		{#if form && 'field' in form && form.field === 'leave_type_uuid'}
 			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
 		{/if}
 	</div>
 
 	<!-- Employment Types -->
 	<div class="space-y-2">
-		<Label class={(form && 'field' in form && form.field === 'employment_type_ids') || employmentTypesError ? 'text-destructive' : ''}>Applicable Employment Types</Label>
+		<Label class={(form && 'field' in form && form.field === 'employment_type_uuids') || employmentTypesError ? 'text-destructive' : ''}>Applicable Employment Types</Label>
 		<div class="border rounded-md p-3 space-y-2 max-h-36 overflow-y-auto bg-transparent">
-			{#each data.employmentTypes.filter((et) => et.status || (editingPolicy && editingPolicy.employment_type_ids.includes(et.id))) as empType (empType.id)}
+			{#each data.employmentTypes.filter((et) => et.status || (editingPolicy && editingPolicy.employment_type_uuids.includes(et.cuid))) as empType (empType.cuid)}
 				<div class="flex items-center space-x-2">
 					<input
 						type="checkbox"
-						name="employment_type_ids"
-						value={empType.id}
-						checked={selectedEmploymentTypes.includes(empType.id)}
-						onchange={() => toggleEmploymentType(empType.id)}
+						name="employment_type_uuids"
+						value={empType.cuid}
+						checked={selectedEmploymentTypes.includes(empType.cuid)}
+						onchange={() => toggleEmploymentType(empType.cuid)}
 						class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 					/>
 					<Label class="cursor-pointer select-none font-normal text-xs">{empType.employment_name}</Label>
@@ -514,7 +514,7 @@
 		</div>
 		{#if employmentTypesError}
 			<p class="text-xs font-medium text-destructive mt-1">{employmentTypesError}</p>
-		{:else if form && 'field' in form && form.field === 'employment_type_ids'}
+		{:else if form && 'field' in form && form.field === 'employment_type_uuids'}
 			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
 		{/if}
 	</div>

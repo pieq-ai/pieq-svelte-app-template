@@ -2,11 +2,10 @@ import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types.js';
 import {
 	createLeaveType,
-	getLeaveTypeByUuid,
+	getLeaveTypeByCuid,
 	updateLeaveType,
 	LeaveValidationError
 } from '$lib/server/services/leave-type.service.js';
-
 
 export const actions: Actions = {
 	create: async ({ request }) => {
@@ -53,7 +52,7 @@ export const actions: Actions = {
 
 	update: async ({ request }) => {
 		const form = await request.formData();
-		const uuid = form.get('uuid');
+		const cuid = form.get('cuid');
 		const leave_name = form.get('leave_name');
 		const leave_code = form.get('leave_code');
 		const description = form.get('description');
@@ -61,15 +60,15 @@ export const actions: Actions = {
 		const requires_approval = form.get('requires_approval') === 'true' || form.get('requires_approval') === 'on';
 		const status = form.get('status') === 'true' || form.get('status') === 'on';
 
-		if (typeof uuid !== 'string' || !uuid) {
+		if (typeof cuid !== 'string' || !cuid) {
 			return fail(400, {
-				error: 'Leave type UUID is missing.',
+				error: 'Leave type CUID is missing.',
 				action: 'update'
 			});
 		}
 
 		try {
-			const data = await updateLeaveType(uuid, {
+			const data = await updateLeaveType(cuid, {
 				leave_name,
 				leave_code,
 				description,
@@ -84,7 +83,7 @@ export const actions: Actions = {
 					error: error.message,
 					field: error.field,
 					action: 'update',
-					uuid,
+					cuid,
 					leave_name: typeof leave_name === 'string' ? leave_name : '',
 					leave_code: typeof leave_code === 'string' ? leave_code : '',
 					description: typeof description === 'string' ? description : '',
@@ -94,28 +93,28 @@ export const actions: Actions = {
 				});
 			}
 
-			console.error(`Action update leave type failed for ${uuid}`, error);
+			console.error(`Action update leave type failed for ${cuid}`, error);
 			return fail(500, {
 				error: 'Failed to update leave type. Please try again.',
 				action: 'update',
-				uuid
+				cuid
 			});
 		}
 	},
 
 	delete: async ({ request }) => {
 		const form = await request.formData();
-		const uuid = form.get('uuid');
+		const cuid = form.get('cuid');
 
-		if (typeof uuid !== 'string' || !uuid) {
+		if (typeof cuid !== 'string' || !cuid) {
 			return fail(400, {
-				error: 'Leave type UUID is missing.',
+				error: 'Leave type CUID is missing.',
 				action: 'delete'
 			});
 		}
 
 		try {
-			const existing = await getLeaveTypeByUuid(uuid);
+			const existing = await getLeaveTypeByCuid(cuid);
 			if (!existing) {
 				return fail(404, {
 					error: 'Leave type not found.',
@@ -123,33 +122,33 @@ export const actions: Actions = {
 				});
 			}
 
-			const updated = await updateLeaveType(uuid, {
+			const updated = await updateLeaveType(cuid, {
 				status: !existing.status
 			});
 			return { success: true, action: 'delete', status: updated.status, updated };
 		} catch (error) {
-			console.error(`Action delete leave type failed for ${uuid}`, error);
+			console.error(`Action delete leave type failed for ${cuid}`, error);
 			return fail(500, {
 				error: 'Failed to toggle leave type status. Please try again.',
 				action: 'delete',
-				uuid
+				cuid
 			});
 		}
 	},
 
 	toggleStatus: async ({ request }) => {
 		const form = await request.formData();
-		const uuid = form.get('uuid');
+		const cuid = form.get('cuid');
 
-		if (typeof uuid !== 'string' || !uuid) {
+		if (typeof cuid !== 'string' || !cuid) {
 			return fail(400, {
-				error: 'Leave type UUID is missing.',
+				error: 'Leave type CUID is missing.',
 				action: 'toggleStatus'
 			});
 		}
 
 		try {
-			const existing = await getLeaveTypeByUuid(uuid);
+			const existing = await getLeaveTypeByCuid(cuid);
 			if (!existing) {
 				return fail(404, {
 					error: 'Leave type not found.',
@@ -157,17 +156,17 @@ export const actions: Actions = {
 				});
 			}
 
-			const updated = await updateLeaveType(uuid, {
+			const updated = await updateLeaveType(cuid, {
 				status: !existing.status
 			});
 
 			return { success: true, updated };
 		} catch (error) {
-			console.error(`Action toggleStatus failed for ${uuid}`, error);
+			console.error(`Action toggleStatus failed for ${cuid}`, error);
 			return fail(500, {
 				error: 'Failed to toggle status. Please try again.',
 				action: 'toggleStatus',
-				uuid
+				cuid
 			});
 		}
 	}
