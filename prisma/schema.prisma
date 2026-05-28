@@ -20,85 +20,10 @@ enum MaritalStatusEnum {
   widowed
 }
 
-enum EmploymentStatusEnum {
-  Active
-  OnNotice
-  Resigned
-  Terminated
-  Onboarding
-}
-
-enum SkillLevel {
-  Beginner
-  Intermediate
-  Advanced
-  Expert
-}
-
-enum LanguageProficiency {
-  Basic
-  Conversational
-  Professional
-  Native
-}
-
-enum AccountStatusEnum {
-  Active
-  Locked
-  Disabled
-}
-
-enum EducationLevelEnum {
-  TENTH
-  TWELFTH
-  DIPLOMA
-  UG
-  PG
-  PHD
-}
-
 enum ApplicableGenderEnum {
   Male
   Female
   Others
-}
-
-enum HalfDaySessionEnum {
-  AN
-  FN
-}
-
-enum LeaveRequestStatusEnum {
-  pending
-  approved
-  rejected
-  withdrawn
-}
-
-enum AttendanceStatusEnum {
-  Present
-  Absent
-  On_Leave
-  HalfDay
-  Holiday
-  WFH
-}
-
-enum HolidayTypeEnum {
-  national
-  regional
-  restricted
-}
-
-enum PayrollStatusEnum {
-  pending
-  processed
-  failed
-}
-
-enum SalaryComponentTypeEnum {
-  earning
-  deduction
 }
 
 enum PaymentFrequencyEnum {
@@ -125,940 +50,245 @@ enum ThemeEnum {
   system
 }
 
-
-
 model Employee {
-  emp_id                     BigInt             @id @default(autoincrement())
+  emp_id BigInt @id @default(autoincrement())
 
-  emp_code                   String             @unique @db.VarChar(20)
-  cuid2                    String            @unique @default(cuid())
-  first_name                 String             @db.VarChar(100)
-  last_name                  String             @db.VarChar(100)
+  emp_code   String @unique @db.VarChar(20)
+  cuid2      String @unique @default(cuid())
+  first_name String @db.VarChar(100)
+  last_name  String @db.VarChar(100)
 
-  dob                        DateTime           @db.Date
+  dob DateTime @db.Date
 
-  gender                     GenderEnum
+  gender GenderEnum
 
-  blood_group_id             Int
+  blood_group_id Int
 
-  marital_status             MaritalStatusEnum
+  marital_status MaritalStatusEnum
 
-  nationality_id             Int
+  nationality_id Int
 
-  mobile_no                  String             @unique @db.VarChar(15)
+  mobile_no String @unique @db.VarChar(15)
 
-  personal_email             String             @unique @db.VarChar(255)
+  personal_email String @unique @db.VarChar(255)
 
-  aadhar_no                  String             @unique @db.VarChar(12)
+  aadhar_no String @unique @db.VarChar(12)
 
-  pan_no                     String             @unique @db.VarChar(10)
+  pan_no String @unique @db.VarChar(10)
 
-  emergency_contact_name     String?            @db.VarChar(150)
+  emergency_contact_name String? @db.VarChar(150)
 
-  emergency_contact_no       String?            @db.VarChar(15)
+  emergency_contact_no String? @db.VarChar(15)
 
-  relation_id                Int?
+  relation_id Int?
 
-  created_at                 DateTime           @default(now()) @db.Timestamptz()
+  created_at DateTime @default(now()) @db.Timestamptz()
 
-  last_modified              DateTime           @updatedAt @db.Timestamptz()
+  last_modified DateTime @updatedAt @db.Timestamptz()
+
   @@index([cuid2])
-
   @@map("employee")
 }
 
-
-model Employment {
-  employment_id         BigInt                 @id @default(autoincrement())
-  cuid2                    String            @unique @default(cuid())
-  emp_id                BigInt                 @unique
-
-  dept_id               Int
-
-  role_id               Int
-
-  designation_id        Int
-
-  reporting_to          BigInt?
-
-  employment_status     EmploymentStatusEnum
-
-  doj                   DateTime               @db.Date
-
-  confirmation_date     DateTime?              @db.Date
-
-  exit_date             DateTime?              @db.Date
-
-  official_email        String                 @unique @db.VarChar(255)
-
-  pay_grade_id          Int
-
-  employment_type_id    Int
-
-  location_id           Int
-  @@index([cuid2])
-
-  @@map("employment")
-}
-
-model EmployeeLanguage {
-  el_id           BigInt                @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  emp_id          BigInt
-
-  language_id     Int
-
-  proficiency     LanguageProficiency   @default(Professional)
-
-  @@unique([emp_id, language_id])
-  @@index([cuid2])
-
-  @@map("employee_language")
-}
-
-model EmployeeSkill {
-  es_id                BigInt      @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  emp_id               BigInt
-
-  skill_id             Int
-
-  proficiency_level    SkillLevel  @default(Intermediate)
-
-  years_of_exp         Int?
-
-  @@unique([emp_id, skill_id])
-  @@index([cuid2])
-
-  @@map("employee_skill")
-}
-
-model UserAccount {
-  user_id            BigInt              @id @default(autoincrement())
-  cuid2                    String            @unique @default(cuid())
-  emp_id             BigInt              @unique
-
-  username           String              @unique @db.VarChar(100)
-
-  password_hash      String              @db.Text
-
-  last_login         DateTime?           @db.Timestamptz()
-
-  system_role_id     Int
-
-  account_status     AccountStatusEnum   @default(Active)
-  @@index([cuid2])
-
-  @@map("user_account")
-}
-
 model SystemRoles {
-  system_role_id     Int               @id @default(autoincrement())
+  system_role_id Int @id @default(autoincrement())
 
-  cuid2                    String            @unique @default(cuid())
+  cuid2 String @unique @default(cuid())
 
-  system_role_name   String            @unique @db.VarChar(100)
+  system_role_name String @unique @db.VarChar(100)
 
   status Boolean @default(true)
-  @@index([cuid2])
 
+  @@index([cuid2])
   @@map("system_roles")
 }
 
-model Address {
-  address_id     BigInt   @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  emp_id         BigInt
-
-  door_no        String?  @db.VarChar(20)
-
-  line1          String   @db.VarChar(255)
-
-  line2          String?  @db.VarChar(255)
-
-  city           String   @db.VarChar(100)
-
-  state_id       Int
-
-  country_id     Int
-
-  pin_code       String   @db.VarChar(10)
-  @@index([cuid2])
-
-  @@map("address")
-}
-
-
 model Department {
-  dept_id      Int               @id @default(autoincrement())
-  cuid2                    String            @unique @default(cuid())
-  dept_name    String            @unique @db.VarChar(150)
+  dept_id   Int    @id @default(autoincrement())
+  cuid2     String @unique @default(cuid())
+  dept_name String @unique @db.VarChar(150)
 
   status Boolean @default(true)
-  @@index([cuid2])
 
+  @@index([cuid2])
   @@map("department")
 }
 
-model Role {
-  role_id      Int               @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  role_name    String            @unique @db.VarChar(150)
-
-  status Boolean @default(true)
-  @@index([cuid2])
-
-  @@map("role")
-}
-
-model BankDetails {
-  bank_id                 BigInt   @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  account_number          String   @db.VarChar(30)
-
-  bank_name               String   @db.VarChar(150)
-
-  ifsc_code               String   @db.VarChar(11)
-
-  branch_name             String   @db.VarChar(150)
-
-  account_holder_name     String   @db.VarChar(200)
-
-  emp_id                  BigInt   @unique
-  @@index([cuid2])
-
-  @@map("bank_details")
-}
-
-model EmployeeDocuments {
-  emp_doc_id         BigInt    @id @default(autoincrement())
-  cuid2                    String            @unique @default(cuid())
-  emp_id             BigInt
-
-  document_type_id   Int
-
-  mime_type          String    @db.VarChar(100)
-
-  file_name          String    @db.VarChar(255)
-
-  file_size          BigInt
-
-  document           Bytes     @db.ByteA
-
-  uploaded_at        DateTime  @default(now()) @db.Timestamptz()
-  @@index([cuid2])
-
-  @@map("employee_documents")
-}
-
-model EmployeeEducation {
-  edu_id            BigInt               @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  emp_id            BigInt
-
-  education         EducationLevelEnum
-
-  specialization    String?              @db.VarChar(200)
-
-  institution       String               @db.VarChar(300)
-
-  percentage        Decimal              @db.Decimal(5, 2)
-
-  completed_at      DateTime             @db.Date
-  @@index([cuid2])
-
-  @@map("employee_education")
-}
-
-model Experience {
-  exp_id           BigInt    @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  emp_id           BigInt
-
-  company_name     String    @db.VarChar(300)
-
-  role             String    @db.VarChar(200)
-
-  description      String?   @db.Text
-
-  from_date        DateTime  @db.Date
-
-  to_date          DateTime? @db.Date
-  @@index([cuid2])
-
-  @@map("experience")
-}
-
-model LeaveType {
-  leave_type_id        Int                @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  leave_name           String             @unique @db.VarChar(100)
-
-  leave_code           String             @unique @db.VarChar(20)
-
-  description          String?            @db.Text
-
-  is_paid              Boolean            @default(true)
-
-  requires_approval    Boolean            @default(true)
-
-  status Boolean @default(true)
-  @@index([cuid2])
-
-  @@map("leave_type")
-}
-
-model LeavePolicy {
-  policy_id                  Int                     @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  leave_type_id              Int
-
-  annual_quota               Decimal                 @db.Decimal(5, 1)
-
-  max_per_month              Decimal?                @db.Decimal(4, 1)
-
-  carry_forward_allowed      Boolean                 @default(false)
-
-  max_carry_forward_days     Decimal?                @db.Decimal(4, 1)
-
-  requires_document          Boolean                 @default(false)
-
-  min_service_days           Int                     @default(0)
-
-  allow_half_day             Boolean                 @default(false)
-
-  gender_specific            Boolean                 @default(false)
-
-  applicable_gender          ApplicableGenderEnum?
-
-  status Boolean @default(true)
-  @@index([cuid2])
-
-  @@map("leave_policy")
-}
-
-model LeaveBalance {
-  balance_id               BigInt    @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  emp_id                   BigInt
-
-  leave_type_id            Int
-
-  year                     Int       @db.SmallInt
-
-  allocated_days           Decimal   @db.Decimal(5, 1)
-
-  used_days                Decimal   @default(0) @db.Decimal(5, 1)
-
-  remaining_days           Decimal   @db.Decimal(5, 1)
-
-  carried_forward_days     Decimal   @default(0) @db.Decimal(5, 1)
-
-  last_updated             DateTime  @updatedAt @db.Timestamptz()
-
-  @@unique([emp_id, leave_type_id, year])
-  @@index([cuid2])
-
-  @@map("leave_balance")
-}
-
-model LeaveRequest {
-  leave_request_id      BigInt                    @id @default(autoincrement())
-  cuid2                    String            @unique @default(cuid())
-  emp_id                BigInt
-
-  leave_type_id         Int
-
-  start_date            DateTime                  @db.Date
-
-  end_date              DateTime                  @db.Date
-
-  total_days            Decimal                   @db.Decimal(4, 1)
-
-  is_half_day           Boolean                   @default(false)
-
-  half_day_session      HalfDaySessionEnum?
-
-  reason                String                    @db.Text
-
-  document_url          String?                   @db.Text
-
-  request_status        LeaveRequestStatusEnum    @default(pending)
-
-  approved_by           BigInt?
-
-  approved_at           DateTime?                 @db.Timestamptz()
-
-  created_at            DateTime                  @default(now()) @db.Timestamptz()
-  @@index([cuid2])
-
-  @@map("leave_request")
-}
-
-model AttendanceRecord {
-  attendance_id            BigInt                 @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  emp_id                   BigInt
-
-  attendance_date          DateTime               @db.Date
-
-  check_in_time            DateTime?              @db.Time(6)
-
-  check_out_time           DateTime?              @db.Time(6)
-
-  work_duration_minutes    Int?
-
-  attendance_status        AttendanceStatusEnum
-
-  attendance_source_id     Int?
-
-  remarks                  String?                @db.Text
-
-  updated_at               DateTime               @updatedAt @db.Timestamptz()
-
-  @@unique([emp_id, attendance_date])
-  @@index([cuid2])
-
-  @@map("attendance_record")
-}
-
-model HolidayCalendar {
-  holiday_id        Int               @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  holiday_name      String            @db.VarChar(200)
-
-  holiday_date      DateTime          @db.Date
-
-  holiday_type      HolidayTypeEnum
-
-  @@unique([holiday_name, holiday_date])
-  @@index([cuid2])
-
-  @@map("holiday_calendar")
-}
-
-model Payroll {
-  payroll_id            BigInt               @id @default(autoincrement())
-  cuid2                    String            @unique @default(cuid())
-  emp_id                BigInt
-
-  salary_structure_id   BigInt
-
-  pay_period_start      DateTime             @db.Date
-
-  pay_period_end        DateTime             @db.Date
-
-  working_days          Int                  @db.SmallInt
-
-  present_days          Decimal              @db.Decimal(4, 1)
-
-  paid_leave_days       Decimal              @db.Decimal(4, 1)
-
-  lop_days              Decimal              @db.Decimal(4, 1)
-
-  gross_salary          Decimal              @db.Decimal(14, 2)
-
-  total_earnings        Decimal              @db.Decimal(14, 2)
-
-  total_deductions      Decimal              @db.Decimal(14, 2)
-
-  net_salary            Decimal              @db.Decimal(14, 2)
-
-  payroll_status        PayrollStatusEnum    @default(pending)
-
-  generated_at          DateTime             @default(now()) @db.Timestamptz()
-
-  processed_by          BigInt?
-
-  generated_doc         Bytes?
-
-  @@unique([emp_id, pay_period_start, pay_period_end])
-  @@index([cuid2])
-
-  @@map("payroll")
-}
-
-model SalaryComponent {
-  component_id        Int                         @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  component_name      String                      @db.VarChar(150)
-
-  component_type      SalaryComponentTypeEnum
-
-  is_taxable          Boolean                     @default(false)
-
-  status Boolean @default(true)
-
-  @@unique([component_name, component_type])
-  @@index([cuid2])
-
-  @@map("salary_component")
-}
-
-model SalaryStructure {
-  salary_structure_id     BigInt                  @id @default(autoincrement())
-  cuid2                    String            @unique @default(cuid())
-  emp_id                  BigInt
-
-  effective_from          DateTime                @db.Date
-
-  effective_to            DateTime?               @db.Date
-
-  gross_salary            Decimal                 @db.Decimal(14, 2)
-
-  payment_frequency       PaymentFrequencyEnum    @default(monthly)
-
-  status Boolean @default(true)
-
-  created_at              DateTime                @default(now()) @db.Timestamptz()
-  @@index([cuid2])
-
-  @@map("salary_structure")
-}
-
-model SalaryStructureItem {
-  item_id                  BigInt                   @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  salary_structure_id      BigInt
-
-  component_id             Int
-
-  calculation_type         CalculationTypeEnum
-
-  value                    Decimal                  @db.Decimal(10, 4)
-
-  created_at               DateTime                 @default(now()) @db.Timestamptz()
-
-  @@unique([salary_structure_id, component_id])
-  @@index([cuid2])
-
-  @@map("salary_structure_item")
-}
-
-model PayrollItem {
-  payroll_item_id        BigInt      @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  payroll_id             BigInt
-
-  component_id           Int
-
-  amount                 Decimal     @db.Decimal(14, 2)
-
-  @@unique([payroll_id, component_id])
-  @@index([cuid2])
-
-  @@map("payroll_item")
-}
-
-model Shift {
-  shift_id                 Int               @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  shift_name               String            @db.VarChar(100)
-
-  start_time               DateTime          @db.Time(6)
-
-  end_time                 DateTime          @db.Time(6)
-
-  minimum_work_hours       Decimal           @db.Decimal(4, 2)
-
-  status Boolean @default(true)
-
-  @@unique([shift_name])
-  @@index([cuid2])
-
-  @@map("shift")
-}
-
-model ShiftAssignment {
-  assignment_id          BigInt      @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  emp_id                 BigInt
-
-  shift_id               Int
-
-  effective_from         DateTime    @db.Date
-
-  effective_to           DateTime?   @db.Date
-  @@index([cuid2])
-
-  @@map("shift_assignment")
-}
-
-model AuditLog {
-  audit_id               BigInt      @id @default(autoincrement())
-  cuid2                    String            @unique @default(cuid())
-  user_id                BigInt
-
-  action_type            String      @db.VarChar(50)
-
-  entity_name            String      @db.VarChar(100)
-
-  entity_id              String
-
-  old_value              Json?
-
-  new_value              Json?
-
-  ip_address             String?     @db.Inet
-
-  created_at             DateTime    @default(now()) @db.Timestamptz()
-
-  @@index([user_id])
-
-  @@index([entity_name, entity_id])
-
-  @@index([created_at])
-  @@index([cuid2])
-
-  @@map("audit_log")
-}
-
 model Permissions {
-  permission_id          Int               @id @default(autoincrement())
+  permission_id Int @id @default(autoincrement())
 
-  cuid2                    String            @unique @default(cuid())
+  cuid2 String @unique @default(cuid())
 
-  permission_key         String            @unique @db.VarChar(100)
+  permission_key String @unique @db.VarChar(100)
 
   status Boolean @default(true)
-  @@index([cuid2])
 
+  @@index([cuid2])
   @@map("permissions")
 }
 
 model RolePermission {
-  role_permission_id        Int      @id @default(autoincrement())
+  role_permission_id Int @id @default(autoincrement())
 
-  cuid2                    String            @unique @default(cuid())
+  cuid2 String @unique @default(cuid())
 
-  system_role_id            Int
+  system_role_id Int
 
-  permission_id             Int
+  permission_id Int
 
   @@unique([system_role_id, permission_id])
   @@index([cuid2])
-
   @@map("role_permission")
 }
 
-model UserSession {
-  session_id              BigInt      @id @default(autoincrement())
-  cuid2                    String            @unique @default(cuid())
-  user_id                 BigInt
-
-  refresh_token_hash      String
-
-  device_info             String?
-
-  ip_address              String?     @db.Inet
-
-  expires_at              DateTime    @db.Timestamptz()
-
-  is_revoked              Boolean     @default(false)
-
-  created_at              DateTime    @default(now()) @db.Timestamptz()
-
-  last_used_at            DateTime?   @db.Timestamptz()
-
-  @@index([user_id])
-
-  @@index([expires_at])
-
-  @@index([is_revoked])
-  @@index([cuid2])
-
-  @@map("user_session")
-}
-
-model Notification {
-  notification_id          BigInt                   @id @default(autoincrement())
-  cuid2                    String            @unique @default(cuid())
-  user_id                  BigInt
-
-  title                    String                   @db.VarChar(255)
-
-  message                  String                   @db.Text
-
-  notification_type        NotificationTypeEnum     @default(info)
-
-  reference_type           String?                  @db.VarChar(100)
-
-  reference_id             BigInt?
-
-  is_read                  Boolean                  @default(false)
-
-  created_at               DateTime                 @default(now()) @db.Timestamptz()
-
-  @@index([user_id])
-
-  @@index([is_read])
-
-  @@index([created_at])
-  @@index([cuid2])
-
-  @@map("notification")
-}
-
-model UserSettings {
-  setting_id                       BigInt        @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  user_id                          BigInt        @unique
-
-  theme                            ThemeEnum     @default(system)
-
-  email_notifications_enabled      Boolean       @default(true)
-
-  push_notifications_enabled       Boolean       @default(true)
-
-  two_factor_enabled               Boolean       @default(false)
-
-  created_at                       DateTime      @default(now()) @db.Timestamptz()
-
-  updated_at                       DateTime      @updatedAt @db.Timestamptz()
-  @@index([cuid2])
-
-  @@map("user_settings")
-}
-
-model CompanyLocation {
-  location_id             Int          @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  location_name           String       @db.VarChar(150)
-
-  address_line1           String       @db.VarChar(255)
-
-  address_line2           String?      @db.VarChar(255)
-
-  city                    String       @db.VarChar(100)
-
-  state_id                Int
-
-  country_id              Int
-
-  pin_code                String       @db.VarChar(10)
-
-  timezone                String       @db.VarChar(60)
-
-  is_active               Boolean      @default(true)
-
-  created_at              DateTime     @default(now()) @db.Timestamptz()
-
-  updated_at              DateTime     @updatedAt @db.Timestamptz()
-
-  @@unique([location_name])
-  @@index([cuid2])
-
-  @@map("company_location")
-}
-
 model BloodGroup {
-  blood_group_id          Int         @id @default(autoincrement())
+  blood_group_id Int @id @default(autoincrement())
 
-  cuid2                    String            @unique @default(cuid())
+  cuid2 String @unique @default(cuid())
 
-  blood_group_name        String      @unique @db.VarChar(5)
+  blood_group_name String @unique @db.VarChar(5)
+
   @@index([cuid2])
-
   @@map("blood_group")
 }
 
 model Designation {
-  designation_id          Int               @id @default(autoincrement())
-  cuid2                    String            @unique @default(cuid())
-  designation_name        String            @unique @db.VarChar(150)
+  designation_id   Int    @id @default(autoincrement())
+  cuid2            String @unique @default(cuid())
+  designation_name String @unique @db.VarChar(150)
 
   status Boolean @default(true)
-  @@index([cuid2])
 
+  @@index([cuid2])
   @@map("designation")
 }
 
 model PayGrade {
-  paygrade_id             Int               @id @default(autoincrement())
+  paygrade_id Int @id @default(autoincrement())
 
-  cuid2                    String            @unique @default(cuid())
+  cuid2 String @unique @default(cuid())
 
-  paygrade_name           String            @unique @db.VarChar(100)
+  paygrade_name String @unique @db.VarChar(100)
 
   status Boolean @default(true)
-  @@index([cuid2])
 
+  @@index([cuid2])
   @@map("pay_grade")
 }
 
 model Nationality {
-  nationality_id          Int               @id @default(autoincrement())
+  nationality_id Int @id @default(autoincrement())
 
-  cuid2                    String            @unique @default(cuid())
+  cuid2 String @unique @default(cuid())
 
-  nationality_name        String            @unique @db.VarChar(100)
+  nationality_name String @unique @db.VarChar(100)
 
   status Boolean @default(true)
-  @@index([cuid2])
 
+  @@index([cuid2])
   @@map("nationality")
 }
 
 model EmploymentType {
-  employment_type_id      Int               @id @default(autoincrement())
+  employment_type_id Int @id @default(autoincrement())
 
-  cuid2                    String            @unique @default(cuid())
+  cuid2 String @unique @default(cuid())
 
-  employment_name         String            @unique @db.VarChar(50)
+  employment_name String @unique @db.VarChar(50)
 
   status Boolean @default(true)
-  @@index([cuid2])
 
+  @@index([cuid2])
   @@map("employment_type")
 }
 
 model RelationType {
-  relation_id             Int               @id @default(autoincrement())
+  relation_id Int @id @default(autoincrement())
 
-  cuid2                    String            @unique @default(cuid())
+  cuid2 String @unique @default(cuid())
 
-  relation_name           String            @unique @db.VarChar(50)
+  relation_name String @unique @db.VarChar(50)
 
   status Boolean @default(true)
-  @@index([cuid2])
 
+  @@index([cuid2])
   @@map("relation_type")
 }
 
 model DocumentType {
-  document_type_id        Int               @id @default(autoincrement())
+  document_type_id Int @id @default(autoincrement())
 
-  cuid2                    String            @unique @default(cuid())
+  cuid2 String @unique @default(cuid())
 
-  document_type_name      String            @unique @db.VarChar(100)
+  document_type_name String @unique @db.VarChar(100)
 
   status Boolean @default(true)
-  @@index([cuid2])
 
+  @@index([cuid2])
   @@map("document_type")
 }
 
 model State {
-  state_id                Int         @id @default(autoincrement())
+  state_id Int @id @default(autoincrement())
 
-  cuid2                    String            @unique @default(cuid())
+  cuid2 String @unique @default(cuid())
 
-  country_id              Int
+  country_id Int
 
-  state_name              String      @db.VarChar(100)
+  state_name String @db.VarChar(100)
 
   @@unique([country_id, state_name])
-
   @@index([country_id])
   @@index([cuid2])
-
   @@map("state")
 }
 
 model Country {
-  country_id              Int         @id @default(autoincrement())
+  country_id Int @id @default(autoincrement())
 
-  cuid2                    String            @unique @default(cuid())
+  cuid2 String @unique @default(cuid())
 
-  country_name            String      @unique @db.VarChar(100)
+  country_name String @unique @db.VarChar(100)
+
   @@index([cuid2])
-
   @@map("country")
 }
 
 model Skills {
-  skills_id               Int               @id @default(autoincrement())
+  skills_id Int @id @default(autoincrement())
 
-  cuid2                    String            @unique @default(cuid())
+  cuid2 String @unique @default(cuid())
 
-  skills_name             String            @unique @db.VarChar(100)
+  skills_name String @unique @db.VarChar(100)
 
   status Boolean @default(true)
-  @@index([cuid2])
 
+  @@index([cuid2])
   @@map("skills")
 }
 
 model AttendanceSource {
-  attendance_source_id        Int               @id @default(autoincrement())
+  attendance_source_id Int @id @default(autoincrement())
 
-  cuid2                    String            @unique @default(cuid())
+  cuid2 String @unique @default(cuid())
 
-  attendance_source_name      String            @unique @db.VarChar(100)
+  attendance_source_name String @unique @db.VarChar(100)
 
   status Boolean @default(true)
-  @@index([cuid2])
 
+  @@index([cuid2])
   @@map("attendance_source")
 }
 
 model Languages {
-  languages_id            Int               @id @default(autoincrement())
+  languages_id Int @id @default(autoincrement())
 
-  cuid2                    String            @unique @default(cuid())
+  cuid2 String @unique @default(cuid())
 
-  languages_name          String            @unique @db.VarChar(100)
+  languages_name String @unique @db.VarChar(100)
 
   status Boolean @default(true)
-  @@index([cuid2])
 
+  @@index([cuid2])
   @@map("languages")
 }
-
-model LeavePolicyEmploymentType {
-  lpet_id                 Int      @id @default(autoincrement())
-
-  cuid2                    String            @unique @default(cuid())
-
-  policy_id               Int
-
-  employment_type_id      Int
-
-  @@unique([policy_id, employment_type_id])
-
-  @@index([policy_id])
-
-  @@index([employment_type_id])
-  @@index([cuid2])
-
-  @@map("leave_policy_employment_type")
-}
-
