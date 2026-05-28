@@ -38,6 +38,31 @@
 	let isSubmitting = $state(false);
 	let successMessage = $state('');
 
+	let tomorrowStr = $derived.by(() => {
+		const today = new Date();
+		const tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+		const y = tomorrow.getFullYear();
+		const m = String(tomorrow.getMonth() + 1).padStart(2, '0');
+		const d = String(tomorrow.getDate()).padStart(2, '0');
+		return `${y}-${m}-${d}`;
+	});
+
+	let clientDateError = $derived.by(() => {
+		if (!holidayDate) return '';
+		const parts = holidayDate.split('-');
+		if (parts.length !== 3) return '';
+		const year = parseInt(parts[0], 10);
+		const month = parseInt(parts[1], 10) - 1;
+		const day = parseInt(parts[2], 10);
+		const selectedDate = new Date(year, month, day);
+		const today = new Date();
+		const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+		if (selectedDate.getTime() <= todayMidnight.getTime()) {
+			return 'Holiday date must be a future date.';
+		}
+		return '';
+	});
+
 	// Active Edit Mode Detection from URL query parameter
 	let editUuid = $derived(page.url.searchParams.get('edit'));
 	let editingHoliday = $derived(data.holidays.find((h) => h.uuid === editUuid));
@@ -370,43 +395,61 @@
 					{/if}
 
 					<div class="space-y-2">
-						<Label for="holiday_name">Holiday Name</Label>
+						<Label for="holiday_name" class={form && 'field' in form && form.field === 'holiday_name' ? 'text-destructive' : ''}>Holiday Name</Label>
 						<Input
 							id="holiday_name"
 							name="holiday_name"
 							bind:value={holidayName}
 							placeholder="e.g. Independence Day"
 							required
+							minlength={3}
+							pattern="^[a-zA-Z0-9\s'-]+$"
+							title="Holiday name must be at least 3 characters and contain only letters, numbers, spaces, hyphens, and apostrophes"
+							class={form && 'field' in form && form.field === 'holiday_name' ? 'border-destructive focus-visible:ring-destructive' : ''}
 						/>
+						{#if form && 'field' in form && form.field === 'holiday_name'}
+							<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+						{/if}
 					</div>
 
 					<div class="space-y-2">
-						<Label for="holiday_date">Date</Label>
+						<Label for="holiday_date" class={(form && 'field' in form && form.field === 'holiday_date') || clientDateError ? 'text-destructive' : ''}>Date</Label>
 						<Input
 							id="holiday_date"
 							name="holiday_date"
 							type="date"
 							bind:value={holidayDate}
 							required
+							min={tomorrowStr}
+							max="2099-12-31"
+							class={(form && 'field' in form && form.field === 'holiday_date') || clientDateError ? 'border-destructive focus-visible:ring-destructive' : ''}
 						/>
+						{#if clientDateError}
+							<p class="text-xs font-medium text-destructive mt-1">{clientDateError}</p>
+						{:else if form && 'field' in form && form.field === 'holiday_date'}
+							<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+						{/if}
 					</div>
 
 					<div class="space-y-2">
-						<Label for="holiday_type">Category</Label>
+						<Label for="holiday_type" class={form && 'field' in form && form.field === 'holiday_type' ? 'text-destructive' : ''}>Category</Label>
 						<select
 							id="holiday_type"
 							name="holiday_type"
 							bind:value={holidayType}
-							class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none"
+							class="dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {form && 'field' in form && form.field === 'holiday_type' ? 'border-destructive focus-visible:ring-destructive' : 'border-input'}"
 							required
 						>
 							<option value="national">National Holiday</option>
 							<option value="regional">Regional Holiday</option>
 							<option value="restricted">Restricted Holiday</option>
 						</select>
+						{#if form && 'field' in form && form.field === 'holiday_type'}
+							<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+						{/if}
 					</div>
 
-					{#if formError}
+					{#if formError && (!form || !('field' in form) || !form.field)}
 						<div transition:slide>
 							<Alert variant="destructive">
 								<AlertDescription>{formError}</AlertDescription>
@@ -423,7 +466,7 @@
 					{/if}
 
 					<div class="space-y-2">
-						<Button type="submit" class="w-full" disabled={isSubmitting}>
+						<Button type="submit" class="w-full" disabled={isSubmitting || !!clientDateError}>
 							{#if isSubmitting}
 								<LoaderCircleIcon class="size-4 animate-spin" />
 								Saving...

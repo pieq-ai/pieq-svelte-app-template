@@ -37,10 +37,25 @@ function validateHolidayName(raw: unknown): string {
 		throw new HolidayValidationError('holiday_name', 'Holiday name cannot be empty');
 	}
 
+	if (trimmed.length < 3) {
+		throw new HolidayValidationError(
+			'holiday_name',
+			'Holiday name must be at least 3 characters long'
+		);
+	}
+
 	if (trimmed.length > HOLIDAY_NAME_MAX_LENGTH) {
 		throw new HolidayValidationError(
 			'holiday_name',
 			`Holiday name must be ${HOLIDAY_NAME_MAX_LENGTH} characters or fewer`
+		);
+	}
+
+	const HOLIDAY_NAME_REGEX = /^[a-zA-Z0-9\s'-]+$/;
+	if (!HOLIDAY_NAME_REGEX.test(trimmed)) {
+		throw new HolidayValidationError(
+			'holiday_name',
+			'Holiday name can only contain letters, numbers, spaces, hyphens, and apostrophes'
 		);
 	}
 
@@ -75,6 +90,23 @@ function validateHolidayDate(raw: unknown): Date {
 		throw new HolidayValidationError('holiday_date', 'Holiday date must be a valid date');
 	}
 
+	const year = date.getUTCFullYear();
+	if (year < 2000 || year > 2099) {
+		throw new HolidayValidationError(
+			'holiday_date',
+			'Holiday date must be between the years 2000 and 2099'
+		);
+	}
+
+	const today = new Date();
+	const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+	if (date.getTime() <= todayUTC.getTime()) {
+		throw new HolidayValidationError(
+			'holiday_date',
+			'Holiday date must be a future date.'
+		);
+	}
+
 	return date;
 }
 
@@ -104,12 +136,24 @@ export async function createHoliday(input: CreateHolidayInput) {
 	const holiday_date = validateHolidayDate(input.holiday_date);
 	const holiday_type = validateHolidayType(input.holiday_type);
 
-	// Duplicate check
-	const existing = await holidayDao.findByNameAndDate(holiday_name, holiday_date);
-	if (existing) {
+	// Unique date check
+	const existingDate = await holidayDao.findByDate(holiday_date);
+	if (existingDate) {
+		throw new HolidayValidationError(
+			'holiday_date',
+			'A holiday is already scheduled on this date'
+		);
+	}
+
+	// Unique name per calendar year check
+	const existingNameInYear = await holidayDao.findByNameAndYear(
+		holiday_name,
+		holiday_date.getUTCFullYear()
+	);
+	if (existingNameInYear) {
 		throw new HolidayValidationError(
 			'holiday_name',
-			'A holiday with this name and date already exists'
+			'A holiday with this name already exists in the same calendar year'
 		);
 	}
 
@@ -130,16 +174,25 @@ export async function updateHoliday(uuid: string, input: UpdateHolidayInput) {
 	const holiday_date = validateHolidayDate(input.holiday_date);
 	const holiday_type = validateHolidayType(input.holiday_type);
 
-	// Duplicate check excluding this uuid
-	const duplicate = await holidayDao.findDuplicateExcludingUuid(
+	// Unique date check excluding this UUID
+	const duplicateDate = await holidayDao.findByDateExcludingUuid(holiday_date, uuid);
+	if (duplicateDate) {
+		throw new HolidayValidationError(
+			'holiday_date',
+			'A holiday is already scheduled on this date'
+		);
+	}
+
+	// Unique name per calendar year check excluding this UUID
+	const duplicateNameInYear = await holidayDao.findByNameAndYearExcludingUuid(
 		holiday_name,
-		holiday_date,
+		holiday_date.getUTCFullYear(),
 		uuid
 	);
-	if (duplicate) {
+	if (duplicateNameInYear) {
 		throw new HolidayValidationError(
 			'holiday_name',
-			'A holiday with this name and date already exists'
+			'A holiday with this name already exists in the same calendar year'
 		);
 	}
 

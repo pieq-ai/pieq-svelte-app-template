@@ -64,3 +64,58 @@ export async function findDuplicateExcludingUuid(
 		}
 	});
 }
+
+export async function findByDate(holiday_date: Date) {
+	return db.holidayCalendar.findFirst({
+		where: { holiday_date }
+	});
+}
+
+export async function findByDateExcludingUuid(holiday_date: Date, uuid: string) {
+	return db.holidayCalendar.findFirst({
+		where: {
+			holiday_date,
+			NOT: { uuid }
+		}
+	});
+}
+
+export async function findByNameAndYear(holiday_name: string, year: number) {
+	const startOfYear = new Date(Date.UTC(year, 0, 1));
+	const endOfYear = new Date(Date.UTC(year, 11, 31, 23, 59, 59, 999));
+	return db.holidayCalendar.findFirst({
+		where: {
+			holiday_name: {
+				equals: holiday_name,
+				mode: 'insensitive'
+			},
+			holiday_date: {
+				gte: startOfYear,
+				lte: endOfYear
+			}
+		}
+	});
+}
+
+export async function findByNameAndYearExcludingUuid(
+	holiday_name: string,
+	year: number,
+	uuid: string
+) {
+	const startOfYear = new Date(Date.UTC(year, 0, 1));
+	const endOfYear = new Date(Date.UTC(year, 11, 31, 23, 59, 59, 999));
+	return db.holidayCalendar.findFirst({
+		where: {
+			holiday_name: {
+				equals: holiday_name,
+				mode: 'insensitive'
+			},
+			holiday_date: {
+				gte: startOfYear,
+				lte: endOfYear
+			},
+			NOT: { uuid }
+		}
+	});
+}
+

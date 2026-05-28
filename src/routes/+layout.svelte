@@ -35,9 +35,9 @@
 		<div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
 			<a href={resolve('/')} class="text-lg font-semibold tracking-tight">Pieq App</a>
 			<nav class="flex items-center gap-3">
-				<Button href={resolve('/employees')} variant="ghost">Employees</Button>
 				<Button href={resolve('/holidays')} variant="ghost">Holidays</Button>
-				<Button href={resolve('/blood-groups')} variant="ghost">Blood Groups</Button>
+				<Button href={resolve('/masters/leave-types')} variant="ghost">Leave Types</Button>
+				<Button href={resolve('/masters/leave-policies')} variant="ghost">Leave Policies</Button>
 				{#if data.user}
 					<span class="hidden text-sm text-muted-foreground sm:inline">{data.user.email}</span>
 					<Button href={resolve('/dashboard')} variant="outline">Dashboard</Button>
