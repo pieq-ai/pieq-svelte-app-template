@@ -21,7 +21,8 @@
 		TableCell,
 		TableHead,
 		TableHeader,
-		TableRow
+		TableRow,
+		StatusDropdown
 	} from '$lib/components';
 	import { getMasterPermissions } from '$lib/permissions/mock-permissions';
 
@@ -256,13 +257,7 @@
 			{/if}
 		</div>
 		{#if editingRole}
-			<div class="space-y-2">
-				<Label for="role_status">Status</Label>
-				<select id="role_status" bind:value={roleStatus} class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
-					<option value={true}>Active</option>
-					<option value={false}>Inactive</option>
-				</select>
-			</div>
+			<StatusDropdown value={roleStatus} onChange={(val) => (roleStatus = val)} />
 		{/if}
 		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting}>
 			{isSubmitting ? 'Saving...' : (editingRole ? 'Save Role' : 'Create Role')}

@@ -31,3 +31,4 @@ export { default as MasterDataDropdown } from './common/MasterDataDropdown.svelt
 export { default as SearchableDropdown } from './common/SearchableDropdown.svelte';
 export { default as PermissionMatrixCell } from './common/PermissionMatrixCell.svelte';
 export { default as TableActions } from './common/TableActions.svelte';
+export { default as StatusDropdown } from './common/StatusDropdown.svelte';

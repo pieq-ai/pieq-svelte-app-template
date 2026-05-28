@@ -23,7 +23,8 @@
 		ConfirmModal,
 		CrudModal,
 		TableActions,
-		FilterDropdown
+		FilterDropdown,
+		StatusDropdown
 	} from '$lib/components';
 
 	interface Designation {
@@ -361,13 +362,7 @@
 			{/if}
 		</div>
 		{#if editingDesignation}
-			<div class="space-y-2">
-				<Label for="designation_status">Status</Label>
-				<select id="designation_status" bind:value={formDesignationStatus} class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
-					<option value={true}>Active</option>
-					<option value={false}>Inactive</option>
-				</select>
-			</div>
+			<StatusDropdown value={formDesignationStatus} onChange={(val) => (formDesignationStatus = val)} />
 		{/if}
 		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting}>
 			{isSubmitting ? 'Saving...' : (editingDesignation ? 'Save Designation' : 'Create Designation')}

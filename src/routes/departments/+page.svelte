@@ -23,7 +23,8 @@
 		ConfirmModal,
 		CrudModal,
 		TableActions,
-		FilterDropdown
+		FilterDropdown,
+		StatusDropdown
 	} from '$lib/components';
 
 	interface Department {
@@ -365,13 +366,7 @@
 			{/if}
 		</div>
 		{#if editingDept}
-			<div class="space-y-2">
-				<Label for="dept_status">Status</Label>
-				<select id="dept_status" bind:value={formDeptStatus} class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
-					<option value={true}>Active</option>
-					<option value={false}>Inactive</option>
-				</select>
-			</div>
+			<StatusDropdown value={formDeptStatus} onChange={(val) => (formDeptStatus = val)} />
 		{/if}
 		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting}>
 			{isSubmitting ? 'Saving...' : (editingDept ? 'Save Department' : 'Create Department')}
