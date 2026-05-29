@@ -50,6 +50,7 @@ const routeGuard = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
+/** @type {import('@sveltejs/kit').Handle} */
 const customAuthHandle = async ({ event, resolve }) => {
 	// Root Cause Fix: Bypass Auth.js interception for the custom sign-in page.
 	// If we don't, Auth.js intercepts /auth/signin and infinitely redirects to itself.
