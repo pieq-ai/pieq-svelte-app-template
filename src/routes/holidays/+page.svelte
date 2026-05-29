@@ -78,6 +78,23 @@
 		return '';
 	});
 
+	let holidayNameError = $derived.by(() => {
+		if (!holidayName) return '';
+		const trimmed = holidayName.trim();
+		if (trimmed.length === 0) return '';
+		if (trimmed.length <= 5) {
+			return 'Holiday name must be more than 5 characters long';
+		}
+		if (trimmed.length > 200) {
+			return 'Holiday name must be 200 characters or fewer';
+		}
+		const REGEX = /^[a-zA-Z\s]+$/;
+		if (!REGEX.test(trimmed)) {
+			return 'Holiday name can only contain letters and spaces';
+		}
+		return '';
+	});
+
 	// Active Edit Mode Detection from URL query parameter
 	let editCuid = $derived(page.url.searchParams.get('edit'));
 	let editingHoliday = $derived(data.holidays.find((h) => h.cuid === editCuid));
@@ -413,18 +430,20 @@
 	{/if}
 
 	<div class="space-y-2">
-		<Label for="modal_holiday_name" class={form && 'field' in form && form.field === 'holiday_name' ? 'text-destructive' : ''}>Holiday Name</Label>
+		<Label for="modal_holiday_name" class={(form && 'field' in form && form.field === 'holiday_name') || holidayNameError ? 'text-destructive' : ''}>Holiday Name</Label>
 		<Input
 			id="modal_holiday_name"
 			name="holiday_name"
 			bind:value={holidayName}
 			placeholder="e.g. Independence Day"
 			required
-			minlength={3}
-			pattern="^[a-zA-Z0-9\s'-]+$"
-			class={form && 'field' in form && form.field === 'holiday_name' ? 'border-destructive focus-visible:ring-destructive' : ''}
+			minlength={6}
+			pattern="^[a-zA-Z\s]+$"
+			class={(form && 'field' in form && form.field === 'holiday_name') || holidayNameError ? 'border-destructive focus-visible:ring-destructive' : ''}
 		/>
-		{#if form && 'field' in form && form.field === 'holiday_name'}
+		{#if holidayNameError}
+			<p class="text-xs font-medium text-destructive mt-1">{holidayNameError}</p>
+		{:else if form && 'field' in form && form.field === 'holiday_name'}
 			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
 		{/if}
 	</div>
@@ -474,7 +493,7 @@
 		</div>
 	{/if}
 
-	<Button type="submit" class="w-full" disabled={isSubmitting || !!clientDateError}>
+	<Button type="submit" class="w-full" disabled={isSubmitting || !!clientDateError || !!holidayNameError}>
 		{#if isSubmitting}
 			<LoaderCircleIcon class="size-4 animate-spin" />
 			Saving...

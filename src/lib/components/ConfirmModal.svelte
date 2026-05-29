@@ -55,7 +55,7 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		transition:fade={{ duration: 150 }}
-		class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+		class="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
 		onclick={handleCancel}
 	>
 		<div

@@ -42,10 +42,25 @@ function validateLeaveName(raw: unknown): string {
 		throw new LeaveValidationError('leave_name', 'Leave name cannot be empty');
 	}
 
+	if (trimmed.length <= 5) {
+		throw new LeaveValidationError(
+			'leave_name',
+			'Leave name must be more than 5 characters long'
+		);
+	}
+
 	if (trimmed.length > LEAVE_NAME_MAX_LENGTH) {
 		throw new LeaveValidationError(
 			'leave_name',
 			`Leave name must be ${LEAVE_NAME_MAX_LENGTH} characters or fewer`
+		);
+	}
+
+	const LEAVE_NAME_REGEX = /^[a-zA-Z\s]+$/;
+	if (!LEAVE_NAME_REGEX.test(trimmed)) {
+		throw new LeaveValidationError(
+			'leave_name',
+			'Leave name can only contain letters and spaces'
 		);
 	}
 

@@ -120,11 +120,16 @@
 	let nameClientError = $derived.by(() => {
 		if (!leaveName) return '';
 		const trimmed = leaveName.trim();
-		if (trimmed.length < 3) {
-			return 'Leave name must be at least 3 characters long';
+		if (trimmed.length === 0) return '';
+		if (trimmed.length <= 5) {
+			return 'Leave name must be more than 5 characters long';
 		}
 		if (trimmed.length > 100) {
 			return 'Leave name must be 100 characters or fewer';
+		}
+		const REGEX = /^[a-zA-Z\s]+$/;
+		if (!REGEX.test(trimmed)) {
+			return 'Leave name can only contain letters and spaces';
 		}
 		return '';
 	});
@@ -382,7 +387,8 @@
 			bind:value={leaveName}
 			placeholder="e.g. Sick Leave"
 			required
-			minlength={3}
+			minlength={6}
+			pattern="^[a-zA-Z\s]+$"
 			class={(form && 'field' in form && form.field === 'leave_name') || nameClientError ? 'border-destructive focus-visible:ring-destructive' : ''}
 		/>
 		{#if nameClientError}

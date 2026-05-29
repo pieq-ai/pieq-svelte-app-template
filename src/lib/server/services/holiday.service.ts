@@ -37,10 +37,10 @@ function validateHolidayName(raw: unknown): string {
 		throw new HolidayValidationError('holiday_name', 'Holiday name cannot be empty');
 	}
 
-	if (trimmed.length < 3) {
+	if (trimmed.length <= 5) {
 		throw new HolidayValidationError(
 			'holiday_name',
-			'Holiday name must be at least 3 characters long'
+			'Holiday name must be more than 5 characters long'
 		);
 	}
 
@@ -51,11 +51,11 @@ function validateHolidayName(raw: unknown): string {
 		);
 	}
 
-	const HOLIDAY_NAME_REGEX = /^[a-zA-Z0-9\s'-]+$/;
+	const HOLIDAY_NAME_REGEX = /^[a-zA-Z\s]+$/;
 	if (!HOLIDAY_NAME_REGEX.test(trimmed)) {
 		throw new HolidayValidationError(
 			'holiday_name',
-			'Holiday name can only contain letters, numbers, spaces, hyphens, and apostrophes'
+			'Holiday name can only contain letters and spaces'
 		);
 	}
 
