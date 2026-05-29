@@ -140,6 +140,51 @@ describe('salary-component.validator', () => {
 				message: 'is_active must be a boolean'
 			});
 		});
+
+		// ----- NEW: Unknown field rejection tests -----
+
+		it('should reject unknown fields in create body', () => {
+			const res = validateCreateSalaryComponent({
+				component_name: 'Basic Pay',
+				component_type: 'earning',
+				unknown_field: 'oops'
+			});
+			expect(res.errors).toHaveLength(1);
+			expect(res.errors[0].field).toBe('body');
+			expect(res.errors[0].message).toMatch(/unknown field/i);
+			expect(res.errors[0].message).toContain('unknown_field');
+		});
+
+		it('should reject multiple unknown fields in create body', () => {
+			const res = validateCreateSalaryComponent({
+				component_name: 'Basic Pay',
+				component_type: 'earning',
+				foo: 'bar',
+				baz: 123
+			});
+			expect(res.errors).toHaveLength(1);
+			expect(res.errors[0].field).toBe('body');
+			expect(res.errors[0].message).toContain('foo');
+			expect(res.errors[0].message).toContain('baz');
+		});
+
+		it('should reject arrays as the request body', () => {
+			const res = validateCreateSalaryComponent([{ component_name: 'Basic Pay' }]);
+			expect(res.errors).toHaveLength(1);
+			expect(res.errors[0].field).toBe('body');
+		});
+
+		it('should reject non-boolean is_taxable in create', () => {
+			const res = validateCreateSalaryComponent({
+				component_name: 'Basic Pay',
+				component_type: 'earning',
+				is_taxable: 'yes'
+			});
+			expect(res.errors).toContainEqual({
+				field: 'is_taxable',
+				message: 'is_taxable must be a boolean'
+			});
+		});
 	});
 
 	describe('validateUpdateSalaryComponent', () => {
@@ -182,6 +227,54 @@ describe('salary-component.validator', () => {
 			expect(res.errors).toContainEqual({
 				field: 'component_name',
 				message: 'Special characters are not allowed'
+			});
+		});
+
+		// ----- NEW: Unknown field rejection tests -----
+
+		it('should reject unknown fields in update body', () => {
+			const res = validateUpdateSalaryComponent({
+				component_name: 'HRA',
+				extra_key: true
+			});
+			expect(res.errors).toHaveLength(1);
+			expect(res.errors[0].field).toBe('body');
+			expect(res.errors[0].message).toMatch(/unknown field/i);
+			expect(res.errors[0].message).toContain('extra_key');
+		});
+
+		it('should reject multiple unknown fields in update body', () => {
+			const res = validateUpdateSalaryComponent({
+				is_active: true,
+				salary: 50000,
+				deleted: false
+			});
+			expect(res.errors).toHaveLength(1);
+			expect(res.errors[0].field).toBe('body');
+			expect(res.errors[0].message).toContain('salary');
+			expect(res.errors[0].message).toContain('deleted');
+		});
+
+		it('should reject empty update body', () => {
+			const res = validateUpdateSalaryComponent({});
+			expect(res.errors).toHaveLength(1);
+			expect(res.errors[0].field).toBe('body');
+			expect(res.errors[0].message).toMatch(/at least one/i);
+		});
+
+		it('should reject arrays as the update body', () => {
+			const res = validateUpdateSalaryComponent([{ is_active: false }]);
+			expect(res.errors).toHaveLength(1);
+			expect(res.errors[0].field).toBe('body');
+		});
+
+		it('should reject non-boolean is_taxable in update', () => {
+			const res = validateUpdateSalaryComponent({
+				is_taxable: 1
+			});
+			expect(res.errors).toContainEqual({
+				field: 'is_taxable',
+				message: 'is_taxable must be a boolean'
 			});
 		});
 	});

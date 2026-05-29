@@ -74,7 +74,8 @@
 		{
 			key: 'component_name',
 			label: 'Component Name',
-			sortable: true
+			sortable: true,
+			class: 'pl-5'
 		},
 		{
 			key: 'component_type',
@@ -467,7 +468,7 @@
 					<button
 						type="button"
 						onclick={(e) => toggleDropdown('filterType', e)}
-						class="h-9 w-40 rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
+						class="relative h-9 w-40 rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
 					>
 						<span>
 							{filterType === 'all' ? 'All Types' : (filterType === 'earning' ? 'Earning' : 'Deduction')}
@@ -510,7 +511,7 @@
 					<button
 						type="button"
 						onclick={(e) => toggleDropdown('filterActive', e)}
-						class="h-9 w-40 rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
+						class="relative h-9 w-40 rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
 					>
 						<span>
 							{filterActive === 'all' ? 'All Statuses' : (filterActive === 'true' ? 'Active' : 'Inactive')}
@@ -561,7 +562,7 @@
 		>
 			{#snippet itemSnippet(comp: SalaryComponent)}
 				<TableRow class="hover:bg-muted/50 transition-colors">
-					<TableCell class="font-medium">{comp.component_name}</TableCell>
+					<TableCell class="font-medium pl-5">{comp.component_name}</TableCell>
 					<TableCell>
 						<Badge
 							variant="secondary"
@@ -654,7 +655,7 @@
 					id="component_type"
 					type="button"
 					onclick={(e) => toggleDropdown('formType', e)}
-					class="h-9 w-full rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
+					class="relative h-9 w-full rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
 				>
 					<span>{formType === 'earning' ? 'Earning' : 'Deduction'}</span>
 					<span class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70">
@@ -696,7 +697,7 @@
 					id="is_active"
 					type="button"
 					onclick={(e) => toggleDropdown('formIsActive', e)}
-					class="h-9 w-full rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-all duration-200 text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
+					class="relative h-9 w-full rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-all duration-200 text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
 				>
 					<span>{formIsActive ? 'Active' : 'Inactive'}</span>
 					<span class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70">

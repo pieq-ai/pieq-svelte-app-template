@@ -6,17 +6,54 @@ export interface ValidationError {
 	message: string;
 }
 
+// Keys that are allowed in the POST (create) body — no others may be present.
+const CREATE_ALLOWED_KEYS = new Set<string>([
+	'component_name',
+	'component_type',
+	'is_taxable',
+	'is_active'
+]);
+
+// Keys that are allowed in the PUT (update) body — no others may be present.
+const UPDATE_ALLOWED_KEYS = new Set<string>([
+	'component_name',
+	'component_type',
+	'is_taxable',
+	'is_active'
+]);
+
+/** Return the unknown keys present in `body` that are not in `allowed`. */
+function findUnknownKeys(
+	body: Record<string, unknown>,
+	allowed: Set<string>
+): string[] {
+	return Object.keys(body).filter((k) => !allowed.has(k));
+}
+
 export function validateCreateSalaryComponent(data: unknown): {
 	errors: ValidationError[];
 	validatedData?: CreateSalaryComponentDto;
 } {
 	const errors: ValidationError[] = [];
 
-	if (!data || typeof data !== 'object') {
+	if (!data || typeof data !== 'object' || Array.isArray(data)) {
 		return { errors: [{ field: 'body', message: 'Invalid request body' }] };
 	}
 
 	const body = data as Record<string, unknown>;
+
+	// Reject unknown fields immediately
+	const unknownKeys = findUnknownKeys(body, CREATE_ALLOWED_KEYS);
+	if (unknownKeys.length > 0) {
+		return {
+			errors: [
+				{
+					field: 'body',
+					message: `Unknown field(s) not allowed: ${unknownKeys.join(', ')}`
+				}
+			]
+		};
+	}
 
 	// Validate component_name
 	const nameError = validateComponentName(body.component_name);
@@ -34,11 +71,14 @@ export function validateCreateSalaryComponent(data: unknown): {
 	} else {
 		component_type = rawType.trim();
 		if (component_type !== 'earning' && component_type !== 'deduction') {
-			errors.push({ field: 'component_type', message: 'Component type must be either "earning" or "deduction"' });
+			errors.push({
+				field: 'component_type',
+				message: 'Component type must be either "earning" or "deduction"'
+			});
 		}
 	}
 
-	// Validate is_taxable
+	// Validate is_taxable — must be boolean if present; defaults to false if absent
 	let is_taxable = body.is_taxable;
 	if (is_taxable === undefined) {
 		is_taxable = false;
@@ -46,7 +86,7 @@ export function validateCreateSalaryComponent(data: unknown): {
 		errors.push({ field: 'is_taxable', message: 'is_taxable must be a boolean' });
 	}
 
-	// Validate is_active (optional, defaults to true)
+	// Validate is_active — must be boolean if present; defaults to true if absent
 	let is_active = body.is_active;
 	if (is_active === undefined || is_active === null) {
 		is_active = true;
@@ -75,11 +115,32 @@ export function validateUpdateSalaryComponent(data: unknown): {
 } {
 	const errors: ValidationError[] = [];
 
-	if (!data || typeof data !== 'object') {
+	if (!data || typeof data !== 'object' || Array.isArray(data)) {
 		return { errors: [{ field: 'body', message: 'Invalid request body' }] };
 	}
 
 	const body = data as Record<string, unknown>;
+
+	// Reject unknown fields immediately
+	const unknownKeys = findUnknownKeys(body, UPDATE_ALLOWED_KEYS);
+	if (unknownKeys.length > 0) {
+		return {
+			errors: [
+				{
+					field: 'body',
+					message: `Unknown field(s) not allowed: ${unknownKeys.join(', ')}`
+				}
+			]
+		};
+	}
+
+	// Reject empty update body (at least one field must be supplied)
+	if (Object.keys(body).length === 0) {
+		return {
+			errors: [{ field: 'body', message: 'Update body must contain at least one valid field' }]
+		};
+	}
+
 	const validatedData: UpdateSalaryComponentDto = {};
 
 	// Validate component_name if provided
@@ -102,7 +163,10 @@ export function validateUpdateSalaryComponent(data: unknown): {
 		} else {
 			const trimmed = rawType.trim();
 			if (trimmed !== 'earning' && trimmed !== 'deduction') {
-				errors.push({ field: 'component_type', message: 'Component type must be either "earning" or "deduction"' });
+				errors.push({
+					field: 'component_type',
+					message: 'Component type must be either "earning" or "deduction"'
+				});
 			} else {
 				validatedData.component_type = trimmed;
 			}

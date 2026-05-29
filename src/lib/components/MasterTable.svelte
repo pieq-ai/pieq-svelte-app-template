@@ -19,6 +19,7 @@
 		key: string;
 		label: string;
 		sortable?: boolean;
+		class?: string;
 	}
 
 	let {
@@ -62,27 +63,27 @@
 		<TableHeader class="bg-slate-50/50 dark:bg-slate-900/10">
 			<TableRow class="hover:bg-transparent">
 				{#each headers as header (header.key)}
-					<TableHead class="text-slate-600 dark:text-slate-400 font-semibold py-2">
+					<TableHead class="text-slate-600 dark:text-slate-400 font-semibold py-2 {header.class || ''}">
 						{#if header.sortable && sortBy !== undefined && sortOrder !== undefined}
 							<Button
 								variant="ghost"
 								size="sm"
-								class="-ml-2.5 h-8 px-2.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 font-semibold"
+								class="-ml-2 h-8 px-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 font-semibold w-full flex items-center justify-between gap-2"
 								onclick={() => handleSort(header.key)}
 							>
-								{header.label}
+								<span>{header.label}</span>
 								{#if sortBy === header.key}
 									{#if sortOrder === 'asc'}
-										<ArrowUpIcon class="ml-1.5 size-3.5 text-primary" />
+										<ArrowUpIcon class="size-3.5 text-primary shrink-0" />
 									{:else}
-										<ArrowDownIcon class="ml-1.5 size-3.5 text-primary" />
+										<ArrowDownIcon class="size-3.5 text-primary shrink-0" />
 									{/if}
 								{:else}
-									<ArrowUpDownIcon class="ml-1.5 size-3.5 opacity-40 hover:opacity-100" />
+									<ArrowUpDownIcon class="size-3.5 opacity-40 hover:opacity-100 shrink-0" />
 								{/if}
 							</Button>
 						{:else}
-							{header.label}
+							<span class="px-0 py-1 inline-block">{header.label}</span>
 						{/if}
 					</TableHead>
 				{/each}
