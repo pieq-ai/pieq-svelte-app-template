@@ -134,7 +134,7 @@ describe('Department DAO', () => {
 
 			expect(db.department.update).toHaveBeenCalledWith({
 				where: { cuid2: 'xyz' },
-				data: { status: false }
+				data: { status: false, updated_by: undefined }
 			});
 		});
 	});

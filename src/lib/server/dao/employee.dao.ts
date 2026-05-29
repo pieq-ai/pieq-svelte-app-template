@@ -3,6 +3,7 @@ import { db } from '$lib/server/db.js';
 export interface CreateEmployeeData {
 	name: string;
 	age: number;
+	created_by?: string;
 }
 
 export async function list() {
@@ -47,7 +48,9 @@ export async function create(data: CreateEmployeeData) {
 			mobile_no: mobileNo,
 			personal_email: personalEmail,
 			aadhar_no: aadharNo,
-			pan_no: panNo
+			pan_no: panNo,
+			created_by: data.created_by,
+			updated_by: data.created_by
 		}
 	});
 

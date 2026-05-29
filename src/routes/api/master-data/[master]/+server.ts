@@ -43,6 +43,7 @@ export async function POST(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
 		const body = await event.request.json();
+		body.created_by = event.locals.user?.id;
 		return json(
 			{ data: await masterDataService.createMasterData(getMaster(event), body) },
 			{ status: 201 }
@@ -57,6 +58,7 @@ export async function PUT(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
 		const body = await event.request.json();
+		body.updated_by = event.locals.user?.id;
 		return json({
 			data: await masterDataService.updateMasterData(getMaster(event), getCuid2(event), body)
 		});

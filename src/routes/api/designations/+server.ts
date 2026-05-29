@@ -41,6 +41,7 @@ export async function POST(event: RequestEvent) {
 		permissionGuard.requireAdmin(event.locals.user);
 
 		const body = await event.request.json();
+		body.created_by = event.locals.user?.id;
 		const newDesignation = await designationService.createDesignation(body);
 		return json({ data: newDesignation }, { status: 201 });
 	} catch (error) {
@@ -57,6 +58,7 @@ export async function PUT(event: RequestEvent) {
 
 		const cuid2 = parseDesignationCuid2(event);
 		const body = await event.request.json();
+		body.updated_by = event.locals.user?.id;
 		const updatedDesignation = await designationService.updateDesignation(cuid2, body);
 		return json({ data: updatedDesignation });
 	} catch (error) {
@@ -72,7 +74,7 @@ export async function DELETE(event: RequestEvent) {
 		permissionGuard.requireAdmin(event.locals.user);
 
 		const cuid2 = parseDesignationCuid2(event);
-		const deletedDesignation = await designationService.deleteDesignation(cuid2);
+		const deletedDesignation = await designationService.deleteDesignation(cuid2, event.locals.user?.id);
 		return json({ data: deletedDesignation });
 	} catch (error) {
 		const message = (error as Error).message;

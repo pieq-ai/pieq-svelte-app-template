@@ -3,11 +3,13 @@ import * as designationDao from '$lib/server/dao/designation.dao.js';
 export interface CreateDesignationDto {
 	designation_name: string;
 	status?: boolean;
+	created_by?: string;
 }
 
 export interface UpdateDesignationDto {
 	designation_name?: string;
 	status?: boolean;
+	updated_by?: string;
 }
 
 function toPublicDesignation(designation: {
@@ -90,13 +92,18 @@ export async function createDesignation(dto: CreateDesignationDto) {
 
 	return toPublicDesignation(await designationDao.create({
 		designation_name,
-		status: dto.status ?? true
+		status: dto.status ?? true,
+		created_by: dto.created_by
 	}));
 }
 
 export async function updateDesignation(cuid2: string, dto: UpdateDesignationDto) {
 	const existing = await getDesignationByCuid2(cuid2);
 	const updateData: designationDao.UpdateDesignationInput = {};
+
+	if (dto.updated_by !== undefined) {
+		updateData.updated_by = dto.updated_by;
+	}
 
 	if (dto.designation_name !== undefined) {
 		const designation_name = validateDesignationName(dto.designation_name);
@@ -116,10 +123,11 @@ export async function updateDesignation(cuid2: string, dto: UpdateDesignationDto
 	return toPublicDesignation(await designationDao.update(cuid2, updateData));
 }
 
-export async function deleteDesignation(cuid2: string) {
+export async function deleteDesignation(cuid2: string, deletedBy?: string) {
 	await getDesignationByCuid2(cuid2);
 
 	return toPublicDesignation(await designationDao.update(cuid2, {
-		status: false
+		status: false,
+		updated_by: deletedBy
 	}));
 }

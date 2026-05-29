@@ -18,7 +18,9 @@ CREATE TABLE "employee" (
     "emergency_contact_no" VARCHAR(15),
     "relation_cuid2" TEXT,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "last_modified" TIMESTAMPTZ NOT NULL,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "employee_pkey" PRIMARY KEY ("id")
 );
@@ -29,6 +31,10 @@ CREATE TABLE "system_roles" (
     "cuid2" TEXT NOT NULL,
     "system_role_name" VARCHAR(100) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "system_roles_pkey" PRIMARY KEY ("id")
 );
@@ -39,6 +45,10 @@ CREATE TABLE "department" (
     "cuid2" TEXT NOT NULL,
     "dept_name" VARCHAR(150) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "department_pkey" PRIMARY KEY ("id")
 );
@@ -49,6 +59,10 @@ CREATE TABLE "permissions" (
     "cuid2" TEXT NOT NULL,
     "permission_key" VARCHAR(100) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "permissions_pkey" PRIMARY KEY ("id")
 );
@@ -59,6 +73,10 @@ CREATE TABLE "role_permission" (
     "cuid2" TEXT NOT NULL,
     "system_role_cuid2" TEXT NOT NULL,
     "permission_cuid2" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "role_permission_pkey" PRIMARY KEY ("id")
 );
@@ -68,6 +86,10 @@ CREATE TABLE "blood_group" (
     "id" SERIAL NOT NULL,
     "cuid2" TEXT NOT NULL,
     "blood_group_name" VARCHAR(5) NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "blood_group_pkey" PRIMARY KEY ("id")
 );
@@ -78,6 +100,10 @@ CREATE TABLE "designation" (
     "cuid2" TEXT NOT NULL,
     "designation_name" VARCHAR(150) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "designation_pkey" PRIMARY KEY ("id")
 );
@@ -88,6 +114,10 @@ CREATE TABLE "pay_grade" (
     "cuid2" TEXT NOT NULL,
     "paygrade_name" VARCHAR(100) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "pay_grade_pkey" PRIMARY KEY ("id")
 );
@@ -98,6 +128,10 @@ CREATE TABLE "nationality" (
     "cuid2" TEXT NOT NULL,
     "nationality_name" VARCHAR(100) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "nationality_pkey" PRIMARY KEY ("id")
 );
@@ -108,6 +142,10 @@ CREATE TABLE "employment_type" (
     "cuid2" TEXT NOT NULL,
     "employment_name" VARCHAR(50) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "employment_type_pkey" PRIMARY KEY ("id")
 );
@@ -118,6 +156,10 @@ CREATE TABLE "relation_type" (
     "cuid2" TEXT NOT NULL,
     "relation_name" VARCHAR(50) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "relation_type_pkey" PRIMARY KEY ("id")
 );
@@ -128,6 +170,10 @@ CREATE TABLE "document_type" (
     "cuid2" TEXT NOT NULL,
     "document_type_name" VARCHAR(100) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "document_type_pkey" PRIMARY KEY ("id")
 );
@@ -138,6 +184,10 @@ CREATE TABLE "state" (
     "cuid2" TEXT NOT NULL,
     "country_cuid2" TEXT NOT NULL,
     "state_name" VARCHAR(100) NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "state_pkey" PRIMARY KEY ("id")
 );
@@ -147,6 +197,10 @@ CREATE TABLE "country" (
     "id" SERIAL NOT NULL,
     "cuid2" TEXT NOT NULL,
     "country_name" VARCHAR(100) NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "country_pkey" PRIMARY KEY ("id")
 );
@@ -157,6 +211,10 @@ CREATE TABLE "skills" (
     "cuid2" TEXT NOT NULL,
     "skills_name" VARCHAR(100) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "skills_pkey" PRIMARY KEY ("id")
 );
@@ -167,6 +225,10 @@ CREATE TABLE "attendance_source" (
     "cuid2" TEXT NOT NULL,
     "attendance_source_name" VARCHAR(100) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "attendance_source_pkey" PRIMARY KEY ("id")
 );
@@ -177,6 +239,10 @@ CREATE TABLE "languages" (
     "cuid2" TEXT NOT NULL,
     "languages_name" VARCHAR(100) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
     CONSTRAINT "languages_pkey" PRIMARY KEY ("id")
 );

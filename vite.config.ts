@@ -1,4 +1,5 @@
 import tailwindcss from '@tailwindcss/vite';
+// Triggering dev server hard restart to clear Prisma module cache
 import { defineConfig } from 'vitest/config';
 import { loadEnv } from 'vite';
 import { sveltekit } from '@sveltejs/kit/vite';

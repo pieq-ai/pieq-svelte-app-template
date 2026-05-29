@@ -4,11 +4,13 @@ import { validateDepartmentName } from '$lib/server/validators/department.valida
 export interface CreateDepartmentDto {
 	dept_name: string;
 	status?: boolean;
+	created_by?: string;
 }
 
 export interface UpdateDepartmentDto {
 	dept_name?: string;
 	status?: boolean;
+	updated_by?: string;
 }
 
 function toPublicDepartment(department: { cuid2: string; dept_name: string; status: boolean }) {
@@ -55,7 +57,8 @@ export async function createDepartment(dto: CreateDepartmentDto) {
 
 	return toPublicDepartment(await departmentDao.create({
 		dept_name,
-		status: dto.status ?? true
+		status: dto.status ?? true,
+		created_by: dto.created_by
 	}));
 }
 
@@ -74,6 +77,10 @@ export async function updateDepartment(cuid2: string, dto: UpdateDepartmentDto) 
 	}
 
 	const updateData: departmentDao.UpdateDepartmentInput = {};
+
+	if (dto.updated_by !== undefined) {
+		updateData.updated_by = dto.updated_by;
+	}
 
 	if (dto.dept_name !== undefined) {
 		const dept_name = validateDepartmentName(dto.dept_name);
@@ -101,7 +108,7 @@ export async function updateDepartment(cuid2: string, dto: UpdateDepartmentDto) 
 /**
  * Performs a soft delete by marking the department status as 'inactive'.
  */
-export async function deleteDepartment(cuid2: string) {
+export async function deleteDepartment(cuid2: string, deletedBy?: string) {
 	if (!cuid2) {
 		throw new Error('Department CUID2 is required');
 	}
@@ -112,6 +119,7 @@ export async function deleteDepartment(cuid2: string) {
 	}
 
 	return toPublicDepartment(await departmentDao.update(cuid2, {
-		status: false
+		status: false,
+		updated_by: deletedBy
 	}));
 }

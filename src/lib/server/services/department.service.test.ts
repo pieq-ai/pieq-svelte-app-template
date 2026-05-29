@@ -24,8 +24,8 @@ describe('Department Service', () => {
 	describe('getDepartments', () => {
 		it('should return mapped public departments', async () => {
 			const mockData = [
-				{ id: 1, cuid2: 'abc', dept_name: 'IT', status: true, created_at: new Date() },
-				{ id: 2, cuid2: 'xyz', dept_name: 'HR', status: false, created_at: new Date() }
+				{ id: 1, cuid2: 'abc', dept_name: 'IT', status: true, created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null },
+				{ id: 2, cuid2: 'xyz', dept_name: 'HR', status: false, created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null }
 			];
 			vi.mocked(departmentDao.list).mockResolvedValue(mockData as any);
 
@@ -52,7 +52,7 @@ describe('Department Service', () => {
 		});
 
 		it('should return the mapped department if found', async () => {
-			const mockData = { id: 1, cuid2: 'abc', dept_name: 'IT', status: true, created_at: new Date() };
+			const mockData = { id: 1, cuid2: 'abc', dept_name: 'IT', status: true, created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null };
 			vi.mocked(departmentDao.findByCuid2).mockResolvedValue(mockData as any);
 
 			const result = await departmentService.getDepartmentByCuid2('abc');

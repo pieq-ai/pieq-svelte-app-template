@@ -39,6 +39,7 @@ export async function POST(event: RequestEvent) {
 		permissionGuard.requireAdmin(event.locals.user);
 
 		const body = await event.request.json();
+		body.created_by = event.locals.user?.id;
 		const newDepartment = await departmentService.createDepartment(body);
 		return json({ data: newDepartment }, { status: 201 });
 	} catch (error) {
@@ -65,6 +66,7 @@ export async function PUT(event: RequestEvent) {
 		}
 
 		const body = await event.request.json();
+		body.updated_by = event.locals.user?.id;
 		const updatedDepartment = await departmentService.updateDepartment(cuid2, body);
 		return json({ data: updatedDepartment });
 	} catch (error) {
@@ -90,7 +92,7 @@ export async function DELETE(event: RequestEvent) {
 			return json({ error: 'Department CUID2 is required as a query parameter' }, { status: 400 });
 		}
 
-		const deletedDepartment = await departmentService.deleteDepartment(cuid2);
+		const deletedDepartment = await departmentService.deleteDepartment(cuid2, event.locals.user?.id);
 		return json({ data: deletedDepartment });
 	} catch (error) {
 		const message = (error as Error).message;

@@ -3,11 +3,13 @@ import { db } from '$lib/server/db.js';
 export interface CreateDepartmentInput {
 	dept_name: string;
 	status?: boolean;
+	created_by?: string;
 }
 
 export interface UpdateDepartmentInput {
 	dept_name?: string;
 	status?: boolean;
+	updated_by?: string;
 }
 
 /**
@@ -53,7 +55,9 @@ export async function create(data: CreateDepartmentInput) {
 	return db.department.create({
 		data: {
 			dept_name: data.dept_name,
-			status: data.status ?? true
+			status: data.status ?? true,
+			created_by: data.created_by,
+			updated_by: data.created_by
 		}
 	});
 }

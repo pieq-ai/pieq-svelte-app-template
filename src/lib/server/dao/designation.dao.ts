@@ -3,11 +3,13 @@ import { db } from '$lib/server/db.js';
 export interface CreateDesignationInput {
 	designation_name: string;
 	status?: boolean;
+	created_by?: string;
 }
 
 export interface UpdateDesignationInput {
 	designation_name?: string;
 	status?: boolean;
+	updated_by?: string;
 }
 
 export async function list() {
@@ -38,7 +40,9 @@ export async function create(data: CreateDesignationInput) {
 	return db.designation.create({
 		data: {
 			designation_name: data.designation_name,
-			status: data.status ?? true
+			status: data.status ?? true,
+			created_by: data.created_by,
+			updated_by: data.created_by
 		}
 	});
 }

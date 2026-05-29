@@ -123,7 +123,7 @@ describe('Master Data DAO', () => {
 			mockDbMethods.create.mockResolvedValueOnce({});
 			await masterDataDao.create('states', { name: 'State A' });
 			expect(mockDbMethods.create).toHaveBeenCalledWith({
-				data: { state_name: 'State A', country_cuid2: '' }
+				data: { state_name: 'State A', country_cuid2: '', updated_by: undefined }
 			});
 		});
 	});
@@ -156,7 +156,7 @@ describe('Master Data DAO', () => {
 			await masterDataDao.update('states', { id: 2, name: 'State B' });
 			expect(mockDbMethods.update).toHaveBeenCalledWith({
 				where: { id: 2 },
-				data: { state_name: 'State B', country_cuid2: '' }
+				data: { state_name: 'State B', country_cuid2: '', updated_by: undefined }
 			});
 		});
 	});

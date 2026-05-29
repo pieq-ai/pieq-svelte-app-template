@@ -3,11 +3,13 @@ import { db } from '$lib/server/db.js';
 export interface CreateSystemRoleInput {
 	system_role_name: string;
 	status?: boolean;
+	created_by?: string;
 }
 
 export interface UpdateSystemRoleInput {
 	system_role_name?: string;
 	status?: boolean;
+	updated_by?: string;
 }
 
 export async function list() {
@@ -38,7 +40,9 @@ export async function create(data: CreateSystemRoleInput) {
 	return db.systemRoles.create({
 		data: {
 			system_role_name: data.system_role_name,
-			status: data.status ?? true
+			status: data.status ?? true,
+			created_by: data.created_by,
+			updated_by: data.created_by
 		}
 	});
 }

@@ -37,6 +37,7 @@ export async function POST(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
 		const body = await event.request.json();
+		body.created_by = event.locals.user?.id;
 		return json({ data: await systemRoleService.createSystemRole(body) }, { status: 201 });
 	} catch (error) {
 		const message = (error as Error).message;
@@ -49,6 +50,7 @@ export async function PUT(event: RequestEvent) {
 		permissionGuard.requireAuth(event.locals.user);
 		const cuid2 = parseRoleCuid2(event);
 		const body = await event.request.json();
+		body.updated_by = event.locals.user?.id;
 		return json({ data: await systemRoleService.updateSystemRole(cuid2, body) });
 	} catch (error) {
 		const message = (error as Error).message;

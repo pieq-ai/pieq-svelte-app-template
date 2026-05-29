@@ -3,6 +3,7 @@ import { db } from '$lib/server/db.js';
 export interface CreateRolePermissionInput {
 	system_role_cuid2: string;
 	permission_cuid2: string;
+	created_by?: string;
 }
 
 export async function list() {

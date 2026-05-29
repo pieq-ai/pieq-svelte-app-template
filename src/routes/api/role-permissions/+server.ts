@@ -23,6 +23,7 @@ export async function POST(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
 		const body = await event.request.json();
+		body.created_by = event.locals.user?.id;
 		return json({ data: await rolePermissionService.assignPermissionsToRole(body) }, { status: 201 });
 	} catch (error) {
 		const message = (error as Error).message;

@@ -3,11 +3,13 @@ import * as permissionDao from '$lib/server/dao/permission.dao.js';
 export interface CreatePermissionDto {
 	permission_key: string;
 	status?: boolean;
+	created_by?: string;
 }
 
 export interface UpdatePermissionDto {
 	permission_key?: string;
 	status?: boolean;
+	updated_by?: string;
 }
 
 function toPublicPermission(permission: {
@@ -101,7 +103,8 @@ export async function createPermission(dto: CreatePermissionDto) {
 
 	return toPublicPermission(await permissionDao.create({
 		permission_key,
-		status: dto.status ?? true
+		status: dto.status ?? true,
+		created_by: dto.created_by
 	}));
 }
 
@@ -111,6 +114,10 @@ export async function updatePermission(cuid2: string, dto: UpdatePermissionDto) 
 		throw new Error(`Permission with CUID2 "${cuid2}" not found`);
 	}
 	const updateData: permissionDao.UpdatePermissionInput = {};
+
+	if (dto.updated_by !== undefined) {
+		updateData.updated_by = dto.updated_by;
+	}
 
 	if (dto.permission_key !== undefined) {
 		const permission_key = validatePermissionKey(dto.permission_key);
@@ -126,12 +133,13 @@ export async function updatePermission(cuid2: string, dto: UpdatePermissionDto) 
 	return toPublicPermission(await permissionDao.update(existing.id, updateData));
 }
 
-export async function deletePermission(cuid2: string) {
+export async function deletePermission(cuid2: string, deletedBy?: string) {
 	const existing = await permissionDao.findByCuid2(cuid2);
 	if (!existing) {
 		throw new Error(`Permission with CUID2 "${cuid2}" not found`);
 	}
 	return toPublicPermission(await permissionDao.update(existing.id, {
-		status: false
+		status: false,
+		updated_by: deletedBy
 	}));
 }

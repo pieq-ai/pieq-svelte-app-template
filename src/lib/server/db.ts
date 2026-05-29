@@ -1,7 +1,7 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../../generated/prisma/client.js';
 
-const SCHEMA_VERSION = 'cuid2-public-identifiers';
+const SCHEMA_VERSION = 'standardized-audit-fields';
 let prisma: PrismaClient | undefined;
 
 function createClient(): PrismaClient {
