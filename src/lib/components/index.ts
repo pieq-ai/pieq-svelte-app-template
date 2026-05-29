@@ -24,30 +24,12 @@ export {
 	Title as AlertTitle,
 	Description as AlertDescription
 } from './ui/alert/index.js';
-// @ts-expect-error - Svelte component import resolution workaround
-import CrudModal from './common/CrudModal.svelte';
-// @ts-expect-error - Svelte component import resolution workaround
-import ConfirmModal from './common/ConfirmModal.svelte';
-// @ts-expect-error - Svelte component import resolution workaround
-import FilterDropdown from './common/FilterDropdown.svelte';
-// @ts-expect-error - Svelte component import resolution workaround
-import MasterDataDropdown from './common/MasterDataDropdown.svelte';
-// @ts-expect-error - Svelte component import resolution workaround
-import SearchableDropdown from './common/SearchableDropdown.svelte';
-// @ts-expect-error - Svelte component import resolution workaround
-import PermissionMatrixCell from './common/PermissionMatrixCell.svelte';
-// @ts-expect-error - Svelte component import resolution workaround
-import TableActions from './common/TableActions.svelte';
-// @ts-expect-error - Svelte component import resolution workaround
-import StatusDropdown from './common/StatusDropdown.svelte';
 
-export {
-	CrudModal,
-	ConfirmModal,
-	FilterDropdown,
-	MasterDataDropdown,
-	SearchableDropdown,
-	PermissionMatrixCell,
-	TableActions,
-	StatusDropdown
-};
+export { default as CrudModal } from './common/CrudModal.svelte';
+export { default as ConfirmModal } from './common/ConfirmModal.svelte';
+export { default as FilterDropdown } from './common/FilterDropdown.svelte';
+export { default as MasterDataDropdown } from './common/MasterDataDropdown.svelte';
+export { default as SearchableDropdown } from './common/SearchableDropdown.svelte';
+export { default as PermissionMatrixCell } from './common/PermissionMatrixCell.svelte';
+export { default as TableActions } from './common/TableActions.svelte';
+export { default as StatusDropdown } from './common/StatusDropdown.svelte';
