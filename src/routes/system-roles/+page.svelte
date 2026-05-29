@@ -210,8 +210,8 @@
 	<title>System Roles</title>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl space-y-6 px-1 py-4">
-	<div class="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+<div class="mx-auto max-w-5xl space-y-6 px-1 py-0">
+	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
 			<Badge variant="secondary" class="uppercase">RBAC Foundation</Badge>
 			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">System Roles</h1>
@@ -237,8 +237,8 @@
 		<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
 	</div>
 
-	<Card>
-		<Table>
+	<Card class="py-0">
+			<Table>
 			<TableHeader class="bg-muted">
 				<TableRow>
 					<TableHead class="font-bold text-foreground text-[15px]">
@@ -270,9 +270,9 @@
 			</TableHeader>
 			<TableBody>
 				{#if isLoading}
-					<TableRow><TableCell colspan={3} class="py-12 text-center"><LoaderCircleIcon class="mx-auto size-6 animate-spin" /></TableCell></TableRow>
+					<TableRow><TableCell colspan={3} class="py-8 text-center"><LoaderCircleIcon class="mx-auto size-6 animate-spin" /></TableCell></TableRow>
 				{:else if filteredRoles.length === 0}
-					<TableRow><TableCell colspan={3} class="py-12 text-center text-muted-foreground">No roles found.</TableCell></TableRow>
+					<TableRow><TableCell colspan={3} class="py-8 text-center text-muted-foreground">No roles found.</TableCell></TableRow>
 				{:else}
 					{#each paginatedRoles as role (role.cuid2)}
 						<TableRow>

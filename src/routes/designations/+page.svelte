@@ -235,8 +235,8 @@
 	<title>HRMS Designation Directory</title>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl space-y-6 px-1 py-4">
-	<div class="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+<div class="mx-auto max-w-5xl space-y-6 px-1 py-0">
+	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
 			<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
 			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Designation Directory</h1>
@@ -284,7 +284,7 @@
 			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
 		</div>
 
-		<Card>
+		<Card class="py-0">
 			<Table>
 				<TableHeader class="bg-muted">
 					<TableRow>
@@ -318,14 +318,14 @@
 				<TableBody>
 					{#if isLoading}
 						<TableRow>
-							<TableCell colspan={3} class="py-12 text-center text-muted-foreground">
+							<TableCell colspan={3} class="py-8 text-center text-muted-foreground">
 								<LoaderCircleIcon class="mx-auto mb-2 size-6 animate-spin" />
 								Loading designations...
 							</TableCell>
 						</TableRow>
 					{:else if filteredDesignations.length === 0}
 						<TableRow>
-							<TableCell colspan={3} class="py-12 text-center text-muted-foreground">
+							<TableCell colspan={3} class="py-8 text-center text-muted-foreground">
 								No designations match the criteria.
 							</TableCell>
 						</TableRow>

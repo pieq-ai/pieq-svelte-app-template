@@ -15,7 +15,7 @@
 	<title>Pieq Svelte App Template</title>
 </svelte:head>
 
-<div class="space-y-8">
+<div class="space-y-4">
 	<div class="space-y-3">
 		<p class="text-sm font-medium uppercase tracking-wide text-muted-foreground">Boilerplate</p>
 		<h1 class="text-4xl font-bold tracking-tight">SvelteKit layered architecture</h1>
