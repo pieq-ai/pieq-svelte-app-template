@@ -13,8 +13,8 @@ export async function createLocation(data: CompanyLocationCreateDTO): Promise<Co
       address_line1: data.address_line1 !== undefined ? data.address_line1 : '123 Enterprise Way',
       address_line2: data.address_line2,
       city: data.city !== undefined ? data.city : 'Default City',
-      state_uuid: data.state_uuid !== undefined ? data.state_uuid : 'state-cuid-placeholder',
-      country_uuid: data.country_uuid !== undefined ? data.country_uuid : 'country-cuid-placeholder',
+      state_cuid: data.state_cuid !== undefined ? data.state_cuid : 'state-cuid-placeholder',
+      country_cuid: data.country_cuid !== undefined ? data.country_cuid : 'country-cuid-placeholder',
       pin_code: data.pin_code !== undefined ? data.pin_code : '000000',
       timezone: data.timezone !== undefined ? data.timezone : 'UTC',
       is_active: true
@@ -25,8 +25,8 @@ export async function createLocation(data: CompanyLocationCreateDTO): Promise<Co
       address_line1: true,
       address_line2: true,
       city: true,
-      state_uuid: true,
-      country_uuid: true,
+      state_cuid: true,
+      country_cuid: true,
       pin_code: true,
       timezone: true,
       is_active: true
@@ -50,8 +50,8 @@ export async function getLocations(page: number, limit: number): Promise<Company
       address_line1: true,
       address_line2: true,
       city: true,
-      state_uuid: true,
-      country_uuid: true,
+      state_cuid: true,
+      country_cuid: true,
       pin_code: true,
       timezone: true,
       is_active: true
@@ -74,8 +74,8 @@ export async function getAllLocations(page: number, limit: number): Promise<Comp
       address_line1: true,
       address_line2: true,
       city: true,
-      state_uuid: true,
-      country_uuid: true,
+      state_cuid: true,
+      country_cuid: true,
       pin_code: true,
       timezone: true,
       is_active: true
@@ -109,8 +109,8 @@ export async function getLocationByCuid(cuid: string): Promise<CompanyLocation |
       address_line1: true,
       address_line2: true,
       city: true,
-      state_uuid: true,
-      country_uuid: true,
+      state_cuid: true,
+      country_cuid: true,
       pin_code: true,
       timezone: true,
       is_active: true
@@ -135,11 +135,11 @@ export async function updateLocation(cuid: string, data: CompanyLocationUpdateDT
   if (data.city !== undefined) {
     updateData.city = data.city;
   }
-  if (data.state_uuid !== undefined) {
-    updateData.state_uuid = data.state_uuid;
+  if (data.state_cuid !== undefined) {
+    updateData.state_cuid = data.state_cuid;
   }
-  if (data.country_uuid !== undefined) {
-    updateData.country_uuid = data.country_uuid;
+  if (data.country_cuid !== undefined) {
+    updateData.country_cuid = data.country_cuid;
   }
   if (data.pin_code !== undefined) {
     updateData.pin_code = data.pin_code;
@@ -160,8 +160,8 @@ export async function updateLocation(cuid: string, data: CompanyLocationUpdateDT
       address_line1: true,
       address_line2: true,
       city: true,
-      state_uuid: true,
-      country_uuid: true,
+      state_cuid: true,
+      country_cuid: true,
       pin_code: true,
       timezone: true,
       is_active: true
@@ -182,8 +182,8 @@ export async function deactivateLocation(cuid: string): Promise<CompanyLocation>
       address_line1: true,
       address_line2: true,
       city: true,
-      state_uuid: true,
-      country_uuid: true,
+      state_cuid: true,
+      country_cuid: true,
       pin_code: true,
       timezone: true,
       is_active: true
@@ -204,8 +204,8 @@ export async function activateLocation(cuid: string): Promise<CompanyLocation> {
       address_line1: true,
       address_line2: true,
       city: true,
-      state_uuid: true,
-      country_uuid: true,
+      state_cuid: true,
+      country_cuid: true,
       pin_code: true,
       timezone: true,
       is_active: true

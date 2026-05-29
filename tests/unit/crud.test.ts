@@ -77,8 +77,8 @@ describe('Role, Shift, and Location CRUD Integration Tests', () => {
       location_name: locName,
       address_line1: '456 Test Blvd',
       city: 'Test City',
-      state_uuid: 'state-cuid',
-      country_uuid: 'country-cuid',
+      state_cuid: 'state-cuid',
+      country_cuid: 'country-cuid',
       pin_code: '123456',
       timezone: 'UTC'
     });

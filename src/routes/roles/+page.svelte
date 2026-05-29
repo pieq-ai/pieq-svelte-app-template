@@ -6,9 +6,11 @@
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import ShieldIcon from '@lucide/svelte/icons/shield';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
+	import MoreVerticalIcon from '@lucide/svelte/icons/more-vertical';
 	import { Modal } from '$lib/components';
 	import { toast } from '$lib/toast.svelte.js';
 	import { confirmation } from '$lib/confirmation.svelte.js';
+	import { onDestroy } from 'svelte';
 
 	let roles = $state<Role[]>([]);
 	let page = $state(1);
@@ -20,8 +22,32 @@
 	let showForm = $state(false);
 	let editRole = $state<Role | null>(null);
 	let formName = $state('');
+	let formStatus = $state(true);
 	let formError = $state('');
 	let formLoading = $state(false);
+
+	let activeDropdownId = $state<string | null>(null);
+
+	function toggleDropdown(cuid: string, event: MouseEvent) {
+		event.stopPropagation();
+		if (activeDropdownId === cuid) {
+			activeDropdownId = null;
+		} else {
+			activeDropdownId = cuid;
+		}
+	}
+
+	function closeDropdowns() {
+		activeDropdownId = null;
+	}
+	if (typeof window !== 'undefined') {
+		window.addEventListener('click', closeDropdowns);
+	}
+	onDestroy(() => {
+		if (typeof window !== 'undefined') {
+			window.removeEventListener('click', closeDropdowns);
+		}
+	});
 
 	// Filter
 	let filterStatus = $state<'all' | 'active' | 'inactive'>('all');
@@ -54,6 +80,7 @@
 	function openCreate() {
 		editRole = null;
 		formName = '';
+		formStatus = true;
 		formError = '';
 		showForm = true;
 	}
@@ -61,6 +88,7 @@
 	function openEdit(role: Role) {
 		editRole = role;
 		formName = role.name;
+		formStatus = role.status;
 		formError = '';
 		showForm = true;
 	}
@@ -101,10 +129,14 @@
 		try {
 			const url = editRole ? `/api/roles/${editRole.cuid}` : '/api/roles';
 			const method = editRole ? 'PUT' : 'POST';
+			const payload: any = { name: nameTrimmed };
+			if (editRole) {
+				payload.status = formStatus;
+			}
 			const res = await fetch(url, {
 				method,
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name: nameTrimmed })
+				body: JSON.stringify(payload)
 			});
 			const json = await res.json();
 			if (res.ok) {
@@ -254,29 +286,34 @@
 								<span class="badge-inactive">Inactive</span>
 							{/if}
 						</td>
-						<td style="padding:14px 20px;text-align:right">
-							<div style="display:flex;align-items:center;justify-content:flex-end;gap:8px">
+						<td style="padding:14px 20px;text-align:right;position:relative">
+							<div style="display:inline-flex;align-items:center;justify-content:flex-end">
 								<button
-									onclick={() => openEdit(role)}
-									aria-label="Edit role"
-									title="Edit role"
+									onclick={(e) => toggleDropdown(role.cuid, e)}
+									aria-label="Actions"
+									title="Actions"
 									style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid var(--border);background:none;cursor:pointer;transition:background .15s;color:var(--foreground)"
 									onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = 'var(--muted)')}
 									onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '')}
 								>
-									<Pencil2Icon size={14} />
+									<MoreVerticalIcon size={15} />
 								</button>
-								{#if role.status}
-									<button
-										onclick={() => deactivateRole(role.cuid)}
-										aria-label="Deactivate role"
-										title="Deactivate role"
-										style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid #fca5a520;background:none;cursor:pointer;transition:background .15s;color:#dc2626"
-										onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = '#fef2f2')}
-										onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '')}
+
+								{#if activeDropdownId === role.cuid}
+									<div
+										style="position:absolute;right:20px;top:44px;z-index:50;background:var(--background);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.08);min-width:110px;padding:4px 0"
+										onclick={(e) => e.stopPropagation()}
 									>
-										<Trash2Icon size={14} />
-									</button>
+										<button
+											onclick={() => { openEdit(role); activeDropdownId = null; }}
+											style="width:100%;display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:13px;border:none;background:none;cursor:pointer;text-align:left;color:var(--foreground);transition:background .15s"
+											onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = 'var(--muted)')}
+											onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '')}
+										>
+											<Pencil2Icon size={13} style="color:#C2652A" />
+											Edit
+										</button>
+									</div>
 								{/if}
 							</div>
 						</td>
@@ -326,6 +363,24 @@
 				<p style="color:#dc2626;font-size:12px;margin:0">{formError}</p>
 			{/if}
 		</div>
+
+		{#if editRole}
+			<div style="display:flex;flex-direction:column;gap:6px">
+				<label for="role-status" style="font-size:13px;font-weight:600">
+					Status
+				</label>
+				<select
+					id="role-status"
+					bind:value={formStatus}
+					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
+					onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+					onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+				>
+					<option value={true}>Active</option>
+					<option value={false}>Inactive</option>
+				</select>
+			</div>
+		{/if}
 
 		<div style="display:flex;justify-content:flex-end;gap:10px;padding-top:4px">
 			<button

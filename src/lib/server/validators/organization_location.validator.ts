@@ -58,8 +58,8 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
     'address_line1',
     'address_line2',
     'city',
-    'state_uuid',
-    'country_uuid',
+    'state_cuid',
+    'country_cuid',
     'pin_code',
     'timezone'
   ];
@@ -139,8 +139,8 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
     address_line1: typeof raw.address_line1 === 'string' ? raw.address_line1 : undefined,
     address_line2: typeof raw.address_line2 === 'string' ? raw.address_line2 : undefined,
     city: typeof raw.city === 'string' ? raw.city : undefined,
-    state_uuid: typeof raw.state_uuid === 'string' ? raw.state_uuid : undefined,
-    country_uuid: typeof raw.country_uuid === 'string' ? raw.country_uuid : undefined,
+    state_cuid: typeof raw.state_cuid === 'string' ? raw.state_cuid : undefined,
+    country_cuid: typeof raw.country_cuid === 'string' ? raw.country_cuid : undefined,
     pin_code: typeof raw.pin_code === 'string' ? raw.pin_code : undefined,
     timezone: typeof raw.timezone === 'string' ? raw.timezone : undefined
   };
@@ -162,8 +162,8 @@ export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDT
     'address_line1',
     'address_line2',
     'city',
-    'state_uuid',
-    'country_uuid',
+    'state_cuid',
+    'country_cuid',
     'pin_code',
     'timezone',
     'is_active'
@@ -257,13 +257,13 @@ export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDT
     if (typeof raw.city !== 'string') throw new Error('city must be a string');
     result.city = raw.city;
   }
-  if (raw.state_uuid !== undefined) {
-    if (typeof raw.state_uuid !== 'string') throw new Error('state_uuid must be a string');
-    result.state_uuid = raw.state_uuid;
+  if (raw.state_cuid !== undefined) {
+    if (typeof raw.state_cuid !== 'string') throw new Error('state_cuid must be a string');
+    result.state_cuid = raw.state_cuid;
   }
-  if (raw.country_uuid !== undefined) {
-    if (typeof raw.country_uuid !== 'string') throw new Error('country_uuid must be a string');
-    result.country_uuid = raw.country_uuid;
+  if (raw.country_cuid !== undefined) {
+    if (typeof raw.country_cuid !== 'string') throw new Error('country_cuid must be a string');
+    result.country_cuid = raw.country_cuid;
   }
   if (raw.pin_code !== undefined) {
     if (typeof raw.pin_code !== 'string') throw new Error('pin_code must be a string');

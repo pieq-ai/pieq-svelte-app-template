@@ -50,9 +50,9 @@ model CompanyLocation {
 
   city String @db.VarChar(100)
 
-  state_uuid String @db.VarChar(50)
+  state_cuid String @db.VarChar(50)
 
-  country_uuid String @db.VarChar(50)
+  country_cuid String @db.VarChar(50)
 
   pin_code String @db.VarChar(10)
 
@@ -72,11 +72,11 @@ model State {
 
   cuid String @unique @default(cuid())
 
-  country_uuid String @db.VarChar(50)
+  country_cuid String @db.VarChar(50)
 
   state_name String @db.VarChar(100)
 
-  @@unique([country_uuid, state_name])
+  @@unique([country_cuid, state_name])
 
   @@map("states")
 }

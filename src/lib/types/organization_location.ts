@@ -5,8 +5,8 @@ export interface CompanyLocation {
   address_line1: string;
   address_line2?: string | null;
   city: string;
-  state_uuid: string;
-  country_uuid: string;
+  state_cuid: string;
+  country_cuid: string;
   pin_code: string;
   timezone: string;
   is_active: boolean;
@@ -17,8 +17,8 @@ export interface CompanyLocationCreateDTO {
   address_line1?: string;
   address_line2?: string | null;
   city?: string;
-  state_uuid?: string;
-  country_uuid?: string;
+  state_cuid?: string;
+  country_cuid?: string;
   pin_code?: string;
   timezone?: string;
 }
@@ -28,9 +28,10 @@ export interface CompanyLocationUpdateDTO {
   address_line1?: string;
   address_line2?: string | null;
   city?: string;
-  state_uuid?: string;
-  country_uuid?: string;
+  state_cuid?: string;
+  country_cuid?: string;
   pin_code?: string;
   timezone?: string;
   is_active?: boolean;
 }
+
