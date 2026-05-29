@@ -8,17 +8,6 @@ datasource db {
   provider = "postgresql"
 }
 
-enum ApplicableGenderEnum {
-  Male
-  Female
-  Others
-}
-
-enum HolidayTypeEnum {
-  national
-  regional
-  restricted
-}
 
 model LeaveType {
   id                Int      @id @default(autoincrement())
@@ -30,14 +19,14 @@ model LeaveType {
   requires_approval Boolean  @default(true)
   status            Boolean  @default(true)
 
-  @@map("leave_type")
+  @@map("leave_types")
 }
 
 model LeavePolicy {
   id                       Int                    @id @default(autoincrement())
   cuid                     String                 @unique @default(cuid())
 
-  leave_type_uuid          String                 @db.VarChar(50)
+  leave_type_cuid          String                 @db.Text
 
   annual_quota             Decimal                @db.Decimal(5, 1)
   max_per_month            Decimal?               @db.Decimal(4, 1)
@@ -47,12 +36,12 @@ model LeavePolicy {
   min_service_days         Int                    @default(0)
   allow_half_day           Boolean                @default(false)
   gender_specific          Boolean                @default(false)
-  applicable_gender        ApplicableGenderEnum?
+  applicable_gender        String?
   status                   Boolean                @default(true)
 
-  @@index([leave_type_uuid])
+  @@index([leave_type_cuid])
 
-  @@map("leave_policy")
+  @@map("leave_policies")
 }
 
 model HolidayCalendar {
@@ -60,11 +49,11 @@ model HolidayCalendar {
   cuid           String           @unique @default(cuid())
   holiday_name   String           @db.VarChar(200)
   holiday_date   DateTime         @db.Date
-  holiday_type   HolidayTypeEnum
+  holiday_type   String
 
   @@unique([holiday_name, holiday_date])
 
-  @@map("holiday_calendar")
+  @@map("holiday_calendars")
 }
 
 model EmploymentType {
@@ -73,21 +62,21 @@ model EmploymentType {
   employment_name   String   @unique @db.VarChar(50)
   status            Boolean  @default(true)
 
-  @@map("employment_type")
+  @@map("employment_types")
 }
 
 model LeavePolicyEmploymentType {
   id                     Int      @id @default(autoincrement())
   cuid                   String   @unique @default(cuid())
 
-  leave_policy_uuid      String   @db.VarChar(50)
-  employment_type_uuid   String   @db.VarChar(50)
+  leave_policy_cuid      String   @db.Text
+  employment_type_cuid   String   @db.Text
+  
+  @@unique([leave_policy_cuid, employment_type_cuid])
 
-  @@unique([leave_policy_uuid, employment_type_uuid])
+  @@index([leave_policy_cuid])
+  @@index([employment_type_cuid])
 
-  @@index([leave_policy_uuid])
-  @@index([employment_type_uuid])
-
-  @@map("leave_policy_employment_type")
+  @@map("leave_policy_employment_types")
 }
 

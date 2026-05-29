@@ -5,21 +5,15 @@ import {
 	listLeavePolicies
 } from '$lib/server/services/leave-policy.service.js';
 import { LeaveValidationError } from '$lib/server/services/leave-type.service.js';
+import { validatePayloadKeys, trimStringFields } from '$lib/server/validation.js';
 
 export const GET: RequestHandler = async () => {
 	try {
 		const policies = await listLeavePolicies();
-		return json({
-			success: true,
-			message: 'Leave policies retrieved successfully',
-			data: policies
-		});
+		return json({ data: policies });
 	} catch (error) {
 		console.error('GET /api/leave/policies failed', error);
-		return json({
-			success: false,
-			message: 'Failed to retrieve leave policies'
-		}, { status: 500 });
+		return json({ error: 'Failed to retrieve leave policies' }, { status: 500 });
 	}
 };
 
@@ -35,22 +29,29 @@ export const POST: RequestHandler = async ({ request }) => {
 		}, { status: 400 });
 	}
 
-	const {
-		leave_type_uuid,
-		employment_type_uuids,
-		annual_quota,
-		max_per_month,
-		carry_forward_allowed,
-		max_carry_forward_days,
-		requires_document,
-		min_service_days,
-		allow_half_day,
-		gender_specific,
-		applicable_gender,
-		status
-	} = (body ?? {}) as {
-		leave_type_uuid?: unknown;
-		employment_type_uuids?: unknown;
+	const allowedKeys = [
+		'leave_type_cuid',
+		'employment_type_cuids',
+		'annual_quota',
+		'max_per_month',
+		'carry_forward_allowed',
+		'max_carry_forward_days',
+		'requires_document',
+		'min_service_days',
+		'allow_half_day',
+		'gender_specific',
+		'applicable_gender',
+		'status'
+	];
+
+	const validation = validatePayloadKeys(body, allowedKeys);
+	if (validation) {
+		return json({ success: false, message: validation.error }, { status: 400 });
+	}
+
+	const trimmedBody = trimStringFields(body) as {
+		leave_type_cuid?: unknown;
+		employment_type_cuids?: unknown;
 		annual_quota?: unknown;
 		max_per_month?: unknown;
 		carry_forward_allowed?: unknown;
@@ -63,10 +64,25 @@ export const POST: RequestHandler = async ({ request }) => {
 		status?: unknown;
 	};
 
+	const {
+		leave_type_cuid,
+		employment_type_cuids,
+		annual_quota,
+		max_per_month,
+		carry_forward_allowed,
+		max_carry_forward_days,
+		requires_document,
+		min_service_days,
+		allow_half_day,
+		gender_specific,
+		applicable_gender,
+		status
+	} = trimmedBody;
+
 	try {
 		const data = await createLeavePolicy({
-			leave_type_uuid,
-			employment_type_uuids,
+			leave_type_cuid,
+			employment_type_cuids,
 			annual_quota,
 			max_per_month,
 			carry_forward_allowed,

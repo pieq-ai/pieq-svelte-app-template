@@ -3,8 +3,8 @@ import * as leavePolicyDao from '$lib/server/dao/leave-policy.dao.js';
 import { LeaveValidationError } from './leave-type.service.js';
 
 export interface CreateLeavePolicyInput {
-	leave_type_uuid: unknown;
-	employment_type_uuids: unknown;
+	leave_type_cuid: unknown;
+	employment_type_cuids: unknown;
 	annual_quota: unknown;
 	max_per_month?: unknown;
 	carry_forward_allowed?: unknown;
@@ -18,8 +18,8 @@ export interface CreateLeavePolicyInput {
 }
 
 export interface UpdateLeavePolicyInput {
-	leave_type_uuid?: unknown;
-	employment_type_uuids?: unknown;
+	leave_type_cuid?: unknown;
+	employment_type_cuids?: unknown;
 	annual_quota?: unknown;
 	max_per_month?: unknown;
 	carry_forward_allowed?: unknown;
@@ -36,45 +36,45 @@ async function validateAndMapPolicyInput(
 	input: CreateLeavePolicyInput | UpdateLeavePolicyInput,
 	excludePolicyCuid?: string
 ) {
-	if (input.leave_type_uuid === undefined || input.leave_type_uuid === null || String(input.leave_type_uuid).trim() === '') {
-		throw new LeaveValidationError('leave_type_uuid', 'Leave type is required');
+	if (input.leave_type_cuid === undefined || input.leave_type_cuid === null || String(input.leave_type_cuid).trim() === '') {
+		throw new LeaveValidationError('leave_type_cuid', 'Leave type is required');
 	}
-	const leave_type_uuid = String(input.leave_type_uuid).trim();
+	const leave_type_cuid = String(input.leave_type_cuid).trim();
 
-	const leaveType = await db.leaveType.findUnique({ where: { cuid: leave_type_uuid } });
+	const leaveType = await db.leaveType.findUnique({ where: { cuid: leave_type_cuid } });
 	if (!leaveType) {
-		throw new LeaveValidationError('leave_type_uuid', 'Selected leave type does not exist');
+		throw new LeaveValidationError('leave_type_cuid', 'Selected leave type does not exist');
 	}
 	if (!leaveType.status) {
-		throw new LeaveValidationError('leave_type_uuid', 'Selected leave type is inactive');
+		throw new LeaveValidationError('leave_type_cuid', 'Selected leave type is inactive');
 	}
 
-	if (input.employment_type_uuids === undefined || input.employment_type_uuids === null) {
-		throw new LeaveValidationError('employment_type_uuids', 'At least one employment type is required');
+	if (input.employment_type_cuids === undefined || input.employment_type_cuids === null) {
+		throw new LeaveValidationError('employment_type_cuids', 'At least one employment type is required');
 	}
 
-	let rawEmploymentTypeUuids: string[];
-	if (Array.isArray(input.employment_type_uuids)) {
-		rawEmploymentTypeUuids = input.employment_type_uuids.map(String);
-	} else if (typeof input.employment_type_uuids === 'string') {
-		const str = input.employment_type_uuids.trim();
-		rawEmploymentTypeUuids = str ? str.split(',').map((x) => x.trim()) : [];
+	let rawEmploymentTypeCuids: string[];
+	if (Array.isArray(input.employment_type_cuids)) {
+		rawEmploymentTypeCuids = input.employment_type_cuids.map(String);
+	} else if (typeof input.employment_type_cuids === 'string') {
+		const str = input.employment_type_cuids.trim();
+		rawEmploymentTypeCuids = str ? str.split(',').map((x) => x.trim()) : [];
 	} else {
-		throw new LeaveValidationError('employment_type_uuids', 'Employment types must be provided');
+		throw new LeaveValidationError('employment_type_cuids', 'Employment types must be provided');
 	}
 
-	const employmentTypeUuids = Array.from(new Set(rawEmploymentTypeUuids.filter((x) => x)));
-	if (employmentTypeUuids.length === 0) {
-		throw new LeaveValidationError('employment_type_uuids', 'At least one employment type is required');
+	const employmentTypeCuids = Array.from(new Set(rawEmploymentTypeCuids.filter((x) => x)));
+	if (employmentTypeCuids.length === 0) {
+		throw new LeaveValidationError('employment_type_cuids', 'At least one employment type is required');
 	}
 
-	for (const empTypeUuid of employmentTypeUuids) {
-		const empType = await db.employmentType.findUnique({ where: { cuid: empTypeUuid } });
+	for (const empTypeCuid of employmentTypeCuids) {
+		const empType = await db.employmentType.findUnique({ where: { cuid: empTypeCuid } });
 		if (!empType) {
-			throw new LeaveValidationError('employment_type_uuids', `Employment type ${empTypeUuid} does not exist`);
+			throw new LeaveValidationError('employment_type_cuids', `Employment type ${empTypeCuid} does not exist`);
 		}
 		if (!empType.status) {
-			throw new LeaveValidationError('employment_type_uuids', `Employment type '${empType.employment_name}' is inactive`);
+			throw new LeaveValidationError('employment_type_cuids', `Employment type '${empType.employment_name}' is inactive`);
 		}
 	}
 
@@ -143,15 +143,15 @@ async function validateAndMapPolicyInput(
 	const status = input.status === undefined ? true : Boolean(input.status);
 
 	if (status) {
-		for (const empTypeUuid of employmentTypeUuids) {
+		for (const empTypeCuid of employmentTypeCuids) {
 			const duplicate = await leavePolicyDao.findActivePolicyForEmploymentType(
-				leave_type_uuid,
-				empTypeUuid,
+				leave_type_cuid,
+				empTypeCuid,
 				excludePolicyCuid
 			);
 			if (duplicate) {
 				throw new LeaveValidationError(
-					'employment_type_uuids',
+					'employment_type_cuids',
 					'Policy already exists for selected employment type'
 				);
 			}
@@ -160,7 +160,7 @@ async function validateAndMapPolicyInput(
 
 	return {
 		policyData: {
-			leave_type_uuid,
+			leave_type_cuid,
 			annual_quota,
 			max_per_month,
 			carry_forward_allowed,
@@ -172,7 +172,7 @@ async function validateAndMapPolicyInput(
 			applicable_gender,
 			status
 		},
-		employmentTypeUuids
+		employmentTypeCuids
 	};
 }
 
@@ -185,8 +185,8 @@ export async function getLeavePolicyByCuid(cuid: string) {
 }
 
 export async function createLeavePolicy(input: CreateLeavePolicyInput) {
-	const { policyData, employmentTypeUuids } = await validateAndMapPolicyInput(input);
-	return leavePolicyDao.create(policyData, employmentTypeUuids);
+	const { policyData, employmentTypeCuids } = await validateAndMapPolicyInput(input);
+	return leavePolicyDao.create(policyData, employmentTypeCuids);
 }
 
 export async function updateLeavePolicy(cuid: string, input: UpdateLeavePolicyInput) {
@@ -199,15 +199,30 @@ export async function updateLeavePolicy(cuid: string, input: UpdateLeavePolicyIn
 		throw new Error('Leave policy not found');
 	}
 
-	const { policyData, employmentTypeUuids } = await validateAndMapPolicyInput(
+	const mappedExistingPolicy = {
+		leave_type_cuid: existingPolicy.leave_type_cuid,
+		employment_type_cuids: existingPolicy.employment_type_cuids,
+		annual_quota: existingPolicy.annual_quota,
+		max_per_month: existingPolicy.max_per_month,
+		carry_forward_allowed: existingPolicy.carry_forward_allowed,
+		max_carry_forward_days: existingPolicy.max_carry_forward_days,
+		requires_document: existingPolicy.requires_document,
+		min_service_days: existingPolicy.min_service_days,
+		allow_half_day: existingPolicy.allow_half_day,
+		gender_specific: existingPolicy.gender_specific,
+		applicable_gender: existingPolicy.applicable_gender,
+		status: existingPolicy.status
+	};
+
+	const { policyData, employmentTypeCuids } = await validateAndMapPolicyInput(
 		{
-			...existingPolicy,
+			...mappedExistingPolicy,
 			...input
 		},
 		existingPolicy.cuid
 	);
 
-	return leavePolicyDao.update(cuid, policyData, employmentTypeUuids);
+	return leavePolicyDao.update(cuid, policyData, employmentTypeCuids);
 }
 
 export async function deleteLeavePolicy(cuid: string) {

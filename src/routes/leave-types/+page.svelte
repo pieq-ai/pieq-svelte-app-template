@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import { enhance } from '$app/forms';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
@@ -31,9 +30,10 @@
 		ConfirmModal,
 		FormModal
 	} from '$lib/components';
-	import type { PageData, ActionData } from './$types.js';
+	import type { PageData } from './$types.js';
 
-	let { data, form }: { data: PageData; form: ActionData } = $props();
+	let { data }: { data: PageData } = $props();
+	let form = $state<{ error?: string; field?: string; action?: string } | null>(null);
 
 	let searchQuery = $state('');
 	let isSubmitting = $state(false);
@@ -43,7 +43,7 @@
 	let isConfirmOpen = $state(false);
 	let confirmTitle = $state('');
 	let confirmMessage = $state('');
-	let activeDeleteForm = $state<HTMLFormElement | null>(null);
+	let activeDeleteCuid = $state<string | null>(null);
 
 	function openAddModal() {
 		leaveName = '';
@@ -53,6 +53,84 @@
 		requiresApproval = true;
 		status = true;
 		isFormModalOpen = true;
+	}
+
+	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		isSubmitting = true;
+		form = null;
+
+		const body = {
+			leave_name: leaveName,
+			leave_code: leaveCode,
+			description: description || null,
+			is_paid: isPaid,
+			requires_approval: requiresApproval,
+			status: editCuid ? status : true
+		};
+
+		try {
+			const url = editCuid ? `/api/leave/types/${editCuid}` : '/api/leave/types';
+			const res = await fetch(url, {
+				method: editCuid ? 'PUT' : 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(body)
+			});
+			const result = await res.json();
+
+			if (res.ok && result.success) {
+				toast.success(
+					editCuid
+						? 'Leave type updated successfully!'
+						: 'Leave type created successfully!'
+				);
+				isFormModalOpen = false;
+				if (editCuid) {
+					await goto(resolve('/leave-types'), { replaceState: true });
+				} else {
+					leaveName = '';
+					leaveCode = '';
+					description = '';
+					isPaid = true;
+					requiresApproval = true;
+					status = true;
+				}
+				await invalidateAll();
+			} else {
+				form = {
+					error: result.message || 'Validation failed',
+					field: result.field,
+					action: editCuid ? 'update' : 'create'
+				};
+				toast.error(result.message || 'Validation failed');
+			}
+		} catch (error) {
+			console.error('Submit failed:', error);
+			toast.error('An unexpected error occurred.');
+		} finally {
+			isSubmitting = false;
+		}
+	}
+
+	async function handleDelete(cuid: string) {
+		isSubmitting = true;
+		try {
+			const res = await fetch(`/api/leave/types/${cuid}`, {
+				method: 'DELETE'
+			});
+			const result = await res.json();
+			if (res.ok && result.success) {
+				toast.success(result.message || 'Leave type status updated!');
+				await invalidateAll();
+			} else {
+				toast.error(result.message || 'Action failed');
+			}
+		} catch (error) {
+			console.error('Delete failed:', error);
+			toast.error('An unexpected error occurred.');
+		} finally {
+			isSubmitting = false;
+		}
 	}
 
 	// Active Edit Mode Detection from URL query parameter
@@ -288,29 +366,6 @@
 										<EditIcon class="size-4" />
 									</a>
 
-									<form
-										method="POST"
-										action="?/delete"
-										class="inline"
-										use:enhance={() => {
-											isSubmitting = true;
-											return async ({ result, update }) => {
-												if (result.type === 'success') {
-													const updatedStatus = result.data?.status;
-													toast.success(
-														updatedStatus === false
-															? 'Leave type deactivated successfully!'
-															: 'Leave type reactivated successfully!'
-													);
-												} else if (result.type === 'failure') {
-													toast.error(String(result.data?.error || 'Action failed'));
-												}
-												await update();
-												isSubmitting = false;
-											};
-										}}
-									>
-										<input type="hidden" name="cuid" value={type.cuid} />
 										<Button
 											type="button"
 											variant="ghost"
@@ -318,8 +373,8 @@
 											class={type.status ? 'text-destructive hover:text-destructive/80 size-8' : 'text-green-500 hover:text-green-600 size-8'}
 											title={type.status ? 'Deactivate Leave Type' : 'Reactivate Leave Type'}
 											disabled={isSubmitting}
-											onclick={(e) => {
-												activeDeleteForm = e.currentTarget.closest('form');
+											onclick={() => {
+												activeDeleteCuid = type.cuid;
 												confirmTitle = type.status ? 'Deactivate Leave Type' : 'Reactivate Leave Type';
 												confirmMessage = type.status
 													? 'Are you sure you want to deactivate this leave type? All associated policies will also need to be managed.'
@@ -333,7 +388,6 @@
 												<RotateCcwIcon class="size-4" />
 											{/if}
 										</Button>
-									</form>
 								</TableCell>
 							</TableRow>
 						{/each}
@@ -350,30 +404,7 @@
 <FormModal
 	bind:isOpen={isFormModalOpen}
 	title={editCuid ? 'Edit Leave Type' : 'Add Leave Type'}
-	action={editCuid ? '?/update' : '?/create'}
-	useEnhance={() => {
-		isSubmitting = true;
-		return async ({ result, update }) => {
-			if (result.type === 'success') {
-				toast.success(
-					editCuid
-						? 'Leave type updated successfully!'
-						: 'Leave type created successfully!'
-				);
-				isFormModalOpen = false;
-				if (editCuid) {
-					await goto(resolve('/leave-types'), { replaceState: true });
-				}
-				await update({ reset: true });
-			} else if (result.type === 'failure') {
-				toast.error(String(result.data?.error || 'Validation failed'));
-				await update({ reset: false });
-			} else {
-				await update();
-			}
-			isSubmitting = false;
-		};
-	}}
+	onsubmit={handleSubmit}
 >
 	{#if editCuid}
 		<input type="hidden" name="cuid" value={editCuid} />
@@ -467,6 +498,8 @@
 	title={confirmTitle}
 	message={confirmMessage}
 	onConfirm={() => {
-		activeDeleteForm?.requestSubmit();
+		if (activeDeleteCuid) {
+			handleDelete(activeDeleteCuid);
+		}
 	}}
 />

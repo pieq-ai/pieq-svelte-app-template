@@ -5,21 +5,15 @@ import {
 	listLeaveTypes,
 	LeaveValidationError
 } from '$lib/server/services/leave-type.service.js';
+import { validatePayloadKeys, trimStringFields } from '$lib/server/validation.js';
 
 export const GET: RequestHandler = async () => {
 	try {
 		const types = await listLeaveTypes();
-		return json({
-			success: true,
-			message: 'Leave types retrieved successfully',
-			data: types
-		});
+		return json({ data: types });
 	} catch (error) {
 		console.error('GET /api/leave/types failed', error);
-		return json({
-			success: false,
-			message: 'Failed to retrieve leave types'
-		}, { status: 500 });
+		return json({ error: 'Failed to retrieve leave types' }, { status: 500 });
 	}
 };
 
@@ -35,7 +29,14 @@ export const POST: RequestHandler = async ({ request }) => {
 		}, { status: 400 });
 	}
 
-	const { leave_name, leave_code, description, is_paid, requires_approval, status } = (body ?? {}) as {
+	const allowedKeys = ['leave_name', 'leave_code', 'description', 'is_paid', 'requires_approval', 'status'];
+
+	const validation = validatePayloadKeys(body, allowedKeys);
+	if (validation) {
+		return json({ success: false, message: validation.error }, { status: 400 });
+	}
+
+	const trimmedBody = trimStringFields(body) as {
 		leave_name?: unknown;
 		leave_code?: unknown;
 		description?: unknown;
@@ -43,6 +44,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		requires_approval?: unknown;
 		status?: unknown;
 	};
+
+	const { leave_name, leave_code, description, is_paid, requires_approval, status } = trimmedBody;
 
 	try {
 		const data = await createLeaveType({

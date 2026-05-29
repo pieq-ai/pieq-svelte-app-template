@@ -7,16 +7,9 @@ export const GET: RequestHandler = async () => {
 		const employmentTypes = await db.employmentType.findMany({
 			orderBy: { employment_name: 'asc' }
 		});
-		return json({
-			success: true,
-			message: 'Employment types retrieved successfully',
-			data: employmentTypes
-		});
+		return json({ data: employmentTypes });
 	} catch (error) {
 		console.error('GET /api/employment-types failed', error);
-		return json({
-			success: false,
-			message: 'Failed to retrieve employment types'
-		}, { status: 500 });
+		return json({ error: 'Failed to retrieve employment types' }, { status: 500 });
 	}
 };

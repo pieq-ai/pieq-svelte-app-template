@@ -5,7 +5,7 @@ export interface Holiday {
 	cuid: string;
 	holiday_name: string;
 	holiday_date: string | Date;
-	holiday_type: 'national' | 'regional' | 'restricted';
+	holiday_type: 'National' | 'Regional' | 'Restricted';
 }
 
 export const load: PageLoad = async ({ fetch }) => {

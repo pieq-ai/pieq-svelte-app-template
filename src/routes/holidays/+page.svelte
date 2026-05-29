@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import { enhance } from '$app/forms';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { SvelteDate } from 'svelte/reactivity';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
@@ -31,9 +30,10 @@
 		ConfirmModal,
 		FormModal
 	} from '$lib/components';
-	import type { PageData, ActionData } from './$types';
+	import type { PageData } from './$types';
 
-	let { data, form }: { data: PageData; form: ActionData } = $props();
+	let { data }: { data: PageData } = $props();
+	let form = $state<{ error?: string; field?: string; action?: string } | null>(null);
 
 	let searchQuery = $state('');
 	let filterType = $state<string>('all');
@@ -44,13 +44,81 @@
 	let isConfirmOpen = $state(false);
 	let confirmTitle = $state('');
 	let confirmMessage = $state('');
-	let activeDeleteForm = $state<HTMLFormElement | null>(null);
+	let activeDeleteCuid = $state<string | null>(null);
 
 	function openAddModal() {
 		holidayName = '';
 		holidayDate = '';
-		holidayType = 'national';
+		holidayType = 'National';
 		isFormModalOpen = true;
+	}
+
+	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		isSubmitting = true;
+		form = null;
+
+		const body = {
+			holiday_name: holidayName,
+			holiday_date: holidayDate,
+			holiday_type: holidayType
+		};
+
+		try {
+			const url = editCuid ? `/api/holidays/${editCuid}` : '/api/holidays';
+			const res = await fetch(url, {
+				method: editCuid ? 'PUT' : 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(body)
+			});
+			const result = await res.json();
+
+			if (res.ok && result.success) {
+				toast.success(result.message);
+				isFormModalOpen = false;
+				if (editCuid) {
+					await goto(resolve('/holidays'), { replaceState: true });
+				} else {
+					holidayName = '';
+					holidayDate = '';
+					holidayType = 'National';
+				}
+				await invalidateAll();
+			} else {
+				form = {
+					error: result.message || 'Validation failed',
+					field: result.field,
+					action: editCuid ? 'update' : 'create'
+				};
+				toast.error(result.message || 'Validation failed');
+			}
+		} catch (error) {
+			console.error('Submit failed:', error);
+			toast.error('An unexpected error occurred.');
+		} finally {
+			isSubmitting = false;
+		}
+	}
+
+	async function handleDelete(cuid: string) {
+		isSubmitting = true;
+		try {
+			const res = await fetch(`/api/holidays/${cuid}`, {
+				method: 'DELETE'
+			});
+			const result = await res.json();
+			if (res.ok && result.success) {
+				toast.success(result.message);
+				await invalidateAll();
+			} else {
+				toast.error(result.message || 'Action failed');
+			}
+		} catch (error) {
+			console.error('Delete failed:', error);
+			toast.error('An unexpected error occurred.');
+		} finally {
+			isSubmitting = false;
+		}
 	}
 
 	let tomorrowStr = $derived.by(() => {
@@ -102,18 +170,18 @@
 	// Form local state
 	let holidayName = $state('');
 	let holidayDate = $state('');
-	let holidayType = $state<'national' | 'regional' | 'restricted'>('national');
+	let holidayType = $state<'National' | 'Regional' | 'Restricted'>('National');
 
 	// Synchronise form inputs when URL edit parameter changes
 	$effect(() => {
 		if (form && 'action' in form && form.action === 'update' && 'cuid' in form && form.cuid === editCuid) {
 			if ('holiday_name' in form) holidayName = String(form.holiday_name);
 			if ('holiday_date' in form) holidayDate = String(form.holiday_date);
-			if ('holiday_type' in form) holidayType = form.holiday_type as 'national' | 'regional' | 'restricted';
+			if ('holiday_type' in form) holidayType = form.holiday_type as 'National' | 'Regional' | 'Restricted';
 		} else if (form && 'action' in form && form.action === 'create' && !editCuid) {
 			if ('holiday_name' in form) holidayName = String(form.holiday_name);
 			if ('holiday_date' in form) holidayDate = String(form.holiday_date);
-			if ('holiday_type' in form) holidayType = form.holiday_type as 'national' | 'regional' | 'restricted';
+			if ('holiday_type' in form) holidayType = form.holiday_type as 'National' | 'Regional' | 'Restricted';
 		} else if (editingHoliday) {
 			holidayName = editingHoliday.holiday_name;
 			const dateObj = new Date(editingHoliday.holiday_date);
@@ -125,7 +193,7 @@
 		} else {
 			holidayName = '';
 			holidayDate = '';
-			holidayType = 'national';
+			holidayType = 'National';
 		}
 	});
 
@@ -280,9 +348,9 @@
 					class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none"
 				>
 					<option value="all">All Holiday Types</option>
-					<option value="national">National</option>
-					<option value="regional">Regional</option>
-					<option value="restricted">Restricted</option>
+					<option value="National">National</option>
+					<option value="Regional">Regional</option>
+					<option value="Restricted">Restricted</option>
 				</select>
 			</div>
 		</div>
@@ -315,14 +383,14 @@
 									{holiday.holiday_name}
 								</TableCell>
 								<TableCell>
-									{#if holiday.holiday_type === 'national'}
+									{#if holiday.holiday_type === 'National'}
 										<Badge
 											class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white border-0 capitalize"
 										>
 											{holiday.holiday_type}
 										</Badge>
 									{:else}
-										{#if holiday.holiday_type === 'regional'}
+										{#if holiday.holiday_type === 'Regional'}
 											<Badge
 												class="bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700 text-white border-0 capitalize"
 											>
@@ -348,41 +416,22 @@
 									</a>
 
 									<!-- Delete Action -->
-									<form
-										method="POST"
-										action="?/delete"
-										class="inline"
-										use:enhance={() => {
-											isSubmitting = true;
-											return async ({ result, update }) => {
-												if (result.type === 'success') {
-													toast.success('Holiday deleted successfully!');
-												} else if (result.type === 'failure') {
-													toast.error(String(result.data?.error || 'Action failed'));
-												}
-												await update();
-												isSubmitting = false;
-											};
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon-sm"
+										class="text-destructive hover:text-destructive/80 size-8"
+										title="Delete Holiday"
+										disabled={isSubmitting}
+										onclick={() => {
+											activeDeleteCuid = holiday.cuid;
+											confirmTitle = 'Delete Holiday';
+											confirmMessage = 'Are you sure you want to delete this holiday?';
+											isConfirmOpen = true;
 										}}
 									>
-										<input type="hidden" name="cuid" value={holiday.cuid} />
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon-sm"
-											class="text-destructive hover:text-destructive/80 size-8"
-											title="Delete Holiday"
-											disabled={isSubmitting}
-											onclick={(e) => {
-												activeDeleteForm = e.currentTarget.closest('form');
-												confirmTitle = 'Delete Holiday';
-												confirmMessage = 'Are you sure you want to delete this holiday?';
-												isConfirmOpen = true;
-											}}
-										>
-											<TrashIcon class="size-4" />
-										</Button>
-									</form>
+										<TrashIcon class="size-4" />
+									</Button>
 								</TableCell>
 							</TableRow>
 						{/each}
@@ -400,30 +449,7 @@
 <FormModal
 	bind:isOpen={isFormModalOpen}
 	title={editCuid ? 'Edit Holiday' : 'Add Holiday'}
-	action={editCuid ? '?/update' : '?/create'}
-	useEnhance={() => {
-		isSubmitting = true;
-		return async ({ result, update }) => {
-			if (result.type === 'success') {
-				toast.success(
-					editCuid
-						? 'Holiday updated successfully!'
-						: 'Holiday created successfully!'
-				);
-				isFormModalOpen = false;
-				if (editCuid) {
-					await goto(resolve('/holidays'), { replaceState: true });
-				}
-				await update({ reset: true });
-			} else if (result.type === 'failure') {
-				toast.error(String(result.data?.error || 'Validation failed'));
-				await update({ reset: false });
-			} else {
-				await update();
-			}
-			isSubmitting = false;
-		};
-	}}
+	onsubmit={handleSubmit}
 >
 	{#if editCuid}
 		<input type="hidden" name="cuid" value={editCuid} />
@@ -476,9 +502,9 @@
 			class="dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {form && 'field' in form && form.field === 'holiday_type' ? 'border-destructive focus-visible:ring-destructive' : 'border-input'}"
 			required
 		>
-			<option value="national">National Holiday</option>
-			<option value="regional">Regional Holiday</option>
-			<option value="restricted">Restricted Holiday</option>
+			<option value="National">National Holiday</option>
+			<option value="Regional">Regional Holiday</option>
+			<option value="Restricted">Restricted Holiday</option>
 		</select>
 		{#if form && 'field' in form && form.field === 'holiday_type'}
 			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
@@ -508,6 +534,8 @@
 	title={confirmTitle}
 	message={confirmMessage}
 	onConfirm={() => {
-		activeDeleteForm?.requestSubmit();
+		if (activeDeleteCuid) {
+			handleDelete(activeDeleteCuid);
+		}
 	}}
 />

@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import { enhance } from '$app/forms';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
@@ -31,9 +30,10 @@
 		ConfirmModal,
 		FormModal
 	} from '$lib/components';
-	import type { PageData, ActionData } from './$types.js';
+	import type { PageData } from './$types.js';
 
-	let { data, form }: { data: PageData; form: ActionData } = $props();
+	let { data }: { data: PageData } = $props();
+	let form = $state<{ error?: string; field?: string; action?: string } | null>(null);
 
 	let searchQuery = $state('');
 	let isSubmitting = $state(false);
@@ -43,7 +43,7 @@
 	let isConfirmOpen = $state(false);
 	let confirmTitle = $state('');
 	let confirmMessage = $state('');
-	let activeDeleteForm = $state<HTMLFormElement | null>(null);
+	let activeDeleteCuid = $state<string | null>(null);
 
 	function openAddModal() {
 		leaveTypeId = '';
@@ -59,6 +59,96 @@
 		applicableGender = '';
 		status = true;
 		isFormModalOpen = true;
+	}
+
+	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		isSubmitting = true;
+		form = null;
+
+		const body = {
+			leave_type_cuid: leaveTypeId,
+			employment_type_cuids: selectedEmploymentTypes,
+			annual_quota: annualQuota,
+			max_per_month: maxPerMonth || null,
+			carry_forward_allowed: carryForwardAllowed,
+			max_carry_forward_days: carryForwardAllowed ? maxCarryForwardDays : null,
+			requires_document: requiresDocument,
+			min_service_days: minServiceDays,
+			allow_half_day: allowHalfDay,
+			gender_specific: genderSpecific,
+			applicable_gender: genderSpecific ? applicableGender : null,
+			status: editUuid ? status : true
+		};
+
+		try {
+			const url = editUuid ? `/api/leave/policies/${editUuid}` : '/api/leave/policies';
+			const res = await fetch(url, {
+				method: editUuid ? 'PUT' : 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(body)
+			});
+			const result = await res.json();
+
+			if (res.ok && result.success) {
+				toast.success(
+					editUuid
+						? 'Leave policy updated successfully!'
+						: 'Leave policy created successfully!'
+				);
+				isFormModalOpen = false;
+				if (editUuid) {
+					await goto(resolve('/leave-policies'), { replaceState: true });
+				} else {
+					leaveTypeId = '';
+					selectedEmploymentTypes = [];
+					annualQuota = '';
+					maxPerMonth = '';
+					carryForwardAllowed = false;
+					maxCarryForwardDays = '';
+					requiresDocument = false;
+					minServiceDays = '0';
+					allowHalfDay = false;
+					genderSpecific = false;
+					applicableGender = '';
+					status = true;
+				}
+				await invalidateAll();
+			} else {
+				form = {
+					error: result.message || 'Validation failed',
+					field: result.field,
+					action: editUuid ? 'update' : 'create'
+				};
+				toast.error(result.message || 'Validation failed');
+			}
+		} catch (error) {
+			console.error('Submit failed:', error);
+			toast.error('An unexpected error occurred.');
+		} finally {
+			isSubmitting = false;
+		}
+	}
+
+	async function handleDelete(cuid: string) {
+		isSubmitting = true;
+		try {
+			const res = await fetch(`/api/leave/policies/${cuid}`, {
+				method: 'DELETE'
+			});
+			const result = await res.json();
+			if (res.ok && result.success) {
+				toast.success(result.message || 'Leave policy status updated!');
+				await invalidateAll();
+			} else {
+				toast.error(result.message || 'Action failed');
+			}
+		} catch (error) {
+			console.error('Delete failed:', error);
+			toast.error('An unexpected error occurred.');
+		} finally {
+			isSubmitting = false;
+		}
 	}
 
 	// Active Edit Mode Detection from URL query parameter
@@ -82,8 +172,8 @@
 	// Synchronise form inputs when URL edit parameter changes
 	$effect(() => {
 		if (form && 'action' in form && form.action === 'update' && 'cuid' in form && form.cuid === editUuid) {
-			if ('leave_type_uuid' in form) leaveTypeId = String(form.leave_type_uuid);
-			if ('employment_type_uuids' in form) selectedEmploymentTypes = form.employment_type_uuids as string[];
+			if ('leave_type_cuid' in form) leaveTypeId = String(form.leave_type_cuid);
+			if ('employment_type_cuids' in form) selectedEmploymentTypes = form.employment_type_cuids as string[];
 			if ('annual_quota' in form) annualQuota = String(form.annual_quota);
 			if ('max_per_month' in form) maxPerMonth = String(form.max_per_month);
 			if ('carry_forward_allowed' in form) carryForwardAllowed = Boolean(form.carry_forward_allowed);
@@ -95,8 +185,8 @@
 			if ('applicable_gender' in form) applicableGender = form.applicable_gender as 'Male' | 'Female' | 'Others' | '';
 			if ('status' in form) status = Boolean(form.status);
 		} else if (form && 'action' in form && form.action === 'create' && !editUuid) {
-			if ('leave_type_uuid' in form) leaveTypeId = String(form.leave_type_uuid);
-			if ('employment_type_uuids' in form) selectedEmploymentTypes = form.employment_type_uuids as string[];
+			if ('leave_type_cuid' in form) leaveTypeId = String(form.leave_type_cuid);
+			if ('employment_type_cuids' in form) selectedEmploymentTypes = form.employment_type_cuids as string[];
 			if ('annual_quota' in form) annualQuota = String(form.annual_quota);
 			if ('max_per_month' in form) maxPerMonth = String(form.max_per_month);
 			if ('carry_forward_allowed' in form) carryForwardAllowed = Boolean(form.carry_forward_allowed);
@@ -108,8 +198,8 @@
 			if ('applicable_gender' in form) applicableGender = form.applicable_gender as 'Male' | 'Female' | 'Others' | '';
 			if ('status' in form) status = Boolean(form.status);
 		} else if (editingPolicy) {
-			leaveTypeId = String(editingPolicy.leave_type_uuid);
-			selectedEmploymentTypes = editingPolicy.employment_type_uuids;
+			leaveTypeId = String(editingPolicy.leave_type_cuid);
+			selectedEmploymentTypes = editingPolicy.employment_type_cuids;
 			annualQuota = String(editingPolicy.annual_quota);
 			maxPerMonth = editingPolicy.max_per_month !== null ? String(editingPolicy.max_per_month) : '';
 			carryForwardAllowed = editingPolicy.carry_forward_allowed;
@@ -246,8 +336,8 @@
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
 			result = result.filter((p) => {
-				const leaveName = getLeaveTypeName(p.leave_type_uuid).toLowerCase();
-				const empNames = getEmploymentTypeNames(p.employment_type_uuids).toLowerCase();
+				const leaveName = getLeaveTypeName(p.leave_type_cuid).toLowerCase();
+				const empNames = getEmploymentTypeNames(p.employment_type_cuids).toLowerCase();
 				return leaveName.includes(query) || empNames.includes(query);
 			});
 		}
@@ -343,8 +433,8 @@
 					{:else}
 						{#each filteredPolicies as policy (policy.cuid)}
 							<TableRow class={!policy.status ? 'opacity-60' : ''}>
-								<TableCell class="font-semibold">{getLeaveTypeName(policy.leave_type_uuid)}</TableCell>
-								<TableCell class="text-xs">{getEmploymentTypeNames(policy.employment_type_uuids)}</TableCell>
+								<TableCell class="font-semibold">{getLeaveTypeName(policy.leave_type_cuid)}</TableCell>
+								<TableCell class="text-xs">{getEmploymentTypeNames(policy.employment_type_cuids)}</TableCell>
 								<TableCell class="text-right font-mono font-semibold">{policy.annual_quota}</TableCell>
 								<TableCell class="text-center text-xs">
 									{#if policy.carry_forward_allowed}
@@ -383,29 +473,6 @@
 										<EditIcon class="size-4" />
 									</a>
 
-									<form
-										method="POST"
-										action="?/delete"
-										class="inline"
-										use:enhance={() => {
-											isSubmitting = true;
-											return async ({ result, update }) => {
-												if (result.type === 'success') {
-													const updatedStatus = result.data?.status;
-													toast.success(
-														updatedStatus === false
-															? 'Leave policy deactivated successfully!'
-															: 'Leave policy reactivated successfully!'
-													);
-												} else if (result.type === 'failure') {
-													toast.error(String(result.data?.error || 'Action failed'));
-												}
-												await update();
-												isSubmitting = false;
-											};
-										}}
-									>
-										<input type="hidden" name="cuid" value={policy.cuid} />
 										<Button
 											type="button"
 											variant="ghost"
@@ -413,8 +480,8 @@
 											class={policy.status ? 'text-destructive hover:text-destructive/80 size-8' : 'text-green-500 hover:text-green-600 size-8'}
 											title={policy.status ? 'Deactivate Leave Policy' : 'Reactivate Leave Policy'}
 											disabled={isSubmitting}
-											onclick={(e) => {
-												activeDeleteForm = e.currentTarget.closest('form');
+											onclick={() => {
+												activeDeleteCuid = policy.cuid;
 												confirmTitle = policy.status ? 'Deactivate Leave Policy' : 'Reactivate Leave Policy';
 												confirmMessage = policy.status
 													? 'Are you sure you want to deactivate this leave policy?'
@@ -428,7 +495,6 @@
 												<RotateCcwIcon class="size-4" />
 											{/if}
 										</Button>
-									</form>
 								</TableCell>
 							</TableRow>
 						{/each}
@@ -445,30 +511,7 @@
 <FormModal
 	bind:isOpen={isFormModalOpen}
 	title={editUuid ? 'Edit Leave Policy' : 'Add Leave Policy'}
-	action={editUuid ? '?/update' : '?/create'}
-	useEnhance={() => {
-		isSubmitting = true;
-		return async ({ result, update }) => {
-			if (result.type === 'success') {
-				toast.success(
-					editUuid
-						? 'Leave policy updated successfully!'
-						: 'Leave policy created successfully!'
-				);
-				isFormModalOpen = false;
-				if (editUuid) {
-					await goto(resolve('/leave-policies'), { replaceState: true });
-				}
-				await update({ reset: true });
-			} else if (result.type === 'failure') {
-				toast.error(String(result.data?.error || 'Validation failed'));
-				await update({ reset: false });
-			} else {
-				await update();
-			}
-			isSubmitting = false;
-		};
-	}}
+	onsubmit={handleSubmit}
 >
 	{#if editUuid}
 		<input type="hidden" name="cuid" value={editUuid} />
@@ -476,33 +519,33 @@
 
 	<!-- Leave Type Dropdown -->
 	<div class="space-y-2">
-		<Label for="modal_leave_type_uuid" class={form && 'field' in form && form.field === 'leave_type_uuid' ? 'text-destructive' : ''}>Leave Type</Label>
+		<Label for="modal_leave_type_cuid" class={form && 'field' in form && form.field === 'leave_type_cuid' ? 'text-destructive' : ''}>Leave Type</Label>
 		<select
-			id="modal_leave_type_uuid"
-			name="leave_type_uuid"
+			id="modal_leave_type_cuid"
+			name="leave_type_cuid"
 			bind:value={leaveTypeId}
-			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {form && 'field' in form && form.field === 'leave_type_uuid' ? 'border-destructive' : ''}"
+			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {form && 'field' in form && form.field === 'leave_type_cuid' ? 'border-destructive' : ''}"
 			required
 		>
 			<option value="">Select Leave Type</option>
-			{#each data.leaveTypes.filter((t) => t.status || (editingPolicy && editingPolicy.leave_type_uuid === t.cuid)) as type (type.cuid)}
+			{#each data.leaveTypes.filter((t) => t.status || (editingPolicy && editingPolicy.leave_type_cuid === t.cuid)) as type (type.cuid)}
 				<option value={type.cuid}>{type.leave_name}</option>
 			{/each}
 		</select>
-		{#if form && 'field' in form && form.field === 'leave_type_uuid'}
+		{#if form && 'field' in form && form.field === 'leave_type_cuid'}
 			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
 		{/if}
 	</div>
 
 	<!-- Employment Types -->
 	<div class="space-y-2">
-		<Label class={(form && 'field' in form && form.field === 'employment_type_uuids') || employmentTypesError ? 'text-destructive' : ''}>Applicable Employment Types</Label>
+		<Label class={(form && 'field' in form && form.field === 'employment_type_cuids') || employmentTypesError ? 'text-destructive' : ''}>Applicable Employment Types</Label>
 		<div class="border rounded-md p-3 space-y-2 max-h-36 overflow-y-auto bg-transparent">
-			{#each data.employmentTypes.filter((et) => et.status || (editingPolicy && editingPolicy.employment_type_uuids.includes(et.cuid))) as empType (empType.cuid)}
+			{#each data.employmentTypes.filter((et) => et.status || (editingPolicy && editingPolicy.employment_type_cuids.includes(et.cuid))) as empType (empType.cuid)}
 				<div class="flex items-center space-x-2">
 					<input
 						type="checkbox"
-						name="employment_type_uuids"
+						name="employment_type_cuids"
 						value={empType.cuid}
 						checked={selectedEmploymentTypes.includes(empType.cuid)}
 						onchange={() => toggleEmploymentType(empType.cuid)}
@@ -514,7 +557,7 @@
 		</div>
 		{#if employmentTypesError}
 			<p class="text-xs font-medium text-destructive mt-1">{employmentTypesError}</p>
-		{:else if form && 'field' in form && form.field === 'employment_type_uuids'}
+		{:else if form && 'field' in form && form.field === 'employment_type_cuids'}
 			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
 		{/if}
 	</div>
@@ -668,7 +711,9 @@
 	title={confirmTitle}
 	message={confirmMessage}
 	onConfirm={() => {
-		activeDeleteForm?.requestSubmit();
+		if (activeDeleteCuid) {
+			handleDelete(activeDeleteCuid);
+		}
 	}}
 />
 

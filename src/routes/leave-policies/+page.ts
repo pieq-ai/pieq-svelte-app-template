@@ -3,7 +3,7 @@ import type { PageLoad } from './$types';
 export interface LeavePolicy {
 	id: number;
 	cuid: string;
-	leave_type_uuid: string;
+	leave_type_cuid: string;
 	annual_quota: number;
 	max_per_month: number | null;
 	carry_forward_allowed: boolean;
@@ -14,7 +14,7 @@ export interface LeavePolicy {
 	gender_specific: boolean;
 	applicable_gender: 'Male' | 'Female' | 'Others' | null;
 	status: boolean;
-	employment_type_uuids: string[];
+	employment_type_cuids: string[];
 }
 
 export interface LeaveType {

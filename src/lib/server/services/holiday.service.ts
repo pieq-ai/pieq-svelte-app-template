@@ -1,8 +1,7 @@
 import * as holidayDao from '$lib/server/dao/holiday.dao.js';
-import type { HolidayTypeEnum } from '$lib/generated/prisma/enums.js';
 
 export const HOLIDAY_NAME_MAX_LENGTH = 200;
-const VALID_HOLIDAY_TYPES = new Set<HolidayTypeEnum>(['national', 'regional', 'restricted']);
+const VALID_HOLIDAY_TYPES = new Set<string>(['National', 'Regional', 'Restricted']);
 
 export class HolidayValidationError extends Error {
 	readonly field: 'holiday_name' | 'holiday_date' | 'holiday_type';
@@ -110,21 +109,21 @@ function validateHolidayDate(raw: unknown): Date {
 	return date;
 }
 
-function validateHolidayType(raw: unknown): HolidayTypeEnum {
+function validateHolidayType(raw: unknown): string {
 	if (typeof raw !== 'string') {
 		throw new HolidayValidationError('holiday_type', 'Holiday type is required and must be a string');
 	}
 
-	const lowerType = raw.trim().toLowerCase() as HolidayTypeEnum;
+	const trimmed = raw.trim();
 
-	if (!VALID_HOLIDAY_TYPES.has(lowerType)) {
+	if (!VALID_HOLIDAY_TYPES.has(trimmed)) {
 		throw new HolidayValidationError(
 			'holiday_type',
 			`Holiday type must be one of: ${Array.from(VALID_HOLIDAY_TYPES).join(', ')}`
 		);
 	}
 
-	return lowerType;
+	return trimmed;
 }
 
 export async function listHolidays() {

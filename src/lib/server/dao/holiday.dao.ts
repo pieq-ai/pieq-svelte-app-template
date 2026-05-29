@@ -1,10 +1,9 @@
 import { db } from '$lib/server/db.js';
-import type { HolidayTypeEnum } from '$lib/generated/prisma/enums.js';
 
 export interface CreateHolidayData {
 	holiday_name: string;
 	holiday_date: Date;
-	holiday_type: HolidayTypeEnum;
+	holiday_type: string;
 }
 
 export async function list() {
