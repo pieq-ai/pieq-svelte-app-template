@@ -20,8 +20,8 @@ export class DuplicateComponentError extends BusinessValidationError {
 }
 
 export class ComponentNotFoundError extends Error {
-	constructor(id: string) {
-		super(`Salary component with ID ${id} not found.`);
+	constructor(cuid: string) {
+		super(`Salary component with ID ${cuid} not found.`);
 		this.name = 'ComponentNotFoundError';
 	}
 }
@@ -48,41 +48,44 @@ export async function createComponent(dto: CreateSalaryComponentDto) {
 /**
  * Updates an existing Salary Component master entry.
  * Implements business validation rules (trimming and duplicate checks).
+ * @param cuid - The externally-exposed cuid of the salary component
  */
-export async function updateComponent(id: string, dto: UpdateSalaryComponentDto) {
+export async function updateComponent(cuid: string, dto: UpdateSalaryComponentDto) {
 	// First check if it exists
-	const current = await repository.findById(id);
+	const current = await repository.findByCuid(cuid);
 	if (!current) {
-		throw new ComponentNotFoundError(id);
+		throw new ComponentNotFoundError(cuid);
 	}
 
-	const updatedName = dto.component_name !== undefined ? dto.component_name.trim() : current.component_name;
-	const updatedType = dto.component_type !== undefined ? dto.component_type : current.component_type;
+	const updatedName =
+		dto.component_name !== undefined ? dto.component_name.trim() : current.component_name;
+	const updatedType =
+		dto.component_type !== undefined ? dto.component_type : current.component_type;
 
 	// Business validation: check for duplicates if name or type is changing
-	if (
-		dto.component_name !== undefined ||
-		dto.component_type !== undefined
-	) {
-		const existing = await repository.findByNameAndType(updatedName, updatedType);
-		if (existing && existing.id !== id) {
+	if (dto.component_name !== undefined || dto.component_type !== undefined) {
+		const existing = await repository.findByNameAndType(
+			updatedName,
+			updatedType as 'earning' | 'deduction'
+		);
+		if (existing && existing.cuid !== cuid) {
 			throw new DuplicateComponentError(updatedName, updatedType);
 		}
 	}
 
-	return repository.update(id, {
+	return repository.update(cuid, {
 		...dto,
 		component_name: dto.component_name !== undefined ? updatedName : undefined
 	});
 }
 
 /**
- * Retrieves a single Salary Component by ID.
+ * Retrieves a single Salary Component by its external cuid.
  */
-export async function getComponentById(id: string) {
-	const component = await repository.findById(id);
+export async function getComponentByCuid(cuid: string) {
+	const component = await repository.findByCuid(cuid);
 	if (!component) {
-		throw new ComponentNotFoundError(id);
+		throw new ComponentNotFoundError(cuid);
 	}
 	return component;
 }
@@ -104,12 +107,17 @@ export async function getComponents(filters: SalaryComponentFilters) {
 
 /**
  * Toggles or sets the active state of a Salary Component (soft delete/deactivation).
+ * @param cuid - The externally-exposed cuid of the salary component
  */
-export async function toggleComponentStatus(id: string, is_active: boolean) {
-	const current = await repository.findById(id);
+export async function toggleComponentStatus(
+	cuid: string,
+	is_active: boolean,
+	updated_by?: string | null
+) {
+	const current = await repository.findByCuid(cuid);
 	if (!current) {
-		throw new ComponentNotFoundError(id);
+		throw new ComponentNotFoundError(cuid);
 	}
 
-	return repository.update(id, { is_active });
+	return repository.update(cuid, { is_active, updated_by });
 }

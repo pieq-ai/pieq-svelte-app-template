@@ -1,11 +1,12 @@
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/salary-component.service.js';
 import { validateUpdateSalaryComponent } from '$lib/server/validators/salary-component.validator.js';
+import { serializeSalaryComponent } from '$lib/server/serializers/salary-component.serializer.js';
 
 export async function GET({ params }) {
 	try {
-		const id = params.id;
-		if (!id) {
+		const cuid = params.id;
+		if (!cuid) {
 			return json(
 				{
 					success: false,
@@ -15,12 +16,8 @@ export async function GET({ params }) {
 			);
 		}
 
-		const component = await service.getComponentById(id);
-		return json({
-			success: true,
-			message: 'Salary component retrieved successfully',
-			data: component
-		});
+		const component = await service.getComponentByCuid(cuid);
+		return json(serializeSalaryComponent(component));
 	} catch (error) {
 		console.error(`Error in GET /api/salary-components/${params.id}:`, error);
 		const isNotFound = (error as Error).name === 'ComponentNotFoundError';
@@ -36,11 +33,10 @@ export async function GET({ params }) {
 
 export async function PUT({ params, request }) {
 	try {
-		const id = params.id;
-		if (!id) {
+		const cuid = params.id;
+		if (!cuid) {
 			return json(
 				{
-					success: false,
 					message: 'Invalid salary component ID'
 				},
 				{ status: 400 }
@@ -55,7 +51,6 @@ export async function PUT({ params, request }) {
 			const combinedMsg = errors.map((e) => e.message).join(', ');
 			return json(
 				{
-					success: false,
 					message: `Validation failed: ${combinedMsg}`
 				},
 				{ status: 400 }
@@ -63,21 +58,20 @@ export async function PUT({ params, request }) {
 		}
 
 		// Service update step
-		const updated = await service.updateComponent(id, validatedData);
+		await service.updateComponent(cuid, validatedData);
 
 		return json({
-			success: true,
-			message: 'Salary component updated',
-			data: updated
+			message: 'success'
 		});
 	} catch (error) {
 		console.error(`Error in PUT /api/salary-components/${params.id}:`, error);
 		const isNotFound = (error as Error).name === 'ComponentNotFoundError';
-		const isValidationError = (error as Error).name === 'DuplicateComponentError' || (error as Error).name === 'BusinessValidationError';
+		const isValidationError =
+			(error as Error).name === 'DuplicateComponentError' ||
+			(error as Error).name === 'BusinessValidationError';
 
 		return json(
 			{
-				success: false,
 				message: (error as Error).message || 'Failed to update salary component'
 			},
 			{ status: isNotFound ? 404 : isValidationError ? 400 : 500 }
@@ -87,8 +81,8 @@ export async function PUT({ params, request }) {
 
 export async function DELETE({ params }) {
 	try {
-		const id = params.id;
-		if (!id) {
+		const cuid = params.id;
+		if (!cuid) {
 			return json(
 				{
 					success: false,
@@ -99,12 +93,12 @@ export async function DELETE({ params }) {
 		}
 
 		// Perform soft delete by setting is_active to false
-		const softDeleted = await service.toggleComponentStatus(id, false);
+		const softDeleted = await service.toggleComponentStatus(cuid, false);
 
 		return json({
 			success: true,
 			message: 'Salary component deactivated successfully',
-			data: softDeleted
+			data: serializeSalaryComponent(softDeleted)
 		});
 	} catch (error) {
 		console.error(`Error in DELETE /api/salary-components/${params.id}:`, error);

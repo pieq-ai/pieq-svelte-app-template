@@ -2,11 +2,16 @@ import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/salary-component.service.js';
 import { validateCreateSalaryComponent } from '$lib/server/validators/salary-component.validator.js';
 import type { SalaryComponentType } from '$lib/types/salary-component.js';
+import { serializeSalaryComponentList } from '$lib/server/serializers/salary-component.serializer.js';
 
 export async function GET({ url }) {
 	try {
-		const search = url.searchParams.get('search') || undefined;
-		const component_type = (url.searchParams.get('component_type') as SalaryComponentType) || undefined;
+		let search = url.searchParams.get('search') || undefined;
+		if (search) {
+			search = search.trim().replace(/^["']|["']$/g, '').trim() || undefined;
+		}
+		const component_type =
+			(url.searchParams.get('component_type') as SalaryComponentType) || undefined;
 
 		// Parse is_active filter: 'true' → true, 'false' → false, absent → undefined
 		const isActiveParam = url.searchParams.get('is_active');
@@ -14,8 +19,12 @@ export async function GET({ url }) {
 			isActiveParam === 'true' ? true : isActiveParam === 'false' ? false : undefined;
 
 		const page = url.searchParams.get('page') ? Number(url.searchParams.get('page')) : 1;
-		const pageSize = url.searchParams.get('pageSize') ? Number(url.searchParams.get('pageSize')) : 10;
-		const sortBy = (url.searchParams.get('sortBy') as 'component_name' | 'component_type' | 'is_active') || 'component_name';
+		const pageSize = url.searchParams.get('pageSize')
+			? Number(url.searchParams.get('pageSize'))
+			: 10;
+		const sortBy =
+			(url.searchParams.get('sortBy') as 'component_name' | 'component_type' | 'is_active') ||
+			'component_name';
 		const sortOrder = (url.searchParams.get('sortOrder') as 'asc' | 'desc') || 'asc';
 
 		const result = await service.getComponents({
@@ -28,11 +37,7 @@ export async function GET({ url }) {
 			sortOrder
 		});
 
-		return json({
-			success: true,
-			message: 'Salary components retrieved successfully',
-			data: result
-		});
+		return json(serializeSalaryComponentList(result));
 	} catch (error) {
 		console.error('Error in GET /api/salary-components:', error);
 		return json(
@@ -55,7 +60,6 @@ export async function POST({ request }) {
 			const combinedMsg = errors.map((e) => e.message).join(', ');
 			return json(
 				{
-					success: false,
 					message: `Validation failed: ${combinedMsg}`
 				},
 				{ status: 400 }
@@ -63,23 +67,22 @@ export async function POST({ request }) {
 		}
 
 		// Service creation step
-		const created = await service.createComponent(validatedData);
+		await service.createComponent(validatedData);
 
 		return json(
 			{
-				success: true,
-				message: 'Salary component created',
-				data: created
+				message: 'success'
 			},
 			{ status: 201 }
 		);
 	} catch (error) {
 		console.error('Error in POST /api/salary-components:', error);
-		const isValidationError = (error as Error).name === 'DuplicateComponentError' || (error as Error).name === 'BusinessValidationError';
+		const isValidationError =
+			(error as Error).name === 'DuplicateComponentError' ||
+			(error as Error).name === 'BusinessValidationError';
 
 		return json(
 			{
-				success: false,
 				message: (error as Error).message || 'Failed to create salary component'
 			},
 			{ status: isValidationError ? 400 : 500 }

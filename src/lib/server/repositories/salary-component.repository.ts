@@ -12,21 +12,24 @@ export async function create(data: CreateSalaryComponentDto) {
 			component_name: data.component_name,
 			component_type: data.component_type,
 			is_taxable: data.is_taxable ?? false,
-			is_active: data.is_active ?? true
+			is_active: data.is_active ?? true,
+			created_by: data.created_by ?? null
 		}
 	});
 }
 
-export async function update(id: string, data: UpdateSalaryComponentDto) {
+/** Update by externally-exposed cuid */
+export async function update(cuid: string, data: UpdateSalaryComponentDto) {
 	return db.salaryComponent.update({
-		where: { id },
+		where: { cuid },
 		data
 	});
 }
 
-export async function findById(id: string) {
+/** Find by externally-exposed cuid */
+export async function findByCuid(cuid: string) {
 	return db.salaryComponent.findUnique({
-		where: { id }
+		where: { cuid }
 	});
 }
 
@@ -65,7 +68,11 @@ export async function findMany(filters: SalaryComponentFilters) {
 	const skip = (page - 1) * pageSize;
 
 	const orderBy: Prisma.SalaryComponentOrderByWithRelationInput = {};
-	if (filters.sortBy === 'component_name' || filters.sortBy === 'component_type' || filters.sortBy === 'is_active') {
+	if (
+		filters.sortBy === 'component_name' ||
+		filters.sortBy === 'component_type' ||
+		filters.sortBy === 'is_active'
+	) {
 		orderBy[filters.sortBy] = filters.sortOrder ?? 'asc';
 	} else {
 		orderBy.component_name = 'asc';

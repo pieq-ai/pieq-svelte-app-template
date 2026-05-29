@@ -23,7 +23,12 @@ const injectLocals = async ({ event, resolve }) => {
 
 /** @type {import('@sveltejs/kit').Handle} */
 const routeGuard = async ({ event, resolve }) => {
-	if (event.url.pathname.startsWith('/dashboard') && !event.locals.user) {
+	const protectedPrefixes = ['/dashboard', '/salary-components', '/employees', '/settings'];
+	const isProtected = protectedPrefixes.some((prefix) =>
+		event.url.pathname.startsWith(prefix)
+	);
+
+	if (isProtected && !event.locals.user) {
 		redirect(303, '/');
 	}
 

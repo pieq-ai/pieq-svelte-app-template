@@ -4,6 +4,7 @@
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
 	import { Button, ToastContainer } from '$lib/components';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/stores';
 	import Building2Icon from '@lucide/svelte/icons/building-2';
 	import MenuIcon from '@lucide/svelte/icons/menu';
 	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
@@ -48,7 +49,7 @@
 
 <div class="flex min-h-screen bg-background text-foreground">
 	<aside
-		class={`fixed inset-y-0 left-0 z-30 flex flex-col border-r border-[#737373]/25 bg-[#262626] text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
+		class={`fixed inset-y-0 left-0 z-30 flex flex-col border-r border-[var(--hrms-sidebar-border)] bg-[var(--hrms-secondary)] text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
 		aria-label="Primary navigation"
 	>
 		<!-- Brand -->
@@ -59,7 +60,7 @@
 					class="flex min-w-0 items-center gap-3 font-semibold tracking-tight"
 					title="PieQ HRMS"
 				>
-					<span class="flex size-9 shrink-0 items-center justify-center rounded-md bg-[#C2652A] text-white">
+					<span class="flex size-9 shrink-0 items-center justify-center rounded-md bg-[var(--hrms-primary)] text-white">
 						<Building2Icon class="size-5" />
 					</span>
 					<span class="truncate text-base text-white font-medium">PieQ HRMS</span>
@@ -83,10 +84,12 @@
 			{#if authenticatedUser}
 				{#each protectedNavItems as item (item.href)}
 					{@const Icon = item.icon}
+					{@const isActive = $page.url.pathname.startsWith(item.href)}
 					<Button
 						href={item.href}
 						variant="ghost"
-						class={`h-10 justify-start gap-3 text-white hover:bg-[#C2652A] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						aria-current={isActive ? 'page' : undefined}
+						class={`h-10 justify-start gap-3 text-white hover:bg-[var(--hrms-primary)] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-[var(--hrms-primary)] font-semibold' : ''}`}
 						title={isSidebarCollapsed ? item.label : undefined}
 						aria-label={item.label}
 					>
@@ -100,7 +103,7 @@
 				<Button
 					href={resolve('/auth/signin')}
 					variant="ghost"
-					class={`h-10 justify-start gap-3 text-white hover:bg-[#C2652A] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+					class={`h-10 justify-start gap-3 text-white hover:bg-[var(--hrms-primary)] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 					title={isSidebarCollapsed ? 'Sign in' : undefined}
 					aria-label="Sign in"
 				>
@@ -118,7 +121,7 @@
 				<Button
 					href={resolve('/settings')}
 					variant="ghost"
-					class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#8C3C3C] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+					class={`h-10 w-full justify-start gap-3 text-white hover:bg-[var(--hrms-tertiary)] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 					title={isSidebarCollapsed ? 'Settings' : undefined}
 					aria-label="Settings"
 				>
@@ -131,7 +134,7 @@
 					<Button
 						type="submit"
 						variant="ghost"
-						class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#8C3C3C] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-[var(--hrms-tertiary)] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 						title={isSidebarCollapsed ? 'Sign out' : undefined}
 						aria-label="Sign out"
 					>
@@ -142,7 +145,7 @@
 					</Button>
 				</form>
 				{#if !isSidebarCollapsed}
-					<p class="truncate px-3 text-xs text-[#737373]">{authenticatedUser.email}</p>
+					<p class="truncate px-3 text-xs text-[var(--hrms-neutral)]">{authenticatedUser.email}</p>
 				{/if}
 			{/if}
 		</div>

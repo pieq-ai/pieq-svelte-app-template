@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
-	import Edit2Icon from '@lucide/svelte/icons/edit-2';
-	import Trash2Icon from '@lucide/svelte/icons/trash-2';
+	import MoreVerticalIcon from '@lucide/svelte/icons/more-vertical';
+	import PencilIcon from '@lucide/svelte/icons/pencil';
 	import {
 		Badge,
 		Button,
@@ -18,8 +18,7 @@
 		SearchBar,
 		Pagination,
 		MasterTable,
-		MasterFormModal,
-		ConfirmDialog
+		MasterFormModal
 	} from '$lib/components';
 
 	import type {
@@ -59,14 +58,12 @@
 	let formIsTaxable = $state(false);
 	let formIsActive = $state(true);
 
-	let isConfirmOpen = $state(false);
-	let isConfirming = $state(false);
-	let deactivatingId = $state<string | null>(null);
+
 
 	let earningsCount = $state(0);
 	let deductionsCount = $state(0);
-
-	let totalCount = $derived(totalItems);
+	/** Always reflects the unfiltered total — not affected by search/type/status filters */
+	let totalAllComponents = $state(0);
 
 	let previousFilters = '';
 
@@ -93,7 +90,8 @@
 		},
 		{
 			key: 'actions',
-			label: 'Actions'
+			label: 'Actions',
+			class: 'text-center'
 		}
 	];
 
@@ -134,17 +132,16 @@
 				`/api/salary-components?${params}`
 			);
 
+			if (!res.ok) {
+				const errorJson = await res.json();
+				throw new Error(errorJson.message || 'Failed loading salary components');
+			}
+
 			const json = await res.json();
 
-			if (!json.success)
-				throw new Error(
-					json.message
-				);
-
-			items = json.data.items;
-			totalItems = json.data.total;
-			totalPages =
-				json.data.totalPages;
+			items = json.items;
+			totalItems = json.total;
+			totalPages = json.totalPages;
 		} catch (e) {
 			console.error(e);
 			toast.error(
@@ -163,26 +160,24 @@
 				'/api/salary-components?pageSize=9999'
 			);
 
+			if (!res.ok) return;
+
 			const json = await res.json();
 
-			if (!json.success) return;
+			const all = json.items || [];
 
-			const all =
-				json.data.items || [];
+			// Unfiltered total — always reflects full dataset
+			totalAllComponents = json.total;
 
-			earningsCount =
-				all.filter(
+			earningsCount = all.filter(
 					(x: SalaryComponent) =>
-						x.component_type ===
-							'earning' &&
+						x.component_type === 'earning' &&
 						x.is_active === true
 				).length;
 
-			deductionsCount =
-				all.filter(
+			deductionsCount = all.filter(
 					(x: SalaryComponent) =>
-						x.component_type ===
-							'deduction' &&
+						x.component_type === 'deduction' &&
 						x.is_active === true
 				).length;
 		} catch (e) {
@@ -208,11 +203,10 @@
 		loadComponents();
 	});
 
-	onMount(async () => {
-		await Promise.all([
-			loadComponents(),
-			loadStats()
-		]);
+	onMount(() => {
+		// loadComponents() is already triggered by the $effect above on initial render.
+		// Only loadStats() needs to run here to avoid a duplicate GET for the table data.
+		loadStats();
 	});
 
 	function handleOpenCreate() {
@@ -230,7 +224,7 @@
 		component: SalaryComponent
 	) {
 		editingId =
-			component.id;
+			component.cuid;
 
 		formName =
 			component.component_name;
@@ -296,12 +290,11 @@
 					}
 				);
 
-			const json =
-				await res.json();
+			const json = await res.json();
 
-			if (!json.success)
+			if (!res.ok)
 				throw new Error(
-					json.message
+					json.message || 'Failed to save salary component'
 				);
 
 			await Promise.all([
@@ -326,55 +319,9 @@
 		}
 	}
 
-	function handleTriggerDeactivate(
-		id: string
-	) {
-		deactivatingId = id;
-		isConfirmOpen = true;
-	}
-
-	async function handleDeactivateConfirm() {
-		if (!deactivatingId)
-			return;
-
-		try {
-			isConfirming = true;
-
-			const res =
-				await fetch(
-					`/api/salary-components/${deactivatingId}`,
-					{
-						method:
-							'DELETE'
-					}
-				);
-
-			const json =
-				await res.json();
-
-			if (!json.success)
-				throw new Error(
-					json.message
-				);
-
-			await Promise.all([
-				loadComponents(),
-				loadStats()
-			]);
-
-			toast.success('Salary Component deactivated successfully');
-			isConfirmOpen = false;
-		} catch (e) {
-			toast.error(
-				e instanceof Error
-					? e.message
-					: 'Failed to deactivate salary component'
-			);
-			console.error(e);
-		}
-	}
-
 	let activeDropdown = $state<string | null>(null);
+	/** cuid of the row whose kebab menu is currently open; null = none */
+	let openKebabCuid = $state<string | null>(null);
 
 	function toggleDropdown(name: string, e: MouseEvent) {
 		e.stopPropagation();
@@ -387,11 +334,13 @@
 
 	function closeAllDropdowns() {
 		activeDropdown = null;
+		openKebabCuid = null;
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Escape') {
 			activeDropdown = null;
+			openKebabCuid = null;
 		}
 	}
 </script>
@@ -427,7 +376,7 @@
 				<CardTitle class="text-sm font-medium text-muted-foreground">Total Components</CardTitle>
 			</CardHeader>
 			<CardContent>
-				<p class="text-3xl font-bold">{totalCount}</p>
+				<p class="text-3xl font-bold">{totalAllComponents}</p>
 				<p class="mt-1 text-xs text-muted-foreground">Registered salary masters</p>
 			</CardContent>
 		</Card>
@@ -585,27 +534,43 @@
 					<TableCell>
 						<StatusBadge is_active={comp.is_active} />
 					</TableCell>
-					<TableCell>
-						<div class="flex items-center gap-1">
+					<TableCell class="text-center">
+						<div class="relative flex justify-center">
+							<!-- Kebab trigger -->
 							<Button
 								variant="ghost"
 								size="icon-sm"
-								class="h-8 w-8 text-muted-foreground hover:text-foreground"
-								onclick={() => handleOpenEdit(comp)}
-								title="Edit component"
+								class="h-8 w-8 text-muted-foreground hover:text-foreground mx-auto"
+								onclick={(e) => {
+									e.stopPropagation();
+									openKebabCuid = openKebabCuid === comp.cuid ? null : comp.cuid;
+								}}
+								aria-label="Row actions"
+								title="Actions"
 							>
-								<Edit2Icon class="size-3.5" />
+								<MoreVerticalIcon class="size-4" />
 							</Button>
-							{#if comp.is_active}
-								<Button
-									variant="ghost"
-									size="icon-sm"
-									class="h-8 w-8 text-muted-foreground hover:text-destructive"
-									onclick={() => handleTriggerDeactivate(comp.id)}
-									title="Deactivate component"
+
+							<!-- Kebab dropdown containing ONLY Edit -->
+							{#if openKebabCuid === comp.cuid}
+								<div
+									role="menu"
+									tabindex="-1"
+									transition:scale={{ start: 0.95, duration: 100 }}
+									class="absolute right-1/2 translate-x-1/2 top-9 z-50 w-28 rounded-lg border border-border bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
+									onclick={(e) => e.stopPropagation()}
+									onkeydown={(e) => e.stopPropagation()}
 								>
-									<Trash2Icon class="size-3.5" />
-								</Button>
+									<!-- Edit -->
+									<button
+										type="button"
+										onclick={() => { openKebabCuid = null; handleOpenEdit(comp); }}
+										class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+									>
+										<PencilIcon class="size-3.5" />
+										Edit
+									</button>
+								</div>
 							{/if}
 						</div>
 					</TableCell>
@@ -751,14 +716,3 @@
 	</div>
 </MasterFormModal>
 
-<!-- Deactivation Confirm -->
-<ConfirmDialog
-	isOpen={isConfirmOpen}
-	title="Deactivate Salary Component?"
-	message="Are you sure you want to deactivate this salary component? Deactivating it will prevent future allocations, but won't affect legacy records."
-	confirmText="Deactivate"
-	cancelText="Cancel"
-	isConfirming={isConfirming}
-	onconfirm={handleDeactivateConfirm}
-	oncancel={() => (isConfirmOpen = false)}
-/>
