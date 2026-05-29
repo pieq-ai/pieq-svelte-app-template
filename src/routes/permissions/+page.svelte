@@ -3,6 +3,9 @@
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SearchIcon from '@lucide/svelte/icons/search';
+	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
+	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
+	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import { toast } from '$lib/toast';
 	import {
 		Alert,
@@ -39,6 +42,12 @@
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
 	
+	let sortColumn = $state('permission_key');
+	let sortDirection = $state<'asc' | 'desc' | null>(null);
+
+	let currentPage = $state(1);
+	let pageSize = $state(10);
+	
 	let isModalOpen = $state(false);
 	let isSubmitting = $state(false);
 	let editingPermission = $state<Permission | null>(null);
@@ -67,8 +76,37 @@
 		if (statusFilter !== 'all') {
 			result = result.filter((permission) => permission.status === statusFilter);
 		}
+
+		if (sortDirection && sortColumn) {
+			result.sort((a, b) => {
+				const valA = a[sortColumn as keyof typeof a];
+				const valB = b[sortColumn as keyof typeof b];
+
+				return sortDirection === 'asc'
+					? String(valA).localeCompare(String(valB))
+					: String(valB).localeCompare(String(valA));
+			});
+		}
+
 		return result;
 	});
+
+	let totalCount = $derived(permissions.length);
+	let totalPages = $derived(Math.ceil(filteredPermissions.length / pageSize));
+	let paginatedPermissions = $derived(filteredPermissions.slice((currentPage - 1) * pageSize, currentPage * pageSize));
+
+	function handleSort(column: string) {
+		if (sortColumn === column) {
+			if (sortDirection === 'asc') sortDirection = 'desc';
+			else if (sortDirection === 'desc') sortDirection = null;
+			else sortDirection = 'asc';
+		} else {
+			sortColumn = column;
+			sortDirection = 'asc';
+		}
+	}
+
+	
 
 	async function loadPermissions() {
 		isLoading = true;
@@ -178,7 +216,7 @@
 	<title>Permissions</title>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl space-y-8 px-1 py-4">
+<div class="mx-auto max-w-5xl space-y-6 px-1 py-4">
 	<div class="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
 			<Badge variant="secondary" class="uppercase">RBAC Foundation</Badge>
@@ -200,18 +238,40 @@
 	<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
 		<div class="relative flex-1">
 			<SearchIcon class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-			<Input bind:value={searchQuery} class="pl-9" placeholder="Search permissions..." />
+			<Input bind:value={searchQuery} oninput={() => (currentPage = 1)} class="pl-9" placeholder="Search permissions..." />
 		</div>
-		<FilterDropdown value={statusFilter} onChange={(value) => (statusFilter = value)} />
+		<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
 	</div>
 
 	<Card>
 		<Table>
-			<TableHeader>
+			<TableHeader class="bg-muted">
 				<TableRow>
-					<TableHead>Permission Key</TableHead>
-					<TableHead class="w-28">Status</TableHead>
-					<TableHead class="w-24 text-right">Actions</TableHead>
+					<TableHead class="font-bold text-foreground text-[15px]">
+						<Button variant="ghost" size="sm" class="-ml-2 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('permission_key')}>
+							Permission Key
+							{#if sortColumn === 'permission_key' && sortDirection === 'asc'}
+								<ArrowUpIcon class="ml-2 size-4" />
+							{:else if sortColumn === 'permission_key' && sortDirection === 'desc'}
+								<ArrowDownIcon class="ml-2 size-4" />
+							{:else}
+								<ArrowUpDownIcon class="ml-2 size-4" />
+							{/if}
+						</Button>
+					</TableHead>
+					<TableHead class="w-28 font-bold text-foreground text-[15px]">
+						<Button variant="ghost" size="sm" class="-ml-2 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
+							Status
+							{#if sortColumn === 'status' && sortDirection === 'asc'}
+								<ArrowUpIcon class="ml-2 size-4" />
+							{:else if sortColumn === 'status' && sortDirection === 'desc'}
+								<ArrowDownIcon class="ml-2 size-4" />
+							{:else}
+								<ArrowUpDownIcon class="ml-2 size-4" />
+							{/if}
+						</Button>
+					</TableHead>
+					<TableHead class="w-24 text-right font-bold text-foreground text-[15px]">Actions</TableHead>
 				</TableRow>
 			</TableHeader>
 			<TableBody>
@@ -220,7 +280,7 @@
 				{:else if filteredPermissions.length === 0}
 					<TableRow><TableCell colspan={3} class="py-12 text-center text-muted-foreground">No permissions found.</TableCell></TableRow>
 				{:else}
-					{#each filteredPermissions as permission (permission.cuid2)}
+					{#each paginatedPermissions as permission (permission.cuid2)}
 						<TableRow>
 							<TableCell class="font-mono text-sm font-semibold">{permission.permission_key}</TableCell>
 							<TableCell><Badge variant={permission.status === true ? 'default' : 'secondary'}>{permission.status ? 'Active' : 'Inactive'}</Badge></TableCell>
@@ -236,6 +296,17 @@
 			</TableBody>
 		</Table>
 	</Card>
+
+	<div class="flex items-center justify-between">
+		<p class="text-xs text-muted-foreground">
+			Showing {filteredPermissions.length} of {totalCount} entries
+		</p>
+		<div class="flex items-center space-x-2">
+				<Button variant="outline" size="sm" onclick={() => currentPage--} disabled={currentPage === 1}>Previous</Button>
+				<div class="text-sm text-muted-foreground font-medium">Page {currentPage} of {totalPages === 0 ? 1 : totalPages}</div>
+				<Button variant="outline" size="sm" onclick={() => currentPage++} disabled={currentPage >= totalPages || totalPages === 0}>Next</Button>
+			</div>
+	</div>
 </div>
 
 <CrudModal
@@ -244,7 +315,7 @@
 	description="Permission keys should use lowercase snake_case, such as employee_view."
 	onClose={() => (isModalOpen = false)}
 >
-	<form class="space-y-4" onsubmit={savePermission}>
+	<form class="space-y-3" onsubmit={savePermission}>
 		<div class="space-y-2">
 			<Label for="permission_key">Permission Key</Label>
 			<Input

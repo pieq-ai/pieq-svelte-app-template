@@ -2,6 +2,9 @@
 	import { onMount } from 'svelte';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
+	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
+	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
+	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { toast } from '$lib/toast';
 
@@ -40,7 +43,10 @@
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
 	let sortColumn = $state('designation_name');
-	let sortDirection = $state<'asc' | 'desc'>('asc');
+	let sortDirection = $state<'asc' | 'desc' | null>(null);
+
+	let currentPage = $state(1);
+	let pageSize = $state(10);
 
 	// Shared Form State
 	let editingDesignation = $state<Designation | null>(null);
@@ -75,8 +81,7 @@
 			const query = searchQuery.toLowerCase();
 			result = result.filter(
 				(designation) =>
-					designation.designation_name.toLowerCase().includes(query) ||
-					designation.cuid2.toLowerCase().includes(query)
+					designation.designation_name.toLowerCase().includes(query)
 			);
 		}
 
@@ -84,19 +89,23 @@
 			result = result.filter((designation) => designation.status === statusFilter);
 		}
 
-		result.sort((a, b) => {
-			const valA = a[sortColumn as keyof typeof a];
-			const valB = b[sortColumn as keyof typeof b];
+		if (sortDirection && sortColumn) {
+			result.sort((a, b) => {
+				const valA = a[sortColumn as keyof typeof a];
+				const valB = b[sortColumn as keyof typeof b];
 
-			return sortDirection === 'asc'
-				? String(valA).localeCompare(String(valB))
-				: String(valB).localeCompare(String(valA));
-		});
+				return sortDirection === 'asc'
+					? String(valA).localeCompare(String(valB))
+					: String(valB).localeCompare(String(valA));
+			});
+		}
 
 		return result;
 	});
 
 	let totalCount = $derived(designationsList.length);
+	let totalPages = $derived(Math.ceil(filteredDesignations.length / pageSize));
+	let paginatedDesignations = $derived(filteredDesignations.slice((currentPage - 1) * pageSize, currentPage * pageSize));
 	let activeCount = $derived(designationsList.filter((d) => d.status === true).length);
 	let inactiveCount = $derived(designationsList.filter((d) => d.status === false).length);
 
@@ -129,17 +138,16 @@
 
 	function handleSort(column: string) {
 		if (sortColumn === column) {
-			sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+			if (sortDirection === 'asc') sortDirection = 'desc';
+			else if (sortDirection === 'desc') sortDirection = null;
+			else sortDirection = 'asc';
 		} else {
 			sortColumn = column;
 			sortDirection = 'asc';
 		}
 	}
 
-	function sortIndicator(column: string) {
-		if (sortColumn !== column) return '';
-		return sortDirection === 'asc' ? ' ↑' : ' ↓';
-	}
+	
 
 	function openCreateModal() {
 		editingDesignation = null;
@@ -227,7 +235,7 @@
 	<title>HRMS Designation Directory</title>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl space-y-8 px-1 py-4">
+<div class="mx-auto max-w-5xl space-y-6 px-1 py-4">
 	<div class="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
 			<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
@@ -267,30 +275,44 @@
 		</Card>
 	</div>
 
-	<div class="space-y-4">
+	<div class="space-y-3">
 		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
 			<div class="relative flex-1">
 				<SearchIcon class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-				<Input bind:value={searchQuery} class="pl-9" placeholder="Search by designation name or CUID2..." />
+				<Input bind:value={searchQuery} oninput={() => (currentPage = 1)} class="pl-9" placeholder="Search by designation name..." />
 			</div>
-			<FilterDropdown value={statusFilter} onChange={(value) => (statusFilter = value)} />
+			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
 		</div>
 
 		<Card>
 			<Table>
-				<TableHeader>
+				<TableHeader class="bg-muted">
 					<TableRow>
-						<TableHead>
-							<Button variant="ghost" size="sm" class="-ml-2 h-8" onclick={() => handleSort('designation_name')}>
-								Designation Name{sortIndicator('designation_name')}
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('designation_name')}>
+								Designation Name
+							{#if sortColumn === 'designation_name' && sortDirection === 'asc'}
+								<ArrowUpIcon class="ml-2 size-4" />
+							{:else if sortColumn === 'designation_name' && sortDirection === 'desc'}
+								<ArrowDownIcon class="ml-2 size-4" />
+							{:else}
+								<ArrowUpDownIcon class="ml-2 size-4" />
+							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-28">
-							<Button variant="ghost" size="sm" class="-ml-2 h-8" onclick={() => handleSort('status')}>
-								Status{sortIndicator('status')}
+						<TableHead class="w-28 font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
+								Status
+							{#if sortColumn === 'status' && sortDirection === 'asc'}
+								<ArrowUpIcon class="ml-2 size-4" />
+							{:else if sortColumn === 'status' && sortDirection === 'desc'}
+								<ArrowDownIcon class="ml-2 size-4" />
+							{:else}
+								<ArrowUpDownIcon class="ml-2 size-4" />
+							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-24 text-right">Actions</TableHead>
+						<TableHead class="w-24 text-right font-bold text-foreground text-[15px]">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -308,12 +330,11 @@
 							</TableCell>
 						</TableRow>
 					{:else}
-						{#each filteredDesignations as designation (designation.cuid2)}
+						{#each paginatedDesignations as designation (designation.cuid2)}
 							<TableRow>
 								<TableCell>
 									<div class="flex flex-col">
 										<span class="font-semibold">{designation.designation_name}</span>
-										<span class="mt-0.5 font-mono text-[10px] leading-none text-muted-foreground">{designation.cuid2}</span>
 									</div>
 								</TableCell>
 								<TableCell>
@@ -331,9 +352,16 @@
 				</TableBody>
 			</Table>
 		</Card>
-		<p class="text-xs text-muted-foreground">
-			Showing {filteredDesignations.length} of {totalCount} entries
-		</p>
+		<div class="flex items-center justify-between">
+			<p class="text-xs text-muted-foreground">
+				Showing {filteredDesignations.length} of {totalCount} entries
+			</p>
+			<div class="flex items-center space-x-2">
+				<Button variant="outline" size="sm" onclick={() => currentPage--} disabled={currentPage === 1}>Previous</Button>
+				<div class="text-sm text-muted-foreground font-medium">Page {currentPage} of {totalPages === 0 ? 1 : totalPages}</div>
+				<Button variant="outline" size="sm" onclick={() => currentPage++} disabled={currentPage >= totalPages || totalPages === 0}>Next</Button>
+			</div>
+		</div>
 	</div>
 </div>
 
@@ -343,7 +371,7 @@
 	description="Register a job title for assignment in employee employment records."
 	onClose={() => (isModalOpen = false)}
 >
-	<form class="space-y-4" onsubmit={handleSaveDesignation}>
+	<form class="space-y-3" onsubmit={handleSaveDesignation}>
 		<div class="space-y-2">
 			<Label for="designation_name">Designation Name</Label>
 			<Input

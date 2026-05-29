@@ -3,6 +3,9 @@
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SearchIcon from '@lucide/svelte/icons/search';
+	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
+	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
+	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import { toast } from '$lib/toast';
 	import {
 		Alert,
@@ -39,6 +42,12 @@
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
 	
+	let sortColumn = $state('system_role_name');
+	let sortDirection = $state<'asc' | 'desc' | null>(null);
+
+	let currentPage = $state(1);
+	let pageSize = $state(10);
+	
 	let isModalOpen = $state(false);
 	let isSubmitting = $state(false);
 	let editingRole = $state<SystemRole | null>(null);
@@ -67,8 +76,37 @@
 		if (statusFilter !== 'all') {
 			result = result.filter((role) => role.status === statusFilter);
 		}
+
+		if (sortDirection && sortColumn) {
+			result.sort((a, b) => {
+				const valA = a[sortColumn as keyof typeof a];
+				const valB = b[sortColumn as keyof typeof b];
+
+				return sortDirection === 'asc'
+					? String(valA).localeCompare(String(valB))
+					: String(valB).localeCompare(String(valA));
+			});
+		}
+
 		return result;
 	});
+
+	let totalCount = $derived(roles.length);
+	let totalPages = $derived(Math.ceil(filteredRoles.length / pageSize));
+	let paginatedRoles = $derived(filteredRoles.slice((currentPage - 1) * pageSize, currentPage * pageSize));
+
+	function handleSort(column: string) {
+		if (sortColumn === column) {
+			if (sortDirection === 'asc') sortDirection = 'desc';
+			else if (sortDirection === 'desc') sortDirection = null;
+			else sortDirection = 'asc';
+		} else {
+			sortColumn = column;
+			sortDirection = 'asc';
+		}
+	}
+
+	
 
 	async function loadRoles() {
 		isLoading = true;
@@ -172,7 +210,7 @@
 	<title>System Roles</title>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl space-y-8 px-1 py-4">
+<div class="mx-auto max-w-5xl space-y-6 px-1 py-4">
 	<div class="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
 			<Badge variant="secondary" class="uppercase">RBAC Foundation</Badge>
@@ -194,18 +232,40 @@
 	<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
 		<div class="relative flex-1">
 			<SearchIcon class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-			<Input bind:value={searchQuery} class="pl-9" placeholder="Search roles..." />
+			<Input bind:value={searchQuery} oninput={() => (currentPage = 1)} class="pl-9" placeholder="Search roles..." />
 		</div>
-		<FilterDropdown value={statusFilter} onChange={(value) => (statusFilter = value)} />
+		<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
 	</div>
 
 	<Card>
 		<Table>
-			<TableHeader>
+			<TableHeader class="bg-muted">
 				<TableRow>
-					<TableHead>Role Name</TableHead>
-					<TableHead class="w-28">Status</TableHead>
-					<TableHead class="w-24 text-right">Actions</TableHead>
+					<TableHead class="font-bold text-foreground text-[15px]">
+						<Button variant="ghost" size="sm" class="-ml-2 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('system_role_name')}>
+							Role Name
+							{#if sortColumn === 'system_role_name' && sortDirection === 'asc'}
+								<ArrowUpIcon class="ml-2 size-4" />
+							{:else if sortColumn === 'system_role_name' && sortDirection === 'desc'}
+								<ArrowDownIcon class="ml-2 size-4" />
+							{:else}
+								<ArrowUpDownIcon class="ml-2 size-4" />
+							{/if}
+						</Button>
+					</TableHead>
+					<TableHead class="w-28 font-bold text-foreground text-[15px]">
+						<Button variant="ghost" size="sm" class="-ml-2 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
+							Status
+							{#if sortColumn === 'status' && sortDirection === 'asc'}
+								<ArrowUpIcon class="ml-2 size-4" />
+							{:else if sortColumn === 'status' && sortDirection === 'desc'}
+								<ArrowDownIcon class="ml-2 size-4" />
+							{:else}
+								<ArrowUpDownIcon class="ml-2 size-4" />
+							{/if}
+						</Button>
+					</TableHead>
+					<TableHead class="w-24 text-right font-bold text-foreground text-[15px]">Actions</TableHead>
 				</TableRow>
 			</TableHeader>
 			<TableBody>
@@ -214,7 +274,7 @@
 				{:else if filteredRoles.length === 0}
 					<TableRow><TableCell colspan={3} class="py-12 text-center text-muted-foreground">No roles found.</TableCell></TableRow>
 				{:else}
-					{#each filteredRoles as role (role.cuid2)}
+					{#each paginatedRoles as role (role.cuid2)}
 						<TableRow>
 							<TableCell class="font-semibold">{role.system_role_name}</TableCell>
 							<TableCell><Badge variant={role.status === true ? 'default' : 'secondary'}>{role.status ? 'Active' : 'Inactive'}</Badge></TableCell>
@@ -230,6 +290,17 @@
 			</TableBody>
 		</Table>
 	</Card>
+	
+	<div class="flex items-center justify-between">
+		<p class="text-xs text-muted-foreground">
+			Showing {filteredRoles.length} of {totalCount} entries
+		</p>
+		<div class="flex items-center space-x-2">
+				<Button variant="outline" size="sm" onclick={() => currentPage--} disabled={currentPage === 1}>Previous</Button>
+				<div class="text-sm text-muted-foreground font-medium">Page {currentPage} of {totalPages === 0 ? 1 : totalPages}</div>
+				<Button variant="outline" size="sm" onclick={() => currentPage++} disabled={currentPage >= totalPages || totalPages === 0}>Next</Button>
+			</div>
+	</div>
 </div>
 
 <CrudModal
@@ -238,7 +309,7 @@
 	description="Role names must be unique and contain only letters, numbers, and spaces."
 	onClose={() => (isModalOpen = false)}
 >
-	<form class="space-y-4" onsubmit={saveRole}>
+	<form class="space-y-3" onsubmit={saveRole}>
 		<div class="space-y-2">
 			<Label for="system_role_name">Role Name</Label>
 			<Input
