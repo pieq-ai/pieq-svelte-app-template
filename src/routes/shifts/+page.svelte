@@ -103,7 +103,7 @@
 		formLoading = true;
 		formError = '';
 		try {
-			const url = editShift ? `/api/shifts/${editShift.shift_id}` : '/api/shifts';
+			const url = editShift ? `/api/shifts/${editShift.cuid}` : '/api/shifts';
 			const method = editShift ? 'PUT' : 'POST';
 			const res = await fetch(url, {
 				method,
@@ -128,7 +128,7 @@
 		}
 	}
 
-	async function deactivateShift(id: number) {
+	async function deactivateShift(cuid: string) {
 		confirmation.ask({
 			title: 'Deactivate Shift',
 			message: 'Deactivate this shift? It will remain visible but marked as inactive.',
@@ -137,7 +137,7 @@
 			isDestructive: true,
 			onConfirm: async () => {
 				try {
-					const res = await fetch(`/api/shifts/${id}`, { method: 'DELETE' });
+					const res = await fetch(`/api/shifts/${cuid}`, { method: 'DELETE' });
 					const json = await res.json();
 					if (res.ok) {
 						await fetchShifts();
@@ -152,7 +152,7 @@
 		});
 	}
 
-	async function activateShift(id: number) {
+	async function activateShift(cuid: string) {
 		confirmation.ask({
 			title: 'Activate Shift',
 			message: 'Activate this shift? It will be marked as active.',
@@ -161,7 +161,7 @@
 			isDestructive: false,
 			onConfirm: async () => {
 				try {
-					const res = await fetch(`/api/shifts/${id}`, { method: 'PATCH' });
+					const res = await fetch(`/api/shifts/${cuid}`, { method: 'PATCH' });
 					const json = await res.json();
 					if (res.ok) {
 						await fetchShifts();
@@ -260,13 +260,13 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each filteredShifts as shift (shift.shift_id)}
+				{#each filteredShifts as shift (shift.cuid)}
 					<tr
 						style="border-top:1px solid var(--border);transition:background-color .2s ease"
 						onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}
 						onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = ''; }}
 					>
-						<td style="padding:14px 20px;font-size:13px;color:var(--muted-foreground)">{shift.shift_id}</td>
+						<td style="padding:14px 20px;font-size:13px;color:var(--muted-foreground)">{shift.cuid.slice(0, 8)}</td>
 						<td style="padding:14px 20px">
 							<div style="display:flex;align-items:center;gap:8px">
 								<span style="color:#C2652A">
@@ -296,7 +296,7 @@
 								</button>
 								{#if shift.status}
 									<button
-										onclick={() => deactivateShift(shift.shift_id)}
+										onclick={() => deactivateShift(shift.cuid)}
 										aria-label="Deactivate shift"
 										title="Deactivate shift"
 										style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid #fca5a520;background:none;cursor:pointer;transition:background .15s;color:#dc2626"
@@ -307,7 +307,7 @@
 									</button>
 								{:else}
 									<button
-										onclick={() => activateShift(shift.shift_id)}
+										onclick={() => activateShift(shift.cuid)}
 										aria-label="Activate shift"
 										title="Activate shift"
 										style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid #bbf7d040;background:none;cursor:pointer;transition:background .15s;color:#16a34a"

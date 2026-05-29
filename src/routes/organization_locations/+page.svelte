@@ -123,10 +123,8 @@
 			return;
 		}
 
-		formLoading = true;
-		formError = '';
 		try {
-			const url = editLocation ? `/api/organization_location/${editLocation.location_id}` : '/api/organization_location';
+			const url = editLocation ? `/api/organization_location/${editLocation.cuid}` : '/api/organization_location';
 			const method = editLocation ? 'PUT' : 'POST';
 			const res = await fetch(url, {
 				method,
@@ -151,7 +149,7 @@
 		}
 	}
 
-	async function deactivateLocation(id: number) {
+	async function deactivateLocation(cuid: string) {
 		confirmation.ask({
 			title: 'Deactivate Location',
 			message: 'Deactivate this location? It will remain visible but marked as inactive.',
@@ -160,7 +158,7 @@
 			isDestructive: true,
 			onConfirm: async () => {
 				try {
-					const res = await fetch(`/api/organization_location/${id}`, { method: 'DELETE' });
+					const res = await fetch(`/api/organization_location/${cuid}`, { method: 'DELETE' });
 					const json = await res.json();
 					if (res.ok) {
 						await fetchLocations();
@@ -175,7 +173,7 @@
 		});
 	}
 
-	async function activateLocation(id: number) {
+	async function activateLocation(cuid: string) {
 		confirmation.ask({
 			title: 'Activate Location',
 			message: 'Activate this location? It will be marked as active.',
@@ -184,7 +182,7 @@
 			isDestructive: false,
 			onConfirm: async () => {
 				try {
-					const res = await fetch(`/api/organization_location/${id}`, { method: 'PATCH' });
+					const res = await fetch(`/api/organization_location/${cuid}`, { method: 'PATCH' });
 					const json = await res.json();
 					if (res.ok) {
 						await fetchLocations();
@@ -283,13 +281,13 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each filteredLocations as loc (loc.location_id)}
+				{#each filteredLocations as loc (loc.cuid)}
 					<tr
 						style="border-top:1px solid var(--border);transition:background-color .2s ease"
 						onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}
 						onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = ''; }}
 					>
-						<td style="padding:14px 20px;font-size:13px;color:var(--muted-foreground)">{loc.location_id}</td>
+						<td style="padding:14px 20px;font-size:13px;color:var(--muted-foreground)">{loc.cuid.slice(0, 8)}</td>
 						<td style="padding:14px 20px">
 							<div style="display:flex;align-items:center;gap:8px">
 								<span style="color:#C2652A">
@@ -319,7 +317,7 @@
 								</button>
 								{#if loc.is_active}
 									<button
-										onclick={() => deactivateLocation(loc.location_id)}
+										onclick={() => deactivateLocation(loc.cuid)}
 										aria-label="Deactivate location"
 										title="Deactivate location"
 										style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid #fca5a520;background:none;cursor:pointer;transition:background .15s;color:#dc2626"
@@ -330,7 +328,7 @@
 									</button>
 								{:else}
 									<button
-										onclick={() => activateLocation(loc.location_id)}
+										onclick={() => activateLocation(loc.cuid)}
 										aria-label="Activate location"
 										title="Activate location"
 										style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid #bbf7d040;background:none;cursor:pointer;transition:background .15s;color:#16a34a"

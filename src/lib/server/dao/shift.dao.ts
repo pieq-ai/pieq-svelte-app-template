@@ -18,6 +18,14 @@ export async function createShift(data: ShiftCreateDTO): Promise<Shift> {
       minimum_work_hours: minHours,
       status: true
     },
+    select: {
+      cuid: true,
+      shift_name: true,
+      start_time: true,
+      end_time: true,
+      minimum_work_hours: true,
+      status: true
+    }
   }) as unknown as Promise<Shift>;
 }
 
@@ -28,9 +36,17 @@ export async function getShifts(page: number, limit: number): Promise<Shift[]> {
   const skip = (page - 1) * limit;
   return db.shift.findMany({
     where: { status: true },
-    orderBy: { shift_id: 'asc' },
+    orderBy: { id: 'asc' },
     skip,
     take: limit,
+    select: {
+      cuid: true,
+      shift_name: true,
+      start_time: true,
+      end_time: true,
+      minimum_work_hours: true,
+      status: true
+    }
   }) as unknown as Promise<Shift[]>;
 }
 
@@ -40,9 +56,17 @@ export async function getShifts(page: number, limit: number): Promise<Shift[]> {
 export async function getAllShifts(page: number, limit: number): Promise<Shift[]> {
   const skip = (page - 1) * limit;
   return db.shift.findMany({
-    orderBy: { shift_id: 'asc' },
+    orderBy: { id: 'asc' },
     skip,
     take: limit,
+    select: {
+      cuid: true,
+      shift_name: true,
+      start_time: true,
+      end_time: true,
+      minimum_work_hours: true,
+      status: true
+    }
   }) as unknown as Promise<Shift[]>;
 }
 
@@ -61,16 +85,26 @@ export async function countShifts(): Promise<number> {
 }
 
 /**
- * Retrieve a shift by its numeric ID.
+ * Retrieve a shift by its CUID.
  */
-export async function getShiftById(shiftId: number): Promise<Shift | null> {
-  return db.shift.findUnique({ where: { shift_id: shiftId } }) as unknown as Promise<Shift | null>;
+export async function getShiftByCuid(cuid: string): Promise<Shift | null> {
+  return db.shift.findUnique({
+    where: { cuid },
+    select: {
+      cuid: true,
+      shift_name: true,
+      start_time: true,
+      end_time: true,
+      minimum_work_hours: true,
+      status: true
+    }
+  }) as unknown as Promise<Shift | null>;
 }
 
 /**
  * Update an existing shift.
  */
-export async function updateShift(shiftId: number, data: ShiftUpdateDTO): Promise<Shift> {
+export async function updateShift(cuid: string, data: ShiftUpdateDTO): Promise<Shift> {
   const updateData: any = {};
   if (data.shift_name !== undefined) {
     updateData.shift_name = data.shift_name.trim();
@@ -89,27 +123,51 @@ export async function updateShift(shiftId: number, data: ShiftUpdateDTO): Promis
   }
 
   return db.shift.update({
-    where: { shift_id: shiftId },
+    where: { cuid },
     data: updateData,
+    select: {
+      cuid: true,
+      shift_name: true,
+      start_time: true,
+      end_time: true,
+      minimum_work_hours: true,
+      status: true
+    }
   }) as unknown as Promise<Shift>;
 }
 
 /**
  * Soft‑delete (deactivate) a shift.
  */
-export async function deactivateShift(shiftId: number): Promise<Shift> {
+export async function deactivateShift(cuid: string): Promise<Shift> {
   return db.shift.update({
-    where: { shift_id: shiftId },
-    data: { status: false }
+    where: { cuid },
+    data: { status: false },
+    select: {
+      cuid: true,
+      shift_name: true,
+      start_time: true,
+      end_time: true,
+      minimum_work_hours: true,
+      status: true
+    }
   }) as unknown as Promise<Shift>;
 }
 
 /**
  * Activate a deactivated shift.
  */
-export async function activateShift(shiftId: number): Promise<Shift> {
+export async function activateShift(cuid: string): Promise<Shift> {
   return db.shift.update({
-    where: { shift_id: shiftId },
-    data: { status: true }
+    where: { cuid },
+    data: { status: true },
+    select: {
+      cuid: true,
+      shift_name: true,
+      start_time: true,
+      end_time: true,
+      minimum_work_hours: true,
+      status: true
+    }
   }) as unknown as Promise<Shift>;
 }

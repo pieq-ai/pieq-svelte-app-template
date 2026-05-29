@@ -1,37 +1,36 @@
-// src/routes/api/roles/[id]/+server.ts
+// src/routes/api/roles/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as roleService from '$lib/server/services/role.service.js';
 
 /**
- * Helper to parse and validate numeric ID from the URL params.
+ * Helper to parse and validate CUID from the URL params.
  */
-function parseId(param: string | undefined): number {
+function parseCuid(param: string | undefined): string {
   if (!param) {
-    const err: any = new Error('Missing role ID');
+    const err: any = new Error('Missing role CUID');
     err.status = 400;
     throw err;
   }
-  const id = Number(param);
-  if (!Number.isInteger(id) || id <= 0) {
-    const err: any = new Error('Invalid role ID');
+  if (!/^[a-z0-9]{20,36}$/i.test(param)) {
+    const err: any = new Error('Invalid role CUID format');
     err.status = 400;
     throw err;
   }
-  return id;
+  return param;
 }
 
 /**
- * PUT /api/roles/:id
+ * PUT /api/roles/:cuid
  * Updates an existing role (partial update allowed).
  */
 export async function PUT({ request, params }) {
   try {
-    const id = parseId(params.id);
+    const cuid = parseCuid(params.cuid);
     if (request.headers.get('content-type')?.includes('application/json') === false) {
       return json({ error: 'Content-Type must be application/json' }, { status: 415 });
     }
     const payload = await request.json();
-    const role = await roleService.updateRole(id, payload);
+    const role = await roleService.updateRole(cuid, payload);
     return json({ data: role });
   } catch (err: any) {
     const status = err.status ?? 500;
@@ -40,18 +39,15 @@ export async function PUT({ request, params }) {
 }
 
 /**
- * DELETE /api/roles/:id
+ * DELETE /api/roles/:cuid
  * Soft‑deletes (deactivates) a role.
  */
 export async function DELETE({ params }) {
   try {
-    const id = parseId(params.id);
-    console.log('DELETE handler start for id:', id);
-    const result = await roleService.deleteRole(id);
-    console.log('DELETE handler finished, result:', result);
-    return json({ message: 'Role deactivated successfully', result }, { status: 200 });
+    const cuid = parseCuid(params.cuid);
+    const result = await roleService.deleteRole(cuid);
+    return json({ message: 'Role deactivated successfully', data: result }, { status: 200 });
   } catch (err: any) {
-    console.error('DELETE handler error:', err);
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });
   }

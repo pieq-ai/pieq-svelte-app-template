@@ -1,19 +1,32 @@
 // src/lib/server/validators/role.validator.ts
+import type { RoleCreateDTO, RoleUpdateDTO } from '$lib/types/role';
+
 /**
  * Simple utility to trim a string and return undefined if it becomes empty.
  */
-function sanitizeString(value: any): string | undefined {
+function sanitizeString(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
 /**
- * Validate pagination query parameters.
- * Returns an object with numeric page and limit.
- * Throws an error with status 400 on invalid input.
+ * Rejects any fields not present in the allowed list.
  */
-export function validatePaginationParams(query: Record<string, any>) {
+function rejectUnknownKeys(payload: Record<string, unknown>, allowedKeys: string[]): void {
+  const payloadKeys = Object.keys(payload);
+  const unknownKeys = payloadKeys.filter((key) => !allowedKeys.includes(key));
+  if (unknownKeys.length > 0) {
+    const err: any = new Error(`Unknown field(s) in request payload: ${unknownKeys.join(', ')}`);
+    err.status = 400;
+    throw err;
+  }
+}
+
+/**
+ * Validate pagination query parameters.
+ */
+export function validatePaginationParams(query: Record<string, unknown>): { page: number; limit: number } {
   const DEFAULT_PAGE = 1;
   const DEFAULT_LIMIT = 20;
   const MAX_LIMIT = 100;
@@ -21,13 +34,13 @@ export function validatePaginationParams(query: Record<string, any>) {
   let page = Number(query.page ?? DEFAULT_PAGE);
   let limit = Number(query.limit ?? DEFAULT_LIMIT);
 
-  if (!Number.isInteger(page) || page < 1) {
+  if (isNaN(page) || !Number.isInteger(page) || page < 1) {
     const err: any = new Error('Invalid pagination parameter: page must be a positive integer');
     err.status = 400;
     throw err;
   }
 
-  if (!Number.isInteger(limit) || limit < 1) {
+  if (isNaN(limit) || !Number.isInteger(limit) || limit < 1) {
     const err: any = new Error('Invalid pagination parameter: limit must be a positive integer');
     err.status = 400;
     throw err;
@@ -40,17 +53,18 @@ export function validatePaginationParams(query: Record<string, any>) {
 
 /**
  * Validate payload for creating a role.
- * Returns a sanitized object { name, description? }.
- * Throws an error with status 400 on validation failure.
  */
-export function validateCreatePayload(payload: any) {
+export function validateCreatePayload(payload: unknown): RoleCreateDTO {
   if (typeof payload !== 'object' || payload === null) {
     const err: any = new Error('Invalid request payload');
     err.status = 400;
     throw err;
   }
 
-  const name = sanitizeString(payload.name);
+  const raw = payload as Record<string, unknown>;
+  rejectUnknownKeys(raw, ['name']);
+
+  const name = sanitizeString(raw.name);
   if (!name) {
     const err: any = new Error('Name is required and cannot be empty');
     err.status = 400;
@@ -76,20 +90,21 @@ export function validateCreatePayload(payload: any) {
 
 /**
  * Validate payload for updating a role.
- * Allows partial updates.
- * Throws an error with status 400 on invalid fields.
  */
-export function validateUpdatePayload(payload: any) {
+export function validateUpdatePayload(payload: unknown): RoleUpdateDTO {
   if (typeof payload !== 'object' || payload === null) {
     const err: any = new Error('Invalid request payload');
     err.status = 400;
     throw err;
   }
 
-  const result: { name?: string } = {};
+  const raw = payload as Record<string, unknown>;
+  rejectUnknownKeys(raw, ['name', 'status']);
 
-  if (payload.name !== undefined) {
-    const name = sanitizeString(payload.name);
+  const result: RoleUpdateDTO = {};
+
+  if (raw.name !== undefined) {
+    const name = sanitizeString(raw.name);
     if (!name) {
       const err: any = new Error('Name cannot be empty or whitespace');
       err.status = 400;
@@ -107,6 +122,15 @@ export function validateUpdatePayload(payload: any) {
       throw err;
     }
     result.name = name;
+  }
+
+  if (raw.status !== undefined) {
+    if (typeof raw.status !== 'boolean') {
+      const err: any = new Error('Status must be a boolean');
+      err.status = 400;
+      throw err;
+    }
+    result.status = raw.status;
   }
 
   if (Object.keys(result).length === 0) {

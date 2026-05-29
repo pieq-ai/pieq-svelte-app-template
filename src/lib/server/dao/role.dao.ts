@@ -8,8 +8,14 @@ import type { Role, RoleCreateDTO, RoleUpdateDTO } from '$lib/types/role';
 export async function createRole(data: RoleCreateDTO): Promise<Role> {
   return db.role.create({
     data: {
-      name: data.name.trim()
+      name: data.name.trim(),
+      status: true
     },
+    select: {
+      cuid: true,
+      name: true,
+      status: true
+    }
   });
 }
 
@@ -20,9 +26,14 @@ export async function getRoles(page: number, limit: number): Promise<Role[]> {
   const skip = (page - 1) * limit;
   return db.role.findMany({
     where: { status: true },
-    orderBy: { role_id: 'asc' },
+    orderBy: { id: 'asc' },
     skip,
     take: limit,
+    select: {
+      cuid: true,
+      name: true,
+      status: true
+    }
   });
 }
 
@@ -33,9 +44,14 @@ export async function getRoles(page: number, limit: number): Promise<Role[]> {
 export async function getAllRoles(page: number, limit: number): Promise<Role[]> {
   const skip = (page - 1) * limit;
   return db.role.findMany({
-    orderBy: { role_id: 'asc' },
+    orderBy: { id: 'asc' },
     skip,
     take: limit,
+    select: {
+      cuid: true,
+      name: true,
+      status: true
+    }
   });
 }
 
@@ -54,31 +70,49 @@ export async function countRoles(): Promise<number> {
 }
 
 /**
- * Retrieve a role by its numeric ID (including inactive for update/delete checks).
+ * Retrieve a role by its CUID.
  */
-export async function getRoleById(roleId: number): Promise<Role | null> {
-  return db.role.findUnique({ where: { role_id: roleId } });
+export async function getRoleByCuid(cuid: string): Promise<Role | null> {
+  return db.role.findUnique({
+    where: { cuid },
+    select: {
+      cuid: true,
+      name: true,
+      status: true
+    }
+  });
 }
 
 /**
  * Update an existing role.
  */
-export async function updateRole(roleId: number, data: RoleUpdateDTO): Promise<Role> {
+export async function updateRole(cuid: string, data: RoleUpdateDTO): Promise<Role> {
   const updateData: any = {};
   if (data.name !== undefined) updateData.name = data.name.trim();
-  // updated_at handled automatically by Prisma @updatedAt
+  if (data.status !== undefined) updateData.status = data.status;
+
   return db.role.update({
-    where: { role_id: roleId },
+    where: { cuid },
     data: updateData,
+    select: {
+      cuid: true,
+      name: true,
+      status: true
+    }
   });
 }
 
 /**
  * Soft‑delete (deactivate) a role.
  */
-export async function deactivateRole(roleId: number, deletedBy?: number): Promise<Role> {
+export async function deactivateRole(cuid: string): Promise<Role> {
   return db.role.update({
-    where: { role_id: roleId },
-    data: { status: false }
+    where: { cuid },
+    data: { status: false },
+    select: {
+      cuid: true,
+      name: true,
+      status: true
+    }
   });
 }

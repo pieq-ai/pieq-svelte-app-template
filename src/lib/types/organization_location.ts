@@ -1,12 +1,12 @@
 // src/lib/types/organization_location.ts
 export interface CompanyLocation {
-  location_id: number;
+  cuid: string;
   location_name: string;
   address_line1: string;
   address_line2?: string | null;
   city: string;
-  state_id: number;
-  country_id: number;
+  state_uuid: string;
+  country_uuid: string;
   pin_code: string;
   timezone: string;
   is_active: boolean;
@@ -14,9 +14,23 @@ export interface CompanyLocation {
 
 export interface CompanyLocationCreateDTO {
   location_name: string;
+  address_line1?: string;
+  address_line2?: string | null;
+  city?: string;
+  state_uuid?: string;
+  country_uuid?: string;
+  pin_code?: string;
+  timezone?: string;
 }
 
 export interface CompanyLocationUpdateDTO {
   location_name?: string;
+  address_line1?: string;
+  address_line2?: string | null;
+  city?: string;
+  state_uuid?: string;
+  country_uuid?: string;
+  pin_code?: string;
+  timezone?: string;
   is_active?: boolean;
 }

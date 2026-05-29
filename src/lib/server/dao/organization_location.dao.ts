@@ -10,14 +10,27 @@ export async function createLocation(data: CompanyLocationCreateDTO): Promise<Co
   return db.companyLocation.create({
     data: {
       location_name: data.location_name.trim(),
-      address_line1: '123 Enterprise Way',
-      city: 'Default City',
-      state_id: 1,
-      country_id: 1,
-      pin_code: '000000',
-      timezone: 'UTC',
+      address_line1: data.address_line1 !== undefined ? data.address_line1 : '123 Enterprise Way',
+      address_line2: data.address_line2,
+      city: data.city !== undefined ? data.city : 'Default City',
+      state_uuid: data.state_uuid !== undefined ? data.state_uuid : 'state-cuid-placeholder',
+      country_uuid: data.country_uuid !== undefined ? data.country_uuid : 'country-cuid-placeholder',
+      pin_code: data.pin_code !== undefined ? data.pin_code : '000000',
+      timezone: data.timezone !== undefined ? data.timezone : 'UTC',
       is_active: true
     },
+    select: {
+      cuid: true,
+      location_name: true,
+      address_line1: true,
+      address_line2: true,
+      city: true,
+      state_uuid: true,
+      country_uuid: true,
+      pin_code: true,
+      timezone: true,
+      is_active: true
+    }
   }) as unknown as Promise<CompanyLocation>;
 }
 
@@ -28,9 +41,21 @@ export async function getLocations(page: number, limit: number): Promise<Company
   const skip = (page - 1) * limit;
   return db.companyLocation.findMany({
     where: { is_active: true },
-    orderBy: { location_id: 'asc' },
+    orderBy: { id: 'asc' },
     skip,
     take: limit,
+    select: {
+      cuid: true,
+      location_name: true,
+      address_line1: true,
+      address_line2: true,
+      city: true,
+      state_uuid: true,
+      country_uuid: true,
+      pin_code: true,
+      timezone: true,
+      is_active: true
+    }
   }) as unknown as Promise<CompanyLocation[]>;
 }
 
@@ -40,9 +65,21 @@ export async function getLocations(page: number, limit: number): Promise<Company
 export async function getAllLocations(page: number, limit: number): Promise<CompanyLocation[]> {
   const skip = (page - 1) * limit;
   return db.companyLocation.findMany({
-    orderBy: { location_id: 'asc' },
+    orderBy: { id: 'asc' },
     skip,
     take: limit,
+    select: {
+      cuid: true,
+      location_name: true,
+      address_line1: true,
+      address_line2: true,
+      city: true,
+      state_uuid: true,
+      country_uuid: true,
+      pin_code: true,
+      timezone: true,
+      is_active: true
+    }
   }) as unknown as Promise<CompanyLocation[]>;
 }
 
@@ -61,46 +98,117 @@ export async function countLocations(): Promise<number> {
 }
 
 /**
- * Retrieve a location by its numeric ID.
+ * Retrieve a location by its CUID.
  */
-export async function getLocationById(locationId: number): Promise<CompanyLocation | null> {
-  return db.companyLocation.findUnique({ where: { location_id: locationId } }) as unknown as Promise<CompanyLocation | null>;
+export async function getLocationByCuid(cuid: string): Promise<CompanyLocation | null> {
+  return db.companyLocation.findUnique({
+    where: { cuid },
+    select: {
+      cuid: true,
+      location_name: true,
+      address_line1: true,
+      address_line2: true,
+      city: true,
+      state_uuid: true,
+      country_uuid: true,
+      pin_code: true,
+      timezone: true,
+      is_active: true
+    }
+  }) as unknown as Promise<CompanyLocation | null>;
 }
 
 /**
  * Update an existing location.
  */
-export async function updateLocation(locationId: number, data: CompanyLocationUpdateDTO): Promise<CompanyLocation> {
+export async function updateLocation(cuid: string, data: CompanyLocationUpdateDTO): Promise<CompanyLocation> {
   const updateData: any = {};
   if (data.location_name !== undefined) {
     updateData.location_name = data.location_name.trim();
+  }
+  if (data.address_line1 !== undefined) {
+    updateData.address_line1 = data.address_line1;
+  }
+  if (data.address_line2 !== undefined) {
+    updateData.address_line2 = data.address_line2;
+  }
+  if (data.city !== undefined) {
+    updateData.city = data.city;
+  }
+  if (data.state_uuid !== undefined) {
+    updateData.state_uuid = data.state_uuid;
+  }
+  if (data.country_uuid !== undefined) {
+    updateData.country_uuid = data.country_uuid;
+  }
+  if (data.pin_code !== undefined) {
+    updateData.pin_code = data.pin_code;
+  }
+  if (data.timezone !== undefined) {
+    updateData.timezone = data.timezone;
   }
   if (data.is_active !== undefined) {
     updateData.is_active = data.is_active;
   }
 
   return db.companyLocation.update({
-    where: { location_id: locationId },
+    where: { cuid },
     data: updateData,
+    select: {
+      cuid: true,
+      location_name: true,
+      address_line1: true,
+      address_line2: true,
+      city: true,
+      state_uuid: true,
+      country_uuid: true,
+      pin_code: true,
+      timezone: true,
+      is_active: true
+    }
   }) as unknown as Promise<CompanyLocation>;
 }
 
 /**
  * Soft‑delete (deactivate) a location.
  */
-export async function deactivateLocation(locationId: number): Promise<CompanyLocation> {
+export async function deactivateLocation(cuid: string): Promise<CompanyLocation> {
   return db.companyLocation.update({
-    where: { location_id: locationId },
-    data: { is_active: false }
+    where: { cuid },
+    data: { is_active: false },
+    select: {
+      cuid: true,
+      location_name: true,
+      address_line1: true,
+      address_line2: true,
+      city: true,
+      state_uuid: true,
+      country_uuid: true,
+      pin_code: true,
+      timezone: true,
+      is_active: true
+    }
   }) as unknown as Promise<CompanyLocation>;
 }
 
 /**
  * Activate a deactivated location.
  */
-export async function activateLocation(locationId: number): Promise<CompanyLocation> {
+export async function activateLocation(cuid: string): Promise<CompanyLocation> {
   return db.companyLocation.update({
-    where: { location_id: locationId },
-    data: { is_active: true }
+    where: { cuid },
+    data: { is_active: true },
+    select: {
+      cuid: true,
+      location_name: true,
+      address_line1: true,
+      address_line2: true,
+      city: true,
+      state_uuid: true,
+      country_uuid: true,
+      pin_code: true,
+      timezone: true,
+      is_active: true
+    }
   }) as unknown as Promise<CompanyLocation>;
 }

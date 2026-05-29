@@ -99,7 +99,7 @@
 		formLoading = true;
 		formError = '';
 		try {
-			const url = editRole ? `/api/roles/${editRole.role_id}` : '/api/roles';
+			const url = editRole ? `/api/roles/${editRole.cuid}` : '/api/roles';
 			const method = editRole ? 'PUT' : 'POST';
 			const res = await fetch(url, {
 				method,
@@ -124,7 +124,7 @@
 		}
 	}
 
-	async function deactivateRole(id: number) {
+	async function deactivateRole(cuid: string) {
 		confirmation.ask({
 			title: 'Deactivate Role',
 			message: 'Deactivate this role? It will remain visible but marked as inactive.',
@@ -133,7 +133,7 @@
 			isDestructive: true,
 			onConfirm: async () => {
 				try {
-					const res = await fetch(`/api/roles/${id}`, { method: 'DELETE' });
+					const res = await fetch(`/api/roles/${cuid}`, { method: 'DELETE' });
 					const json = await res.json();
 					if (res.ok) {
 						await fetchRoles();
@@ -232,13 +232,13 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each filteredRoles as role (role.role_id)}
+				{#each filteredRoles as role (role.cuid)}
 					<tr
 						style="border-top:1px solid var(--border);transition:background-color .2s ease"
 						onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}
 						onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = ''; }}
 					>
-						<td style="padding:14px 20px;font-size:13px;color:var(--muted-foreground)">{role.role_id}</td>
+						<td style="padding:14px 20px;font-size:13px;color:var(--muted-foreground)">{role.cuid.slice(0, 8)}</td>
 						<td style="padding:14px 20px">
 							<div style="display:flex;align-items:center;gap:8px">
 								<span style="color:#C2652A">
@@ -268,7 +268,7 @@
 								</button>
 								{#if role.status}
 									<button
-										onclick={() => deactivateRole(role.role_id)}
+										onclick={() => deactivateRole(role.cuid)}
 										aria-label="Deactivate role"
 										title="Deactivate role"
 										style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid #fca5a520;background:none;cursor:pointer;transition:background .15s;color:#dc2626"

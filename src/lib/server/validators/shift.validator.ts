@@ -1,9 +1,23 @@
 // src/lib/server/validators/shift.validator.ts
+import type { ShiftCreateDTO, ShiftUpdateDTO } from '$lib/types/shift';
+
+/**
+ * Rejects any fields not present in the allowed list.
+ */
+function rejectUnknownKeys(payload: Record<string, unknown>, allowedKeys: string[]): void {
+  const payloadKeys = Object.keys(payload);
+  const unknownKeys = payloadKeys.filter((key) => !allowedKeys.includes(key));
+  if (unknownKeys.length > 0) {
+    const err: any = new Error(`Unknown field(s) in request payload: ${unknownKeys.join(', ')}`);
+    err.status = 400;
+    throw err;
+  }
+}
 
 /**
  * Validate pagination query parameters.
  */
-export function validatePaginationParams(query: Record<string, any>) {
+export function validatePaginationParams(query: Record<string, unknown>): { page: number; limit: number } {
   const DEFAULT_PAGE = 1;
   const DEFAULT_LIMIT = 20;
   const MAX_LIMIT = 100;
@@ -11,13 +25,13 @@ export function validatePaginationParams(query: Record<string, any>) {
   let page = Number(query.page ?? DEFAULT_PAGE);
   let limit = Number(query.limit ?? DEFAULT_LIMIT);
 
-  if (!Number.isInteger(page) || page < 1) {
+  if (isNaN(page) || !Number.isInteger(page) || page < 1) {
     const err: any = new Error('Invalid pagination parameter: page must be a positive integer');
     err.status = 400;
     throw err;
   }
 
-  if (!Number.isInteger(limit) || limit < 1) {
+  if (isNaN(limit) || !Number.isInteger(limit) || limit < 1) {
     const err: any = new Error('Invalid pagination parameter: limit must be a positive integer');
     err.status = 400;
     throw err;
@@ -31,26 +45,29 @@ export function validatePaginationParams(query: Record<string, any>) {
 /**
  * Validate payload for creating a shift.
  */
-export function validateCreatePayload(payload: any) {
+export function validateCreatePayload(payload: unknown): ShiftCreateDTO {
   if (typeof payload !== 'object' || payload === null || Object.keys(payload).length === 0) {
     const err: any = new Error('Shift name is required');
     err.status = 400;
     throw err;
   }
 
-  if (payload.shift_name === undefined || payload.shift_name === null) {
+  const raw = payload as Record<string, unknown>;
+  rejectUnknownKeys(raw, ['shift_name', 'start_time', 'end_time', 'minimum_work_hours']);
+
+  if (raw.shift_name === undefined || raw.shift_name === null) {
     const err: any = new Error('Shift name is required');
     err.status = 400;
     throw err;
   }
 
-  if (typeof payload.shift_name !== 'string') {
+  if (typeof raw.shift_name !== 'string') {
     const err: any = new Error('Shift name must be a string');
     err.status = 400;
     throw err;
   }
 
-  const shiftName = payload.shift_name.trim();
+  const shiftName = raw.shift_name.trim();
 
   if (shiftName.length === 0) {
     const err: any = new Error('Shift name is required');
@@ -84,44 +101,41 @@ export function validateCreatePayload(payload: any) {
 
   return {
     shift_name: shiftName,
-    start_time: payload.start_time,
-    end_time: payload.end_time,
-    minimum_work_hours: payload.minimum_work_hours
+    start_time: raw.start_time as string | undefined,
+    end_time: raw.end_time as string | undefined,
+    minimum_work_hours: raw.minimum_work_hours !== undefined ? Number(raw.minimum_work_hours) : undefined
   };
 }
 
 /**
  * Validate payload for updating a shift.
  */
-export function validateUpdatePayload(payload: any) {
+export function validateUpdatePayload(payload: unknown): ShiftUpdateDTO {
   if (typeof payload !== 'object' || payload === null || Object.keys(payload).length === 0) {
     const err: any = new Error('Shift name is required');
     err.status = 400;
     throw err;
   }
 
-  const result: {
-    shift_name?: string;
-    start_time?: any;
-    end_time?: any;
-    minimum_work_hours?: any;
-    status?: boolean;
-  } = {};
+  const raw = payload as Record<string, unknown>;
+  rejectUnknownKeys(raw, ['shift_name', 'start_time', 'end_time', 'minimum_work_hours', 'status']);
 
-  if (payload.shift_name !== undefined) {
-    if (payload.shift_name === null) {
+  const result: ShiftUpdateDTO = {};
+
+  if (raw.shift_name !== undefined) {
+    if (raw.shift_name === null) {
       const err: any = new Error('Shift name must be a string');
       err.status = 400;
       throw err;
     }
 
-    if (typeof payload.shift_name !== 'string') {
+    if (typeof raw.shift_name !== 'string') {
       const err: any = new Error('Shift name must be a string');
       err.status = 400;
       throw err;
     }
 
-    const shiftName = payload.shift_name.trim();
+    const shiftName = raw.shift_name.trim();
 
     if (shiftName.length === 0) {
       const err: any = new Error('Shift name is required');
@@ -156,22 +170,22 @@ export function validateUpdatePayload(payload: any) {
     result.shift_name = shiftName;
   }
 
-  if (payload.start_time !== undefined) {
-    result.start_time = payload.start_time;
+  if (raw.start_time !== undefined) {
+    result.start_time = raw.start_time as string;
   }
-  if (payload.end_time !== undefined) {
-    result.end_time = payload.end_time;
+  if (raw.end_time !== undefined) {
+    result.end_time = raw.end_time as string;
   }
-  if (payload.minimum_work_hours !== undefined) {
-    result.minimum_work_hours = payload.minimum_work_hours;
+  if (raw.minimum_work_hours !== undefined) {
+    result.minimum_work_hours = Number(raw.minimum_work_hours);
   }
-  if (payload.status !== undefined) {
-    if (typeof payload.status !== 'boolean') {
+  if (raw.status !== undefined) {
+    if (typeof raw.status !== 'boolean') {
       const err: any = new Error('Status must be a boolean');
       err.status = 400;
       throw err;
     }
-    result.status = payload.status;
+    result.status = raw.status;
   }
 
   if (Object.keys(result).length === 0) {

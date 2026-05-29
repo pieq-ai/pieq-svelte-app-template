@@ -1,9 +1,23 @@
 // src/lib/server/validators/organization_location.validator.ts
+import type { CompanyLocationCreateDTO, CompanyLocationUpdateDTO } from '$lib/types/organization_location';
+
+/**
+ * Rejects any fields not present in the allowed list.
+ */
+function rejectUnknownKeys(payload: Record<string, unknown>, allowedKeys: string[]): void {
+  const payloadKeys = Object.keys(payload);
+  const unknownKeys = payloadKeys.filter((key) => !allowedKeys.includes(key));
+  if (unknownKeys.length > 0) {
+    const err: any = new Error(`Unknown field(s) in request payload: ${unknownKeys.join(', ')}`);
+    err.status = 400;
+    throw err;
+  }
+}
 
 /**
  * Validate pagination query parameters.
  */
-export function validatePaginationParams(query: Record<string, any>) {
+export function validatePaginationParams(query: Record<string, unknown>): { page: number; limit: number } {
   const DEFAULT_PAGE = 1;
   const DEFAULT_LIMIT = 20;
   const MAX_LIMIT = 100;
@@ -31,26 +45,39 @@ export function validatePaginationParams(query: Record<string, any>) {
 /**
  * Validate payload for creating a company location.
  */
-export function validateCreatePayload(payload: any) {
+export function validateCreatePayload(payload: unknown): CompanyLocationCreateDTO {
   if (typeof payload !== 'object' || payload === null || Object.keys(payload).length === 0) {
     const err: any = new Error('Company Location name is required');
     err.status = 400;
     throw err;
   }
 
-  if (payload.location_name === undefined || payload.location_name === null) {
+  const raw = payload as Record<string, unknown>;
+  const allowedKeys = [
+    'location_name',
+    'address_line1',
+    'address_line2',
+    'city',
+    'state_uuid',
+    'country_uuid',
+    'pin_code',
+    'timezone'
+  ];
+  rejectUnknownKeys(raw, allowedKeys);
+
+  if (raw.location_name === undefined || raw.location_name === null) {
     const err: any = new Error('Company Location name is required');
     err.status = 400;
     throw err;
   }
 
-  if (typeof payload.location_name !== 'string') {
+  if (typeof raw.location_name !== 'string') {
     const err: any = new Error('Company Location name must be a string');
     err.status = 400;
     throw err;
   }
 
-  const name = payload.location_name.trim();
+  const name = raw.location_name.trim();
 
   if (name.length === 0) {
     const err: any = new Error('Company Location name is required');
@@ -108,39 +135,57 @@ export function validateCreatePayload(payload: any) {
   }
 
   return {
-    location_name: name
+    location_name: name,
+    address_line1: typeof raw.address_line1 === 'string' ? raw.address_line1 : undefined,
+    address_line2: typeof raw.address_line2 === 'string' ? raw.address_line2 : undefined,
+    city: typeof raw.city === 'string' ? raw.city : undefined,
+    state_uuid: typeof raw.state_uuid === 'string' ? raw.state_uuid : undefined,
+    country_uuid: typeof raw.country_uuid === 'string' ? raw.country_uuid : undefined,
+    pin_code: typeof raw.pin_code === 'string' ? raw.pin_code : undefined,
+    timezone: typeof raw.timezone === 'string' ? raw.timezone : undefined
   };
 }
 
 /**
  * Validate payload for updating a company location.
  */
-export function validateUpdatePayload(payload: any) {
+export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDTO {
   if (typeof payload !== 'object' || payload === null || Object.keys(payload).length === 0) {
     const err: any = new Error('Company Location name is required');
     err.status = 400;
     throw err;
   }
 
-  const result: {
-    location_name?: string;
-    is_active?: boolean;
-  } = {};
+  const raw = payload as Record<string, unknown>;
+  const allowedKeys = [
+    'location_name',
+    'address_line1',
+    'address_line2',
+    'city',
+    'state_uuid',
+    'country_uuid',
+    'pin_code',
+    'timezone',
+    'is_active'
+  ];
+  rejectUnknownKeys(raw, allowedKeys);
 
-  if (payload.location_name !== undefined) {
-    if (payload.location_name === null) {
+  const result: CompanyLocationUpdateDTO = {};
+
+  if (raw.location_name !== undefined) {
+    if (raw.location_name === null) {
       const err: any = new Error('Company Location name must be a string');
       err.status = 400;
       throw err;
     }
 
-    if (typeof payload.location_name !== 'string') {
+    if (typeof raw.location_name !== 'string') {
       const err: any = new Error('Company Location name must be a string');
       err.status = 400;
       throw err;
     }
 
-    const name = payload.location_name.trim();
+    const name = raw.location_name.trim();
 
     if (name.length === 0) {
       const err: any = new Error('Company Location name is required');
@@ -200,13 +245,42 @@ export function validateUpdatePayload(payload: any) {
     result.location_name = name;
   }
 
-  if (payload.is_active !== undefined) {
-    if (typeof payload.is_active !== 'boolean') {
+  if (raw.address_line1 !== undefined) {
+    if (typeof raw.address_line1 !== 'string') throw new Error('address_line1 must be a string');
+    result.address_line1 = raw.address_line1;
+  }
+  if (raw.address_line2 !== undefined) {
+    if (raw.address_line2 !== null && typeof raw.address_line2 !== 'string') throw new Error('address_line2 must be a string or null');
+    result.address_line2 = raw.address_line2;
+  }
+  if (raw.city !== undefined) {
+    if (typeof raw.city !== 'string') throw new Error('city must be a string');
+    result.city = raw.city;
+  }
+  if (raw.state_uuid !== undefined) {
+    if (typeof raw.state_uuid !== 'string') throw new Error('state_uuid must be a string');
+    result.state_uuid = raw.state_uuid;
+  }
+  if (raw.country_uuid !== undefined) {
+    if (typeof raw.country_uuid !== 'string') throw new Error('country_uuid must be a string');
+    result.country_uuid = raw.country_uuid;
+  }
+  if (raw.pin_code !== undefined) {
+    if (typeof raw.pin_code !== 'string') throw new Error('pin_code must be a string');
+    result.pin_code = raw.pin_code;
+  }
+  if (raw.timezone !== undefined) {
+    if (typeof raw.timezone !== 'string') throw new Error('timezone must be a string');
+    result.timezone = raw.timezone;
+  }
+
+  if (raw.is_active !== undefined) {
+    if (typeof raw.is_active !== 'boolean') {
       const err: any = new Error('is_active must be a boolean');
       err.status = 400;
       throw err;
     }
-    result.is_active = payload.is_active;
+    result.is_active = raw.is_active;
   }
 
   if (Object.keys(result).length === 0) {

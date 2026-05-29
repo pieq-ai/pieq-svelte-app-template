@@ -1,33 +1,31 @@
-// src/routes/api/shifts/[id]/+server.ts
+// src/routes/api/shifts/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as shiftService from '$lib/server/services/shift.service.js';
 
 /**
- * Helper to parse and validate numeric ID from the URL params.
- * Rejects non-numeric, decimal, zero, or negative IDs with a 400 status.
+ * Helper to parse and validate CUID from the URL params.
  */
-function parseId(param: string | undefined): number {
+function parseCuid(param: string | undefined): string {
   if (!param) {
-    const err: any = new Error('Missing shift ID');
+    const err: any = new Error('Missing shift CUID');
     err.status = 400;
     throw err;
   }
-  const id = Number(param);
-  if (isNaN(id) || !Number.isInteger(id) || id <= 0) {
-    const err: any = new Error('Invalid shift ID');
+  if (!/^[a-z0-9]{20,36}$/i.test(param)) {
+    const err: any = new Error('Invalid shift CUID format');
     err.status = 400;
     throw err;
   }
-  return id;
+  return param;
 }
 
 /**
- * PUT /api/shifts/:id
+ * PUT /api/shifts/:cuid
  * Updates an existing shift (partial update allowed).
  */
 export async function PUT({ request, params }) {
   try {
-    const id = parseId(params.id);
+    const cuid = parseCuid(params.cuid);
     const contentType = request.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       return json({ error: 'Content-Type must be application/json' }, { status: 415 });
@@ -40,7 +38,7 @@ export async function PUT({ request, params }) {
       return json({ error: 'Malformed or invalid JSON' }, { status: 400 });
     }
 
-    const shift = await shiftService.updateShift(id, payload);
+    const shift = await shiftService.updateShift(cuid, payload);
     return json({ data: shift });
   } catch (err: any) {
     const status = err.status ?? 500;
@@ -49,13 +47,13 @@ export async function PUT({ request, params }) {
 }
 
 /**
- * PATCH /api/shifts/:id
+ * PATCH /api/shifts/:cuid
  * Activates a deactivated shift.
  */
 export async function PATCH({ params }) {
   try {
-    const id = parseId(params.id);
-    const shift = await shiftService.activateShift(id);
+    const cuid = parseCuid(params.cuid);
+    const shift = await shiftService.activateShift(cuid);
     return json({ data: shift });
   } catch (err: any) {
     const status = err.status ?? 500;
@@ -64,13 +62,13 @@ export async function PATCH({ params }) {
 }
 
 /**
- * DELETE /api/shifts/:id
+ * DELETE /api/shifts/:cuid
  * Soft‑deletes (deactivates) a shift.
  */
 export async function DELETE({ params }) {
   try {
-    const id = parseId(params.id);
-    const shift = await shiftService.deleteShift(id);
+    const cuid = parseCuid(params.cuid);
+    const shift = await shiftService.deleteShift(cuid);
     return json({ message: 'Shift deactivated successfully', data: shift });
   } catch (err: any) {
     const status = err.status ?? 500;

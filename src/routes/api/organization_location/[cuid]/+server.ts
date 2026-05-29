@@ -1,41 +1,31 @@
-// src/routes/api/organization_location/[id]/+server.ts
+// src/routes/api/organization_location/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as locationService from '$lib/server/services/organization_location.service.js';
 
 /**
- * Helper to parse and validate numeric ID from URL params.
- * Rejects non-numeric, decimal, zero, negative, or SQL Injection IDs with a 400 status.
+ * Helper to parse and validate CUID from URL params.
  */
-function parseId(param: string | undefined): number {
+function parseCuid(param: string | undefined): string {
   if (!param) {
-    const err: any = new Error('Missing location ID');
+    const err: any = new Error('Missing location CUID');
     err.status = 400;
     throw err;
   }
-
-  // Security guard against SQL injection payloads inside route parameters
-  if (param.includes("'") || param.includes('"') || param.includes('--') || param.includes('/*')) {
-    const err: any = new Error('Invalid location ID format');
+  if (!/^[a-z0-9]{20,36}$/i.test(param)) {
+    const err: any = new Error('Invalid location CUID format');
     err.status = 400;
     throw err;
   }
-
-  const id = Number(param);
-  if (isNaN(id) || !Number.isInteger(id) || id <= 0) {
-    const err: any = new Error('Invalid location ID');
-    err.status = 400;
-    throw err;
-  }
-  return id;
+  return param;
 }
 
 /**
- * PUT /api/organization_location/:id
+ * PUT /api/organization_location/:cuid
  * Updates an existing company location (partial update allowed).
  */
 export async function PUT({ request, params }) {
   try {
-    const id = parseId(params.id);
+    const cuid = parseCuid(params.cuid);
     const contentType = request.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       return json({ error: 'Content-Type must be application/json' }, { status: 415 });
@@ -48,7 +38,7 @@ export async function PUT({ request, params }) {
       return json({ error: 'Malformed or invalid JSON' }, { status: 400 });
     }
 
-    const location = await locationService.updateLocation(id, payload);
+    const location = await locationService.updateLocation(cuid, payload);
     return json({ data: location });
   } catch (err: any) {
     const status = err.status ?? 500;
@@ -57,13 +47,13 @@ export async function PUT({ request, params }) {
 }
 
 /**
- * PATCH /api/organization_location/:id
+ * PATCH /api/organization_location/:cuid
  * Activates a deactivated location.
  */
 export async function PATCH({ params }) {
   try {
-    const id = parseId(params.id);
-    const location = await locationService.activateLocation(id);
+    const cuid = parseCuid(params.cuid);
+    const location = await locationService.activateLocation(cuid);
     return json({ data: location });
   } catch (err: any) {
     const status = err.status ?? 500;
@@ -72,13 +62,13 @@ export async function PATCH({ params }) {
 }
 
 /**
- * DELETE /api/organization_location/:id
+ * DELETE /api/organization_location/:cuid
  * Soft‑deletes (deactivates) a company location.
  */
 export async function DELETE({ params }) {
   try {
-    const id = parseId(params.id);
-    const location = await locationService.deleteLocation(id);
+    const cuid = parseCuid(params.cuid);
+    const location = await locationService.deleteLocation(cuid);
     return json({ message: 'Company Location deactivated successfully', data: location });
   } catch (err: any) {
     const status = err.status ?? 500;
