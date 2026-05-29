@@ -1,24 +1,3 @@
--- CreateEnum
-CREATE TYPE "GenderEnum" AS ENUM ('Male', 'Female', 'Others');
-
--- CreateEnum
-CREATE TYPE "MaritalStatusEnum" AS ENUM ('married', 'single', 'divorced', 'widowed');
-
--- CreateEnum
-CREATE TYPE "ApplicableGenderEnum" AS ENUM ('Male', 'Female', 'Others');
-
--- CreateEnum
-CREATE TYPE "PaymentFrequencyEnum" AS ENUM ('monthly', 'weekly', 'daily');
-
--- CreateEnum
-CREATE TYPE "CalculationTypeEnum" AS ENUM ('percentage', 'fixed');
-
--- CreateEnum
-CREATE TYPE "NotificationTypeEnum" AS ENUM ('info', 'warning', 'success', 'error');
-
--- CreateEnum
-CREATE TYPE "ThemeEnum" AS ENUM ('light', 'dark', 'system');
-
 -- CreateTable
 CREATE TABLE "employee" (
     "id" BIGSERIAL NOT NULL,
@@ -27,9 +6,9 @@ CREATE TABLE "employee" (
     "first_name" VARCHAR(100) NOT NULL,
     "last_name" VARCHAR(100) NOT NULL,
     "dob" DATE NOT NULL,
-    "gender" "GenderEnum" NOT NULL,
+    "gender" VARCHAR(100) NOT NULL,
     "blood_group_cuid2" TEXT NOT NULL,
-    "marital_status" "MaritalStatusEnum" NOT NULL,
+    "marital_status" VARCHAR(100) NOT NULL,
     "nationality_cuid2" TEXT NOT NULL,
     "mobile_no" VARCHAR(15) NOT NULL,
     "personal_email" VARCHAR(255) NOT NULL,
