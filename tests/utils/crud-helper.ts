@@ -5,18 +5,18 @@ export async function openCreateModal(page: Page, buttonText: string) {
   await expect(page.getByRole('dialog')).toBeVisible();
 }
 
-export async function fillInput(page: Page, label: string, value: string) {
+export async function fillInput(page: Page, label: string | RegExp, value: string) {
   await page.getByLabel(label).fill(value);
 }
 
-export async function selectDropdownValue(page: Page, label: string, value: string) {
+export async function selectDropdownValue(page: Page, label: string | RegExp, value: string) {
   // SvelteKit select elements often use standard select/option or custom combobox
   // For standard selects:
   const select = page.getByLabel(label);
   await select.selectOption({ label: value });
 }
 
-export async function selectDropdownByValueAttr(page: Page, label: string, valueAttr: string) {
+export async function selectDropdownByValueAttr(page: Page, label: string | RegExp, valueAttr: string) {
   const select = page.getByLabel(label);
   await select.selectOption({ value: valueAttr });
 }
