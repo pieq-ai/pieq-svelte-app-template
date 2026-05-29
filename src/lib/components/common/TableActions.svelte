@@ -1,48 +1,42 @@
 <script lang="ts">
 	import PencilIcon from '@lucide/svelte/icons/pencil';
-	import Trash2Icon from '@lucide/svelte/icons/trash-2';
+	import MoreVerticalIcon from '@lucide/svelte/icons/more-vertical';
 	import { Button } from '$lib/components';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
 	interface Props {
 		editLabel?: string;
-		deleteLabel?: string;
 		canEdit?: boolean;
-		canDelete?: boolean;
 		onEdit?: () => void;
-		onDelete?: () => void;
 	}
 
 	let {
 		editLabel = 'Edit',
-		deleteLabel = 'Deactivate',
 		canEdit = true,
-		canDelete = true,
-		onEdit,
-		onDelete
+		onEdit
 	}: Props = $props();
 </script>
 
-<div class="flex items-center justify-end gap-1.5">
-	{#if canEdit}
-		<Button
-			size="icon-sm"
-			variant="ghost"
-			class="h-7 w-7 text-muted-foreground hover:text-foreground"
-			aria-label={editLabel}
-			onclick={onEdit}
-		>
-			<PencilIcon class="size-3.5" />
-		</Button>
-	{/if}
-	{#if canDelete}
-		<Button
-			size="icon-sm"
-			variant="ghost"
-			class="h-7 w-7 text-muted-foreground hover:text-destructive"
-			aria-label={deleteLabel}
-			onclick={onDelete}
-		>
-			<Trash2Icon class="size-3.5" />
-		</Button>
-	{/if}
-</div>
+<DropdownMenu.Root>
+	<DropdownMenu.Trigger>
+		{#snippet child({ props })}
+			<Button
+				variant="ghost"
+				size="icon-sm"
+				class="h-7 w-7 text-muted-foreground hover:text-foreground"
+				aria-label="Actions"
+				{...props}
+			>
+				<MoreVerticalIcon class="size-4" />
+			</Button>
+		{/snippet}
+	</DropdownMenu.Trigger>
+	<DropdownMenu.Content align="end">
+		{#if canEdit}
+			<DropdownMenu.Item onclick={onEdit} class="cursor-pointer">
+				<PencilIcon class="mr-2 size-4" />
+				{editLabel}
+			</DropdownMenu.Item>
+		{/if}
+	</DropdownMenu.Content>
+</DropdownMenu.Root>

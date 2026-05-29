@@ -221,11 +221,7 @@
 							<TableCell class="text-right">
 								<TableActions
 									canEdit={permissions.canEdit}
-									canDelete={permissions.canDelete && role.status === true}
-									editLabel="Edit role"
-									deleteLabel="Deactivate role"
 									onEdit={() => openEditModal(role)}
-									onDelete={() => (itemToDelete = role)}
 								/>
 							</TableCell>
 						</TableRow>

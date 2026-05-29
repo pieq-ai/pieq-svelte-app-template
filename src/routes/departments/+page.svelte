@@ -326,11 +326,7 @@
 								<TableCell class="text-right">
 									<TableActions
 										canEdit={true}
-										canDelete={dept.status === true}
-										editLabel="Edit department"
-										deleteLabel="Deactivate department"
 										onEdit={() => openEditModal(dept)}
-										onDelete={() => (itemToDelete = dept)}
 									/>
 								</TableCell>
 							</TableRow>

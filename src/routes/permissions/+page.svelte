@@ -227,11 +227,7 @@
 							<TableCell class="text-right">
 								<TableActions
 									canEdit={masterPermissions.canEdit}
-									canDelete={masterPermissions.canDelete && permission.status === true}
-									editLabel="Edit permission"
-									deleteLabel="Deactivate permission"
 									onEdit={() => openEditModal(permission)}
-									onDelete={() => (itemToDelete = permission)}
 								/>
 							</TableCell>
 						</TableRow>

@@ -7,49 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-enum GenderEnum {
-  Male
-  Female
-  Others
-}
-
-enum MaritalStatusEnum {
-  married
-  single
-  divorced
-  widowed
-}
-
-enum ApplicableGenderEnum {
-  Male
-  Female
-  Others
-}
-
-enum PaymentFrequencyEnum {
-  monthly
-  weekly
-  daily
-}
-
-enum CalculationTypeEnum {
-  percentage
-  fixed
-}
-
-enum NotificationTypeEnum {
-  info
-  warning
-  success
-  error
-}
-
-enum ThemeEnum {
-  light
-  dark
-  system
-}
-
 model Employee {
   id BigInt @id @default(autoincrement())
 
@@ -60,12 +17,12 @@ model Employee {
 
   dob DateTime @db.Date
 
-  gender GenderEnum
+  gender String @db.VarChar(100)
 
   blood_group_cuid2 String
   blood_group       BloodGroup @relation(fields: [blood_group_cuid2], references: [cuid2])
 
-  marital_status MaritalStatusEnum
+  marital_status String @db.VarChar(100)
 
   nationality_cuid2 String
   nationality       Nationality @relation(fields: [nationality_cuid2], references: [cuid2])
