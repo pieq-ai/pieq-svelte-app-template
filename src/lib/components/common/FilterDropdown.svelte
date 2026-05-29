@@ -6,11 +6,10 @@
 
 	interface Props {
 		value: 'all' | boolean;
-		label?: string;
 		onChange: (value: 'all' | boolean) => void;
 	}
 
-	let { value, label = 'Filter by status', onChange }: Props = $props();
+	let { value, onChange }: Props = $props();
 
 	let displayValue = $derived(value === 'all' ? 'All' : value === true ? 'Active' : 'Inactive');
 </script>

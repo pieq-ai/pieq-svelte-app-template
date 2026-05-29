@@ -126,7 +126,13 @@ export async function createMasterData(masterKey: string, dto: MasterDataDto) {
 	
 
 	if (master === 'states') {
-		
+		if (!dto.country_cuid2) {
+			throw new Error('Country is required for states');
+		}
+		const country = await masterDataDao.findByCuid2('countries', dto.country_cuid2);
+		if (!country) {
+			throw new Error('Country not found');
+		}
 	}
 
 	await ensureUnique(master, name, dto.country_cuid2);
@@ -151,7 +157,13 @@ export async function updateMasterData(masterKey: string, cuid2: string, dto: Ma
 	
 
 	if (master === 'states') {
-		
+		if (!dto.country_cuid2) {
+			throw new Error('Country is required for states');
+		}
+		const country = await masterDataDao.findByCuid2('countries', dto.country_cuid2);
+		if (!country) {
+			throw new Error('Country not found');
+		}
 	}
 
 	await ensureUnique(master, name, dto.country_cuid2, cuid2);
