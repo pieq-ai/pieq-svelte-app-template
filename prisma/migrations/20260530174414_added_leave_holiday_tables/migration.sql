@@ -29,6 +29,7 @@ CREATE TABLE "leave_policies" (
     "gender_specific" BOOLEAN NOT NULL DEFAULT false,
     "applicable_gender" TEXT,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "deactivated_by_leave_type" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

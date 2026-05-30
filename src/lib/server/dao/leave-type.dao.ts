@@ -29,10 +29,29 @@ export async function update(cuid: string, data: Partial<CreateLeaveTypeData>) {
 		});
 
 		if (data.status !== undefined) {
-			await tx.leavePolicy.updateMany({
-				where: { leave_type_cuid: cuid },
-				data: { status: data.status }
-			});
+			if (data.status === false) {
+				await tx.leavePolicy.updateMany({
+					where: {
+						leave_type_cuid: cuid,
+						status: true
+					},
+					data: {
+						status: false,
+						deactivated_by_leave_type: true
+					}
+				});
+			} else {
+				await tx.leavePolicy.updateMany({
+					where: {
+						leave_type_cuid: cuid,
+						deactivated_by_leave_type: true
+					},
+					data: {
+						status: true,
+						deactivated_by_leave_type: false
+					}
+				});
+			}
 		}
 
 		return updatedType;

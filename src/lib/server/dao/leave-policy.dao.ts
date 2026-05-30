@@ -95,7 +95,8 @@ export async function update(cuid: string, policyData: Partial<CreateLeavePolicy
 				allow_half_day: policyData.allow_half_day,
 				gender_specific: policyData.gender_specific,
 				applicable_gender: policyData.applicable_gender,
-				status: policyData.status
+				status: policyData.status,
+				deactivated_by_leave_type: policyData.status !== undefined ? false : undefined
 			}
 		});
 

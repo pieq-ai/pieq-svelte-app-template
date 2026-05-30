@@ -40,6 +40,7 @@ model LeavePolicy {
   gender_specific          Boolean                @default(false)
   applicable_gender        String?
   status                   Boolean                @default(true)
+  deactivated_by_leave_type Boolean                @default(false)
   created_at               DateTime               @default(now()) @db.Timestamptz(3)
   updated_at               DateTime               @default(now()) @updatedAt @db.Timestamptz(3)
 
