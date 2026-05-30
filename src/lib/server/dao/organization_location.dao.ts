@@ -29,7 +29,9 @@ export async function createLocation(data: CompanyLocationCreateDTO): Promise<Co
       country_cuid: true,
       pin_code: true,
       timezone: true,
-      is_active: true
+      is_active: true,
+      created_at: true,
+      updated_at: true
     }
   }) as unknown as Promise<CompanyLocation>;
 }
@@ -54,7 +56,9 @@ export async function getLocations(page: number, limit: number): Promise<Company
       country_cuid: true,
       pin_code: true,
       timezone: true,
-      is_active: true
+      is_active: true,
+      created_at: true,
+      updated_at: true
     }
   }) as unknown as Promise<CompanyLocation[]>;
 }
@@ -78,7 +82,9 @@ export async function getAllLocations(page: number, limit: number): Promise<Comp
       country_cuid: true,
       pin_code: true,
       timezone: true,
-      is_active: true
+      is_active: true,
+      created_at: true,
+      updated_at: true
     }
   }) as unknown as Promise<CompanyLocation[]>;
 }
@@ -113,7 +119,9 @@ export async function getLocationByCuid(cuid: string): Promise<CompanyLocation |
       country_cuid: true,
       pin_code: true,
       timezone: true,
-      is_active: true
+      is_active: true,
+      created_at: true,
+      updated_at: true
     }
   }) as unknown as Promise<CompanyLocation | null>;
 }
@@ -164,7 +172,9 @@ export async function updateLocation(cuid: string, data: CompanyLocationUpdateDT
       country_cuid: true,
       pin_code: true,
       timezone: true,
-      is_active: true
+      is_active: true,
+      created_at: true,
+      updated_at: true
     }
   }) as unknown as Promise<CompanyLocation>;
 }
@@ -186,7 +196,9 @@ export async function deactivateLocation(cuid: string): Promise<CompanyLocation>
       country_cuid: true,
       pin_code: true,
       timezone: true,
-      is_active: true
+      is_active: true,
+      created_at: true,
+      updated_at: true
     }
   }) as unknown as Promise<CompanyLocation>;
 }
@@ -208,7 +220,9 @@ export async function activateLocation(cuid: string): Promise<CompanyLocation> {
       country_cuid: true,
       pin_code: true,
       timezone: true,
-      is_active: true
+      is_active: true,
+      created_at: true,
+      updated_at: true
     }
   }) as unknown as Promise<CompanyLocation>;
 }

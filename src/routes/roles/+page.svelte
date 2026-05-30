@@ -17,6 +17,7 @@
 	let limit = $state(10);
 	let total = $state(0);
 	let loading = $state(false);
+	let searchQuery = $state('');
 
 	// Modal state
 	let showForm = $state(false);
@@ -55,9 +56,15 @@
 	let totalPages = $derived(Math.max(1, Math.ceil(total / limit)));
 
 	let filteredRoles = $derived.by(() => {
-		if (filterStatus === 'active') return roles.filter((r) => r.status);
-		if (filterStatus === 'inactive') return roles.filter((r) => !r.status);
-		return roles;
+		let list = roles;
+		if (filterStatus === 'active') list = roles.filter((r) => r.status);
+		else if (filterStatus === 'inactive') list = roles.filter((r) => !r.status);
+
+		if (searchQuery.trim() !== '') {
+			const query = searchQuery.toLowerCase().trim();
+			list = list.filter((r) => r.name.toLowerCase().includes(query));
+		}
+		return list;
 	});
 
 	async function fetchRoles() {
@@ -221,19 +228,33 @@
 	</button>
 </div>
 
-<!-- Toolbar: filter -->
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-	<div style="display:flex;align-items:center;gap:8px">
-		<span style="font-size:13px;color:var(--muted-foreground)">Filter:</span>
-		<select
-			bind:value={filterStatus}
-			class="filter-select"
-			id="role-filter-select"
-		>
-			<option value="all">All</option>
-			<option value="active">Active</option>
-			<option value="inactive">Inactive</option>
-		</select>
+<!-- Toolbar: filter and search -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:16px;flex-wrap:wrap">
+	<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+		<div style="display:flex;align-items:center;gap:8px">
+			<span style="font-size:13px;color:var(--muted-foreground)">Search:</span>
+			<input
+				type="text"
+				bind:value={searchQuery}
+				placeholder="Search by name..."
+				id="role-search-input"
+				style="border:1px solid var(--border);background:var(--card);color:var(--foreground);font-size:13px;padding:6px 12px;border-radius:8px;outline:none;transition:border-color .2s;min-width:200px"
+				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--pieq-primary)')}
+				onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+			/>
+		</div>
+		<div style="display:flex;align-items:center;gap:8px">
+			<span style="font-size:13px;color:var(--muted-foreground)">Filter:</span>
+			<select
+				bind:value={filterStatus}
+				class="filter-select"
+				id="role-filter-select"
+			>
+				<option value="all">All</option>
+				<option value="active">Active</option>
+				<option value="inactive">Inactive</option>
+			</select>
+		</div>
 	</div>
 	<p style="font-size:12px;color:var(--muted-foreground)">
 		{filteredRoles.length} of {roles.length} role{roles.length !== 1 ? 's' : ''}
@@ -257,7 +278,6 @@
 		<table style="width:100%;border-collapse:collapse">
 			<thead style="background:var(--muted)">
 				<tr>
-					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">#</th>
 					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Role Name</th>
 					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Status</th>
 					<th style="padding:12px 20px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Actions</th>
@@ -270,7 +290,6 @@
 						onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}
 						onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = ''; }}
 					>
-						<td style="padding:14px 20px;font-size:13px;color:var(--muted-foreground)">{role.cuid.slice(0, 8)}</td>
 						<td style="padding:14px 20px">
 							<div style="display:flex;align-items:center;gap:8px">
 								<span style="color:#C2652A">

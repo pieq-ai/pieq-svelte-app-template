@@ -18,14 +18,67 @@
 	let limit = $state(10);
 	let total = $state(0);
 	let loading = $state(false);
+	let searchQuery = $state('');
 
 	// Modal state
 	let showForm = $state(false);
 	let editLocation = $state<CompanyLocation | null>(null);
 	let formName = $state('');
+	let formAddress1 = $state('');
+	let formAddress2 = $state('');
+	let formCity = $state('');
+	let formStateCuid = $state('');
+	let formCountryCuid = $state('');
+	let formPinCode = $state('');
+	let formTimezone = $state('');
 	let formStatus = $state(true);
 	let formError = $state('');
 	let formLoading = $state(false);
+
+	// Dropdown choices
+	let countries = $state<any[]>([]);
+	let states = $state<any[]>([]);
+
+	let filteredStates = $derived(states.filter(s => s.country_cuid === formCountryCuid));
+
+	async function fetchDropdowns() {
+		try {
+			const resCountries = await fetch('/api/countries');
+			const jsonCountries = await resCountries.json();
+			if (resCountries.ok) {
+				countries = jsonCountries.data ?? [];
+			}
+			const resStates = await fetch('/api/states');
+			const jsonStates = await resStates.json();
+			if (resStates.ok) {
+				states = jsonStates.data ?? [];
+			}
+		} catch (e) {
+			console.error('Failed to fetch dropdown choices', e);
+		}
+	}
+
+	function getCountryName(countryCuid: string): string {
+		const country = countries.find(c => c.cuid === countryCuid);
+		return country ? country.country_name : countryCuid;
+	}
+
+	function getStateName(stateCuid: string): string {
+		const state = states.find(s => s.cuid === stateCuid);
+		return state ? state.state_name : stateCuid;
+	}
+
+	function formatDate(dateVal: any): string {
+		if (!dateVal) return 'N/A';
+		const d = new Date(dateVal);
+		return d.toLocaleDateString(undefined, {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit'
+		});
+	}
 
 	let activeDropdownId = $state<string | null>(null);
 
@@ -56,9 +109,29 @@
 	let totalPages = $derived(Math.max(1, Math.ceil(total / limit)));
 
 	let filteredLocations = $derived.by(() => {
-		if (filterStatus === 'active') return locations.filter((loc) => loc.is_active);
-		if (filterStatus === 'inactive') return locations.filter((loc) => !loc.is_active);
-		return locations;
+		let list = locations;
+		if (filterStatus === 'active') list = locations.filter((loc) => loc.is_active);
+		else if (filterStatus === 'inactive') list = locations.filter((loc) => !loc.is_active);
+
+		if (searchQuery.trim() !== '') {
+			const query = searchQuery.toLowerCase().trim();
+			list = list.filter((loc) => {
+				const locName = (loc.location_name ?? '').toLowerCase();
+				const city = (loc.city ?? '').toLowerCase();
+				const stateName = getStateName(loc.state_cuid ?? '').toLowerCase();
+				const countryName = getCountryName(loc.country_cuid ?? '').toLowerCase();
+				const pinCode = (loc.pin_code ?? '').toLowerCase();
+
+				return (
+					locName.includes(query) ||
+					city.includes(query) ||
+					stateName.includes(query) ||
+					countryName.includes(query) ||
+					pinCode.includes(query)
+				);
+			});
+		}
+		return list;
 	});
 
 	async function fetchLocations() {
@@ -80,6 +153,13 @@
 	function openCreate() {
 		editLocation = null;
 		formName = '';
+		formAddress1 = '';
+		formAddress2 = '';
+		formCity = '';
+		formCountryCuid = '';
+		formStateCuid = '';
+		formPinCode = '';
+		formTimezone = 'UTC';
 		formStatus = true;
 		formError = '';
 		showForm = true;
@@ -88,6 +168,13 @@
 	function openEdit(loc: CompanyLocation) {
 		editLocation = loc;
 		formName = loc.location_name;
+		formAddress1 = loc.address_line1 ?? '';
+		formAddress2 = loc.address_line2 ?? '';
+		formCity = loc.city ?? '';
+		formCountryCuid = loc.country_cuid ?? '';
+		formStateCuid = loc.state_cuid ?? '';
+		formPinCode = loc.pin_code ?? '';
+		formTimezone = loc.timezone ?? 'UTC';
 		formStatus = loc.is_active;
 		formError = '';
 		showForm = true;
@@ -96,6 +183,13 @@
 	function closeForm() {
 		showForm = false;
 		formName = '';
+		formAddress1 = '';
+		formAddress2 = '';
+		formCity = '';
+		formCountryCuid = '';
+		formStateCuid = '';
+		formPinCode = '';
+		formTimezone = '';
 		formError = '';
 		editLocation = null;
 	}
@@ -115,6 +209,42 @@
 		}
 		if (nameTrimmed.length > 255) {
 			formError = 'Company Location name exceeds maximum length of 255 characters.';
+			toast.error(formError);
+			return;
+		}
+
+		const address1Trimmed = formAddress1.trim();
+		const cityTrimmed = formCity.trim();
+		const pinTrimmed = formPinCode.trim();
+		const tzTrimmed = formTimezone.trim();
+
+		if (!address1Trimmed) {
+			formError = 'Address Line 1 is required.';
+			toast.error(formError);
+			return;
+		}
+		if (!cityTrimmed) {
+			formError = 'City is required.';
+			toast.error(formError);
+			return;
+		}
+		if (!formCountryCuid) {
+			formError = 'Country is required.';
+			toast.error(formError);
+			return;
+		}
+		if (!formStateCuid) {
+			formError = 'State is required.';
+			toast.error(formError);
+			return;
+		}
+		if (!pinTrimmed) {
+			formError = 'Pin Code is required.';
+			toast.error(formError);
+			return;
+		}
+		if (!tzTrimmed) {
+			formError = 'Timezone is required.';
 			toast.error(formError);
 			return;
 		}
@@ -154,7 +284,16 @@
 		try {
 			const url = editLocation ? `/api/organization_location/${editLocation.cuid}` : '/api/organization_location';
 			const method = editLocation ? 'PUT' : 'POST';
-			const payload: any = { location_name: nameTrimmed };
+			const payload: any = {
+				location_name: nameTrimmed,
+				address_line1: address1Trimmed,
+				address_line2: formAddress2 ? formAddress2.trim() : null,
+				city: cityTrimmed,
+				state_cuid: formStateCuid,
+				country_cuid: formCountryCuid,
+				pin_code: pinTrimmed,
+				timezone: tzTrimmed
+			};
 			if (editLocation) {
 				payload.is_active = formStatus;
 			}
@@ -243,7 +382,10 @@
 		}
 	}
 
-	onMount(fetchLocations);
+	onMount(async () => {
+		await fetchLocations();
+		await fetchDropdowns();
+	});
 </script>
 
 <svelte:head>
@@ -270,19 +412,33 @@
 	</button>
 </div>
 
-<!-- Toolbar: filter -->
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-	<div style="display:flex;align-items:center;gap:8px">
-		<span style="font-size:13px;color:var(--muted-foreground)">Filter:</span>
-		<select
-			bind:value={filterStatus}
-			class="filter-select"
-			id="location-filter-select"
-		>
-			<option value="all">All</option>
-			<option value="active">Active</option>
-			<option value="inactive">Inactive</option>
-		</select>
+<!-- Toolbar: filter and search -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:16px;flex-wrap:wrap">
+	<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+		<div style="display:flex;align-items:center;gap:8px">
+			<span style="font-size:13px;color:var(--muted-foreground)">Search:</span>
+			<input
+				type="text"
+				bind:value={searchQuery}
+				placeholder="Search location, city, pin..."
+				id="location-search-input"
+				style="border:1px solid var(--border);background:var(--card);color:var(--foreground);font-size:13px;padding:6px 12px;border-radius:8px;outline:none;transition:border-color .2s;min-width:220px"
+				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--pieq-primary)')}
+				onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+			/>
+		</div>
+		<div style="display:flex;align-items:center;gap:8px">
+			<span style="font-size:13px;color:var(--muted-foreground)">Filter:</span>
+			<select
+				bind:value={filterStatus}
+				class="filter-select"
+				id="location-filter-select"
+			>
+				<option value="all">All</option>
+				<option value="active">Active</option>
+				<option value="inactive">Inactive</option>
+			</select>
+		</div>
 	</div>
 	<p style="font-size:12px;color:var(--muted-foreground)">
 		{filteredLocations.length} of {locations.length} location{locations.length !== 1 ? 's' : ''}
@@ -306,10 +462,15 @@
 		<table style="width:100%;border-collapse:collapse">
 			<thead style="background:var(--muted)">
 				<tr>
-					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">#</th>
-					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Location Name</th>
-					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Status</th>
-					<th style="padding:12px 20px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Actions</th>
+					<th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Location Name</th>
+					<th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Address</th>
+					<th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">City</th>
+					<th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">State</th>
+					<th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Country</th>
+					<th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Pin Code</th>
+					<th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Timezone</th>
+					<th style="padding:12px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Status</th>
+					<th style="padding:12px 16px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Actions</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -319,8 +480,7 @@
 						onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}
 						onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = ''; }}
 					>
-						<td style="padding:14px 20px;font-size:13px;color:var(--muted-foreground)">{loc.cuid.slice(0, 8)}</td>
-						<td style="padding:14px 20px">
+						<td style="padding:14px 16px">
 							<div style="display:flex;align-items:center;gap:8px">
 								<span style="color:#C2652A">
 									<MapPinIcon size={15} />
@@ -328,14 +488,20 @@
 								<span style="font-size:14px;font-weight:600">{loc.location_name}</span>
 							</div>
 						</td>
-						<td style="padding:14px 20px">
+						<td style="padding:14px 16px;font-size:13px">{loc.address_line1}{loc.address_line2 ? ', ' + loc.address_line2 : ''}</td>
+						<td style="padding:14px 16px;font-size:13px">{loc.city}</td>
+						<td style="padding:14px 16px;font-size:13px">{getStateName(loc.state_cuid)}</td>
+						<td style="padding:14px 16px;font-size:13px">{getCountryName(loc.country_cuid)}</td>
+						<td style="padding:14px 16px;font-size:13px">{loc.pin_code}</td>
+						<td style="padding:14px 16px;font-size:13px">{loc.timezone}</td>
+						<td style="padding:14px 16px">
 							{#if loc.is_active}
 								<span class="badge-active">Active</span>
 							{:else}
 								<span class="badge-inactive">Inactive</span>
 							{/if}
 						</td>
-						<td style="padding:14px 20px;text-align:right;position:relative">
+						<td style="padding:14px 16px;text-align:right;position:relative">
 							<div style="display:inline-flex;align-items:center;justify-content:flex-end">
 								<button
 									onclick={(e) => toggleDropdown(loc.cuid, e)}
@@ -347,7 +513,7 @@
 								>
 									<MoreVerticalIcon size={15} />
 								</button>
-
+ 
 								{#if activeDropdownId === loc.cuid}
 									<div
 										style="position:absolute;right:20px;top:44px;z-index:50;background:var(--background);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.08);min-width:110px;padding:4px 0"
@@ -411,6 +577,120 @@
 			{#if formError}
 				<p style="color:#dc2626;font-size:12px;margin:0">{formError}</p>
 			{/if}
+		</div>
+
+		<div style="display:flex;flex-direction:column;gap:6px">
+			<label for="location-address1" style="font-size:13px;font-weight:600">
+				Address Line 1 <span style="color:#C2652A">*</span>
+			</label>
+			<input
+				id="location-address1"
+				type="text"
+				bind:value={formAddress1}
+				placeholder="e.g. 123 Enterprise Way"
+				style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
+				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+				onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+			/>
+		</div>
+
+		<div style="display:flex;flex-direction:column;gap:6px">
+			<label for="location-address2" style="font-size:13px;font-weight:600">
+				Address Line 2 (Optional)
+			</label>
+			<input
+				id="location-address2"
+				type="text"
+				bind:value={formAddress2}
+				placeholder="e.g. Suite 400"
+				style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
+				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+				onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+			/>
+		</div>
+
+		<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+			<div style="display:flex;flex-direction:column;gap:6px">
+				<label for="location-city" style="font-size:13px;font-weight:600">
+					City <span style="color:#C2652A">*</span>
+				</label>
+				<input
+					id="location-city"
+					type="text"
+					bind:value={formCity}
+					placeholder="e.g. Chennai"
+					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
+					onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+					onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+				/>
+			</div>
+			<div style="display:flex;flex-direction:column;gap:6px">
+				<label for="location-pincode" style="font-size:13px;font-weight:600">
+					Pin Code <span style="color:#C2652A">*</span>
+				</label>
+				<input
+					id="location-pincode"
+					type="text"
+					bind:value={formPinCode}
+					placeholder="e.g. 600001"
+					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
+					onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+					onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+				/>
+			</div>
+		</div>
+
+		<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+			<div style="display:flex;flex-direction:column;gap:6px">
+				<label for="location-country" style="font-size:13px;font-weight:600">
+					Country <span style="color:#C2652A">*</span>
+				</label>
+				<select
+					id="location-country"
+					bind:value={formCountryCuid}
+					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
+					onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+					onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+				>
+					<option value="">Select Country</option>
+					{#each countries as country}
+						<option value={country.cuid}>{country.country_name}</option>
+					{/each}
+				</select>
+			</div>
+			<div style="display:flex;flex-direction:column;gap:6px">
+				<label for="location-state" style="font-size:13px;font-weight:600">
+					State <span style="color:#C2652A">*</span>
+				</label>
+				<select
+					id="location-state"
+					bind:value={formStateCuid}
+					disabled={!formCountryCuid}
+					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box;opacity:{!formCountryCuid ? 0.5 : 1}"
+					onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+					onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+				>
+					<option value="">Select State</option>
+					{#each filteredStates as state}
+						<option value={state.cuid}>{state.state_name}</option>
+					{/each}
+				</select>
+			</div>
+		</div>
+
+		<div style="display:flex;flex-direction:column;gap:6px">
+			<label for="location-timezone" style="font-size:13px;font-weight:600">
+				Timezone <span style="color:#C2652A">*</span>
+			</label>
+			<input
+				id="location-timezone"
+				type="text"
+				bind:value={formTimezone}
+				placeholder="e.g. Asia/Kolkata or UTC"
+				style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
+				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+				onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+			/>
 		</div>
 
 		{#if editLocation}

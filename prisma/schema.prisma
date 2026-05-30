@@ -16,6 +16,10 @@ model Role {
 
   status Boolean @default(true)
 
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+
   @@map("roles")
 }
 
@@ -33,6 +37,10 @@ model Shift {
   minimum_work_hours Decimal @db.Decimal(4, 2)
 
   status Boolean @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
 
   @@map("shifts")
 }

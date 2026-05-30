@@ -10,6 +10,8 @@ export interface CompanyLocation {
   pin_code: string;
   timezone: string;
   is_active: boolean;
+  created_at?: Date | string;
+  updated_at?: Date | string;
 }
 
 export interface CompanyLocationCreateDTO {
