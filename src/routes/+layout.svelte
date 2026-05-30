@@ -11,7 +11,6 @@
 	import LogInIcon from '@lucide/svelte/icons/log-in';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
 	import SettingsIcon from '@lucide/svelte/icons/settings';
-	import UsersRoundIcon from '@lucide/svelte/icons/users-round';
 	import WalletIcon from '@lucide/svelte/icons/wallet';
 
 	let { children, data } = $props();
@@ -20,7 +19,6 @@
 
 	const protectedNavItems = [
 		{ label: 'Dashboard', href: resolve('/dashboard'), icon: LayoutDashboardIcon },
-		{ label: 'Employees', href: resolve('/employees'), icon: UsersRoundIcon },
 		{ label: 'Salary Components', href: resolve('/salary-components'), icon: WalletIcon }
 	];
 

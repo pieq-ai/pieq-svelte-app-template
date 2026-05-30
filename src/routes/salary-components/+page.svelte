@@ -156,30 +156,15 @@
 
 	async function loadStats() {
 		try {
-			const res = await fetch(
-				'/api/salary-components?pageSize=9999'
-			);
+			const res = await fetch('/api/salary-components?stats=true');
 
 			if (!res.ok) return;
 
 			const json = await res.json();
 
-			const all = json.items || [];
-
-			// Unfiltered total — always reflects full dataset
-			totalAllComponents = json.total;
-
-			earningsCount = all.filter(
-					(x: SalaryComponent) =>
-						x.component_type === 'earning' &&
-						x.is_active === true
-				).length;
-
-			deductionsCount = all.filter(
-					(x: SalaryComponent) =>
-						x.component_type === 'deduction' &&
-						x.is_active === true
-				).length;
+			totalAllComponents = json.total ?? 0;
+			earningsCount = json.earningsCount ?? 0;
+			deductionsCount = json.deductionsCount ?? 0;
 		} catch (e) {
 			console.error(e);
 		}

@@ -7,55 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-// ─── Enums ────────────────────────────────────────────────────────────────────
-
-enum GenderEnum {
-  Male
-  Female
-  Others
-}
-
-enum MaritalStatusEnum {
-  married
-  single
-  divorced
-  widowed
-}
-
-// ─── Models ───────────────────────────────────────────────────────────────────
-
-/// Employee master — referenced by the employees route/DAO
-model Employee {
-  emp_id         BigInt            @id @default(autoincrement())
-
-  emp_code       String            @unique @db.VarChar(20)
-
-  first_name     String            @db.VarChar(100)
-  last_name      String            @db.VarChar(100)
-
-  dob            DateTime          @db.Date
-
-  gender         GenderEnum
-
-  marital_status MaritalStatusEnum
-
-  mobile_no      String            @unique @db.VarChar(15)
-
-  personal_email String            @unique @db.VarChar(255)
-
-  aadhar_no      String            @unique @db.VarChar(12)
-
-  pan_no         String            @unique @db.VarChar(10)
-
-  is_active      Boolean           @default(true)
-
-  created_at     DateTime          @default(now()) @db.Timestamptz()
-
-  last_modified  DateTime          @updatedAt @db.Timestamptz()
-
-  @@map("employee")
-}
-
 /// Salary Component master — component_type is validated as 'earning' | 'deduction' at the application layer
 model SalaryComponent {
   /// Auto-incrementing surrogate primary key (internal use only)
@@ -83,7 +34,7 @@ model SalaryComponent {
   /// cuid of the user who last updated this record
   updated_by     String?  @db.Text
 
-  @@unique([component_name, component_type])
+  @@unique([component_name])
 
   @@map("salary_components")
 }

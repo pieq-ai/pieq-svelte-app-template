@@ -15,7 +15,7 @@ function createClient(): PrismaClient {
 }
 
 function isValidClient(client: PrismaClient | undefined): client is PrismaClient {
-	return Boolean(client?.employee);
+	return Boolean(client?.salaryComponent);
 }
 
 function getDb(): PrismaClient {

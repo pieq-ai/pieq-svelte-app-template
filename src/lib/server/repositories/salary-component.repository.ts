@@ -33,14 +33,13 @@ export async function findByCuid(cuid: string) {
 	});
 }
 
-export async function findByNameAndType(name: string, type: 'earning' | 'deduction') {
+export async function findByName(name: string) {
 	return db.salaryComponent.findFirst({
 		where: {
 			component_name: {
 				equals: name,
 				mode: 'insensitive'
-			},
-			component_type: type
+			}
 		}
 	});
 }
@@ -95,4 +94,17 @@ export async function findMany(filters: SalaryComponentFilters) {
 		pageSize,
 		totalPages: Math.ceil(total / pageSize)
 	};
+}
+/**
+ * Returns aggregate counts for the stats cards.
+ * Uses three parallel COUNT queries — no row data is fetched.
+ */
+export async function getStats() {
+	const [total, earningsCount, deductionsCount] = await Promise.all([
+		db.salaryComponent.count(),
+		db.salaryComponent.count({ where: { component_type: 'earning', is_active: true } }),
+		db.salaryComponent.count({ where: { component_type: 'deduction', is_active: true } })
+	]);
+
+	return { total, earningsCount, deductionsCount };
 }

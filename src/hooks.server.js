@@ -23,7 +23,7 @@ const injectLocals = async ({ event, resolve }) => {
 
 /** @type {import('@sveltejs/kit').Handle} */
 const routeGuard = async ({ event, resolve }) => {
-	const protectedPrefixes = ['/dashboard', '/salary-components', '/employees', '/settings'];
+	const protectedPrefixes = ['/dashboard', '/salary-components', '/settings'];
 	const isProtected = protectedPrefixes.some((prefix) =>
 		event.url.pathname.startsWith(prefix)
 	);

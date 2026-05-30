@@ -6,6 +6,12 @@ import { serializeSalaryComponentList } from '$lib/server/serializers/salary-com
 
 export async function GET({ url }) {
 	try {
+		// Stats shortcut — returns aggregate counts with no row data fetched
+		if (url.searchParams.get('stats') === 'true') {
+			const stats = await service.getStats();
+			return json(stats);
+		}
+
 		let search = url.searchParams.get('search') || undefined;
 		if (search) {
 			search = search.trim().replace(/^["']|["']$/g, '').trim() || undefined;
