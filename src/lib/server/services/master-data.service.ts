@@ -4,6 +4,8 @@ import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 export interface MasterDataDto {
 	name: string;
 	country_cuid2?: string;
+	created_at?: Date | string | null;
+	updated_at?: Date | string | null;
 }
 
 export interface MasterDataOption {
@@ -11,6 +13,10 @@ export interface MasterDataOption {
 	label: string;
 	master: MasterKey;
 	meta?: Record<string, number | string>;
+	created_at?: Date;
+	created_by?: string | null;
+	updated_at?: Date;
+	updated_by?: string | null;
 }
 
 function resolveMaster(key: string): MasterKey {
@@ -73,6 +79,11 @@ function toOption(record: Record<string, unknown>, master: MasterKey): MasterDat
 		id: readCuid2(record),
 		label: readName(record, master),
 		master
+	,
+		created_at: record.created_at as Date,
+		created_by: record.created_by as string | null,
+		updated_at: record.updated_at as Date,
+		updated_by: record.updated_by as string | null
 	};
 
 	return option;

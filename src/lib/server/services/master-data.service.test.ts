@@ -35,8 +35,8 @@ describe('Master Data Service', () => {
 
 		it('should return mapped master data options', async () => {
 			const mockData = [
-				{ id: 1, cuid2: 'bg1', blood_group_name: 'O+' },
-				{ id: 2, cuid2: 'bg2', blood_group_name: 'A+' }
+				{ id: 1, cuid2: 'bg1', blood_group_name: 'O+', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
+				{ id: 2, cuid2: 'bg2', blood_group_name: 'A+', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
 			];
 			vi.mocked(masterDataDao.list).mockResolvedValue(mockData as any);
 
@@ -44,8 +44,8 @@ describe('Master Data Service', () => {
 
 			expect(masterDataDao.list).toHaveBeenCalledWith('blood-groups');
 			expect(result).toEqual([
-				{ id: 'bg1', label: 'O+', master: 'blood-groups' },
-				{ id: 'bg2', label: 'A+', master: 'blood-groups' }
+				{ id: 'bg1', label: 'O+', master: 'blood-groups', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
+				{ id: 'bg2', label: 'A+', master: 'blood-groups', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
 			]);
 		});
 
@@ -101,7 +101,7 @@ describe('Master Data Service', () => {
 				await expect(masterDataService.createMasterData('blood-groups', { name: 'C+' })).rejects.toThrow('Blood group must be one of A+, A-, B+, B-, AB+, AB-, O+, O-');
 				
 				vi.mocked(masterDataDao.list).mockResolvedValue([]);
-				vi.mocked(masterDataDao.create).mockResolvedValue({ cuid2: 'bg3', blood_group_name: 'O+' } as any);
+				vi.mocked(masterDataDao.create).mockResolvedValue({ cuid2: 'bg3', blood_group_name: 'O+', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
 				const res = await masterDataService.createMasterData('blood-groups', { name: 'o+' }); // should uppercase
 				expect(res.label).toBe('O+');
 			});
@@ -143,10 +143,10 @@ describe('Master Data Service', () => {
 
 		it('should successfully create and return Option', async () => {
 			vi.mocked(masterDataDao.list).mockResolvedValue([]);
-			vi.mocked(masterDataDao.create).mockResolvedValue({ cuid2: 'l1', languages_name: 'French' } as any);
+			vi.mocked(masterDataDao.create).mockResolvedValue({ cuid2: 'l1', languages_name: 'French', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
 
 			const result = await masterDataService.createMasterData('languages', { name: 'French' });
-			expect(result).toEqual({ id: 'l1', label: 'French', master: 'languages' });
+			expect(result).toEqual({ id: 'l1', label: 'French', master: 'languages', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
 		});
 	});
 
@@ -169,12 +169,12 @@ describe('Master Data Service', () => {
 		});
 
 		it('should successfully update and return Option', async () => {
-			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ id: 1, cuid2: 'l1', languages_name: 'Old French' } as any);
-			vi.mocked(masterDataDao.list).mockResolvedValue([{ cuid2: 'l1', languages_name: 'Old French' }] as any);
-			vi.mocked(masterDataDao.update).mockResolvedValue({ cuid2: 'l1', languages_name: 'French' } as any);
+			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ id: 1, cuid2: 'l1', languages_name: 'Old French', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
+			vi.mocked(masterDataDao.list).mockResolvedValue([{ cuid2: 'l1', languages_name: 'Old French', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }] as any);
+			vi.mocked(masterDataDao.update).mockResolvedValue({ cuid2: 'l1', languages_name: 'French', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
 
 			const result = await masterDataService.updateMasterData('languages', 'l1', { name: 'French' });
-			expect(result).toEqual({ id: 'l1', label: 'French', master: 'languages' });
+			expect(result).toEqual({ id: 'l1', label: 'French', master: 'languages', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
 			expect(masterDataDao.update).toHaveBeenCalled();
 		});
 	});

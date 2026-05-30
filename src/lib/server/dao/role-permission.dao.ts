@@ -4,6 +4,8 @@ export interface CreateRolePermissionInput {
 	system_role_cuid2: string;
 	permission_cuid2: string;
 	created_by?: string;
+	created_at?: Date | string;
+	updated_at?: Date | string;
 }
 
 export async function list() {

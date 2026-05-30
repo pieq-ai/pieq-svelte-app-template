@@ -4,23 +4,31 @@ export interface CreateSystemRoleDto {
 	system_role_name: string;
 	status?: boolean;
 	created_by?: string;
+	created_at?: Date | string | null;
+	updated_at?: Date | string | null;
 }
 
 export interface UpdateSystemRoleDto {
 	system_role_name?: string;
 	status?: boolean;
 	updated_by?: string;
+	updated_at?: Date | string | null;
 }
 
 function toPublicSystemRole(role: {
 	cuid2: string;
 	system_role_name: string;
 	status: boolean;
-}) {
+ created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
 	return {
 		cuid2: role.cuid2,
 		system_role_name: role.system_role_name,
 		status: role.status
+	,
+		created_at: role.created_at,
+		created_by: role.created_by,
+		updated_at: role.updated_at,
+		updated_by: role.updated_by
 	};
 }
 
@@ -104,7 +112,9 @@ export async function createSystemRole(dto: CreateSystemRoleDto) {
 	return toPublicSystemRole(await systemRoleDao.create({
 		system_role_name,
 		status: dto.status ?? true,
-		created_by: dto.created_by
+		created_by: dto.created_by ?? undefined,
+		created_at: dto.created_at ?? undefined,
+		updated_at: dto.updated_at ?? undefined
 	}));
 }
 
@@ -114,6 +124,10 @@ export async function updateSystemRole(cuid2: string, dto: UpdateSystemRoleDto) 
 		throw new Error(`System role with CUID2 "${cuid2}" not found`);
 	}
 	const updateData: systemRoleDao.UpdateSystemRoleInput = {};
+
+	if (dto.updated_at !== undefined) {
+		updateData.updated_at = dto.updated_at ?? undefined;
+	}
 
 	if (dto.updated_by !== undefined) {
 		updateData.updated_by = dto.updated_by;

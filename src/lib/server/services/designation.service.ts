@@ -4,23 +4,31 @@ export interface CreateDesignationDto {
 	designation_name: string;
 	status?: boolean;
 	created_by?: string;
+	created_at?: Date | string | null;
+	updated_at?: Date | string | null;
 }
 
 export interface UpdateDesignationDto {
 	designation_name?: string;
 	status?: boolean;
 	updated_by?: string;
+	updated_at?: Date | string | null;
 }
 
 function toPublicDesignation(designation: {
 	cuid2: string;
 	designation_name: string;
 	status: boolean;
-}) {
+ created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
 	return {
 		cuid2: designation.cuid2,
 		designation_name: designation.designation_name,
 		status: designation.status
+	,
+		created_at: designation.created_at,
+		created_by: designation.created_by,
+		updated_at: designation.updated_at,
+		updated_by: designation.updated_by
 	};
 }
 
@@ -93,13 +101,19 @@ export async function createDesignation(dto: CreateDesignationDto) {
 	return toPublicDesignation(await designationDao.create({
 		designation_name,
 		status: dto.status ?? true,
-		created_by: dto.created_by
+		created_by: dto.created_by ?? undefined,
+		created_at: dto.created_at ?? undefined,
+		updated_at: dto.updated_at ?? undefined
 	}));
 }
 
 export async function updateDesignation(cuid2: string, dto: UpdateDesignationDto) {
 	const existing = await getDesignationByCuid2(cuid2);
 	const updateData: designationDao.UpdateDesignationInput = {};
+
+	if (dto.updated_at !== undefined) {
+		updateData.updated_at = dto.updated_at ?? undefined;
+	}
 
 	if (dto.updated_by !== undefined) {
 		updateData.updated_by = dto.updated_by;

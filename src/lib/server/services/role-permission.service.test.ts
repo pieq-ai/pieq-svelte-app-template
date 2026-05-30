@@ -29,13 +29,13 @@ describe('Role Permission Service', () => {
 	describe('getRolePermissionMatrix', () => {
 		it('should retrieve and format matrix data correctly', async () => {
 			vi.mocked(systemRoleDao.list).mockResolvedValue([
-				{ id: 1, cuid2: 'role1', system_role_name: 'Admin', status: true }
+				{ id: 1, cuid2: 'role1', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
 			] as any);
 			
 			vi.mocked(permissionDao.list).mockResolvedValue([
-				{ id: 1, cuid2: 'perm1', permission_key: 'user_read', status: true },
-				{ id: 2, cuid2: 'perm2', permission_key: 'user_write', status: true },
-				{ id: 3, cuid2: 'perm3', permission_key: 'general_view', status: true }
+				{ id: 1, cuid2: 'perm1', permission_key: 'user_read', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
+				{ id: 2, cuid2: 'perm2', permission_key: 'user_write', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
+				{ id: 3, cuid2: 'perm3', permission_key: 'general_view', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
 			] as any);
 
 			vi.mocked(rolePermissionDao.list).mockResolvedValue([
@@ -45,16 +45,16 @@ describe('Role Permission Service', () => {
 			const result = await rolePermissionService.getRolePermissionMatrix();
 
 			expect(result.roles).toHaveLength(1);
-			expect(result.roles[0]).toEqual({ cuid2: 'role1', system_role_name: 'Admin', status: true });
+			expect(result.roles[0]).toEqual({ cuid2: 'role1', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
 
 			expect(result.permissions).toHaveLength(3);
 			expect(result.groupedPermissions).toEqual({
 				user: [
-					{ cuid2: 'perm1', permission_key: 'user_read', status: true },
-					{ cuid2: 'perm2', permission_key: 'user_write', status: true }
+					{ cuid2: 'perm1', permission_key: 'user_read', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
+					{ cuid2: 'perm2', permission_key: 'user_write', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
 				],
 				general: [
-					{ cuid2: 'perm3', permission_key: 'general_view', status: true }
+					{ cuid2: 'perm3', permission_key: 'general_view', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
 				]
 			});
 

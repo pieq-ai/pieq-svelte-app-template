@@ -21,11 +21,16 @@ function toPublicPermission(permission: {
 	cuid2: string;
 	permission_key: string;
 	status: boolean;
-}) {
+ created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
 	return {
 		cuid2: permission.cuid2,
 		permission_key: permission.permission_key,
 		status: permission.status
+	,
+		created_at: permission.created_at,
+		created_by: permission.created_by,
+		updated_at: permission.updated_at,
+		updated_by: permission.updated_by
 	};
 }
 
@@ -52,10 +57,14 @@ export async function getRolePermissionMatrix() {
 	);
 
 	return {
-		roles: roles.map(({ cuid2, system_role_name, status }) => ({
+		roles: roles.map(({ cuid2, system_role_name, status, created_at, created_by, updated_at, updated_by }) => ({
 			cuid2,
 			system_role_name,
-			status
+			status,
+			created_at,
+			created_by,
+			updated_at,
+			updated_by
 		})),
 		permissions: permissions.map(toPublicPermission),
 		groupedPermissions,

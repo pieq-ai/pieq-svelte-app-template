@@ -4,12 +4,15 @@ export interface CreateDepartmentInput {
 	dept_name: string;
 	status?: boolean;
 	created_by?: string;
+	created_at?: Date | string;
+	updated_at?: Date | string;
 }
 
 export interface UpdateDepartmentInput {
 	dept_name?: string;
 	status?: boolean;
 	updated_by?: string;
+	updated_at?: Date | string;
 }
 
 /**
@@ -56,8 +59,10 @@ export async function create(data: CreateDepartmentInput) {
 		data: {
 			dept_name: data.dept_name,
 			status: data.status ?? true,
-			created_by: data.created_by,
-			updated_by: data.created_by
+			created_by: data.created_by ?? undefined,
+			updated_by: data.created_by ?? undefined,
+			created_at: data.created_at ? new Date(data.created_at) : undefined,
+			updated_at: data.updated_at ? new Date(data.updated_at) : undefined
 		}
 	});
 }

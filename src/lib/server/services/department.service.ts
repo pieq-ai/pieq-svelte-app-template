@@ -5,19 +5,27 @@ export interface CreateDepartmentDto {
 	dept_name: string;
 	status?: boolean;
 	created_by?: string;
+	created_at?: Date | string | null;
+	updated_at?: Date | string | null;
 }
 
 export interface UpdateDepartmentDto {
 	dept_name?: string;
 	status?: boolean;
 	updated_by?: string;
+	updated_at?: Date | string | null;
 }
 
-function toPublicDepartment(department: { cuid2: string; dept_name: string; status: boolean }) {
+function toPublicDepartment(department: { cuid2: string; dept_name: string; status: boolean; created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
 	return {
 		cuid2: department.cuid2,
 		dept_name: department.dept_name,
 		status: department.status
+	,
+		created_at: department.created_at,
+		created_by: department.created_by,
+		updated_at: department.updated_at,
+		updated_by: department.updated_by
 	};
 }
 
@@ -58,7 +66,9 @@ export async function createDepartment(dto: CreateDepartmentDto) {
 	return toPublicDepartment(await departmentDao.create({
 		dept_name,
 		status: dto.status ?? true,
-		created_by: dto.created_by
+		created_by: dto.created_by ?? undefined,
+		created_at: dto.created_at ?? undefined,
+		updated_at: dto.updated_at ?? undefined
 	}));
 }
 
@@ -77,6 +87,10 @@ export async function updateDepartment(cuid2: string, dto: UpdateDepartmentDto) 
 	}
 
 	const updateData: departmentDao.UpdateDepartmentInput = {};
+
+	if (dto.updated_at !== undefined) {
+		updateData.updated_at = dto.updated_at ?? undefined;
+	}
 
 	if (dto.updated_by !== undefined) {
 		updateData.updated_by = dto.updated_by;

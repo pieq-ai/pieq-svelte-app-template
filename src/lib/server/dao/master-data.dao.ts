@@ -5,6 +5,8 @@ export interface MasterCreateInput {
 	name: string;
 	country_cuid2?: string;
 	created_by?: string;
+	created_at?: Date | string;
+	updated_at?: Date | string;
 }
 
 export interface MasterUpdateInput {
@@ -12,6 +14,7 @@ export interface MasterUpdateInput {
 	name: string;
 	country_cuid2?: string;
 	updated_by?: string;
+	updated_at?: Date | string;
 }
 
 export async function list(master: MasterKey) {
@@ -98,53 +101,53 @@ export async function findByCuid2(master: MasterKey, cuid2: string) {
 export async function create(master: MasterKey, data: MasterCreateInput) {
 	switch (master) {
 		case 'blood-groups':
-			return db.bloodGroup.create({ data: { blood_group_name: data.name, created_by: data.created_by, updated_by: data.created_by } });
+			return db.bloodGroup.create({ data: { blood_group_name: data.name, created_by: data.created_by ?? undefined, updated_by: data.created_by ?? undefined, created_at: data.created_at ? new Date(data.created_at) : undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'pay-grades':
-			return db.payGrade.create({ data: { paygrade_name: data.name, created_by: data.created_by, updated_by: data.created_by } });
+			return db.payGrade.create({ data: { paygrade_name: data.name, created_by: data.created_by ?? undefined, updated_by: data.created_by ?? undefined, created_at: data.created_at ? new Date(data.created_at) : undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'nationalities':
-			return db.nationality.create({ data: { nationality_name: data.name, created_by: data.created_by, updated_by: data.created_by } });
+			return db.nationality.create({ data: { nationality_name: data.name, created_by: data.created_by ?? undefined, updated_by: data.created_by ?? undefined, created_at: data.created_at ? new Date(data.created_at) : undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'employment-types':
-			return db.employmentType.create({ data: { employment_name: data.name, created_by: data.created_by, updated_by: data.created_by } });
+			return db.employmentType.create({ data: { employment_name: data.name, created_by: data.created_by ?? undefined, updated_by: data.created_by ?? undefined, created_at: data.created_at ? new Date(data.created_at) : undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'relation-types':
-			return db.relationType.create({ data: { relation_name: data.name, created_by: data.created_by, updated_by: data.created_by } });
+			return db.relationType.create({ data: { relation_name: data.name, created_by: data.created_by ?? undefined, updated_by: data.created_by ?? undefined, created_at: data.created_at ? new Date(data.created_at) : undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'document-types':
-			return db.documentType.create({ data: { document_type_name: data.name, created_by: data.created_by, updated_by: data.created_by } });
+			return db.documentType.create({ data: { document_type_name: data.name, created_by: data.created_by ?? undefined, updated_by: data.created_by ?? undefined, created_at: data.created_at ? new Date(data.created_at) : undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'states':
-			return db.state.create({ data: { state_name: data.name, country_cuid2: data.country_cuid2 ?? '', created_by: data.created_by, updated_by: data.created_by } });
+			return db.state.create({ data: { state_name: data.name, country_cuid2: data.country_cuid2 ?? '', created_by: data.created_by ?? undefined, updated_by: data.created_by ?? undefined, created_at: data.created_at ? new Date(data.created_at) : undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'countries':
-			return db.country.create({ data: { country_name: data.name, created_by: data.created_by, updated_by: data.created_by } });
+			return db.country.create({ data: { country_name: data.name, created_by: data.created_by ?? undefined, updated_by: data.created_by ?? undefined, created_at: data.created_at ? new Date(data.created_at) : undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'skills':
-			return db.skills.create({ data: { skills_name: data.name, created_by: data.created_by, updated_by: data.created_by } });
+			return db.skills.create({ data: { skills_name: data.name, created_by: data.created_by ?? undefined, updated_by: data.created_by ?? undefined, created_at: data.created_at ? new Date(data.created_at) : undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'attendance-sources':
-			return db.attendanceSource.create({ data: { attendance_source_name: data.name, created_by: data.created_by, updated_by: data.created_by } });
+			return db.attendanceSource.create({ data: { attendance_source_name: data.name, created_by: data.created_by ?? undefined, updated_by: data.created_by ?? undefined, created_at: data.created_at ? new Date(data.created_at) : undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'languages':
-			return db.languages.create({ data: { languages_name: data.name, created_by: data.created_by, updated_by: data.created_by } });
+			return db.languages.create({ data: { languages_name: data.name, created_by: data.created_by ?? undefined, updated_by: data.created_by ?? undefined, created_at: data.created_at ? new Date(data.created_at) : undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 	}
 }
 
 export async function update(master: MasterKey, data: MasterUpdateInput) {
 	switch (master) {
 		case 'blood-groups':
-			return db.bloodGroup.update({ where: { id: data.id }, data: { blood_group_name: data.name, updated_by: data.updated_by } });
+			return db.bloodGroup.update({ where: { id: data.id }, data: { blood_group_name: data.name, updated_by: data.updated_by ?? undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'pay-grades':
-			return db.payGrade.update({ where: { id: data.id }, data: { paygrade_name: data.name, updated_by: data.updated_by } });
+			return db.payGrade.update({ where: { id: data.id }, data: { paygrade_name: data.name, updated_by: data.updated_by ?? undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'nationalities':
-			return db.nationality.update({ where: { id: data.id }, data: { nationality_name: data.name, updated_by: data.updated_by } });
+			return db.nationality.update({ where: { id: data.id }, data: { nationality_name: data.name, updated_by: data.updated_by ?? undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'employment-types':
-			return db.employmentType.update({ where: { id: data.id }, data: { employment_name: data.name, updated_by: data.updated_by } });
+			return db.employmentType.update({ where: { id: data.id }, data: { employment_name: data.name, updated_by: data.updated_by ?? undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'relation-types':
-			return db.relationType.update({ where: { id: data.id }, data: { relation_name: data.name, updated_by: data.updated_by } });
+			return db.relationType.update({ where: { id: data.id }, data: { relation_name: data.name, updated_by: data.updated_by ?? undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'document-types':
-			return db.documentType.update({ where: { id: data.id }, data: { document_type_name: data.name, updated_by: data.updated_by } });
+			return db.documentType.update({ where: { id: data.id }, data: { document_type_name: data.name, updated_by: data.updated_by ?? undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'states':
-			return db.state.update({ where: { id: data.id }, data: { state_name: data.name, country_cuid2: data.country_cuid2 ?? '', updated_by: data.updated_by } });
+			return db.state.update({ where: { id: data.id }, data: { state_name: data.name, country_cuid2: data.country_cuid2 ?? '', updated_by: data.updated_by ?? undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'countries':
-			return db.country.update({ where: { id: data.id }, data: { country_name: data.name, updated_by: data.updated_by } });
+			return db.country.update({ where: { id: data.id }, data: { country_name: data.name, updated_by: data.updated_by ?? undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'skills':
-			return db.skills.update({ where: { id: data.id }, data: { skills_name: data.name, updated_by: data.updated_by } });
+			return db.skills.update({ where: { id: data.id }, data: { skills_name: data.name, updated_by: data.updated_by ?? undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'attendance-sources':
-			return db.attendanceSource.update({ where: { id: data.id }, data: { attendance_source_name: data.name, updated_by: data.updated_by } });
+			return db.attendanceSource.update({ where: { id: data.id }, data: { attendance_source_name: data.name, updated_by: data.updated_by ?? undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'languages':
-			return db.languages.update({ where: { id: data.id }, data: { languages_name: data.name, updated_by: data.updated_by } });
+			return db.languages.update({ where: { id: data.id }, data: { languages_name: data.name, updated_by: data.updated_by ?? undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 	}
 }

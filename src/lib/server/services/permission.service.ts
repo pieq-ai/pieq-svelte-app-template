@@ -4,23 +4,31 @@ export interface CreatePermissionDto {
 	permission_key: string;
 	status?: boolean;
 	created_by?: string;
+	created_at?: Date | string | null;
+	updated_at?: Date | string | null;
 }
 
 export interface UpdatePermissionDto {
 	permission_key?: string;
 	status?: boolean;
 	updated_by?: string;
+	updated_at?: Date | string | null;
 }
 
 function toPublicPermission(permission: {
 	cuid2: string;
 	permission_key: string;
 	status: boolean;
-}) {
+ created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
 	return {
 		cuid2: permission.cuid2,
 		permission_key: permission.permission_key,
 		status: permission.status
+	,
+		created_at: permission.created_at,
+		created_by: permission.created_by,
+		updated_at: permission.updated_at,
+		updated_by: permission.updated_by
 	};
 }
 
@@ -104,7 +112,9 @@ export async function createPermission(dto: CreatePermissionDto) {
 	return toPublicPermission(await permissionDao.create({
 		permission_key,
 		status: dto.status ?? true,
-		created_by: dto.created_by
+		created_by: dto.created_by ?? undefined,
+		created_at: dto.created_at ?? undefined,
+		updated_at: dto.updated_at ?? undefined
 	}));
 }
 
@@ -114,6 +124,10 @@ export async function updatePermission(cuid2: string, dto: UpdatePermissionDto) 
 		throw new Error(`Permission with CUID2 "${cuid2}" not found`);
 	}
 	const updateData: permissionDao.UpdatePermissionInput = {};
+
+	if (dto.updated_at !== undefined) {
+		updateData.updated_at = dto.updated_at ?? undefined;
+	}
 
 	if (dto.updated_by !== undefined) {
 		updateData.updated_by = dto.updated_by;

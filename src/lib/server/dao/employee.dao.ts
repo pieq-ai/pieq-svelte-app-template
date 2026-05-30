@@ -4,6 +4,8 @@ export interface CreateEmployeeData {
 	name: string;
 	age: number;
 	created_by?: string;
+	created_at?: Date | string;
+	updated_at?: Date | string;
 }
 
 export async function list() {
@@ -49,8 +51,10 @@ export async function create(data: CreateEmployeeData) {
 			personal_email: personalEmail,
 			aadhar_no: aadharNo,
 			pan_no: panNo,
-			created_by: data.created_by,
-			updated_by: data.created_by
+			created_by: data.created_by ?? undefined,
+			updated_by: data.created_by ?? undefined,
+			created_at: data.created_at ? new Date(data.created_at) : undefined,
+			updated_at: data.updated_at ? new Date(data.updated_at) : undefined
 		}
 	});
 
