@@ -22,9 +22,20 @@ export async function create(data: CreateLeaveTypeData) {
 }
 
 export async function update(cuid: string, data: Partial<CreateLeaveTypeData>) {
-	return db.leaveType.update({
-		where: { cuid },
-		data
+	return db.$transaction(async (tx) => {
+		const updatedType = await tx.leaveType.update({
+			where: { cuid },
+			data
+		});
+
+		if (data.status !== undefined) {
+			await tx.leavePolicy.updateMany({
+				where: { leave_type_cuid: cuid },
+				data: { status: data.status }
+			});
+		}
+
+		return updatedType;
 	});
 }
 

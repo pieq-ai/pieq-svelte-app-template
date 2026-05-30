@@ -10,11 +10,12 @@ export function trimStringFields<T>(val: T): T {
 		return val.map((item) => trimStringFields(item)) as unknown as T;
 	}
 	if (val !== null && typeof val === 'object') {
-		const result: any = {};
-		for (const key of Object.keys(val)) {
-			result[key] = trimStringFields((val as any)[key]);
+		const result = {} as Record<string, unknown>;
+		const obj = val as Record<string, unknown>;
+		for (const key of Object.keys(obj)) {
+			result[key] = trimStringFields(obj[key]);
 		}
-		return result as T;
+		return result as unknown as T;
 	}
 	return val;
 }
@@ -23,12 +24,12 @@ export function trimStringFields<T>(val: T): T {
  * Validates that all keys in the body are within the allowed keys.
  * Rejects incorrect or misspelled keys.
  */
-export function validatePayloadKeys(body: any, allowedKeys: string[]): { error: string } | null {
+export function validatePayloadKeys(body: unknown, allowedKeys: string[]): { error: string } | null {
 	if (!body || typeof body !== 'object' || Array.isArray(body)) {
 		return { error: 'Request body must be a valid JSON object' };
 	}
 	const allowedSet = new Set(allowedKeys);
-	const keys = Object.keys(body);
+	const keys = Object.keys(body as Record<string, unknown>);
 	for (const key of keys) {
 		if (!allowedSet.has(key)) {
 			return { error: `Invalid, unexpected or misspelled key: "${key}"` };

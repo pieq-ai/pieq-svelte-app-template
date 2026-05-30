@@ -6,9 +6,7 @@
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
-	import EditIcon from '@lucide/svelte/icons/pencil';
-	import TrashIcon from '@lucide/svelte/icons/trash-2';
-	import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
+	import EllipsisVerticalIcon from '@lucide/svelte/icons/ellipsis-vertical';
 	import {
 		Alert,
 		AlertDescription,
@@ -27,7 +25,6 @@
 		TableHeader,
 		TableRow,
 		toast,
-		ConfirmModal,
 		FormModal
 	} from '$lib/components';
 	import type { PageData } from './$types.js';
@@ -39,11 +36,35 @@
 	let isSubmitting = $state(false);
 	let isFormModalOpen = $state(false);
 
-	// Confirm Modal states
-	let isConfirmOpen = $state(false);
-	let confirmTitle = $state('');
-	let confirmMessage = $state('');
-	let activeDeleteCuid = $state<string | null>(null);
+	let activeMenuCuid = $state<string | null>(null);
+	let menuPosition = $state({ top: 0, left: 0 });
+
+	function toggleMenu(cuid: string, event: MouseEvent) {
+		event.stopPropagation();
+		if (activeMenuCuid === cuid) {
+			activeMenuCuid = null;
+		} else {
+			const rect = (event.currentTarget as HTMLButtonElement).getBoundingClientRect();
+			menuPosition = {
+				top: rect.bottom,
+				left: rect.right - 112 // width of w-28 is 112px
+			};
+			activeMenuCuid = cuid;
+		}
+	}
+
+	// Close kebab menu on click outside or scroll
+	$effect(() => {
+		const handleDismiss = () => {
+			activeMenuCuid = null;
+		};
+		document.addEventListener('click', handleDismiss);
+		window.addEventListener('scroll', handleDismiss, { passive: true });
+		return () => {
+			document.removeEventListener('click', handleDismiss);
+			window.removeEventListener('scroll', handleDismiss);
+		};
+	});
 
 	function openAddModal() {
 		leaveTypeId = '';
@@ -78,7 +99,7 @@
 			allow_half_day: allowHalfDay,
 			gender_specific: genderSpecific,
 			applicable_gender: genderSpecific ? applicableGender : null,
-			status: editUuid ? status : true
+			status: status
 		};
 
 		try {
@@ -130,26 +151,7 @@
 		}
 	}
 
-	async function handleDelete(cuid: string) {
-		isSubmitting = true;
-		try {
-			const res = await fetch(`/api/leave/policies/${cuid}`, {
-				method: 'DELETE'
-			});
-			const result = await res.json();
-			if (res.ok && result.success) {
-				toast.success(result.message || 'Leave policy status updated!');
-				await invalidateAll();
-			} else {
-				toast.error(result.message || 'Action failed');
-			}
-		} catch (error) {
-			console.error('Delete failed:', error);
-			toast.error('An unexpected error occurred.');
-		} finally {
-			isSubmitting = false;
-		}
-	}
+
 
 	// Active Edit Mode Detection from URL query parameter
 	let editUuid = $derived(page.url.searchParams.get('edit'));
@@ -464,37 +466,31 @@
 										<Badge variant="secondary">Inactive</Badge>
 									{/if}
 								</TableCell>
-								<TableCell class="text-right space-x-1">
-									<a
-										href={resolve(('/leave-policies?edit=' + policy.cuid) as '/leave-policies')}
-										class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-8 w-8"
-										title="Edit Leave Policy"
+								<TableCell class="text-right relative">
+									<Button
+										variant="ghost"
+										size="icon-sm"
+										class="h-8 w-8"
+										onclick={(e) => toggleMenu(policy.cuid, e)}
 									>
-										<EditIcon class="size-4" />
-									</a>
-
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon-sm"
-											class={policy.status ? 'text-destructive hover:text-destructive/80 size-8' : 'text-green-500 hover:text-green-600 size-8'}
-											title={policy.status ? 'Deactivate Leave Policy' : 'Reactivate Leave Policy'}
-											disabled={isSubmitting}
-											onclick={() => {
-												activeDeleteCuid = policy.cuid;
-												confirmTitle = policy.status ? 'Deactivate Leave Policy' : 'Reactivate Leave Policy';
-												confirmMessage = policy.status
-													? 'Are you sure you want to deactivate this leave policy?'
-													: 'Are you sure you want to reactivate this leave policy?';
-												isConfirmOpen = true;
-											}}
+										<EllipsisVerticalIcon class="size-4" />
+									</Button>
+									{#if activeMenuCuid === policy.cuid}
+										<div
+											style="position: fixed; top: {menuPosition.top}px; left: {menuPosition.left}px;"
+											class="z-50 w-28 rounded-md border bg-popover text-popover-foreground shadow-md outline-none text-left"
 										>
-											{#if policy.status}
-												<TrashIcon class="size-4" />
-											{:else}
-												<RotateCcwIcon class="size-4" />
-											{/if}
-										</Button>
+											<div class="py-1">
+												<a
+													href={resolve(('/leave-policies?edit=' + policy.cuid) as '/leave-policies')}
+													class="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+													onclick={() => activeMenuCuid = null}
+												>
+													Edit
+												</a>
+											</div>
+										</div>
+									{/if}
 								</TableCell>
 							</TableRow>
 						{/each}
@@ -680,12 +676,20 @@
 	{/if}
 
 	<!-- Active Status -->
-	{#if editUuid}
-		<div class="flex items-center space-x-2 pb-2">
-			<input type="checkbox" id="modal_status" name="status" bind:checked={status} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
-			<Label for="modal_status" class="cursor-pointer select-none">Active Status</Label>
-		</div>
-	{/if}
+	<!-- Status Dropdown -->
+	<div class="space-y-2 pb-2">
+		<Label for="modal_status">Status</Label>
+		<select
+			id="modal_status"
+			name="status"
+			bind:value={status}
+			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none"
+			required
+		>
+			<option value={true}>Active</option>
+			<option value={false}>Inactive</option>
+		</select>
+	</div>
 
 	<!-- Alert Errors -->
 	{#if formError && (!form || !('field' in form) || !form.field)}
@@ -706,14 +710,5 @@
 	</Button>
 </FormModal>
 
-<ConfirmModal
-	bind:isOpen={isConfirmOpen}
-	title={confirmTitle}
-	message={confirmMessage}
-	onConfirm={() => {
-		if (activeDeleteCuid) {
-			handleDelete(activeDeleteCuid);
-		}
-	}}
-/>
+
 

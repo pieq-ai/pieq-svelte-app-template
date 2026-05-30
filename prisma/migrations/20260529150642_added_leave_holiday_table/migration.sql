@@ -8,6 +8,8 @@ CREATE TABLE "leave_types" (
     "is_paid" BOOLEAN NOT NULL DEFAULT true,
     "requires_approval" BOOLEAN NOT NULL DEFAULT true,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "leave_types_pkey" PRIMARY KEY ("id")
 );
@@ -27,6 +29,8 @@ CREATE TABLE "leave_policies" (
     "gender_specific" BOOLEAN NOT NULL DEFAULT false,
     "applicable_gender" TEXT,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "leave_policies_pkey" PRIMARY KEY ("id")
 );
@@ -38,6 +42,8 @@ CREATE TABLE "holiday_calendars" (
     "holiday_name" VARCHAR(200) NOT NULL,
     "holiday_date" DATE NOT NULL,
     "holiday_type" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "holiday_calendars_pkey" PRIMARY KEY ("id")
 );
@@ -48,6 +54,8 @@ CREATE TABLE "employment_types" (
     "cuid" TEXT NOT NULL,
     "employment_name" VARCHAR(50) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "employment_types_pkey" PRIMARY KEY ("id")
 );
@@ -58,6 +66,8 @@ CREATE TABLE "leave_policy_employment_types" (
     "cuid" TEXT NOT NULL,
     "leave_policy_cuid" TEXT NOT NULL,
     "employment_type_cuid" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "leave_policy_employment_types_pkey" PRIMARY KEY ("id")
 );
