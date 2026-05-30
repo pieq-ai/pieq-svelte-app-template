@@ -10,7 +10,11 @@ import { validatePayloadKeys, trimStringFields } from '$lib/server/validation.js
 export const GET: RequestHandler = async () => {
 	try {
 		const holidays = await listHolidays();
-		return json({ data: holidays });
+		const formattedHolidays = holidays.map((h) => ({
+			...h,
+			holiday_date: h.holiday_date.toISOString().split('T')[0]
+		}));
+		return json({ data: formattedHolidays });
 	} catch (error) {
 		console.error('GET /api/holidays failed', error);
 		return json({ error: 'Failed to list holidays' }, { status: 500 });
@@ -41,10 +45,14 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	try {
 		const holiday = await createHoliday({ holiday_name, holiday_date, holiday_type });
+		const formattedHoliday = {
+			...holiday,
+			holiday_date: holiday.holiday_date.toISOString().split('T')[0]
+		};
 		return json({
 			success: true,
 			message: 'Holiday created successfully',
-			data: holiday
+			data: formattedHoliday
 		}, { status: 201 });
 	} catch (error) {
 		if (error instanceof HolidayValidationError) {

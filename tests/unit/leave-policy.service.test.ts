@@ -302,7 +302,7 @@ describe('leave policy service', () => {
 			).rejects.toThrowError(
 				new LeaveValidationError(
 					'max_carry_forward_days',
-					'Max carry forward days must be a positive number'
+					'Max carry forward days must be greater than 0'
 				)
 			);
 
@@ -310,14 +310,77 @@ describe('leave policy service', () => {
 				createLeavePolicy({
 					...validBaseInput,
 					carry_forward_allowed: true,
-					max_carry_forward_days: 16 // annual quota is 15
+					max_carry_forward_days: 0
 				})
 			).rejects.toThrowError(
 				new LeaveValidationError(
 					'max_carry_forward_days',
-					'Max carry forward days cannot exceed annual quota'
+					'Max carry forward days must be greater than 0'
 				)
 			);
+
+			await expect(
+				createLeavePolicy({
+					...validBaseInput,
+					carry_forward_allowed: false,
+					max_carry_forward_days: 5
+				})
+			).rejects.toThrowError(
+				new LeaveValidationError(
+					'max_carry_forward_days',
+					'Max carry forward days must be empty when carry forward is not allowed'
+				)
+			);
+		});
+
+		it('should allow max_carry_forward_days to exceed annual quota when carry forward is allowed', async () => {
+			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
+				id: 1,
+				cuid: 'leave-type-1',
+				leave_name: 'Annual',
+				leave_code: 'ANN',
+				description: null,
+				is_paid: true,
+				requires_approval: true,
+				status: true,
+				...auditFields
+			} as unknown as LeaveType);
+			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
+				id: 1,
+				cuid: 'emp-type-1',
+				employment_name: 'Part Time',
+				status: true,
+				...auditFields
+			} as unknown as EmploymentType);
+			vi.mocked(leavePolicyDao.findActivePolicyForEmploymentType).mockResolvedValue(null);
+
+			const expectedOutput = {
+				id: 1,
+				cuid: 'policy-cuid',
+				leave_type_cuid: 'leave-type-1',
+				annual_quota: 15,
+				max_per_month: 2,
+				carry_forward_allowed: true,
+				max_carry_forward_days: 20, // exceeds annual quota of 15
+				requires_document: false,
+				min_service_days: 30,
+				allow_half_day: true,
+				gender_specific: true,
+				applicable_gender: 'Female',
+				status: true,
+				employment_type_cuids: ['emp-type-1'],
+				...auditFields
+			};
+
+			vi.mocked(leavePolicyDao.create).mockResolvedValue(expectedOutput);
+
+			const result = await createLeavePolicy({
+				...validBaseInput,
+				carry_forward_allowed: true,
+				max_carry_forward_days: 20
+			});
+
+			expect(result).toEqual(expectedOutput);
 		});
 
 		// 6. Min Service Days Validations

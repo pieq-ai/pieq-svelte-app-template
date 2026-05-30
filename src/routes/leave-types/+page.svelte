@@ -187,10 +187,20 @@
 		}
 	});
 
-	// Clear query parameter on modal close
+	// Reset form state and clear query parameter on modal close
 	$effect(() => {
-		if (!isFormModalOpen && editCuid) {
-			goto(resolve('/leave-types'), { replaceState: true });
+		if (!isFormModalOpen) {
+			form = null;
+			isSubmitting = false;
+			leaveName = '';
+			leaveCode = '';
+			description = '';
+			isPaid = true;
+			requiresApproval = true;
+			status = true;
+			if (editCuid) {
+				goto(resolve('/leave-types'), { replaceState: true });
+			}
 		}
 	});
 
@@ -330,7 +340,7 @@
 						</TableRow>
 					{:else}
 						{#each filteredTypes as type (type.cuid)}
-							<TableRow class={!type.status ? 'opacity-60' : ''}>
+							<TableRow>
 								<TableCell class="font-semibold">
 									<div>{type.leave_name}</div>
 									{#if type.description}

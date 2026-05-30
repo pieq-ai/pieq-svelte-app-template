@@ -16,7 +16,11 @@ export const GET: RequestHandler = async ({ params }) => {
 		if (!holiday) {
 			return json({ error: 'Holiday not found' }, { status: 404 });
 		}
-		return json({ data: holiday });
+		const formattedHoliday = {
+			...holiday,
+			holiday_date: holiday.holiday_date.toISOString().split('T')[0]
+		};
+		return json({ data: formattedHoliday });
 	} catch (error) {
 		console.error(`GET /api/holidays/${id} failed`, error);
 		return json({ error: 'Failed to retrieve holiday' }, { status: 500 });
@@ -48,10 +52,14 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 
 	try {
 		const holiday = await updateHoliday(id, { holiday_name, holiday_date, holiday_type });
+		const formattedHoliday = {
+			...holiday,
+			holiday_date: holiday.holiday_date.toISOString().split('T')[0]
+		};
 		return json({
 			success: true,
 			message: 'Holiday updated successfully',
-			data: holiday
+			data: formattedHoliday
 		});
 	} catch (error) {
 		if (error instanceof HolidayValidationError) {
@@ -68,10 +76,14 @@ export const DELETE: RequestHandler = async ({ params }) => {
 
 	try {
 		const holiday = await deleteHoliday(id);
+		const formattedHoliday = {
+			...holiday,
+			holiday_date: holiday.holiday_date.toISOString().split('T')[0]
+		};
 		return json({
 			success: true,
 			message: 'Holiday deleted successfully',
-			data: holiday
+			data: formattedHoliday
 		});
 	} catch (error) {
 		console.error(`DELETE /api/holidays/${id} failed`, error);

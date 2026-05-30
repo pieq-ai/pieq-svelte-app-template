@@ -108,11 +108,16 @@ async function validateAndMapPolicyInput(
 			throw new LeaveValidationError('max_carry_forward_days', 'Max carry forward days is required when carry forward is allowed');
 		}
 		max_carry_forward_days = Number(input.max_carry_forward_days);
-		if (isNaN(max_carry_forward_days) || max_carry_forward_days < 0) {
-			throw new LeaveValidationError('max_carry_forward_days', 'Max carry forward days must be a positive number');
+		if (isNaN(max_carry_forward_days) || max_carry_forward_days <= 0) {
+			throw new LeaveValidationError('max_carry_forward_days', 'Max carry forward days must be greater than 0');
 		}
-		if (max_carry_forward_days > annual_quota) {
-			throw new LeaveValidationError('max_carry_forward_days', 'Max carry forward days cannot exceed annual quota');
+	} else {
+		if (
+			input.max_carry_forward_days !== undefined &&
+			input.max_carry_forward_days !== null &&
+			String(input.max_carry_forward_days).trim() !== ''
+		) {
+			throw new LeaveValidationError('max_carry_forward_days', 'Max carry forward days must be empty when carry forward is not allowed');
 		}
 	}
 

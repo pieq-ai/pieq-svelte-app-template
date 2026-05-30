@@ -235,10 +235,26 @@
 		}
 	});
 
-	// Clear query parameter on modal close
+	// Reset form state and clear query parameter on modal close
 	$effect(() => {
-		if (!isFormModalOpen && editUuid) {
-			goto(resolve('/leave-policies'), { replaceState: true });
+		if (!isFormModalOpen) {
+			form = null;
+			isSubmitting = false;
+			leaveTypeId = '';
+			selectedEmploymentTypes = [];
+			annualQuota = '';
+			maxPerMonth = '';
+			carryForwardAllowed = false;
+			maxCarryForwardDays = '';
+			requiresDocument = false;
+			minServiceDays = '0';
+			allowHalfDay = false;
+			genderSpecific = false;
+			applicableGender = '';
+			status = true;
+			if (editUuid) {
+				goto(resolve('/leave-policies'), { replaceState: true });
+			}
 		}
 	});
 
@@ -271,16 +287,10 @@
 
 	let carryForwardDaysError = $derived.by(() => {
 		if (!carryForwardAllowed) return '';
-		if (!maxCarryForwardDays) return 'Max carry forward days is required when carry forward is allowed';
+		if (!maxCarryForwardDays || String(maxCarryForwardDays).trim() === '') return 'Max carry forward days is required when carry forward is allowed';
 		const days = Number(maxCarryForwardDays);
-		if (isNaN(days) || days < 0) {
-			return 'Max carry forward days must be a positive number';
-		}
-		if (annualQuota) {
-			const quota = Number(annualQuota);
-			if (!isNaN(quota) && days > quota) {
-				return 'Max carry forward days cannot exceed annual quota';
-			}
+		if (isNaN(days) || days <= 0) {
+			return 'Max carry forward days must be greater than 0';
 		}
 		return '';
 	});
@@ -434,7 +444,7 @@
 						</TableRow>
 					{:else}
 						{#each filteredPolicies as policy (policy.cuid)}
-							<TableRow class={!policy.status ? 'opacity-60' : ''}>
+							<TableRow>
 								<TableCell class="font-semibold">{getLeaveTypeName(policy.leave_type_cuid)}</TableCell>
 								<TableCell class="text-xs">{getEmploymentTypeNames(policy.employment_type_cuids)}</TableCell>
 								<TableCell class="text-right font-mono font-semibold">{policy.annual_quota}</TableCell>

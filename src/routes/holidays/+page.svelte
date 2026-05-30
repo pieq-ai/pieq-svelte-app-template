@@ -7,8 +7,7 @@
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
-	import EditIcon from '@lucide/svelte/icons/pencil';
-	import TrashIcon from '@lucide/svelte/icons/trash-2';
+	import EllipsisVerticalIcon from '@lucide/svelte/icons/ellipsis-vertical';
 	import {
 		Alert,
 		AlertDescription,
@@ -45,6 +44,36 @@
 	let confirmTitle = $state('');
 	let confirmMessage = $state('');
 	let activeDeleteCuid = $state<string | null>(null);
+
+	let activeMenuCuid = $state<string | null>(null);
+	let menuPosition = $state({ top: 0, left: 0 });
+
+	function toggleMenu(cuid: string, event: MouseEvent) {
+		event.stopPropagation();
+		if (activeMenuCuid === cuid) {
+			activeMenuCuid = null;
+		} else {
+			const rect = (event.currentTarget as HTMLButtonElement).getBoundingClientRect();
+			menuPosition = {
+				top: rect.bottom,
+				left: rect.right - 112 // width of w-28 is 112px
+			};
+			activeMenuCuid = cuid;
+		}
+	}
+
+	// Close kebab menu on click outside or scroll
+	$effect(() => {
+		const handleDismiss = () => {
+			activeMenuCuid = null;
+		};
+		document.addEventListener('click', handleDismiss);
+		window.addEventListener('scroll', handleDismiss, { passive: true });
+		return () => {
+			document.removeEventListener('click', handleDismiss);
+			window.removeEventListener('scroll', handleDismiss);
+		};
+	});
 
 	function openAddModal() {
 		holidayName = '';
@@ -204,10 +233,17 @@
 		}
 	});
 
-	// Clear query parameter on modal close
+	// Reset form state and clear query parameter on modal close
 	$effect(() => {
-		if (!isFormModalOpen && editCuid) {
-			goto(resolve('/holidays'), { replaceState: true });
+		if (!isFormModalOpen) {
+			form = null;
+			isSubmitting = false;
+			holidayName = '';
+			holidayDate = '';
+			holidayType = 'National';
+			if (editCuid) {
+				goto(resolve('/holidays'), { replaceState: true });
+			}
 		}
 	});
 
@@ -405,33 +441,45 @@
 										{/if}
 									{/if}
 								</TableCell>
-								<TableCell class="text-right space-x-1">
-									<!-- Edit Action -->
-									<a
-										href={resolve(('/holidays?edit=' + holiday.cuid) as '/holidays')}
-										class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-8 w-8"
-										title="Edit Holiday"
-									>
-										<EditIcon class="size-4" />
-									</a>
-
-									<!-- Delete Action -->
+								<TableCell class="text-right relative">
 									<Button
-										type="button"
 										variant="ghost"
 										size="icon-sm"
-										class="text-destructive hover:text-destructive/80 size-8"
-										title="Delete Holiday"
-										disabled={isSubmitting}
-										onclick={() => {
-											activeDeleteCuid = holiday.cuid;
-											confirmTitle = 'Delete Holiday';
-											confirmMessage = 'Are you sure you want to delete this holiday?';
-											isConfirmOpen = true;
-										}}
+										class="h-8 w-8"
+										onclick={(e) => toggleMenu(holiday.cuid, e)}
 									>
-										<TrashIcon class="size-4" />
+										<EllipsisVerticalIcon class="size-4" />
 									</Button>
+									{#if activeMenuCuid === holiday.cuid}
+										<div
+											style="position: fixed; top: {menuPosition.top}px; left: {menuPosition.left}px;"
+											class="z-50 w-28 rounded-md border bg-popover text-popover-foreground shadow-md outline-none text-left"
+										>
+											<div class="py-1">
+												<a
+													href={resolve(('/holidays?edit=' + holiday.cuid) as '/holidays')}
+													class="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+													onclick={() => activeMenuCuid = null}
+												>
+													Edit
+												</a>
+												<button
+													type="button"
+													class="w-full text-left block px-4 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+													disabled={isSubmitting}
+													onclick={() => {
+														activeMenuCuid = null;
+														activeDeleteCuid = holiday.cuid;
+														confirmTitle = 'Delete Holiday';
+														confirmMessage = 'Are you sure you want to delete this holiday?';
+														isConfirmOpen = true;
+													}}
+												>
+													Delete
+												</button>
+											</div>
+										</div>
+									{/if}
 								</TableCell>
 							</TableRow>
 						{/each}
