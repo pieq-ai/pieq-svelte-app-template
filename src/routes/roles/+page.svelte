@@ -137,7 +137,60 @@
 	let filterStatus = $state<'all' | 'active' | 'inactive'>('all');
 
 	let totalPages = $derived(Math.max(1, Math.ceil(total / limit)));
-	let paginatedRoles = $derived(filteredRoles.slice((page - 1) * limit, page * limit));
+	let pageNumbers = $derived(Array.from({ length: totalPages }, (_, i) => i + 1));
+
+	// Sorting states
+	let sortColumn = $state<string | null>(null);
+	let sortDirection = $state<'asc' | 'desc' | null>(null);
+
+	function toggleSort(col: string) {
+		if (sortColumn === col) {
+			if (sortDirection === 'asc') {
+				sortDirection = 'desc';
+			} else {
+				sortColumn = null;
+				sortDirection = null;
+			}
+		} else {
+			sortColumn = col;
+			sortDirection = 'asc';
+		}
+	}
+
+	function resetSort() {
+		sortColumn = null;
+		sortDirection = null;
+	}
+
+	let sortedRoles = $derived.by(() => {
+		let list = [...filteredRoles];
+		if (sortColumn && sortDirection) {
+			list.sort((a, b) => {
+				let valA = a[sortColumn as keyof typeof a];
+				let valB = b[sortColumn as keyof typeof b];
+
+				if (typeof valA === 'string' && typeof valB === 'string') {
+					const comp = valA.localeCompare(valB);
+					return sortDirection === 'asc' ? comp : -comp;
+				}
+				if (typeof valA === 'boolean' && typeof valB === 'boolean') {
+					const numA = valA ? 1 : 0;
+					const numB = valB ? 1 : 0;
+					return sortDirection === 'asc' ? numA - numB : numB - numA;
+				}
+				if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+				if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+				return 0;
+			});
+		}
+		return list;
+	});
+
+	let paginatedRoles = $derived(sortedRoles.slice((page - 1) * limit, page * limit));
+
+	let totalRoles = $derived(roles.length);
+	let activeRolesCount = $derived(roles.filter((r) => r.status).length);
+	let inactiveRolesCount = $derived(roles.filter((r) => !r.status).length);
 
 	$effect(() => {
 		if (page > totalPages) {
@@ -321,37 +374,66 @@
 	</button>
 </div>
 
+<!-- Stats Grid -->
+<div class="stats-grid">
+	<div class="stat-card">
+		<div class="stat-card-label">Total Roles</div>
+		<div class="stat-card-value">{totalRoles}</div>
+	</div>
+	<div class="stat-card">
+		<div class="stat-card-label">Active Roles</div>
+		<div class="stat-card-value">{activeRolesCount}</div>
+	</div>
+	<div class="stat-card">
+		<div class="stat-card-label">Inactive Roles</div>
+		<div class="stat-card-value">{inactiveRolesCount}</div>
+	</div>
+</div>
+
 <!-- Toolbar: filter and search -->
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:16px;flex-wrap:wrap">
-	<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-		<div style="display:flex;align-items:center;gap:8px">
-			<span style="font-size:13px;color:var(--muted-foreground)">Search:</span>
-			<input
-				type="text"
-				bind:value={searchQuery}
-				placeholder="Search by name..."
-				id="role-search-input"
-				style="border:1px solid var(--border);background:var(--card);color:var(--foreground);font-size:13px;padding:6px 12px;border-radius:8px;outline:none;transition:border-color .2s;min-width:200px"
-				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--pieq-primary)')}
-				onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
-			/>
-		</div>
-		<div style="display:flex;align-items:center;gap:8px">
-			<span style="font-size:13px;color:var(--muted-foreground)">Filter:</span>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:16px;width:100%">
+	<div style="position:relative;flex:1;max-width:500px;display:flex;align-items:center">
+		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search" style="position:absolute;left:14px;color:var(--muted-foreground);pointer-events:none"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+		<input
+			type="text"
+			bind:value={searchQuery}
+			placeholder="Search by role name..."
+			id="role-search-input"
+			style="width:100%;border:1px solid var(--border);background:var(--card);color:var(--foreground);font-size:14px;padding:9px 12px 9px 40px;border-radius:10px;outline:none;transition:border-color .2s;box-shadow:0 1px 2px rgba(0,0,0,0.02)"
+			onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--pieq-primary)')}
+			onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+		/>
+	</div>
+	
+	<div style="display:flex;align-items:center;gap:8px">
+		<div style="position:relative;display:flex;align-items:center;min-width:120px">
 			<select
 				bind:value={filterStatus}
 				class="filter-select"
 				id="role-filter-select"
+				style="width:100%;border:1px solid var(--border);background:var(--card);color:var(--foreground);font-size:14px;padding:9px 36px 9px 16px;border-radius:10px;outline:none;cursor:pointer;appearance:none;transition:border-color .2s;box-shadow:0 1px 2px rgba(0,0,0,0.02)"
+				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--pieq-primary)')}
+				onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
 			>
 				<option value="all">All</option>
 				<option value="active">Active</option>
 				<option value="inactive">Inactive</option>
 			</select>
+			<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-filter" style="position:absolute;right:14px;color:var(--muted-foreground);pointer-events:none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
 		</div>
+
+		<button
+			onclick={resetSort}
+			title="Reset Sorting"
+			aria-label="Reset Sorting"
+			style="display:inline-flex;align-items:center;justify-content:center;padding:9px 14px;border:1px solid var(--border);background:var(--card);color:var(--foreground);border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;transition:all 0.2s;box-shadow:0 1px 2px rgba(0,0,0,0.02);white-space:nowrap;gap:6px"
+			onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}
+			onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--card)'; }}
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rotate-ccw"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+			Reset
+		</button>
 	</div>
-	<p style="font-size:12px;color:var(--muted-foreground)">
-		{filteredRoles.length} of {roles.length} role{roles.length !== 1 ? 's' : ''}
-	</p>
 </div>
 
 <!-- Table card -->
@@ -369,11 +451,27 @@
 		</div>
 	{:else}
 		<table style="width:100%;border-collapse:collapse">
-			<thead style="background:var(--muted)">
-				<tr>
-					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Role Name</th>
-					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Status</th>
-					<th style="padding:12px 20px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Actions</th>
+			<thead style="background:#F9FAFB">
+				<tr style="border-bottom:1px solid var(--border)">
+					<th style="padding:14px 20px;text-align:left;font-size:14px;font-weight:700;color:var(--foreground);white-space:nowrap">
+						<button
+							onclick={() => toggleSort('name')}
+							style="display:flex;align-items:center;gap:6px;cursor:pointer;border:none;background:none;font-size:14px;font-weight:700;color:var(--foreground);padding:0"
+						>
+							Role Name
+							<span style="font-size:14px;color:var(--pieq-primary);opacity:0.8">{sortColumn === 'name' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅'}</span>
+						</button>
+					</th>
+					<th style="padding:14px 20px;text-align:left;font-size:14px;font-weight:700;color:var(--foreground);white-space:nowrap">
+						<button
+							onclick={() => toggleSort('status')}
+							style="display:flex;align-items:center;gap:6px;cursor:pointer;border:none;background:none;font-size:14px;font-weight:700;color:var(--foreground);padding:0"
+						>
+							Status
+							<span style="font-size:14px;color:var(--pieq-primary);opacity:0.8">{sortColumn === 'status' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅'}</span>
+						</button>
+					</th>
+					<th style="padding:14px 20px;text-align:right;font-size:14px;font-weight:700;color:var(--foreground);white-space:nowrap">Actions</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -435,21 +533,35 @@
 		</table>
 
 		<!-- Pagination -->
-		<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--border)">
-			<p style="font-size:12px;color:var(--muted-foreground)">
-				Page {page} of {totalPages} &bull; {total} total role{total !== 1 ? 's' : ''}
+		<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--border)">
+			<p style="font-size:14px;color:var(--muted-foreground)">
+				Showing {total === 0 ? 0 : (page - 1) * limit + 1}-{Math.min(page * limit, total)} of {total} records
 			</p>
-			<div style="display:flex;gap:8px">
+			<div style="display:flex;align-items:center;gap:8px">
 				<button
 					disabled={page <= 1}
 					onclick={prevPage}
-					style="padding:6px 14px;border-radius:7px;border:1px solid var(--border);background:none;font-size:12px;cursor:pointer;opacity:{page <= 1 ? 0.4 : 1}"
-				>← Prev</button>
+					style="padding:6px 14px;border:none;background:none;font-size:14px;font-weight:500;cursor:pointer;color:var(--muted-foreground);opacity:{page <= 1 ? 0.4 : 1};display:inline-flex;align-items:center;gap:4px"
+				>⟨ Previous</button>
+				{#each pageNumbers as p}
+					{#if p === page}
+						<span style="background:#111827;color:#ffffff;width:32px;height:32px;border-radius:6px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-size:14px">
+							{p}
+						</span>
+					{:else}
+						<button
+							onclick={() => page = p}
+							style="background:none;border:none;color:#111827;width:32px;height:32px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;justify-content:center;font-size:14px"
+						>
+							{p}
+						</button>
+					{/if}
+				{/each}
 				<button
 					disabled={page >= totalPages}
 					onclick={nextPage}
-					style="padding:6px 14px;border-radius:7px;border:1px solid var(--border);background:none;font-size:12px;cursor:pointer;opacity:{page >= totalPages ? 0.4 : 1}"
-				>Next →</button>
+					style="padding:6px 14px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;color:#111827;opacity:{page >= totalPages ? 0.4 : 1};display:inline-flex;align-items:center;gap:4px"
+				>Next ⟩</button>
 			</div>
 		</div>
 	{/if}

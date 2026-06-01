@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { resolve } from '$app/paths';
-	import { signOut } from '$lib/auth';
+	import { signOut, signInWithKeycloak } from '$lib/auth';
 
 	// Lucide icons
 	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
@@ -9,6 +9,7 @@
 	import ShieldIcon from '@lucide/svelte/icons/shield';
 	import SettingsIcon from '@lucide/svelte/icons/settings';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
+	import LogInIcon from '@lucide/svelte/icons/log-in';
 	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
 	import HomeIcon from '@lucide/svelte/icons/home';
 	import ClockIcon from '@lucide/svelte/icons/clock';
@@ -61,25 +62,33 @@
 
 <aside class="pieq-sidebar" class:collapsed>
 	<!-- Brand -->
-	<div class="sidebar-brand">
-		<div class="sidebar-brand-icon">PQ</div>
+	<div class="sidebar-brand" style="display:flex;align-items:center;justify-content:{collapsed ? 'center' : 'space-between'};width:100%;box-sizing:border-box;padding:{collapsed ? '16px 0' : '20px 16px 16px'}">
+		<div style="display:flex;align-items:center;gap:10px">
+			<div class="sidebar-brand-icon" style="background:#C2652A;color:white;border-radius:8px;font-weight:800;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 4px 12px rgba(194, 101, 42, 0.3);flex-shrink:0">PQ</div>
+			{#if !collapsed}
+				<span class="sidebar-brand-name" style="font-size:16px;font-weight:700;color:white;letter-spacing:-0.5px">PieQ HRMS</span>
+			{/if}
+		</div>
 		{#if !collapsed}
-			<div class="sidebar-brand-text" style="overflow:hidden">
-				<span class="sidebar-brand-name">PieQ HRMS</span>
-				<span class="sidebar-brand-sub">Enterprise Suite</span>
-			</div>
+			<button
+				onclick={toggle}
+				style="background:none;border:none;color:#ffffff;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;transition:color 0.2s"
+				aria-label="Collapse sidebar"
+				title="Collapse sidebar"
+				onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C2652A')}
+				onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.color = '#ffffff')}
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+			</button>
+		{:else}
+			<button
+				onclick={toggle}
+				style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;"
+				aria-label="Expand sidebar"
+				title="Expand sidebar"
+			></button>
 		{/if}
 	</div>
-
-	<!-- Toggle button -->
-	<button
-		class="sidebar-toggle"
-		onclick={toggle}
-		aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-		title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-	>
-		<ChevronLeftIcon size={14} />
-	</button>
 
 	<!-- Main Navigation -->
 	<nav class="sidebar-nav">
