@@ -19,7 +19,7 @@
 			{#snippet child({ props })}
 				<Button
 					variant="outline"
-					class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-sm hover:bg-accent focus-visible:ring-1 focus-visible:ring-[#C2652A]"
+					class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none"
 					{...props}
 				>
 					{value ? 'Active' : 'Inactive'}

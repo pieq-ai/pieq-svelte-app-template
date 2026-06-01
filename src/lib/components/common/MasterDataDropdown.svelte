@@ -9,7 +9,7 @@
 		master: MasterKey;
 		label?: string;
 		value: string;
-		countryCuid2?: string;
+		countryCuid?: string;
 		placeholder?: string;
 		permissions?: Partial<MasterPermissionConfig>;
 		onSelect: (id: string) => void;
@@ -19,7 +19,7 @@
 		master,
 		label,
 		value,
-		countryCuid2,
+		countryCuid,
 		placeholder = 'Search or select...',
 		permissions = getMasterPermissions(),
 		onSelect
@@ -47,7 +47,7 @@
 		if (master !== 'blood-groups' && master !== 'languages' && !/^[A-Za-z0-9 ]+$/.test(trimmed)) {
 			return 'Only letters, numbers, and spaces are allowed';
 		}
-		if (master === 'states' && !countryCuid2) {
+		if (master === 'states' && !countryCuid) {
 			return 'Select a country before adding a state';
 		}
 		return '';
@@ -58,7 +58,7 @@
 	async function loadOptions() {
 		isLoading = true;
 		errorMessage = '';
-		const query = countryCuid2 ? `?countryCuid2=${encodeURIComponent(countryCuid2)}` : '';
+		const query = countryCuid ? `?countryCuid=${encodeURIComponent(countryCuid)}` : '';
 		try {
 			const response = await fetch(`/api/master-data/${master}${query}`);
 			const body = await response.json();
@@ -112,21 +112,19 @@
 		try {
 			const response = await fetch(
 				editingOption
-					? `/api/master-data/${master}?cuid2=${editingOption.id}`
+					? `/api/master-data/${master}?cuid=${editingOption.id}`
 					: `/api/master-data/${master}`,
 				{
 					method: editingOption ? 'PUT' : 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ name: masterValue.trim(), country_cuid2: countryCuid2 })
+					body: JSON.stringify({ name: masterValue.trim(), country_cuid: countryCuid })
 				}
 			);
 			const body = await response.json();
 			if (response.ok) {
-				if (editingOption) {
-					options = options.map((option) => (option.id === editingOption?.id ? body.data : option));
-				} else {
-					options = [body.data, ...options];
-					onSelect(body.data.id);
+				await loadOptions();
+				if (!editingOption && body.data?.cuid) {
+					onSelect(body.data.cuid);
 				}
 				isModalOpen = false;
 			} else {

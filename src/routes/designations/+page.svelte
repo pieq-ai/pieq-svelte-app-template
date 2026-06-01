@@ -33,7 +33,7 @@
 	} from '$lib/components';
 
 	interface Designation {
-		cuid2: string;
+		cuid: string;
 		designation_name: string;
 		status: boolean;
 	}
@@ -186,7 +186,7 @@
 
 		try {
 			const response = await fetch(
-				editingDesignation ? `/api/designations?cuid2=${editingDesignation.cuid2}` : '/api/designations',
+				editingDesignation ? `/api/designations?cuid=${editingDesignation.cuid}` : '/api/designations',
 				{
 					method: editingDesignation ? 'PUT' : 'POST',
 					headers: { 'Content-Type': 'application/json' },
@@ -196,9 +196,7 @@
 			const resData = await response.json();
 
 			if (response.ok && resData.data) {
-				designationsList = editingDesignation
-					? designationsList.map((d) => (d.cuid2 === editingDesignation?.cuid2 ? resData.data : d))
-					: [resData.data, ...designationsList];
+				await loadDesignations();
 				toast.success(editingDesignation ? 'Designation updated successfully' : 'Designation created successfully');
 				isModalOpen = false;
 			} else {
@@ -217,13 +215,13 @@
 		isDeleting = true;
 
 		try {
-			const response = await fetch(`/api/designations?cuid2=${itemToDelete.cuid2}`, {
+			const response = await fetch(`/api/designations?cuid=${itemToDelete.cuid}`, {
 				method: 'DELETE'
 			});
 			const resData = await response.json();
 
 			if (response.ok && resData.data) {
-				designationsList = designationsList.map((d) => (d.cuid2 === itemToDelete?.cuid2 ? resData.data : d));
+				await loadDesignations();
 				toast.success('Designation deactivated successfully');
 				itemToDelete = null;
 			} else {
@@ -242,7 +240,7 @@
 	<title>HRMS Designation Directory</title>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl space-y-6 px-1 py-0">
+<div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
 			<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
@@ -337,7 +335,7 @@
 							</TableCell>
 						</TableRow>
 					{:else}
-						{#each paginatedDesignations as designation (designation.cuid2)}
+						{#each paginatedDesignations as designation (designation.cuid)}
 							<TableRow>
 								<TableCell>
 									<div class="flex flex-col">

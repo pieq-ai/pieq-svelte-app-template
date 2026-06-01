@@ -57,7 +57,7 @@
 <div class="flex min-h-screen bg-background text-foreground">
 	<Toaster />
 	<aside
-		class={`fixed inset-y-0 left-0 z-30 flex flex-col border-r border-[#737373]/25 bg-[#262626] text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
+		class={`sticky top-0 h-screen z-30 flex shrink-0 flex-col border-r border-[#737373]/25 bg-[#262626] text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
 		aria-label="Primary navigation"
 	>
 		<div class={`flex h-16 items-center border-b border-white/10 transition-all ${isSidebarCollapsed ? 'justify-center gap-2 px-2' : 'justify-between px-6'}`}>
@@ -156,9 +156,7 @@
 		</div>
 	</aside>
 
-	<main
-		class={`min-h-screen flex-1 px-6 py-6 transition-[margin] duration-300 ease-in-out ${isSidebarCollapsed ? 'ml-20' : 'ml-64'}`}
-	>
+	<main class="min-h-screen flex-1 min-w-0 px-6 py-6">
 		{@render children()}
 	</main>
 </div>

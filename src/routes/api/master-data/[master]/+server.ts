@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import * as masterDataService from '$lib/server/services/master-data.service.js';
+import { mapToApi, mapToDb } from '$lib/server/utils/mapping.js';
 
 function getStatus(message: string) {
 	if (message === 'Unauthorized') return 401;
@@ -14,13 +15,13 @@ function getMaster(event: RequestEvent) {
 	return event.params.master ?? '';
 }
 
-function getCuid2(event: RequestEvent) {
+function getCuid(event: RequestEvent) {
 	const url = new URL(event.request.url);
-	const cuid2 = url.searchParams.get('cuid2');
-	if (!cuid2) {
-		throw new Error('Master data CUID2 is required as a query parameter');
+	const cuid = url.searchParams.get('cuid');
+	if (!cuid) {
+		throw new Error('Master data CUID is required as a query parameter');
 	}
-	return cuid2;
+	return cuid;
 }
 
 export async function GET(event: RequestEvent) {
@@ -28,10 +29,10 @@ export async function GET(event: RequestEvent) {
 		permissionGuard.requireAuth(event.locals.user);
 		const url = new URL(event.request.url);
 		const search = url.searchParams.get('search') ?? undefined;
-		const countryCuid2 = url.searchParams.get('countryCuid2') ?? undefined;
+		const countryCuid = url.searchParams.get('countryCuid') ?? undefined;
 
 		return json({
-			data: await masterDataService.getMasterData(getMaster(event), search, countryCuid2)
+			data: mapToApi(await masterDataService.getMasterData(getMaster(event), search, countryCuid))
 		});
 	} catch (error) {
 		const message = (error as Error).message;
@@ -42,10 +43,12 @@ export async function GET(event: RequestEvent) {
 export async function POST(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
-		const body = await event.request.json();
+		let body = await event.request.json();
+		body = mapToDb(body);
 		body.created_by = event.locals.user?.id;
+		const newMasterData = await masterDataService.createMasterData(getMaster(event), body);
 		return json(
-			{ data: await masterDataService.createMasterData(getMaster(event), body) },
+			{ data: { cuid: newMasterData.id, message: 'Successfully created' } },
 			{ status: 201 }
 		);
 	} catch (error) {
@@ -57,10 +60,12 @@ export async function POST(event: RequestEvent) {
 export async function PUT(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
-		const body = await event.request.json();
+		let body = await event.request.json();
+		body = mapToDb(body);
 		body.updated_by = event.locals.user?.id;
+		const updatedMasterData = await masterDataService.updateMasterData(getMaster(event), getCuid(event), body);
 		return json({
-			data: await masterDataService.updateMasterData(getMaster(event), getCuid2(event), body)
+			data: { cuid: updatedMasterData.id, message: 'Successfully updated' }
 		});
 	} catch (error) {
 		const message = (error as Error).message;

@@ -33,7 +33,7 @@
 	} from '$lib/components';
 
 	interface Department {
-		cuid2: string;
+		cuid: string;
 		dept_name: string;
 		status: boolean;
 	}
@@ -190,7 +190,7 @@
 
 		try {
 			const response = await fetch(
-				editingDept ? `/api/departments?cuid2=${editingDept.cuid2}` : '/api/departments',
+				editingDept ? `/api/departments?cuid=${editingDept.cuid}` : '/api/departments',
 				{
 					method: editingDept ? 'PUT' : 'POST',
 					headers: { 'Content-Type': 'application/json' },
@@ -200,9 +200,7 @@
 			const resData = await response.json();
 
 			if (response.ok && resData.data) {
-				departmentsList = editingDept
-					? departmentsList.map((d) => (d.cuid2 === editingDept?.cuid2 ? resData.data : d))
-					: [resData.data, ...departmentsList];
+				await loadDepartments();
 				toast.success(editingDept ? 'Department updated successfully' : 'Department created successfully');
 				isModalOpen = false;
 			} else {
@@ -220,13 +218,13 @@
 		if (!itemToDelete) return;
 		isDeleting = true;
 		try {
-			const response = await fetch(`/api/departments?cuid2=${itemToDelete.cuid2}`, {
+			const response = await fetch(`/api/departments?cuid=${itemToDelete.cuid}`, {
 				method: 'DELETE'
 			});
 			const resData = await response.json();
 
 			if (response.ok && resData.data) {
-				departmentsList = departmentsList.map((d) => (d.cuid2 === itemToDelete?.cuid2 ? resData.data : d));
+				await loadDepartments();
 				toast.success('Department deactivated successfully');
 				itemToDelete = null;
 			} else {
@@ -245,7 +243,7 @@
 	<title>HRMS Department Directory</title>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl space-y-6 px-1 py-0">
+<div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
 			<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
@@ -341,7 +339,7 @@
 							</TableCell>
 						</TableRow>
 					{:else}
-						{#each paginatedDepartments as dept (dept.cuid2)}
+						{#each paginatedDepartments as dept (dept.cuid)}
 							<TableRow>
 								<TableCell>
 									<div class="flex flex-col">

@@ -26,7 +26,7 @@
 		TableRow
 	} from '$lib/components';
 
-	let employeesList = $state<Array<{ cuid2: string; name: string; age: number }>>([]);
+	let employeesList = $state<Array<{ cuid: string; name: string; age: number }>>([]);
 	let isLoading = $state(true);
 	let loadError = $state('');
 
@@ -59,7 +59,7 @@
 			result = result.filter(
 				(emp) =>
 					emp.name.toLowerCase().includes(query) ||
-					emp.cuid2.toLowerCase().includes(query)
+					emp.cuid.toLowerCase().includes(query)
 			);
 		}
 
@@ -151,7 +151,7 @@
 			const resData = await response.json();
 
 			if (response.ok && resData.data) {
-				employeesList = [resData.data, ...employeesList];
+				await loadEmployees();
 				newName = '';
 				newAge = '';
 				isCreateModalOpen = false;
@@ -175,7 +175,7 @@
 	<title>System Employees Directory</title>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl space-y-5 px-4 py-6">
+<div class="w-full space-y-5 px-4 py-6">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
 			<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
@@ -234,7 +234,7 @@
 				<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
 				<Input
 					type="search"
-					placeholder="Search by name or CUID2..."
+					placeholder="Search by name or CUID..."
 					bind:value={searchQuery}
 					class="pl-9 pr-9"
 				/>
@@ -266,7 +266,7 @@
 									Age {sortIndicator('age')}
 								</Button>
 							</TableHead>
-							<TableHead>CUID2</TableHead>
+							<TableHead>CUID</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
@@ -283,13 +283,13 @@
 								</TableCell>
 							</TableRow>
 						{:else}
-							{#each filteredEmployees as emp (emp.cuid2)}
+							{#each filteredEmployees as emp (emp.cuid)}
 								<TableRow>
 									<TableCell class="font-semibold">{emp.name}</TableCell>
 									<TableCell>
 										<Badge variant="secondary">{emp.age} yrs old</Badge>
 									</TableCell>
-									<TableCell class="font-mono text-xs text-muted-foreground">{emp.cuid2}</TableCell>
+									<TableCell class="font-mono text-xs text-muted-foreground">{emp.cuid}</TableCell>
 								</TableRow>
 							{/each}
 						{/if}

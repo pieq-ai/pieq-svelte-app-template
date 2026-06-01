@@ -14,21 +14,21 @@
 	} from '$lib/components';
 
 	interface SystemRole {
-		cuid2: string;
+		cuid: string;
 		system_role_name: string;
 		status: boolean;
 	}
 
 	interface Permission {
-		cuid2: string;
+		cuid: string;
 		permission_key: string;
 		status: boolean;
 	}
 
 	interface RolePermission {
-		cuid2: string;
-		system_role_cuid2: string | null;
-		permission_cuid2: string | null;
+		cuid: string;
+		system_role_cuid: string | null;
+		permission_cuid: string | null;
 	}
 
 	interface MatrixData {
@@ -62,15 +62,15 @@
 		);
 	});
 
-	function assignmentKey(roleCuid2: string, permissionCuid2: string) {
-		return `${roleCuid2}:${permissionCuid2}`;
+	function assignmentKey(roleCuid: string, permissionCuid: string) {
+		return `${roleCuid}:${permissionCuid}`;
 	}
 
 	function buildAssignmentSet(mappings: RolePermission[]) {
 		return mappings
-			.filter((mapping) => mapping.system_role_cuid2 && mapping.permission_cuid2)
+			.filter((mapping) => mapping.system_role_cuid && mapping.permission_cuid)
 			.map((mapping) =>
-				assignmentKey(mapping.system_role_cuid2 as string, mapping.permission_cuid2 as string)
+				assignmentKey(mapping.system_role_cuid as string, mapping.permission_cuid as string)
 			);
 	}
 
@@ -95,7 +95,7 @@
 	onMount(loadMatrix);
 
 	async function togglePermission(role: SystemRole, permission: Permission) {
-		const key = assignmentKey(role.cuid2, permission.cuid2);
+		const key = assignmentKey(role.cuid, permission.cuid);
 		if (pendingKeys.includes(key)) return;
 
 		const wasAssigned = assignmentKeys.includes(key);
@@ -108,7 +108,7 @@
 		try {
 			const response = await fetch(
 				wasAssigned
-					? `/api/role-permissions?roleCuid2=${role.cuid2}&permissionCuid2=${permission.cuid2}`
+					? `/api/role-permissions?roleCuid=${role.cuid}&permissionCuid=${permission.cuid}`
 					: '/api/role-permissions',
 				{
 					method: wasAssigned ? 'DELETE' : 'POST',
@@ -116,8 +116,8 @@
 					body: wasAssigned
 						? undefined
 						: JSON.stringify({
-								system_role_cuid2: role.cuid2,
-								permission_cuid2s: [permission.cuid2]
+								system_role_cuid: role.cuid,
+								permission_cuids: [permission.cuid]
 							})
 				}
 			);
@@ -141,7 +141,7 @@
 	<title>Role Permissions</title>
 </svelte:head>
 
-<div class="mx-auto max-w-full space-y-6 px-1 py-4">
+<div class="w-full space-y-6 px-1 py-4">
 	<div class="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-end lg:justify-between">
 		<div class="space-y-1">
 			<Badge variant="secondary" class="uppercase">RBAC Foundation</Badge>
@@ -179,7 +179,7 @@
 							<th class="sticky left-0 z-30 min-w-64 bg-[#262626] px-4 py-3 text-left font-semibold">
 								Permission
 							</th>
-							{#each activeRoles as role (role.cuid2)}
+							{#each activeRoles as role (role.cuid)}
 								<th class="min-w-40 border-l border-white/10 px-4 py-3 text-center font-semibold">
 									{role.system_role_name}
 								</th>
@@ -187,7 +187,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each filteredPermissions as permission (permission.cuid2)}
+						{#each filteredPermissions as permission (permission.cuid)}
 							<tr class="border-t border-border hover:bg-[#C2652A]/5">
 								<td class="sticky left-0 z-10 min-w-64 border-r border-border bg-background px-4 py-3">
 									<div class="font-mono text-xs font-semibold text-[#262626]">
@@ -197,8 +197,8 @@
 										{permission.permission_key.split('_')[0] || 'general'}
 									</div>
 								</td>
-								{#each activeRoles as role (role.cuid2)}
-									{@const key = assignmentKey(role.cuid2, permission.cuid2)}
+								{#each activeRoles as role (role.cuid)}
+									{@const key = assignmentKey(role.cuid, permission.cuid)}
 									<td class="border-l border-border px-4 py-3 text-center">
 										<PermissionMatrixCell
 											checked={assignmentKeys.includes(key)}

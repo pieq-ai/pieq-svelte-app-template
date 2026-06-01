@@ -32,7 +32,7 @@
 	import { getMasterPermissions } from '$lib/permissions/mock-permissions';
 
 	interface SystemRole {
-		cuid2: string;
+		cuid: string;
 		system_role_name: string;
 		status: boolean;
 	}
@@ -165,7 +165,7 @@
 		isSubmitting = true;
 		try {
 			const response = await fetch(
-				editingRole ? `/api/system-roles?cuid2=${editingRole.cuid2}` : '/api/system-roles',
+				editingRole ? `/api/system-roles?cuid=${editingRole.cuid}` : '/api/system-roles',
 				{
 					method: editingRole ? 'PUT' : 'POST',
 					headers: { 'Content-Type': 'application/json' },
@@ -174,9 +174,7 @@
 			);
 			const body = await response.json();
 			if (response.ok) {
-				roles = editingRole
-					? roles.map((role) => (role.cuid2 === editingRole?.cuid2 ? body.data : role))
-					: [body.data, ...roles];
+				await loadRoles();
 				toast.success(editingRole ? 'System role updated successfully.' : 'System role created successfully.');
 				isModalOpen = false;
 			} else {
@@ -194,10 +192,10 @@
 		if (!itemToDelete) return;
 		isDeleting = true;
 		try {
-			const response = await fetch(`/api/system-roles?cuid2=${itemToDelete.cuid2}`, { method: 'DELETE' });
+			const response = await fetch(`/api/system-roles?cuid=${itemToDelete.cuid}`, { method: 'DELETE' });
 			const body = await response.json();
 			if (response.ok) {
-				roles = roles.map((item) => (item.cuid2 === itemToDelete?.cuid2 ? body.data : item));
+				await loadRoles();
 				toast.success('System role deactivated successfully.');
 				itemToDelete = null;
 			} else {
@@ -216,7 +214,7 @@
 	<title>System Roles</title>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl space-y-6 px-1 py-0">
+<div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
 			<Badge variant="secondary" class="uppercase">RBAC Foundation</Badge>
@@ -280,7 +278,7 @@
 				{:else if filteredRoles.length === 0}
 					<TableRow><TableCell colspan={3} class="py-8 text-center text-muted-foreground">No roles found.</TableCell></TableRow>
 				{:else}
-					{#each paginatedRoles as role (role.cuid2)}
+					{#each paginatedRoles as role (role.cuid)}
 						<TableRow>
 							<TableCell class="font-semibold">{role.system_role_name}</TableCell>
 							<TableCell class="text-center"><Badge variant={role.status === true ? 'default' : 'secondary'}>{role.status ? 'Active' : 'Inactive'}</Badge></TableCell>

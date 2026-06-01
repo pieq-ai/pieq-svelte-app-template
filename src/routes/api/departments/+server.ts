@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as departmentService from '$lib/server/services/department.service.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
+import { mapToApi, mapToDb } from '$lib/server/utils/mapping.js';
 
 /**
  * GET /api/departments
@@ -13,15 +14,15 @@ export async function GET(event: RequestEvent) {
 		permissionGuard.requireAuth(event.locals.user);
 
 		const url = new URL(event.request.url);
-		const cuid2 = url.searchParams.get('cuid2');
+		const cuid = url.searchParams.get('cuid');
 
-		if (cuid2) {
-			const department = await departmentService.getDepartmentByCuid2(cuid2);
-			return json({ data: department });
+		if (cuid) {
+			const department = await departmentService.getDepartmentByCuid2(cuid);
+			return json({ data: mapToApi(department) });
 		}
 
 		const departments = await departmentService.getDepartments();
-		return json({ data: departments });
+		return json({ data: mapToApi(departments) });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
@@ -38,10 +39,11 @@ export async function POST(event: RequestEvent) {
 		permissionGuard.requireAuth(event.locals.user);
 		permissionGuard.requireAdmin(event.locals.user);
 
-		const body = await event.request.json();
+		let body = await event.request.json();
+		body = mapToDb(body);
 		body.created_by = event.locals.user?.id;
 		const newDepartment = await departmentService.createDepartment(body);
-		return json({ data: newDepartment }, { status: 201 });
+		return json({ data: { cuid: newDepartment.cuid2, message: 'Successfully created' } }, { status: 201 });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : 400;
@@ -59,16 +61,17 @@ export async function PUT(event: RequestEvent) {
 		permissionGuard.requireAdmin(event.locals.user);
 
 		const url = new URL(event.request.url);
-		const cuid2 = url.searchParams.get('cuid2');
+		const cuid = url.searchParams.get('cuid');
 
-		if (!cuid2) {
-			return json({ error: 'Department CUID2 is required as a query parameter' }, { status: 400 });
+		if (!cuid) {
+			return json({ error: 'Department CUID is required as a query parameter' }, { status: 400 });
 		}
 
-		const body = await event.request.json();
+		let body = await event.request.json();
+		body = mapToDb(body);
 		body.updated_by = event.locals.user?.id;
-		const updatedDepartment = await departmentService.updateDepartment(cuid2, body);
-		return json({ data: updatedDepartment });
+		const updatedDepartment = await departmentService.updateDepartment(cuid, body);
+		return json({ data: { cuid: updatedDepartment.cuid2, message: 'Successfully updated' } });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
@@ -86,14 +89,14 @@ export async function DELETE(event: RequestEvent) {
 		permissionGuard.requireAdmin(event.locals.user);
 
 		const url = new URL(event.request.url);
-		const cuid2 = url.searchParams.get('cuid2');
+		const cuid = url.searchParams.get('cuid');
 
-		if (!cuid2) {
-			return json({ error: 'Department CUID2 is required as a query parameter' }, { status: 400 });
+		if (!cuid) {
+			return json({ error: 'Department CUID is required as a query parameter' }, { status: 400 });
 		}
 
-		const deletedDepartment = await departmentService.deleteDepartment(cuid2, event.locals.user?.id);
-		return json({ data: deletedDepartment });
+		const deletedDepartment = await departmentService.deleteDepartment(cuid, event.locals.user?.id);
+		return json({ data: { cuid: deletedDepartment.cuid2, message: 'Successfully disabled' } });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;

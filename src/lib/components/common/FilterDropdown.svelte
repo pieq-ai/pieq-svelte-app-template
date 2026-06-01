@@ -17,7 +17,7 @@
 <DropdownMenu.Root>
 	<DropdownMenu.Trigger>
 		{#snippet child({ props })}
-			<Button variant="outline" class="h-9 w-[180px] justify-between border-input bg-background shadow-sm hover:bg-accent focus-visible:ring-1 focus-visible:ring-[#C2652A]" {...props}>
+			<Button variant="outline" class="h-9 w-[180px] justify-between border-input bg-background shadow-xs hover:bg-accent focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none" {...props}>
 				{displayValue}
 				<FilterIcon class="ml-2 size-4 opacity-50" />
 			</Button>

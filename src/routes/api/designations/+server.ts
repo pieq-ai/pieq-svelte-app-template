@@ -2,16 +2,17 @@ import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as designationService from '$lib/server/services/designation.service.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
+import { mapToApi, mapToDb } from '$lib/server/utils/mapping.js';
 
-function parseDesignationCuid2(event: RequestEvent) {
+function parseDesignationCuid(event: RequestEvent) {
 	const url = new URL(event.request.url);
-	const cuid2 = url.searchParams.get('cuid2');
+	const cuid = url.searchParams.get('cuid');
 
-	if (!cuid2) {
-		throw new Error('Designation CUID2 is required as a query parameter');
+	if (!cuid) {
+		throw new Error('Designation CUID is required as a query parameter');
 	}
 
-	return cuid2;
+	return cuid;
 }
 
 export async function GET(event: RequestEvent) {
@@ -19,15 +20,15 @@ export async function GET(event: RequestEvent) {
 		permissionGuard.requireAuth(event.locals.user);
 
 		const url = new URL(event.request.url);
-		const cuid2 = url.searchParams.get('cuid2');
+		const cuid = url.searchParams.get('cuid');
 
-		if (cuid2) {
-			const designation = await designationService.getDesignationByCuid2(cuid2);
-			return json({ data: designation });
+		if (cuid) {
+			const designation = await designationService.getDesignationByCuid2(cuid);
+			return json({ data: mapToApi(designation) });
 		}
 
 		const designations = await designationService.getDesignations();
-		return json({ data: designations });
+		return json({ data: mapToApi(designations) });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
@@ -40,10 +41,11 @@ export async function POST(event: RequestEvent) {
 		permissionGuard.requireAuth(event.locals.user);
 		permissionGuard.requireAdmin(event.locals.user);
 
-		const body = await event.request.json();
+		let body = await event.request.json();
+		body = mapToDb(body);
 		body.created_by = event.locals.user?.id;
 		const newDesignation = await designationService.createDesignation(body);
-		return json({ data: newDesignation }, { status: 201 });
+		return json({ data: { cuid: newDesignation.cuid2, message: 'Successfully created' } }, { status: 201 });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : 400;
@@ -56,11 +58,12 @@ export async function PUT(event: RequestEvent) {
 		permissionGuard.requireAuth(event.locals.user);
 		permissionGuard.requireAdmin(event.locals.user);
 
-		const cuid2 = parseDesignationCuid2(event);
-		const body = await event.request.json();
+		const cuid = parseDesignationCuid(event);
+		let body = await event.request.json();
+		body = mapToDb(body);
 		body.updated_by = event.locals.user?.id;
-		const updatedDesignation = await designationService.updateDesignation(cuid2, body);
-		return json({ data: updatedDesignation });
+		const updatedDesignation = await designationService.updateDesignation(cuid, body);
+		return json({ data: { cuid: updatedDesignation.cuid2, message: 'Successfully updated' } });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
@@ -73,9 +76,9 @@ export async function DELETE(event: RequestEvent) {
 		permissionGuard.requireAuth(event.locals.user);
 		permissionGuard.requireAdmin(event.locals.user);
 
-		const cuid2 = parseDesignationCuid2(event);
-		const deletedDesignation = await designationService.deleteDesignation(cuid2, event.locals.user?.id);
-		return json({ data: deletedDesignation });
+		const cuid = parseDesignationCuid(event);
+		const deletedDesignation = await designationService.deleteDesignation(cuid, event.locals.user?.id);
+		return json({ data: { cuid: deletedDesignation.cuid2, message: 'Successfully disabled' } });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;

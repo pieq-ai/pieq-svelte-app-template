@@ -32,7 +32,7 @@
 	import { getMasterPermissions } from '$lib/permissions/mock-permissions';
 
 	interface Permission {
-		cuid2: string;
+		cuid: string;
 		permission_key: string;
 		status: boolean;
 	}
@@ -166,7 +166,7 @@
 		try {
 			const response = await fetch(
 				editingPermission
-					? `/api/permissions?cuid2=${editingPermission.cuid2}`
+					? `/api/permissions?cuid=${editingPermission.cuid}`
 					: '/api/permissions',
 				{
 					method: editingPermission ? 'PUT' : 'POST',
@@ -176,11 +176,7 @@
 			);
 			const body = await response.json();
 			if (response.ok) {
-				permissions = editingPermission
-					? permissions.map((permission) =>
-							permission.cuid2 === editingPermission?.cuid2 ? body.data : permission
-						)
-					: [body.data, ...permissions];
+				await loadPermissions();
 				toast.success(editingPermission ? 'Permission updated successfully.' : 'Permission created successfully.');
 				isModalOpen = false;
 			} else {
@@ -198,12 +194,10 @@
 		if (!itemToDelete) return;
 		isDeleting = true;
 		try {
-			const response = await fetch(`/api/permissions?cuid2=${itemToDelete.cuid2}`, { method: 'DELETE' });
+			const response = await fetch(`/api/permissions?cuid=${itemToDelete.cuid}`, { method: 'DELETE' });
 			const body = await response.json();
 			if (response.ok) {
-				permissions = permissions.map((item) =>
-					item.cuid2 === itemToDelete?.cuid2 ? body.data : item
-				);
+				await loadPermissions();
 				toast.success('Permission deactivated successfully.');
 				itemToDelete = null;
 			} else {
@@ -222,7 +216,7 @@
 	<title>Permissions</title>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl space-y-6 px-1 py-0">
+<div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
 			<Badge variant="secondary" class="uppercase">RBAC Foundation</Badge>
@@ -286,7 +280,7 @@
 				{:else if filteredPermissions.length === 0}
 					<TableRow><TableCell colspan={3} class="py-8 text-center text-muted-foreground">No permissions found.</TableCell></TableRow>
 				{:else}
-					{#each paginatedPermissions as permission (permission.cuid2)}
+					{#each paginatedPermissions as permission (permission.cuid)}
 						<TableRow>
 							<TableCell class="font-mono text-sm font-semibold">{permission.permission_key}</TableCell>
 							<TableCell class="text-center"><Badge variant={permission.status === true ? 'default' : 'secondary'}>{permission.status ? 'Active' : 'Inactive'}</Badge></TableCell>

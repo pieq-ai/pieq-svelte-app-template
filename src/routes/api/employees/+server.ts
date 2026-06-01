@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as employeeDao from '$lib/server/dao/employee.dao';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
+import { mapToApi, mapToDb } from '$lib/server/utils/mapping.js';
 
 function getErrorStatus(message: string, fallback = 500) {
 	return message === 'Unauthorized' ? 401 : fallback;
@@ -12,7 +13,7 @@ export async function GET(event: RequestEvent) {
 		permissionGuard.requireAuth(event.locals.user);
 
 		const employees = await employeeDao.list();
-		return json({ data: employees });
+		return json({ data: mapToApi(employees) });
 	} catch (error) {
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getErrorStatus(message) });
@@ -36,7 +37,7 @@ export async function POST(event: RequestEvent) {
 		}
 
 		const employee = await employeeDao.create({ name, age: Number(age) });
-		return json({ data: employee }, { status: 201 });
+		return json({ data: { cuid: employee.cuid2, message: 'Successfully created' } }, { status: 201 });
 	} catch (error) {
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getErrorStatus(message) });
