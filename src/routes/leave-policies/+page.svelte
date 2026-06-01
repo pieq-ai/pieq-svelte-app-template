@@ -579,7 +579,7 @@
 	<title>Leave Policies | HRMS</title>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl space-y-8 px-1 py-4">
+<div class="w-full space-y-8 px-1 py-4">
 	<!-- Header -->
 	<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-border pb-6">
 		<div class="space-y-1">
@@ -803,63 +803,63 @@
 		{/if}
 	</div>
 
-	<!-- Annual Quota -->
-	<div class="space-y-2">
-		<Label for="modal_annual_quota" class={(form && 'field' in form && form.field === 'annual_quota') || quotaError ? 'text-destructive' : ''}>Annual Quota (Days) <span class="text-destructive">*</span></Label>
-		<Input
-			id="modal_annual_quota"
-			name="annual_quota"
-			bind:value={annualQuota}
-			oninput={() => {
-				if (form && form.field === 'annual_quota') form = null;
-				const err = getQuotaError(annualQuota);
-				if (!err) {
-					errors.annual_quota = '';
-				} else if (submissionAttempted || errors.annual_quota) {
-					errors.annual_quota = err;
-				}
-				const mErr = getMaxPerMonthError(maxPerMonth, annualQuota);
-				if (!mErr) {
-					errors.max_per_month = '';
-				} else if (submissionAttempted || errors.max_per_month) {
-					errors.max_per_month = mErr;
-				}
-			}}
-			placeholder="e.g. 12 or 1.5"
-			required
-			class={(form && 'field' in form && form.field === 'annual_quota') || quotaError ? 'border-destructive focus-visible:ring-destructive' : ''}
-		/>
-		{#if quotaError}
-			<p class="text-xs font-medium text-destructive mt-1">{quotaError}</p>
-		{:else if form && 'field' in form && form.field === 'annual_quota'}
-			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
-		{/if}
-	</div>
+	<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+		<div class="space-y-2">
+			<Label for="modal_annual_quota" class={(form && 'field' in form && form.field === 'annual_quota') || quotaError ? 'text-destructive' : ''}>Annual Quota (Days) <span class="text-destructive">*</span></Label>
+			<Input
+				id="modal_annual_quota"
+				name="annual_quota"
+				bind:value={annualQuota}
+				oninput={() => {
+					if (form && form.field === 'annual_quota') form = null;
+					const err = getQuotaError(annualQuota);
+					if (!err) {
+						errors.annual_quota = '';
+					} else if (submissionAttempted || errors.annual_quota) {
+						errors.annual_quota = err;
+					}
+					const mErr = getMaxPerMonthError(maxPerMonth, annualQuota);
+					if (!mErr) {
+						errors.max_per_month = '';
+					} else if (submissionAttempted || errors.max_per_month) {
+						errors.max_per_month = mErr;
+					}
+				}}
+				placeholder="e.g. 12 or 1.5"
+				required
+				class={(form && 'field' in form && form.field === 'annual_quota') || quotaError ? 'border-destructive focus-visible:ring-destructive' : ''}
+			/>
+			{#if quotaError}
+				<p class="text-xs font-medium text-destructive mt-1">{quotaError}</p>
+			{:else if form && 'field' in form && form.field === 'annual_quota'}
+				<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+			{/if}
+		</div>
 
-	<!-- Max Per Month -->
-	<div class="space-y-2">
-		<Label for="modal_max_per_month" class={(form && 'field' in form && form.field === 'max_per_month') || maxPerMonthError ? 'text-destructive' : ''}>Max Per Month (Optional)</Label>
-		<Input
-			id="modal_max_per_month"
-			name="max_per_month"
-			bind:value={maxPerMonth}
-			oninput={() => {
-				if (form && form.field === 'max_per_month') form = null;
-				const err = getMaxPerMonthError(maxPerMonth, annualQuota);
-				if (!err) {
-					errors.max_per_month = '';
-				} else if (submissionAttempted || errors.max_per_month) {
-					errors.max_per_month = err;
-				}
-			}}
-			placeholder="e.g. 2"
-			class={(form && 'field' in form && form.field === 'max_per_month') || maxPerMonthError ? 'border-destructive focus-visible:ring-destructive' : ''}
-		/>
-		{#if maxPerMonthError}
-			<p class="text-xs font-medium text-destructive mt-1">{maxPerMonthError}</p>
-		{:else if form && 'field' in form && form.field === 'max_per_month'}
-			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
-		{/if}
+		<div class="space-y-2">
+			<Label for="modal_max_per_month" class={(form && 'field' in form && form.field === 'max_per_month') || maxPerMonthError ? 'text-destructive' : ''}>Max Per Month (Optional)</Label>
+			<Input
+				id="modal_max_per_month"
+				name="max_per_month"
+				bind:value={maxPerMonth}
+				oninput={() => {
+					if (form && form.field === 'max_per_month') form = null;
+					const err = getMaxPerMonthError(maxPerMonth, annualQuota);
+					if (!err) {
+						errors.max_per_month = '';
+					} else if (submissionAttempted || errors.max_per_month) {
+						errors.max_per_month = err;
+					}
+				}}
+				placeholder="e.g. 2"
+				class={(form && 'field' in form && form.field === 'max_per_month') || maxPerMonthError ? 'border-destructive focus-visible:ring-destructive' : ''}
+			/>
+			{#if maxPerMonthError}
+				<p class="text-xs font-medium text-destructive mt-1">{maxPerMonthError}</p>
+			{:else if form && 'field' in form && form.field === 'max_per_month'}
+				<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+			{/if}
+		</div>
 	</div>
 
 	<!-- Carry Forward Options -->
@@ -914,32 +914,6 @@
 			{/if}
 		</div>
 	{/if}
-
-	<!-- Min Service Days -->
-	<div class="space-y-2">
-		<Label for="modal_min_service_days" class={(form && 'field' in form && form.field === 'min_service_days') || minServiceDaysError ? 'text-destructive' : ''}>Min Service Days (Active service req.) <span class="text-destructive">*</span></Label>
-		<Input
-			id="modal_min_service_days"
-			name="min_service_days"
-			bind:value={minServiceDays}
-			oninput={() => {
-				if (form && form.field === 'min_service_days') form = null;
-				const err = getMinServiceDaysError(minServiceDays);
-				if (!err) {
-					errors.min_service_days = '';
-				} else if (submissionAttempted || errors.min_service_days) {
-					errors.min_service_days = err;
-				}
-			}}
-			placeholder="e.g. 90"
-			class={(form && 'field' in form && form.field === 'min_service_days') || minServiceDaysError ? 'border-destructive focus-visible:ring-destructive' : ''}
-		/>
-		{#if minServiceDaysError}
-			<p class="text-xs font-medium text-destructive mt-1">{minServiceDaysError}</p>
-		{:else if form && 'field' in form && form.field === 'min_service_days'}
-			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
-		{/if}
-	</div>
 
 	<!-- Other Checkboxes -->
 	<div class="flex items-center space-x-2">
@@ -1009,24 +983,51 @@
 		</div>
 	{/if}
 
-	<!-- Active Status -->
-	<!-- Status Dropdown -->
-	<div class="space-y-2 pb-2">
-		<Label for="modal_status">Status <span class="text-destructive">*</span></Label>
-		<select
-			id="modal_status"
-			name="status"
-			bind:value={status}
-			onchange={() => {
-				if (form && form.field === 'status') form = null;
-				errors.status = '';
-			}}
-			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none"
-			required
-		>
-			<option value={true}>Active</option>
-			<option value={false}>Inactive</option>
-		</select>
+	<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-2">
+		<!-- Min Service Days -->
+		<div class="space-y-2">
+			<Label for="modal_min_service_days" class={(form && 'field' in form && form.field === 'min_service_days') || minServiceDaysError ? 'text-destructive' : ''}>Min Service Days (Active service req.) <span class="text-destructive">*</span></Label>
+			<Input
+				id="modal_min_service_days"
+				name="min_service_days"
+				bind:value={minServiceDays}
+				oninput={() => {
+					if (form && form.field === 'min_service_days') form = null;
+					const err = getMinServiceDaysError(minServiceDays);
+					if (!err) {
+						errors.min_service_days = '';
+					} else if (submissionAttempted || errors.min_service_days) {
+						errors.min_service_days = err;
+					}
+				}}
+				placeholder="e.g. 90"
+				class={(form && 'field' in form && form.field === 'min_service_days') || minServiceDaysError ? 'border-destructive focus-visible:ring-destructive' : ''}
+			/>
+			{#if minServiceDaysError}
+				<p class="text-xs font-medium text-destructive mt-1">{minServiceDaysError}</p>
+			{:else if form && 'field' in form && form.field === 'min_service_days'}
+				<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+			{/if}
+		</div>
+
+		<!-- Status Dropdown -->
+		<div class="space-y-2">
+			<Label for="modal_status">Status <span class="text-destructive">*</span></Label>
+			<select
+				id="modal_status"
+				name="status"
+				bind:value={status}
+				onchange={() => {
+					if (form && form.field === 'status') form = null;
+					errors.status = '';
+				}}
+				class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none"
+				required
+			>
+				<option value={true}>Active</option>
+				<option value={false}>Inactive</option>
+			</select>
+		</div>
 	</div>
 
 	<!-- Alert Errors -->

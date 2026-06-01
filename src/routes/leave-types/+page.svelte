@@ -411,7 +411,7 @@
 	<title>Leave Types | HRMS</title>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl space-y-8 px-1 py-4">
+<div class="w-full space-y-8 px-1 py-4">
 	<!-- Header -->
 	<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-border pb-6">
 		<div class="space-y-1">
@@ -565,58 +565,60 @@
 		<input type="hidden" name="cuid" value={editCuid} />
 	{/if}
 
-	<div class="space-y-2">
-		<Label for="modal_leave_name" class={(form && 'field' in form && form.field === 'leave_name') || nameClientError ? 'text-destructive' : ''}>Leave Name <span class="text-destructive">*</span></Label>
-		<Input
-			id="modal_leave_name"
-			name="leave_name"
-			bind:value={leaveName}
-			oninput={() => {
-				if (form && form.field === 'leave_name') form = null;
-				const err = getNameClientError(leaveName);
-				if (!err) {
-					errors.leave_name = '';
-				} else if (submissionAttempted || errors.leave_name) {
-					errors.leave_name = err;
-				}
-			}}
-			placeholder="e.g. Sick Leave"
-			required
-			minlength={6}
-			pattern="^[a-zA-Z\s]+$"
-			class={(form && 'field' in form && form.field === 'leave_name') || nameClientError ? 'border-destructive focus-visible:ring-destructive' : ''}
-		/>
-		{#if nameClientError}
-			<p class="text-xs font-medium text-destructive mt-1">{nameClientError}</p>
-		{:else if form && 'field' in form && form.field === 'leave_name'}
-			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
-		{/if}
-	</div>
+	<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+		<div class="space-y-2">
+			<Label for="modal_leave_name" class={(form && 'field' in form && form.field === 'leave_name') || nameClientError ? 'text-destructive' : ''}>Leave Name <span class="text-destructive">*</span></Label>
+			<Input
+				id="modal_leave_name"
+				name="leave_name"
+				bind:value={leaveName}
+				oninput={() => {
+					if (form && form.field === 'leave_name') form = null;
+					const err = getNameClientError(leaveName);
+					if (!err) {
+						errors.leave_name = '';
+					} else if (submissionAttempted || errors.leave_name) {
+						errors.leave_name = err;
+					}
+				}}
+				placeholder="e.g. Sick Leave"
+				required
+				minlength={6}
+				pattern="^[a-zA-Z\s]+$"
+				class={(form && 'field' in form && form.field === 'leave_name') || nameClientError ? 'border-destructive focus-visible:ring-destructive' : ''}
+			/>
+			{#if nameClientError}
+				<p class="text-xs font-medium text-destructive mt-1">{nameClientError}</p>
+			{:else if form && 'field' in form && form.field === 'leave_name'}
+				<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+			{/if}
+		</div>
 
-	<div class="space-y-2">
-		<Label for="modal_leave_code" class={(form && 'field' in form && form.field === 'leave_code') || codeClientError ? 'text-destructive' : ''}>Leave Code <span class="text-destructive">*</span></Label>
-		<Input
-			id="modal_leave_code"
-			name="leave_code"
-			bind:value={leaveCode}
-			oninput={() => {
-				if (form && form.field === 'leave_code') form = null;
-				const err = getCodeClientError(leaveCode);
-				if (!err) {
-					errors.leave_code = '';
-				} else if (submissionAttempted || errors.leave_code) {
-					errors.leave_code = err;
-				}
-			}}
-			placeholder="e.g. SL"
-			required
-			class="uppercase {(form && 'field' in form && form.field === 'leave_code') || codeClientError ? 'border-destructive focus-visible:ring-destructive' : ''}"
-		/>
-		{#if codeClientError}
-			<p class="text-xs font-medium text-destructive mt-1">{codeClientError}</p>
-		{:else if form && 'field' in form && form.field === 'leave_code'}
-			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
-		{/if}
+		<div class="space-y-2">
+			<Label for="modal_leave_code" class={(form && 'field' in form && form.field === 'leave_code') || codeClientError ? 'text-destructive' : ''}>Leave Code <span class="text-destructive">*</span></Label>
+			<Input
+				id="modal_leave_code"
+				name="leave_code"
+				bind:value={leaveCode}
+				oninput={() => {
+					if (form && form.field === 'leave_code') form = null;
+					const err = getCodeClientError(leaveCode);
+					if (!err) {
+						errors.leave_code = '';
+					} else if (submissionAttempted || errors.leave_code) {
+						errors.leave_code = err;
+					}
+				}}
+				placeholder="e.g. SL"
+				required
+				class="uppercase {(form && 'field' in form && form.field === 'leave_code') || codeClientError ? 'border-destructive focus-visible:ring-destructive' : ''}"
+			/>
+			{#if codeClientError}
+				<p class="text-xs font-medium text-destructive mt-1">{codeClientError}</p>
+			{:else if form && 'field' in form && form.field === 'leave_code'}
+				<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+			{/if}
+		</div>
 	</div>
 
 	<div class="space-y-2">

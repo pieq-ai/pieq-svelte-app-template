@@ -462,7 +462,7 @@
 	<title>Holiday Calendar | HRMS</title>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl space-y-8 px-1 py-4">
+<div class="w-full space-y-8 px-1 py-4">
 	<!-- Header -->
 	<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-border pb-6">
 		<div class="space-y-1">
@@ -686,54 +686,56 @@
 		{/if}
 	</div>
 
-	<div class="space-y-2">
-		<Label for="modal_holiday_date" class={(form && 'field' in form && form.field === 'holiday_date') || clientDateError ? 'text-destructive' : ''}>Date <span class="text-destructive">*</span></Label>
-		<Input
-			id="modal_holiday_date"
-			name="holiday_date"
-			type="date"
-			bind:value={holidayDate}
-			oninput={() => {
-				if (form && form.field === 'holiday_date') form = null;
-				const err = getClientDateError(holidayDate);
-				if (!err) {
-					errors.holiday_date = '';
-				} else if (submissionAttempted || errors.holiday_date) {
-					errors.holiday_date = err;
-				}
-			}}
-			required
-			min={tomorrowStr}
-			max="2099-12-31"
-			class={(form && 'field' in form && form.field === 'holiday_date') || clientDateError ? 'border-destructive focus-visible:ring-destructive' : ''}
-		/>
-		{#if clientDateError}
-			<p class="text-xs font-medium text-destructive mt-1">{clientDateError}</p>
-		{:else if form && 'field' in form && form.field === 'holiday_date'}
-			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
-		{/if}
-	</div>
+	<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+		<div class="space-y-2">
+			<Label for="modal_holiday_date" class={(form && 'field' in form && form.field === 'holiday_date') || clientDateError ? 'text-destructive' : ''}>Date <span class="text-destructive">*</span></Label>
+			<Input
+				id="modal_holiday_date"
+				name="holiday_date"
+				type="date"
+				bind:value={holidayDate}
+				oninput={() => {
+					if (form && form.field === 'holiday_date') form = null;
+					const err = getClientDateError(holidayDate);
+					if (!err) {
+						errors.holiday_date = '';
+					} else if (submissionAttempted || errors.holiday_date) {
+						errors.holiday_date = err;
+					}
+				}}
+				required
+				min={tomorrowStr}
+				max="2099-12-31"
+				class={(form && 'field' in form && form.field === 'holiday_date') || clientDateError ? 'border-destructive focus-visible:ring-destructive' : ''}
+			/>
+			{#if clientDateError}
+				<p class="text-xs font-medium text-destructive mt-1">{clientDateError}</p>
+			{:else if form && 'field' in form && form.field === 'holiday_date'}
+				<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+			{/if}
+		</div>
 
-	<div class="space-y-2">
-		<Label for="modal_holiday_type" class={form && 'field' in form && form.field === 'holiday_type' ? 'text-destructive' : ''}>Category <span class="text-destructive">*</span></Label>
-		<select
-			id="modal_holiday_type"
-			name="holiday_type"
-			bind:value={holidayType}
-			onchange={() => {
-				if (form && form.field === 'holiday_type') form = null;
-				errors.holiday_type = '';
-			}}
-			class="dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {form && 'field' in form && form.field === 'holiday_type' ? 'border-destructive focus-visible:ring-destructive' : 'border-input'}"
-			required
-		>
-			<option value="National">National Holiday</option>
-			<option value="Regional">Regional Holiday</option>
-			<option value="Restricted">Restricted Holiday</option>
-		</select>
-		{#if form && 'field' in form && form.field === 'holiday_type'}
-			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
-		{/if}
+		<div class="space-y-2">
+			<Label for="modal_holiday_type" class={form && 'field' in form && form.field === 'holiday_type' ? 'text-destructive' : ''}>Category <span class="text-destructive">*</span></Label>
+			<select
+				id="modal_holiday_type"
+				name="holiday_type"
+				bind:value={holidayType}
+				onchange={() => {
+					if (form && form.field === 'holiday_type') form = null;
+					errors.holiday_type = '';
+				}}
+				class="dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {form && 'field' in form && form.field === 'holiday_type' ? 'border-destructive focus-visible:ring-destructive' : 'border-input'}"
+				required
+			>
+				<option value="National">National Holiday</option>
+				<option value="Regional">Regional Holiday</option>
+				<option value="Restricted">Restricted Holiday</option>
+			</select>
+			{#if form && 'field' in form && form.field === 'holiday_type'}
+				<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+			{/if}
+		</div>
 	</div>
 
 	{#if formError && (!form || !('field' in form) || !form.field)}

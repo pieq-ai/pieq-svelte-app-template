@@ -10,12 +10,15 @@
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
 	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
+	import XIcon from '@lucide/svelte/icons/x';
 
 	let {
 		isCollapsed = $bindable(false),
+		isMobileOpen = $bindable(false),
 		userEmail = ''
 	}: {
 		isCollapsed: boolean;
+		isMobileOpen?: boolean;
 		userEmail?: string;
 	} = $props();
 
@@ -48,7 +51,10 @@
 </script>
 
 <aside
-	class="flex flex-col border-r border-border bg-card text-card-foreground transition-all duration-300 {isCollapsed ? 'w-16' : 'w-64'} shrink-0 h-screen sticky top-0 z-40 select-none"
+	class="flex flex-col border-r border-border bg-card text-card-foreground transition-[width,transform] duration-300 
+		fixed lg:static top-0 left-0 h-screen z-50 lg:z-40 w-64 lg:shrink-0 select-none shadow-xl lg:shadow-none
+		{isCollapsed ? 'lg:w-16' : 'lg:w-64'}
+		{isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}"
 >
 	<!-- Top Branding Header -->
 	<div class="flex items-center justify-between px-4 py-5 border-b border-border h-16 shrink-0 overflow-hidden">
@@ -60,7 +66,7 @@
 		<button
 			type="button"
 			onclick={toggleCollapse}
-			class="p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center shrink-0 {isCollapsed ? 'mx-auto' : ''}"
+			class="hidden lg:flex p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer items-center justify-center shrink-0 {isCollapsed ? 'mx-auto' : ''}"
 			title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
 			aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
 		>
@@ -69,6 +75,14 @@
 			{:else}
 				<ChevronLeftIcon class="size-4" />
 			{/if}
+		</button>
+		<button
+			type="button"
+			onclick={() => (isMobileOpen = false)}
+			class="lg:hidden p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center shrink-0"
+			aria-label="Close sidebar"
+		>
+			<XIcon class="size-5" />
 		</button>
 	</div>
 
