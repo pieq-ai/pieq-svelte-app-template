@@ -39,6 +39,22 @@
 	let isSubmitting = $state(false);
 	let isFormModalOpen = $state(false);
 
+	let sortKey = $state<string | null>(null);
+	let sortDirection = $state<'asc' | 'desc' | null>(null);
+
+	function handleSort(key: string) {
+		currentPage = 1; // Reset to page 1 on sort change
+		if (sortKey !== key) {
+			sortKey = key;
+			sortDirection = 'asc';
+		} else if (sortDirection === 'asc') {
+			sortDirection = 'desc';
+		} else {
+			sortKey = null;
+			sortDirection = null;
+		}
+	}
+
 	let activeMenuCuid = $state<string | null>(null);
 	let menuPosition = $state({ top: 0, left: 0 });
 
@@ -559,6 +575,50 @@
 			});
 		}
 
+		// Sort behavior
+		if (sortKey && sortDirection) {
+			result.sort((a, b) => {
+				let valA: string | number | boolean | string[] | null | undefined;
+				let valB: string | number | boolean | string[] | null | undefined;
+
+				if (sortKey === 'leave_type_cuid') {
+					valA = getLeaveTypeName(a.leave_type_cuid);
+					valB = getLeaveTypeName(b.leave_type_cuid);
+				} else if (sortKey === 'employment_type_cuids') {
+					valA = getEmploymentTypeNames(a.employment_type_cuids);
+					valB = getEmploymentTypeNames(b.employment_type_cuids);
+				} else {
+					valA = a[sortKey as keyof typeof a];
+					valB = b[sortKey as keyof typeof b];
+				}
+
+				if (typeof valA === 'number' && typeof valB === 'number') {
+					return sortDirection === 'asc' ? valA - valB : valB - valA;
+				}
+
+				if (typeof valA === 'boolean' && typeof valB === 'boolean') {
+					const numA = valA ? 1 : 0;
+					const numB = valB ? 1 : 0;
+					return sortDirection === 'asc' ? numA - numB : numB - numA;
+				}
+
+				if (typeof valA === 'string' && typeof valB === 'string') {
+					return sortDirection === 'asc'
+						? valA.localeCompare(valB)
+						: valB.localeCompare(valA);
+				}
+
+				// fallback coerce to numbers
+				const numA = Number(valA);
+				const numB = Number(valB);
+				if (!isNaN(numA) && !isNaN(numB)) {
+					return sortDirection === 'asc' ? numA - numB : numB - numA;
+				}
+
+				return 0;
+			});
+		}
+
 		return result;
 	});
 
@@ -640,45 +700,94 @@
 				<TableHeader>
 					<TableRow>
 						<TableHead>
-							<div class="flex items-center gap-1 cursor-pointer select-none group">
-								Leave Type
-								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div
+								onclick={() => handleSort('leave_type_cuid')}
+								class="flex items-center gap-1 cursor-pointer select-none group"
+							>
+								<span>Leave Type</span>
+								<span class="text-[10px] transition-colors {sortKey === 'leave_type_cuid' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
+									{sortKey === 'leave_type_cuid' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+								</span>
 							</div>
 						</TableHead>
 						<TableHead>
-							<div class="flex items-center gap-1 cursor-pointer select-none group">
-								Employment Types
-								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div
+								onclick={() => handleSort('employment_type_cuids')}
+								class="flex items-center gap-1 cursor-pointer select-none group"
+							>
+								<span>Employment Types</span>
+								<span class="text-[10px] transition-colors {sortKey === 'employment_type_cuids' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
+									{sortKey === 'employment_type_cuids' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+								</span>
 							</div>
 						</TableHead>
 						<TableHead class="w-24 text-right">
-							<div class="flex items-center justify-end gap-1 cursor-pointer select-none group">
-								Quota (Annual)
-								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div
+								onclick={() => handleSort('annual_quota')}
+								class="flex items-center justify-end gap-1 cursor-pointer select-none group"
+							>
+								<span>Quota (Annual)</span>
+								<span class="text-[10px] transition-colors {sortKey === 'annual_quota' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
+									{sortKey === 'annual_quota' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+								</span>
 							</div>
 						</TableHead>
 						<TableHead class="w-24 text-center">
-							<div class="flex items-center justify-center gap-1 cursor-pointer select-none group">
-								Carry Fwd
-								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div
+								onclick={() => handleSort('carry_forward_allowed')}
+								class="flex items-center justify-center gap-1 cursor-pointer select-none group"
+							>
+								<span>Carry Fwd</span>
+								<span class="text-[10px] transition-colors {sortKey === 'carry_forward_allowed' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
+									{sortKey === 'carry_forward_allowed' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+								</span>
 							</div>
 						</TableHead>
 						<TableHead class="w-24 text-center">
-							<div class="flex items-center justify-center gap-1 cursor-pointer select-none group">
-								Half Day
-								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div
+								onclick={() => handleSort('allow_half_day')}
+								class="flex items-center justify-center gap-1 cursor-pointer select-none group"
+							>
+								<span>Half Day</span>
+								<span class="text-[10px] transition-colors {sortKey === 'allow_half_day' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
+									{sortKey === 'allow_half_day' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+								</span>
 							</div>
 						</TableHead>
 						<TableHead class="w-24 text-center">
-							<div class="flex items-center justify-center gap-1 cursor-pointer select-none group">
-								Gender
-								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div
+								onclick={() => handleSort('gender_specific')}
+								class="flex items-center justify-center gap-1 cursor-pointer select-none group"
+							>
+								<span>Gender</span>
+								<span class="text-[10px] transition-colors {sortKey === 'gender_specific' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
+									{sortKey === 'gender_specific' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+								</span>
 							</div>
 						</TableHead>
 						<TableHead class="w-24 text-center">
-							<div class="flex items-center justify-center gap-1 cursor-pointer select-none group">
-								Status
-								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div
+								onclick={() => handleSort('status')}
+								class="flex items-center justify-center gap-1 cursor-pointer select-none group"
+							>
+								<span>Status</span>
+								<span class="text-[10px] transition-colors {sortKey === 'status' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
+									{sortKey === 'status' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+								</span>
 							</div>
 						</TableHead>
 						<TableHead class="w-24 text-right">Actions</TableHead>

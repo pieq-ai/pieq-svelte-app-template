@@ -41,6 +41,22 @@
 	let isSubmitting = $state(false);
 	let isFormModalOpen = $state(false);
 
+	let sortKey = $state<string | null>(null);
+	let sortDirection = $state<'asc' | 'desc' | null>(null);
+
+	function handleSort(key: string) {
+		currentPage = 1; // Reset to page 1 on sort change
+		if (sortKey !== key) {
+			sortKey = key;
+			sortDirection = 'asc';
+		} else if (sortDirection === 'asc') {
+			sortDirection = 'desc';
+		} else {
+			sortKey = null;
+			sortDirection = null;
+		}
+	}
+
 	// Confirm Modal states
 	let isConfirmOpen = $state(false);
 	let confirmTitle = $state('');
@@ -411,12 +427,34 @@
 			result = result.filter((h) => h.holiday_type === filterType);
 		}
 
-		// Sort by holiday_date ascending
-		result.sort((a, b) => {
-			const timeA = new Date(a.holiday_date).getTime();
-			const timeB = new Date(b.holiday_date).getTime();
-			return timeA - timeB;
-		});
+		// Sort behavior
+		if (sortKey && sortDirection) {
+			result.sort((a, b) => {
+				const valA = a[sortKey as keyof typeof a];
+				const valB = b[sortKey as keyof typeof b];
+
+				if (sortKey === 'holiday_date') {
+					const timeA = new Date(valA as string).getTime();
+					const timeB = new Date(valB as string).getTime();
+					return sortDirection === 'asc' ? timeA - timeB : timeB - timeA;
+				}
+
+				if (typeof valA === 'string' && typeof valB === 'string') {
+					return sortDirection === 'asc'
+						? valA.localeCompare(valB)
+						: valB.localeCompare(valA);
+				}
+
+				return 0;
+			});
+		} else {
+			// Fallback/default: Sort by holiday_date ascending
+			result.sort((a, b) => {
+				const timeA = new Date(a.holiday_date).getTime();
+				const timeB = new Date(b.holiday_date).getTime();
+				return timeA - timeB;
+			});
+		}
 
 		return result;
 	});
@@ -555,21 +593,42 @@
 				<TableHeader>
 					<TableRow>
 						<TableHead class="w-32">
-							<div class="flex items-center gap-1 cursor-pointer select-none group">
-								Date
-								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div
+								onclick={() => handleSort('holiday_date')}
+								class="flex items-center gap-1 cursor-pointer select-none group"
+							>
+								<span>Date</span>
+								<span class="text-[10px] transition-colors {sortKey === 'holiday_date' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
+									{sortKey === 'holiday_date' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+								</span>
 							</div>
 						</TableHead>
 						<TableHead>
-							<div class="flex items-center gap-1 cursor-pointer select-none group">
-								Holiday Name
-								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div
+								onclick={() => handleSort('holiday_name')}
+								class="flex items-center gap-1 cursor-pointer select-none group"
+							>
+								<span>Holiday Name</span>
+								<span class="text-[10px] transition-colors {sortKey === 'holiday_name' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
+									{sortKey === 'holiday_name' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+								</span>
 							</div>
 						</TableHead>
 						<TableHead class="w-32">
-							<div class="flex items-center gap-1 cursor-pointer select-none group">
-								Category
-								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div
+								onclick={() => handleSort('holiday_type')}
+								class="flex items-center gap-1 cursor-pointer select-none group"
+							>
+								<span>Category</span>
+								<span class="text-[10px] transition-colors {sortKey === 'holiday_type' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
+									{sortKey === 'holiday_type' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+								</span>
 							</div>
 						</TableHead>
 						<TableHead class="w-24 text-right">Actions</TableHead>

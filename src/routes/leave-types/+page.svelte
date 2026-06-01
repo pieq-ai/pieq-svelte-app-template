@@ -39,6 +39,22 @@
 	let isSubmitting = $state(false);
 	let isFormModalOpen = $state(false);
 
+	let sortKey = $state<string | null>(null);
+	let sortDirection = $state<'asc' | 'desc' | null>(null);
+
+	function handleSort(key: string) {
+		currentPage = 1; // Reset to page 1 on sort change
+		if (sortKey !== key) {
+			sortKey = key;
+			sortDirection = 'asc';
+		} else if (sortDirection === 'asc') {
+			sortDirection = 'desc';
+		} else {
+			sortKey = null;
+			sortDirection = null;
+		}
+	}
+
 	let activeMenuCuid = $state<string | null>(null);
 	let menuPosition = $state({ top: 0, left: 0 });
 
@@ -391,6 +407,28 @@
 			);
 		}
 
+		// Sort behavior
+		if (sortKey && sortDirection) {
+			result.sort((a, b) => {
+				const valA = a[sortKey as keyof typeof a];
+				const valB = b[sortKey as keyof typeof b];
+
+				if (typeof valA === 'boolean' && typeof valB === 'boolean') {
+					const numA = valA ? 1 : 0;
+					const numB = valB ? 1 : 0;
+					return sortDirection === 'asc' ? numA - numB : numB - numA;
+				}
+
+				if (typeof valA === 'string' && typeof valB === 'string') {
+					return sortDirection === 'asc'
+						? valA.localeCompare(valB)
+						: valB.localeCompare(valA);
+				}
+
+				return 0;
+			});
+		}
+
 		return result;
 	});
 
@@ -472,33 +510,68 @@
 				<TableHeader>
 					<TableRow>
 						<TableHead>
-							<div class="flex items-center gap-1 cursor-pointer select-none group">
-								Leave Name
-								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div
+								onclick={() => handleSort('leave_name')}
+								class="flex items-center gap-1 cursor-pointer select-none group"
+							>
+								<span>Leave Name</span>
+								<span class="text-[10px] transition-colors {sortKey === 'leave_name' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
+									{sortKey === 'leave_name' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+								</span>
 							</div>
 						</TableHead>
 						<TableHead class="w-32">
-							<div class="flex items-center gap-1 cursor-pointer select-none group">
-								Leave Code
-								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div
+								onclick={() => handleSort('leave_code')}
+								class="flex items-center gap-1 cursor-pointer select-none group"
+							>
+								<span>Leave Code</span>
+								<span class="text-[10px] transition-colors {sortKey === 'leave_code' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
+									{sortKey === 'leave_code' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+								</span>
 							</div>
 						</TableHead>
 						<TableHead class="w-24 text-center">
-							<div class="flex items-center justify-center gap-1 cursor-pointer select-none group">
-								Paid
-								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div
+								onclick={() => handleSort('is_paid')}
+								class="flex items-center justify-center gap-1 cursor-pointer select-none group"
+							>
+								<span>Paid</span>
+								<span class="text-[10px] transition-colors {sortKey === 'is_paid' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
+									{sortKey === 'is_paid' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+								</span>
 							</div>
 						</TableHead>
 						<TableHead class="w-28 text-center">
-							<div class="flex items-center justify-center gap-1 cursor-pointer select-none group">
-								Approval Required
-								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div
+								onclick={() => handleSort('requires_approval')}
+								class="flex items-center justify-center gap-1 cursor-pointer select-none group"
+							>
+								<span>Approval Required</span>
+								<span class="text-[10px] transition-colors {sortKey === 'requires_approval' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
+									{sortKey === 'requires_approval' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+								</span>
 							</div>
 						</TableHead>
 						<TableHead class="w-24 text-center">
-							<div class="flex items-center justify-center gap-1 cursor-pointer select-none group">
-								Status
-								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div
+								onclick={() => handleSort('status')}
+								class="flex items-center justify-center gap-1 cursor-pointer select-none group"
+							>
+								<span>Status</span>
+								<span class="text-[10px] transition-colors {sortKey === 'status' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
+									{sortKey === 'status' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+								</span>
 							</div>
 						</TableHead>
 						<TableHead class="w-24 text-right">Actions</TableHead>
