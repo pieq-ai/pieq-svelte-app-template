@@ -22,6 +22,32 @@
 
 	// Modal state
 	let showForm = $state(false);
+
+	function handleBackdropClick(e: MouseEvent) {
+		if (e.target instanceof HTMLElement && e.target.classList.contains('modal-overlay')) {
+			e.stopPropagation();
+			e.preventDefault();
+		}
+	}
+
+	function handleKeyDownGlobal(e: KeyboardEvent) {
+		if (e.key === 'Enter' && showConfirmation) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+	}
+
+	$effect(() => {
+		if (typeof window !== 'undefined' && showForm) {
+			window.addEventListener('click', handleBackdropClick, true);
+			window.addEventListener('keydown', handleKeyDownGlobal, true);
+			return () => {
+				window.removeEventListener('click', handleBackdropClick, true);
+				window.removeEventListener('keydown', handleKeyDownGlobal, true);
+			};
+		}
+	});
+
 	let editLocation = $state<CompanyLocation | null>(null);
 	let formName = $state('');
 	let formAddress1 = $state('');
@@ -86,7 +112,9 @@
 	}
 
 	function attemptCloseForm() {
-		if (hasUnsavedChanges()) {
+		if (showConfirmation) {
+			showConfirmation = false;
+		} else if (hasUnsavedChanges()) {
 			showConfirmation = true;
 		} else {
 			closeForm();
@@ -707,6 +735,7 @@
 				id="location-name"
 				type="text"
 				bind:value={formName}
+				oninput={() => formError = ''}
 				placeholder="e.g. Chennai - HQ"
 				style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
 				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
@@ -725,6 +754,7 @@
 				id="location-address1"
 				type="text"
 				bind:value={formAddress1}
+				oninput={() => formError = ''}
 				placeholder="e.g. 123 Enterprise Way"
 				style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
 				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
@@ -740,6 +770,7 @@
 				id="location-address2"
 				type="text"
 				bind:value={formAddress2}
+				oninput={() => formError = ''}
 				placeholder="e.g. Suite 400"
 				style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
 				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
@@ -756,6 +787,7 @@
 					id="location-city"
 					type="text"
 					bind:value={formCity}
+					oninput={() => formError = ''}
 					placeholder="e.g. Chennai"
 					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
 					onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
@@ -770,6 +802,7 @@
 					id="location-pincode"
 					type="text"
 					bind:value={formPinCode}
+					oninput={() => formError = ''}
 					placeholder="e.g. 600001"
 					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
 					onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
@@ -786,6 +819,7 @@
 				<select
 					id="location-country"
 					bind:value={formCountryCuid}
+					onchange={() => formError = ''}
 					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
 					onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
 					onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
@@ -803,6 +837,7 @@
 				<select
 					id="location-state"
 					bind:value={formStateCuid}
+					onchange={() => formError = ''}
 					disabled={!formCountryCuid}
 					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box;opacity:{!formCountryCuid ? 0.5 : 1}"
 					onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
@@ -824,6 +859,7 @@
 				id="location-timezone"
 				type="text"
 				bind:value={formTimezone}
+				oninput={() => formError = ''}
 				placeholder="e.g. Asia/Kolkata or UTC"
 				style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
 				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}

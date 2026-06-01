@@ -21,6 +21,32 @@
 
 	// Modal state
 	let showForm = $state(false);
+
+	function handleBackdropClick(e: MouseEvent) {
+		if (e.target instanceof HTMLElement && e.target.classList.contains('modal-overlay')) {
+			e.stopPropagation();
+			e.preventDefault();
+		}
+	}
+
+	function handleKeyDownGlobal(e: KeyboardEvent) {
+		if (e.key === 'Enter' && showConfirmation) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+	}
+
+	$effect(() => {
+		if (typeof window !== 'undefined' && showForm) {
+			window.addEventListener('click', handleBackdropClick, true);
+			window.addEventListener('keydown', handleKeyDownGlobal, true);
+			return () => {
+				window.removeEventListener('click', handleBackdropClick, true);
+				window.removeEventListener('keydown', handleKeyDownGlobal, true);
+			};
+		}
+	});
+
 	let editRole = $state<Role | null>(null);
 	let formName = $state('');
 	let formStatus = $state(true);
@@ -49,7 +75,9 @@
 	}
 
 	function attemptCloseForm() {
-		if (hasUnsavedChanges()) {
+		if (showConfirmation) {
+			showConfirmation = false;
+		} else if (hasUnsavedChanges()) {
 			showConfirmation = true;
 		} else {
 			closeForm();
@@ -456,6 +484,7 @@
 				id="role-name"
 				type="text"
 				bind:value={formName}
+				oninput={() => formError = ''}
 				placeholder="e.g. HR Manager"
 				style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
 				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
