@@ -26,7 +26,8 @@
 		TableHead,
 		TableHeader,
 		TableRow,
-		StatusDropdown
+		StatusDropdown,
+		Pagination
 	} from '$lib/components';
 	import { getMasterPermissions } from '$lib/permissions/mock-permissions';
 
@@ -95,8 +96,6 @@
 		return result;
 	});
 
-	let totalCount = $derived(permissions.length);
-	let totalPages = $derived(Math.ceil(filteredPermissions.length / pageSize));
 	let paginatedPermissions = $derived(filteredPermissions.slice((currentPage - 1) * pageSize, currentPage * pageSize));
 
 	function handleSort(column: string) {
@@ -304,16 +303,7 @@
 		</Table>
 	</Card>
 
-	<div class="flex items-center justify-between">
-		<p class="text-xs text-muted-foreground">
-			Showing {filteredPermissions.length} of {totalCount} entries
-		</p>
-		<div class="flex items-center space-x-2">
-				<Button variant="outline" size="sm" onclick={() => currentPage--} disabled={currentPage === 1}>Previous</Button>
-				<div class="text-sm text-muted-foreground font-medium">Page {currentPage} of {totalPages === 0 ? 1 : totalPages}</div>
-				<Button variant="outline" size="sm" onclick={() => currentPage++} disabled={currentPage >= totalPages || totalPages === 0}>Next</Button>
-			</div>
-	</div>
+	<Pagination bind:currentPage={currentPage} pageSize={pageSize} totalItems={filteredPermissions.length} />
 </div>
 
 <CrudModal

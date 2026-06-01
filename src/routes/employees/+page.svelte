@@ -297,8 +297,8 @@
 				</Table>
 			</Card>
 
-			<p class="text-xs text-muted-foreground">
-				Showing {filteredEmployees.length} of {totalEmployees} entries
+			<p class="text-sm text-muted-foreground">
+				Showing {filteredEmployees.length === 0 ? 0 : 1}-{filteredEmployees.length} of {filteredEmployees.length} record{filteredEmployees.length === 1 ? '' : 's'}
 			</p>
 		</div>
 

@@ -28,7 +28,8 @@
 		CrudModal,
 		TableActions,
 		FilterDropdown,
-		StatusDropdown
+		StatusDropdown,
+		Pagination
 	} from '$lib/components';
 
 	interface Department {
@@ -114,7 +115,6 @@
 	});
 
 	let totalCount = $derived(departmentsList.length);
-	let totalPages = $derived(Math.ceil(filteredDepartments.length / pageSize));
 	let paginatedDepartments = $derived(filteredDepartments.slice((currentPage - 1) * pageSize, currentPage * pageSize));
 	let activeCount = $derived(departmentsList.filter((d) => d.status === true).length);
 	let inactiveCount = $derived(departmentsList.filter((d) => d.status === false).length);
@@ -363,16 +363,7 @@
 				</TableBody>
 			</Table>
 		</Card>
-		<div class="flex items-center justify-between">
-			<p class="text-xs text-muted-foreground">
-				Showing {filteredDepartments.length} of {totalCount} entries
-			</p>
-			<div class="flex items-center space-x-2">
-				<Button variant="outline" size="sm" onclick={() => currentPage--} disabled={currentPage === 1}>Previous</Button>
-				<div class="text-sm text-muted-foreground font-medium">Page {currentPage} of {totalPages === 0 ? 1 : totalPages}</div>
-				<Button variant="outline" size="sm" onclick={() => currentPage++} disabled={currentPage >= totalPages || totalPages === 0}>Next</Button>
-			</div>
-		</div>
+		<Pagination bind:currentPage={currentPage} pageSize={pageSize} totalItems={filteredDepartments.length} />
 	</div>
 </div>
 
