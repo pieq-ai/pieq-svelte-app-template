@@ -590,7 +590,7 @@
 			</p>
 		</div>
 		<div class="shrink-0">
-			<Button onclick={openAddModal}>Add Leave Policy</Button>
+			<Button onclick={openAddModal}>+ Add Leave Policy</Button>
 		</div>
 	</div>
 
@@ -599,13 +599,13 @@
 		<Card>
 			<CardHeader>
 				<CardDescription>Total Policies</CardDescription>
-				<CardTitle class="text-4xl tabular-nums">{totalPolicies}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-foreground">{totalPolicies}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader>
 				<CardDescription>Active Policies</CardDescription>
-				<CardTitle class="text-4xl tabular-nums">{activePoliciesCount}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-emerald-600 dark:text-emerald-500">{activePoliciesCount}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
@@ -639,13 +639,48 @@
 			<Table>
 				<TableHeader>
 					<TableRow>
-						<TableHead>Leave Type</TableHead>
-						<TableHead>Employment Types</TableHead>
-						<TableHead class="w-24 text-right">Quota (Annual)</TableHead>
-						<TableHead class="w-24 text-center">Carry Fwd</TableHead>
-						<TableHead class="w-24 text-center">Half Day</TableHead>
-						<TableHead class="w-24 text-center">Gender</TableHead>
-						<TableHead class="w-24 text-center">Status</TableHead>
+						<TableHead>
+							<div class="flex items-center gap-1 cursor-pointer select-none group">
+								Leave Type
+								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							</div>
+						</TableHead>
+						<TableHead>
+							<div class="flex items-center gap-1 cursor-pointer select-none group">
+								Employment Types
+								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							</div>
+						</TableHead>
+						<TableHead class="w-24 text-right">
+							<div class="flex items-center justify-end gap-1 cursor-pointer select-none group">
+								Quota (Annual)
+								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							</div>
+						</TableHead>
+						<TableHead class="w-24 text-center">
+							<div class="flex items-center justify-center gap-1 cursor-pointer select-none group">
+								Carry Fwd
+								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							</div>
+						</TableHead>
+						<TableHead class="w-24 text-center">
+							<div class="flex items-center justify-center gap-1 cursor-pointer select-none group">
+								Half Day
+								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							</div>
+						</TableHead>
+						<TableHead class="w-24 text-center">
+							<div class="flex items-center justify-center gap-1 cursor-pointer select-none group">
+								Gender
+								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							</div>
+						</TableHead>
+						<TableHead class="w-24 text-center">
+							<div class="flex items-center justify-center gap-1 cursor-pointer select-none group">
+								Status
+								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							</div>
+						</TableHead>
 						<TableHead class="w-24 text-right">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
@@ -664,30 +699,54 @@
 								<TableCell class="text-right font-mono font-semibold">{policy.annual_quota}</TableCell>
 								<TableCell class="text-center text-xs">
 									{#if policy.carry_forward_allowed}
-										<Badge class="bg-green-500 text-white border-0">Yes ({policy.max_carry_forward_days})</Badge>
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] shadow-xs select-none mx-auto">
+											<span class="size-1.5 rounded-full bg-emerald-500"></span>
+											Yes ({policy.max_carry_forward_days})
+										</span>
 									{:else}
-										<Badge variant="secondary">No</Badge>
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white/70 border border-[#2A2A2A] shadow-xs select-none mx-auto">
+											<span class="size-1.5 rounded-full bg-neutral-400"></span>
+											No
+										</span>
 									{/if}
 								</TableCell>
 								<TableCell class="text-center text-xs">
 									{#if policy.allow_half_day}
-										<Badge class="bg-blue-500 text-white border-0">Allowed</Badge>
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] shadow-xs select-none mx-auto">
+											<span class="size-1.5 rounded-full bg-blue-500"></span>
+											Allowed
+										</span>
 									{:else}
-										<Badge variant="secondary">No</Badge>
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white/70 border border-[#2A2A2A] shadow-xs select-none mx-auto">
+											<span class="size-1.5 rounded-full bg-neutral-400"></span>
+											No
+										</span>
 									{/if}
 								</TableCell>
 								<TableCell class="text-center text-xs">
 									{#if policy.gender_specific}
-										<Badge class="bg-amber-500 text-white border-0">{policy.applicable_gender}</Badge>
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] shadow-xs select-none mx-auto capitalize">
+											<span class="size-1.5 rounded-full bg-amber-500"></span>
+											{policy.applicable_gender}
+										</span>
 									{:else}
-										<Badge variant="secondary">All</Badge>
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white/70 border border-[#2A2A2A] shadow-xs select-none mx-auto">
+											<span class="size-1.5 rounded-full bg-neutral-400"></span>
+											All
+										</span>
 									{/if}
 								</TableCell>
 								<TableCell class="text-center">
 									{#if policy.status}
-										<Badge class="bg-green-500 text-white border-0">Active</Badge>
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] shadow-xs select-none mx-auto">
+											<span class="size-1.5 rounded-full bg-emerald-500"></span>
+											Active
+										</span>
 									{:else}
-										<Badge variant="secondary">Inactive</Badge>
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white/70 border border-[#2A2A2A] shadow-xs select-none mx-auto">
+											<span class="size-1.5 rounded-full bg-rose-500"></span>
+											Inactive
+										</span>
 									{/if}
 								</TableCell>
 								<TableCell class="text-right relative">

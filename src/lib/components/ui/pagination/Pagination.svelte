@@ -31,45 +31,32 @@
 	}
 </script>
 
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 text-sm text-muted-foreground border-t border-border mt-4">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 text-sm text-muted-foreground border-t border-border mt-4 w-full">
 	<!-- Record Counter -->
-	<div>
-		Showing {start}-{end} of {totalItems} records
+	<div class="select-none text-xs text-muted-foreground">
+		Showing {start} to {end} of {totalItems} entries
 	</div>
 
 	<!-- Pagination Controls -->
-	{#if totalPages > 1}
-		<div class="flex items-center gap-1.5" data-slot="pagination">
-			<Button
-				variant="outline"
-				size="icon-sm"
-				disabled={currentPage === 1}
-				onclick={() => setPage(currentPage - 1)}
-				aria-label="Previous page"
-			>
-				<ChevronLeftIcon class="size-4" />
-			</Button>
-
-			{#each Array.from({ length: totalPages }, (_, i) => i + 1) as page}
-				<Button
-					variant={currentPage === page ? "default" : "outline"}
-					size="icon-sm"
-					onclick={() => setPage(page)}
-					aria-label="Page {page}"
-				>
-					{page}
-				</Button>
-			{/each}
-
-			<Button
-				variant="outline"
-				size="icon-sm"
-				disabled={currentPage === totalPages}
-				onclick={() => setPage(currentPage + 1)}
-				aria-label="Next page"
-			>
-				<ChevronRightIcon class="size-4" />
-			</Button>
-		</div>
-	{/if}
+	<div class="flex items-center gap-2" data-slot="pagination">
+		<Button
+			variant="outline"
+			class="px-3.5 py-1.5 h-8 bg-card border-border text-foreground hover:bg-accent text-xs font-medium rounded-md select-none"
+			disabled={currentPage === 1}
+			onclick={() => setPage(currentPage - 1)}
+		>
+			Previous
+		</Button>
+		<span class="text-xs text-muted-foreground select-none px-2 min-w-[70px] text-center">
+			Page {currentPage} of {totalPages}
+		</span>
+		<Button
+			variant="outline"
+			class="px-3.5 py-1.5 h-8 bg-card border-border text-foreground hover:bg-accent text-xs font-medium rounded-md select-none"
+			disabled={currentPage === totalPages}
+			onclick={() => setPage(currentPage + 1)}
+		>
+			Next
+		</Button>
+	</div>
 </div>

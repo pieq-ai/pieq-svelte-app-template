@@ -473,7 +473,7 @@
 			</p>
 		</div>
 		<div class="shrink-0">
-			<Button onclick={openAddModal}>Add Holiday</Button>
+			<Button onclick={openAddModal}>+ Add Holiday</Button>
 		</div>
 	</div>
 
@@ -482,25 +482,25 @@
 		<Card>
 			<CardHeader>
 				<CardDescription>Total Holidays</CardDescription>
-				<CardTitle class="text-4xl tabular-nums">{totalHolidays}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-foreground">{totalHolidays}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader>
 				<CardDescription>Upcoming Holidays</CardDescription>
-				<CardTitle class="text-4xl tabular-nums">{upcomingHolidaysCount}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-emerald-600 dark:text-emerald-500">{upcomingHolidaysCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader>
 				<CardDescription>Next Scheduled Holiday</CardDescription>
 				{#if nextHoliday}
-					<CardTitle class="text-xl font-bold line-clamp-1">{nextHoliday.holiday_name}</CardTitle>
+					<CardTitle class="text-xl font-bold line-clamp-1 text-primary">{nextHoliday.holiday_name}</CardTitle>
 					<CardDescription class="text-xs text-muted-foreground mt-1">
 						{formatDate(nextHoliday.holiday_date)}
 					</CardDescription>
 				{:else}
-					<CardTitle class="text-xl font-bold">None Scheduled</CardTitle>
+					<CardTitle class="text-xl font-bold text-muted-foreground">None Scheduled</CardTitle>
 					<CardDescription class="text-xs text-muted-foreground mt-1">
 						No upcoming holidays
 					</CardDescription>
@@ -533,16 +533,19 @@
 					</Button>
 				{/if}
 			</div>
-			<div class="w-full sm:w-48">
+			<div class="relative w-full sm:w-48">
 				<select
 					bind:value={filterType}
-					class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none"
+					class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent pl-3 pr-8 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none appearance-none cursor-pointer"
 				>
 					<option value="all">All Holiday Types</option>
 					<option value="National">National</option>
 					<option value="Regional">Regional</option>
 					<option value="Restricted">Restricted</option>
 				</select>
+				<svg class="absolute right-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.24 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+				</svg>
 			</div>
 		</div>
 
@@ -551,9 +554,24 @@
 			<Table>
 				<TableHeader>
 					<TableRow>
-						<TableHead class="w-32">Date</TableHead>
-						<TableHead>Holiday Name</TableHead>
-						<TableHead class="w-32">Category</TableHead>
+						<TableHead class="w-32">
+							<div class="flex items-center gap-1 cursor-pointer select-none group">
+								Date
+								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							</div>
+						</TableHead>
+						<TableHead>
+							<div class="flex items-center gap-1 cursor-pointer select-none group">
+								Holiday Name
+								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							</div>
+						</TableHead>
+						<TableHead class="w-32">
+							<div class="flex items-center gap-1 cursor-pointer select-none group">
+								Category
+								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							</div>
+						</TableHead>
 						<TableHead class="w-24 text-right">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
@@ -575,25 +593,20 @@
 								</TableCell>
 								<TableCell>
 									{#if holiday.holiday_type === 'National'}
-										<Badge
-											class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white border-0 capitalize"
-										>
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] capitalize shadow-xs select-none">
+											<span class="size-1.5 rounded-full bg-blue-500"></span>
 											{holiday.holiday_type}
-										</Badge>
+										</span>
+									{:else if holiday.holiday_type === 'Regional'}
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] capitalize shadow-xs select-none">
+											<span class="size-1.5 rounded-full bg-amber-500"></span>
+											{holiday.holiday_type}
+										</span>
 									{:else}
-										{#if holiday.holiday_type === 'Regional'}
-											<Badge
-												class="bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700 text-white border-0 capitalize"
-											>
-												{holiday.holiday_type}
-											</Badge>
-										{:else}
-											<Badge
-												class="bg-slate-500 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-700 text-white border-0 capitalize"
-											>
-												{holiday.holiday_type}
-											</Badge>
-										{/if}
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] capitalize shadow-xs select-none">
+											<span class="size-1.5 rounded-full bg-neutral-400"></span>
+											{holiday.holiday_type}
+										</span>
 									{/if}
 								</TableCell>
 								<TableCell class="text-right relative">

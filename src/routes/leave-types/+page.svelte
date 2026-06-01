@@ -422,7 +422,7 @@
 			</p>
 		</div>
 		<div class="shrink-0">
-			<Button onclick={openAddModal}>Add Leave Type</Button>
+			<Button onclick={openAddModal}>+ Add Leave Type</Button>
 		</div>
 	</div>
 
@@ -431,13 +431,13 @@
 		<Card>
 			<CardHeader>
 				<CardDescription>Total Leave Types</CardDescription>
-				<CardTitle class="text-4xl tabular-nums">{totalTypes}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-foreground">{totalTypes}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader>
 				<CardDescription>Active Leave Types</CardDescription>
-				<CardTitle class="text-4xl tabular-nums">{activeTypesCount}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-emerald-600 dark:text-emerald-500">{activeTypesCount}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
@@ -471,11 +471,36 @@
 			<Table>
 				<TableHeader>
 					<TableRow>
-						<TableHead>Leave Name</TableHead>
-						<TableHead class="w-32">Leave Code</TableHead>
-						<TableHead class="w-24 text-center">Paid</TableHead>
-						<TableHead class="w-28 text-center">Approval Required</TableHead>
-						<TableHead class="w-24 text-center">Status</TableHead>
+						<TableHead>
+							<div class="flex items-center gap-1 cursor-pointer select-none group">
+								Leave Name
+								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							</div>
+						</TableHead>
+						<TableHead class="w-32">
+							<div class="flex items-center gap-1 cursor-pointer select-none group">
+								Leave Code
+								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							</div>
+						</TableHead>
+						<TableHead class="w-24 text-center">
+							<div class="flex items-center justify-center gap-1 cursor-pointer select-none group">
+								Paid
+								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							</div>
+						</TableHead>
+						<TableHead class="w-28 text-center">
+							<div class="flex items-center justify-center gap-1 cursor-pointer select-none group">
+								Approval Required
+								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							</div>
+						</TableHead>
+						<TableHead class="w-24 text-center">
+							<div class="flex items-center justify-center gap-1 cursor-pointer select-none group">
+								Status
+								<span class="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">↑↓</span>
+							</div>
+						</TableHead>
 						<TableHead class="w-24 text-right">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
@@ -498,23 +523,41 @@
 								<TableCell class="font-mono text-xs font-bold uppercase">{type.leave_code}</TableCell>
 								<TableCell class="text-center">
 									{#if type.is_paid}
-										<Badge class="bg-green-500 text-white border-0">Paid</Badge>
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] shadow-xs select-none mx-auto">
+											<span class="size-1.5 rounded-full bg-emerald-500"></span>
+											Paid
+										</span>
 									{:else}
-										<Badge variant="secondary">Unpaid</Badge>
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white/70 border border-[#2A2A2A] shadow-xs select-none mx-auto">
+											<span class="size-1.5 rounded-full bg-neutral-400"></span>
+											Unpaid
+										</span>
 									{/if}
 								</TableCell>
 								<TableCell class="text-center">
 									{#if type.requires_approval}
-										<Badge class="bg-blue-500 text-white border-0">Yes</Badge>
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] shadow-xs select-none mx-auto">
+											<span class="size-1.5 rounded-full bg-blue-500"></span>
+											Yes
+										</span>
 									{:else}
-										<Badge variant="secondary">Auto-Approve</Badge>
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white/70 border border-[#2A2A2A] shadow-xs select-none mx-auto">
+											<span class="size-1.5 rounded-full bg-neutral-400"></span>
+											Auto-Approve
+										</span>
 									{/if}
 								</TableCell>
 								<TableCell class="text-center">
 									{#if type.status}
-										<Badge class="bg-green-500 text-white border-0">Active</Badge>
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] shadow-xs select-none mx-auto">
+											<span class="size-1.5 rounded-full bg-emerald-500"></span>
+											Active
+										</span>
 									{:else}
-										<Badge variant="secondary">Inactive</Badge>
+										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white/70 border border-[#2A2A2A] shadow-xs select-none mx-auto">
+											<span class="size-1.5 rounded-full bg-rose-500"></span>
+											Inactive
+										</span>
 									{/if}
 								</TableCell>
 								<TableCell class="text-right relative">
