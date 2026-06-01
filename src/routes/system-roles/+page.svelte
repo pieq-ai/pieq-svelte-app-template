@@ -260,7 +260,7 @@
 							{/if}
 						</Button>
 					</TableHead>
-					<TableHead class="w-28 font-bold text-foreground text-[15px]">
+					<TableHead class="w-28 text-center font-bold text-foreground text-[15px]">
 						<Button variant="ghost" size="sm" class="-ml-2 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
 							Status
 							{#if sortColumn === 'status' && sortDirection === 'asc'}
@@ -284,7 +284,7 @@
 					{#each paginatedRoles as role (role.cuid2)}
 						<TableRow>
 							<TableCell class="font-semibold">{role.system_role_name}</TableCell>
-							<TableCell><Badge variant={role.status === true ? 'default' : 'secondary'}>{role.status ? 'Active' : 'Inactive'}</Badge></TableCell>
+							<TableCell class="text-center"><Badge variant={role.status === true ? 'default' : 'secondary'}>{role.status ? 'Active' : 'Inactive'}</Badge></TableCell>
 							<TableCell class="text-right">
 								<TableActions
 									canEdit={permissions.canEdit}

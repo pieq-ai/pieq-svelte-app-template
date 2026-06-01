@@ -266,7 +266,7 @@
 							{/if}
 						</Button>
 					</TableHead>
-					<TableHead class="w-28 font-bold text-foreground text-[15px]">
+					<TableHead class="w-28 text-center font-bold text-foreground text-[15px]">
 						<Button variant="ghost" size="sm" class="-ml-2 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
 							Status
 							{#if sortColumn === 'status' && sortDirection === 'asc'}
@@ -290,7 +290,7 @@
 					{#each paginatedPermissions as permission (permission.cuid2)}
 						<TableRow>
 							<TableCell class="font-mono text-sm font-semibold">{permission.permission_key}</TableCell>
-							<TableCell><Badge variant={permission.status === true ? 'default' : 'secondary'}>{permission.status ? 'Active' : 'Inactive'}</Badge></TableCell>
+							<TableCell class="text-center"><Badge variant={permission.status === true ? 'default' : 'secondary'}>{permission.status ? 'Active' : 'Inactive'}</Badge></TableCell>
 							<TableCell class="text-right">
 								<TableActions
 									canEdit={masterPermissions.canEdit}
