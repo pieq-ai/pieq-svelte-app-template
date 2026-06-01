@@ -2,7 +2,7 @@
 	import { slide } from 'svelte/transition';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
-	import { goto, invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll, beforeNavigate } from '$app/navigation';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
@@ -25,8 +25,9 @@
 		TableHeader,
 		TableRow,
 		toast,
+		ConfirmModal,
 		FormModal
-	} from '$lib/components';
+	} from '$lib/components/ui';
 	import type { PageData } from './$types.js';
 
 	let { data }: { data: PageData } = $props();
@@ -147,8 +148,115 @@
 	let requiresApproval = $state(true);
 	let status = $state(true);
 
+	let hasChanges = $derived.by(() => {
+		if (!editCuid || !editingType) return false;
+		return (
+			leaveName !== editingType.leave_name ||
+			leaveCode !== editingType.leave_code ||
+			description !== (editingType.description || '') ||
+			isPaid !== editingType.is_paid ||
+			requiresApproval !== editingType.requires_approval ||
+			status !== editingType.status
+		);
+	});
+
+	let hasUnsavedChanges = $derived.by(() => {
+		if (editCuid) {
+			return hasChanges;
+		} else {
+			return (
+				leaveName !== '' ||
+				leaveCode !== '' ||
+				description !== '' ||
+				isPaid !== true ||
+				requiresApproval !== true ||
+				status !== true
+			);
+		}
+	});
+
+	let isSubmitDisabled = $derived.by(() => {
+		if (isSubmitting) return true;
+		if (!!nameClientError || !!codeClientError) return true;
+		if (editCuid) {
+			if (!leaveName.trim() || !leaveCode.trim()) return true;
+			return !hasChanges;
+		} else {
+			if (!leaveName.trim() || !leaveCode.trim()) return true;
+			return false;
+		}
+	});
+
+	let isDiscardModalOpen = $state(false);
+	let pendingNavigation = $state<any>(null);
+	let isNavigatingProgrammatically = $state(false);
+
+	function handleCloseRequest() {
+		if (hasUnsavedChanges) {
+			isDiscardModalOpen = true;
+		} else {
+			isFormModalOpen = false;
+		}
+	}
+
+	async function confirmDiscard() {
+		isDiscardModalOpen = false;
+		isNavigatingProgrammatically = true;
+		
+		leaveName = '';
+		leaveCode = '';
+		description = '';
+		isPaid = true;
+		requiresApproval = true;
+		status = true;
+		isFormModalOpen = false;
+		
+		if (pendingNavigation) {
+			const target = pendingNavigation.to?.url;
+			pendingNavigation = null;
+			if (target) {
+				await goto(target);
+			}
+		} else if (editCuid) {
+			await goto(resolve('/leave-types'), { replaceState: true });
+		}
+		
+		isNavigatingProgrammatically = false;
+	}
+
+	beforeNavigate((navigation) => {
+		if (!isFormModalOpen || !hasUnsavedChanges) {
+			return;
+		}
+
+		if (isNavigatingProgrammatically) {
+			return;
+		}
+
+		navigation.cancel();
+		pendingNavigation = navigation;
+		isDiscardModalOpen = true;
+	});
+
+	$effect(() => {
+		const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+			if (isFormModalOpen && hasUnsavedChanges) {
+				e.preventDefault();
+				e.returnValue = '';
+				return '';
+			}
+		};
+		window.addEventListener('beforeunload', handleBeforeUnload);
+		return () => {
+			window.removeEventListener('beforeunload', handleBeforeUnload);
+		};
+	});
+
 	// Synchronise form inputs when URL edit parameter changes
 	$effect(() => {
+		if (form && 'error' in form) {
+			return;
+		}
 		if (form && 'action' in form && form.action === 'update' && 'cuid' in form && form.cuid === editCuid) {
 			if ('leave_name' in form) leaveName = String(form.leave_name);
 			if ('leave_code' in form) leaveCode = String(form.leave_code);
@@ -411,17 +519,19 @@
 	bind:isOpen={isFormModalOpen}
 	title={editCuid ? 'Edit Leave Type' : 'Add Leave Type'}
 	onsubmit={handleSubmit}
+	onCloseRequest={handleCloseRequest}
 >
 	{#if editCuid}
 		<input type="hidden" name="cuid" value={editCuid} />
 	{/if}
 
 	<div class="space-y-2">
-		<Label for="modal_leave_name" class={(form && 'field' in form && form.field === 'leave_name') || nameClientError ? 'text-destructive' : ''}>Leave Name</Label>
+		<Label for="modal_leave_name" class={(form && 'field' in form && form.field === 'leave_name') || nameClientError ? 'text-destructive' : ''}>Leave Name <span class="text-destructive">*</span></Label>
 		<Input
 			id="modal_leave_name"
 			name="leave_name"
 			bind:value={leaveName}
+			oninput={() => { if (form && form.field === 'leave_name') form = null; }}
 			placeholder="e.g. Sick Leave"
 			required
 			minlength={6}
@@ -436,11 +546,12 @@
 	</div>
 
 	<div class="space-y-2">
-		<Label for="modal_leave_code" class={(form && 'field' in form && form.field === 'leave_code') || codeClientError ? 'text-destructive' : ''}>Leave Code</Label>
+		<Label for="modal_leave_code" class={(form && 'field' in form && form.field === 'leave_code') || codeClientError ? 'text-destructive' : ''}>Leave Code <span class="text-destructive">*</span></Label>
 		<Input
 			id="modal_leave_code"
 			name="leave_code"
 			bind:value={leaveCode}
+			oninput={() => { if (form && form.field === 'leave_code') form = null; }}
 			placeholder="e.g. SL"
 			required
 			class="uppercase {(form && 'field' in form && form.field === 'leave_code') || codeClientError ? 'border-destructive focus-visible:ring-destructive' : ''}"
@@ -458,6 +569,7 @@
 			id="modal_description"
 			name="description"
 			bind:value={description}
+			oninput={() => { if (form && form.field === 'description') form = null; }}
 			placeholder="Optional description of this leave category..."
 			rows="3"
 			class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
@@ -465,22 +577,23 @@
 	</div>
 
 	<div class="flex items-center space-x-2 pt-1">
-		<input type="checkbox" id="modal_is_paid" name="is_paid" bind:checked={isPaid} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+		<input type="checkbox" id="modal_is_paid" name="is_paid" bind:checked={isPaid} onchange={() => { if (form && form.field === 'is_paid') form = null; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
 		<Label for="modal_is_paid" class="cursor-pointer select-none">Paid Leave</Label>
 	</div>
 
 	<div class="flex items-center space-x-2">
-		<input type="checkbox" id="modal_requires_approval" name="requires_approval" bind:checked={requiresApproval} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+		<input type="checkbox" id="modal_requires_approval" name="requires_approval" bind:checked={requiresApproval} onchange={() => { if (form && form.field === 'requires_approval') form = null; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
 		<Label for="modal_requires_approval" class="cursor-pointer select-none">Requires Approval</Label>
 	</div>
 
 	<!-- Status Dropdown -->
 	<div class="space-y-2 pb-2">
-		<Label for="modal_status">Status</Label>
+		<Label for="modal_status">Status <span class="text-destructive">*</span></Label>
 		<select
 			id="modal_status"
 			name="status"
 			bind:value={status}
+			onchange={() => { if (form && form.field === 'status') form = null; }}
 			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none"
 			required
 		>
@@ -497,7 +610,7 @@
 		</div>
 	{/if}
 
-	<Button type="submit" class="w-full" disabled={isSubmitting || !!nameClientError || !!codeClientError}>
+	<Button type="submit" class="w-full" disabled={isSubmitDisabled}>
 		{#if isSubmitting}
 			<LoaderCircleIcon class="size-4 animate-spin" />
 			Saving...
@@ -506,5 +619,15 @@
 		{/if}
 	</Button>
 </FormModal>
+
+<ConfirmModal
+	bind:isOpen={isDiscardModalOpen}
+	title="Unsaved Changes"
+	message="You have unsaved changes. Are you sure you want to discard them? Any unsaved edits will be lost."
+	confirmLabel="Discard Changes"
+	cancelLabel="Continue Editing"
+	variant="destructive"
+	onConfirm={confirmDiscard}
+/>
 
 

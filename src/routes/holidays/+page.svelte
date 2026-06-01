@@ -2,7 +2,7 @@
 	import { slide } from 'svelte/transition';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
-	import { goto, invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll, beforeNavigate } from '$app/navigation';
 	import { SvelteDate } from 'svelte/reactivity';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
@@ -28,7 +28,7 @@
 		toast,
 		ConfirmModal,
 		FormModal
-	} from '$lib/components';
+	} from '$lib/components/ui';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -201,8 +201,109 @@
 	let holidayDate = $state('');
 	let holidayType = $state<'National' | 'Regional' | 'Restricted'>('National');
 
+	let hasChanges = $derived.by(() => {
+		if (!editCuid || !editingHoliday) return false;
+		
+		const dateObj = new Date(editingHoliday.holiday_date);
+		const year = dateObj.getUTCFullYear();
+		const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+		const day = String(dateObj.getUTCDate()).padStart(2, '0');
+		const originalDateStr = `${year}-${month}-${day}`;
+
+		return (
+			holidayName !== editingHoliday.holiday_name ||
+			holidayDate !== originalDateStr ||
+			holidayType !== editingHoliday.holiday_type
+		);
+	});
+
+	let hasUnsavedChanges = $derived.by(() => {
+		if (editCuid) {
+			return hasChanges;
+		} else {
+			return holidayName !== '' || holidayDate !== '' || holidayType !== 'National';
+		}
+	});
+
+	let isSubmitDisabled = $derived.by(() => {
+		if (isSubmitting) return true;
+		if (!!holidayNameError || !!clientDateError) return true;
+		if (editCuid) {
+			if (!holidayName.trim() || !holidayDate || !holidayType) return true;
+			return !hasChanges;
+		} else {
+			if (!holidayName.trim() || !holidayDate || !holidayType) return true;
+			return false;
+		}
+	});
+
+	let isDiscardModalOpen = $state(false);
+	let pendingNavigation = $state<any>(null);
+	let isNavigatingProgrammatically = $state(false);
+
+	function handleCloseRequest() {
+		if (hasUnsavedChanges) {
+			isDiscardModalOpen = true;
+		} else {
+			isFormModalOpen = false;
+		}
+	}
+
+	async function confirmDiscard() {
+		isDiscardModalOpen = false;
+		isNavigatingProgrammatically = true;
+		
+		holidayName = '';
+		holidayDate = '';
+		holidayType = 'National';
+		isFormModalOpen = false;
+		
+		if (pendingNavigation) {
+			const target = pendingNavigation.to?.url;
+			pendingNavigation = null;
+			if (target) {
+				await goto(target);
+			}
+		} else if (editCuid) {
+			await goto(resolve('/holidays'), { replaceState: true });
+		}
+		
+		isNavigatingProgrammatically = false;
+	}
+
+	beforeNavigate((navigation) => {
+		if (!isFormModalOpen || !hasUnsavedChanges) {
+			return;
+		}
+
+		if (isNavigatingProgrammatically) {
+			return;
+		}
+
+		navigation.cancel();
+		pendingNavigation = navigation;
+		isDiscardModalOpen = true;
+	});
+
+	$effect(() => {
+		const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+			if (isFormModalOpen && hasUnsavedChanges) {
+				e.preventDefault();
+				e.returnValue = '';
+				return '';
+			}
+		};
+		window.addEventListener('beforeunload', handleBeforeUnload);
+		return () => {
+			window.removeEventListener('beforeunload', handleBeforeUnload);
+		};
+	});
+
 	// Synchronise form inputs when URL edit parameter changes
 	$effect(() => {
+		if (form && 'error' in form) {
+			return;
+		}
 		if (form && 'action' in form && form.action === 'update' && 'cuid' in form && form.cuid === editCuid) {
 			if ('holiday_name' in form) holidayName = String(form.holiday_name);
 			if ('holiday_date' in form) holidayDate = String(form.holiday_date);
@@ -498,17 +599,19 @@
 	bind:isOpen={isFormModalOpen}
 	title={editCuid ? 'Edit Holiday' : 'Add Holiday'}
 	onsubmit={handleSubmit}
+	onCloseRequest={handleCloseRequest}
 >
 	{#if editCuid}
 		<input type="hidden" name="cuid" value={editCuid} />
 	{/if}
 
 	<div class="space-y-2">
-		<Label for="modal_holiday_name" class={(form && 'field' in form && form.field === 'holiday_name') || holidayNameError ? 'text-destructive' : ''}>Holiday Name</Label>
+		<Label for="modal_holiday_name" class={(form && 'field' in form && form.field === 'holiday_name') || holidayNameError ? 'text-destructive' : ''}>Holiday Name <span class="text-destructive">*</span></Label>
 		<Input
 			id="modal_holiday_name"
 			name="holiday_name"
 			bind:value={holidayName}
+			oninput={() => { if (form && form.field === 'holiday_name') form = null; }}
 			placeholder="e.g. Independence Day"
 			required
 			minlength={6}
@@ -523,12 +626,13 @@
 	</div>
 
 	<div class="space-y-2">
-		<Label for="modal_holiday_date" class={(form && 'field' in form && form.field === 'holiday_date') || clientDateError ? 'text-destructive' : ''}>Date</Label>
+		<Label for="modal_holiday_date" class={(form && 'field' in form && form.field === 'holiday_date') || clientDateError ? 'text-destructive' : ''}>Date <span class="text-destructive">*</span></Label>
 		<Input
 			id="modal_holiday_date"
 			name="holiday_date"
 			type="date"
 			bind:value={holidayDate}
+			oninput={() => { if (form && form.field === 'holiday_date') form = null; }}
 			required
 			min={tomorrowStr}
 			max="2099-12-31"
@@ -542,11 +646,12 @@
 	</div>
 
 	<div class="space-y-2">
-		<Label for="modal_holiday_type" class={form && 'field' in form && form.field === 'holiday_type' ? 'text-destructive' : ''}>Category</Label>
+		<Label for="modal_holiday_type" class={form && 'field' in form && form.field === 'holiday_type' ? 'text-destructive' : ''}>Category <span class="text-destructive">*</span></Label>
 		<select
 			id="modal_holiday_type"
 			name="holiday_type"
 			bind:value={holidayType}
+			onchange={() => { if (form && form.field === 'holiday_type') form = null; }}
 			class="dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {form && 'field' in form && form.field === 'holiday_type' ? 'border-destructive focus-visible:ring-destructive' : 'border-input'}"
 			required
 		>
@@ -567,7 +672,7 @@
 		</div>
 	{/if}
 
-	<Button type="submit" class="w-full" disabled={isSubmitting || !!clientDateError || !!holidayNameError}>
+	<Button type="submit" class="w-full" disabled={isSubmitDisabled}>
 		{#if isSubmitting}
 			<LoaderCircleIcon class="size-4 animate-spin" />
 			Saving...
@@ -586,4 +691,14 @@
 			handleDelete(activeDeleteCuid);
 		}
 	}}
+/>
+
+<ConfirmModal
+	bind:isOpen={isDiscardModalOpen}
+	title="Unsaved Changes"
+	message="You have unsaved changes. Are you sure you want to discard them? Any unsaved edits will be lost."
+	confirmLabel="Discard Changes"
+	cancelLabel="Continue Editing"
+	variant="destructive"
+	onConfirm={confirmDiscard}
 />

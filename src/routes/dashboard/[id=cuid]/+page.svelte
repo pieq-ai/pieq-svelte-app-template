@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components';
+	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui';
 
 	let { data } = $props();
 </script>

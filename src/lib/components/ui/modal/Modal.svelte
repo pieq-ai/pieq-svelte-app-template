@@ -4,15 +4,21 @@
 	let {
 		isOpen = $bindable(false),
 		title = '',
+		onCloseRequest,
 		children
 	}: {
 		isOpen: boolean;
 		title?: string;
+		onCloseRequest?: () => void;
 		children?: import('svelte').Snippet;
 	} = $props();
 
 	function close() {
-		isOpen = false;
+		if (onCloseRequest) {
+			onCloseRequest();
+		} else {
+			isOpen = false;
+		}
 	}
 
 	function handleKeyDown(e: KeyboardEvent) {

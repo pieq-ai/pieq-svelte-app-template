@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { signInWithKeycloak } from '$lib/auth';
-	import { Button, Card, CardContent, CardHeader, CardTitle } from '$lib/components';
+	import { Button, Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui';
 	import { resolve } from '$app/paths';
 
 	let { data } = $props();

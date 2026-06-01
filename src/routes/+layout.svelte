@@ -2,7 +2,8 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
-	import { Button, Sidebar } from '$lib/components';
+	import { Button } from '$lib/components/ui';
+	import { Sidebar } from '$lib/components/layout';
 	import { resolve } from '$app/paths';
 	import { Toaster } from 'svelte-sonner';
 

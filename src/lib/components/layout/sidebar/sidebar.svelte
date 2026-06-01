@@ -118,7 +118,7 @@
 		{/if}
 
 		<!-- Sign Out Form Button -->
-		<form method="POST" action="/auth/signout" class="w-full">
+		<form method="POST" action="/auth/signout" class="w-full" novalidate>
 			<button
 				type="submit"
 				class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer group"

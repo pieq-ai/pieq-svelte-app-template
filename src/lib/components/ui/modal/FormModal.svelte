@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Modal } from '$lib/components';
+	import Modal from './Modal.svelte';
 	import { enhance } from '$app/forms';
 
 	let {
@@ -8,6 +8,7 @@
 		action = '',
 		onsubmit,
 		useEnhance,
+		onCloseRequest,
 		children
 	}: {
 		isOpen: boolean;
@@ -15,17 +16,18 @@
 		action?: string;
 		onsubmit?: (e: SubmitEvent) => void;
 		useEnhance?: import('@sveltejs/kit').SubmitFunction;
+		onCloseRequest?: () => void;
 		children?: import('svelte').Snippet;
 	} = $props();
 </script>
 
-<Modal bind:isOpen={isOpen} title={title}>
+<Modal bind:isOpen={isOpen} title={title} {onCloseRequest}>
 	{#if useEnhance}
-		<form method="POST" {action} onsubmit={onsubmit} use:enhance={useEnhance} class="space-y-4">
+		<form method="POST" {action} onsubmit={onsubmit} use:enhance={useEnhance} class="space-y-4" novalidate>
 			{@render children?.()}
 		</form>
 	{:else}
-		<form method="POST" {action} onsubmit={onsubmit} class="space-y-4">
+		<form method="POST" {action} onsubmit={onsubmit} class="space-y-4" novalidate>
 			{@render children?.()}
 		</form>
 	{/if}

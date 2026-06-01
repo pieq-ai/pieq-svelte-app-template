@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components';
+	import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui';
 </script>
 
 <svelte:head>
