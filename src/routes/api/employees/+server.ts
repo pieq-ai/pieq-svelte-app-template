@@ -37,7 +37,7 @@ export async function POST(event: RequestEvent) {
 		}
 
 		const employee = await employeeDao.create({ name, age: Number(age) });
-		return json({ data: { cuid: employee.cuid2, message: 'Successfully created' } }, { status: 201 });
+		return json({ data: { cuid: employee.cuid, message: 'Successfully created' } }, { status: 201 });
 	} catch (error) {
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getErrorStatus(message) });

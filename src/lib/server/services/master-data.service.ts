@@ -3,7 +3,7 @@ import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 
 export interface MasterDataDto {
 	name: string;
-	country_cuid2?: string;
+	country_cuid?: string;
 	created_at?: Date | string | null;
 	updated_at?: Date | string | null;
 }
@@ -67,7 +67,7 @@ function readId(record: Record<string, unknown>, master: MasterKey) {
 }
 
 function readCuid2(record: Record<string, unknown>) {
-	return String(record.cuid2 ?? '');
+	return String(record.cuid ?? '');
 }
 
 function readName(record: Record<string, unknown>, master: MasterKey) {
@@ -97,7 +97,7 @@ async function ensureUnique(master: MasterKey, name: string, countryCuid2?: stri
 	const duplicate = records.find((record) => {
 		const isSameRecord = readCuid2(record) === currentCuid2;
 		const isSameName = readName(record, master).trim().toLowerCase() === normalizedName;
-		const isSameCountry = master !== 'states' || record.country_cuid2 === countryCuid2;
+		const isSameCountry = master !== 'states' || record.country_cuid === countryCuid2;
 		return !isSameRecord && isSameName && isSameCountry;
 	});
 
@@ -123,7 +123,7 @@ export async function getMasterData(masterKey: string, search?: string, countryC
 
 	return records
 		.filter((record) => {
-			if (master === 'states' && countryCuid2 && record.country_cuid2 !== countryCuid2) {
+			if (master === 'states' && countryCuid2 && record.country_cuid !== countryCuid2) {
 				return false;
 			}
 			return !query || readName(record, master).toLowerCase().includes(query);
@@ -137,29 +137,29 @@ export async function createMasterData(masterKey: string, dto: MasterDataDto) {
 	
 
 	if (master === 'states') {
-		if (!dto.country_cuid2) {
+		if (!dto.country_cuid) {
 			throw new Error('Country is required for states');
 		}
-		const country = await masterDataDao.findByCuid2('countries', dto.country_cuid2);
+		const country = await masterDataDao.findByCuid2('countries', dto.country_cuid);
 		if (!country) {
 			throw new Error('Country not found');
 		}
 	}
 
-	await ensureUnique(master, name, dto.country_cuid2);
+	await ensureUnique(master, name, dto.country_cuid);
 
 	const created = (await masterDataDao.create(master, {
 		name,
-		country_cuid2: dto.country_cuid2
+		country_cuid: dto.country_cuid
 	})) as Record<string, unknown>;
 
 	return toOption(created, master);
 }
 
-export async function updateMasterData(masterKey: string, cuid2: string, dto: MasterDataDto) {
+export async function updateMasterData(masterKey: string, cuid: string, dto: MasterDataDto) {
 	const master = resolveMaster(masterKey);
 
-	const existing = (await masterDataDao.findByCuid2(master, cuid2)) as Record<string, unknown> | null;
+	const existing = (await masterDataDao.findByCuid2(master, cuid)) as Record<string, unknown> | null;
 	if (!existing) {
 		throw new Error(`${getMasterConfig(master).label} not found`);
 	}
@@ -168,21 +168,21 @@ export async function updateMasterData(masterKey: string, cuid2: string, dto: Ma
 	
 
 	if (master === 'states') {
-		if (!dto.country_cuid2) {
+		if (!dto.country_cuid) {
 			throw new Error('Country is required for states');
 		}
-		const country = await masterDataDao.findByCuid2('countries', dto.country_cuid2);
+		const country = await masterDataDao.findByCuid2('countries', dto.country_cuid);
 		if (!country) {
 			throw new Error('Country not found');
 		}
 	}
 
-	await ensureUnique(master, name, dto.country_cuid2, cuid2);
+	await ensureUnique(master, name, dto.country_cuid, cuid);
 
 	const updated = (await masterDataDao.update(master, {
 		id: readId(existing, master),
 		name,
-		country_cuid2: dto.country_cuid2
+		country_cuid: dto.country_cuid
 	})) as Record<string, unknown>;
 
 	return toOption(updated, master);

@@ -1,8 +1,8 @@
 import { db } from '$lib/server/db.js';
 
 export interface CreateRolePermissionInput {
-	system_role_cuid2: string;
-	permission_cuid2: string;
+	system_role_cuid: string;
+	permission_cuid: string;
 	created_by?: string;
 	created_at?: Date | string;
 	updated_at?: Date | string;
@@ -24,12 +24,12 @@ export async function findById(id: number) {
 	});
 }
 
-export async function findByRoleAndPermission(system_role_cuid2: string, permission_cuid2: string) {
+export async function findByRoleAndPermission(system_role_cuid: string, permission_cuid: string) {
 	return db.rolePermission.findUnique({
 		where: {
-			system_role_cuid2_permission_cuid2: {
-				system_role_cuid2,
-				permission_cuid2 }
+			system_role_cuid_permission_cuid: {
+				system_role_cuid,
+				permission_cuid }
 		}
 	});
 }
@@ -48,12 +48,12 @@ export async function remove(id: number) {
 	});
 }
 
-export async function removeByRoleAndPermission(system_role_cuid2: string, permission_cuid2: string) {
+export async function removeByRoleAndPermission(system_role_cuid: string, permission_cuid: string) {
 	return db.rolePermission.delete({
 		where: {
-			system_role_cuid2_permission_cuid2: {
-				system_role_cuid2,
-				permission_cuid2 }
+			system_role_cuid_permission_cuid: {
+				system_role_cuid,
+				permission_cuid }
 		}
 	});
 }

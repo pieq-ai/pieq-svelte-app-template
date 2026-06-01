@@ -16,12 +16,12 @@ export interface UpdateDesignationDto {
 }
 
 function toPublicDesignation(designation: {
-	cuid2: string;
+	cuid: string;
 	designation_name: string;
 	status: boolean;
  created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
 	return {
-		cuid2: designation.cuid2,
+		cuid: designation.cuid,
 		designation_name: designation.designation_name,
 		status: designation.status
 	,
@@ -54,7 +54,7 @@ async function ensureDesignationNameIsUnique(designation_name: string, currentCu
 	const designations = await designationDao.list();
 	const duplicate = designations.find(
 		(designation) =>
-			designation.cuid2 !== currentCuid2 &&
+			designation.cuid !== currentCuid2 &&
 			designation.designation_name.trim().toLowerCase() === normalizedName
 	);
 
@@ -80,14 +80,14 @@ export async function getDesignationById(designation_id: number) {
 	return toPublicDesignation(designation);
 }
 
-export async function getDesignationByCuid2(cuid2: string) {
-	if (!cuid2) {
+export async function getDesignationByCuid2(cuid: string) {
+	if (!cuid) {
 		throw new Error('Designation CUID2 is required');
 	}
 
-	const designation = await designationDao.findByCuid2(cuid2);
+	const designation = await designationDao.findByCuid2(cuid);
 	if (!designation) {
-		throw new Error(`Designation with CUID2 "${cuid2}" not found`);
+		throw new Error(`Designation with CUID2 "${cuid}" not found`);
 	}
 
 	return toPublicDesignation(designation);
@@ -107,8 +107,8 @@ export async function createDesignation(dto: CreateDesignationDto) {
 	}));
 }
 
-export async function updateDesignation(cuid2: string, dto: UpdateDesignationDto) {
-	const existing = await getDesignationByCuid2(cuid2);
+export async function updateDesignation(cuid: string, dto: UpdateDesignationDto) {
+	const existing = await getDesignationByCuid2(cuid);
 	const updateData: designationDao.UpdateDesignationInput = {};
 
 	if (dto.updated_at !== undefined) {
@@ -122,7 +122,7 @@ export async function updateDesignation(cuid2: string, dto: UpdateDesignationDto
 	if (dto.designation_name !== undefined) {
 		const designation_name = validateDesignationName(dto.designation_name);
 
-		await ensureDesignationNameIsUnique(designation_name, existing.cuid2);
+		await ensureDesignationNameIsUnique(designation_name, existing.cuid);
 
 		updateData.designation_name = designation_name;
 	}
@@ -134,13 +134,13 @@ export async function updateDesignation(cuid2: string, dto: UpdateDesignationDto
 		updateData.status = dto.status;
 	}
 
-	return toPublicDesignation(await designationDao.update(cuid2, updateData));
+	return toPublicDesignation(await designationDao.update(cuid, updateData));
 }
 
-export async function deleteDesignation(cuid2: string, deletedBy?: string) {
-	await getDesignationByCuid2(cuid2);
+export async function deleteDesignation(cuid: string, deletedBy?: string) {
+	await getDesignationByCuid2(cuid);
 
-	return toPublicDesignation(await designationDao.update(cuid2, {
+	return toPublicDesignation(await designationDao.update(cuid, {
 		status: false,
 		updated_by: deletedBy
 	}));

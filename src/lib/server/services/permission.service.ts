@@ -16,12 +16,12 @@ export interface UpdatePermissionDto {
 }
 
 function toPublicPermission(permission: {
-	cuid2: string;
+	cuid: string;
 	permission_key: string;
 	status: boolean;
  created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
 	return {
-		cuid2: permission.cuid2,
+		cuid: permission.cuid,
 		permission_key: permission.permission_key,
 		status: permission.status
 	,
@@ -91,14 +91,14 @@ export async function getPermissionById(id: number) {
 	return toPublicPermission(permission);
 }
 
-export async function getPermissionByCuid2(cuid2: string) {
-	if (!cuid2) {
+export async function getPermissionByCuid2(cuid: string) {
+	if (!cuid) {
 		throw new Error('Permission CUID2 is required');
 	}
 
-	const permission = await permissionDao.findByCuid2(cuid2);
+	const permission = await permissionDao.findByCuid2(cuid);
 	if (!permission) {
-		throw new Error(`Permission with CUID2 "${cuid2}" not found`);
+		throw new Error(`Permission with CUID2 "${cuid}" not found`);
 	}
 
 	return toPublicPermission(permission);
@@ -118,10 +118,10 @@ export async function createPermission(dto: CreatePermissionDto) {
 	}));
 }
 
-export async function updatePermission(cuid2: string, dto: UpdatePermissionDto) {
-	const existing = await permissionDao.findByCuid2(cuid2);
+export async function updatePermission(cuid: string, dto: UpdatePermissionDto) {
+	const existing = await permissionDao.findByCuid2(cuid);
 	if (!existing) {
-		throw new Error(`Permission with CUID2 "${cuid2}" not found`);
+		throw new Error(`Permission with CUID2 "${cuid}" not found`);
 	}
 	const updateData: permissionDao.UpdatePermissionInput = {};
 
@@ -147,10 +147,10 @@ export async function updatePermission(cuid2: string, dto: UpdatePermissionDto) 
 	return toPublicPermission(await permissionDao.update(existing.id, updateData));
 }
 
-export async function deletePermission(cuid2: string, deletedBy?: string) {
-	const existing = await permissionDao.findByCuid2(cuid2);
+export async function deletePermission(cuid: string, deletedBy?: string) {
+	const existing = await permissionDao.findByCuid2(cuid);
 	if (!existing) {
-		throw new Error(`Permission with CUID2 "${cuid2}" not found`);
+		throw new Error(`Permission with CUID2 "${cuid}" not found`);
 	}
 	return toPublicPermission(await permissionDao.update(existing.id, {
 		status: false,

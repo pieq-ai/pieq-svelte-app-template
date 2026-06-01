@@ -23,7 +23,7 @@ describe('Role Permission DAO', () => {
 
 	describe('list', () => {
 		it('should call db.rolePermission.findMany with order by id', async () => {
-			const mockData = [{ id: 1, system_role_cuid2: 'role1', permission_cuid2: 'perm1' }];
+			const mockData = [{ id: 1, system_role_cuid: 'role1', permission_cuid: 'perm1' }];
 			vi.mocked(db.rolePermission.findMany).mockResolvedValue(mockData as any);
 
 			const result = await rolePermissionDao.list();
@@ -51,16 +51,16 @@ describe('Role Permission DAO', () => {
 
 	describe('findByRoleAndPermission', () => {
 		it('should call db.rolePermission.findUnique with correct compound key', async () => {
-			const mockData = { id: 1, system_role_cuid2: 'role1', permission_cuid2: 'perm1' };
+			const mockData = { id: 1, system_role_cuid: 'role1', permission_cuid: 'perm1' };
 			vi.mocked(db.rolePermission.findUnique).mockResolvedValue(mockData as any);
 
 			const result = await rolePermissionDao.findByRoleAndPermission('role1', 'perm1');
 
 			expect(db.rolePermission.findUnique).toHaveBeenCalledWith({
 				where: {
-					system_role_cuid2_permission_cuid2: {
-						system_role_cuid2: 'role1',
-						permission_cuid2: 'perm1'
+					system_role_cuid_permission_cuid: {
+						system_role_cuid: 'role1',
+						permission_cuid: 'perm1'
 					}
 				}
 			});
@@ -70,7 +70,7 @@ describe('Role Permission DAO', () => {
 
 	describe('create', () => {
 		it('should create a role permission', async () => {
-			const input = { system_role_cuid2: 'role1', permission_cuid2: 'perm1' };
+			const input = { system_role_cuid: 'role1', permission_cuid: 'perm1' };
 			const mockResult = { id: 1, ...input };
 			vi.mocked(db.rolePermission.create).mockResolvedValue(mockResult as any);
 
@@ -106,9 +106,9 @@ describe('Role Permission DAO', () => {
 
 			expect(db.rolePermission.delete).toHaveBeenCalledWith({
 				where: {
-					system_role_cuid2_permission_cuid2: {
-						system_role_cuid2: 'role1',
-						permission_cuid2: 'perm1'
+					system_role_cuid_permission_cuid: {
+						system_role_cuid: 'role1',
+						permission_cuid: 'perm1'
 					}
 				}
 			});

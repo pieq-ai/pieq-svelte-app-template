@@ -11,7 +11,7 @@ model Employee {
   id BigInt @id @default(autoincrement())
 
   emp_code   String @unique @db.VarChar(20)
-  cuid2      String @unique @default(cuid())
+  cuid      String @unique @default(cuid())
   first_name String @db.VarChar(100)
   last_name  String @db.VarChar(100)
 
@@ -19,13 +19,13 @@ model Employee {
 
   gender String @db.VarChar(100)
 
-  blood_group_cuid2 String
-  blood_group       BloodGroup @relation(fields: [blood_group_cuid2], references: [cuid2])
+  blood_group_cuid String
+  blood_group       BloodGroup @relation(fields: [blood_group_cuid], references: [cuid])
 
   marital_status String @db.VarChar(100)
 
-  nationality_cuid2 String
-  nationality       Nationality @relation(fields: [nationality_cuid2], references: [cuid2])
+  nationality_cuid String
+  nationality       Nationality @relation(fields: [nationality_cuid], references: [cuid])
 
   mobile_no String @unique @db.VarChar(15)
 
@@ -39,22 +39,22 @@ model Employee {
 
   emergency_contact_no String? @db.VarChar(15)
 
-  relation_cuid2 String?
-  relation_type  RelationType? @relation(fields: [relation_cuid2], references: [cuid2])
+  relation_cuid String?
+  relation_type  RelationType? @relation(fields: [relation_cuid], references: [cuid])
 
   created_at DateTime @default(now()) @db.Timestamptz()
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@index([cuid2])
+  @@index([cuid])
   @@map("employee")
 }
 
 model SystemRoles {
   id Int @id @default(autoincrement())
 
-  cuid2 String @unique @default(cuid())
+  cuid String @unique @default(cuid())
 
   system_role_name String @unique @db.VarChar(100)
 
@@ -66,13 +66,13 @@ model SystemRoles {
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@index([cuid2])
+  @@index([cuid])
   @@map("system_roles")
 }
 
 model Department {
   id        Int    @id @default(autoincrement())
-  cuid2     String @unique @default(cuid())
+  cuid     String @unique @default(cuid())
   dept_name String @unique @db.VarChar(150)
 
   status Boolean @default(true)
@@ -82,14 +82,14 @@ model Department {
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@index([cuid2])
+  @@index([cuid])
   @@map("department")
 }
 
 model Permissions {
   id Int @id @default(autoincrement())
 
-  cuid2 String @unique @default(cuid())
+  cuid String @unique @default(cuid())
 
   permission_key String @unique @db.VarChar(100)
 
@@ -101,35 +101,35 @@ model Permissions {
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@index([cuid2])
+  @@index([cuid])
   @@map("permissions")
 }
 
 model RolePermission {
   id Int @id @default(autoincrement())
 
-  cuid2 String @unique @default(cuid())
+  cuid String @unique @default(cuid())
 
-  system_role_cuid2 String
-  system_role       SystemRoles @relation(fields: [system_role_cuid2], references: [cuid2])
+  system_role_cuid String
+  system_role       SystemRoles @relation(fields: [system_role_cuid], references: [cuid])
 
-  permission_cuid2 String
-  permission       Permissions @relation(fields: [permission_cuid2], references: [cuid2])
+  permission_cuid String
+  permission       Permissions @relation(fields: [permission_cuid], references: [cuid])
 
   created_at DateTime @default(now()) @db.Timestamptz()
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@unique([system_role_cuid2, permission_cuid2])
-  @@index([cuid2])
+  @@unique([system_role_cuid, permission_cuid])
+  @@index([cuid])
   @@map("role_permission")
 }
 
 model BloodGroup {
   id Int @id @default(autoincrement())
 
-  cuid2 String @unique @default(cuid())
+  cuid String @unique @default(cuid())
 
   blood_group_name String     @unique @db.VarChar(5)
   employees        Employee[]
@@ -139,13 +139,13 @@ model BloodGroup {
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@index([cuid2])
+  @@index([cuid])
   @@map("blood_group")
 }
 
 model Designation {
   id               Int    @id @default(autoincrement())
-  cuid2            String @unique @default(cuid())
+  cuid            String @unique @default(cuid())
   designation_name String @unique @db.VarChar(150)
 
   status Boolean @default(true)
@@ -155,14 +155,14 @@ model Designation {
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@index([cuid2])
+  @@index([cuid])
   @@map("designation")
 }
 
 model PayGrade {
   id Int @id @default(autoincrement())
 
-  cuid2 String @unique @default(cuid())
+  cuid String @unique @default(cuid())
 
   paygrade_name String @unique @db.VarChar(100)
 
@@ -173,14 +173,14 @@ model PayGrade {
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@index([cuid2])
+  @@index([cuid])
   @@map("pay_grade")
 }
 
 model Nationality {
   id Int @id @default(autoincrement())
 
-  cuid2 String @unique @default(cuid())
+  cuid String @unique @default(cuid())
 
   nationality_name String @unique @db.VarChar(100)
 
@@ -192,14 +192,14 @@ model Nationality {
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@index([cuid2])
+  @@index([cuid])
   @@map("nationality")
 }
 
 model EmploymentType {
   id Int @id @default(autoincrement())
 
-  cuid2 String @unique @default(cuid())
+  cuid String @unique @default(cuid())
 
   employment_name String @unique @db.VarChar(50)
 
@@ -210,14 +210,14 @@ model EmploymentType {
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@index([cuid2])
+  @@index([cuid])
   @@map("employment_type")
 }
 
 model RelationType {
   id Int @id @default(autoincrement())
 
-  cuid2 String @unique @default(cuid())
+  cuid String @unique @default(cuid())
 
   relation_name String @unique @db.VarChar(50)
 
@@ -229,14 +229,14 @@ model RelationType {
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@index([cuid2])
+  @@index([cuid])
   @@map("relation_type")
 }
 
 model DocumentType {
   id Int @id @default(autoincrement())
 
-  cuid2 String @unique @default(cuid())
+  cuid String @unique @default(cuid())
 
   document_type_name String @unique @db.VarChar(100)
 
@@ -247,17 +247,17 @@ model DocumentType {
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@index([cuid2])
+  @@index([cuid])
   @@map("document_type")
 }
 
 model State {
   id Int @id @default(autoincrement())
 
-  cuid2 String @unique @default(cuid())
+  cuid String @unique @default(cuid())
 
-  country_cuid2 String
-  country       Country @relation(fields: [country_cuid2], references: [cuid2])
+  country_cuid String
+  country       Country @relation(fields: [country_cuid], references: [cuid])
 
   state_name String @db.VarChar(100)
 
@@ -266,16 +266,16 @@ model State {
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@unique([country_cuid2, state_name])
-  @@index([country_cuid2])
-  @@index([cuid2])
+  @@unique([country_cuid, state_name])
+  @@index([country_cuid])
+  @@index([cuid])
   @@map("state")
 }
 
 model Country {
   id Int @id @default(autoincrement())
 
-  cuid2 String @unique @default(cuid())
+  cuid String @unique @default(cuid())
 
   country_name String  @unique @db.VarChar(100)
   states       State[]
@@ -285,14 +285,14 @@ model Country {
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@index([cuid2])
+  @@index([cuid])
   @@map("country")
 }
 
 model Skills {
   id Int @id @default(autoincrement())
 
-  cuid2 String @unique @default(cuid())
+  cuid String @unique @default(cuid())
 
   skills_name String @unique @db.VarChar(100)
 
@@ -303,14 +303,14 @@ model Skills {
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@index([cuid2])
+  @@index([cuid])
   @@map("skills")
 }
 
 model AttendanceSource {
   id Int @id @default(autoincrement())
 
-  cuid2 String @unique @default(cuid())
+  cuid String @unique @default(cuid())
 
   attendance_source_name String @unique @db.VarChar(100)
 
@@ -321,14 +321,14 @@ model AttendanceSource {
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@index([cuid2])
+  @@index([cuid])
   @@map("attendance_source")
 }
 
 model Languages {
   id Int @id @default(autoincrement())
 
-  cuid2 String @unique @default(cuid())
+  cuid String @unique @default(cuid())
 
   languages_name String @unique @db.VarChar(100)
 
@@ -339,6 +339,6 @@ model Languages {
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@index([cuid2])
+  @@index([cuid])
   @@map("languages")
 }

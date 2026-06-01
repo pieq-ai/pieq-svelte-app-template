@@ -16,12 +16,12 @@ export interface UpdateSystemRoleDto {
 }
 
 function toPublicSystemRole(role: {
-	cuid2: string;
+	cuid: string;
 	system_role_name: string;
 	status: boolean;
  created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
 	return {
-		cuid2: role.cuid2,
+		cuid: role.cuid,
 		system_role_name: role.system_role_name,
 		status: role.status
 	,
@@ -91,14 +91,14 @@ export async function getSystemRoleById(id: number) {
 	return toPublicSystemRole(role);
 }
 
-export async function getSystemRoleByCuid2(cuid2: string) {
-	if (!cuid2) {
+export async function getSystemRoleByCuid2(cuid: string) {
+	if (!cuid) {
 		throw new Error('System role CUID2 is required');
 	}
 
-	const role = await systemRoleDao.findByCuid2(cuid2);
+	const role = await systemRoleDao.findByCuid2(cuid);
 	if (!role) {
-		throw new Error(`System role with CUID2 "${cuid2}" not found`);
+		throw new Error(`System role with CUID2 "${cuid}" not found`);
 	}
 
 	return toPublicSystemRole(role);
@@ -118,10 +118,10 @@ export async function createSystemRole(dto: CreateSystemRoleDto) {
 	}));
 }
 
-export async function updateSystemRole(cuid2: string, dto: UpdateSystemRoleDto) {
-	const existing = await systemRoleDao.findByCuid2(cuid2);
+export async function updateSystemRole(cuid: string, dto: UpdateSystemRoleDto) {
+	const existing = await systemRoleDao.findByCuid2(cuid);
 	if (!existing) {
-		throw new Error(`System role with CUID2 "${cuid2}" not found`);
+		throw new Error(`System role with CUID2 "${cuid}" not found`);
 	}
 	const updateData: systemRoleDao.UpdateSystemRoleInput = {};
 
@@ -147,10 +147,10 @@ export async function updateSystemRole(cuid2: string, dto: UpdateSystemRoleDto) 
 	return toPublicSystemRole(await systemRoleDao.update(existing.id, updateData));
 }
 
-export async function deleteSystemRole(cuid2: string, deletedBy?: string) {
-	const existing = await systemRoleDao.findByCuid2(cuid2);
+export async function deleteSystemRole(cuid: string, deletedBy?: string) {
+	const existing = await systemRoleDao.findByCuid2(cuid);
 	if (!existing) {
-		throw new Error(`System role with CUID2 "${cuid2}" not found`);
+		throw new Error(`System role with CUID2 "${cuid}" not found`);
 	}
 	return toPublicSystemRole(await systemRoleDao.update(existing.id, {
 		status: false,

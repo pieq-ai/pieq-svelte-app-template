@@ -3,7 +3,7 @@ import type { MasterKey } from '$lib/master-data/master-config.js';
 
 export interface MasterCreateInput {
 	name: string;
-	country_cuid2?: string;
+	country_cuid?: string;
 	created_by?: string;
 	created_at?: Date | string;
 	updated_at?: Date | string;
@@ -12,7 +12,7 @@ export interface MasterCreateInput {
 export interface MasterUpdateInput {
 	id: number;
 	name: string;
-	country_cuid2?: string;
+	country_cuid?: string;
 	updated_by?: string;
 	updated_at?: Date | string;
 }
@@ -32,7 +32,7 @@ export async function list(master: MasterKey) {
 		case 'document-types':
 			return db.documentType.findMany({ orderBy: { document_type_name: 'asc' } });
 		case 'states':
-			return db.state.findMany({ orderBy: [{ country_cuid2: 'asc' }, { state_name: 'asc' }] });
+			return db.state.findMany({ orderBy: [{ country_cuid: 'asc' }, { state_name: 'asc' }] });
 		case 'countries':
 			return db.country.findMany({ orderBy: { country_name: 'asc' } });
 		case 'skills':
@@ -71,30 +71,30 @@ export async function findById(master: MasterKey, id: number) {
 	}
 }
 
-export async function findByCuid2(master: MasterKey, cuid2: string) {
+export async function findByCuid2(master: MasterKey, cuid: string) {
 	switch (master) {
 		case 'blood-groups':
-			return db.bloodGroup.findUnique({ where: { cuid2 } });
+			return db.bloodGroup.findUnique({ where: { cuid } });
 		case 'pay-grades':
-			return db.payGrade.findUnique({ where: { cuid2 } });
+			return db.payGrade.findUnique({ where: { cuid } });
 		case 'nationalities':
-			return db.nationality.findUnique({ where: { cuid2 } });
+			return db.nationality.findUnique({ where: { cuid } });
 		case 'employment-types':
-			return db.employmentType.findUnique({ where: { cuid2 } });
+			return db.employmentType.findUnique({ where: { cuid } });
 		case 'relation-types':
-			return db.relationType.findUnique({ where: { cuid2 } });
+			return db.relationType.findUnique({ where: { cuid } });
 		case 'document-types':
-			return db.documentType.findUnique({ where: { cuid2 } });
+			return db.documentType.findUnique({ where: { cuid } });
 		case 'states':
-			return db.state.findUnique({ where: { cuid2 } });
+			return db.state.findUnique({ where: { cuid } });
 		case 'countries':
-			return db.country.findUnique({ where: { cuid2 } });
+			return db.country.findUnique({ where: { cuid } });
 		case 'skills':
-			return db.skills.findUnique({ where: { cuid2 } });
+			return db.skills.findUnique({ where: { cuid } });
 		case 'attendance-sources':
-			return db.attendanceSource.findUnique({ where: { cuid2 } });
+			return db.attendanceSource.findUnique({ where: { cuid } });
 		case 'languages':
-			return db.languages.findUnique({ where: { cuid2 } });
+			return db.languages.findUnique({ where: { cuid } });
 	}
 }
 
@@ -113,7 +113,7 @@ export async function create(master: MasterKey, data: MasterCreateInput) {
 		case 'document-types':
 			return db.documentType.create({ data: { document_type_name: data.name, created_by: data.created_by ?? undefined, updated_by: data.created_by ?? undefined, created_at: data.created_at ? new Date(data.created_at) : undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'states':
-			return db.state.create({ data: { state_name: data.name, country_cuid2: data.country_cuid2 ?? '', created_by: data.created_by ?? undefined, updated_by: data.created_by ?? undefined, created_at: data.created_at ? new Date(data.created_at) : undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
+			return db.state.create({ data: { state_name: data.name, country_cuid: data.country_cuid ?? '', created_by: data.created_by ?? undefined, updated_by: data.created_by ?? undefined, created_at: data.created_at ? new Date(data.created_at) : undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'countries':
 			return db.country.create({ data: { country_name: data.name, created_by: data.created_by ?? undefined, updated_by: data.created_by ?? undefined, created_at: data.created_at ? new Date(data.created_at) : undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'skills':
@@ -140,7 +140,7 @@ export async function update(master: MasterKey, data: MasterUpdateInput) {
 		case 'document-types':
 			return db.documentType.update({ where: { id: data.id }, data: { document_type_name: data.name, updated_by: data.updated_by ?? undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'states':
-			return db.state.update({ where: { id: data.id }, data: { state_name: data.name, country_cuid2: data.country_cuid2 ?? '', updated_by: data.updated_by ?? undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
+			return db.state.update({ where: { id: data.id }, data: { state_name: data.name, country_cuid: data.country_cuid ?? '', updated_by: data.updated_by ?? undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'countries':
 			return db.country.update({ where: { id: data.id }, data: { country_name: data.name, updated_by: data.updated_by ?? undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 		case 'skills':

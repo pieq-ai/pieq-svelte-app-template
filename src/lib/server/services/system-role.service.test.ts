@@ -19,8 +19,8 @@ describe('System Role Service', () => {
 	describe('getSystemRoles', () => {
 		it('should return mapped public system roles', async () => {
 			const mockData = [
-				{ id: 1, cuid2: 'abc', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
-				{ id: 2, cuid2: 'xyz', system_role_name: 'Editor', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
+				{ id: 1, cuid: 'abc', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
+				{ id: 2, cuid: 'xyz', system_role_name: 'Editor', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
 			];
 			vi.mocked(systemRoleDao.list).mockResolvedValue(mockData as any);
 
@@ -29,8 +29,8 @@ describe('System Role Service', () => {
 			expect(systemRoleDao.list).toHaveBeenCalledTimes(1);
 			expect(result).toHaveLength(2);
 			expect(result).toEqual([
-				{ cuid2: 'abc', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
-				{ cuid2: 'xyz', system_role_name: 'Editor', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
+				{ cuid: 'abc', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
+				{ cuid: 'xyz', system_role_name: 'Editor', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
 			]);
 		});
 	});
@@ -48,16 +48,16 @@ describe('System Role Service', () => {
 		});
 
 		it('should return mapped system role if found', async () => {
-			const mockData = { id: 1, cuid2: 'abc', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null };
+			const mockData = { id: 1, cuid: 'abc', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null };
 			vi.mocked(systemRoleDao.findById).mockResolvedValue(mockData as any);
 
 			const result = await systemRoleService.getSystemRoleById(1);
-			expect(result).toEqual({ cuid2: 'abc', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
+			expect(result).toEqual({ cuid: 'abc', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
 		});
 	});
 
 	describe('getSystemRoleByCuid2', () => {
-		it('should throw an error if cuid2 is missing', async () => {
+		it('should throw an error if cuid is missing', async () => {
 			await expect(systemRoleService.getSystemRoleByCuid2('')).rejects.toThrow('System role CUID2 is required');
 			expect(systemRoleDao.findByCuid2).not.toHaveBeenCalled();
 		});
@@ -68,12 +68,12 @@ describe('System Role Service', () => {
 		});
 
 		it('should return the mapped system role if found', async () => {
-			const mockData = { id: 1, cuid2: 'abc', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null };
+			const mockData = { id: 1, cuid: 'abc', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null };
 			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue(mockData as any);
 
 			const result = await systemRoleService.getSystemRoleByCuid2('abc');
 			expect(systemRoleDao.findByCuid2).toHaveBeenCalledWith('abc');
-			expect(result).toEqual({ cuid2: 'abc', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
+			expect(result).toEqual({ cuid: 'abc', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
 		});
 	});
 
@@ -98,13 +98,13 @@ describe('System Role Service', () => {
 
 		it('should create and return the new system role', async () => {
 			vi.mocked(systemRoleDao.list).mockResolvedValue([]);
-			const mockCreated = { id: 2, cuid2: 'new123', system_role_name: 'Editor', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null };
+			const mockCreated = { id: 2, cuid: 'new123', system_role_name: 'Editor', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null };
 			vi.mocked(systemRoleDao.create).mockResolvedValue(mockCreated as any);
 
 			const result = await systemRoleService.createSystemRole({ system_role_name: 'Editor', status: true });
 
 			expect(systemRoleDao.create).toHaveBeenCalledWith({ system_role_name: 'Editor', status: true });
-			expect(result).toEqual({ cuid2: 'new123', system_role_name: 'Editor', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
+			expect(result).toEqual({ cuid: 'new123', system_role_name: 'Editor', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
 		});
 	});
 
@@ -115,30 +115,30 @@ describe('System Role Service', () => {
 		});
 
 		it('should throw error if new system role already exists on another record', async () => {
-			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1, cuid2: 'abc', system_role_name: 'Old Role' } as any);
-			vi.mocked(systemRoleDao.list).mockResolvedValue([{ id: 2, cuid2: 'xyz', system_role_name: 'New Role' } as any]);
+			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1, cuid: 'abc', system_role_name: 'Old Role' } as any);
+			vi.mocked(systemRoleDao.list).mockResolvedValue([{ id: 2, cuid: 'xyz', system_role_name: 'New Role' } as any]);
 
 			await expect(systemRoleService.updateSystemRole('abc', { system_role_name: 'New Role' })).rejects.toThrow('System role already exists');
 		});
 
 		it('should allow updating with same name', async () => {
-			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1, cuid2: 'abc', system_role_name: 'Same Role' } as any);
-			vi.mocked(systemRoleDao.list).mockResolvedValue([{ id: 1, cuid2: 'abc', system_role_name: 'Same Role' } as any]);
-			vi.mocked(systemRoleDao.update).mockResolvedValue({ id: 1, cuid2: 'abc', system_role_name: 'Same Role', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
+			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1, cuid: 'abc', system_role_name: 'Same Role' } as any);
+			vi.mocked(systemRoleDao.list).mockResolvedValue([{ id: 1, cuid: 'abc', system_role_name: 'Same Role' } as any]);
+			vi.mocked(systemRoleDao.update).mockResolvedValue({ id: 1, cuid: 'abc', system_role_name: 'Same Role', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
 
 			await systemRoleService.updateSystemRole('abc', { system_role_name: 'Same Role' });
 			expect(systemRoleDao.update).toHaveBeenCalledWith(1, { system_role_name: 'Same Role' });
 		});
 
 		it('should update system role fields correctly', async () => {
-			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1, cuid2: 'abc', system_role_name: 'Old Role' } as any);
+			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1, cuid: 'abc', system_role_name: 'Old Role' } as any);
 			vi.mocked(systemRoleDao.list).mockResolvedValue([]);
-			vi.mocked(systemRoleDao.update).mockResolvedValue({ id: 1, cuid2: 'abc', system_role_name: 'New Role', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
+			vi.mocked(systemRoleDao.update).mockResolvedValue({ id: 1, cuid: 'abc', system_role_name: 'New Role', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
 
 			const result = await systemRoleService.updateSystemRole('abc', { system_role_name: 'New Role', status: false });
 
 			expect(systemRoleDao.update).toHaveBeenCalledWith(1, { system_role_name: 'New Role', status: false });
-			expect(result).toEqual({ cuid2: 'abc', system_role_name: 'New Role', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
+			expect(result).toEqual({ cuid: 'abc', system_role_name: 'New Role', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
 		});
 	});
 
@@ -149,13 +149,13 @@ describe('System Role Service', () => {
 		});
 
 		it('should perform a soft delete by setting status to false', async () => {
-			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1, cuid2: 'abc', system_role_name: 'Admin' } as any);
-			vi.mocked(systemRoleDao.update).mockResolvedValue({ id: 1, cuid2: 'abc', system_role_name: 'Admin', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
+			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1, cuid: 'abc', system_role_name: 'Admin' } as any);
+			vi.mocked(systemRoleDao.update).mockResolvedValue({ id: 1, cuid: 'abc', system_role_name: 'Admin', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
 
 			const result = await systemRoleService.deleteSystemRole('abc');
 
 			expect(systemRoleDao.update).toHaveBeenCalledWith(1, { status: false });
-			expect(result).toEqual({ cuid2: 'abc', system_role_name: 'Admin', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
+			expect(result).toEqual({ cuid: 'abc', system_role_name: 'Admin', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
 		});
 	});
 });

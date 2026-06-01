@@ -58,7 +58,7 @@ describe('Master Data DAO', () => {
 
 			if (master === 'states') {
 				expect(mockDbMethods.findMany).toHaveBeenCalledWith({
-					orderBy: [{ country_cuid2: 'asc' }, { state_name: 'asc' }]
+					orderBy: [{ country_cuid: 'asc' }, { state_name: 'asc' }]
 				});
 			} else {
 				// Assert it was called with some orderBy containing 'asc'
@@ -84,14 +84,14 @@ describe('Master Data DAO', () => {
 	});
 
 	describe('findByCuid2', () => {
-		it.each(masterKeys)('should call findUnique with correct cuid2 for %s', async (master) => {
-			const mockData = { id: 10, cuid2: 'abc' };
+		it.each(masterKeys)('should call findUnique with correct cuid for %s', async (master) => {
+			const mockData = { id: 10, cuid: 'abc' };
 			mockDbMethods.findUnique.mockResolvedValueOnce(mockData);
 
 			const result = await masterDataDao.findByCuid2(master, 'abc');
 
 			expect(mockDbMethods.findUnique).toHaveBeenCalledTimes(1);
-			expect(mockDbMethods.findUnique).toHaveBeenCalledWith({ where: { cuid2: 'abc' } });
+			expect(mockDbMethods.findUnique).toHaveBeenCalledWith({ where: { cuid: 'abc' } });
 			expect(result).toBe(mockData);
 		});
 	});
@@ -101,7 +101,7 @@ describe('Master Data DAO', () => {
 			const mockData = { id: 1, name: 'TestValue' };
 			mockDbMethods.create.mockResolvedValueOnce(mockData);
 
-			const data = { name: 'New Entry', country_cuid2: 'cntry123' };
+			const data = { name: 'New Entry', country_cuid: 'cntry123' };
 			const result = await masterDataDao.create(master, data);
 
 			expect(mockDbMethods.create).toHaveBeenCalledTimes(1);
@@ -110,7 +110,7 @@ describe('Master Data DAO', () => {
 			const callArgs = mockDbMethods.create.mock.calls[0][0];
 			if (master === 'states') {
 				expect(callArgs.data.state_name).toBe('New Entry');
-				expect(callArgs.data.country_cuid2).toBe('cntry123');
+				expect(callArgs.data.country_cuid).toBe('cntry123');
 			} else {
 				// The generic mapped name field
 				const nameKey = Object.keys(callArgs.data)[0];
@@ -118,11 +118,11 @@ describe('Master Data DAO', () => {
 			}
 		});
 
-		it('should fallback to empty string for country_cuid2 when states is missing it', async () => {
+		it('should fallback to empty string for country_cuid when states is missing it', async () => {
 			mockDbMethods.create.mockResolvedValueOnce({});
 			await masterDataDao.create('states', { name: 'State A' });
 			expect(mockDbMethods.create).toHaveBeenCalledWith({
-				data: { state_name: 'State A', country_cuid2: '', updated_by: undefined }
+				data: { state_name: 'State A', country_cuid: '', updated_by: undefined }
 			});
 		});
 	});
@@ -132,7 +132,7 @@ describe('Master Data DAO', () => {
 			const mockData = { id: 5, name: 'UpdatedValue' };
 			mockDbMethods.update.mockResolvedValueOnce(mockData);
 
-			const data = { id: 5, name: 'Updated Entry', country_cuid2: 'cntry123' };
+			const data = { id: 5, name: 'Updated Entry', country_cuid: 'cntry123' };
 			const result = await masterDataDao.update(master, data);
 
 			expect(mockDbMethods.update).toHaveBeenCalledTimes(1);
@@ -143,19 +143,19 @@ describe('Master Data DAO', () => {
 
 			if (master === 'states') {
 				expect(callArgs.data.state_name).toBe('Updated Entry');
-				expect(callArgs.data.country_cuid2).toBe('cntry123');
+				expect(callArgs.data.country_cuid).toBe('cntry123');
 			} else {
 				const nameKey = Object.keys(callArgs.data)[0];
 				expect(callArgs.data[nameKey]).toBe('Updated Entry');
 			}
 		});
 
-		it('should fallback to empty string for country_cuid2 when updating states without it', async () => {
+		it('should fallback to empty string for country_cuid when updating states without it', async () => {
 			mockDbMethods.update.mockResolvedValueOnce({});
 			await masterDataDao.update('states', { id: 2, name: 'State B' });
 			expect(mockDbMethods.update).toHaveBeenCalledWith({
 				where: { id: 2 },
-				data: { state_name: 'State B', country_cuid2: '', updated_by: undefined }
+				data: { state_name: 'State B', country_cuid: '', updated_by: undefined }
 			});
 		});
 	});

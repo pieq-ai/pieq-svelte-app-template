@@ -42,7 +42,7 @@ export async function POST(event: RequestEvent) {
 		body = mapToDb(body);
 		body.created_by = event.locals.user?.id;
 		const newPermission = await permissionService.createPermission(body);
-		return json({ data: { cuid: newPermission.cuid2, message: 'Successfully created' } }, { status: 201 });
+		return json({ data: { cuid: newPermission.cuid, message: 'Successfully created' } }, { status: 201 });
 	} catch (error) {
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getStatus(message) });
@@ -57,7 +57,7 @@ export async function PUT(event: RequestEvent) {
 		body = mapToDb(body);
 		body.updated_by = event.locals.user?.id;
 		const updatedPermission = await permissionService.updatePermission(cuid, body);
-		return json({ data: { cuid: updatedPermission.cuid2, message: 'Successfully updated' } });
+		return json({ data: { cuid: updatedPermission.cuid, message: 'Successfully updated' } });
 	} catch (error) {
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getStatus(message) });
@@ -69,7 +69,7 @@ export async function DELETE(event: RequestEvent) {
 		permissionGuard.requireAuth(event.locals.user);
 		const cuid = parsePermissionCuid(event);
 		const deletedPermission = await permissionService.deletePermission(cuid);
-		return json({ data: { cuid: deletedPermission.cuid2, message: 'Successfully disabled' } });
+		return json({ data: { cuid: deletedPermission.cuid, message: 'Successfully disabled' } });
 	} catch (error) {
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getStatus(message) });

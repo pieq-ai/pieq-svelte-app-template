@@ -50,14 +50,14 @@ describe('Permission DAO', () => {
 	});
 
 	describe('findByCuid2', () => {
-		it('should call db.permissions.findUnique with correct cuid2', async () => {
-			const mockData = { id: 1, cuid2: 'abc' };
+		it('should call db.permissions.findUnique with correct cuid', async () => {
+			const mockData = { id: 1, cuid: 'abc' };
 			vi.mocked(db.permissions.findUnique).mockResolvedValue(mockData as any);
 
 			const result = await permissionDao.findByCuid2('abc');
 
 			expect(db.permissions.findUnique).toHaveBeenCalledWith({
-				where: { cuid2: 'abc' }
+				where: { cuid: 'abc' }
 			});
 			expect(result).toBe(mockData);
 		});

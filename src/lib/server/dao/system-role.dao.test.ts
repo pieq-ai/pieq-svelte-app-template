@@ -50,14 +50,14 @@ describe('System Role DAO', () => {
 	});
 
 	describe('findByCuid2', () => {
-		it('should call db.systemRoles.findUnique with correct cuid2', async () => {
-			const mockData = { id: 1, cuid2: 'abc' };
+		it('should call db.systemRoles.findUnique with correct cuid', async () => {
+			const mockData = { id: 1, cuid: 'abc' };
 			vi.mocked(db.systemRoles.findUnique).mockResolvedValue(mockData as any);
 
 			const result = await systemRoleDao.findByCuid2('abc');
 
 			expect(db.systemRoles.findUnique).toHaveBeenCalledWith({
-				where: { cuid2: 'abc' }
+				where: { cuid: 'abc' }
 			});
 			expect(result).toBe(mockData);
 		});

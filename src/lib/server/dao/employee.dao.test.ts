@@ -24,13 +24,13 @@ describe('Employee DAO', () => {
 			const currentYear = new Date().getFullYear();
 			const mockEmployees = [
 				{
-					cuid2: 'emp123',
+					cuid: 'emp123',
 					first_name: 'John',
 					last_name: 'Doe',
 					dob: new Date(currentYear - 25, 5, 15) // 25 years old
 				},
 				{
-					cuid2: 'emp456',
+					cuid: 'emp456',
 					first_name: 'Jane',
 					last_name: 'Smith',
 					dob: null // Missing DOB, fallback age 30
@@ -45,12 +45,12 @@ describe('Employee DAO', () => {
 			});
 			expect(result).toHaveLength(2);
 			expect(result[0]).toEqual({
-				cuid2: 'emp123',
+				cuid: 'emp123',
 				name: 'John Doe',
 				age: 25
 			});
 			expect(result[1]).toEqual({
-				cuid2: 'emp456',
+				cuid: 'emp456',
 				name: 'Jane Smith',
 				age: 30
 			});
@@ -78,7 +78,7 @@ describe('Employee DAO', () => {
 			const currentYear = new Date().getFullYear();
 			const input = { name: 'Alice Wonderland', age: 30 };
 			const mockCreated = {
-				cuid2: 'newemp1',
+				cuid: 'newemp1',
 				first_name: 'Alice',
 				last_name: 'Wonderland'
 			};
@@ -96,7 +96,7 @@ describe('Employee DAO', () => {
 			expect(callArgs.data.emp_code).toMatch(/^EMP-\d+-\d+$/);
 
 			expect(result).toEqual({
-				cuid2: 'newemp1',
+				cuid: 'newemp1',
 				name: 'Alice Wonderland',
 				age: 30
 			});
@@ -105,7 +105,7 @@ describe('Employee DAO', () => {
 		it('should handle name without spaces (only first name)', async () => {
 			const input = { name: 'Bob', age: 40 };
 			const mockCreated = {
-				cuid2: 'newemp2',
+				cuid: 'newemp2',
 				first_name: 'Bob',
 				last_name: 'Employee'
 			};
@@ -123,7 +123,7 @@ describe('Employee DAO', () => {
 		it('should handle empty name strings', async () => {
 			const input = { name: '   ', age: 20 };
 			const mockCreated = {
-				cuid2: 'newemp3',
+				cuid: 'newemp3',
 				first_name: 'Unknown',
 				last_name: 'Employee'
 			};

@@ -45,7 +45,7 @@ export async function POST(event: RequestEvent) {
 		body = mapToDb(body);
 		body.created_by = event.locals.user?.id;
 		const newDesignation = await designationService.createDesignation(body);
-		return json({ data: { cuid: newDesignation.cuid2, message: 'Successfully created' } }, { status: 201 });
+		return json({ data: { cuid: newDesignation.cuid, message: 'Successfully created' } }, { status: 201 });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : 400;
@@ -63,7 +63,7 @@ export async function PUT(event: RequestEvent) {
 		body = mapToDb(body);
 		body.updated_by = event.locals.user?.id;
 		const updatedDesignation = await designationService.updateDesignation(cuid, body);
-		return json({ data: { cuid: updatedDesignation.cuid2, message: 'Successfully updated' } });
+		return json({ data: { cuid: updatedDesignation.cuid, message: 'Successfully updated' } });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
@@ -78,7 +78,7 @@ export async function DELETE(event: RequestEvent) {
 
 		const cuid = parseDesignationCuid(event);
 		const deletedDesignation = await designationService.deleteDesignation(cuid, event.locals.user?.id);
-		return json({ data: { cuid: deletedDesignation.cuid2, message: 'Successfully disabled' } });
+		return json({ data: { cuid: deletedDesignation.cuid, message: 'Successfully disabled' } });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;

@@ -31,10 +31,10 @@ export async function findById(id: number) {
 	});
 }
 
-export async function findByCuid2(cuid2: string) {
+export async function findByCuid2(cuid: string) {
 	return db.designation.findUnique({
 		where: {
-			cuid2
+			cuid
 		}
 	});
 }
@@ -52,10 +52,10 @@ export async function create(data: CreateDesignationInput) {
 	});
 }
 
-export async function update(cuid2: string, data: UpdateDesignationInput) {
+export async function update(cuid: string, data: UpdateDesignationInput) {
 	return db.designation.update({
 		where: {
-			cuid2
+			cuid
 		},
 		data
 	});

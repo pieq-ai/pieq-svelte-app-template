@@ -5,8 +5,8 @@ export function mapToApi(entity: any): any {
 
 	const mapped: any = {};
 	for (const [key, value] of Object.entries(entity)) {
-		if (key.endsWith('cuid2')) {
-			const newKey = key.replace(/cuid2$/, 'cuid');
+		if (key.endsWith('cuid')) {
+			const newKey = key.replace(/cuid$/, 'cuid');
 			mapped[newKey] = mapToApi(value);
 		} else {
 			mapped[key] = mapToApi(value);
@@ -22,7 +22,7 @@ export function mapToDb(payload: any): any {
 	const mapped: any = {};
 	for (const [key, value] of Object.entries(payload)) {
 		if (key.endsWith('cuid')) {
-			const newKey = key.replace(/cuid$/, 'cuid2');
+			const newKey = key.replace(/cuid$/, 'cuid');
 			mapped[newKey] = mapToDb(value);
 		} else {
 			mapped[key] = mapToDb(value);
@@ -34,7 +34,7 @@ export function mapToDb(payload: any): any {
 export function toDepartmentDTO(department: any) {
 	if (!department) return department;
 	return {
-		cuid: department.cuid2,
+		cuid: department.cuid,
 		dept_name: department.dept_name,
 		status: department.status
 	};
@@ -43,7 +43,7 @@ export function toDepartmentDTO(department: any) {
 export function toDesignationDTO(designation: any) {
 	if (!designation) return designation;
 	return {
-		cuid: designation.cuid2,
+		cuid: designation.cuid,
 		designation_name: designation.designation_name,
 		status: designation.status
 	};
@@ -52,7 +52,7 @@ export function toDesignationDTO(designation: any) {
 export function toEmployeeDTO(employee: any) {
 	if (!employee) return employee;
 	return {
-		cuid: employee.cuid2,
+		cuid: employee.cuid,
 		name: employee.name,
 		age: employee.age
 	};
@@ -61,7 +61,7 @@ export function toEmployeeDTO(employee: any) {
 export function toPermissionDTO(permission: any) {
 	if (!permission) return permission;
 	return {
-		cuid: permission.cuid2,
+		cuid: permission.cuid,
 		permission_key: permission.permission_key,
 		status: permission.status
 	};
@@ -70,7 +70,7 @@ export function toPermissionDTO(permission: any) {
 export function toSystemRoleDTO(systemRole: any) {
 	if (!systemRole) return systemRole;
 	return {
-		cuid: systemRole.cuid2,
+		cuid: systemRole.cuid,
 		system_role_name: systemRole.system_role_name,
 		status: systemRole.status
 	};
@@ -79,9 +79,9 @@ export function toSystemRoleDTO(systemRole: any) {
 export function toRolePermissionDTO(mapping: any) {
 	if (!mapping) return mapping;
 	return {
-		cuid: mapping.cuid2,
-		system_role_cuid: mapping.system_role_cuid2,
-		permission_cuid: mapping.permission_cuid2
+		cuid: mapping.cuid,
+		system_role_cuid: mapping.system_role_cuid,
+		permission_cuid: mapping.permission_cuid
 	};
 }
 

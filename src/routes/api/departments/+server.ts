@@ -6,7 +6,7 @@ import { mapToDb, toDepartmentDTO } from '$lib/server/utils/mapping.js';
 
 /**
  * GET /api/departments
- * GET /api/departments?cuid2=
+ * GET /api/departments?cuid=
  * Handles listing all departments or finding one by CUID2.
  */
 export async function GET(event: RequestEvent) {
@@ -43,7 +43,7 @@ export async function POST(event: RequestEvent) {
 		body = mapToDb(body);
 		body.created_by = event.locals.user?.id;
 		const newDepartment = await departmentService.createDepartment(body);
-		return json({ data: { cuid: newDepartment.cuid2, message: 'Successfully created' } }, { status: 201 });
+		return json({ data: { cuid: newDepartment.cuid, message: 'Successfully created' } }, { status: 201 });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : 400;
@@ -52,7 +52,7 @@ export async function POST(event: RequestEvent) {
 }
 
 /**
- * PUT /api/departments?cuid2=
+ * PUT /api/departments?cuid=
  * Handles updating an existing department.
  */
 export async function PUT(event: RequestEvent) {
@@ -71,7 +71,7 @@ export async function PUT(event: RequestEvent) {
 		body = mapToDb(body);
 		body.updated_by = event.locals.user?.id;
 		const updatedDepartment = await departmentService.updateDepartment(cuid, body);
-		return json({ data: { cuid: updatedDepartment.cuid2, message: 'Successfully updated' } });
+		return json({ data: { cuid: updatedDepartment.cuid, message: 'Successfully updated' } });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
@@ -80,7 +80,7 @@ export async function PUT(event: RequestEvent) {
 }
 
 /**
- * DELETE /api/departments?cuid2=
+ * DELETE /api/departments?cuid=
  * Handles soft deleting a department (sets status = inactive).
  */
 export async function DELETE(event: RequestEvent) {
@@ -96,7 +96,7 @@ export async function DELETE(event: RequestEvent) {
 		}
 
 		const deletedDepartment = await departmentService.deleteDepartment(cuid, event.locals.user?.id);
-		return json({ data: { cuid: deletedDepartment.cuid2, message: 'Successfully disabled' } });
+		return json({ data: { cuid: deletedDepartment.cuid, message: 'Successfully disabled' } });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
