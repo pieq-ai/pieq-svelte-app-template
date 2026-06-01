@@ -84,8 +84,22 @@
 
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
+		submissionAttempted = true;
+
+		// Validate all fields client-side simultaneously
+		const nameErr = getHolidayNameError(holidayName);
+		const dateErr = getClientDateError(holidayDate);
+
+		errors.holiday_name = nameErr;
+		errors.holiday_date = dateErr;
+
+		if (nameErr || dateErr) {
+			toast.error('Please fix the validation errors.');
+			return;
+		}
+
 		isSubmitting = true;
-		form = null;
+		errors.general = '';
 
 		const body = {
 			holiday_name: holidayName,
@@ -102,8 +116,8 @@
 			});
 			const result = await res.json();
 
-			if (res.ok && result.success) {
-				toast.success(result.message);
+			if (res.ok && result.data) {
+				toast.success(result.data.message);
 				isFormModalOpen = false;
 				if (editCuid) {
 					await goto(resolve('/holidays'), { replaceState: true });
@@ -114,12 +128,17 @@
 				}
 				await invalidateAll();
 			} else {
+				const errorMsg = result.data?.error || 'Validation failed';
 				form = {
-					error: result.message || 'Validation failed',
-					field: result.field,
+					error: errorMsg,
+					field: result.data?.field,
 					action: editCuid ? 'update' : 'create'
 				};
-				toast.error(result.message || 'Validation failed');
+				if (result.data?.field) {
+					errors[result.data.field] = errorMsg;
+				} else {
+					errors.general = errorMsg;
+				}
 			}
 		} catch (error) {
 			console.error('Submit failed:', error);
@@ -136,11 +155,11 @@
 				method: 'DELETE'
 			});
 			const result = await res.json();
-			if (res.ok && result.success) {
-				toast.success(result.message);
+			if (res.ok && result.data) {
+				toast.success(result.data.message);
 				await invalidateAll();
 			} else {
-				toast.error(result.message || 'Action failed');
+				toast.error(result.data?.error || 'Action failed');
 			}
 		} catch (error) {
 			console.error('Delete failed:', error);
@@ -157,39 +176,6 @@
 		const m = String(tomorrow.getMonth() + 1).padStart(2, '0');
 		const d = String(tomorrow.getDate()).padStart(2, '0');
 		return `${y}-${m}-${d}`;
-	});
-
-	let clientDateError = $derived.by(() => {
-		if (!holidayDate) return '';
-		const parts = holidayDate.split('-');
-		if (parts.length !== 3) return '';
-		const year = parseInt(parts[0], 10);
-		const month = parseInt(parts[1], 10) - 1;
-		const day = parseInt(parts[2], 10);
-		const selectedDate = new Date(year, month, day);
-		const today = new Date();
-		const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-		if (selectedDate.getTime() <= todayMidnight.getTime()) {
-			return 'Holiday date must be a future date.';
-		}
-		return '';
-	});
-
-	let holidayNameError = $derived.by(() => {
-		if (!holidayName) return '';
-		const trimmed = holidayName.trim();
-		if (trimmed.length === 0) return '';
-		if (trimmed.length <= 5) {
-			return 'Holiday name must be more than 5 characters long';
-		}
-		if (trimmed.length > 200) {
-			return 'Holiday name must be 200 characters or fewer';
-		}
-		const REGEX = /^[a-zA-Z\s]+$/;
-		if (!REGEX.test(trimmed)) {
-			return 'Holiday name can only contain letters and spaces';
-		}
-		return '';
 	});
 
 	// Active Edit Mode Detection from URL query parameter
@@ -225,20 +211,67 @@
 		}
 	});
 
+	let errors = $state<Record<string, string>>({});
+	let submissionAttempted = $state(false);
+
+	function getHolidayNameError(name: string): string {
+		if (!name || name.trim() === '') {
+			return 'Holiday name is required.';
+		}
+		const trimmed = name.trim();
+		if (trimmed.length <= 5) {
+			return 'Holiday name must be more than 5 characters long';
+		}
+		if (trimmed.length > 200) {
+			return 'Holiday name must be 200 characters or fewer';
+		}
+		const REGEX = /^[a-zA-Z\s]+$/;
+		if (!REGEX.test(trimmed)) {
+			return 'Holiday name can only contain letters and spaces';
+		}
+		return '';
+	}
+
+	function getClientDateError(dateStr: string): string {
+		if (!dateStr) {
+			return 'Holiday date is required.';
+		}
+		const parts = dateStr.split('-');
+		if (parts.length !== 3) return 'Invalid date format.';
+		const year = parseInt(parts[0], 10);
+		const month = parseInt(parts[1], 10) - 1;
+		const day = parseInt(parts[2], 10);
+		const selectedDate = new Date(year, month, day);
+		const today = new Date();
+		const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+		if (selectedDate.getTime() <= todayMidnight.getTime()) {
+			return 'Holiday date must be a future date.';
+		}
+		return '';
+	}
+
+	let holidayNameError = $derived(errors.holiday_name || '');
+	let clientDateError = $derived(errors.holiday_date || '');
+
 	let isSubmitDisabled = $derived.by(() => {
 		if (isSubmitting) return true;
-		if (!!holidayNameError || !!clientDateError) return true;
+		
+		const nameErr = getHolidayNameError(holidayName);
+		const dateErr = getClientDateError(holidayDate);
+		const hasValidationErrors = !!nameErr || !!dateErr;
+
 		if (editCuid) {
 			if (!holidayName.trim() || !holidayDate || !holidayType) return true;
+			if (hasValidationErrors) return true;
 			return !hasChanges;
 		} else {
 			if (!holidayName.trim() || !holidayDate || !holidayType) return true;
-			return false;
+			return hasValidationErrors;
 		}
 	});
 
 	let isDiscardModalOpen = $state(false);
-	let pendingNavigation = $state<any>(null);
+	let pendingNavigation = $state<import('@sveltejs/kit').Navigation | null>(null);
 	let isNavigatingProgrammatically = $state(false);
 
 	function handleCloseRequest() {
@@ -262,7 +295,7 @@
 			const target = pendingNavigation.to?.url;
 			pendingNavigation = null;
 			if (target) {
-				await goto(target);
+				await goto(resolve((target.pathname + target.search) as '/holidays'));
 			}
 		} else if (editCuid) {
 			await goto(resolve('/holidays'), { replaceState: true });
@@ -299,20 +332,22 @@
 		};
 	});
 
+	let hasSynchronized = $state(false);
+
+	$effect(() => {
+		if (isFormModalOpen) {
+			hasSynchronized = false;
+			submissionAttempted = false;
+			errors = {};
+		}
+	});
+
 	// Synchronise form inputs when URL edit parameter changes
 	$effect(() => {
-		if (form && 'error' in form) {
-			return;
-		}
-		if (form && 'action' in form && form.action === 'update' && 'cuid' in form && form.cuid === editCuid) {
-			if ('holiday_name' in form) holidayName = String(form.holiday_name);
-			if ('holiday_date' in form) holidayDate = String(form.holiday_date);
-			if ('holiday_type' in form) holidayType = form.holiday_type as 'National' | 'Regional' | 'Restricted';
-		} else if (form && 'action' in form && form.action === 'create' && !editCuid) {
-			if ('holiday_name' in form) holidayName = String(form.holiday_name);
-			if ('holiday_date' in form) holidayDate = String(form.holiday_date);
-			if ('holiday_type' in form) holidayType = form.holiday_type as 'National' | 'Regional' | 'Restricted';
-		} else if (editingHoliday) {
+		if (!isFormModalOpen) return;
+		if (hasSynchronized) return;
+
+		if (editingHoliday) {
 			holidayName = editingHoliday.holiday_name;
 			const dateObj = new Date(editingHoliday.holiday_date);
 			const year = dateObj.getUTCFullYear();
@@ -320,10 +355,12 @@
 			const day = String(dateObj.getUTCDate()).padStart(2, '0');
 			holidayDate = `${year}-${month}-${day}`;
 			holidayType = editingHoliday.holiday_type;
-		} else {
+			hasSynchronized = true;
+		} else if (!editCuid) {
 			holidayName = '';
 			holidayDate = '';
 			holidayType = 'National';
+			hasSynchronized = true;
 		}
 	});
 
@@ -342,6 +379,10 @@
 			holidayName = '';
 			holidayDate = '';
 			holidayType = 'National';
+			errors = {};
+			submissionAttempted = false;
+			hasSynchronized = false;
+			isDiscardModalOpen = false;
 			if (editCuid) {
 				goto(resolve('/holidays'), { replaceState: true });
 			}
@@ -600,6 +641,7 @@
 	title={editCuid ? 'Edit Holiday' : 'Add Holiday'}
 	onsubmit={handleSubmit}
 	onCloseRequest={handleCloseRequest}
+	disableEscape={isDiscardModalOpen}
 >
 	{#if editCuid}
 		<input type="hidden" name="cuid" value={editCuid} />
@@ -611,7 +653,15 @@
 			id="modal_holiday_name"
 			name="holiday_name"
 			bind:value={holidayName}
-			oninput={() => { if (form && form.field === 'holiday_name') form = null; }}
+			oninput={() => {
+				if (form && form.field === 'holiday_name') form = null;
+				const err = getHolidayNameError(holidayName);
+				if (!err) {
+					errors.holiday_name = '';
+				} else if (submissionAttempted || errors.holiday_name) {
+					errors.holiday_name = err;
+				}
+			}}
 			placeholder="e.g. Independence Day"
 			required
 			minlength={6}
@@ -632,7 +682,15 @@
 			name="holiday_date"
 			type="date"
 			bind:value={holidayDate}
-			oninput={() => { if (form && form.field === 'holiday_date') form = null; }}
+			oninput={() => {
+				if (form && form.field === 'holiday_date') form = null;
+				const err = getClientDateError(holidayDate);
+				if (!err) {
+					errors.holiday_date = '';
+				} else if (submissionAttempted || errors.holiday_date) {
+					errors.holiday_date = err;
+				}
+			}}
 			required
 			min={tomorrowStr}
 			max="2099-12-31"
@@ -651,7 +709,10 @@
 			id="modal_holiday_type"
 			name="holiday_type"
 			bind:value={holidayType}
-			onchange={() => { if (form && form.field === 'holiday_type') form = null; }}
+			onchange={() => {
+				if (form && form.field === 'holiday_type') form = null;
+				errors.holiday_type = '';
+			}}
 			class="dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {form && 'field' in form && form.field === 'holiday_type' ? 'border-destructive focus-visible:ring-destructive' : 'border-input'}"
 			required
 		>

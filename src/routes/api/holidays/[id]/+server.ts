@@ -1,4 +1,3 @@
-import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types.js';
 import {
 	getHolidayByCuid,
@@ -7,6 +6,13 @@ import {
 	HolidayValidationError
 } from '$lib/server/services/holiday.service.js';
 import { validatePayloadKeys, trimStringFields } from '$lib/server/validation.js';
+import {
+	successResponse,
+	errorResponse,
+	updateSuccessResponse,
+	deleteSuccessResponse,
+	formatHoliday
+} from '$lib/server/response.js';
 
 export const GET: RequestHandler = async ({ params }) => {
 	const { id } = params;
@@ -14,16 +20,13 @@ export const GET: RequestHandler = async ({ params }) => {
 	try {
 		const holiday = await getHolidayByCuid(id);
 		if (!holiday) {
-			return json({ error: 'Holiday not found' }, { status: 404 });
+			return errorResponse('Holiday not found', 404);
 		}
-		const formattedHoliday = {
-			...holiday,
-			holiday_date: holiday.holiday_date.toISOString().split('T')[0]
-		};
-		return json({ data: formattedHoliday });
+		const formattedHoliday = formatHoliday(holiday);
+		return successResponse(formattedHoliday);
 	} catch (error) {
 		console.error(`GET /api/holidays/${id} failed`, error);
-		return json({ error: 'Failed to retrieve holiday' }, { status: 500 });
+		return errorResponse('Failed to retrieve holiday', 500);
 	}
 };
 
@@ -34,12 +37,12 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 	try {
 		body = await request.json();
 	} catch {
-		return json({ success: false, message: 'Request body must be valid JSON' }, { status: 400 });
+		return errorResponse('Request body must be valid JSON', 400);
 	}
 
 	const validation = validatePayloadKeys(body, ['holiday_name', 'holiday_date', 'holiday_type']);
 	if (validation) {
-		return json({ success: false, message: validation.error }, { status: 400 });
+		return errorResponse(validation.error, 400);
 	}
 
 	const trimmedBody = trimStringFields(body) as {
@@ -52,22 +55,14 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 
 	try {
 		const holiday = await updateHoliday(id, { holiday_name, holiday_date, holiday_type });
-		const formattedHoliday = {
-			...holiday,
-			holiday_date: holiday.holiday_date.toISOString().split('T')[0]
-		};
-		return json({
-			success: true,
-			message: 'Holiday updated successfully',
-			data: formattedHoliday
-		});
+		return updateSuccessResponse('Holiday', holiday.cuid);
 	} catch (error) {
 		if (error instanceof HolidayValidationError) {
-			return json({ success: false, message: error.message, field: error.field }, { status: 400 });
+			return errorResponse(error.message, 400, error.field);
 		}
 
 		console.error(`PUT /api/holidays/${id} failed`, error);
-		return json({ success: false, message: 'Failed to update holiday' }, { status: 500 });
+		return errorResponse('Failed to update holiday', 500);
 	}
 };
 
@@ -76,17 +71,9 @@ export const DELETE: RequestHandler = async ({ params }) => {
 
 	try {
 		const holiday = await deleteHoliday(id);
-		const formattedHoliday = {
-			...holiday,
-			holiday_date: holiday.holiday_date.toISOString().split('T')[0]
-		};
-		return json({
-			success: true,
-			message: 'Holiday deleted successfully',
-			data: formattedHoliday
-		});
+		return deleteSuccessResponse('Holiday', holiday.cuid);
 	} catch (error) {
 		console.error(`DELETE /api/holidays/${id} failed`, error);
-		return json({ success: false, message: 'Failed to delete holiday' }, { status: 500 });
+		return errorResponse('Failed to delete holiday', 500);
 	}
 };

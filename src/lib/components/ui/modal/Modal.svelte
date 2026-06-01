@@ -5,11 +5,13 @@
 		isOpen = $bindable(false),
 		title = '',
 		onCloseRequest,
+		disableEscape = false,
 		children
 	}: {
 		isOpen: boolean;
 		title?: string;
 		onCloseRequest?: () => void;
+		disableEscape?: boolean;
 		children?: import('svelte').Snippet;
 	} = $props();
 
@@ -22,7 +24,9 @@
 	}
 
 	function handleKeyDown(e: KeyboardEvent) {
-		if (e.key === 'Escape') {
+		if (!isOpen) return;
+		if (e.key === 'Escape' && !disableEscape) {
+			e.preventDefault();
 			close();
 		}
 	}
@@ -37,7 +41,6 @@
 	<div
 		transition:fade={{ duration: 150 }}
 		class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
-		onclick={close}
 	>
 		<!-- Modal box container -->
 		<div

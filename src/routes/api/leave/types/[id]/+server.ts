@@ -1,4 +1,3 @@
-import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types.js';
 import {
 	getLeaveTypeByCuid,
@@ -6,6 +5,13 @@ import {
 	LeaveValidationError
 } from '$lib/server/services/leave-type.service.js';
 import { validatePayloadKeys, trimStringFields } from '$lib/server/validation.js';
+import {
+	successResponse,
+	errorResponse,
+	updateSuccessResponse,
+	deleteSuccessResponse,
+	formatLeaveType
+} from '$lib/server/response.js';
 
 export const GET: RequestHandler = async ({ params }) => {
 	const { id } = params;
@@ -13,13 +19,12 @@ export const GET: RequestHandler = async ({ params }) => {
 	try {
 		const type = await getLeaveTypeByCuid(id);
 		if (!type) {
-			return json({ error: 'Leave type not found' }, { status: 404 });
+			return errorResponse('Leave type not found', 404);
 		}
-
-		return json({ data: type });
+		return successResponse(formatLeaveType(type));
 	} catch (error) {
 		console.error(`GET /api/leave/types/${id} failed`, error);
-		return json({ error: 'Failed to retrieve leave type' }, { status: 500 });
+		return errorResponse('Failed to retrieve leave type', 500);
 	}
 };
 
@@ -30,17 +35,14 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 	try {
 		body = await request.json();
 	} catch {
-		return json({
-			success: false,
-			message: 'Request body must be valid JSON'
-		}, { status: 400 });
+		return errorResponse('Request body must be valid JSON', 400);
 	}
 
 	const allowedKeys = ['leave_name', 'leave_code', 'description', 'is_paid', 'requires_approval', 'status'];
 
 	const validation = validatePayloadKeys(body, allowedKeys);
 	if (validation) {
-		return json({ success: false, message: validation.error }, { status: 400 });
+		return errorResponse(validation.error, 400);
 	}
 
 	const trimmedBody = trimStringFields(body) as {
@@ -63,25 +65,14 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 			requires_approval,
 			status
 		});
-		return json({
-			success: true,
-			message: 'Leave type updated successfully',
-			data
-		});
+		return updateSuccessResponse('Leave type', data.cuid);
 	} catch (error) {
 		if (error instanceof LeaveValidationError) {
-			return json({
-				success: false,
-				message: error.message,
-				field: error.field
-			}, { status: 400 });
+			return errorResponse(error.message, 400, error.field);
 		}
 
 		console.error(`PUT /api/leave/types/${id} failed`, error);
-		return json({
-			success: false,
-			message: 'Failed to update leave type'
-		}, { status: 500 });
+		return errorResponse('Failed to update leave type', 500);
 	}
 };
 
@@ -91,26 +82,17 @@ export const DELETE: RequestHandler = async ({ params }) => {
 	try {
 		const existing = await getLeaveTypeByCuid(id);
 		if (!existing) {
-			return json({
-				success: false,
-				message: 'Leave type not found'
-			}, { status: 404 });
+			return errorResponse('Leave type not found', 404);
 		}
 
 		const updated = await updateLeaveType(id, {
 			status: !existing.status
 		});
 
-		return json({
-			success: true,
-			message: updated.status ? 'Leave type reactivated successfully' : 'Leave type deactivated successfully',
-			data: updated
-		});
+		const message = updated.status ? 'Leave type reactivated successfully' : 'Leave type deactivated successfully';
+		return deleteSuccessResponse('Leave type', updated.cuid, message);
 	} catch (error) {
 		console.error(`DELETE /api/leave/types/${id} failed`, error);
-		return json({
-			success: false,
-			message: 'Failed to delete leave type'
-		}, { status: 500 });
+		return errorResponse('Failed to delete leave type', 500);
 	}
 };

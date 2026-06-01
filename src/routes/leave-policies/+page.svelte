@@ -85,8 +85,40 @@
 
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
+		submissionAttempted = true;
+
+		// Validate all fields client-side simultaneously
+		const leaveTypeErr = getLeaveTypeIdError(leaveTypeId);
+		const empTypesErr = getEmploymentTypesError(selectedEmploymentTypes);
+		const quotaErr = getQuotaError(annualQuota);
+		const maxPerMonthErr = getMaxPerMonthError(maxPerMonth, annualQuota);
+		const carryForwardErr = getCarryForwardDaysError(carryForwardAllowed, maxCarryForwardDays);
+		const minServiceErr = getMinServiceDaysError(minServiceDays);
+		const genderErr = getGenderError(genderSpecific, applicableGender);
+
+		errors.leave_type_cuid = leaveTypeErr;
+		errors.employment_type_cuids = empTypesErr;
+		errors.annual_quota = quotaErr;
+		errors.max_per_month = maxPerMonthErr;
+		errors.max_carry_forward_days = carryForwardErr;
+		errors.min_service_days = minServiceErr;
+		errors.applicable_gender = genderErr;
+
+		if (
+			leaveTypeErr ||
+			empTypesErr ||
+			quotaErr ||
+			maxPerMonthErr ||
+			carryForwardErr ||
+			minServiceErr ||
+			genderErr
+		) {
+			toast.error('Please fix the validation errors.');
+			return;
+		}
+
 		isSubmitting = true;
-		form = null;
+		errors.general = '';
 
 		const body = {
 			leave_type_cuid: leaveTypeId,
@@ -112,12 +144,8 @@
 			});
 			const result = await res.json();
 
-			if (res.ok && result.success) {
-				toast.success(
-					editUuid
-						? 'Leave policy updated successfully!'
-						: 'Leave policy created successfully!'
-				);
+			if (res.ok && result.data) {
+				toast.success(result.data.message);
 				isFormModalOpen = false;
 				if (editUuid) {
 					await goto(resolve('/leave-policies'), { replaceState: true });
@@ -137,12 +165,17 @@
 				}
 				await invalidateAll();
 			} else {
+				const errorMsg = result.data?.error || 'Validation failed';
 				form = {
-					error: result.message || 'Validation failed',
-					field: result.field,
+					error: errorMsg,
+					field: result.data?.field,
 					action: editUuid ? 'update' : 'create'
 				};
-				toast.error(result.message || 'Validation failed');
+				if (result.data?.field) {
+					errors[result.data.field] = errorMsg;
+				} else {
+					errors.general = errorMsg;
+				}
 			}
 		} catch (error) {
 			console.error('Submit failed:', error);
@@ -228,37 +261,40 @@
 
 	let isSubmitDisabled = $derived.by(() => {
 		if (isSubmitting) return true;
-		if (
-			!!quotaError ||
-			!!maxPerMonthError ||
-			!!carryForwardDaysError ||
-			!!minServiceDaysError ||
-			!!genderError ||
-			!!employmentTypesError
-		) {
-			return true;
-		}
+		
+		const leaveTypeErr = getLeaveTypeIdError(leaveTypeId);
+		const empTypesErr = getEmploymentTypesError(selectedEmploymentTypes);
+		const quotaErr = getQuotaError(annualQuota);
+		const maxPerMonthErr = getMaxPerMonthError(maxPerMonth, annualQuota);
+		const carryForwardErr = getCarryForwardDaysError(carryForwardAllowed, maxCarryForwardDays);
+		const minServiceErr = getMinServiceDaysError(minServiceDays);
+		const genderErr = getGenderError(genderSpecific, applicableGender);
 
-		// Required fields empty checks
-		if (!leaveTypeId || selectedEmploymentTypes.length === 0 || !annualQuota || !minServiceDays) {
-			return true;
-		}
-		if (genderSpecific && !applicableGender) {
-			return true;
-		}
-		if (carryForwardAllowed && !maxCarryForwardDays) {
-			return true;
-		}
+		const hasValidationErrors =
+			!!leaveTypeErr ||
+			!!empTypesErr ||
+			!!quotaErr ||
+			!!maxPerMonthErr ||
+			!!carryForwardErr ||
+			!!minServiceErr ||
+			!!genderErr;
 
 		if (editUuid) {
+			if (!leaveTypeId || selectedEmploymentTypes.length === 0 || !annualQuota || !minServiceDays) return true;
+			if (genderSpecific && !applicableGender) return true;
+			if (carryForwardAllowed && !maxCarryForwardDays) return true;
+			if (hasValidationErrors) return true;
 			return !hasChanges;
 		} else {
-			return false;
+			if (!leaveTypeId || selectedEmploymentTypes.length === 0 || !annualQuota || !minServiceDays) return true;
+			if (genderSpecific && !applicableGender) return true;
+			if (carryForwardAllowed && !maxCarryForwardDays) return true;
+			return hasValidationErrors;
 		}
 	});
 
 	let isDiscardModalOpen = $state(false);
-	let pendingNavigation = $state<any>(null);
+	let pendingNavigation = $state<import('@sveltejs/kit').Navigation | null>(null);
 	let isNavigatingProgrammatically = $state(false);
 
 	function handleCloseRequest() {
@@ -291,7 +327,7 @@
 			const target = pendingNavigation.to?.url;
 			pendingNavigation = null;
 			if (target) {
-				await goto(target);
+				await goto(resolve((target.pathname + target.search) as '/leave-policies'));
 			}
 		} else if (editUuid) {
 			await goto(resolve('/leave-policies'), { replaceState: true });
@@ -328,38 +364,22 @@
 		};
 	});
 
+	let hasSynchronized = $state(false);
+
+	$effect(() => {
+		if (isFormModalOpen) {
+			hasSynchronized = false;
+			submissionAttempted = false;
+			errors = {};
+		}
+	});
+
 	// Synchronise form inputs when URL edit parameter changes
 	$effect(() => {
-		if (form && 'error' in form) {
-			return;
-		}
-		if (form && 'action' in form && form.action === 'update' && 'cuid' in form && form.cuid === editUuid) {
-			if ('leave_type_cuid' in form) leaveTypeId = String(form.leave_type_cuid);
-			if ('employment_type_cuids' in form) selectedEmploymentTypes = form.employment_type_cuids as string[];
-			if ('annual_quota' in form) annualQuota = String(form.annual_quota);
-			if ('max_per_month' in form) maxPerMonth = String(form.max_per_month);
-			if ('carry_forward_allowed' in form) carryForwardAllowed = Boolean(form.carry_forward_allowed);
-			if ('max_carry_forward_days' in form) maxCarryForwardDays = String(form.max_carry_forward_days);
-			if ('requires_document' in form) requiresDocument = Boolean(form.requires_document);
-			if ('min_service_days' in form) minServiceDays = String(form.min_service_days);
-			if ('allow_half_day' in form) allowHalfDay = Boolean(form.allow_half_day);
-			if ('gender_specific' in form) genderSpecific = Boolean(form.gender_specific);
-			if ('applicable_gender' in form) applicableGender = form.applicable_gender as 'Male' | 'Female' | 'Others' | '';
-			if ('status' in form) status = Boolean(form.status);
-		} else if (form && 'action' in form && form.action === 'create' && !editUuid) {
-			if ('leave_type_cuid' in form) leaveTypeId = String(form.leave_type_cuid);
-			if ('employment_type_cuids' in form) selectedEmploymentTypes = form.employment_type_cuids as string[];
-			if ('annual_quota' in form) annualQuota = String(form.annual_quota);
-			if ('max_per_month' in form) maxPerMonth = String(form.max_per_month);
-			if ('carry_forward_allowed' in form) carryForwardAllowed = Boolean(form.carry_forward_allowed);
-			if ('max_carry_forward_days' in form) maxCarryForwardDays = String(form.max_carry_forward_days);
-			if ('requires_document' in form) requiresDocument = Boolean(form.requires_document);
-			if ('min_service_days' in form) minServiceDays = String(form.min_service_days);
-			if ('allow_half_day' in form) allowHalfDay = Boolean(form.allow_half_day);
-			if ('gender_specific' in form) genderSpecific = Boolean(form.gender_specific);
-			if ('applicable_gender' in form) applicableGender = form.applicable_gender as 'Male' | 'Female' | 'Others' | '';
-			if ('status' in form) status = Boolean(form.status);
-		} else if (editingPolicy) {
+		if (!isFormModalOpen) return;
+		if (hasSynchronized) return;
+
+		if (editingPolicy) {
 			leaveTypeId = String(editingPolicy.leave_type_cuid);
 			selectedEmploymentTypes = editingPolicy.employment_type_cuids;
 			annualQuota = String(editingPolicy.annual_quota);
@@ -372,7 +392,8 @@
 			genderSpecific = editingPolicy.gender_specific;
 			applicableGender = editingPolicy.applicable_gender || '';
 			status = editingPolicy.status;
-		} else {
+			hasSynchronized = true;
+		} else if (!editUuid) {
 			leaveTypeId = '';
 			selectedEmploymentTypes = [];
 			annualQuota = '';
@@ -385,6 +406,7 @@
 			genderSpecific = false;
 			applicableGender = '';
 			status = true;
+			hasSynchronized = true;
 		}
 	});
 
@@ -412,6 +434,10 @@
 			genderSpecific = false;
 			applicableGender = '';
 			status = true;
+			errors = {};
+			submissionAttempted = false;
+			hasSynchronized = false;
+			isDiscardModalOpen = false;
 			if (editUuid) {
 				goto(resolve('/leave-policies'), { replaceState: true });
 			}
@@ -420,63 +446,80 @@
 
 	let formError = $derived(form && 'error' in form ? form.error : null);
 
-	// Client-side validations
-	let quotaError = $derived.by(() => {
-		if (!annualQuota) return '';
-		const quota = Number(annualQuota);
+	let errors = $state<Record<string, string>>({});
+	let submissionAttempted = $state(false);
+
+	function getLeaveTypeIdError(id: string): string {
+		if (!id) return 'Leave type is required.';
+		return '';
+	}
+
+	function getEmploymentTypesError(types: string[]): string {
+		if (types.length === 0) {
+			return 'At least one employment type must be selected';
+		}
+		return '';
+	}
+
+	function getQuotaError(quotaStr: string): string {
+		if (!quotaStr || quotaStr.trim() === '') return 'Annual quota is required.';
+		const quota = Number(quotaStr);
 		if (isNaN(quota) || quota < 0) {
 			return 'Annual quota must be a positive number';
 		}
 		return '';
-	});
+	}
 
-	let maxPerMonthError = $derived.by(() => {
-		if (!maxPerMonth) return '';
-		const maxM = Number(maxPerMonth);
+	function getMaxPerMonthError(maxMStr: string, quotaStr: string): string {
+		if (!maxMStr || maxMStr.trim() === '') return '';
+		const maxM = Number(maxMStr);
 		if (isNaN(maxM) || maxM < 0) {
 			return 'Max per month must be a positive number';
 		}
-		if (annualQuota) {
-			const quota = Number(annualQuota);
+		if (quotaStr) {
+			const quota = Number(quotaStr);
 			if (!isNaN(quota) && maxM > quota) {
 				return 'Max per month cannot exceed annual quota';
 			}
 		}
 		return '';
-	});
+	}
 
-	let carryForwardDaysError = $derived.by(() => {
-		if (!carryForwardAllowed) return '';
-		if (!maxCarryForwardDays || String(maxCarryForwardDays).trim() === '') return 'Max carry forward days is required when carry forward is allowed';
-		const days = Number(maxCarryForwardDays);
+	function getCarryForwardDaysError(allowed: boolean, daysStr: string): string {
+		if (!allowed) return '';
+		if (!daysStr || String(daysStr).trim() === '') {
+			return 'Max carry forward days is required when carry forward is allowed';
+		}
+		const days = Number(daysStr);
 		if (isNaN(days) || days <= 0) {
 			return 'Max carry forward days must be greater than 0';
 		}
 		return '';
-	});
+	}
 
-	let minServiceDaysError = $derived.by(() => {
-		if (!minServiceDays) return '';
-		const days = Number(minServiceDays);
+	function getMinServiceDaysError(daysStr: string): string {
+		if (!daysStr || daysStr.trim() === '') return 'Min service days is required.';
+		const days = Number(daysStr);
 		if (isNaN(days) || !Number.isInteger(days) || days < 0) {
 			return 'Min service days must be a positive integer';
 		}
 		return '';
-	});
+	}
 
-	let genderError = $derived.by(() => {
-		if (genderSpecific && !applicableGender) {
+	function getGenderError(specific: boolean, gender: string): string {
+		if (specific && !gender) {
 			return 'Applicable gender is required when gender specific is enabled';
 		}
 		return '';
-	});
+	}
 
-	let employmentTypesError = $derived.by(() => {
-		if (selectedEmploymentTypes.length === 0) {
-			return 'At least one employment type must be selected';
-		}
-		return '';
-	});
+	let quotaError = $derived(errors.annual_quota || '');
+	let maxPerMonthError = $derived(errors.max_per_month || '');
+	let carryForwardDaysError = $derived(errors.max_carry_forward_days || '');
+	let minServiceDaysError = $derived(errors.min_service_days || '');
+	let genderError = $derived(errors.applicable_gender || '');
+	let employmentTypesError = $derived(errors.employment_type_cuids || '');
+	let leaveTypeIdError = $derived(errors.leave_type_cuid || '');
 
 	function toggleEmploymentType(uuid: string) {
 		if (selectedEmploymentTypes.includes(uuid)) {
@@ -679,6 +722,7 @@
 	title={editUuid ? 'Edit Leave Policy' : 'Add Leave Policy'}
 	onsubmit={handleSubmit}
 	onCloseRequest={handleCloseRequest}
+	disableEscape={isDiscardModalOpen}
 >
 	{#if editUuid}
 		<input type="hidden" name="cuid" value={editUuid} />
@@ -686,13 +730,21 @@
 
 	<!-- Leave Type Dropdown -->
 	<div class="space-y-2">
-		<Label for="modal_leave_type_cuid" class={form && 'field' in form && form.field === 'leave_type_cuid' ? 'text-destructive' : ''}>Leave Type <span class="text-destructive">*</span></Label>
+		<Label for="modal_leave_type_cuid" class={(form && 'field' in form && form.field === 'leave_type_cuid') || leaveTypeIdError ? 'text-destructive' : ''}>Leave Type <span class="text-destructive">*</span></Label>
 		<select
 			id="modal_leave_type_cuid"
 			name="leave_type_cuid"
 			bind:value={leaveTypeId}
-			onchange={() => { if (form && form.field === 'leave_type_cuid') form = null; }}
-			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {form && 'field' in form && form.field === 'leave_type_cuid' ? 'border-destructive' : ''}"
+			onchange={() => {
+				if (form && form.field === 'leave_type_cuid') form = null;
+				const err = getLeaveTypeIdError(leaveTypeId);
+				if (!err) {
+					errors.leave_type_cuid = '';
+				} else if (submissionAttempted || errors.leave_type_cuid) {
+					errors.leave_type_cuid = err;
+				}
+			}}
+			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {(form && 'field' in form && form.field === 'leave_type_cuid') || leaveTypeIdError ? 'border-destructive focus-visible:ring-destructive' : ''}"
 			required
 		>
 			<option value="">Select Leave Type</option>
@@ -700,7 +752,9 @@
 				<option value={type.cuid}>{type.leave_name}</option>
 			{/each}
 		</select>
-		{#if form && 'field' in form && form.field === 'leave_type_cuid'}
+		{#if leaveTypeIdError}
+			<p class="text-xs font-medium text-destructive mt-1">{leaveTypeIdError}</p>
+		{:else if form && 'field' in form && form.field === 'leave_type_cuid'}
 			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
 		{/if}
 	</div>
@@ -716,7 +770,16 @@
 						name="employment_type_cuids"
 						value={empType.cuid}
 						checked={selectedEmploymentTypes.includes(empType.cuid)}
-						onchange={() => { toggleEmploymentType(empType.cuid); if (form && form.field === 'employment_type_cuids') form = null; }}
+						onchange={() => {
+							toggleEmploymentType(empType.cuid);
+							if (form && form.field === 'employment_type_cuids') form = null;
+							const err = getEmploymentTypesError(selectedEmploymentTypes);
+							if (!err) {
+								errors.employment_type_cuids = '';
+							} else if (submissionAttempted || errors.employment_type_cuids) {
+								errors.employment_type_cuids = err;
+							}
+						}}
 						class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 					/>
 					<Label class="cursor-pointer select-none font-normal text-xs">{empType.employment_name}</Label>
@@ -737,10 +800,24 @@
 			id="modal_annual_quota"
 			name="annual_quota"
 			bind:value={annualQuota}
-			oninput={() => { if (form && form.field === 'annual_quota') form = null; }}
+			oninput={() => {
+				if (form && form.field === 'annual_quota') form = null;
+				const err = getQuotaError(annualQuota);
+				if (!err) {
+					errors.annual_quota = '';
+				} else if (submissionAttempted || errors.annual_quota) {
+					errors.annual_quota = err;
+				}
+				const mErr = getMaxPerMonthError(maxPerMonth, annualQuota);
+				if (!mErr) {
+					errors.max_per_month = '';
+				} else if (submissionAttempted || errors.max_per_month) {
+					errors.max_per_month = mErr;
+				}
+			}}
 			placeholder="e.g. 12 or 1.5"
 			required
-			class={(form && 'field' in form && form.field === 'annual_quota') || quotaError ? 'border-destructive' : ''}
+			class={(form && 'field' in form && form.field === 'annual_quota') || quotaError ? 'border-destructive focus-visible:ring-destructive' : ''}
 		/>
 		{#if quotaError}
 			<p class="text-xs font-medium text-destructive mt-1">{quotaError}</p>
@@ -756,9 +833,17 @@
 			id="modal_max_per_month"
 			name="max_per_month"
 			bind:value={maxPerMonth}
-			oninput={() => { if (form && form.field === 'max_per_month') form = null; }}
+			oninput={() => {
+				if (form && form.field === 'max_per_month') form = null;
+				const err = getMaxPerMonthError(maxPerMonth, annualQuota);
+				if (!err) {
+					errors.max_per_month = '';
+				} else if (submissionAttempted || errors.max_per_month) {
+					errors.max_per_month = err;
+				}
+			}}
 			placeholder="e.g. 2"
-			class={(form && 'field' in form && form.field === 'max_per_month') || maxPerMonthError ? 'border-destructive' : ''}
+			class={(form && 'field' in form && form.field === 'max_per_month') || maxPerMonthError ? 'border-destructive focus-visible:ring-destructive' : ''}
 		/>
 		{#if maxPerMonthError}
 			<p class="text-xs font-medium text-destructive mt-1">{maxPerMonthError}</p>
@@ -769,7 +854,26 @@
 
 	<!-- Carry Forward Options -->
 	<div class="flex items-center space-x-2 pt-2">
-		<input type="checkbox" id="modal_carry_forward_allowed" name="carry_forward_allowed" bind:checked={carryForwardAllowed} onchange={() => { if (form && form.field === 'carry_forward_allowed') form = null; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+		<input
+			type="checkbox"
+			id="modal_carry_forward_allowed"
+			name="carry_forward_allowed"
+			bind:checked={carryForwardAllowed}
+			onchange={() => {
+				if (form && form.field === 'carry_forward_allowed') form = null;
+				if (!carryForwardAllowed) {
+					errors.max_carry_forward_days = '';
+				} else {
+					const err = getCarryForwardDaysError(carryForwardAllowed, maxCarryForwardDays);
+					if (!err) {
+						errors.max_carry_forward_days = '';
+					} else if (submissionAttempted || errors.max_carry_forward_days) {
+						errors.max_carry_forward_days = err;
+					}
+				}
+			}}
+			class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+		/>
 		<Label for="modal_carry_forward_allowed" class="cursor-pointer select-none">Carry Forward Allowed</Label>
 	</div>
 
@@ -780,10 +884,18 @@
 				id="modal_max_carry_forward_days"
 				name="max_carry_forward_days"
 				bind:value={maxCarryForwardDays}
-				oninput={() => { if (form && form.field === 'max_carry_forward_days') form = null; }}
+				oninput={() => {
+					if (form && form.field === 'max_carry_forward_days') form = null;
+					const err = getCarryForwardDaysError(carryForwardAllowed, maxCarryForwardDays);
+					if (!err) {
+						errors.max_carry_forward_days = '';
+					} else if (submissionAttempted || errors.max_carry_forward_days) {
+						errors.max_carry_forward_days = err;
+					}
+				}}
 				placeholder="e.g. 5"
 				required={carryForwardAllowed}
-				class={(form && 'field' in form && form.field === 'max_carry_forward_days') || carryForwardDaysError ? 'border-destructive' : ''}
+				class={(form && 'field' in form && form.field === 'max_carry_forward_days') || carryForwardDaysError ? 'border-destructive focus-visible:ring-destructive' : ''}
 			/>
 			{#if carryForwardDaysError}
 				<p class="text-xs font-medium text-destructive mt-1">{carryForwardDaysError}</p>
@@ -800,9 +912,17 @@
 			id="modal_min_service_days"
 			name="min_service_days"
 			bind:value={minServiceDays}
-			oninput={() => { if (form && form.field === 'min_service_days') form = null; }}
+			oninput={() => {
+				if (form && form.field === 'min_service_days') form = null;
+				const err = getMinServiceDaysError(minServiceDays);
+				if (!err) {
+					errors.min_service_days = '';
+				} else if (submissionAttempted || errors.min_service_days) {
+					errors.min_service_days = err;
+				}
+			}}
 			placeholder="e.g. 90"
-			class={(form && 'field' in form && form.field === 'min_service_days') || minServiceDaysError ? 'border-destructive' : ''}
+			class={(form && 'field' in form && form.field === 'min_service_days') || minServiceDaysError ? 'border-destructive focus-visible:ring-destructive' : ''}
 		/>
 		{#if minServiceDaysError}
 			<p class="text-xs font-medium text-destructive mt-1">{minServiceDaysError}</p>
@@ -813,18 +933,37 @@
 
 	<!-- Other Checkboxes -->
 	<div class="flex items-center space-x-2">
-		<input type="checkbox" id="modal_allow_half_day" name="allow_half_day" bind:checked={allowHalfDay} onchange={() => { if (form && form.field === 'allow_half_day') form = null; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+		<input type="checkbox" id="modal_allow_half_day" name="allow_half_day" bind:checked={allowHalfDay} onchange={() => { if (form && form.field === 'allow_half_day') form = null; errors.allow_half_day = ''; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
 		<Label for="modal_allow_half_day" class="cursor-pointer select-none">Allow Half Day</Label>
 	</div>
 
 	<div class="flex items-center space-x-2">
-		<input type="checkbox" id="modal_requires_document" name="requires_document" bind:checked={requiresDocument} onchange={() => { if (form && form.field === 'requires_document') form = null; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+		<input type="checkbox" id="modal_requires_document" name="requires_document" bind:checked={requiresDocument} onchange={() => { if (form && form.field === 'requires_document') form = null; errors.requires_document = ''; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
 		<Label for="modal_requires_document" class="cursor-pointer select-none">Requires Document Attachment</Label>
 	</div>
 
 	<!-- Gender Specific Rules -->
 	<div class="flex items-center space-x-2">
-		<input type="checkbox" id="modal_gender_specific" name="gender_specific" bind:checked={genderSpecific} onchange={() => { if (form && form.field === 'gender_specific') form = null; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+		<input
+			type="checkbox"
+			id="modal_gender_specific"
+			name="gender_specific"
+			bind:checked={genderSpecific}
+			onchange={() => {
+				if (form && form.field === 'gender_specific') form = null;
+				if (!genderSpecific) {
+					errors.applicable_gender = '';
+				} else {
+					const err = getGenderError(genderSpecific, applicableGender);
+					if (!err) {
+						errors.applicable_gender = '';
+					} else if (submissionAttempted || errors.applicable_gender) {
+						errors.applicable_gender = err;
+					}
+				}
+			}}
+			class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+		/>
 		<Label for="modal_gender_specific" class="cursor-pointer select-none">Gender Specific Leave</Label>
 	</div>
 
@@ -835,9 +974,17 @@
 				id="modal_applicable_gender"
 				name="applicable_gender"
 				bind:value={applicableGender}
-				onchange={() => { if (form && form.field === 'applicable_gender') form = null; }}
+				onchange={() => {
+					if (form && form.field === 'applicable_gender') form = null;
+					const err = getGenderError(genderSpecific, applicableGender);
+					if (!err) {
+						errors.applicable_gender = '';
+					} else if (submissionAttempted || errors.applicable_gender) {
+						errors.applicable_gender = err;
+					}
+				}}
 				required={genderSpecific}
-				class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {(form && 'field' in form && form.field === 'applicable_gender') || genderError ? 'border-destructive' : ''}"
+				class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {(form && 'field' in form && form.field === 'applicable_gender') || genderError ? 'border-destructive focus-visible:ring-destructive' : ''}"
 			>
 				<option value="">Select Gender</option>
 				<option value="Male">Male</option>
@@ -860,7 +1007,10 @@
 			id="modal_status"
 			name="status"
 			bind:value={status}
-			onchange={() => { if (form && form.field === 'status') form = null; }}
+			onchange={() => {
+				if (form && form.field === 'status') form = null;
+				errors.status = '';
+			}}
 			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none"
 			required
 		>

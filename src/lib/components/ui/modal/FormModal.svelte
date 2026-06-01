@@ -9,6 +9,7 @@
 		onsubmit,
 		useEnhance,
 		onCloseRequest,
+		disableEscape = false,
 		children
 	}: {
 		isOpen: boolean;
@@ -17,11 +18,12 @@
 		onsubmit?: (e: SubmitEvent) => void;
 		useEnhance?: import('@sveltejs/kit').SubmitFunction;
 		onCloseRequest?: () => void;
+		disableEscape?: boolean;
 		children?: import('svelte').Snippet;
 	} = $props();
 </script>
 
-<Modal bind:isOpen={isOpen} title={title} {onCloseRequest}>
+<Modal bind:isOpen={isOpen} title={title} {onCloseRequest} {disableEscape}>
 	{#if useEnhance}
 		<form method="POST" {action} onsubmit={onsubmit} use:enhance={useEnhance} class="space-y-4" novalidate>
 			{@render children?.()}

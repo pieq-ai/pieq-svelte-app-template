@@ -42,8 +42,13 @@
 	}
 
 	function handleKeyDown(e: KeyboardEvent) {
-		if (e.key === 'Escape') {
+		if (!isOpen) return;
+		if (e.key === 'Escape' && !e.defaultPrevented) {
+			e.preventDefault();
 			handleCancel();
+		}
+		if (e.key === 'Enter') {
+			e.preventDefault();
 		}
 	}
 </script>
@@ -56,7 +61,6 @@
 	<div
 		transition:fade={{ duration: 150 }}
 		class="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
-		onclick={handleCancel}
 	>
 		<div
 			transition:scale={{ duration: 150, start: 0.95 }}

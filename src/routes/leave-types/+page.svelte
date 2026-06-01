@@ -79,8 +79,22 @@
 
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
+		submissionAttempted = true;
+
+		// Validate all fields client-side simultaneously
+		const nameErr = getNameClientError(leaveName);
+		const codeErr = getCodeClientError(leaveCode);
+
+		errors.leave_name = nameErr;
+		errors.leave_code = codeErr;
+
+		if (nameErr || codeErr) {
+			toast.error('Please fix the validation errors.');
+			return;
+		}
+
 		isSubmitting = true;
-		form = null;
+		errors.general = '';
 
 		const body = {
 			leave_name: leaveName,
@@ -100,12 +114,8 @@
 			});
 			const result = await res.json();
 
-			if (res.ok && result.success) {
-				toast.success(
-					editCuid
-						? 'Leave type updated successfully!'
-						: 'Leave type created successfully!'
-				);
+			if (res.ok && result.data) {
+				toast.success(result.data.message);
 				isFormModalOpen = false;
 				if (editCuid) {
 					await goto(resolve('/leave-types'), { replaceState: true });
@@ -119,12 +129,17 @@
 				}
 				await invalidateAll();
 			} else {
+				const errorMsg = result.data?.error || 'Validation failed';
 				form = {
-					error: result.message || 'Validation failed',
-					field: result.field,
+					error: errorMsg,
+					field: result.data?.field,
 					action: editCuid ? 'update' : 'create'
 				};
-				toast.error(result.message || 'Validation failed');
+				if (result.data?.field) {
+					errors[result.data.field] = errorMsg;
+				} else {
+					errors.general = errorMsg;
+				}
 			}
 		} catch (error) {
 			console.error('Submit failed:', error);
@@ -177,18 +192,23 @@
 
 	let isSubmitDisabled = $derived.by(() => {
 		if (isSubmitting) return true;
-		if (!!nameClientError || !!codeClientError) return true;
+		
+		const nameErr = getNameClientError(leaveName);
+		const codeErr = getCodeClientError(leaveCode);
+		const hasValidationErrors = !!nameErr || !!codeErr;
+
 		if (editCuid) {
 			if (!leaveName.trim() || !leaveCode.trim()) return true;
+			if (hasValidationErrors) return true;
 			return !hasChanges;
 		} else {
 			if (!leaveName.trim() || !leaveCode.trim()) return true;
-			return false;
+			return hasValidationErrors;
 		}
 	});
 
 	let isDiscardModalOpen = $state(false);
-	let pendingNavigation = $state<any>(null);
+	let pendingNavigation = $state<import('@sveltejs/kit').Navigation | null>(null);
 	let isNavigatingProgrammatically = $state(false);
 
 	function handleCloseRequest() {
@@ -215,7 +235,7 @@
 			const target = pendingNavigation.to?.url;
 			pendingNavigation = null;
 			if (target) {
-				await goto(target);
+				await goto(resolve((target.pathname + target.search) as '/leave-types'));
 			}
 		} else if (editCuid) {
 			await goto(resolve('/leave-types'), { replaceState: true });
@@ -252,39 +272,37 @@
 		};
 	});
 
+	let hasSynchronized = $state(false);
+
+	$effect(() => {
+		if (isFormModalOpen) {
+			hasSynchronized = false;
+			submissionAttempted = false;
+			errors = {};
+		}
+	});
+
 	// Synchronise form inputs when URL edit parameter changes
 	$effect(() => {
-		if (form && 'error' in form) {
-			return;
-		}
-		if (form && 'action' in form && form.action === 'update' && 'cuid' in form && form.cuid === editCuid) {
-			if ('leave_name' in form) leaveName = String(form.leave_name);
-			if ('leave_code' in form) leaveCode = String(form.leave_code);
-			if ('description' in form) description = String(form.description);
-			if ('is_paid' in form) isPaid = Boolean(form.is_paid);
-			if ('requires_approval' in form) requiresApproval = Boolean(form.requires_approval);
-			if ('status' in form) status = Boolean(form.status);
-		} else if (form && 'action' in form && form.action === 'create' && !editCuid) {
-			if ('leave_name' in form) leaveName = String(form.leave_name);
-			if ('leave_code' in form) leaveCode = String(form.leave_code);
-			if ('description' in form) description = String(form.description);
-			if ('is_paid' in form) isPaid = Boolean(form.is_paid);
-			if ('requires_approval' in form) requiresApproval = Boolean(form.requires_approval);
-			if ('status' in form) status = Boolean(form.status);
-		} else if (editingType) {
+		if (!isFormModalOpen) return;
+		if (hasSynchronized) return;
+
+		if (editingType) {
 			leaveName = editingType.leave_name;
 			leaveCode = editingType.leave_code;
 			description = editingType.description || '';
 			isPaid = editingType.is_paid;
 			requiresApproval = editingType.requires_approval;
 			status = editingType.status;
-		} else {
+			hasSynchronized = true;
+		} else if (!editCuid) {
 			leaveName = '';
 			leaveCode = '';
 			description = '';
 			isPaid = true;
 			requiresApproval = true;
 			status = true;
+			hasSynchronized = true;
 		}
 	});
 
@@ -306,6 +324,10 @@
 			isPaid = true;
 			requiresApproval = true;
 			status = true;
+			errors = {};
+			submissionAttempted = false;
+			hasSynchronized = false;
+			isDiscardModalOpen = false;
 			if (editCuid) {
 				goto(resolve('/leave-types'), { replaceState: true });
 			}
@@ -314,11 +336,14 @@
 
 	let formError = $derived(form && 'error' in form ? form.error : null);
 
-	// Client-side validations
-	let nameClientError = $derived.by(() => {
-		if (!leaveName) return '';
-		const trimmed = leaveName.trim();
-		if (trimmed.length === 0) return '';
+	let errors = $state<Record<string, string>>({});
+	let submissionAttempted = $state(false);
+
+	function getNameClientError(name: string): string {
+		if (!name || name.trim() === '') {
+			return 'Leave name is required.';
+		}
+		const trimmed = name.trim();
 		if (trimmed.length <= 5) {
 			return 'Leave name must be more than 5 characters long';
 		}
@@ -330,12 +355,13 @@
 			return 'Leave name can only contain letters and spaces';
 		}
 		return '';
-	});
+	}
 
-	let codeClientError = $derived.by(() => {
-		if (!leaveCode) return '';
-		const trimmed = leaveCode.trim().toUpperCase();
-		if (trimmed.length === 0) return '';
+	function getCodeClientError(code: string): string {
+		if (!code || code.trim() === '') {
+			return 'Leave code is required.';
+		}
+		const trimmed = code.trim().toUpperCase();
 		if (trimmed.length > 20) {
 			return 'Leave code must be 20 characters or fewer';
 		}
@@ -344,7 +370,10 @@
 			return 'Leave code can only contain uppercase letters and underscores';
 		}
 		return '';
-	});
+	}
+
+	let nameClientError = $derived(errors.leave_name || '');
+	let codeClientError = $derived(errors.leave_code || '');
 
 	// Derived list
 	let filteredTypes = $derived.by(() => {
@@ -520,6 +549,7 @@
 	title={editCuid ? 'Edit Leave Type' : 'Add Leave Type'}
 	onsubmit={handleSubmit}
 	onCloseRequest={handleCloseRequest}
+	disableEscape={isDiscardModalOpen}
 >
 	{#if editCuid}
 		<input type="hidden" name="cuid" value={editCuid} />
@@ -531,7 +561,15 @@
 			id="modal_leave_name"
 			name="leave_name"
 			bind:value={leaveName}
-			oninput={() => { if (form && form.field === 'leave_name') form = null; }}
+			oninput={() => {
+				if (form && form.field === 'leave_name') form = null;
+				const err = getNameClientError(leaveName);
+				if (!err) {
+					errors.leave_name = '';
+				} else if (submissionAttempted || errors.leave_name) {
+					errors.leave_name = err;
+				}
+			}}
 			placeholder="e.g. Sick Leave"
 			required
 			minlength={6}
@@ -551,7 +589,15 @@
 			id="modal_leave_code"
 			name="leave_code"
 			bind:value={leaveCode}
-			oninput={() => { if (form && form.field === 'leave_code') form = null; }}
+			oninput={() => {
+				if (form && form.field === 'leave_code') form = null;
+				const err = getCodeClientError(leaveCode);
+				if (!err) {
+					errors.leave_code = '';
+				} else if (submissionAttempted || errors.leave_code) {
+					errors.leave_code = err;
+				}
+			}}
 			placeholder="e.g. SL"
 			required
 			class="uppercase {(form && 'field' in form && form.field === 'leave_code') || codeClientError ? 'border-destructive focus-visible:ring-destructive' : ''}"
@@ -569,7 +615,10 @@
 			id="modal_description"
 			name="description"
 			bind:value={description}
-			oninput={() => { if (form && form.field === 'description') form = null; }}
+			oninput={() => {
+				if (form && form.field === 'description') form = null;
+				errors.description = '';
+			}}
 			placeholder="Optional description of this leave category..."
 			rows="3"
 			class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
@@ -577,12 +626,12 @@
 	</div>
 
 	<div class="flex items-center space-x-2 pt-1">
-		<input type="checkbox" id="modal_is_paid" name="is_paid" bind:checked={isPaid} onchange={() => { if (form && form.field === 'is_paid') form = null; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+		<input type="checkbox" id="modal_is_paid" name="is_paid" bind:checked={isPaid} onchange={() => { if (form && form.field === 'is_paid') form = null; errors.is_paid = ''; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
 		<Label for="modal_is_paid" class="cursor-pointer select-none">Paid Leave</Label>
 	</div>
 
 	<div class="flex items-center space-x-2">
-		<input type="checkbox" id="modal_requires_approval" name="requires_approval" bind:checked={requiresApproval} onchange={() => { if (form && form.field === 'requires_approval') form = null; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+		<input type="checkbox" id="modal_requires_approval" name="requires_approval" bind:checked={requiresApproval} onchange={() => { if (form && form.field === 'requires_approval') form = null; errors.requires_approval = ''; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
 		<Label for="modal_requires_approval" class="cursor-pointer select-none">Requires Approval</Label>
 	</div>
 
@@ -593,7 +642,10 @@
 			id="modal_status"
 			name="status"
 			bind:value={status}
-			onchange={() => { if (form && form.field === 'status') form = null; }}
+			onchange={() => {
+				if (form && form.field === 'status') form = null;
+				errors.status = '';
+			}}
 			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none"
 			required
 		>

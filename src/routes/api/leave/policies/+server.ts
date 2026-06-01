@@ -1,4 +1,3 @@
-import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types.js';
 import {
 	createLeavePolicy,
@@ -6,14 +5,21 @@ import {
 } from '$lib/server/services/leave-policy.service.js';
 import { LeaveValidationError } from '$lib/server/services/leave-type.service.js';
 import { validatePayloadKeys, trimStringFields } from '$lib/server/validation.js';
+import {
+	successResponse,
+	errorResponse,
+	createSuccessResponse,
+	formatLeavePolicy
+} from '$lib/server/response.js';
 
 export const GET: RequestHandler = async () => {
 	try {
 		const policies = await listLeavePolicies();
-		return json({ data: policies });
+		const formattedPolicies = policies.map(formatLeavePolicy);
+		return successResponse(formattedPolicies);
 	} catch (error) {
 		console.error('GET /api/leave/policies failed', error);
-		return json({ error: 'Failed to retrieve leave policies' }, { status: 500 });
+		return errorResponse('Failed to retrieve leave policies', 500);
 	}
 };
 
@@ -23,10 +29,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	try {
 		body = await request.json();
 	} catch {
-		return json({
-			success: false,
-			message: 'Request body must be valid JSON'
-		}, { status: 400 });
+		return errorResponse('Request body must be valid JSON', 400);
 	}
 
 	const allowedKeys = [
@@ -46,7 +49,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	const validation = validatePayloadKeys(body, allowedKeys);
 	if (validation) {
-		return json({ success: false, message: validation.error }, { status: 400 });
+		return errorResponse(validation.error, 400);
 	}
 
 	const trimmedBody = trimStringFields(body) as {
@@ -94,24 +97,13 @@ export const POST: RequestHandler = async ({ request }) => {
 			applicable_gender,
 			status
 		});
-		return json({
-			success: true,
-			message: 'Leave policy created successfully',
-			data
-		}, { status: 201 });
+		return createSuccessResponse('Leave policy', data.cuid);
 	} catch (error) {
 		if (error instanceof LeaveValidationError) {
-			return json({
-				success: false,
-				message: error.message,
-				field: error.field
-			}, { status: 400 });
+			return errorResponse(error.message, 400, error.field);
 		}
 
 		console.error('POST /api/leave/policies failed', error);
-		return json({
-			success: false,
-			message: 'Failed to create leave policy'
-		}, { status: 500 });
+		return errorResponse('Failed to create leave policy', 500);
 	}
 };

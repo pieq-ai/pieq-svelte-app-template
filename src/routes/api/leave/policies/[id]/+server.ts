@@ -1,4 +1,3 @@
-import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types.js';
 import {
 	getLeavePolicyByCuid,
@@ -6,6 +5,13 @@ import {
 } from '$lib/server/services/leave-policy.service.js';
 import { LeaveValidationError } from '$lib/server/services/leave-type.service.js';
 import { validatePayloadKeys, trimStringFields } from '$lib/server/validation.js';
+import {
+	successResponse,
+	errorResponse,
+	updateSuccessResponse,
+	deleteSuccessResponse,
+	formatLeavePolicy
+} from '$lib/server/response.js';
 
 export const GET: RequestHandler = async ({ params }) => {
 	const { id } = params;
@@ -13,13 +19,13 @@ export const GET: RequestHandler = async ({ params }) => {
 	try {
 		const policy = await getLeavePolicyByCuid(id);
 		if (!policy) {
-			return json({ error: 'Leave policy not found' }, { status: 404 });
+			return errorResponse('Leave policy not found', 404);
 		}
 
-		return json({ data: policy });
+		return successResponse(formatLeavePolicy(policy));
 	} catch (error) {
 		console.error(`GET /api/leave/policies/${id} failed`, error);
-		return json({ error: 'Failed to retrieve leave policy' }, { status: 500 });
+		return errorResponse('Failed to retrieve leave policy', 500);
 	}
 };
 
@@ -30,10 +36,7 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 	try {
 		body = await request.json();
 	} catch {
-		return json({
-			success: false,
-			message: 'Request body must be valid JSON'
-		}, { status: 400 });
+		return errorResponse('Request body must be valid JSON', 400);
 	}
 
 	const allowedKeys = [
@@ -53,7 +56,7 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 
 	const validation = validatePayloadKeys(body, allowedKeys);
 	if (validation) {
-		return json({ success: false, message: validation.error }, { status: 400 });
+		return errorResponse(validation.error, 400);
 	}
 
 	const trimmedBody = trimStringFields(body) as {
@@ -101,25 +104,14 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 			applicable_gender,
 			status
 		});
-		return json({
-			success: true,
-			message: 'Leave policy updated successfully',
-			data
-		});
+		return updateSuccessResponse('Leave policy', data.cuid);
 	} catch (error) {
 		if (error instanceof LeaveValidationError) {
-			return json({
-				success: false,
-				message: error.message,
-				field: error.field
-			}, { status: 400 });
+			return errorResponse(error.message, 400, error.field);
 		}
 
 		console.error(`PUT /api/leave/policies/${id} failed`, error);
-		return json({
-			success: false,
-			message: 'Failed to update leave policy'
-		}, { status: 500 });
+		return errorResponse('Failed to update leave policy', 500);
 	}
 };
 
@@ -129,26 +121,17 @@ export const DELETE: RequestHandler = async ({ params }) => {
 	try {
 		const existing = await getLeavePolicyByCuid(id);
 		if (!existing) {
-			return json({
-				success: false,
-				message: 'Leave policy not found'
-			}, { status: 404 });
+			return errorResponse('Leave policy not found', 404);
 		}
 
 		const updated = await updateLeavePolicy(id, {
 			status: !existing.status
 		});
 
-		return json({
-			success: true,
-			message: updated.status ? 'Leave policy reactivated successfully' : 'Leave policy deactivated successfully',
-			data: updated
-		});
+		const message = updated.status ? 'Leave policy reactivated successfully' : 'Leave policy deactivated successfully';
+		return deleteSuccessResponse('Leave policy', updated.cuid, message);
 	} catch (error) {
 		console.error(`DELETE /api/leave/policies/${id} failed`, error);
-		return json({
-			success: false,
-			message: 'Failed to delete leave policy'
-		}, { status: 500 });
+		return errorResponse('Failed to delete leave policy', 500);
 	}
 };

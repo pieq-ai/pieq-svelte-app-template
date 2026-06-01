@@ -1,4 +1,3 @@
-import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types.js';
 import {
 	createHoliday,
@@ -6,18 +5,21 @@ import {
 	listHolidays
 } from '$lib/server/services/holiday.service.js';
 import { validatePayloadKeys, trimStringFields } from '$lib/server/validation.js';
+import {
+	successResponse,
+	errorResponse,
+	createSuccessResponse,
+	formatHoliday
+} from '$lib/server/response.js';
 
 export const GET: RequestHandler = async () => {
 	try {
 		const holidays = await listHolidays();
-		const formattedHolidays = holidays.map((h) => ({
-			...h,
-			holiday_date: h.holiday_date.toISOString().split('T')[0]
-		}));
-		return json({ data: formattedHolidays });
+		const formattedHolidays = holidays.map(formatHoliday);
+		return successResponse(formattedHolidays);
 	} catch (error) {
 		console.error('GET /api/holidays failed', error);
-		return json({ error: 'Failed to list holidays' }, { status: 500 });
+		return errorResponse('Failed to list holidays', 500);
 	}
 };
 
@@ -27,12 +29,12 @@ export const POST: RequestHandler = async ({ request }) => {
 	try {
 		body = await request.json();
 	} catch {
-		return json({ success: false, message: 'Request body must be valid JSON' }, { status: 400 });
+		return errorResponse('Request body must be valid JSON', 400);
 	}
 
 	const validation = validatePayloadKeys(body, ['holiday_name', 'holiday_date', 'holiday_type']);
 	if (validation) {
-		return json({ success: false, message: validation.error }, { status: 400 });
+		return errorResponse(validation.error, 400);
 	}
 
 	const trimmedBody = trimStringFields(body) as {
@@ -45,21 +47,13 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	try {
 		const holiday = await createHoliday({ holiday_name, holiday_date, holiday_type });
-		const formattedHoliday = {
-			...holiday,
-			holiday_date: holiday.holiday_date.toISOString().split('T')[0]
-		};
-		return json({
-			success: true,
-			message: 'Holiday created successfully',
-			data: formattedHoliday
-		}, { status: 201 });
+		return createSuccessResponse('Holiday', holiday.cuid);
 	} catch (error) {
 		if (error instanceof HolidayValidationError) {
-			return json({ success: false, message: error.message, field: error.field }, { status: 400 });
+			return errorResponse(error.message, 400, error.field);
 		}
 
 		console.error('POST /api/holidays failed', error);
-		return json({ success: false, message: 'Failed to create holiday' }, { status: 500 });
+		return errorResponse('Failed to create holiday', 500);
 	}
 };
