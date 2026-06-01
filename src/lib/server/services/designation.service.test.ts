@@ -80,7 +80,7 @@ describe('Designation Service', () => {
 	describe('createDesignation', () => {
 		it('should throw validation error for invalid name', async () => {
 			await expect(designationService.createDesignation({ designation_name: '   ' })).rejects.toThrow('Designation name is required');
-			await expect(designationService.createDesignation({ designation_name: 'Manager123' })).rejects.toThrow('Designation name must contain only letters and spaces');
+			await expect(designationService.createDesignation({ designation_name: 'Manager@123' })).rejects.toThrow('Designation can contain only letters, numbers, and spaces. Special characters are not allowed.');
 			await expect(designationService.createDesignation({ designation_name: null as any })).rejects.toThrow('Designation name is required');
 		});
 

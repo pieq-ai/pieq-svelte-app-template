@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function mapToApi(entity: any): any {
 	if (Array.isArray(entity)) return entity.map(mapToApi);
 	if (entity === null || typeof entity !== 'object' || entity instanceof Date) return entity;

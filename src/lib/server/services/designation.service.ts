@@ -42,8 +42,8 @@ function validateDesignationName(name: string | null | undefined): string {
 		throw new Error('Designation name is required');
 	}
 
-	if (!/^[A-Za-z ]+$/.test(trimmed)) {
-		throw new Error('Designation name must contain only letters and spaces');
+	if (!/^[A-Za-z0-9]+(?:\s[A-Za-z0-9]+)*$/.test(trimmed)) {
+		throw new Error('Designation can contain only letters, numbers, and spaces. Special characters are not allowed.');
 	}
 
 	return trimmed;

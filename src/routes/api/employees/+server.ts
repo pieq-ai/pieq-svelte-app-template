@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as employeeDao from '$lib/server/dao/employee.dao';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
-import { mapToDb, toEmployeeDTO } from '$lib/server/utils/mapping.js';
+import { toEmployeeDTO } from '$lib/server/utils/mapping.js';
 
 function getErrorStatus(message: string, fallback = 500) {
 	return message === 'Unauthorized' ? 401 : fallback;

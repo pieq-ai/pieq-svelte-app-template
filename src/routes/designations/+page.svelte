@@ -70,9 +70,9 @@
 		if (trimmed === '') {
 			return 'Designation name is required';
 		}
-		const regex = /^[A-Za-z ]+$/;
+		const regex = /^[A-Za-z0-9]+(?:\s[A-Za-z0-9]+)*$/;
 		if (!regex.test(trimmed)) {
-			return 'Only letters and spaces are allowed';
+			return 'Designation can contain only letters, numbers, and spaces. Special characters are not allowed.';
 		}
 		return '';
 	}
