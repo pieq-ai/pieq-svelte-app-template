@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
   import PencilIcon from "@lucide/svelte/icons/pencil";
@@ -18,6 +17,7 @@
     Pagination,
     MasterTable,
     MasterFormModal,
+    ConfirmDialog,
   } from "$lib/components";
 
   import type {
@@ -30,9 +30,34 @@
   import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
   import { scale } from "svelte/transition";
 
-  let items = $state<SalaryComponent[]>([]);
-  let totalItems = $state(0);
-  let totalPages = $state(1);
+  /** Full dataset returned from the API for the current filter combination */
+  let allItems = $state<SalaryComponent[]>([]);
+
+  let page = $state(1);
+  let pageSize = $state(10);
+
+  /** Slice of allItems for the current page — derived client-side */
+  let filteredItems = $derived(
+    allItems
+      .filter((c) => filterType === "all" || c.component_type === filterType)
+      .filter((c) => filterActive === "all" || c.is_active === (filterActive === "true"))
+  );
+
+  let pagedItems = $derived(
+    filteredItems.slice((page - 1) * pageSize, page * pageSize)
+  );
+
+  let totalItems = $derived(filteredItems.length);
+  let totalPages = $derived(Math.max(1, Math.ceil(filteredItems.length / pageSize)));
+
+  /** Stats derived from the unfiltered full list (re-fetched on each loadComponents call) */
+  let earningsCount = $derived(
+    allItems.filter((c) => c.component_type === "earning" && c.is_active).length
+  );
+  let deductionsCount = $derived(
+    allItems.filter((c) => c.component_type === "deduction" && c.is_active).length
+  );
+  let totalAllComponents = $derived(allItems.length);
 
   let isLoading = $state(false);
 
@@ -41,8 +66,6 @@
   // 'all' | 'true' | 'false' maps to undefined | true | false for the API
   let filterActive = $state<"all" | "true" | "false">("all");
 
-  let page = $state(1);
-  let pageSize = $state(10);
 
   let sortBy = $state("component_name");
   let sortOrder = $state<"asc" | "desc">("asc");
@@ -57,12 +80,23 @@
   let formIsTaxable = $state(false);
   let formIsActive = $state(true);
 
-  let earningsCount = $state(0);
-  let deductionsCount = $state(0);
-  /** Always reflects the unfiltered total — not affected by search/type/status filters */
-  let totalAllComponents = $state(0);
+  // Snapshot captured when the modal opens — used for dirty detection
+  let formInitialName = $state("");
+  let formInitialType = $state<SalaryComponentType>("earning");
+  let formInitialIsTaxable = $state(false);
+  let formInitialIsActive = $state(true);
 
-  let previousFilters = "";
+  /** True when any field differs from its value at modal open time */
+  let isDirty = $derived(
+    formName !== formInitialName ||
+    formType !== formInitialType ||
+    formIsTaxable !== formInitialIsTaxable ||
+    formIsActive !== formInitialIsActive
+  );
+
+  /** Controls the "unsaved changes" confirmation dialog */
+  let showDiscardConfirm = $state(false);
+
 
   const headers = [
     {
@@ -99,14 +133,6 @@
       const params = new SvelteURLSearchParams();
 
       if (searchQuery) params.set("search", searchQuery);
-
-      if (filterType !== "all") params.set("component_type", filterType);
-
-      if (filterActive !== "all") params.set("is_active", filterActive);
-
-      params.set("page", page.toString());
-      params.set("pageSize", pageSize.toString());
-
       params.set("sortBy", sortBy);
       params.set("sortOrder", sortOrder);
 
@@ -120,10 +146,7 @@
       }
 
       const json = await res.json();
-
-      items = json.items;
-      totalItems = json.total;
-      totalPages = json.totalPages;
+      allItems = json.data;
     } catch (e) {
       console.error(e);
       toast.error(
@@ -134,38 +157,26 @@
     }
   }
 
-  async function loadStats() {
-    try {
-      const res = await fetch("/api/salary-components?stats=true");
-
-      if (!res.ok) return;
-
-      const json = await res.json();
-
-      totalAllComponents = json.total ?? 0;
-      earningsCount = json.earningsCount ?? 0;
-      deductionsCount = json.deductionsCount ?? 0;
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
+  // API effect: fires only when search or sort changes
+  let previousApiFilters = "";
   $effect(() => {
-    const currentFilters = `${searchQuery}-${filterType}-${filterActive}`;
-
-    if (previousFilters && previousFilters !== currentFilters) {
+    const apiFilters = `${searchQuery}-${sortBy}-${sortOrder}`;
+    if (previousApiFilters && previousApiFilters !== apiFilters) {
       page = 1;
     }
-
-    previousFilters = currentFilters;
-
+    previousApiFilters = apiFilters;
     loadComponents();
   });
 
-  onMount(() => {
-    // loadComponents() is already triggered by the $effect above on initial render.
-    // Only loadStats() needs to run here to avoid a duplicate GET for the table data.
-    loadStats();
+  // Page-reset effect: fires on client-side filter changes (no API call)
+  let clientFiltersInitialized = false;
+  $effect(() => {
+    void filterType;
+    void filterActive;
+    if (clientFiltersInitialized) {
+      page = 1;
+    }
+    clientFiltersInitialized = true;
   });
 
   function handleOpenCreate() {
@@ -176,6 +187,12 @@
     formIsActive = true;
     formIsTaxable = false;
 
+    // Capture snapshot for dirty detection
+    formInitialName = "";
+    formInitialType = "earning";
+    formInitialIsActive = true;
+    formInitialIsTaxable = false;
+
     isModalOpen = true;
   }
 
@@ -183,14 +200,41 @@
     editingId = component.cuid;
 
     formName = component.component_name;
-
     formType = component.component_type;
-
     formIsActive = component.is_active;
-
     formIsTaxable = component.is_taxable;
 
+    // Capture snapshot for dirty detection
+    formInitialName = component.component_name;
+    formInitialType = component.component_type;
+    formInitialIsActive = component.is_active;
+    formInitialIsTaxable = component.is_taxable;
+
     isModalOpen = true;
+  }
+
+  /** Called for ALL close attempts — gates on dirty state. */
+  function handleRequestClose() {
+    if (isDirty) {
+      showDiscardConfirm = true;
+    } else {
+      isModalOpen = false;
+    }
+  }
+
+  /** User confirmed discard — close and reset form to clean defaults. */
+  function handleDiscardConfirm() {
+    showDiscardConfirm = false;
+    isModalOpen = false;
+    formName = "";
+    formType = "earning";
+    formIsActive = true;
+    formIsTaxable = false;
+  }
+
+  /** User chose Continue Editing — keep modal open, dismiss confirm dialog. */
+  function handleDiscardCancel() {
+    showDiscardConfirm = false;
   }
 
   async function handleFormSubmit(e: SubmitEvent) {
@@ -233,7 +277,7 @@
       if (!res.ok)
         throw new Error(json.message || "Failed to save salary component");
 
-      await Promise.all([loadComponents(), loadStats()]);
+      await loadComponents();
 
       toast.success(
         editingId
@@ -455,7 +499,7 @@
     <!-- Table -->
     <MasterTable
       {headers}
-      {items}
+      items={pagedItems}
       {isLoading}
       bind:sortBy
       bind:sortOrder
@@ -540,7 +584,7 @@
   isOpen={isModalOpen}
   title={editingId ? "Edit Salary Component" : "Create Salary Component"}
   {isSubmitting}
-  onclose={() => (isModalOpen = false)}
+  onclose={handleRequestClose}
   onsubmit={handleFormSubmit}
 >
   <div class="space-y-4">
@@ -661,3 +705,14 @@
     </div>
   </div>
 </MasterFormModal>
+
+<!-- Unsaved Changes Confirmation -->
+<ConfirmDialog
+  isOpen={showDiscardConfirm}
+  title="Discard unsaved changes?"
+  message="You have unsaved changes. Are you sure you want to discard them?"
+  confirmText="Discard Changes"
+  cancelText="Continue Editing"
+  onconfirm={handleDiscardConfirm}
+  oncancel={handleDiscardCancel}
+/>

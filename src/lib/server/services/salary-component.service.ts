@@ -89,12 +89,12 @@ export async function getComponentByCuid(cuid: string) {
  * Retrieves lists of Salary Components with filters, sorting, and pagination.
  */
 export async function getComponents(filters: SalaryComponentFilters) {
-	// Pre-process filters
+	// Pre-process filters — only coerce page/pageSize when explicitly provided
 	const processedFilters: SalaryComponentFilters = {
 		...filters,
 		search: filters.search?.trim(),
-		page: filters.page ? Number(filters.page) : 1,
-		pageSize: filters.pageSize ? Number(filters.pageSize) : 10
+		page: filters.page !== undefined ? Number(filters.page) : undefined,
+		pageSize: filters.pageSize !== undefined ? Number(filters.pageSize) : undefined
 	};
 
 	return repository.findMany(processedFilters);

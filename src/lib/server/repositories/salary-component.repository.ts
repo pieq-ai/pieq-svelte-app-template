@@ -54,18 +54,6 @@ export async function findMany(filters: SalaryComponentFilters) {
 		};
 	}
 
-	if (filters.component_type) {
-		where.component_type = filters.component_type;
-	}
-
-	if (filters.is_active !== undefined) {
-		where.is_active = filters.is_active;
-	}
-
-	const page = Math.max(1, filters.page ?? 1);
-	const pageSize = Math.max(1, filters.pageSize ?? 10);
-	const skip = (page - 1) * pageSize;
-
 	const orderBy: Prisma.SalaryComponentOrderByWithRelationInput = {};
 	if (
 		filters.sortBy === 'component_name' ||
@@ -77,11 +65,15 @@ export async function findMany(filters: SalaryComponentFilters) {
 		orderBy.component_name = 'asc';
 	}
 
+	// Only paginate when pageSize is explicitly provided; otherwise fetch all records
+	const paginated = filters.pageSize !== undefined;
+	const page = Math.max(1, filters.page ?? 1);
+	const pageSize = Math.max(1, filters.pageSize ?? 1);
+
 	const [items, total] = await Promise.all([
 		db.salaryComponent.findMany({
 			where,
-			skip,
-			take: pageSize,
+			...(paginated && { skip: (page - 1) * pageSize, take: pageSize }),
 			orderBy
 		}),
 		db.salaryComponent.count({ where })
@@ -91,8 +83,8 @@ export async function findMany(filters: SalaryComponentFilters) {
 		items,
 		total,
 		page,
-		pageSize,
-		totalPages: Math.ceil(total / pageSize)
+		pageSize: filters.pageSize,
+		totalPages: paginated ? Math.ceil(total / pageSize) : 1
 	};
 }
 /**

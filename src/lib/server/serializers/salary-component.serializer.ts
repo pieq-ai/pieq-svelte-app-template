@@ -1,20 +1,22 @@
 import type { SalaryComponent as PrismaSalaryComponent } from '../../../generated/prisma/client.js';
 
 /**
- * JSON-safe representation of a SalaryComponent.
- * The internal BigInt `id` is omitted — clients always use `cuid` as the identifier.
+ * JSON-safe representation of a SalaryComponent exposed to clients.
+ * Internal fields (`id`) and audit fields (`created_at`, `created_by`,
+ * `updated_at`, `updated_by`) are omitted.
  */
-export type SalaryComponentDto = Omit<PrismaSalaryComponent, 'id'>;
+export type SalaryComponentDto = Omit<
+	PrismaSalaryComponent,
+	'id' | 'created_at' | 'created_by' | 'updated_at' | 'updated_by'
+>;
 
 /**
- * Strip the internal BigInt `id` from a Prisma SalaryComponent before sending
- * it across the wire. `JSON.stringify` cannot serialize BigInt natively, and
- * the `id` column is an internal surrogate key that should never be exposed to
- * clients — they must always use `cuid`.
+ * Strip the internal BigInt `id` and audit metadata from a Prisma SalaryComponent
+ * before sending it across the wire. Clients always identify records by `cuid`.
  */
 export function serializeSalaryComponent(record: PrismaSalaryComponent): SalaryComponentDto {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const { id: _id, ...rest } = record;
+	const { id: _id, created_at: _ca, created_by: _cb, updated_at: _ua, updated_by: _ub, ...rest } = record;
 	return rest;
 }
 
@@ -28,8 +30,9 @@ export function serializeSalaryComponentList(result: {
 	pageSize: number;
 	totalPages: number;
 }) {
+	const { items, ...rest } = result;
 	return {
-		...result,
-		items: result.items.map(serializeSalaryComponent)
+		...rest,
+		data: items.map(serializeSalaryComponent)
 	};
 }

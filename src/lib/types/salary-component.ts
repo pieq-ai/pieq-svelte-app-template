@@ -1,3 +1,5 @@
+import type { SalaryComponentDto } from '$lib/server/serializers/salary-component.serializer.js';
+
 // component_type is enforced at the application layer only (no DB enum)
 export type SalaryComponentType = 'earning' | 'deduction';
 
@@ -43,16 +45,20 @@ export interface UpdateSalaryComponentDto {
 
 export interface SalaryComponentFilters {
 	search?: string;
-	component_type?: SalaryComponentType;
-	is_active?: boolean;
 	page?: number;
 	pageSize?: number;
 	sortBy?: 'component_name' | 'component_type' | 'is_active';
 	sortOrder?: 'asc' | 'desc';
 }
 
-export interface SalaryComponentResponse<T = unknown> {
-	success: boolean;
-	message: string;
-	data?: T;
+export interface ListSalaryComponentResponse {
+	data: SalaryComponentDto[];
+}
+
+export interface MutationSalaryComponentResponse {
+	data: { cuid: string; message: string };
+}
+
+export interface DeleteSalaryComponentResponse {
+	data: { message: string };
 }

@@ -17,7 +17,7 @@ export async function GET({ params }) {
 		}
 
 		const component = await service.getComponentByCuid(cuid);
-		return json(serializeSalaryComponent(component));
+		return json({ data: serializeSalaryComponent(component) });
 	} catch (error) {
 		console.error(`Error in GET /api/salary-components/${params.id}:`, error);
 		const isNotFound = (error as Error).name === 'ComponentNotFoundError';
@@ -58,10 +58,13 @@ export async function PUT({ params, request }) {
 		}
 
 		// Service update step
-		await service.updateComponent(cuid, validatedData);
+		const updated = await service.updateComponent(cuid, validatedData);
 
 		return json({
-			message: 'success'
+			data: {
+				cuid: updated.cuid,
+				message: 'success'
+			}
 		});
 	} catch (error) {
 		console.error(`Error in PUT /api/salary-components/${params.id}:`, error);
@@ -93,12 +96,12 @@ export async function DELETE({ params }) {
 		}
 
 		// Perform soft delete by setting is_active to false
-		const softDeleted = await service.toggleComponentStatus(cuid, false);
+		await service.toggleComponentStatus(cuid, false);
 
 		return json({
-			success: true,
-			message: 'Salary component deactivated successfully',
-			data: serializeSalaryComponent(softDeleted)
+			data: {
+				message: 'success'
+			}
 		});
 	} catch (error) {
 		console.error(`Error in DELETE /api/salary-components/${params.id}:`, error);
