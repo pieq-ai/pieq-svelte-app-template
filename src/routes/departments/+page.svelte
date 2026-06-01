@@ -7,6 +7,7 @@
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { toast } from '$lib/toast';
+	import { createDirtyChecker } from '$lib/utils';
 
 	import {
 		Badge,
@@ -55,6 +56,9 @@
 	let isSubmitting = $state(false);
 	let isModalOpen = $state(false);
 	let isNameTouched = $state(false);
+
+	const dirtyChecker = createDirtyChecker<{ dept_name: string; status: boolean }>();
+	let isDirty = $derived(dirtyChecker.isDirty({ dept_name: formDeptName.trim(), status: formDeptStatus }));
 
 	// Deletion State
 	let itemToDelete = $state<Department | null>(null);
@@ -158,6 +162,7 @@
 		formDeptName = '';
 		formDeptStatus = true;
 		isNameTouched = false;
+		dirtyChecker.snapshot({ dept_name: '', status: true });
 		isModalOpen = true;
 	}
 
@@ -166,11 +171,13 @@
 		formDeptName = dept.dept_name;
 		formDeptStatus = dept.status;
 		isNameTouched = false;
+		dirtyChecker.snapshot({ dept_name: dept.dept_name, status: dept.status });
 		isModalOpen = true;
 	}
 
 	async function handleSaveDepartment(e: Event) {
 		e.preventDefault();
+		if (editingDept && !isDirty) return;
 		isNameTouched = true;
 
 		const validationError = getValidationError(formDeptName);
@@ -373,6 +380,7 @@
 	open={isModalOpen}
 	title={editingDept ? 'Edit Department' : 'Create Department'}
 	description="Register a new organizational unit. Names must be unique and contain at least 2 characters."
+	isDirty={isDirty}
 	onClose={() => (isModalOpen = false)}
 >
 	<form class="space-y-3" onsubmit={handleSaveDepartment}>
@@ -392,7 +400,7 @@
 		{#if editingDept}
 			<StatusDropdown value={formDeptStatus} onChange={(val) => (formDeptStatus = val)} />
 		{/if}
-		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting}>
+		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting || (!!editingDept && !isDirty)}>
 			{isSubmitting ? 'Saving...' : (editingDept ? 'Save Department' : 'Create Department')}
 		</Button>
 	</form>

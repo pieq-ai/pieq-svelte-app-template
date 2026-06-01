@@ -7,6 +7,7 @@
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { toast } from '$lib/toast';
+	import { createDirtyChecker } from '$lib/utils';
 
 	import {
 		Badge,
@@ -55,6 +56,9 @@
 	let isSubmitting = $state(false);
 	let isModalOpen = $state(false);
 	let isNameTouched = $state(false);
+
+	const dirtyChecker = createDirtyChecker<{ designation_name: string; status: boolean }>();
+	let isDirty = $derived(dirtyChecker.isDirty({ designation_name: formDesignationName.trim(), status: formDesignationStatus }));
 
 	// Deletion State
 	let itemToDelete = $state<Designation | null>(null);
@@ -154,6 +158,7 @@
 		formDesignationName = '';
 		formDesignationStatus = true;
 		isNameTouched = false;
+		dirtyChecker.snapshot({ designation_name: '', status: true });
 		isModalOpen = true;
 	}
 
@@ -162,11 +167,13 @@
 		formDesignationName = designation.designation_name;
 		formDesignationStatus = designation.status;
 		isNameTouched = false;
+		dirtyChecker.snapshot({ designation_name: designation.designation_name, status: designation.status });
 		isModalOpen = true;
 	}
 
 	async function handleSaveDesignation(e: Event) {
 		e.preventDefault();
+		if (editingDesignation && !isDirty) return;
 		isNameTouched = true;
 
 		const validationError = getValidationError(formDesignationName);
@@ -369,6 +376,7 @@
 	open={isModalOpen}
 	title={editingDesignation ? 'Edit Designation' : 'Create Designation'}
 	description="Register a job title for assignment in employee employment records."
+	isDirty={isDirty}
 	onClose={() => (isModalOpen = false)}
 >
 	<form class="space-y-3" onsubmit={handleSaveDesignation}>
@@ -388,7 +396,7 @@
 		{#if editingDesignation}
 			<StatusDropdown value={formDesignationStatus} onChange={(val) => (formDesignationStatus = val)} />
 		{/if}
-		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting}>
+		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting || (!!editingDesignation && !isDirty)}>
 			{isSubmitting ? 'Saving...' : (editingDesignation ? 'Save Designation' : 'Create Designation')}
 		</Button>
 	</form>

@@ -7,6 +7,7 @@
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import { toast } from '$lib/toast';
+	import { createDirtyChecker } from '$lib/utils';
 	import {
 		Alert,
 		AlertDescription,
@@ -54,6 +55,9 @@
 	let roleName = $state('');
 	let roleStatus = $state<boolean>(true);
 	let isNameTouched = $state(false);
+
+	const dirtyChecker = createDirtyChecker<{ system_role_name: string; status: boolean }>();
+	let isDirty = $derived(dirtyChecker.isDirty({ system_role_name: roleName.trim(), status: roleStatus }));
 
 	let itemToDelete = $state<SystemRole | null>(null);
 	let isDeleting = $state(false);
@@ -136,6 +140,7 @@
 		roleName = '';
 		roleStatus = true;
 		isNameTouched = false;
+		dirtyChecker.snapshot({ system_role_name: '', status: true });
 		isModalOpen = true;
 	}
 
@@ -144,11 +149,13 @@
 		roleName = role.system_role_name;
 		roleStatus = role.status;
 		isNameTouched = false;
+		dirtyChecker.snapshot({ system_role_name: role.system_role_name, status: role.status });
 		isModalOpen = true;
 	}
 
 	async function saveRole(event: Event) {
 		event.preventDefault();
+		if (editingRole && !isDirty) return;
 		isNameTouched = true;
 		const validationError = getValidationError(roleName);
 		if (validationError) {
@@ -307,6 +314,7 @@
 	open={isModalOpen}
 	title={editingRole ? 'Edit System Role' : 'Create System Role'}
 	description="Role names must be unique and contain only letters, numbers, and spaces."
+	isDirty={isDirty}
 	onClose={() => (isModalOpen = false)}
 >
 	<form class="space-y-3" onsubmit={saveRole}>
@@ -326,7 +334,7 @@
 		{#if editingRole}
 			<StatusDropdown value={roleStatus} onChange={(val) => (roleStatus = val)} />
 		{/if}
-		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting}>
+		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting || (!!editingRole && !isDirty)}>
 			{isSubmitting ? 'Saving...' : (editingRole ? 'Save Role' : 'Create Role')}
 		</Button>
 	</form>

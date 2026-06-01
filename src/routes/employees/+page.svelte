@@ -5,12 +5,14 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
+	import { createDirtyChecker } from '$lib/utils';
 	import {
 		Alert,
 		AlertDescription,
 		Badge,
 		Button,
 		Card,
+		CrudModal,
 		CardContent,
 		CardDescription,
 		CardHeader,
@@ -39,6 +41,16 @@
 	let errorMessage = $state('');
 	let successMessage = $state('');
 	let isCreateModalOpen = $state(false);
+
+	const dirtyChecker = createDirtyChecker<{ name: string; age: string }>();
+	let isDirty = $derived(dirtyChecker.isDirty({ name: newName.trim(), age: newAge }));
+
+	function openCreateModal() {
+		newName = '';
+		newAge = '';
+		dirtyChecker.snapshot({ name: '', age: '' });
+		isCreateModalOpen = true;
+	}
 
 	let filteredEmployees = $derived.by(() => {
 		let result = [...employeesList];
@@ -119,6 +131,7 @@
 
 	async function handleAddEmployee(e: Event) {
 		e.preventDefault();
+		if (!isDirty) return;
 		const ageValue = Number(newAge);
 		if (!newName.trim() || newAge === '' || newAge == null || isNaN(ageValue)) {
 			errorMessage = 'Please provide both Name and Age.';
@@ -175,7 +188,7 @@
 		<Button
 			type="button"
 			class="bg-[#C2652A] text-white hover:bg-[#8C3C3C]"
-			onclick={() => (isCreateModalOpen = true)}
+			onclick={openCreateModal}
 		>
 			<PlusIcon class="size-4" />
 			Add Employee
@@ -293,62 +306,49 @@
 	</div>
 
 	{#if isCreateModalOpen}
-		<div class="fixed inset-0 z-50 flex items-center justify-center bg-[#262626]/70 px-4 py-6">
-			<Card class="w-full max-w-md">
-				<CardHeader class="flex-row items-start justify-between gap-4">
-					<div>
-						<CardTitle>Add New Employee</CardTitle>
-						<CardDescription>Persist a new employee record in PostgreSQL via the API endpoint.</CardDescription>
+		<CrudModal
+			open={isCreateModalOpen}
+			title="Add New Employee"
+			description="Persist a new employee record in PostgreSQL via the API endpoint."
+			isDirty={isDirty}
+			onClose={() => (isCreateModalOpen = false)}
+		>
+			<form onsubmit={handleAddEmployee} class="space-y-4">
+				<div class="space-y-2">
+					<Label for="name">Full Name</Label>
+					<Input id="name" bind:value={newName} placeholder="e.g. Charlie Brown" required />
+				</div>
+
+				<div class="space-y-2">
+					<Label for="age">Age</Label>
+					<Input
+						id="age"
+						type="number"
+						bind:value={newAge}
+						placeholder="e.g. 29"
+						min="1"
+						max="120"
+						required
+					/>
+				</div>
+
+				{#if errorMessage}
+					<div transition:slide>
+						<Alert variant="destructive">
+							<AlertDescription>{errorMessage}</AlertDescription>
+						</Alert>
 					</div>
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon-sm"
-						aria-label="Close add employee modal"
-						onclick={() => (isCreateModalOpen = false)}
-					>
-						<XIcon class="size-4" />
-					</Button>
-				</CardHeader>
-				<CardContent>
-					<form onsubmit={handleAddEmployee} class="space-y-4">
-						<div class="space-y-2">
-							<Label for="name">Full Name</Label>
-							<Input id="name" bind:value={newName} placeholder="e.g. Charlie Brown" required />
-						</div>
+				{/if}
 
-						<div class="space-y-2">
-							<Label for="age">Age</Label>
-							<Input
-								id="age"
-								type="number"
-								bind:value={newAge}
-								placeholder="e.g. 29"
-								min="1"
-								max="120"
-								required
-							/>
-						</div>
-
-						{#if errorMessage}
-							<div transition:slide>
-								<Alert variant="destructive">
-									<AlertDescription>{errorMessage}</AlertDescription>
-								</Alert>
-							</div>
-						{/if}
-
-						<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting}>
-							{#if isSubmitting}
-								<LoaderCircleIcon class="size-4 animate-spin" />
-								Saving Employee...
-							{:else}
-								Save Employee Record
-							{/if}
-						</Button>
-					</form>
-				</CardContent>
-			</Card>
-		</div>
+				<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting || !isDirty}>
+					{#if isSubmitting}
+						<LoaderCircleIcon class="size-4 animate-spin" />
+						Saving Employee...
+					{:else}
+						Save Employee Record
+					{/if}
+				</Button>
+			</form>
+		</CrudModal>
 	{/if}
 </div>

@@ -7,6 +7,7 @@
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import { toast } from '$lib/toast';
+	import { createDirtyChecker } from '$lib/utils';
 	import {
 		Alert,
 		AlertDescription,
@@ -54,6 +55,9 @@
 	let permissionKey = $state('');
 	let permissionStatus = $state<boolean>(true);
 	let isKeyTouched = $state(false);
+
+	const dirtyChecker = createDirtyChecker<{ permission_key: string; status: boolean }>();
+	let isDirty = $derived(dirtyChecker.isDirty({ permission_key: permissionKey.trim(), status: permissionStatus }));
 
 	let itemToDelete = $state<Permission | null>(null);
 	let isDeleting = $state(false);
@@ -136,6 +140,7 @@
 		permissionKey = '';
 		permissionStatus = true;
 		isKeyTouched = false;
+		dirtyChecker.snapshot({ permission_key: '', status: true });
 		isModalOpen = true;
 	}
 
@@ -144,11 +149,13 @@
 		permissionKey = permission.permission_key;
 		permissionStatus = permission.status;
 		isKeyTouched = false;
+		dirtyChecker.snapshot({ permission_key: permission.permission_key, status: permission.status });
 		isModalOpen = true;
 	}
 
 	async function savePermission(event: Event) {
 		event.preventDefault();
+		if (editingPermission && !isDirty) return;
 		isKeyTouched = true;
 		const validationError = getValidationError(permissionKey);
 		if (validationError) {
@@ -313,6 +320,7 @@
 	open={isModalOpen}
 	title={editingPermission ? 'Edit Permission' : 'Create Permission'}
 	description="Permission keys should use lowercase snake_case, such as employee_view."
+	isDirty={isDirty}
 	onClose={() => (isModalOpen = false)}
 >
 	<form class="space-y-3" onsubmit={savePermission}>
@@ -332,7 +340,7 @@
 		{#if editingPermission}
 			<StatusDropdown value={permissionStatus} onChange={(val) => (permissionStatus = val)} />
 		{/if}
-		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting}>
+		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting || (!!editingPermission && !isDirty)}>
 			{isSubmitting ? 'Saving...' : (editingPermission ? 'Save Permission' : 'Create Permission')}
 		</Button>
 	</form>
