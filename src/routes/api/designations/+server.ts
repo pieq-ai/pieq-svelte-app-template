@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as designationService from '$lib/server/services/designation.service.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
-import { mapToApi, mapToDb } from '$lib/server/utils/mapping.js';
+import { mapToDb, toDesignationDTO } from '$lib/server/utils/mapping.js';
 
 function parseDesignationCuid(event: RequestEvent) {
 	const url = new URL(event.request.url);
@@ -24,11 +24,11 @@ export async function GET(event: RequestEvent) {
 
 		if (cuid) {
 			const designation = await designationService.getDesignationByCuid2(cuid);
-			return json({ data: mapToApi(designation) });
+			return json({ data: toDesignationDTO(designation) });
 		}
 
 		const designations = await designationService.getDesignations();
-		return json({ data: mapToApi(designations) });
+		return json({ data: designations.map(toDesignationDTO) });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;

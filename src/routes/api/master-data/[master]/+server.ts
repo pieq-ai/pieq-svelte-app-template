@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import * as masterDataService from '$lib/server/services/master-data.service.js';
-import { mapToApi, mapToDb } from '$lib/server/utils/mapping.js';
+import { mapToDb, toMasterDataDTO } from '$lib/server/utils/mapping.js';
 
 function getStatus(message: string) {
 	if (message === 'Unauthorized') return 401;
@@ -32,7 +32,7 @@ export async function GET(event: RequestEvent) {
 		const countryCuid = url.searchParams.get('countryCuid') ?? undefined;
 
 		return json({
-			data: mapToApi(await masterDataService.getMasterData(getMaster(event), search, countryCuid))
+			data: (await masterDataService.getMasterData(getMaster(event), search, countryCuid)).map(toMasterDataDTO)
 		});
 	} catch (error) {
 		const message = (error as Error).message;

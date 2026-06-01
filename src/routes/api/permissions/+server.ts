@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import * as permissionService from '$lib/server/services/permission.service.js';
-import { mapToApi, mapToDb } from '$lib/server/utils/mapping.js';
+import { mapToDb, toPermissionDTO } from '$lib/server/utils/mapping.js';
 
 function getStatus(message: string) {
 	if (message === 'Unauthorized') return 401;
@@ -25,9 +25,10 @@ export async function GET(event: RequestEvent) {
 		const url = new URL(event.request.url);
 		const cuid = url.searchParams.get('cuid');
 		if (cuid) {
-			return json({ data: mapToApi(await permissionService.getPermissionByCuid2(cuid)) });
+			return json({ data: toPermissionDTO(await permissionService.getPermissionByCuid2(cuid)) });
 		}
-		return json({ data: mapToApi(await permissionService.getPermissions()) });
+		const permissions = await permissionService.getPermissions();
+		return json({ data: permissions.map(toPermissionDTO) });
 	} catch (error) {
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getStatus(message) });
