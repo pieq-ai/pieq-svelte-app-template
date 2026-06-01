@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as designationService from './designation.service.js';
 import * as designationDao from '$lib/server/dao/designation.dao.js';

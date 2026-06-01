@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as rolePermissionDao from './role-permission.dao.js';
 import { db } from '$lib/server/db.js';

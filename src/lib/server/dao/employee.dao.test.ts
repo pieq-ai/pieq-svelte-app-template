@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as employeeDao from './employee.dao.js';
 import { db } from '$lib/server/db.js';
@@ -128,7 +129,7 @@ describe('Employee DAO', () => {
 			};
 			vi.mocked(db.employee.create).mockResolvedValue(mockCreated as any);
 
-			const result = await employeeDao.create(input);
+			await employeeDao.create(input);
 
 			const callArgs = vi.mocked(db.employee.create).mock.calls[0][0];
 			expect(callArgs.data.first_name).toBe('Unknown');

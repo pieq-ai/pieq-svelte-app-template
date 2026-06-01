@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as systemRoleService from './system-role.service.js';
 import * as systemRoleDao from '$lib/server/dao/system-role.dao.js';

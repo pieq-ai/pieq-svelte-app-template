@@ -13,7 +13,6 @@
 		Button,
 		Card,
 		CrudModal,
-		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle,

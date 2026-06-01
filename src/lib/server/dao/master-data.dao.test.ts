@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as masterDataDao from './master-data.dao.js';
-import { db } from '$lib/server/db.js';
 import type { MasterKey } from '$lib/master-data/master-config.js';
 
 const { mockDbMethods } = vi.hoisted(() => ({

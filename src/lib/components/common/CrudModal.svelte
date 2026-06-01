@@ -1,7 +1,7 @@
 <script lang="ts">
 	import XIcon from '@lucide/svelte/icons/x';
 	import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components';
-	import { fade } from 'svelte/transition';
+
 
 	interface Props {
 		open: boolean;
