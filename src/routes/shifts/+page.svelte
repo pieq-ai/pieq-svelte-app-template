@@ -24,11 +24,100 @@
 	let showForm = $state(false);
 	let editShift = $state<Shift | null>(null);
 	let formName = $state('');
+	let formStartTime = $state('09:00');
+	let formEndTime = $state('18:00');
 	let formStatus = $state(true);
 	let formError = $state('');
 	let formLoading = $state(false);
 
+	let showConfirmation = $state(false);
+
+	let originalName = '';
+	let originalStartTime = '';
+	let originalEndTime = '';
+	let originalStatus = true;
+
+	function captureOriginalState() {
+		originalName = editShift ? editShift.shift_name : '';
+		originalStartTime = editShift ? formatTimeForInput(editShift.start_time) : '09:00';
+		originalEndTime = editShift ? formatTimeForInput(editShift.end_time) : '18:00';
+		originalStatus = editShift ? editShift.status : true;
+	}
+
+	function resetStateTracking() {
+		originalName = '';
+		originalStartTime = '';
+		originalEndTime = '';
+		originalStatus = true;
+		showConfirmation = false;
+		formError = '';
+	}
+
+	function hasUnsavedChanges(): boolean {
+		return formName.trim() !== originalName ||
+			formStartTime !== originalStartTime ||
+			formEndTime !== originalEndTime ||
+			formStatus !== originalStatus;
+	}
+
+	function attemptCloseForm() {
+		if (hasUnsavedChanges()) {
+			showConfirmation = true;
+		} else {
+			closeForm();
+		}
+	}
+
+	function discardChanges() {
+		showConfirmation = false;
+		closeForm();
+	}
+
+	function continueEditing() {
+		showConfirmation = false;
+	}
+
+	// Update validation
+	let isUpdateChanged = $derived.by(() => {
+		if (!editShift) return false;
+		return formName.trim() !== originalName ||
+			formStartTime !== originalStartTime ||
+			formEndTime !== originalEndTime ||
+			formStatus !== originalStatus;
+	});
+
+	// Create validation
+	let isCreateValid = $derived.by(() => {
+		const nameTrimmed = formName.trim();
+		if (!nameTrimmed) return false;
+		if (nameTrimmed.length < 2) return false;
+		if (/\d/.test(nameTrimmed)) return false;
+		if (!/^[A-Za-z ]+$/.test(nameTrimmed)) return false;
+		if (nameTrimmed.length > 255) return false;
+		if (!formStartTime || !formEndTime) return false;
+		return true;
+	});
+
 	let activeDropdownId = $state<string | null>(null);
+
+	let calculatedMinHours = $derived.by(() => {
+		if (!formStartTime || !formEndTime) return 0;
+		const [startH, startM] = formStartTime.split(':').map(Number);
+		const [endH, endM] = formEndTime.split(':').map(Number);
+		if (isNaN(startH) || isNaN(startM) || isNaN(endH) || isNaN(endM)) return 0;
+
+		const startTotalMinutes = startH * 60 + startM;
+		let endTotalMinutes = endH * 60 + endM;
+
+		if (endTotalMinutes < startTotalMinutes) {
+			// Crosses midnight (e.g. night shift)
+			endTotalMinutes += 24 * 60;
+		}
+
+		const diffMinutes = endTotalMinutes - startTotalMinutes;
+		const hours = diffMinutes / 60;
+		return Math.round(hours * 100) / 100;
+	});
 
 	function toggleDropdown(cuid: string, event: MouseEvent) {
 		event.stopPropagation();
@@ -84,19 +173,50 @@
 		}
 	}
 
+	function formatTimeForInput(timeVal: any): string {
+		if (!timeVal) return '00:00';
+		const d = new Date(timeVal);
+		if (isNaN(d.getTime())) {
+			if (typeof timeVal === 'string' && timeVal.includes(':')) {
+				return timeVal.slice(0, 5);
+			}
+			return '00:00';
+		}
+		const hours = String(d.getUTCHours()).padStart(2, '0');
+		const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+		return `${hours}:${minutes}`;
+	}
+
+	function formatTimeForDisplay(timeVal: any): string {
+		if (!timeVal) return 'N/A';
+		const d = new Date(timeVal);
+		if (isNaN(d.getTime())) {
+			return String(timeVal);
+		}
+		const hours = String(d.getUTCHours()).padStart(2, '0');
+		const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+		return `${hours}:${minutes}`;
+	}
+
 	function openCreate() {
 		editShift = null;
 		formName = '';
+		formStartTime = '09:00';
+		formEndTime = '18:00';
 		formStatus = true;
 		formError = '';
+		captureOriginalState();
 		showForm = true;
 	}
 
 	function openEdit(shift: Shift) {
 		editShift = shift;
 		formName = shift.shift_name;
+		formStartTime = formatTimeForInput(shift.start_time);
+		formEndTime = formatTimeForInput(shift.end_time);
 		formStatus = shift.status;
 		formError = '';
+		captureOriginalState();
 		showForm = true;
 	}
 
@@ -105,6 +225,7 @@
 		formName = '';
 		formError = '';
 		editShift = null;
+		resetStateTracking();
 	}
 
 	async function submitForm(e: Event) {
@@ -135,12 +256,28 @@
 			toast.error(formError);
 			return;
 		}
+
+		if (!formStartTime || !formEndTime) {
+			formError = 'Start Time and End Time are required.';
+			toast.error(formError);
+			return;
+		}
+
 		formLoading = true;
 		formError = '';
 		try {
 			const url = editShift ? `/api/shifts/${editShift.cuid}` : '/api/shifts';
 			const method = editShift ? 'PUT' : 'POST';
-			const payload: any = { shift_name: nameTrimmed };
+
+			const startTimeIso = `1970-01-01T${formStartTime}:00.000Z`;
+			const endTimeIso = `1970-01-01T${formEndTime}:00.000Z`;
+
+			const payload: any = {
+				shift_name: nameTrimmed,
+				start_time: startTimeIso,
+				end_time: endTimeIso,
+				minimum_work_hours: calculatedMinHours
+			};
 			if (editShift) {
 				payload.status = formStatus;
 			}
@@ -307,6 +444,9 @@
 			<thead style="background:var(--muted)">
 				<tr>
 					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Shift Name</th>
+					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Start Time</th>
+					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">End Time</th>
+					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Min Work Hours</th>
 					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Status</th>
 					<th style="padding:12px 20px;text-align:right;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">Actions</th>
 				</tr>
@@ -326,6 +466,9 @@
 								<span style="font-size:14px;font-weight:600">{shift.shift_name}</span>
 							</div>
 						</td>
+						<td style="padding:14px 20px;font-size:13px">{formatTimeForDisplay(shift.start_time)}</td>
+						<td style="padding:14px 20px;font-size:13px">{formatTimeForDisplay(shift.end_time)}</td>
+						<td style="padding:14px 20px;font-size:13px;font-weight:600">{shift.minimum_work_hours} hrs</td>
 						<td style="padding:14px 20px">
 							{#if shift.status}
 								<span class="badge-active">Active</span>
@@ -391,7 +534,32 @@
 </div>
 
 <!-- Create / Edit Modal -->
-<Modal bind:show={showForm} title={editShift ? 'Edit Shift' : 'Create New Shift'} onclose={closeForm}>
+<Modal bind:show={showForm} title={editShift ? 'Edit Shift' : 'Create New Shift'} onclose={attemptCloseForm}>
+	{#if showConfirmation}
+		<div style="position:fixed;inset:0;background:rgba(15,11,10,0.65);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box">
+			<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;width:100%;max-width:320px;box-shadow:0 10px 25px rgba(0,0,0,0.2);display:flex;flex-direction:column;gap:16px;text-align:center">
+				<h3 style="font-size:16px;font-weight:700;color:var(--foreground);margin:0">Unsaved Changes</h3>
+				<p style="font-size:13px;color:var(--muted-foreground);margin:0">You have unsaved modifications. Are you sure you want to discard them?</p>
+				<div style="display:flex;flex-direction:column;gap:8px">
+					<button
+						type="button"
+						onclick={discardChanges}
+						style="width:100%;padding:9px;border-radius:8px;background:#dc2626;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:opacity 0.15s"
+						onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.opacity = '0.9')}
+						onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.opacity = '1')}
+					>Discard Changes</button>
+					<button
+						type="button"
+						onclick={continueEditing}
+						style="width:100%;padding:9px;border-radius:8px;background:none;border:1px solid var(--border);color:var(--foreground);font-size:13px;font-weight:600;cursor:pointer;transition:background 0.15s"
+						onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = 'var(--muted)')}
+						onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '')}
+					>Continue Editing</button>
+				</div>
+			</div>
+		</div>
+	{/if}
+
 	<form onsubmit={submitForm} style="display:flex;flex-direction:column;gap:16px">
 		<div style="display:flex;flex-direction:column;gap:6px">
 			<label for="shift-name" style="font-size:13px;font-weight:600">
@@ -409,6 +577,48 @@
 			{#if formError}
 				<p style="color:#dc2626;font-size:12px;margin:0">{formError}</p>
 			{/if}
+		</div>
+
+		<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+			<div style="display:flex;flex-direction:column;gap:6px">
+				<label for="shift-start-time" style="font-size:13px;font-weight:600">
+					Start Time <span style="color:#C2652A">*</span>
+				</label>
+				<input
+					id="shift-start-time"
+					type="time"
+					bind:value={formStartTime}
+					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
+					onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+					onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+				/>
+			</div>
+			<div style="display:flex;flex-direction:column;gap:6px">
+				<label for="shift-end-time" style="font-size:13px;font-weight:600">
+					End Time <span style="color:#C2652A">*</span>
+				</label>
+				<input
+					id="shift-end-time"
+					type="time"
+					bind:value={formEndTime}
+					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
+					onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+					onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+				/>
+			</div>
+		</div>
+
+		<div style="display:flex;flex-direction:column;gap:6px">
+			<label for="shift-min-hours" style="font-size:13px;font-weight:600">
+				Minimum Work Hours
+			</label>
+			<input
+				id="shift-min-hours"
+				type="text"
+				value="{calculatedMinHours} hours"
+				disabled
+				style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--muted);color:var(--muted-foreground);outline:none;box-sizing:border-box;cursor:not-allowed"
+			/>
 		</div>
 
 		{#if editShift}
@@ -437,8 +647,8 @@
 			>Cancel</button>
 			<button
 				type="submit"
-				disabled={formLoading}
-				style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;opacity:{formLoading ? 0.7 : 1};display:inline-flex;align-items:center;gap:6px"
+				disabled={formLoading || (editShift ? !isUpdateChanged : !isCreateValid)}
+				style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:opacity 0.2s;opacity:{(formLoading || (editShift ? !isUpdateChanged : !isCreateValid)) ? 0.4 : 1};cursor:{(formLoading || (editShift ? !isUpdateChanged : !isCreateValid)) ? 'not-allowed' : 'pointer'}"
 			>
 				{#if formLoading}
 					<LoaderCircleIcon class="animate-spin" size={14} />

@@ -35,6 +35,116 @@
 	let formError = $state('');
 	let formLoading = $state(false);
 
+	let showConfirmation = $state(false);
+
+	let originalName = '';
+	let originalAddress1 = '';
+	let originalAddress2 = '';
+	let originalCity = '';
+	let originalStateCuid = '';
+	let originalCountryCuid = '';
+	let originalPinCode = '';
+	let originalTimezone = '';
+	let originalStatus = true;
+
+	function captureOriginalState() {
+		originalName = editLocation ? editLocation.location_name : '';
+		originalAddress1 = editLocation ? editLocation.address_line1 : '';
+		originalAddress2 = editLocation ? (editLocation.address_line2 ?? '') : '';
+		originalCity = editLocation ? editLocation.city : '';
+		originalStateCuid = editLocation ? editLocation.state_cuid : '';
+		originalCountryCuid = editLocation ? editLocation.country_cuid : '';
+		originalPinCode = editLocation ? editLocation.pin_code : '';
+		originalTimezone = editLocation ? (editLocation.timezone ?? 'UTC') : 'UTC';
+		originalStatus = editLocation ? editLocation.is_active : true;
+	}
+
+	function resetStateTracking() {
+		originalName = '';
+		originalAddress1 = '';
+		originalAddress2 = '';
+		originalCity = '';
+		originalStateCuid = '';
+		originalCountryCuid = '';
+		originalPinCode = '';
+		originalTimezone = '';
+		originalStatus = true;
+		showConfirmation = false;
+		formError = '';
+	}
+
+	function hasUnsavedChanges(): boolean {
+		return formName.trim() !== originalName ||
+			formAddress1.trim() !== originalAddress1 ||
+			formAddress2.trim() !== originalAddress2 ||
+			formCity.trim() !== originalCity ||
+			formStateCuid !== originalStateCuid ||
+			formCountryCuid !== originalCountryCuid ||
+			formPinCode.trim() !== originalPinCode ||
+			formTimezone.trim() !== originalTimezone ||
+			formStatus !== originalStatus;
+	}
+
+	function attemptCloseForm() {
+		if (hasUnsavedChanges()) {
+			showConfirmation = true;
+		} else {
+			closeForm();
+		}
+	}
+
+	function discardChanges() {
+		showConfirmation = false;
+		closeForm();
+	}
+
+	function continueEditing() {
+		showConfirmation = false;
+	}
+
+	// Update validation
+	let isUpdateChanged = $derived.by(() => {
+		if (!editLocation) return false;
+		return formName.trim() !== originalName ||
+			formAddress1.trim() !== originalAddress1 ||
+			formAddress2.trim() !== originalAddress2 ||
+			formCity.trim() !== originalCity ||
+			formStateCuid !== originalStateCuid ||
+			formCountryCuid !== originalCountryCuid ||
+			formPinCode.trim() !== originalPinCode ||
+			formTimezone.trim() !== originalTimezone ||
+			formStatus !== originalStatus;
+	});
+
+	// Create validation
+	let isCreateValid = $derived.by(() => {
+		const nameTrimmed = formName.trim();
+		if (!nameTrimmed || nameTrimmed.length < 2 || nameTrimmed.length > 255) return false;
+
+		const address1Trimmed = formAddress1.trim();
+		const cityTrimmed = formCity.trim();
+		const pinTrimmed = formPinCode.trim();
+		const tzTrimmed = formTimezone.trim();
+
+		if (!address1Trimmed || !cityTrimmed || !formCountryCuid || !formStateCuid || !pinTrimmed || !tzTrimmed) return false;
+
+		const lower = nameTrimmed.toLowerCase();
+		if (
+			lower.includes('<script') ||
+			lower.includes('script>') ||
+			lower.includes('drop table') ||
+			lower.includes('select ') ||
+			lower.includes('--') ||
+			lower.includes('/*')
+		) return false;
+
+		if (/^\d+$/.test(nameTrimmed)) return false;
+		if (!/[A-Za-z]/.test(nameTrimmed)) return false;
+		if (/[A-Za-z]\d|\d[A-Za-z]/.test(nameTrimmed)) return false;
+
+		return true;
+	});
+
 	// Dropdown choices
 	let countries = $state<any[]>([]);
 	let states = $state<any[]>([]);
@@ -162,6 +272,7 @@
 		formTimezone = 'UTC';
 		formStatus = true;
 		formError = '';
+		captureOriginalState();
 		showForm = true;
 	}
 
@@ -177,6 +288,7 @@
 		formTimezone = loc.timezone ?? 'UTC';
 		formStatus = loc.is_active;
 		formError = '';
+		captureOriginalState();
 		showForm = true;
 	}
 
@@ -192,6 +304,7 @@
 		formTimezone = '';
 		formError = '';
 		editLocation = null;
+		resetStateTracking();
 	}
 
 	async function submitForm(e: Event) {
@@ -559,7 +672,32 @@
 </div>
 
 <!-- Create / Edit Modal -->
-<Modal bind:show={showForm} title={editLocation ? 'Edit Location' : 'Create New Location'} onclose={closeForm}>
+<Modal bind:show={showForm} title={editLocation ? 'Edit Location' : 'Create New Location'} onclose={attemptCloseForm}>
+	{#if showConfirmation}
+		<div style="position:fixed;inset:0;background:rgba(15,11,10,0.65);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box">
+			<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;width:100%;max-width:320px;box-shadow:0 10px 25px rgba(0,0,0,0.2);display:flex;flex-direction:column;gap:16px;text-align:center">
+				<h3 style="font-size:16px;font-weight:700;color:var(--foreground);margin:0">Unsaved Changes</h3>
+				<p style="font-size:13px;color:var(--muted-foreground);margin:0">You have unsaved modifications. Are you sure you want to discard them?</p>
+				<div style="display:flex;flex-direction:column;gap:8px">
+					<button
+						type="button"
+						onclick={discardChanges}
+						style="width:100%;padding:9px;border-radius:8px;background:#dc2626;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:opacity 0.15s"
+						onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.opacity = '0.9')}
+						onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.opacity = '1')}
+					>Discard Changes</button>
+					<button
+						type="button"
+						onclick={continueEditing}
+						style="width:100%;padding:9px;border-radius:8px;background:none;border:1px solid var(--border);color:var(--foreground);font-size:13px;font-weight:600;cursor:pointer;transition:background 0.15s"
+						onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = 'var(--muted)')}
+						onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '')}
+					>Continue Editing</button>
+				</div>
+			</div>
+		</div>
+	{/if}
+
 	<form onsubmit={submitForm} style="display:flex;flex-direction:column;gap:16px">
 		<div style="display:flex;flex-direction:column;gap:6px">
 			<label for="location-name" style="font-size:13px;font-weight:600">
@@ -719,8 +857,8 @@
 			>Cancel</button>
 			<button
 				type="submit"
-				disabled={formLoading}
-				style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;opacity:{formLoading ? 0.7 : 1};display:inline-flex;align-items:center;gap:6px"
+				disabled={formLoading || (editLocation ? !isUpdateChanged : !isCreateValid)}
+				style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:opacity 0.2s;opacity:{(formLoading || (editLocation ? !isUpdateChanged : !isCreateValid)) ? 0.4 : 1};cursor:{(formLoading || (editLocation ? !isUpdateChanged : !isCreateValid)) ? 'not-allowed' : 'pointer'}"
 			>
 				{#if formLoading}
 					<LoaderCircleIcon class="animate-spin" size={14} />

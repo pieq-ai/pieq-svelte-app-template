@@ -8,7 +8,16 @@ import type { Shift, ShiftCreateDTO, ShiftUpdateDTO } from '$lib/types/shift';
 export async function createShift(data: ShiftCreateDTO): Promise<Shift> {
   const startTime = data.start_time ? new Date(data.start_time) : new Date('1970-01-01T09:00:00Z');
   const endTime = data.end_time ? new Date(data.end_time) : new Date('1970-01-01T18:00:00Z');
-  const minHours = data.minimum_work_hours !== undefined ? data.minimum_work_hours : 8.0;
+  
+  let minHours = data.minimum_work_hours !== undefined ? data.minimum_work_hours : 8.0;
+  if (data.start_time !== undefined && data.end_time !== undefined) {
+    const diffMs = endTime.getTime() - startTime.getTime();
+    let diffHrs = diffMs / (1000 * 60 * 60);
+    if (diffHrs < 0) {
+      diffHrs += 24;
+    }
+    minHours = Math.round(diffHrs * 100) / 100;
+  }
 
   return db.shift.create({
     data: {
@@ -115,11 +124,36 @@ export async function updateShift(cuid: string, data: ShiftUpdateDTO): Promise<S
   if (data.end_time !== undefined) {
     updateData.end_time = new Date(data.end_time);
   }
-  if (data.minimum_work_hours !== undefined) {
-    updateData.minimum_work_hours = data.minimum_work_hours;
-  }
   if (data.status !== undefined) {
     updateData.status = data.status;
+  }
+
+  if (data.start_time !== undefined || data.end_time !== undefined) {
+    let startTime = data.start_time !== undefined ? new Date(data.start_time) : undefined;
+    let endTime = data.end_time !== undefined ? new Date(data.end_time) : undefined;
+
+    if (startTime === undefined || endTime === undefined) {
+      const existing = await getShiftByCuid(cuid);
+      if (existing) {
+        if (startTime === undefined) {
+          startTime = new Date(existing.start_time);
+        }
+        if (endTime === undefined) {
+          endTime = new Date(existing.end_time);
+        }
+      }
+    }
+
+    if (startTime !== undefined && endTime !== undefined) {
+      const diffMs = endTime.getTime() - startTime.getTime();
+      let diffHrs = diffMs / (1000 * 60 * 60);
+      if (diffHrs < 0) {
+        diffHrs += 24;
+      }
+      updateData.minimum_work_hours = Math.round(diffHrs * 100) / 100;
+    }
+  } else if (data.minimum_work_hours !== undefined) {
+    updateData.minimum_work_hours = data.minimum_work_hours;
   }
 
   return db.shift.update({
