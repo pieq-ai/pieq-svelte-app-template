@@ -89,7 +89,7 @@
 					>
 						Cancel
 					</Button>
-					<Button type="submit" class="shadow-sm shadow-primary/10" disabled={isSubmitting}>
+					<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary-dark border-0 shadow-sm shadow-primary/10" disabled={isSubmitting}>
 						{#if isSubmitting}
 							<LoaderCircleIcon class="mr-1.5 size-4 animate-spin" />
 							Saving...

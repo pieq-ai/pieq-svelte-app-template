@@ -1,703 +1,663 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import MoreVerticalIcon from '@lucide/svelte/icons/more-vertical';
-	import PencilIcon from '@lucide/svelte/icons/pencil';
-	import {
-		Badge,
-		Button,
-		Card,
-		CardContent,
-		CardHeader,
-		CardTitle,
-		Input,
-		Label,
-		TableRow,
-		TableCell,
-		StatusBadge,
-		SearchBar,
-		Pagination,
-		MasterTable,
-		MasterFormModal
-	} from '$lib/components';
+  import { onMount } from "svelte";
+  import PlusIcon from "@lucide/svelte/icons/plus";
+  import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
+  import PencilIcon from "@lucide/svelte/icons/pencil";
+  import CheckIcon from "@lucide/svelte/icons/check";
+  import {
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    Input,
+    Label,
+    TableRow,
+    TableCell,
+    SearchBar,
+    Pagination,
+    MasterTable,
+    MasterFormModal,
+  } from "$lib/components";
 
-	import type {
-		SalaryComponent,
-		SalaryComponentType
-	} from '$lib/types/salary-component';
-	import { validateComponentName } from '$lib/validators/salary-component';
-	import { SvelteURLSearchParams } from 'svelte/reactivity';
-	import { toast } from '$lib/toast.svelte';
-	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
-	import { scale } from 'svelte/transition';
+  import type {
+    SalaryComponent,
+    SalaryComponentType,
+  } from "$lib/types/salary-component";
+  import { validateComponentName } from "$lib/validators/salary-component";
+  import { SvelteURLSearchParams } from "svelte/reactivity";
+  import { toast } from "$lib/toast.svelte";
+  import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
+  import { scale } from "svelte/transition";
 
-	let items = $state<SalaryComponent[]>([]);
-	let totalItems = $state(0);
-	let totalPages = $state(1);
+  let items = $state<SalaryComponent[]>([]);
+  let totalItems = $state(0);
+  let totalPages = $state(1);
 
-	let isLoading = $state(false);
+  let isLoading = $state(false);
 
-	let searchQuery = $state('');
-	let filterType = $state<'all' | SalaryComponentType>('all');
-	// 'all' | 'true' | 'false' maps to undefined | true | false for the API
-	let filterActive = $state<'all' | 'true' | 'false'>('all');
+  let searchQuery = $state("");
+  let filterType = $state<"all" | SalaryComponentType>("all");
+  // 'all' | 'true' | 'false' maps to undefined | true | false for the API
+  let filterActive = $state<"all" | "true" | "false">("all");
 
-	let page = $state(1);
-	let pageSize = $state(10);
+  let page = $state(1);
+  let pageSize = $state(10);
 
-	let sortBy = $state('component_name');
-	let sortOrder = $state<'asc' | 'desc'>('asc');
+  let sortBy = $state("component_name");
+  let sortOrder = $state<"asc" | "desc">("asc");
 
-	let isModalOpen = $state(false);
-	let isSubmitting = $state(false);
+  let isModalOpen = $state(false);
+  let isSubmitting = $state(false);
 
-	let editingId = $state<string | null>(null);
+  let editingId = $state<string | null>(null);
 
-	let formName = $state('');
-	let formType = $state<SalaryComponentType>('earning');
-	let formIsTaxable = $state(false);
-	let formIsActive = $state(true);
+  let formName = $state("");
+  let formType = $state<SalaryComponentType>("earning");
+  let formIsTaxable = $state(false);
+  let formIsActive = $state(true);
 
+  let earningsCount = $state(0);
+  let deductionsCount = $state(0);
+  /** Always reflects the unfiltered total — not affected by search/type/status filters */
+  let totalAllComponents = $state(0);
 
+  let previousFilters = "";
 
-	let earningsCount = $state(0);
-	let deductionsCount = $state(0);
-	/** Always reflects the unfiltered total — not affected by search/type/status filters */
-	let totalAllComponents = $state(0);
+  const headers = [
+    {
+      key: "component_name",
+      label: "Component Name",
+      sortable: true,
+      class: "pl-5",
+    },
+    {
+      key: "component_type",
+      label: "Type",
+      sortable: true,
+    },
+    {
+      key: "is_taxable",
+      label: "Taxable",
+    },
+    {
+      key: "is_active",
+      label: "Status",
+      sortable: true,
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      class: "text-center",
+    },
+  ];
 
-	let previousFilters = '';
+  async function loadComponents() {
+    try {
+      isLoading = true;
 
-	const headers = [
-		{
-			key: 'component_name',
-			label: 'Component Name',
-			sortable: true,
-			class: 'pl-5'
-		},
-		{
-			key: 'component_type',
-			label: 'Type',
-			sortable: true
-		},
-		{
-			key: 'is_taxable',
-			label: 'Taxable'
-		},
-		{
-			key: 'is_active',
-			label: 'Status',
-			sortable: true
-		},
-		{
-			key: 'actions',
-			label: 'Actions',
-			class: 'text-center'
-		}
-	];
+      const params = new SvelteURLSearchParams();
 
-	async function loadComponents() {
-		try {
-			isLoading = true;
+      if (searchQuery) params.set("search", searchQuery);
 
-			const params = new SvelteURLSearchParams();
+      if (filterType !== "all") params.set("component_type", filterType);
 
-			if (searchQuery)
-				params.set('search', searchQuery);
+      if (filterActive !== "all") params.set("is_active", filterActive);
 
-			if (filterType !== 'all')
-				params.set(
-					'component_type',
-					filterType
-				);
+      params.set("page", page.toString());
+      params.set("pageSize", pageSize.toString());
 
-			if (filterActive !== 'all')
-				params.set(
-					'is_active',
-					filterActive
-				);
+      params.set("sortBy", sortBy);
+      params.set("sortOrder", sortOrder);
 
-			params.set('page', page.toString());
-			params.set(
-				'pageSize',
-				pageSize.toString()
-			);
+      const res = await fetch(`/api/salary-components?${params}`);
 
-			params.set('sortBy', sortBy);
-			params.set(
-				'sortOrder',
-				sortOrder
-			);
+      if (!res.ok) {
+        const errorJson = await res.json();
+        throw new Error(
+          errorJson.message || "Failed loading salary components",
+        );
+      }
 
-			const res = await fetch(
-				`/api/salary-components?${params}`
-			);
+      const json = await res.json();
 
-			if (!res.ok) {
-				const errorJson = await res.json();
-				throw new Error(errorJson.message || 'Failed loading salary components');
-			}
+      items = json.items;
+      totalItems = json.total;
+      totalPages = json.totalPages;
+    } catch (e) {
+      console.error(e);
+      toast.error(
+        e instanceof Error ? e.message : "Failed loading salary components",
+      );
+    } finally {
+      isLoading = false;
+    }
+  }
 
-			const json = await res.json();
+  async function loadStats() {
+    try {
+      const res = await fetch("/api/salary-components?stats=true");
 
-			items = json.items;
-			totalItems = json.total;
-			totalPages = json.totalPages;
-		} catch (e) {
-			console.error(e);
-			toast.error(
-				e instanceof Error
-					? e.message
-					: 'Failed loading salary components'
-			);
-		} finally {
-			isLoading = false;
-		}
-	}
+      if (!res.ok) return;
 
-	async function loadStats() {
-		try {
-			const res = await fetch('/api/salary-components?stats=true');
+      const json = await res.json();
 
-			if (!res.ok) return;
+      totalAllComponents = json.total ?? 0;
+      earningsCount = json.earningsCount ?? 0;
+      deductionsCount = json.deductionsCount ?? 0;
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
-			const json = await res.json();
+  $effect(() => {
+    const currentFilters = `${searchQuery}-${filterType}-${filterActive}`;
 
-			totalAllComponents = json.total ?? 0;
-			earningsCount = json.earningsCount ?? 0;
-			deductionsCount = json.deductionsCount ?? 0;
-		} catch (e) {
-			console.error(e);
-		}
-	}
+    if (previousFilters && previousFilters !== currentFilters) {
+      page = 1;
+    }
 
-	$effect(() => {
-		const currentFilters =
-			`${searchQuery}-${filterType}-${filterActive}`;
+    previousFilters = currentFilters;
 
-		if (
-			previousFilters &&
-			previousFilters !==
-				currentFilters
-		) {
-			page = 1;
-		}
+    loadComponents();
+  });
 
-		previousFilters =
-			currentFilters;
+  onMount(() => {
+    // loadComponents() is already triggered by the $effect above on initial render.
+    // Only loadStats() needs to run here to avoid a duplicate GET for the table data.
+    loadStats();
+  });
 
-		loadComponents();
-	});
+  function handleOpenCreate() {
+    editingId = null;
 
-	onMount(() => {
-		// loadComponents() is already triggered by the $effect above on initial render.
-		// Only loadStats() needs to run here to avoid a duplicate GET for the table data.
-		loadStats();
-	});
+    formName = "";
+    formType = "earning";
+    formIsActive = true;
+    formIsTaxable = false;
 
-	function handleOpenCreate() {
-		editingId = null;
+    isModalOpen = true;
+  }
 
-		formName = '';
-		formType = 'earning';
-		formIsActive = true;
-		formIsTaxable = false;
+  function handleOpenEdit(component: SalaryComponent) {
+    editingId = component.cuid;
 
-		isModalOpen = true;
-	}
+    formName = component.component_name;
 
-	function handleOpenEdit(
-		component: SalaryComponent
-	) {
-		editingId =
-			component.cuid;
+    formType = component.component_type;
 
-		formName =
-			component.component_name;
+    formIsActive = component.is_active;
 
-		formType =
-			component.component_type;
+    formIsTaxable = component.is_taxable;
 
-		formIsActive =
-			component.is_active;
+    isModalOpen = true;
+  }
 
-		formIsTaxable =
-			component.is_taxable;
+  async function handleFormSubmit(e: SubmitEvent) {
+    e.preventDefault();
 
-		isModalOpen = true;
-	}
+    const trimmedName = formName.trim();
+    formName = trimmedName;
 
-	async function handleFormSubmit(
-		e: SubmitEvent
-	) {
-		e.preventDefault();
+    const nameError = validateComponentName(trimmedName);
+    if (nameError) {
+      toast.error(nameError);
+      return;
+    }
 
-		const trimmedName = formName.trim();
-		formName = trimmedName;
+    try {
+      isSubmitting = true;
 
-		const nameError = validateComponentName(trimmedName);
-		if (nameError) {
-			toast.error(nameError);
-			return;
-		}
+      const payload = {
+        component_name: trimmedName,
+        component_type: formType,
+        is_active: formIsActive,
+        is_taxable: formIsTaxable,
+      };
 
-		try {
-			isSubmitting = true;
+      const res = await fetch(
+        editingId
+          ? `/api/salary-components/${editingId}`
+          : "/api/salary-components",
+        {
+          method: editingId ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        },
+      );
 
-			const payload = {
-				component_name:
-					trimmedName,
-				component_type:
-					formType,
-				is_active:
-					formIsActive,
-				is_taxable:
-					formIsTaxable
-			};
+      const json = await res.json();
 
-			const res =
-				await fetch(
-					editingId
-						? `/api/salary-components/${editingId}`
-						: '/api/salary-components',
-					{
-						method:
-							editingId
-								? 'PUT'
-								: 'POST',
-						headers: {
-							'Content-Type':
-								'application/json'
-						},
-						body:
-							JSON.stringify(
-								payload
-							)
-					}
-				);
+      if (!res.ok)
+        throw new Error(json.message || "Failed to save salary component");
 
-			const json = await res.json();
+      await Promise.all([loadComponents(), loadStats()]);
 
-			if (!res.ok)
-				throw new Error(
-					json.message || 'Failed to save salary component'
-				);
+      toast.success(
+        editingId
+          ? "Salary Component updated successfully"
+          : "Salary Component created successfully",
+      );
+      isModalOpen = false;
+    } catch (e) {
+      toast.error(
+        e instanceof Error ? e.message : "Failed to save salary component",
+      );
+    } finally {
+      isSubmitting = false;
+    }
+  }
 
-			await Promise.all([
-				loadComponents(),
-				loadStats()
-			]);
+  let activeDropdown = $state<string | null>(null);
+  /** cuid of the row whose kebab menu is currently open; null = none */
+  let openKebabCuid = $state<string | null>(null);
 
-			toast.success(
-				editingId
-					? 'Salary Component updated successfully'
-					: 'Salary Component created successfully'
-			);
-			isModalOpen = false;
-		} catch (e) {
-			toast.error(
-				e instanceof Error
-					? e.message
-					: 'Failed to save salary component'
-			);
-		} finally {
-			isSubmitting = false;
-		}
-	}
+  function toggleDropdown(name: string, e: MouseEvent) {
+    e.stopPropagation();
+    if (activeDropdown === name) {
+      activeDropdown = null;
+    } else {
+      activeDropdown = name;
+    }
+  }
 
-	let activeDropdown = $state<string | null>(null);
-	/** cuid of the row whose kebab menu is currently open; null = none */
-	let openKebabCuid = $state<string | null>(null);
+  function closeAllDropdowns() {
+    activeDropdown = null;
+    openKebabCuid = null;
+  }
 
-	function toggleDropdown(name: string, e: MouseEvent) {
-		e.stopPropagation();
-		if (activeDropdown === name) {
-			activeDropdown = null;
-		} else {
-			activeDropdown = name;
-		}
-	}
-
-	function closeAllDropdowns() {
-		activeDropdown = null;
-		openKebabCuid = null;
-	}
-
-	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'Escape') {
-			activeDropdown = null;
-			openKebabCuid = null;
-		}
-	}
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === "Escape") {
+      activeDropdown = null;
+      openKebabCuid = null;
+    }
+  }
 </script>
 
 <svelte:window onkeydown={handleKeydown} onclick={closeAllDropdowns} />
 
 <svelte:head>
-	<title>Salary Components | PieQ HRMS</title>
+  <title>Salary Components | PieQ HRMS</title>
 </svelte:head>
 
 <div class="space-y-5">
-	<!-- Page Header -->
-	<div class="flex items-center justify-between">
-		<div>
-			<h1 class="text-3xl font-bold tracking-tight">Salary Components</h1>
-			<p class="mt-2 text-muted-foreground">
-				Define and manage salary earning and deduction configurations.
-			</p>
-		</div>
-		<Button
-			onclick={handleOpenCreate}
-			class="gap-2 bg-[#C2652A] text-white hover:bg-[#a8531f] border-0"
-		>
-			<PlusIcon class="size-4" />
-			Create Component
-		</Button>
-	</div>
+  <!-- Page Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight">Salary Components</h1>
+      <p class="mt-2 text-muted-foreground">
+        Define and manage salary earning and deduction configurations.
+      </p>
+    </div>
+    <Button
+      onclick={handleOpenCreate}
+      class="gap-2 bg-hrms-primary text-white hover:bg-hrms-primary-dark border-0"
+    >
+      <PlusIcon class="size-4" />
+      Create Component
+    </Button>
+  </div>
 
-	<!-- Stats Grid -->
-	<div class="grid gap-6 md:grid-cols-3">
-		<Card>
-			<CardHeader class="pb-2">
-				<CardTitle class="text-sm font-medium text-muted-foreground">Total Components</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<p class="text-3xl font-bold">{totalAllComponents}</p>
-				<p class="mt-1 text-xs text-muted-foreground">Registered salary masters</p>
-			</CardContent>
-		</Card>
+  <!-- Stats Grid -->
+  <div class="grid gap-6 md:grid-cols-3">
+    <Card>
+      <CardHeader class="pb-2">
+        <CardTitle class="text-sm font-medium text-muted-foreground"
+          >Total Components</CardTitle
+        >
+      </CardHeader>
+      <CardContent>
+        <p class="text-3xl font-bold">{totalAllComponents}</p>
+        <p class="mt-1 text-xs text-muted-foreground">
+          Registered salary masters
+        </p>
+      </CardContent>
+    </Card>
 
-		<Card>
-			<CardHeader class="pb-2">
-				<CardTitle class="text-sm font-medium text-muted-foreground">Active Earnings</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<p class="text-3xl font-bold">{earningsCount}</p>
-				<p class="mt-1 text-xs text-muted-foreground">Additions to gross base salary</p>
-			</CardContent>
-		</Card>
+    <Card>
+      <CardHeader class="pb-2">
+        <CardTitle class="text-sm font-medium text-muted-foreground"
+          >Active Earnings</CardTitle
+        >
+      </CardHeader>
+      <CardContent>
+        <p class="text-3xl font-bold">{earningsCount}</p>
+        <p class="mt-1 text-xs text-muted-foreground">
+          Additions to gross base salary
+        </p>
+      </CardContent>
+    </Card>
 
-		<Card>
-			<CardHeader class="pb-2">
-				<CardTitle class="text-sm font-medium text-muted-foreground">Active Deductions</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<p class="text-3xl font-bold">{deductionsCount}</p>
-				<p class="mt-1 text-xs text-muted-foreground">Statutory and optional cutbacks</p>
-			</CardContent>
-		</Card>
-	</div>
+    <Card>
+      <CardHeader class="pb-2">
+        <CardTitle class="text-sm font-medium text-muted-foreground"
+          >Active Deductions</CardTitle
+        >
+      </CardHeader>
+      <CardContent>
+        <p class="text-3xl font-bold">{deductionsCount}</p>
+        <p class="mt-1 text-xs text-muted-foreground">
+          Statutory and optional cutbacks
+        </p>
+      </CardContent>
+    </Card>
+  </div>
 
+  <!-- Filter + Table Card -->
+  <Card class="pt-1 gap-2">
+    <!-- Toolbar -->
+    <div
+      class="flex flex-col gap-3 border-b p-3 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <div class="w-full max-w-xs">
+        <SearchBar
+          bind:value={searchQuery}
+          placeholder="Search component name..."
+        />
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Filter Type Dropdown -->
+        <div class="relative">
+          <button
+            type="button"
+            onclick={(e) => toggleDropdown("filterType", e)}
+            class="relative h-9 w-40 rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
+          >
+            <span>
+              {filterType === "all"
+                ? "All Types"
+                : filterType === "earning"
+                  ? "Earning"
+                  : "Deduction"}
+            </span>
+            <span
+              class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70"
+            >
+              <ChevronDownIcon class="size-4" />
+            </span>
+          </button>
 
+          {#if activeDropdown === "filterType"}
+            <div
+              transition:scale={{ start: 0.95, duration: 100 }}
+              class="absolute left-0 mt-1.5 z-50 w-full min-w-40 rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
+            >
+              {#each [{ value: "all", label: "All Types" }, { value: "earning", label: "Earning" }, { value: "deduction", label: "Deduction" }] as opt (opt.value)}
+                <button
+                  type="button"
+                  onclick={() => {
+                    filterType = opt.value as "all" | SalaryComponentType;
+                    activeDropdown = null;
+                  }}
+                  class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300
+									{filterType === opt.value ? 'bg-slate-100 dark:bg-slate-800' : ''}"
+                >
+                  <span>{opt.label}</span>
+                  {#if filterType === opt.value}
+                    <CheckIcon class="size-3.5 shrink-0" />
+                  {/if}
+                </button>
+              {/each}
+            </div>
+          {/if}
+        </div>
 
-	<!-- Filter + Table Card -->
-	<Card class="pt-1 gap-2">
-		<!-- Toolbar -->
-		<div class="flex flex-col gap-3 border-b p-3 sm:flex-row sm:items-center sm:justify-between">
-			<div class="w-full max-w-xs">
-				<SearchBar bind:value={searchQuery} placeholder="Search component name..." />
-			</div>
-			<div class="flex flex-wrap items-center gap-2">
-				<!-- Filter Type Dropdown -->
-				<div class="relative">
-					<button
-						type="button"
-						onclick={(e) => toggleDropdown('filterType', e)}
-						class="relative h-9 w-40 rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
-					>
-						<span>
-							{filterType === 'all' ? 'All Types' : (filterType === 'earning' ? 'Earning' : 'Deduction')}
-						</span>
-						<span class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70">
-							<ChevronDownIcon class="size-4" />
-						</span>
-					</button>
+        <!-- Filter Active Dropdown -->
+        <div class="relative">
+          <button
+            type="button"
+            onclick={(e) => toggleDropdown("filterActive", e)}
+            class="relative h-9 w-40 rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
+          >
+            <span>
+              {filterActive === "all"
+                ? "All Statuses"
+                : filterActive === "true"
+                  ? "Active"
+                  : "Inactive"}
+            </span>
+            <span
+              class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70"
+            >
+              <ChevronDownIcon class="size-4" />
+            </span>
+          </button>
 
-					{#if activeDropdown === 'filterType'}
-						<div
-							transition:scale={{ start: 0.95, duration: 100 }}
-							class="absolute left-0 mt-1.5 z-50 w-full min-w-[10rem] rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
-						>
-							{#each [
-								{ value: 'all', label: 'All Types' },
-								{ value: 'earning', label: 'Earning' },
-								{ value: 'deduction', label: 'Deduction' }
-							] as opt (opt.value)}
-								<button
-									type="button"
-									onclick={() => {
-										filterType = opt.value as 'all' | SalaryComponentType;
-										activeDropdown = null;
-									}}
-									class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium
-										{filterType === opt.value
-											? 'bg-[#C2652A]/10 text-[#C2652A] dark:bg-[#C2652A]/20'
-											: 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'}"
-								>
-									{opt.label}
-								</button>
-							{/each}
-						</div>
-					{/if}
-				</div>
+          {#if activeDropdown === "filterActive"}
+            <div
+              transition:scale={{ start: 0.95, duration: 100 }}
+              class="absolute left-0 mt-1.5 z-50 w-full min-w-40 rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
+            >
+              {#each [{ value: "all", label: "All Statuses" }, { value: "true", label: "Active" }, { value: "false", label: "Inactive" }] as opt (opt.value)}
+                <button
+                  type="button"
+                  onclick={() => {
+                    filterActive = opt.value as "all" | "true" | "false";
+                    activeDropdown = null;
+                  }}
+                  class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300
+									{filterActive === opt.value ? 'bg-slate-100 dark:bg-slate-800' : ''}"
+                >
+                  <span>{opt.label}</span>
+                  {#if filterActive === opt.value}
+                    <CheckIcon class="size-3.5 shrink-0" />
+                  {/if}
+                </button>
+              {/each}
+            </div>
+          {/if}
+        </div>
+      </div>
+    </div>
 
-				<!-- Filter Active Dropdown -->
-				<div class="relative">
-					<button
-						type="button"
-						onclick={(e) => toggleDropdown('filterActive', e)}
-						class="relative h-9 w-40 rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
-					>
-						<span>
-							{filterActive === 'all' ? 'All Statuses' : (filterActive === 'true' ? 'Active' : 'Inactive')}
-						</span>
-						<span class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70">
-							<ChevronDownIcon class="size-4" />
-						</span>
-					</button>
+    <!-- Table -->
+    <MasterTable
+      {headers}
+      {items}
+      {isLoading}
+      bind:sortBy
+      bind:sortOrder
+      emptyMessage="No salary components found matching your selection."
+    >
+      {#snippet itemSnippet(comp: SalaryComponent)}
+        <TableRow class="hover:bg-muted/50 transition-colors">
+          <TableCell class="font-medium pl-5">{comp.component_name}</TableCell>
+          <TableCell>
+            <span class="capitalize">{comp.component_type}</span>
+          </TableCell>
+          <TableCell>
+            <span>{comp.is_taxable ? "Taxable" : "Non-taxable"}</span>
+          </TableCell>
+          <TableCell>
+            <span
+              class="inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-medium w-15
+							{comp.is_active ? 'bg-foreground text-background' : 'bg-muted text-foreground'}"
+            >
+              {comp.is_active ? "Active" : "Inactive"}
+            </span>
+          </TableCell>
+          <TableCell class="text-center">
+            <div class="relative flex justify-center">
+              <!-- Kebab trigger -->
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                class="h-8 w-8 text-muted-foreground hover:text-foreground mx-auto"
+                onclick={(e) => {
+                  e.stopPropagation();
+                  openKebabCuid =
+                    openKebabCuid === comp.cuid ? null : comp.cuid;
+                }}
+                aria-label="Row actions"
+                title="Actions"
+              >
+                <MoreVerticalIcon class="size-4" />
+              </Button>
 
-					{#if activeDropdown === 'filterActive'}
-						<div
-							transition:scale={{ start: 0.95, duration: 100 }}
-							class="absolute left-0 mt-1.5 z-50 w-full min-w-[10rem] rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
-						>
-							{#each [
-								{ value: 'all', label: 'All Statuses' },
-								{ value: 'true', label: 'Active' },
-								{ value: 'false', label: 'Inactive' }
-							] as opt (opt.value)}
-								<button
-									type="button"
-									onclick={() => {
-										filterActive = opt.value as 'all' | 'true' | 'false';
-										activeDropdown = null;
-									}}
-									class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium
-										{filterActive === opt.value
-											? 'bg-[#C2652A]/10 text-[#C2652A] dark:bg-[#C2652A]/20'
-											: 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'}"
-								>
-									{opt.label}
-								</button>
-							{/each}
-						</div>
-					{/if}
-				</div>
-			</div>
-		</div>
+              <!-- Kebab dropdown containing ONLY Edit -->
+              {#if openKebabCuid === comp.cuid}
+                <div
+                  role="menu"
+                  tabindex="-1"
+                  transition:scale={{ start: 0.95, duration: 100 }}
+                  class="absolute right-1/2 translate-x-1/2 top-9 z-50 w-28 rounded-lg border border-border bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
+                  onclick={(e) => e.stopPropagation()}
+                  onkeydown={(e) => e.stopPropagation()}
+                >
+                  <!-- Edit -->
+                  <button
+                    type="button"
+                    onclick={() => {
+                      openKebabCuid = null;
+                      handleOpenEdit(comp);
+                    }}
+                    class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+                  >
+                    <PencilIcon class="size-3.5" />
+                    Edit
+                  </button>
+                </div>
+              {/if}
+            </div>
+          </TableCell>
+        </TableRow>
+      {/snippet}
+    </MasterTable>
 
-		<!-- Table -->
-		<MasterTable
-			{headers}
-			items={items}
-			isLoading={isLoading}
-			bind:sortBy={sortBy}
-			bind:sortOrder={sortOrder}
-			emptyMessage="No salary components found matching your selection."
-		>
-			{#snippet itemSnippet(comp: SalaryComponent)}
-				<TableRow class="hover:bg-muted/50 transition-colors">
-					<TableCell class="font-medium pl-5">{comp.component_name}</TableCell>
-					<TableCell>
-						<Badge
-							variant="secondary"
-							class="uppercase text-[10px] tracking-wider {comp.component_type === 'earning'
-								? 'bg-blue-50 text-blue-700 hover:bg-blue-100'
-								: 'bg-red-50 text-red-700 hover:bg-red-100'}"
-						>
-							{comp.component_type}
-						</Badge>
-					</TableCell>
-					<TableCell>
-						{#if comp.is_taxable}
-							<Badge variant="outline" class="border-amber-200 bg-amber-50 text-amber-700 text-xs">
-								Taxable
-							</Badge>
-						{:else}
-							<span class="text-xs text-muted-foreground">Non-taxable</span>
-						{/if}
-					</TableCell>
-					<TableCell>
-						<StatusBadge is_active={comp.is_active} />
-					</TableCell>
-					<TableCell class="text-center">
-						<div class="relative flex justify-center">
-							<!-- Kebab trigger -->
-							<Button
-								variant="ghost"
-								size="icon-sm"
-								class="h-8 w-8 text-muted-foreground hover:text-foreground mx-auto"
-								onclick={(e) => {
-									e.stopPropagation();
-									openKebabCuid = openKebabCuid === comp.cuid ? null : comp.cuid;
-								}}
-								aria-label="Row actions"
-								title="Actions"
-							>
-								<MoreVerticalIcon class="size-4" />
-							</Button>
-
-							<!-- Kebab dropdown containing ONLY Edit -->
-							{#if openKebabCuid === comp.cuid}
-								<div
-									role="menu"
-									tabindex="-1"
-									transition:scale={{ start: 0.95, duration: 100 }}
-									class="absolute right-1/2 translate-x-1/2 top-9 z-50 w-28 rounded-lg border border-border bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
-									onclick={(e) => e.stopPropagation()}
-									onkeydown={(e) => e.stopPropagation()}
-								>
-									<!-- Edit -->
-									<button
-										type="button"
-										onclick={() => { openKebabCuid = null; handleOpenEdit(comp); }}
-										class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-									>
-										<PencilIcon class="size-3.5" />
-										Edit
-									</button>
-								</div>
-							{/if}
-						</div>
-					</TableCell>
-				</TableRow>
-			{/snippet}
-		</MasterTable>
-
-		<!-- Pagination -->
-		{#if totalItems > 0}
-			<div class="border-t p-3">
-				<Pagination
-					bind:page={page}
-					totalPages={totalPages}
-					total={totalItems}
-					pageSize={pageSize}
-				/>
-			</div>
-		{/if}
-	</Card>
+    <!-- Pagination -->
+    {#if totalItems > 0}
+      <div class="border-t p-3">
+        <Pagination bind:page {totalPages} total={totalItems} {pageSize} />
+      </div>
+    {/if}
+  </Card>
 </div>
 
 <!-- Create / Edit Modal -->
 <MasterFormModal
-	isOpen={isModalOpen}
-	title={editingId ? 'Edit Salary Component' : 'Create Salary Component'}
-	isSubmitting={isSubmitting}
-	onclose={() => (isModalOpen = false)}
-	onsubmit={handleFormSubmit}
+  isOpen={isModalOpen}
+  title={editingId ? "Edit Salary Component" : "Create Salary Component"}
+  {isSubmitting}
+  onclose={() => (isModalOpen = false)}
+  onsubmit={handleFormSubmit}
 >
-	<div class="space-y-4">
-		<div class="space-y-2">
-			<Label for="component_name">Component Name</Label>
-			<Input
-				id="component_name"
-				type="text"
-				bind:value={formName}
-				placeholder="e.g. Basic Pay, HRA, Provident Fund"
-				required
-			/>
-		</div>
+  <div class="space-y-4">
+    <div class="space-y-2">
+      <Label for="component_name">Component Name</Label>
+      <Input
+        id="component_name"
+        type="text"
+        bind:value={formName}
+        placeholder="e.g. Basic Pay, HRA, Provident Fund"
+      />
+    </div>
 
-		<div class="grid grid-cols-2 gap-4">
-			<!-- Component Type Custom Dropdown -->
-			<div class="space-y-2 relative">
-				<Label for="component_type">Component Type</Label>
-				<button
-					id="component_type"
-					type="button"
-					onclick={(e) => toggleDropdown('formType', e)}
-					class="relative h-9 w-full rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
-				>
-					<span>{formType === 'earning' ? 'Earning' : 'Deduction'}</span>
-					<span class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70">
-						<ChevronDownIcon class="size-4" />
-					</span>
-				</button>
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Component Type Custom Dropdown -->
+      <div class="space-y-2 relative">
+        <Label for="component_type">Component Type</Label>
+        <button
+          id="component_type"
+          type="button"
+          onclick={(e) => toggleDropdown("formType", e)}
+          class="relative h-9 w-full rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
+        >
+          <span>{formType === "earning" ? "Earning" : "Deduction"}</span>
+          <span
+            class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70"
+          >
+            <ChevronDownIcon class="size-4" />
+          </span>
+        </button>
 
-				{#if activeDropdown === 'formType'}
-					<div
-						transition:scale={{ start: 0.95, duration: 100 }}
-						class="absolute left-0 top-[4.25rem] z-50 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
-					>
-						{#each [
-							{ value: 'earning', label: 'Earning' },
-							{ value: 'deduction', label: 'Deduction' }
-						] as opt (opt.value)}
-							<button
-								type="button"
-								onclick={() => {
-									formType = opt.value as SalaryComponentType;
-									activeDropdown = null;
-								}}
-								class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium
-									{formType === opt.value
-										? 'bg-[#C2652A]/10 text-[#C2652A] dark:bg-[#C2652A]/20'
-										: 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'}"
-							>
-								{opt.label}
-							</button>
-						{/each}
-					</div>
-				{/if}
-			</div>
+        {#if activeDropdown === "formType"}
+          <div
+            transition:scale={{ start: 0.95, duration: 100 }}
+            class="absolute left-0 top-17 z-50 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
+          >
+            {#each [{ value: "earning", label: "Earning" }, { value: "deduction", label: "Deduction" }] as opt (opt.value)}
+              <button
+                type="button"
+                onclick={() => {
+                  formType = opt.value as SalaryComponentType;
+                  activeDropdown = null;
+                }}
+                class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300
+									{formType === opt.value ? 'bg-slate-100 dark:bg-slate-800' : ''}"
+              >
+                <span>{opt.label}</span>
+                {#if formType === opt.value}
+                  <CheckIcon class="size-3.5 shrink-0" />
+                {/if}
+              </button>
+            {/each}
+          </div>
+        {/if}
+      </div>
 
-			<!-- Status Custom Dropdown -->
-			<div class="space-y-2 relative">
-				<Label for="is_active">Status</Label>
-				<button
-					id="is_active"
-					type="button"
-					onclick={(e) => toggleDropdown('formIsActive', e)}
-					class="relative h-9 w-full rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-all duration-200 text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
-				>
-					<span>{formIsActive ? 'Active' : 'Inactive'}</span>
-					<span class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70">
-						<ChevronDownIcon class="size-4" />
-					</span>
-				</button>
+      <!-- Status Custom Dropdown -->
+      <div class="space-y-2 relative">
+        <Label for="is_active">Status</Label>
+        <button
+          id="is_active"
+          type="button"
+          onclick={(e) => toggleDropdown("formIsActive", e)}
+          class="relative h-9 w-full rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-all duration-200 text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
+        >
+          <span>{formIsActive ? "Active" : "Inactive"}</span>
+          <span
+            class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70"
+          >
+            <ChevronDownIcon class="size-4" />
+          </span>
+        </button>
 
-				{#if activeDropdown === 'formIsActive'}
-					<div
-						transition:scale={{ start: 0.95, duration: 100 }}
-						class="absolute left-0 top-[4.25rem] z-50 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
-					>
-						{#each [
-							{ value: true, label: 'Active' },
-							{ value: false, label: 'Inactive' }
-						] as opt (opt.value)}
-							<button
-								type="button"
-								onclick={() => {
-									formIsActive = opt.value;
-									activeDropdown = null;
-								}}
-								class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium
-									{formIsActive === opt.value
-										? 'bg-[#C2652A]/10 text-[#C2652A] dark:bg-[#C2652A]/20'
-										: 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'}"
-							>
-								{opt.label}
-							</button>
-						{/each}
-					</div>
-				{/if}
-			</div>
-		</div>
+        {#if activeDropdown === "formIsActive"}
+          <div
+            transition:scale={{ start: 0.95, duration: 100 }}
+            class="absolute left-0 top-17 z-50 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
+          >
+            {#each [{ value: true, label: "Active" }, { value: false, label: "Inactive" }] as opt (opt.value)}
+              <button
+                type="button"
+                onclick={() => {
+                  formIsActive = opt.value;
+                  activeDropdown = null;
+                }}
+                class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300
+									{formIsActive === opt.value ? 'bg-slate-100 dark:bg-slate-800' : ''}"
+              >
+                <span>{opt.label}</span>
+                {#if formIsActive === opt.value}
+                  <CheckIcon class="size-3.5 shrink-0" />
+                {/if}
+              </button>
+            {/each}
+          </div>
+        {/if}
+      </div>
+    </div>
 
-		<!-- Taxable toggle -->
-		<div class="flex items-center gap-3 rounded-lg border bg-muted/30 px-4 py-3">
-			<input
-				id="is_taxable"
-				type="checkbox"
-				bind:checked={formIsTaxable}
-				class="size-4 rounded border-input accent-[#C2652A] cursor-pointer"
-			/>
-			<div class="space-y-0.5">
-				<Label for="is_taxable" class="cursor-pointer font-medium">Taxable Component</Label>
-				<p class="text-xs text-muted-foreground">Indicates if income tax applies to this component</p>
-			</div>
-		</div>
-
-
-	</div>
+    <!-- Taxable toggle -->
+    <div
+      class="flex items-center gap-3 rounded-lg border bg-muted/30 px-4 py-3"
+    >
+      <input
+        id="is_taxable"
+        type="checkbox"
+        bind:checked={formIsTaxable}
+        class="size-4 rounded border-input accent-hrms-primary cursor-pointer"
+      />
+      <div class="space-y-0.5">
+        <Label for="is_taxable" class="cursor-pointer font-medium"
+          >Taxable Component</Label
+        >
+        <p class="text-xs text-muted-foreground">
+          Indicates if income tax applies to this component
+        </p>
+      </div>
+    </div>
+  </div>
 </MasterFormModal>
-
