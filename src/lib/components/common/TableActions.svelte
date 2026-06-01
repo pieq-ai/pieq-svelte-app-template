@@ -23,7 +23,7 @@
 			<Button
 				variant="ghost"
 				size="icon-sm"
-				class="h-7 w-7 text-muted-foreground hover:text-foreground"
+				class="h-7 w-7 text-muted-foreground hover:text-foreground focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none"
 				aria-label="Actions"
 				{...props}
 			>
