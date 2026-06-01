@@ -41,6 +41,7 @@
 
 	let sortKey = $state<string | null>(null);
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
+	let filterStatus = $state<string>('all');
 
 	function handleSort(key: string) {
 		currentPage = 1; // Reset to page 1 on sort change
@@ -407,6 +408,11 @@
 			);
 		}
 
+		if (filterStatus !== 'all') {
+			const targetStatus = filterStatus === 'active';
+			result = result.filter((t) => t.status === targetStatus);
+		}
+
 		// Sort behavior
 		if (sortKey && sortDirection) {
 			result.sort((a, b) => {
@@ -435,9 +441,11 @@
 	let paginatedTypes = $derived(filteredTypes.slice((currentPage - 1) * 10, currentPage * 10));
 
 	$effect(() => {
-		// Reset to page 1 when search criteria change
+		// Reset to page 1 when search or filter criteria change
 		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 		searchQuery;
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+		filterStatus;
 		currentPage = 1;
 	});
 
@@ -481,27 +489,42 @@
 	</div>
 
 	<div class="space-y-4">
-		<!-- Search bar -->
-		<div class="relative flex-1">
-			<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-			<Input
-				type="search"
-				placeholder="Search by leave name or code..."
-				bind:value={searchQuery}
-				class="pl-9 pr-9"
-			/>
-			{#if searchQuery}
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon-sm"
-					class="absolute top-1/2 right-1 -translate-y-1/2"
-					aria-label="Clear search"
-					onclick={() => (searchQuery = '')}
+		<!-- Search & Filter controls -->
+		<div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+			<div class="relative flex-1">
+				<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+				<Input
+					type="search"
+					placeholder="Search by leave name or code..."
+					bind:value={searchQuery}
+					class="pl-9 pr-9"
+				/>
+				{#if searchQuery}
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						class="absolute top-1/2 right-1 -translate-y-1/2"
+						aria-label="Clear search"
+						onclick={() => (searchQuery = '')}
+					>
+						<XIcon class="size-4" />
+					</Button>
+				{/if}
+			</div>
+			<div class="relative w-full sm:w-48">
+				<select
+					bind:value={filterStatus}
+					class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent pl-3 pr-8 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none appearance-none cursor-pointer"
 				>
-					<XIcon class="size-4" />
-				</Button>
-			{/if}
+					<option value="all">All Statuses</option>
+					<option value="active">Active</option>
+					<option value="inactive">Inactive</option>
+				</select>
+				<svg class="absolute right-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.24 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+				</svg>
+			</div>
 		</div>
 
 		<!-- Table Card -->
