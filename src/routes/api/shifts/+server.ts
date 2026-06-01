@@ -1,6 +1,7 @@
 // src/routes/api/shifts/+server.ts
 import { json } from '@sveltejs/kit';
 import * as shiftService from '$lib/server/services/shift.service.js';
+import { sendList, sendCreated, mapShift } from '$lib/server/response.js';
 
 /**
  * GET /api/shifts
@@ -12,9 +13,10 @@ export async function GET({ url }) {
     const params = Object.fromEntries(url.searchParams.entries());
     const includeInactive = params.includeInactive === 'true';
     const result = includeInactive
-      ? await shiftService.listAllShifts(params)
-      : await shiftService.listShifts(params);
-    return json(result);
+      ? await shiftService.listAllShifts()
+      : await shiftService.listShifts();
+    const mapped = (result.data ?? []).map(mapShift);
+    return sendList(mapped);
   } catch (err: any) {
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });
@@ -40,7 +42,7 @@ export async function POST({ request }) {
     }
 
     const shift = await shiftService.createShift(payload);
-    return json({ data: shift }, { status: 201 });
+    return sendCreated('Shift', shift.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });

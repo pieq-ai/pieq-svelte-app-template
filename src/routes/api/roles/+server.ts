@@ -1,6 +1,7 @@
 // src/routes/api/roles/+server.ts
 import { json } from '@sveltejs/kit';
 import * as roleService from '$lib/server/services/role.service.js';
+import { sendList, sendCreated, mapRole } from '$lib/server/response.js';
 
 /**
  * GET /api/roles
@@ -12,9 +13,10 @@ export async function GET({ url }) {
     const params = Object.fromEntries(url.searchParams.entries());
     const includeInactive = params.includeInactive === 'true';
     const result = includeInactive
-      ? await roleService.listAllRoles(params)
-      : await roleService.listRoles(params);
-    return json(result);
+      ? await roleService.listAllRoles()
+      : await roleService.listRoles();
+    const mapped = (result.data ?? []).map(mapRole);
+    return sendList(mapped);
   } catch (err: any) {
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });
@@ -32,7 +34,7 @@ export async function POST({ request }) {
     }
     const payload = await request.json();
     const role = await roleService.createRole(payload);
-    return json({ data: role }, { status: 201 });
+    return sendCreated('Role', role.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });

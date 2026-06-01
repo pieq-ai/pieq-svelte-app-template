@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db.js';
+import { sendList, mapCountry } from '$lib/server/response.js';
 
 export async function GET() {
   try {
@@ -14,7 +15,8 @@ export async function GET() {
       });
     }
     const countries = await db.country.findMany({ orderBy: { country_name: 'asc' } });
-    return json({ data: countries });
+    const mapped = countries.map(mapCountry);
+    return sendList(mapped);
   } catch (err: any) {
     return json({ error: err.message }, { status: 500 });
   }

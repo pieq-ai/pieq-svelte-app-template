@@ -20,15 +20,12 @@ export async function createRole(data: RoleCreateDTO): Promise<Role> {
 }
 
 /**
- * Get a paginated list of active roles.
+ * Get a list of active roles.
  */
-export async function getRoles(page: number, limit: number): Promise<Role[]> {
-  const skip = (page - 1) * limit;
+export async function getRoles(): Promise<Role[]> {
   return db.role.findMany({
     where: { status: true },
     orderBy: { id: 'asc' },
-    skip,
-    take: limit,
     select: {
       cuid: true,
       name: true,
@@ -38,15 +35,12 @@ export async function getRoles(page: number, limit: number): Promise<Role[]> {
 }
 
 /**
- * Get a paginated list of ALL roles (active + inactive).
+ * Get a list of ALL roles (active + inactive).
  * Used by the UI to display soft-deleted roles.
  */
-export async function getAllRoles(page: number, limit: number): Promise<Role[]> {
-  const skip = (page - 1) * limit;
+export async function getAllRoles(): Promise<Role[]> {
   return db.role.findMany({
     orderBy: { id: 'asc' },
-    skip,
-    take: limit,
     select: {
       cuid: true,
       name: true,

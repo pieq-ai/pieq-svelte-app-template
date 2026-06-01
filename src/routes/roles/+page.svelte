@@ -15,7 +15,7 @@
 	let roles = $state<Role[]>([]);
 	let page = $state(1);
 	let limit = $state(10);
-	let total = $state(0);
+	let total = $derived(filteredRoles.length);
 	let loading = $state(false);
 	let searchQuery = $state('');
 
@@ -137,6 +137,16 @@
 	let filterStatus = $state<'all' | 'active' | 'inactive'>('all');
 
 	let totalPages = $derived(Math.max(1, Math.ceil(total / limit)));
+	let paginatedRoles = $derived(filteredRoles.slice((page - 1) * limit, page * limit));
+
+	$effect(() => {
+		if (page > totalPages) {
+			page = totalPages;
+		}
+		if (page < 1) {
+			page = 1;
+		}
+	});
 
 	let filteredRoles = $derived.by(() => {
 		let list = roles;
@@ -154,11 +164,10 @@
 		loading = true;
 		try {
 			// Fetch all (active + inactive) by not filtering on backend
-			const res = await fetch(`/api/roles?page=${page}&limit=${limit}&includeInactive=true`);
+			const res = await fetch(`/api/roles?includeInactive=true`);
 			const json = await res.json();
 			if (res.ok) {
 				roles = json.data ?? [];
-				total = json.pagination?.total ?? 0;
 			}
 		} catch (e) {
 			console.error('Failed to fetch roles', e);
@@ -276,14 +285,12 @@
 	async function prevPage() {
 		if (page > 1) {
 			page -= 1;
-			await fetchRoles();
 		}
 	}
 
 	async function nextPage() {
 		if (page < totalPages) {
 			page += 1;
-			await fetchRoles();
 		}
 	}
 
@@ -370,7 +377,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each filteredRoles as role (role.cuid)}
+				{#each paginatedRoles as role (role.cuid)}
 					<tr
 						style="border-top:1px solid var(--border);transition:background-color .2s ease"
 						onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}

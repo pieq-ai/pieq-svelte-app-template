@@ -1,6 +1,7 @@
 // src/routes/api/organization_location/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as locationService from '$lib/server/services/organization_location.service.js';
+import { sendUpdated, sendDeleted } from '$lib/server/response.js';
 
 /**
  * Helper to parse and validate CUID from URL params.
@@ -39,7 +40,7 @@ export async function PUT({ request, params }) {
     }
 
     const location = await locationService.updateLocation(cuid, payload);
-    return json({ data: location });
+    return sendUpdated('Company Location', location.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });
@@ -54,7 +55,7 @@ export async function PATCH({ params }) {
   try {
     const cuid = parseCuid(params.cuid);
     const location = await locationService.activateLocation(cuid);
-    return json({ data: location });
+    return sendUpdated('Company Location', location.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });
@@ -69,7 +70,7 @@ export async function DELETE({ params }) {
   try {
     const cuid = parseCuid(params.cuid);
     const location = await locationService.deleteLocation(cuid);
-    return json({ message: 'Company Location deactivated successfully', data: location });
+    return sendDeleted('Company Location', location.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });

@@ -37,15 +37,12 @@ export async function createLocation(data: CompanyLocationCreateDTO): Promise<Co
 }
 
 /**
- * Get a paginated list of active locations.
+ * Get a list of active locations.
  */
-export async function getLocations(page: number, limit: number): Promise<CompanyLocation[]> {
-  const skip = (page - 1) * limit;
+export async function getLocations(): Promise<CompanyLocation[]> {
   return db.companyLocation.findMany({
     where: { is_active: true },
     orderBy: { id: 'asc' },
-    skip,
-    take: limit,
     select: {
       cuid: true,
       location_name: true,
@@ -64,14 +61,11 @@ export async function getLocations(page: number, limit: number): Promise<Company
 }
 
 /**
- * Get a paginated list of ALL locations (active + inactive).
+ * Get a list of ALL locations (active + inactive).
  */
-export async function getAllLocations(page: number, limit: number): Promise<CompanyLocation[]> {
-  const skip = (page - 1) * limit;
+export async function getAllLocations(): Promise<CompanyLocation[]> {
   return db.companyLocation.findMany({
     orderBy: { id: 'asc' },
-    skip,
-    take: limit,
     select: {
       cuid: true,
       location_name: true,

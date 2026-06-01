@@ -3,20 +3,16 @@ import type { ShiftCreateDTO, ShiftUpdateDTO, Shift } from '$lib/types/shift';
 import * as shiftDao from '$lib/server/dao/shift.dao.js';
 import { validateCreatePayload, validateUpdatePayload, validatePaginationParams } from '$lib/server/validators/shift.validator.js';
 
-/** List only active shifts with pagination. */
-export async function listShifts(query: Record<string, unknown>): Promise<{ data: Shift[]; pagination: { page: number; limit: number; total: number } }> {
-  const { page, limit } = validatePaginationParams(query);
-  const total = await shiftDao.countShifts();
-  const data = await shiftDao.getShifts(page, limit);
-  return { data, pagination: { page, limit, total } };
+/** List only active shifts. */
+export async function listShifts(query?: Record<string, unknown>): Promise<{ data: Shift[] }> {
+  const data = await shiftDao.getShifts();
+  return { data };
 }
 
-/** List ALL shifts (active + inactive) with pagination — used by UI shift management. */
-export async function listAllShifts(query: Record<string, unknown>): Promise<{ data: Shift[]; pagination: { page: number; limit: number; total: number } }> {
-  const { page, limit } = validatePaginationParams(query);
-  const total = await shiftDao.countAllShifts();
-  const data = await shiftDao.getAllShifts(page, limit);
-  return { data, pagination: { page, limit, total } };
+/** List ALL shifts (active + inactive) — used by UI shift management. */
+export async function listAllShifts(query?: Record<string, unknown>): Promise<{ data: Shift[] }> {
+  const data = await shiftDao.getAllShifts();
+  return { data };
 }
 
 /** Create a new shift after validation and duplicate check. */
@@ -24,7 +20,7 @@ export async function createShift(payload: unknown): Promise<Shift> {
   const valid = validateCreatePayload(payload);
   
   // Ensure unique active name
-  const existing = await shiftDao.getShifts(1, 1000);
+  const existing = await shiftDao.getShifts();
   if (existing.some((s) => s.shift_name.toLowerCase() === valid.shift_name.toLowerCase())) {
     const err: any = new Error('Shift name already exists');
     err.status = 409;
@@ -47,7 +43,7 @@ export async function updateShift(cuid: string, payload: unknown): Promise<Shift
   
   // Duplicate name check if name provided
   if (valid.shift_name) {
-    const existing = await shiftDao.getShifts(1, 1000);
+    const existing = await shiftDao.getShifts();
     if (existing.some((s) => s.shift_name.toLowerCase() === valid.shift_name.toLowerCase() && s.cuid !== cuid)) {
       const err: any = new Error('Shift name already exists');
       err.status = 409;

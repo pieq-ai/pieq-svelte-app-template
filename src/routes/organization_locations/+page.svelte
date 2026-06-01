@@ -16,7 +16,7 @@
 	let locations = $state<CompanyLocation[]>([]);
 	let page = $state(1);
 	let limit = $state(10);
-	let total = $state(0);
+	let total = $derived(filteredLocations.length);
 	let loading = $state(false);
 	let searchQuery = $state('');
 
@@ -245,6 +245,16 @@
 	let filterStatus = $state<'all' | 'active' | 'inactive'>('all');
 
 	let totalPages = $derived(Math.max(1, Math.ceil(total / limit)));
+	let paginatedLocations = $derived(filteredLocations.slice((page - 1) * limit, page * limit));
+
+	$effect(() => {
+		if (page > totalPages) {
+			page = totalPages;
+		}
+		if (page < 1) {
+			page = 1;
+		}
+	});
 
 	let filteredLocations = $derived.by(() => {
 		let list = locations;
@@ -275,11 +285,10 @@
 	async function fetchLocations() {
 		loading = true;
 		try {
-			const res = await fetch(`/api/organization_location?page=${page}&limit=${limit}&includeInactive=true`);
+			const res = await fetch(`/api/organization_location?includeInactive=true`);
 			const json = await res.json();
 			if (res.ok) {
 				locations = json.data ?? [];
-				total = json.pagination?.total ?? 0;
 			}
 		} catch (e) {
 			console.error('Failed to fetch locations', e);
@@ -512,14 +521,12 @@
 	async function prevPage() {
 		if (page > 1) {
 			page -= 1;
-			await fetchLocations();
 		}
 	}
 
 	async function nextPage() {
 		if (page < totalPages) {
 			page += 1;
-			await fetchLocations();
 		}
 	}
 
@@ -615,7 +622,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each filteredLocations as loc (loc.cuid)}
+				{#each paginatedLocations as loc (loc.cuid)}
 					<tr
 						style="border-top:1px solid var(--border);transition:background-color .2s ease"
 						onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}

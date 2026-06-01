@@ -39,15 +39,12 @@ export async function createShift(data: ShiftCreateDTO): Promise<Shift> {
 }
 
 /**
- * Get a paginated list of active shifts.
+ * Get a list of active shifts.
  */
-export async function getShifts(page: number, limit: number): Promise<Shift[]> {
-  const skip = (page - 1) * limit;
+export async function getShifts(): Promise<Shift[]> {
   return db.shift.findMany({
     where: { status: true },
     orderBy: { id: 'asc' },
-    skip,
-    take: limit,
     select: {
       cuid: true,
       shift_name: true,
@@ -60,14 +57,11 @@ export async function getShifts(page: number, limit: number): Promise<Shift[]> {
 }
 
 /**
- * Get a paginated list of ALL shifts (active + inactive).
+ * Get a list of ALL shifts (active + inactive).
  */
-export async function getAllShifts(page: number, limit: number): Promise<Shift[]> {
-  const skip = (page - 1) * limit;
+export async function getAllShifts(): Promise<Shift[]> {
   return db.shift.findMany({
     orderBy: { id: 'asc' },
-    skip,
-    take: limit,
     select: {
       cuid: true,
       shift_name: true,

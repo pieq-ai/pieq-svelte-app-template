@@ -1,6 +1,7 @@
 // src/routes/api/organization_location/+server.ts
 import { json } from '@sveltejs/kit';
 import * as locationService from '$lib/server/services/organization_location.service.js';
+import { sendList, sendCreated, mapLocation } from '$lib/server/response.js';
 
 /**
  * GET /api/organization_location
@@ -12,9 +13,10 @@ export async function GET({ url }) {
     const params = Object.fromEntries(url.searchParams.entries());
     const includeInactive = params.includeInactive === 'true';
     const result = includeInactive
-      ? await locationService.listAllLocations(params)
-      : await locationService.listLocations(params);
-    return json(result);
+      ? await locationService.listAllLocations()
+      : await locationService.listLocations();
+    const mapped = (result.data ?? []).map(mapLocation);
+    return sendList(mapped);
   } catch (err: any) {
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });
@@ -40,7 +42,7 @@ export async function POST({ request }) {
     }
 
     const location = await locationService.createLocation(payload);
-    return json({ data: location }, { status: 201 });
+    return sendCreated('Company Location', location.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });

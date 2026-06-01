@@ -1,6 +1,7 @@
 // src/routes/api/roles/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as roleService from '$lib/server/services/role.service.js';
+import { sendUpdated, sendDeleted } from '$lib/server/response.js';
 
 /**
  * Helper to parse and validate CUID from the URL params.
@@ -31,7 +32,7 @@ export async function PUT({ request, params }) {
     }
     const payload = await request.json();
     const role = await roleService.updateRole(cuid, payload);
-    return json({ data: role });
+    return sendUpdated('Role', role.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });
@@ -46,7 +47,7 @@ export async function DELETE({ params }) {
   try {
     const cuid = parseCuid(params.cuid);
     const result = await roleService.deleteRole(cuid);
-    return json({ message: 'Role deactivated successfully', data: result }, { status: 200 });
+    return sendDeleted('Role', result.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });

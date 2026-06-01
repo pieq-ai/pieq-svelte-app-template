@@ -1,6 +1,7 @@
 // src/routes/api/shifts/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as shiftService from '$lib/server/services/shift.service.js';
+import { sendUpdated, sendDeleted } from '$lib/server/response.js';
 
 /**
  * Helper to parse and validate CUID from the URL params.
@@ -39,7 +40,7 @@ export async function PUT({ request, params }) {
     }
 
     const shift = await shiftService.updateShift(cuid, payload);
-    return json({ data: shift });
+    return sendUpdated('Shift', shift.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });
@@ -54,7 +55,7 @@ export async function PATCH({ params }) {
   try {
     const cuid = parseCuid(params.cuid);
     const shift = await shiftService.activateShift(cuid);
-    return json({ data: shift });
+    return sendUpdated('Shift', shift.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });
@@ -69,7 +70,7 @@ export async function DELETE({ params }) {
   try {
     const cuid = parseCuid(params.cuid);
     const shift = await shiftService.deleteShift(cuid);
-    return json({ message: 'Shift deactivated successfully', data: shift });
+    return sendDeleted('Shift', shift.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });

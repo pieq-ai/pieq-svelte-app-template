@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db.js';
+import { sendList, mapState } from '$lib/server/response.js';
 
 export async function GET() {
   try {
@@ -37,7 +38,8 @@ export async function GET() {
       }
     }
     const states = await db.state.findMany({ orderBy: { state_name: 'asc' } });
-    return json({ data: states });
+    const mapped = states.map(mapState);
+    return sendList(mapped);
   } catch (err: any) {
     return json({ error: err.message }, { status: 500 });
   }
