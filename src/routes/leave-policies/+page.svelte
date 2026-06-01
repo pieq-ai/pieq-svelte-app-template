@@ -26,13 +26,15 @@
 		TableRow,
 		toast,
 		ConfirmModal,
-		FormModal
+		FormModal,
+		Pagination
 	} from '$lib/components/ui';
 	import type { PageData } from './$types.js';
 
 	let { data }: { data: PageData } = $props();
 	let form = $state<{ error?: string; field?: string; action?: string } | null>(null);
 
+	let currentPage = $state(1);
 	let searchQuery = $state('');
 	let isSubmitting = $state(false);
 	let isFormModalOpen = $state(false);
@@ -560,6 +562,15 @@
 		return result;
 	});
 
+	let paginatedPolicies = $derived(filteredPolicies.slice((currentPage - 1) * 10, currentPage * 10));
+
+	$effect(() => {
+		// Reset to page 1 when search criteria change
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+		searchQuery;
+		currentPage = 1;
+	});
+
 	let totalPolicies = $derived(data.policies.length);
 	let activePoliciesCount = $derived(data.policies.filter((p) => p.status).length);
 </script>
@@ -646,7 +657,7 @@
 							</TableCell>
 						</TableRow>
 					{:else}
-						{#each filteredPolicies as policy (policy.cuid)}
+						{#each paginatedPolicies as policy (policy.cuid)}
 							<TableRow>
 								<TableCell class="font-semibold">{getLeaveTypeName(policy.leave_type_cuid)}</TableCell>
 								<TableCell class="text-xs">{getEmploymentTypeNames(policy.employment_type_cuids)}</TableCell>
@@ -711,9 +722,8 @@
 				</TableBody>
 			</Table>
 		</Card>
-		<p class="text-xs text-muted-foreground">
-			Showing {filteredPolicies.length} of {totalPolicies} entries
-		</p>
+		
+		<Pagination totalItems={filteredPolicies.length} bind:currentPage={currentPage} />
 	</div>
 </div>
 

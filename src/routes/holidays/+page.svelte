@@ -27,13 +27,15 @@
 		TableRow,
 		toast,
 		ConfirmModal,
-		FormModal
+		FormModal,
+		Pagination
 	} from '$lib/components/ui';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 	let form = $state<{ error?: string; field?: string; action?: string } | null>(null);
 
+	let currentPage = $state(1);
 	let searchQuery = $state('');
 	let filterType = $state<string>('all');
 	let isSubmitting = $state(false);
@@ -419,6 +421,17 @@
 		return result;
 	});
 
+	let paginatedHolidays = $derived(filteredHolidays.slice((currentPage - 1) * 10, currentPage * 10));
+
+	$effect(() => {
+		// Reset to page 1 when search or filter criteria change
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+		searchQuery;
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+		filterType;
+		currentPage = 1;
+	});
+
 	let totalHolidays = $derived(data.holidays.length);
 	let upcomingHolidaysCount = $derived(
 		data.holidays.filter(
@@ -552,7 +565,7 @@
 							</TableCell>
 						</TableRow>
 					{:else}
-						{#each filteredHolidays as holiday (holiday.cuid)}
+						{#each paginatedHolidays as holiday (holiday.cuid)}
 							<TableRow>
 								<TableCell class="font-medium">
 									{formatDate(holiday.holiday_date)}
@@ -630,9 +643,7 @@
 			</Table>
 		</Card>
 
-		<p class="text-xs text-muted-foreground">
-			Showing {filteredHolidays.length} of {totalHolidays} entries
-		</p>
+		<Pagination totalItems={filteredHolidays.length} bind:currentPage={currentPage} />
 	</div>
 </div>
 

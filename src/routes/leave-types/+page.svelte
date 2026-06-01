@@ -26,13 +26,15 @@
 		TableRow,
 		toast,
 		ConfirmModal,
-		FormModal
+		FormModal,
+		Pagination
 	} from '$lib/components/ui';
 	import type { PageData } from './$types.js';
 
 	let { data }: { data: PageData } = $props();
 	let form = $state<{ error?: string; field?: string; action?: string } | null>(null);
 
+	let currentPage = $state(1);
 	let searchQuery = $state('');
 	let isSubmitting = $state(false);
 	let isFormModalOpen = $state(false);
@@ -392,6 +394,15 @@
 		return result;
 	});
 
+	let paginatedTypes = $derived(filteredTypes.slice((currentPage - 1) * 10, currentPage * 10));
+
+	$effect(() => {
+		// Reset to page 1 when search criteria change
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+		searchQuery;
+		currentPage = 1;
+	});
+
 	let totalTypes = $derived(data.leaveTypes.length);
 	let activeTypesCount = $derived(data.leaveTypes.filter((t) => t.status).length);
 </script>
@@ -476,7 +487,7 @@
 							</TableCell>
 						</TableRow>
 					{:else}
-						{#each filteredTypes as type (type.cuid)}
+						{#each paginatedTypes as type (type.cuid)}
 							<TableRow>
 								<TableCell class="font-semibold">
 									<div>{type.leave_name}</div>
@@ -538,9 +549,8 @@
 				</TableBody>
 			</Table>
 		</Card>
-		<p class="text-xs text-muted-foreground">
-			Showing {filteredTypes.length} of {totalTypes} entries
-		</p>
+		
+		<Pagination totalItems={filteredTypes.length} bind:currentPage={currentPage} />
 	</div>
 </div>
 

@@ -29,3 +29,4 @@ export {
 export { Modal, ConfirmModal, FormModal } from './modal/index.js';
 export { default as MultiSelect } from './multiselect/index.js';
 export { toast } from './toast/index.js';
+export { Pagination } from './pagination/index.js';
