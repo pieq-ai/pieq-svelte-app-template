@@ -34,3 +34,4 @@ export { default as PermissionMatrixCell } from './common/PermissionMatrixCell.s
 export { default as TableActions } from './common/TableActions.svelte';
 export { default as StatusDropdown } from './common/StatusDropdown.svelte';
 export { default as Pagination } from './common/Pagination.svelte';
+export { default as SearchInput } from './common/SearchInput.svelte';

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
-	import SearchIcon from '@lucide/svelte/icons/search';
+
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
@@ -29,7 +29,8 @@
 		TableActions,
 		FilterDropdown,
 		StatusDropdown,
-		Pagination
+		Pagination,
+		SearchInput
 	} from '$lib/components';
 
 	interface Department {
@@ -286,10 +287,7 @@
 
 	<div class="space-y-3">
 		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-			<div class="relative flex-1">
-				<SearchIcon class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-				<Input bind:value={searchQuery} oninput={() => (currentPage = 1)} class="pl-9" placeholder="Search by department name..." />
-			</div>
+			<SearchInput bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by department name..." />
 			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
 		</div>
 

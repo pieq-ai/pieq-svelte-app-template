@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
-	import SearchIcon from '@lucide/svelte/icons/search';
+
 	import { toast } from '$lib/toast';
 	import {
 		Alert,
@@ -9,8 +9,8 @@
 		Badge,
 		Card,
 		CardContent,
-		Input,
-		PermissionMatrixCell
+		PermissionMatrixCell,
+		SearchInput
 	} from '$lib/components';
 
 	interface SystemRole {
@@ -54,6 +54,14 @@
 	let activePermissions = $derived(
 		data.permissions.filter((permission) => permission.status === true)
 	);
+	let filteredRoles = $derived.by(() => {
+		const query = searchQuery.trim().toLowerCase();
+		if (!query) return activeRoles;
+		return activeRoles.filter((role) =>
+			role.system_role_name.toLowerCase().includes(query)
+		);
+	});
+
 	let filteredPermissions = $derived.by(() => {
 		const query = searchQuery.trim().toLowerCase();
 		if (!query) return activePermissions;
@@ -142,21 +150,22 @@
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-4">
-	<div class="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-end lg:justify-between">
+	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
 			<Badge variant="secondary" class="uppercase">RBAC Foundation</Badge>
 			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Role Permission Matrix</h1>
 			<p class="text-muted-foreground">Toggle permissions across active system roles.</p>
 		</div>
-		<div class="relative w-full lg:max-w-xs">
-			<SearchIcon class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-			<Input bind:value={searchQuery} class="pl-9" placeholder="Search permissions..." />
-		</div>
 	</div>
 
-	{#if loadError}
-		<Alert variant="destructive"><AlertDescription>{loadError}</AlertDescription></Alert>
-	{/if}
+	<div class="space-y-3">
+		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+			<SearchInput bind:value={searchQuery} placeholder="Search roles or permissions..." />
+		</div>
+
+		{#if loadError}
+			<Alert variant="destructive"><AlertDescription>{loadError}</AlertDescription></Alert>
+		{/if}
 
 	{#if isLoading}
 		<Card>
@@ -179,7 +188,7 @@
 							<th class="sticky left-0 z-30 min-w-64 bg-[#262626] px-4 py-3 text-left font-semibold">
 								Permission
 							</th>
-							{#each activeRoles as role (role.cuid)}
+							{#each filteredRoles as role (role.cuid)}
 								<th class="min-w-40 border-l border-white/10 px-4 py-3 text-center font-semibold">
 									{role.system_role_name}
 								</th>
@@ -197,7 +206,7 @@
 										{permission.permission_key.split('_')[0] || 'general'}
 									</div>
 								</td>
-								{#each activeRoles as role (role.cuid)}
+								{#each filteredRoles as role (role.cuid)}
 									{@const key = assignmentKey(role.cuid, permission.cuid)}
 									<td class="border-l border-border px-4 py-3 text-center">
 										<PermissionMatrixCell
@@ -215,4 +224,5 @@
 			</div>
 		</div>
 	{/if}
+	</div>
 </div>
