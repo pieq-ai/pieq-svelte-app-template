@@ -378,7 +378,7 @@
         >
       </CardHeader>
       <CardContent>
-        <p class="text-3xl font-bold">{totalAllComponents}</p>
+        <p class="text-3xl font-bold text-black dark:text-white">{totalAllComponents}</p>
         <p class="mt-1 text-xs text-muted-foreground">
           Registered salary masters
         </p>
@@ -392,7 +392,7 @@
         >
       </CardHeader>
       <CardContent>
-        <p class="text-3xl font-bold">{earningsCount}</p>
+        <p class="text-3xl font-bold text-hrms-primary">{earningsCount}</p>
         <p class="mt-1 text-xs text-muted-foreground">
           Additions to gross base salary
         </p>
@@ -406,7 +406,7 @@
         >
       </CardHeader>
       <CardContent>
-        <p class="text-3xl font-bold">{deductionsCount}</p>
+        <p class="text-3xl font-bold text-hrms-destructive">{deductionsCount}</p>
         <p class="mt-1 text-xs text-muted-foreground">
           Statutory and optional cutbacks
         </p>
@@ -624,6 +624,7 @@
   isOpen={isModalOpen}
   title={editingId ? "Edit Salary Component" : "Create Salary Component"}
   {isSubmitting}
+  canSave={isDirty}
   onclose={handleRequestClose}
   onsubmit={handleFormSubmit}
 >
