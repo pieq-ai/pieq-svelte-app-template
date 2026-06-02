@@ -49,6 +49,7 @@
 </script>
 
 <aside
+	data-sveltekit-preload-data="off"
 	class="flex flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width,transform] duration-300 
 		fixed lg:static top-0 left-0 h-screen z-50 lg:z-40 w-64 lg:shrink-0 select-none shadow-xl lg:shadow-none
 		{isCollapsed ? 'lg:w-16' : 'lg:w-64'}
