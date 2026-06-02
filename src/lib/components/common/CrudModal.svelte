@@ -84,7 +84,7 @@
 			</CardHeader>
 			<div class="flex justify-end gap-2 p-6 pt-0">
 				<Button variant="outline" onclick={() => (showUnsavedConfirm = false)}>Continue Editing</Button>
-				<Button class="bg-[#8C3C3C] text-white hover:bg-[#8C3C3C]/90" onclick={() => {
+				<Button class="bg-danger text-danger-foreground hover:bg-danger/90 focus-visible:ring-danger/50 focus-visible:border-danger" onclick={() => {
 					showUnsavedConfirm = false;
 					onClose();
 				}}>Close Without Saving</Button>

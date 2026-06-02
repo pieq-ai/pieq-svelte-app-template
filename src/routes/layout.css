@@ -38,6 +38,8 @@
 	--sidebar-accent-foreground: oklch(0.205 0 0);
 	--sidebar-border: oklch(0.922 0 0);
 	--sidebar-ring: oklch(0.708 0 0);
+	--danger: #800020;
+	--danger-foreground: #ffffff;
 }
 
 .dark {
@@ -72,6 +74,8 @@
 	--sidebar-accent-foreground: oklch(0.985 0 0);
 	--sidebar-border: oklch(1 0 0 / 10%);
 	--sidebar-ring: oklch(0.556 0 0);
+	--danger: #9e1a35;
+	--danger-foreground: #ffffff;
 }
 
 @theme inline {
@@ -93,6 +97,8 @@
 	--color-input: var(--input);
 	--color-border: var(--border);
 	--color-destructive: var(--destructive);
+	--color-danger: var(--danger);
+	--color-danger-foreground: var(--danger-foreground);
 	--color-accent-foreground: var(--accent-foreground);
 	--color-accent: var(--accent);
 	--color-muted-foreground: var(--muted-foreground);
@@ -126,4 +132,28 @@
 	html {
 		@apply font-sans;
 	}
+}
+
+/* Sonner Toast Overrides */
+[data-sonner-toast] {
+	display: flex !important;
+	flex-direction: row !important;
+	align-items: center !important;
+	width: 100% !important;
+}
+
+[data-sonner-toast] [data-content] {
+	flex: 1 !important;
+	text-align: left !important;
+}
+
+[data-sonner-toast] [data-close-button] {
+	position: static !important;
+	order: 999 !important;
+	margin: 0 0 0 auto !important;
+	transform: none !important;
+	flex-shrink: 0 !important;
+	align-self: center !important;
+	background: transparent !important;
+	border: none !important;
 }

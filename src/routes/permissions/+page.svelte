@@ -225,7 +225,7 @@
 			<p class="text-muted-foreground">Manage permission keys for future role-based authorization.</p>
 		</div>
 		{#if masterPermissions.canCreate}
-			<Button class="bg-[#C2652A] text-white hover:bg-[#8C3C3C]" onclick={openCreateModal}>
+			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={openCreateModal}>
 				<PlusIcon class="size-4" />
 				Add Permission
 			</Button>
@@ -322,7 +322,7 @@
 		{#if editingPermission}
 			<StatusDropdown value={permissionStatus} onChange={(val) => (permissionStatus = val)} />
 		{/if}
-		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting || (!!editingPermission && !isDirty)}>
+		<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingPermission && !isDirty)}>
 			{isSubmitting ? 'Saving...' : (editingPermission ? 'Save Permission' : 'Create Permission')}
 		</Button>
 	</form>

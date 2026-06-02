@@ -13,9 +13,9 @@
 </script>
 
 <label
-	class="inline-flex size-9 cursor-pointer items-center justify-center rounded-md border transition hover:border-[#C2652A] hover:bg-[#C2652A]/10"
-	class:border-[#C2652A]={checked}
-	class:bg-[#C2652A]={checked}
+	class="inline-flex size-9 cursor-pointer items-center justify-center rounded-md border transition hover:border-[#F45310] hover:bg-[#F45310]/10"
+	class:border-[#F45310]={checked}
+	class:bg-[#F45310]={checked}
 	class:text-white={checked}
 	class:border-border={!checked}
 	class:bg-background={!checked}

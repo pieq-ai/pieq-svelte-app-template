@@ -179,7 +179,7 @@
 			<Alert variant="destructive"><AlertDescription>{errorMessage}</AlertDescription></Alert>
 		{/if}
 
-		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting}>
+		<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting}>
 			{isSubmitting ? 'Saving...' : 'Save'}
 		</Button>
 	</form>

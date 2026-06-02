@@ -255,7 +255,7 @@
 		</div>
 		<Button
 			type="button"
-			class="bg-[#C2652A] text-white hover:bg-[#8C3C3C]"
+			class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
 			onclick={openCreateModal}
 		>
 			<PlusIcon class="size-4" />
@@ -387,7 +387,7 @@
 		{#if editingDept}
 			<StatusDropdown value={formDeptStatus} onChange={(val) => (formDeptStatus = val)} />
 		{/if}
-		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting || (!!editingDept && !isDirty)}>
+		<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingDept && !isDirty)}>
 			{isSubmitting ? 'Saving...' : (editingDept ? 'Save Department' : 'Create Department')}
 		</Button>
 	</form>

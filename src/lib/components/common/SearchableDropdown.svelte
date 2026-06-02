@@ -52,7 +52,7 @@
 			<div class="flex items-center justify-between border-b border-border px-3 py-2 last:border-b-0">
 				<button
 					type="button"
-					class={`min-w-0 flex-1 truncate rounded-sm text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${value === option.id ? 'font-semibold text-[#C2652A]' : 'text-foreground hover:text-[#C2652A] transition-colors'}`}
+					class={`min-w-0 flex-1 truncate rounded-sm text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${value === option.id ? 'font-semibold text-[#F45310]' : 'text-foreground hover:text-[#F45310] transition-colors'}`}
 					onclick={() => onSelect(option.id)}
 				>
 					{option.label}

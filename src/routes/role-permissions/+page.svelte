@@ -197,7 +197,7 @@
 					</thead>
 					<tbody>
 						{#each filteredPermissions as permission (permission.cuid)}
-							<tr class="border-t border-border hover:bg-[#C2652A]/5">
+							<tr class="border-t border-border hover:bg-[#F45310]/5">
 								<td class="sticky left-0 z-10 min-w-64 border-r border-border bg-background px-4 py-3">
 									<div class="font-mono text-xs font-semibold text-[#262626]">
 										{permission.permission_key}

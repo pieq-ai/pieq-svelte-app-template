@@ -28,7 +28,7 @@
 		<Button type="button" variant="outline" onclick={onCancel} disabled={isSubmitting}>Cancel</Button>
 		<Button
 			type="button"
-			class="bg-[#8C3C3C] text-white hover:bg-[#8C3C3C]/90"
+			class="bg-danger text-danger-foreground hover:bg-danger/90 focus-visible:ring-danger/50 focus-visible:border-danger"
 			onclick={onConfirm}
 			disabled={isSubmitting}
 		>

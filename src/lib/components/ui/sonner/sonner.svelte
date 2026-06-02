@@ -14,6 +14,14 @@
 	theme={mode.current}
 	class="toaster group"
 	style="--normal-bg: var(--color-popover); --normal-text: var(--color-popover-foreground); --normal-border: var(--color-border);"
+	closeButton={true}
+	toastOptions={{
+		classes: {
+			toast: 'group toast',
+			content: '',
+			closeButton: 'text-muted-foreground hover:text-foreground'
+		}
+	}}
 	{...restProps}
 >
 	{#snippet loadingIcon()}

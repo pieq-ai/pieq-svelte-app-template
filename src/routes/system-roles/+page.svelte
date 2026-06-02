@@ -223,7 +223,7 @@
 			<p class="text-muted-foreground">Manage application roles used for future authorization mapping.</p>
 		</div>
 		{#if permissions.canCreate}
-			<Button class="bg-[#C2652A] text-white hover:bg-[#8C3C3C]" onclick={openCreateModal}>
+			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={openCreateModal}>
 				<PlusIcon class="size-4" />
 				Add Role
 			</Button>
@@ -320,7 +320,7 @@
 		{#if editingRole}
 			<StatusDropdown value={roleStatus} onChange={(val) => (roleStatus = val)} />
 		{/if}
-		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting || (!!editingRole && !isDirty)}>
+		<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingRole && !isDirty)}>
 			{isSubmitting ? 'Saving...' : (editingRole ? 'Save Role' : 'Create Role')}
 		</Button>
 	</form>

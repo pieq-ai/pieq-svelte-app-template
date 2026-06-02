@@ -252,7 +252,7 @@
 		</div>
 		<Button
 			type="button"
-			class="bg-[#C2652A] text-white hover:bg-[#8C3C3C]"
+			class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
 			onclick={openCreateModal}
 		>
 			<PlusIcon class="size-4" />
@@ -383,7 +383,7 @@
 		{#if editingDesignation}
 			<StatusDropdown value={formDesignationStatus} onChange={(val) => (formDesignationStatus = val)} />
 		{/if}
-		<Button type="submit" class="w-full bg-[#C2652A] text-white hover:bg-[#8C3C3C]" disabled={isSubmitting || (!!editingDesignation && !isDirty)}>
+		<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingDesignation && !isDirty)}>
 			{isSubmitting ? 'Saving...' : (editingDesignation ? 'Save Designation' : 'Create Designation')}
 		</Button>
 	</form>

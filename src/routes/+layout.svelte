@@ -67,7 +67,7 @@
 					class="flex min-w-0 items-center gap-3 font-semibold tracking-tight"
 					title="PieQ HRMS"
 				>
-					<span class="flex size-8 shrink-0 items-center justify-center rounded-md bg-[#C2652A] text-white">
+					<span class="flex size-8 shrink-0 items-center justify-center rounded-md bg-[#F45310] text-white">
 						<Building2Icon class="size-4" />
 					</span>
 					<span class="truncate text-base">PieQ HRMS</span>
@@ -94,7 +94,7 @@
 					<Button
 						href={item.href}
 						variant="ghost"
-						class={`h-10 justify-start gap-3 text-white hover:bg-[#C2652A] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-[#C2652A]' : ''}`}
+						class={`h-10 justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-[#F45310]' : ''}`}
 						title={isSidebarCollapsed ? item.label : undefined}
 						aria-label={item.label}
 					>
@@ -108,7 +108,7 @@
 				<Button
 					href={resolve('/auth/signin')}
 					variant="ghost"
-					class={`h-10 justify-start gap-3 text-white hover:bg-[#C2652A] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+					class={`h-10 justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 					title={isSidebarCollapsed ? 'Sign in' : undefined}
 					aria-label="Sign in"
 				>
@@ -126,7 +126,7 @@
 				<Button
 					href={resolve('/settings')}
 					variant="ghost"
-					class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#8C3C3C] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isSettingsActive ? 'bg-[#8C3C3C]' : ''}`}
+					class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#F45310]/90 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isSettingsActive ? 'bg-[#F45310]/90' : ''}`}
 					title={isSidebarCollapsed ? 'Settings' : undefined}
 					aria-label="Settings"
 				>
@@ -139,7 +139,7 @@
 					<Button
 						type="submit"
 						variant="ghost"
-						class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#8C3C3C] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-danger hover:text-danger-foreground focus-visible:ring-danger/50 focus-visible:border-danger ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 						title={isSidebarCollapsed ? 'Sign out' : undefined}
 						aria-label="Sign out"
 					>
