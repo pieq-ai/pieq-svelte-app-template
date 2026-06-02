@@ -476,14 +476,14 @@
 	<div class="grid gap-4 sm:grid-cols-2">
 		<Card>
 			<CardHeader>
-				<CardDescription>Total Leave Types</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-foreground">{totalTypes}</CardTitle>
+				<CardDescription class="text-black dark:text-white">Total Leave Types</CardDescription>
+				<CardTitle class="text-4xl tabular-nums font-bold text-black dark:text-white">{totalTypes}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader>
-				<CardDescription>Active Leave Types</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-emerald-600 dark:text-emerald-500">{activeTypesCount}</CardTitle>
+				<CardDescription class="text-black dark:text-white">Active Leave Types</CardDescription>
+				<CardTitle class="text-4xl tabular-nums font-bold text-black dark:text-white">{activeTypesCount}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>

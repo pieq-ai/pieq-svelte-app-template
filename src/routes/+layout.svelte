@@ -92,5 +92,5 @@
 	</div>
 {/if}
 
-<Toaster richColors position="top-right" />
+<Toaster richColors position="top-right" closeButton />
 

@@ -519,27 +519,27 @@
 	<div class="grid gap-4 sm:grid-cols-3">
 		<Card>
 			<CardHeader>
-				<CardDescription>Total Holidays</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-foreground">{totalHolidays}</CardTitle>
+				<CardDescription class="text-black dark:text-white">Total Holidays</CardDescription>
+				<CardTitle class="text-4xl tabular-nums font-bold text-black dark:text-white">{totalHolidays}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader>
-				<CardDescription>Upcoming Holidays</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-emerald-600 dark:text-emerald-500">{upcomingHolidaysCount}</CardTitle>
+				<CardDescription class="text-black dark:text-white">Upcoming Holidays</CardDescription>
+				<CardTitle class="text-4xl tabular-nums font-bold text-black dark:text-white">{upcomingHolidaysCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader>
-				<CardDescription>Next Scheduled Holiday</CardDescription>
+				<CardDescription class="text-black dark:text-white">Next Scheduled Holiday</CardDescription>
 				{#if nextHoliday}
-					<CardTitle class="text-xl font-bold line-clamp-1 text-primary">{nextHoliday.holiday_name}</CardTitle>
-					<CardDescription class="text-xs text-muted-foreground mt-1">
+					<CardTitle class="text-xl font-bold line-clamp-1 text-black dark:text-white">{nextHoliday.holiday_name}</CardTitle>
+					<CardDescription class="text-xs text-black dark:text-white mt-1">
 						{formatDate(nextHoliday.holiday_date)}
 					</CardDescription>
 				{:else}
-					<CardTitle class="text-xl font-bold text-muted-foreground">None Scheduled</CardTitle>
-					<CardDescription class="text-xs text-muted-foreground mt-1">
+					<CardTitle class="text-xl font-bold text-black dark:text-white">None Scheduled</CardTitle>
+					<CardDescription class="text-xs text-black dark:text-white mt-1">
 						No upcoming holidays
 					</CardDescription>
 				{/if}

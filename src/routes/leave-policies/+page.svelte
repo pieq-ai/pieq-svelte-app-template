@@ -680,14 +680,14 @@
 	<div class="grid gap-4 sm:grid-cols-2">
 		<Card>
 			<CardHeader>
-				<CardDescription>Total Policies</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-foreground">{totalPolicies}</CardTitle>
+				<CardDescription class="text-black dark:text-white">Total Policies</CardDescription>
+				<CardTitle class="text-4xl tabular-nums font-bold text-black dark:text-white">{totalPolicies}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader>
-				<CardDescription>Active Policies</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-emerald-600 dark:text-emerald-500">{activePoliciesCount}</CardTitle>
+				<CardDescription class="text-black dark:text-white">Active Policies</CardDescription>
+				<CardTitle class="text-4xl tabular-nums font-bold text-black dark:text-white">{activePoliciesCount}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
