@@ -268,7 +268,7 @@
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Total Departments</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#000000] tabular-nums">{totalCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>

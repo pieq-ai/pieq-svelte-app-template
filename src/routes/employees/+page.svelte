@@ -198,19 +198,19 @@
 		<Card>
 			<CardHeader>
 				<CardDescription>Total Active Employees</CardDescription>
-				<CardTitle class="text-4xl text-[#000000] tabular-nums">{totalEmployees}</CardTitle>
+				<CardTitle class="text-4xl text-[#262626] tabular-nums">{totalEmployees}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader>
 				<CardDescription>Average Employee Age</CardDescription>
-				<CardTitle class="text-4xl text-[#000000] tabular-nums">{averageAge} yrs</CardTitle>
+				<CardTitle class="text-4xl text-[#262626] tabular-nums">{averageAge} yrs</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader>
 				<CardDescription>Max Registered Age</CardDescription>
-				<CardTitle class="text-4xl text-[#000000] tabular-nums">{maxAge} yrs</CardTitle>
+				<CardTitle class="text-4xl text-[#262626] tabular-nums">{maxAge} yrs</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
