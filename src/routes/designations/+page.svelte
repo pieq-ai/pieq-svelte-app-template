@@ -264,19 +264,19 @@
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Total Designations</CardDescription>
-				<CardTitle class="text-4xl font-bold tabular-nums">{totalCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-[#000000] tabular-nums">{totalCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Active Designations</CardDescription>
-				<CardTitle class="text-4xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{activeCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{activeCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Inactive Designations</CardDescription>
-				<CardTitle class="text-4xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">{inactiveCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{inactiveCount}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
