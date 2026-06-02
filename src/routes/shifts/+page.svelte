@@ -181,6 +181,9 @@
 		if (sortColumn === col) {
 			if (sortDirection === 'asc') {
 				sortDirection = 'desc';
+			} else if (sortDirection === 'desc') {
+				sortColumn = null;
+				sortDirection = null;
 			} else {
 				sortDirection = 'asc';
 			}
@@ -514,9 +517,17 @@
 			bind:value={searchQuery}
 			placeholder="Search by shift name..."
 			id="shift-search-input"
-			style="width:100%;border:1px solid var(--border);background:var(--card);color:var(--foreground);font-size:14px;padding:9px 12px 9px 40px;border-radius:10px;outline:none;transition:border-color .2s;box-shadow:0 1px 2px rgba(0,0,0,0.02)"
-			onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--pieq-primary)')}
-			onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+			style="width:100%;border:1px solid var(--border);background:var(--card);color:var(--foreground);font-size:14px;padding:9px 12px 9px 40px;border-radius:10px;outline:none;transition:all .2s;box-shadow:0 1px 2px rgba(0,0,0,0.02)"
+			onfocus={(e) => {
+				const t = e.currentTarget as HTMLElement;
+				t.style.borderColor = '#a3a3a3';
+				t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
+			}}
+			onblur={(e) => {
+				const t = e.currentTarget as HTMLElement;
+				t.style.borderColor = 'var(--border)';
+				t.style.boxShadow = 'none';
+			}}
 		/>
 	</div>
 	
@@ -525,9 +536,24 @@
 			<span style="font-size:13px;color:var(--muted-foreground)">Filter:</span>
 			<button
 				onclick={(e) => { e.stopPropagation(); showStatusDropdown = !showStatusDropdown; }}
-				style="background: var(--card); border: 1.5px solid #d1d5db; border-radius: 12px; padding: 10px 16px; font-size: 14px; font-weight: 500; color: var(--foreground); display: inline-flex; align-items: center; justify-content: space-between; gap: 48px; min-width: 140px; cursor: pointer; transition: border-color .2s; outline: none; box-shadow: 0 1px 2px rgba(0,0,0,0.02)"
-				onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--pieq-primary)')}
-				onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#d1d5db')}
+				style="background: var(--card); border: 1.5px solid #d1d5db; border-radius: 12px; padding: 10px 16px; font-size: 14px; font-weight: 500; color: var(--foreground); display: inline-flex; align-items: center; justify-content: space-between; gap: 48px; min-width: 140px; cursor: pointer; transition: all .2s; outline: none; box-shadow: 0 1px 2px rgba(0,0,0,0.02)"
+				onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#a3a3a3')}
+				onmouseleave={(e) => {
+					const t = e.currentTarget as HTMLElement;
+					if (document.activeElement !== t) {
+						t.style.borderColor = '#d1d5db';
+					}
+				}}
+				onfocus={(e) => {
+					const t = e.currentTarget as HTMLElement;
+					t.style.borderColor = '#a3a3a3';
+					t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
+				}}
+				onblur={(e) => {
+					const t = e.currentTarget as HTMLElement;
+					t.style.borderColor = '#d1d5db';
+					t.style.boxShadow = 'none';
+				}}
 				id="shift-filter-select-trigger"
 			>
 				<span>{filterStatus === 'all' ? 'All' : filterStatus === 'active' ? 'Active' : 'Inactive'}</span>
@@ -581,7 +607,15 @@
 							style="display:flex;align-items:center;gap:6px;cursor:pointer;border:none;background:none;font-size:14px;font-weight:700;color:var(--foreground);padding:0"
 						>
 							Shift Name
-							<span style="margin-left: 6px; font-weight: normal; color: inherit; opacity: 0.8;">⇅</span>
+							{#if sortColumn === 'shift_name'}
+								{#if sortDirection === 'asc'}
+									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up" style="margin-left: 6px; flex-shrink: 0;"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+								{:else}
+									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-down" style="margin-left: 6px; flex-shrink: 0;"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+								{/if}
+							{:else}
+								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-down" style="margin-left: 6px; flex-shrink: 0; opacity: 0.4;"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
+							{/if}
 						</button>
 					</th>
 					<th style="padding:14px 20px;text-align:left;font-size:14px;font-weight:700;color:var(--foreground);white-space:nowrap">
@@ -590,7 +624,15 @@
 							style="display:flex;align-items:center;gap:6px;cursor:pointer;border:none;background:none;font-size:14px;font-weight:700;color:var(--foreground);padding:0"
 						>
 							Start Time
-							<span style="margin-left: 6px; font-weight: normal; color: inherit; opacity: 0.8;">⇅</span>
+							{#if sortColumn === 'start_time'}
+								{#if sortDirection === 'asc'}
+									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up" style="margin-left: 6px; flex-shrink: 0;"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+								{:else}
+									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-down" style="margin-left: 6px; flex-shrink: 0;"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+								{/if}
+							{:else}
+								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-down" style="margin-left: 6px; flex-shrink: 0; opacity: 0.4;"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
+							{/if}
 						</button>
 					</th>
 					<th style="padding:14px 20px;text-align:left;font-size:14px;font-weight:700;color:var(--foreground);white-space:nowrap">
@@ -599,7 +641,15 @@
 							style="display:flex;align-items:center;gap:6px;cursor:pointer;border:none;background:none;font-size:14px;font-weight:700;color:var(--foreground);padding:0"
 						>
 							End Time
-							<span style="margin-left: 6px; font-weight: normal; color: inherit; opacity: 0.8;">⇅</span>
+							{#if sortColumn === 'end_time'}
+								{#if sortDirection === 'asc'}
+									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up" style="margin-left: 6px; flex-shrink: 0;"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+								{:else}
+									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-down" style="margin-left: 6px; flex-shrink: 0;"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+								{/if}
+							{:else}
+								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-down" style="margin-left: 6px; flex-shrink: 0; opacity: 0.4;"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
+							{/if}
 						</button>
 					</th>
 					<th style="padding:14px 20px;text-align:left;font-size:14px;font-weight:700;color:var(--foreground);white-space:nowrap">
@@ -608,7 +658,15 @@
 							style="display:flex;align-items:center;gap:6px;cursor:pointer;border:none;background:none;font-size:14px;font-weight:700;color:var(--foreground);padding:0"
 						>
 							Min Work Hours
-							<span style="margin-left: 6px; font-weight: normal; color: inherit; opacity: 0.8;">⇅</span>
+							{#if sortColumn === 'minimum_work_hours'}
+								{#if sortDirection === 'asc'}
+									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up" style="margin-left: 6px; flex-shrink: 0;"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+								{:else}
+									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-down" style="margin-left: 6px; flex-shrink: 0;"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+								{/if}
+							{:else}
+								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-down" style="margin-left: 6px; flex-shrink: 0; opacity: 0.4;"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
+							{/if}
 						</button>
 					</th>
 					<th style="padding:14px 20px;text-align:left;font-size:14px;font-weight:700;color:var(--foreground);white-space:nowrap">
@@ -617,7 +675,15 @@
 							style="display:flex;align-items:center;gap:6px;cursor:pointer;border:none;background:none;font-size:14px;font-weight:700;color:var(--foreground);padding:0"
 						>
 							Status
-							<span style="margin-left: 6px; font-weight: normal; color: inherit; opacity: 0.8;">⇅</span>
+							{#if sortColumn === 'status'}
+								{#if sortDirection === 'asc'}
+									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up" style="margin-left: 6px; flex-shrink: 0;"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+								{:else}
+									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-down" style="margin-left: 6px; flex-shrink: 0;"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+								{/if}
+							{:else}
+								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-down" style="margin-left: 6px; flex-shrink: 0; opacity: 0.4;"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
+							{/if}
 						</button>
 					</th>
 					<th style="padding:14px 20px;text-align:right;font-size:14px;font-weight:700;color:var(--foreground);white-space:nowrap">Actions</th>
@@ -758,9 +824,17 @@
 				bind:value={formName}
 				oninput={() => formError = ''}
 				placeholder="e.g. Morning Shift"
-				style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
-				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#F45310')}
-				onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+				style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:all .2s;box-sizing:border-box"
+				onfocus={(e) => {
+					const t = e.currentTarget as HTMLElement;
+					t.style.borderColor = '#a3a3a3';
+					t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
+				}}
+				onblur={(e) => {
+					const t = e.currentTarget as HTMLElement;
+					t.style.borderColor = 'var(--border)';
+					t.style.boxShadow = 'none';
+				}}
 			/>
 			{#if formError}
 				<p style="color:#800020;font-size:12px;margin:0">{formError}</p>
@@ -777,9 +851,17 @@
 					type="time"
 					bind:value={formStartTime}
 					oninput={() => formError = ''}
-					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
-					onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#F45310')}
-					onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:all .2s;box-sizing:border-box"
+					onfocus={(e) => {
+						const t = e.currentTarget as HTMLElement;
+						t.style.borderColor = '#a3a3a3';
+						t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
+					}}
+					onblur={(e) => {
+						const t = e.currentTarget as HTMLElement;
+						t.style.borderColor = 'var(--border)';
+						t.style.boxShadow = 'none';
+					}}
 				/>
 			</div>
 			<div style="display:flex;flex-direction:column;gap:6px">
@@ -791,9 +873,17 @@
 					type="time"
 					bind:value={formEndTime}
 					oninput={() => formError = ''}
-					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
-					onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#F45310')}
-					onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:all .2s;box-sizing:border-box"
+					onfocus={(e) => {
+						const t = e.currentTarget as HTMLElement;
+						t.style.borderColor = '#a3a3a3';
+						t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
+					}}
+					onblur={(e) => {
+						const t = e.currentTarget as HTMLElement;
+						t.style.borderColor = 'var(--border)';
+						t.style.boxShadow = 'none';
+					}}
 				/>
 			</div>
 		</div>
@@ -819,9 +909,17 @@
 				<select
 					id="shift-status"
 					bind:value={formStatus}
-					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
-					onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#F45310')}
-					onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:all .2s;box-sizing:border-box"
+					onfocus={(e) => {
+						const t = e.currentTarget as HTMLElement;
+						t.style.borderColor = '#a3a3a3';
+						t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
+					}}
+					onblur={(e) => {
+						const t = e.currentTarget as HTMLElement;
+						t.style.borderColor = 'var(--border)';
+						t.style.boxShadow = 'none';
+					}}
 				>
 					<option value={true}>Active</option>
 					<option value={false}>Inactive</option>

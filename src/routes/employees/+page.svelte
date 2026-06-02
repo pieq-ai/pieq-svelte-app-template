@@ -236,9 +236,17 @@
 			type="search"
 			placeholder="Search by name, ID or UUID..."
 			bind:value={searchQuery}
-			style="width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 32px 8px 32px;font-size:13px;background:var(--card);color:var(--foreground);outline:none;box-sizing:border-box;transition:border-color .2s"
-			onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#F45310')}
-			onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+			style="width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 32px 8px 32px;font-size:13px;background:var(--card);color:var(--foreground);outline:none;box-sizing:border-box;transition:all .2s"
+			onfocus={(e) => {
+				const t = e.currentTarget as HTMLElement;
+				t.style.borderColor = '#a3a3a3';
+				t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
+			}}
+			onblur={(e) => {
+				const t = e.currentTarget as HTMLElement;
+				t.style.borderColor = 'var(--border)';
+				t.style.boxShadow = 'none';
+			}}
 		/>
 		{#if searchQuery}
 			<button
@@ -353,9 +361,17 @@
 						bind:value={newName}
 						placeholder="e.g. Charlie Brown"
 						required
-						style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
-						onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#F45310')}
-						onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+						style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:all .2s;box-sizing:border-box"
+						onfocus={(e) => {
+							const t = e.currentTarget as HTMLElement;
+							t.style.borderColor = '#a3a3a3';
+							t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
+						}}
+						onblur={(e) => {
+							const t = e.currentTarget as HTMLElement;
+							t.style.borderColor = 'var(--border)';
+							t.style.boxShadow = 'none';
+						}}
 					/>
 				</div>
 
@@ -371,9 +387,17 @@
 						min="1"
 						max="120"
 						required
-						style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
-						onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#F45310')}
-						onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+						style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:all .2s;box-sizing:border-box"
+						onfocus={(e) => {
+							const t = e.currentTarget as HTMLElement;
+							t.style.borderColor = '#a3a3a3';
+							t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
+						}}
+						onblur={(e) => {
+							const t = e.currentTarget as HTMLElement;
+							t.style.borderColor = 'var(--border)';
+							t.style.boxShadow = 'none';
+						}}
 					/>
 				</div>
 
