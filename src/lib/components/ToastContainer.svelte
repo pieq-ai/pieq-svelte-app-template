@@ -4,7 +4,6 @@
 	import { flip } from 'svelte/animate';
 	import { fade, fly } from 'svelte/transition';
 	import XIcon from '@lucide/svelte/icons/x';
-	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
 	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
 	import InfoIcon from '@lucide/svelte/icons/info';
 	import AlertTriangleIcon from '@lucide/svelte/icons/alert-triangle';
@@ -19,13 +18,19 @@
 		>
 			<span class="toast-icon">
 				{#if t.type === 'success'}
-					<CheckCircleIcon size={18} />
-				{:else if t.type === 'error'}
-					<AlertCircleIcon size={18} />
-				{:else if t.type === 'warning'}
-					<AlertTriangleIcon size={18} />
+					<div class="toast-icon-badge success">
+						<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+					</div>
 				{:else}
-					<InfoIcon size={18} />
+					<div class="toast-icon-badge secondary">
+						{#if t.type === 'error'}
+							<AlertCircleIcon size={12} />
+						{:else if t.type === 'warning'}
+							<AlertTriangleIcon size={12} />
+						{:else}
+							<InfoIcon size={12} />
+						{/if}
+					</div>
 				{/if}
 			</span>
 
@@ -58,13 +63,13 @@
 
 	.toast-item {
 		display: flex;
-		align-items: flex-start;
+		align-items: center;
 		gap: 12px;
 		padding: 14px 16px;
-		background: var(--card);
+		background: #ffffff;
 		border: 1px solid var(--border);
 		border-radius: 10px;
-		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
 		pointer-events: auto;
 		user-select: none;
 		position: relative;
@@ -73,8 +78,8 @@
 
 	.toast-message {
 		font-size: 13px;
-		font-weight: 500;
-		color: var(--foreground);
+		font-weight: 600;
+		color: #18181b;
 		margin: 0;
 		line-height: 1.4;
 		flex: 1;
@@ -86,7 +91,22 @@
 		align-items: center;
 		justify-content: center;
 		flex-shrink: 0;
-		margin-top: 1px;
+	}
+
+	.toast-icon-badge {
+		background: #18181b;
+		color: #ffffff;
+		border-radius: 50%;
+		width: 20px;
+		height: 20px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+	}
+
+	.toast-icon-badge.secondary {
+		background: #800020;
 	}
 
 	.toast-close {
@@ -100,43 +120,10 @@
 		align-items: center;
 		justify-content: center;
 		transition: background-color 0.15s, color 0.15s;
-		align-self: flex-start;
 	}
 
 	.toast-close:hover {
 		background-color: var(--muted);
 		color: var(--foreground);
-	}
-
-	/* Success State */
-	.toast-item.success {
-		border-left: 4px solid #16a34a;
-	}
-	.toast-item.success .toast-icon {
-		color: #16a34a;
-	}
-
-	/* Error State */
-	.toast-item.error {
-		border-left: 4px solid #dc2626;
-	}
-	.toast-item.error .toast-icon {
-		color: #dc2626;
-	}
-
-	/* Warning State */
-	.toast-item.warning {
-		border-left: 4px solid #eab308;
-	}
-	.toast-item.warning .toast-icon {
-		color: #eab308;
-	}
-
-	/* Info State */
-	.toast-item.info {
-		border-left: 4px solid var(--pieq-primary);
-	}
-	.toast-item.info .toast-icon {
-		color: var(--pieq-primary);
 	}
 </style>

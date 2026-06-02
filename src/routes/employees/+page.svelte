@@ -173,7 +173,7 @@
 <div class="page-topbar">
 	<div>
 		<span
-			style="display:inline-block;background:#C2652A1a;color:#C2652A;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:99px;margin-bottom:6px"
+			style="display:inline-block;background:#F453101a;color:#F45310;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:99px;margin-bottom:6px"
 		>HRMS Module</span>
 		<h1 style="font-size:26px;font-weight:700;color:var(--foreground);margin:0;line-height:1.2">
 			Employees
@@ -194,14 +194,17 @@
 	<div class="stat-card">
 		<div class="stat-card-label">Total Employees</div>
 		<div class="stat-card-value">{totalEmployees}</div>
+		<div style="font-size: 11px; color: var(--muted-foreground); margin-top: 6px;">Total registered enterprise employees</div>
 	</div>
 	<div class="stat-card">
 		<div class="stat-card-label">Average Age</div>
-		<div class="stat-card-value">{averageAge}<span style="font-size:16px;font-weight:400;color:var(--muted-foreground)"> yrs</span></div>
+		<div class="stat-card-value" style="color: #F45310">{averageAge}<span style="font-size:16px;font-weight:400;color:var(--muted-foreground)"> yrs</span></div>
+		<div style="font-size: 11px; color: var(--muted-foreground); margin-top: 6px;">Mean age of workforce</div>
 	</div>
 	<div class="stat-card">
 		<div class="stat-card-label">Max Registered Age</div>
-		<div class="stat-card-value">{maxAge}<span style="font-size:16px;font-weight:400;color:var(--muted-foreground)"> yrs</span></div>
+		<div class="stat-card-value" style="color: #800020">{maxAge}<span style="font-size:16px;font-weight:400;color:var(--muted-foreground)"> yrs</span></div>
+		<div style="font-size: 11px; color: var(--muted-foreground); margin-top: 6px;">Highest employee age recorded</div>
 	</div>
 </div>
 
@@ -234,7 +237,7 @@
 			placeholder="Search by name, ID or UUID..."
 			bind:value={searchQuery}
 			style="width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 32px 8px 32px;font-size:13px;background:var(--card);color:var(--foreground);outline:none;box-sizing:border-box;transition:border-color .2s"
-			onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+			onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#F45310')}
 			onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
 		/>
 		{#if searchQuery}
@@ -307,7 +310,7 @@
 						<td style="padding:13px 20px;font-size:13px;color:var(--muted-foreground);font-weight:500">#{emp.id}</td>
 						<td style="padding:13px 20px;font-size:14px;font-weight:600;color:var(--foreground)">{emp.name}</td>
 						<td style="padding:13px 20px">
-							<span style="display:inline-flex;align-items:center;padding:2px 10px;background:#C2652A18;color:#C2652A;border-radius:99px;font-size:12px;font-weight:600">
+							<span style="display:inline-flex;align-items:center;padding:2px 10px;background:#F4531018;color:#F45310;border-radius:99px;font-size:12px;font-weight:600">
 								{emp.age} yrs
 							</span>
 						</td>
@@ -342,7 +345,7 @@
 			<form onsubmit={handleAddEmployee} style="display:flex;flex-direction:column;gap:16px">
 				<div style="display:flex;flex-direction:column;gap:6px">
 					<label for="emp-name" style="font-size:13px;font-weight:600">
-						Full Name <span style="color:#C2652A">*</span>
+						Full Name <span style="color:#F45310">*</span>
 					</label>
 					<input
 						id="emp-name"
@@ -351,14 +354,14 @@
 						placeholder="e.g. Charlie Brown"
 						required
 						style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
-						onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+						onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#F45310')}
 						onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
 					/>
 				</div>
 
 				<div style="display:flex;flex-direction:column;gap:6px">
 					<label for="emp-age" style="font-size:13px;font-weight:600">
-						Age <span style="color:#C2652A">*</span>
+						Age <span style="color:#F45310">*</span>
 					</label>
 					<input
 						id="emp-age"
@@ -369,7 +372,7 @@
 						max="120"
 						required
 						style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
-						onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+						onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#F45310')}
 						onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
 					/>
 				</div>
@@ -384,14 +387,9 @@
 
 				<div style="display:flex;justify-content:flex-end;gap:10px;padding-top:4px">
 					<button
-						type="button"
-						onclick={closeAddModal}
-						style="padding:9px 18px;border-radius:8px;border:1px solid var(--border);background:none;font-size:13px;font-weight:500;cursor:pointer"
-					>Cancel</button>
-					<button
 						type="submit"
 						disabled={isSubmitting}
-						style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;opacity:{isSubmitting ? 0.7 : 1};display:inline-flex;align-items:center;gap:6px"
+						style="padding:9px 18px;border-radius:8px;background:#F45310;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;opacity:{isSubmitting ? 0.7 : 1};display:inline-flex;align-items:center;gap:6px"
 					>
 						{#if isSubmitting}
 							<LoaderCircleIcon class="animate-spin" size={14} />

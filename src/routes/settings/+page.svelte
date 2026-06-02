@@ -12,7 +12,7 @@
 <div class="page-topbar">
 	<div>
 		<span
-			style="display:inline-block;background:#C2652A1a;color:#C2652A;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:99px;margin-bottom:6px"
+			style="display:inline-block;background:#F453101a;color:#F45310;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:99px;margin-bottom:6px"
 		>System</span>
 		<h1 style="font-size:26px;font-weight:700;color:var(--foreground);margin:0;line-height:1.2">
 			Settings
@@ -32,7 +32,7 @@
 	] as item}
 		<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:14px;box-shadow:0 1px 4px rgba(0,0,0,.04)">
 			<div style="display:flex;align-items:flex-start;justify-content:space-between">
-				<div style="width:40px;height:40px;background:#C2652A1a;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#C2652A">
+				<div style="width:40px;height:40px;background:#F453101a;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#F45310">
 					<item.icon size={20} />
 				</div>
 				<span style="font-size:10px;font-weight:600;padding:2px 8px;background:var(--muted);color:var(--muted-foreground);border-radius:99px;text-transform:uppercase;letter-spacing:.5px">{item.tag}</span>

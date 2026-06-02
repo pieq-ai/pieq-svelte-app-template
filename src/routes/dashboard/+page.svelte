@@ -14,7 +14,7 @@
 <div class="page-topbar" style="margin-bottom:24px">
 	<div>
 		<span
-			style="display:inline-block;background:#C2652A1a;color:#C2652A;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:99px;margin-bottom:6px"
+			style="display:inline-block;background:#F453101a;color:#F45310;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:99px;margin-bottom:6px"
 		>Overview</span>
 		<h1 style="font-size:26px;font-weight:700;color:var(--foreground);margin:0;line-height:1.2">
 			Dashboard
@@ -27,7 +27,7 @@
 
 <!-- Stats strip -->
 <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
-	<div class="stat-card" style="border-left:3px solid #C2652A">
+	<div class="stat-card" style="border-left:3px solid #F45310">
 		<div class="stat-card-label">Assigned Roles</div>
 		<div class="stat-card-value" style="font-size:28px">{data.context.stats.roleCount}</div>
 	</div>
@@ -43,7 +43,7 @@
 	<!-- Profile card -->
 	<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)">
 		<div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
-			<UserCircleIcon size={18} style="color:#C2652A" />
+			<UserCircleIcon size={18} style="color:#F45310" />
 			<span style="font-size:14px;font-weight:700;color:var(--foreground)">Profile</span>
 		</div>
 		<div style="padding:20px;display:flex;flex-direction:column;gap:14px">
@@ -67,14 +67,14 @@
 	<!-- Roles card -->
 	<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)">
 		<div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
-			<ShieldIcon size={18} style="color:#C2652A" />
+			<ShieldIcon size={18} style="color:#F45310" />
 			<span style="font-size:14px;font-weight:700;color:var(--foreground)">Assigned Roles</span>
 		</div>
 		<div style="padding:20px">
 			{#if data.context.roles.length > 0}
 				<div style="display:flex;flex-wrap:wrap;gap:8px">
 					{#each data.context.roles as role (role)}
-						<span style="display:inline-flex;align-items:center;padding:4px 12px;background:#C2652A18;color:#C2652A;border-radius:99px;font-size:12px;font-weight:600">{role}</span>
+						<span style="display:inline-flex;align-items:center;padding:4px 12px;background:#F4531018;color:#F45310;border-radius:99px;font-size:12px;font-weight:600">{role}</span>
 					{/each}
 				</div>
 			{:else}

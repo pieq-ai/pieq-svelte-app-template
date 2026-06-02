@@ -113,8 +113,11 @@
 		}
 	}
 
+	let showStatusDropdown = $state(false);
+
 	function closeDropdowns() {
 		activeDropdownId = null;
+		showStatusDropdown = false;
 	}
 	if (typeof window !== 'undefined') {
 		window.addEventListener('click', closeDropdowns);
@@ -124,6 +127,11 @@
 			window.removeEventListener('click', closeDropdowns);
 		}
 	});
+
+	function handleStatusSelect(val: 'all' | 'active' | 'inactive') {
+		filterStatus = val;
+		showStatusDropdown = false;
+	}
 
 	// Filter
 	let filterStatus = $state<'all' | 'active' | 'inactive'>('all');
@@ -350,7 +358,7 @@
 <div class="page-topbar">
 	<div>
 		<span
-			style="display:inline-block;background:#C2652A1a;color:#C2652A;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:99px;margin-bottom:6px"
+			style="display:inline-block;background:#F453101a;color:#F45310;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:99px;margin-bottom:6px"
 		>HRMS Module</span>
 		<h1 style="font-size:26px;font-weight:700;color:var(--foreground);margin:0;line-height:1.2">
 			Role Master
@@ -371,14 +379,17 @@
 	<div class="stat-card">
 		<div class="stat-card-label">Total Roles</div>
 		<div class="stat-card-value">{totalRoles}</div>
+		<div style="font-size: 11px; color: var(--muted-foreground); margin-top: 6px;">Total registered system roles</div>
 	</div>
 	<div class="stat-card">
 		<div class="stat-card-label">Active Roles</div>
-		<div class="stat-card-value">{activeRolesCount}</div>
+		<div class="stat-card-value" style="color: #F45310">{activeRolesCount}</div>
+		<div style="font-size: 11px; color: var(--muted-foreground); margin-top: 6px;">Currently active system roles</div>
 	</div>
 	<div class="stat-card">
 		<div class="stat-card-label">Inactive Roles</div>
-		<div class="stat-card-value">{inactiveRolesCount}</div>
+		<div class="stat-card-value" style="color: #800020">{inactiveRolesCount}</div>
+		<div style="font-size: 11px; color: var(--muted-foreground); margin-top: 6px;">Currently inactive system roles</div>
 	</div>
 </div>
 
@@ -396,35 +407,41 @@
 			onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
 		/>
 	</div>
-	
-	<div style="display:flex;align-items:center;gap:8px">
-		<div style="position:relative;display:flex;align-items:center;min-width:120px">
-			<select
-				bind:value={filterStatus}
-				class="filter-select"
-				id="role-filter-select"
-				style="width:100%;border:1px solid var(--border);background:var(--card);color:var(--foreground);font-size:14px;padding:9px 36px 9px 16px;border-radius:10px;outline:none;cursor:pointer;appearance:none;transition:border-color .2s;box-shadow:0 1px 2px rgba(0,0,0,0.02)"
-				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--pieq-primary)')}
-				onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+	<div style="display:flex;align-items:center;gap:12px">
+		<div style="display:flex;align-items:center;gap:6px;position:relative">
+			<span style="font-size:13px;color:var(--muted-foreground)">Filter:</span>
+			<button
+				onclick={(e) => { e.stopPropagation(); showStatusDropdown = !showStatusDropdown; }}
+				style="background: var(--card); border: 1.5px solid #d1d5db; border-radius: 12px; padding: 10px 16px; font-size: 14px; font-weight: 500; color: var(--foreground); display: inline-flex; align-items: center; justify-content: space-between; gap: 48px; min-width: 140px; cursor: pointer; transition: border-color .2s; outline: none; box-shadow: 0 1px 2px rgba(0,0,0,0.02)"
+				onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--pieq-primary)')}
+				onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#d1d5db')}
+				id="role-filter-select-trigger"
 			>
-				<option value="all">All</option>
-				<option value="active">Active</option>
-				<option value="inactive">Inactive</option>
-			</select>
-			<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-filter" style="position:absolute;right:14px;color:var(--muted-foreground);pointer-events:none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-		</div>
+				<span>{filterStatus === 'all' ? 'All' : filterStatus === 'active' ? 'Active' : 'Inactive'}</span>
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-funnel" style="color:#737373"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+			</button>
 
-		<button
-			onclick={resetSort}
-			title="Reset Sorting"
-			aria-label="Reset Sorting"
-			style="display:inline-flex;align-items:center;justify-content:center;padding:9px 14px;border:1px solid var(--border);background:var(--card);color:var(--foreground);border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;transition:all 0.2s;box-shadow:0 1px 2px rgba(0,0,0,0.02);white-space:nowrap;gap:6px"
-			onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}
-			onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--card)'; }}
-		>
-			<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rotate-ccw"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-			Reset
-		</button>
+			{#if showStatusDropdown}
+				<div
+					style="position: absolute; top: calc(100% + 4px); right: 0; z-index: 60; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); min-width: 140px; padding: 4px; display: flex; flex-direction: column; gap: 2px;"
+					onclick={(e) => e.stopPropagation()}
+				>
+					{#each [{ value: 'all', label: 'All' }, { value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }] as opt}
+						<button
+							onclick={() => handleStatusSelect(opt.value as any)}
+							style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; font-size: 14px; font-weight: 500; border: none; background: none; cursor: pointer; text-align: left; border-radius: 8px; color: var(--foreground); transition: background 0.15s"
+							onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = '#f3f4f6')}
+							onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = 'none')}
+						>
+							<span>{opt.label}</span>
+							{#if filterStatus === opt.value}
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" style="color:#111827"><path d="M20 6 9 17l-5-5"/></svg>
+							{/if}
+						</button>
+					{/each}
+				</div>
+			{/if}
+		</div>
 	</div>
 </div>
 
@@ -451,7 +468,7 @@
 							style="display:flex;align-items:center;gap:6px;cursor:pointer;border:none;background:none;font-size:14px;font-weight:700;color:var(--foreground);padding:0"
 						>
 							Role Name
-							<span style="font-size:14px;color:var(--pieq-primary);opacity:0.8">{sortColumn === 'name' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅'}</span>
+							<span style="margin-left: 6px; font-weight: normal; color: inherit; opacity: 0.8;">⇅</span>
 						</button>
 					</th>
 					<th style="padding:14px 20px;text-align:left;font-size:14px;font-weight:700;color:var(--foreground);white-space:nowrap">
@@ -460,7 +477,7 @@
 							style="display:flex;align-items:center;gap:6px;cursor:pointer;border:none;background:none;font-size:14px;font-weight:700;color:var(--foreground);padding:0"
 						>
 							Status
-							<span style="font-size:14px;color:var(--pieq-primary);opacity:0.8">{sortColumn === 'status' ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅'}</span>
+							<span style="margin-left: 6px; font-weight: normal; color: inherit; opacity: 0.8;">⇅</span>
 						</button>
 					</th>
 					<th style="padding:14px 20px;text-align:right;font-size:14px;font-weight:700;color:var(--foreground);white-space:nowrap">Actions</th>
@@ -475,9 +492,6 @@
 					>
 						<td style="padding:14px 20px">
 							<div style="display:flex;align-items:center;gap:8px">
-								<span style="color:#C2652A">
-									<ShieldIcon size={15} />
-								</span>
 								<span style="font-size:14px;font-weight:600">{role.name}</span>
 							</div>
 						</td>
@@ -508,11 +522,11 @@
 									>
 										<button
 											onclick={() => { openEdit(role); activeDropdownId = null; }}
-											style="width:100%;display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:13px;border:none;background:none;cursor:pointer;text-align:left;color:var(--foreground);transition:background .15s"
+											style="width:100%;display:flex;align-items:center;gap:12px;padding:8px 12px;font-size:13px;border:none;background:none;cursor:pointer;text-align:left;color:var(--foreground);transition:background .15s"
 											onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = 'var(--muted)')}
 											onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '')}
 										>
-											<Pencil2Icon size={13} style="color:#C2652A" />
+											<Pencil2Icon size={13} />
 											Edit
 										</button>
 									</div>
@@ -533,8 +547,10 @@
 				<button
 					disabled={page <= 1}
 					onclick={prevPage}
-					style="padding:6px 14px;border:none;background:none;font-size:14px;font-weight:500;cursor:pointer;color:var(--muted-foreground);opacity:{page <= 1 ? 0.4 : 1};display:inline-flex;align-items:center;gap:4px"
-				>⟨ Previous</button>
+					style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--card);font-size:13px;font-weight:500;cursor:pointer;color:var(--muted-foreground);opacity:{page <= 1 ? 0.4 : 1};display:inline-flex;align-items:center;transition:background 0.15s"
+					onmouseenter={(e) => { if (page > 1) (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}
+					onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--card)'; }}
+				><span style="margin-right: 8px;">&lt;</span>Previous</button>
 				{#each pageNumbers as p}
 					{#if p === page}
 						<span style="background:#111827;color:#ffffff;width:32px;height:32px;border-radius:6px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-size:14px">
@@ -543,17 +559,19 @@
 					{:else}
 						<button
 							onclick={() => page = p}
-							style="background:none;border:none;color:#111827;width:32px;height:32px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;justify-content:center;font-size:14px"
-						>
-							{p}
-						</button>
+							style="width:32px;height:32px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--foreground);font-weight:600;cursor:pointer;font-size:14px;transition:all 0.15s"
+							onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}
+							onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--card)'; }}
+						>{p}</button>
 					{/if}
 				{/each}
 				<button
 					disabled={page >= totalPages}
 					onclick={nextPage}
-					style="padding:6px 14px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;color:#111827;opacity:{page >= totalPages ? 0.4 : 1};display:inline-flex;align-items:center;gap:4px"
-				>Next ⟩</button>
+					style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--card);font-size:13px;font-weight:500;cursor:pointer;color:var(--muted-foreground);opacity:{page >= totalPages ? 0.4 : 1};display:inline-flex;align-items:center;transition:background 0.15s"
+					onmouseenter={(e) => { if (page < totalPages) (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}
+					onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--card)'; }}
+				>Next<span style="margin-left: 8px;">&gt;</span></button>
 			</div>
 		</div>
 	{/if}
@@ -570,7 +588,7 @@
 					<button
 						type="button"
 						onclick={discardChanges}
-						style="width:100%;padding:9px;border-radius:8px;background:#dc2626;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:opacity 0.15s"
+						style="width:100%;padding:9px;border-radius:8px;background:#800020;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:opacity 0.15s"
 						onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.opacity = '0.9')}
 						onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.opacity = '1')}
 					>Discard Changes</button>
@@ -589,7 +607,7 @@
 	<form onsubmit={submitForm} style="display:flex;flex-direction:column;gap:16px">
 		<div style="display:flex;flex-direction:column;gap:6px">
 			<label for="role-name" style="font-size:13px;font-weight:600">
-				Role Name <span style="color:#C2652A">*</span>
+				Role Name <span style="color:#F45310">*</span>
 			</label>
 			<input
 				id="role-name"
@@ -598,11 +616,11 @@
 				oninput={() => formError = ''}
 				placeholder="e.g. HR Manager"
 				style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
-				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#F45310')}
 				onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
 			/>
 			{#if formError}
-				<p style="color:#dc2626;font-size:12px;margin:0">{formError}</p>
+				<p style="color:#800020;font-size:12px;margin:0">{formError}</p>
 			{/if}
 		</div>
 
@@ -615,7 +633,7 @@
 					id="role-status"
 					bind:value={formStatus}
 					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:border-color .2s;box-sizing:border-box"
-					onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#C2652A')}
+					onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#F45310')}
 					onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
 				>
 					<option value={true}>Active</option>
@@ -624,16 +642,11 @@
 			</div>
 		{/if}
 
-		<div style="display:flex;justify-content:flex-end;gap:10px;padding-top:4px">
-			<button
-				type="button"
-				onclick={closeForm}
-				style="padding:9px 18px;border-radius:8px;border:1px solid var(--border);background:none;font-size:13px;font-weight:500;cursor:pointer"
-			>Cancel</button>
+		<div style="display:flex;justify-content:flex-end;padding-top:4px">
 			<button
 				type="submit"
 				disabled={formLoading || (editRole ? !isUpdateChanged : !isCreateEnabled)}
-				style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:opacity 0.2s;opacity:{(formLoading || (editRole ? !isUpdateChanged : !isCreateEnabled)) ? 0.4 : 1};cursor:{(formLoading || (editRole ? !isUpdateChanged : !isCreateEnabled)) ? 'not-allowed' : 'pointer'}"
+				style="padding:9px 18px;border-radius:8px;background:#F45310;color:white;border:none;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:opacity 0.2s;opacity:{(formLoading || (editRole ? !isUpdateChanged : !isCreateEnabled)) ? 0.4 : 1};cursor:{(formLoading || (editRole ? !isUpdateChanged : !isCreateEnabled)) ? 'not-allowed' : 'pointer'}"
 			>
 				{#if formLoading}
 					<LoaderCircleIcon class="animate-spin" size={14} />

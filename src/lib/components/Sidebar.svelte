@@ -48,22 +48,20 @@
 
 <aside class="pieq-sidebar" class:collapsed>
 	<!-- Brand -->
-	<div class="sidebar-brand" style="display:flex;align-items:center;justify-content:{collapsed ? 'center' : 'space-between'};width:100%;box-sizing:border-box;padding:{collapsed ? '16px 0' : '24px 16px 16px'};border-bottom:none">
-		<div style="display:flex;align-items:center;gap:10px">
-			<div class="sidebar-brand-icon" style="background:#C2652A;color:white;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(194, 101, 42, 0.3)">
-				<Building2Icon size={20} />
-			</div>
-			{#if !collapsed}
-				<span class="sidebar-brand-name" style="font-size:16px;font-weight:700;color:white;letter-spacing:-0.5px">PieQ HRMS</span>
-			{/if}
-		</div>
+	<div class="sidebar-brand" style="display:flex;align-items:center;justify-content:{collapsed ? 'center' : 'space-between'};width:100%;box-sizing:border-box;padding:{collapsed ? '16px 0' : '24px 16px 16px'};border-bottom:none;position:relative">
 		{#if !collapsed}
+			<div style="display:flex;align-items:center;gap:10px">
+				<div class="sidebar-brand-icon" style="background:#F45310;color:white;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(244, 83, 16, 0.3)">
+					<Building2Icon size={20} />
+				</div>
+				<span class="sidebar-brand-name" style="font-size:16px;font-weight:700;color:white;letter-spacing:-0.5px">PieQ HRMS</span>
+			</div>
 			<button
 				onclick={toggle}
 				style="background:none;border:none;color:#ffffff;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;transition:color 0.2s"
 				aria-label="Collapse sidebar"
 				title="Collapse sidebar"
-				onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.color = '#C2652A')}
+				onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.color = '#F45310')}
 				onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.color = '#ffffff')}
 			>
 				<MenuIcon size={18} />
@@ -71,10 +69,14 @@
 		{:else}
 			<button
 				onclick={toggle}
-				style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;"
+				style="background:none;border:none;color:#ffffff;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;transition:color 0.2s"
 				aria-label="Expand sidebar"
 				title="Expand sidebar"
-			></button>
+				onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.color = '#F45310')}
+				onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.color = '#ffffff')}
+			>
+				<MenuIcon size={18} />
+			</button>
 		{/if}
 	</div>
 
@@ -118,13 +120,16 @@
 			</a>
 
 			<!-- Sign out -->
-			<form onsubmit={handleSignOut} style="margin:4px 8px 0">
-				<button type="submit" class="sidebar-nav-item" style="width:100%;border:none;background:none;cursor:pointer;text-align:left;">
-					<span class="nav-item-icon"><LogOutIcon size={18} /></span>
-					<span class="nav-item-label">Sign out</span>
-					<span class="sidebar-tooltip">Sign out</span>
-				</button>
-			</form>
+			<button
+				type="button"
+				onclick={handleSignOut}
+				class="sidebar-nav-item sidebar-sign-out"
+				style="width: calc(100% - 16px); border: none; background: none; cursor: pointer; text-align: left; box-sizing: border-box;"
+			>
+				<span class="nav-item-icon" style="color:#ffffff"><LogOutIcon size={18} /></span>
+				<span class="nav-item-label" style="color:#ffffff">Sign out</span>
+				<span class="sidebar-tooltip">Sign out</span>
+			</button>
 
 			<!-- User Information strip -->
 			{#if !collapsed}

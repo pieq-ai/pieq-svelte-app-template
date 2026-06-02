@@ -91,7 +91,7 @@
 	.modal-card {
 		background: var(--card);
 		border: 1px solid var(--border);
-		border-radius: 14px;
+		border-radius: 16px;
 		width: 100%;
 		max-width: 440px;
 		margin: 0 16px;

@@ -19,11 +19,11 @@
 <div style="min-height:70vh;display:flex;align-items:center;justify-content:center">
 	<div style="text-align:center;max-width:520px;padding:40px 24px">
 		<!-- Brand mark -->
-		<div style="width:72px;height:72px;background:#C2652A;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 24px #C2652A40">
+		<div style="width:72px;height:72px;background:#F45310;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 24px #F4531040">
 			<span style="font-size:28px;font-weight:800;color:white;letter-spacing:-1px">PQ</span>
 		</div>
 
-		<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#C2652A;margin-bottom:12px">
+		<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#F45310;margin-bottom:12px">
 			Enterprise HR Suite
 		</p>
 
@@ -38,9 +38,9 @@
 		{#if data.user}
 			<a
 				href={resolve('/dashboard')}
-				style="display:inline-flex;align-items:center;gap:8px;background:#C2652A;color:white;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;transition:background .2s,transform .1s;box-shadow:0 4px 16px #C2652A30"
-				onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = '#a8541f'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
-				onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = '#C2652A'; (e.currentTarget as HTMLElement).style.transform = ''; }}
+				style="display:inline-flex;align-items:center;gap:8px;background:#F45310;color:white;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;transition:background .2s,transform .1s;box-shadow:0 4px 16px #F4531030"
+				onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = '#d8470a'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+				onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = '#F45310'; (e.currentTarget as HTMLElement).style.transform = ''; }}
 			>
 				<LayoutDashboardIcon size={17} />
 				Go to Dashboard
@@ -48,9 +48,9 @@
 		{:else}
 			<button
 				onclick={handleSignIn}
-				style="display:inline-flex;align-items:center;gap:8px;background:#C2652A;color:white;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;border:none;cursor:pointer;transition:background .2s,transform .1s;box-shadow:0 4px 16px #C2652A30"
-				onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = '#a8541f'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
-				onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = '#C2652A'; (e.currentTarget as HTMLElement).style.transform = ''; }}
+				style="display:inline-flex;align-items:center;gap:8px;background:#F45310;color:white;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;border:none;cursor:pointer;transition:background .2s,transform .1s;box-shadow:0 4px 16px #F4531030"
+				onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = '#d8470a'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+				onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = '#F45310'; (e.currentTarget as HTMLElement).style.transform = ''; }}
 			>
 				<LogInIcon size={17} />
 				Sign in with Keycloak

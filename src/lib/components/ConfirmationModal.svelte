@@ -237,15 +237,15 @@
 	}
 
 	.btn-confirm:hover:not(:disabled) {
-		background-color: #a8541f;
+		background-color: #d4430c;
 	}
 
 	.btn-confirm.destructive {
-		background: #dc2626;
+		background: #800020;
 	}
 
 	.btn-confirm.destructive:hover:not(:disabled) {
-		background: #b91c1c;
+		background: #600018;
 	}
 
 	.btn-confirm:disabled {
