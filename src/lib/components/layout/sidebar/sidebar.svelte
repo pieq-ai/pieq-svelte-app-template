@@ -103,7 +103,7 @@
 				class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all group cursor-pointer
 					{isActive 
 						? 'bg-primary text-white font-semibold shadow-xs' 
-						: 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'}"
+						: 'text-sidebar-foreground/70 hover:text-white hover:bg-primary'}"
 				title={isCollapsed ? item.name : undefined}
 			>
 				<Icon class="size-4 shrink-0 transition-transform group-hover:scale-105" />
@@ -113,7 +113,7 @@
 			</a>
 		{/each}
 	</nav>
-
+ 
 	<!-- Bottom Section (Settings & Sign Out) -->
 	<div class="p-3 border-t border-sidebar-border space-y-1.5 shrink-0 bg-transparent">
 		<!-- Settings link -->
@@ -122,7 +122,7 @@
 			class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all group cursor-pointer
 				{page.url.pathname === '/settings' 
 					? 'bg-primary text-white font-semibold shadow-xs' 
-					: 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'}"
+					: 'text-sidebar-foreground/70 hover:text-white hover:bg-primary'}"
 			title={isCollapsed ? "Settings" : undefined}
 		>
 			<SettingsIcon class="size-4 shrink-0 transition-transform group-hover:scale-105" />
@@ -130,12 +130,12 @@
 				<span transition:slide={{ axis: 'x', duration: 150 }} class="truncate">Settings</span>
 			{/if}
 		</a>
-
+ 
 		<!-- Sign Out Form Button -->
 		<form method="POST" action="/auth/signout" class="w-full" novalidate>
 			<button
 				type="submit"
-				class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors cursor-pointer group"
+				class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-sidebar-foreground/70 hover:text-white hover:bg-[#800020] transition-colors cursor-pointer group"
 				title={isCollapsed ? "Sign out" : undefined}
 			>
 				<LogOutIcon class="size-4 shrink-0 transition-transform group-hover:scale-105" />

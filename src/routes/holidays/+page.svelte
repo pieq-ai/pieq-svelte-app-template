@@ -556,13 +556,13 @@
 		<Card>
 			<CardHeader>
 				<CardDescription class="text-black dark:text-white">Total Holidays</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-black dark:text-white">{totalHolidays}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-[#262626] dark:text-neutral-200">{totalHolidays}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader>
 				<CardDescription class="text-black dark:text-white">Upcoming Holidays</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-black dark:text-white">{upcomingHolidaysCount}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-[#F45310]">{upcomingHolidaysCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
@@ -626,11 +626,11 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								onclick={() => handleSort('holiday_date')}
-								class="flex items-center gap-1 cursor-pointer select-none group"
+								class="flex items-center gap-1.5 cursor-pointer select-none group"
 							>
 								<span>Date</span>
-								<span class="text-[10px] transition-colors {sortKey === 'holiday_date' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'holiday_date' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
+								<span class="text-sm transition-colors {sortKey === 'holiday_date' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
+									{sortKey === 'holiday_date' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
 							</div>
 						</TableHead>
@@ -639,11 +639,11 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								onclick={() => handleSort('holiday_name')}
-								class="flex items-center gap-1 cursor-pointer select-none group"
+								class="flex items-center gap-1.5 cursor-pointer select-none group"
 							>
 								<span>Holiday Name</span>
-								<span class="text-[10px] transition-colors {sortKey === 'holiday_name' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'holiday_name' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
+								<span class="text-sm transition-colors {sortKey === 'holiday_name' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
+									{sortKey === 'holiday_name' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
 							</div>
 						</TableHead>
@@ -652,11 +652,11 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								onclick={() => handleSort('holiday_type')}
-								class="flex items-center gap-1 cursor-pointer select-none group"
+								class="flex items-center gap-1.5 cursor-pointer select-none group"
 							>
 								<span>Category</span>
-								<span class="text-[10px] transition-colors {sortKey === 'holiday_type' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'holiday_type' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
+								<span class="text-sm transition-colors {sortKey === 'holiday_type' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
+									{sortKey === 'holiday_type' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
 							</div>
 						</TableHead>

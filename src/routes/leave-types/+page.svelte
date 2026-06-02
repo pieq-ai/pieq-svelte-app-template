@@ -485,6 +485,7 @@
 
 	let totalTypes = $derived(data.leaveTypes.length);
 	let activeTypesCount = $derived(data.leaveTypes.filter((t) => t.status).length);
+	let inactiveTypesCount = $derived(data.leaveTypes.filter((t) => !t.status).length);
 </script>
 
 <svelte:head>
@@ -507,17 +508,23 @@
 	</div>
 
 	<!-- KPI Metrics -->
-	<div class="grid gap-4 sm:grid-cols-2">
+	<div class="grid gap-4 sm:grid-cols-3">
 		<Card>
 			<CardHeader>
 				<CardDescription class="text-black dark:text-white">Total Leave Types</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-black dark:text-white">{totalTypes}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-[#262626] dark:text-neutral-200">{totalTypes}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader>
 				<CardDescription class="text-black dark:text-white">Active Leave Types</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-black dark:text-white">{activeTypesCount}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-[#F45310]">{activeTypesCount}</CardTitle>
+			</CardHeader>
+		</Card>
+		<Card>
+			<CardHeader>
+				<CardDescription class="text-black dark:text-white">Inactive Leave Types</CardDescription>
+				<CardTitle class="text-4xl tabular-nums font-bold text-[#800020] dark:text-[#b83d58]">{inactiveTypesCount}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
@@ -565,11 +572,11 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								onclick={() => handleSort('leave_name')}
-								class="flex items-center gap-1 cursor-pointer select-none group"
+								class="flex items-center gap-1.5 cursor-pointer select-none group"
 							>
 								<span>Leave Name</span>
-								<span class="text-[10px] transition-colors {sortKey === 'leave_name' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'leave_name' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
+								<span class="text-sm transition-colors {sortKey === 'leave_name' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
+									{sortKey === 'leave_name' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
 							</div>
 						</TableHead>
@@ -578,11 +585,11 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								onclick={() => handleSort('leave_code')}
-								class="flex items-center gap-1 cursor-pointer select-none group"
+								class="flex items-center gap-1.5 cursor-pointer select-none group"
 							>
 								<span>Leave Code</span>
-								<span class="text-[10px] transition-colors {sortKey === 'leave_code' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'leave_code' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
+								<span class="text-sm transition-colors {sortKey === 'leave_code' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
+									{sortKey === 'leave_code' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
 							</div>
 						</TableHead>
@@ -591,11 +598,11 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								onclick={() => handleSort('is_paid')}
-								class="flex items-center justify-center gap-1 cursor-pointer select-none group"
+								class="flex items-center justify-center gap-1.5 cursor-pointer select-none group"
 							>
 								<span>Paid</span>
-								<span class="text-[10px] transition-colors {sortKey === 'is_paid' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'is_paid' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
+								<span class="text-sm transition-colors {sortKey === 'is_paid' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
+									{sortKey === 'is_paid' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
 							</div>
 						</TableHead>
@@ -604,11 +611,11 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								onclick={() => handleSort('requires_approval')}
-								class="flex items-center justify-center gap-1 cursor-pointer select-none group"
+								class="flex items-center justify-center gap-1.5 cursor-pointer select-none group"
 							>
 								<span>Approval Required</span>
-								<span class="text-[10px] transition-colors {sortKey === 'requires_approval' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'requires_approval' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
+								<span class="text-sm transition-colors {sortKey === 'requires_approval' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
+									{sortKey === 'requires_approval' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
 							</div>
 						</TableHead>
@@ -617,11 +624,11 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								onclick={() => handleSort('status')}
-								class="flex items-center justify-center gap-1 cursor-pointer select-none group"
+								class="flex items-center justify-center gap-1.5 cursor-pointer select-none group"
 							>
 								<span>Status</span>
-								<span class="text-[10px] transition-colors {sortKey === 'status' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'status' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
+								<span class="text-sm transition-colors {sortKey === 'status' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
+									{sortKey === 'status' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
 							</div>
 						</TableHead>

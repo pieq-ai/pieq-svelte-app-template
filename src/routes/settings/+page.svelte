@@ -51,7 +51,7 @@
 					<div class="size-8 rounded-full bg-primary shadow-inner"></div>
 					<div class="flex-1">
 						<div class="font-semibold">Primary (Brand Orange)</div>
-						<div class="text-xs text-muted-foreground font-mono">#C2652A</div>
+						<div class="text-xs text-muted-foreground font-mono">#F45310</div>
 					</div>
 				</div>
 				<div class="flex items-center gap-4">

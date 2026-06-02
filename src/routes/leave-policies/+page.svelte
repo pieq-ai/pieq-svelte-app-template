@@ -741,6 +741,7 @@
 
 	let totalPolicies = $derived(data.policies.length);
 	let activePoliciesCount = $derived(data.policies.filter((p) => p.status).length);
+	let inactivePoliciesCount = $derived(data.policies.filter((p) => !p.status).length);
 </script>
 
 <svelte:head>
@@ -763,17 +764,23 @@
 	</div>
 
 	<!-- KPI Metrics -->
-	<div class="grid gap-4 sm:grid-cols-2">
+	<div class="grid gap-4 sm:grid-cols-3">
 		<Card>
 			<CardHeader>
 				<CardDescription class="text-black dark:text-white">Total Policies</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-black dark:text-white">{totalPolicies}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-[#262626] dark:text-neutral-200">{totalPolicies}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader>
 				<CardDescription class="text-black dark:text-white">Active Policies</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-black dark:text-white">{activePoliciesCount}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-[#F45310]">{activePoliciesCount}</CardTitle>
+			</CardHeader>
+		</Card>
+		<Card>
+			<CardHeader>
+				<CardDescription class="text-black dark:text-white">Inactive Policies</CardDescription>
+				<CardTitle class="text-4xl tabular-nums font-bold text-[#800020] dark:text-[#b83d58]">{inactivePoliciesCount}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
@@ -841,11 +848,11 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								onclick={() => handleSort('leave_type_cuid')}
-								class="flex items-center gap-1 cursor-pointer select-none group"
+								class="flex items-center gap-1.5 cursor-pointer select-none group"
 							>
 								<span>Leave Type</span>
-								<span class="text-[10px] transition-colors {sortKey === 'leave_type_cuid' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'leave_type_cuid' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
+								<span class="text-sm transition-colors {sortKey === 'leave_type_cuid' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
+									{sortKey === 'leave_type_cuid' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
 							</div>
 						</TableHead>
@@ -854,11 +861,11 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								onclick={() => handleSort('employment_type_cuids')}
-								class="flex items-center gap-1 cursor-pointer select-none group"
+								class="flex items-center gap-1.5 cursor-pointer select-none group"
 							>
 								<span>Employment Types</span>
-								<span class="text-[10px] transition-colors {sortKey === 'employment_type_cuids' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'employment_type_cuids' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
+								<span class="text-sm transition-colors {sortKey === 'employment_type_cuids' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
+									{sortKey === 'employment_type_cuids' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
 							</div>
 						</TableHead>
@@ -867,11 +874,11 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								onclick={() => handleSort('annual_quota')}
-								class="flex items-center justify-end gap-1 cursor-pointer select-none group"
+								class="flex items-center justify-end gap-1.5 cursor-pointer select-none group"
 							>
 								<span>Quota (Annual)</span>
-								<span class="text-[10px] transition-colors {sortKey === 'annual_quota' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'annual_quota' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
+								<span class="text-sm transition-colors {sortKey === 'annual_quota' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
+									{sortKey === 'annual_quota' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
 							</div>
 						</TableHead>
@@ -880,11 +887,11 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								onclick={() => handleSort('carry_forward_allowed')}
-								class="flex items-center justify-center gap-1 cursor-pointer select-none group"
+								class="flex items-center justify-center gap-1.5 cursor-pointer select-none group"
 							>
 								<span>Carry Fwd</span>
-								<span class="text-[10px] transition-colors {sortKey === 'carry_forward_allowed' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'carry_forward_allowed' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
+								<span class="text-sm transition-colors {sortKey === 'carry_forward_allowed' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
+									{sortKey === 'carry_forward_allowed' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
 							</div>
 						</TableHead>
@@ -893,11 +900,11 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								onclick={() => handleSort('allow_half_day')}
-								class="flex items-center justify-center gap-1 cursor-pointer select-none group"
+								class="flex items-center justify-center gap-1.5 cursor-pointer select-none group"
 							>
 								<span>Half Day</span>
-								<span class="text-[10px] transition-colors {sortKey === 'allow_half_day' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'allow_half_day' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
+								<span class="text-sm transition-colors {sortKey === 'allow_half_day' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
+									{sortKey === 'allow_half_day' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
 							</div>
 						</TableHead>
@@ -906,11 +913,11 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								onclick={() => handleSort('gender_specific')}
-								class="flex items-center justify-center gap-1 cursor-pointer select-none group"
+								class="flex items-center justify-center gap-1.5 cursor-pointer select-none group"
 							>
 								<span>Gender</span>
-								<span class="text-[10px] transition-colors {sortKey === 'gender_specific' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'gender_specific' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
+								<span class="text-sm transition-colors {sortKey === 'gender_specific' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
+									{sortKey === 'gender_specific' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
 							</div>
 						</TableHead>
@@ -919,11 +926,11 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								onclick={() => handleSort('status')}
-								class="flex items-center justify-center gap-1 cursor-pointer select-none group"
+								class="flex items-center justify-center gap-1.5 cursor-pointer select-none group"
 							>
 								<span>Status</span>
-								<span class="text-[10px] transition-colors {sortKey === 'status' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'status' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
+								<span class="text-sm transition-colors {sortKey === 'status' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
+									{sortKey === 'status' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
 							</div>
 						</TableHead>
