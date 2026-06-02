@@ -85,6 +85,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		status
 	} = trimmedBody;
 
+	console.log('POST /api/leave/policies request payload:', trimmedBody);
+
 	try {
 		const data = await createLeavePolicy({
 			leave_type_cuid,
@@ -101,13 +103,22 @@ export const POST: RequestHandler = async ({ request }) => {
 			applicable_gender,
 			status
 		});
+		console.log('POST /api/leave/policies success, created policy:', data);
 		return createSuccessResponse('Leave policy', data.cuid);
 	} catch (error) {
-		if (error instanceof LeaveValidationError) {
-			return errorResponse(error.message, 400, error.field);
+		console.error('POST /api/leave/policies failed. Full error stack:', error);
+
+		const isValidationError =
+			error instanceof LeaveValidationError ||
+			(error !== null && typeof error === 'object' && 'name' in error && error.name === 'LeaveValidationError');
+
+		if (isValidationError) {
+			const valError = error as { field?: string; message: string };
+			console.log('Validation failed:', { field: valError.field, message: valError.message });
+			return errorResponse(valError.message, 400, valError.field);
 		}
 
-		console.error('POST /api/leave/policies failed', error);
-		return errorResponse('Failed to create leave policy', 500);
+		const errMsg = error instanceof Error ? error.message : 'Unknown server error';
+		return errorResponse(`Failed to create leave policy: ${errMsg}`, 500);
 	}
 };

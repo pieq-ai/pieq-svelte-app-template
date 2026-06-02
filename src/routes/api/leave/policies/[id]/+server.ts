@@ -47,6 +47,7 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 		'carry_forward_allowed',
 		'max_carry_forward_days',
 		'requires_document',
+		'document_required_after_days',
 		'min_service_days',
 		'allow_half_day',
 		'gender_specific',
@@ -67,6 +68,7 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 		carry_forward_allowed?: unknown;
 		max_carry_forward_days?: unknown;
 		requires_document?: unknown;
+		document_required_after_days?: unknown;
 		min_service_days?: unknown;
 		allow_half_day?: unknown;
 		gender_specific?: unknown;
@@ -82,12 +84,15 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 		carry_forward_allowed,
 		max_carry_forward_days,
 		requires_document,
+		document_required_after_days,
 		min_service_days,
 		allow_half_day,
 		gender_specific,
 		applicable_gender,
 		status
 	} = trimmedBody;
+
+	console.log(`PUT /api/leave/policies/${id} request payload:`, trimmedBody);
 
 	try {
 		const data = await updateLeavePolicy(id, {
@@ -98,20 +103,30 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 			carry_forward_allowed,
 			max_carry_forward_days,
 			requires_document,
+			document_required_after_days,
 			min_service_days,
 			allow_half_day,
 			gender_specific,
 			applicable_gender,
 			status
 		});
+		console.log(`PUT /api/leave/policies/${id} success, updated policy:`, data);
 		return updateSuccessResponse('Leave policy', data.cuid);
 	} catch (error) {
-		if (error instanceof LeaveValidationError) {
-			return errorResponse(error.message, 400, error.field);
+		console.error(`PUT /api/leave/policies/${id} failed. Full error stack:`, error);
+
+		const isValidationError =
+			error instanceof LeaveValidationError ||
+			(error !== null && typeof error === 'object' && 'name' in error && error.name === 'LeaveValidationError');
+
+		if (isValidationError) {
+			const valError = error as { field?: string; message: string };
+			console.log('Validation failed:', { field: valError.field, message: valError.message });
+			return errorResponse(valError.message, 400, valError.field);
 		}
 
-		console.error(`PUT /api/leave/policies/${id} failed`, error);
-		return errorResponse('Failed to update leave policy', 500);
+		const errMsg = error instanceof Error ? error.message : 'Unknown server error';
+		return errorResponse(`Failed to update leave policy: ${errMsg}`, 500);
 	}
 };
 

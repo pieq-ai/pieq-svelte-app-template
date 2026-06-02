@@ -92,6 +92,8 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 		status
 	} = trimmedBody;
 
+	console.log(`PUT /api/leave/policies/leavePolicyCuid=${leavePolicyCuid} request payload:`, trimmedBody);
+
 	try {
 		const data = await updateLeavePolicy(leavePolicyCuid, {
 			leave_type_cuid,
@@ -108,14 +110,23 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 			applicable_gender,
 			status
 		});
+		console.log(`PUT /api/leave/policies/leavePolicyCuid=${leavePolicyCuid} success, updated policy:`, data);
 		return updateSuccessResponse('Leave policy', data.cuid);
 	} catch (error) {
-		if (error instanceof LeaveValidationError) {
-			return errorResponse(error.message, 400, error.field);
+		console.error(`PUT /api/leave/policies/leavePolicyCuid=${leavePolicyCuid} failed. Full error stack:`, error);
+
+		const isValidationError =
+			error instanceof LeaveValidationError ||
+			(error !== null && typeof error === 'object' && 'name' in error && error.name === 'LeaveValidationError');
+
+		if (isValidationError) {
+			const valError = error as { field?: string; message: string };
+			console.log('Validation failed:', { field: valError.field, message: valError.message });
+			return errorResponse(valError.message, 400, valError.field);
 		}
 
-		console.error(`PUT /api/leave/policies/leavePolicyCuid=${leavePolicyCuid} failed`, error);
-		return errorResponse('Failed to update leave policy', 500);
+		const errMsg = error instanceof Error ? error.message : 'Unknown server error';
+		return errorResponse(`Failed to update leave policy: ${errMsg}`, 500);
 	}
 };
 
