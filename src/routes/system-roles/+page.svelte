@@ -68,7 +68,7 @@
 		const trimmed = name.trim();
 		if (!trimmed) return 'Role name is required';
 		if (trimmed.length < 2) return 'Minimum 2 characters required';
-		if (!/^[A-Za-z0-9 ]+$/.test(trimmed)) return 'Only letters, numbers, and spaces are allowed';
+		if (!/^[A-Za-z ]+$/.test(trimmed)) return 'Only letters and spaces are allowed';
 		return '';
 	}
 
@@ -299,7 +299,7 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingRole ? 'Edit System Role' : 'Create System Role'}
-	description="Role names must be unique and contain only letters, numbers, and spaces."
+	description="Role names must be unique and contain only letters and spaces."
 	isDirty={isDirty}
 	onClose={() => (isModalOpen = false)}
 >

@@ -83,7 +83,7 @@ describe('System Role Service', () => {
 				await expect(systemRoleService.createSystemRole({ system_role_name: '  ' })).rejects.toThrow('Role name is required');
 				await expect(systemRoleService.createSystemRole({ system_role_name: 'A' })).rejects.toThrow('Role name must be at least 2 characters long');
 				await expect(systemRoleService.createSystemRole({ system_role_name: 'A'.repeat(101) })).rejects.toThrow('Role name cannot exceed 100 characters');
-				await expect(systemRoleService.createSystemRole({ system_role_name: 'Admin@123' })).rejects.toThrow('Role name must contain only letters, numbers, and spaces');
+				await expect(systemRoleService.createSystemRole({ system_role_name: 'Admin123' })).rejects.toThrow('Role name must contain only letters and spaces');
 			});
 
 			it('should throw if status is not boolean', async () => {

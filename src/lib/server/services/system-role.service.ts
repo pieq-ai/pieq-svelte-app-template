@@ -53,8 +53,8 @@ function validateRoleName(name: string | null | undefined) {
 	if (trimmed.length > 100) {
 		throw new Error('Role name cannot exceed 100 characters');
 	}
-	if (!/^[A-Za-z0-9 ]+$/.test(trimmed)) {
-		throw new Error('Role name must contain only letters, numbers, and spaces');
+	if (!/^[A-Za-z ]+$/.test(trimmed)) {
+		throw new Error('Role name must contain only letters and spaces');
 	}
 
 	return trimmed;
