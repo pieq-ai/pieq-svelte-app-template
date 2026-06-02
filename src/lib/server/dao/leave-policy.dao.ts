@@ -7,6 +7,7 @@ export interface CreateLeavePolicyData {
 	carry_forward_allowed: boolean;
 	max_carry_forward_days: number | null;
 	requires_document: boolean;
+	document_required_after_days: number | null;
 	min_service_days: number;
 	allow_half_day: boolean;
 	gender_specific: boolean;
@@ -53,6 +54,7 @@ export async function create(policyData: CreateLeavePolicyData, employmentTypeCu
 				carry_forward_allowed: policyData.carry_forward_allowed,
 				max_carry_forward_days: policyData.max_carry_forward_days,
 				requires_document: policyData.requires_document,
+				document_required_after_days: policyData.document_required_after_days,
 				min_service_days: policyData.min_service_days,
 				allow_half_day: policyData.allow_half_day,
 				gender_specific: policyData.gender_specific,
@@ -91,6 +93,7 @@ export async function update(cuid: string, policyData: Partial<CreateLeavePolicy
 				carry_forward_allowed: policyData.carry_forward_allowed,
 				max_carry_forward_days: policyData.max_carry_forward_days,
 				requires_document: policyData.requires_document,
+				document_required_after_days: policyData.document_required_after_days,
 				min_service_days: policyData.min_service_days,
 				allow_half_day: policyData.allow_half_day,
 				gender_specific: policyData.gender_specific,

@@ -10,6 +10,7 @@ export interface CreateLeavePolicyInput {
 	carry_forward_allowed?: unknown;
 	max_carry_forward_days?: unknown;
 	requires_document?: unknown;
+	document_required_after_days?: unknown;
 	min_service_days?: unknown;
 	allow_half_day?: unknown;
 	gender_specific?: unknown;
@@ -25,6 +26,7 @@ export interface UpdateLeavePolicyInput {
 	carry_forward_allowed?: unknown;
 	max_carry_forward_days?: unknown;
 	requires_document?: unknown;
+	document_required_after_days?: unknown;
 	min_service_days?: unknown;
 	allow_half_day?: unknown;
 	gender_specific?: unknown;
@@ -130,6 +132,27 @@ async function validateAndMapPolicyInput(
 	}
 
 	const requires_document = Boolean(input.requires_document);
+	let document_required_after_days: number | null = null;
+	if (requires_document) {
+		if (
+			input.document_required_after_days !== undefined &&
+			input.document_required_after_days !== null &&
+			String(input.document_required_after_days).trim() !== ''
+		) {
+			document_required_after_days = Number(input.document_required_after_days);
+			if (isNaN(document_required_after_days) || !Number.isInteger(document_required_after_days) || document_required_after_days < 0) {
+				throw new LeaveValidationError('document_required_after_days', 'Document required after days must be a positive integer or 0');
+			}
+		}
+	} else {
+		if (
+			input.document_required_after_days !== undefined &&
+			input.document_required_after_days !== null &&
+			String(input.document_required_after_days).trim() !== ''
+		) {
+			throw new LeaveValidationError('document_required_after_days', 'Document required after days must be empty when document upload is not required');
+		}
+	}
 	const allow_half_day = Boolean(input.allow_half_day);
 
 	const gender_specific = Boolean(input.gender_specific);
@@ -171,6 +194,7 @@ async function validateAndMapPolicyInput(
 			carry_forward_allowed,
 			max_carry_forward_days,
 			requires_document,
+			document_required_after_days,
 			min_service_days,
 			allow_half_day,
 			gender_specific,
@@ -212,6 +236,7 @@ export async function updateLeavePolicy(cuid: string, input: UpdateLeavePolicyIn
 		carry_forward_allowed: existingPolicy.carry_forward_allowed,
 		max_carry_forward_days: existingPolicy.max_carry_forward_days,
 		requires_document: existingPolicy.requires_document,
+		document_required_after_days: existingPolicy.document_required_after_days,
 		min_service_days: existingPolicy.min_service_days,
 		allow_half_day: existingPolicy.allow_half_day,
 		gender_specific: existingPolicy.gender_specific,

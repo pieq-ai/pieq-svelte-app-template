@@ -40,6 +40,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		'carry_forward_allowed',
 		'max_carry_forward_days',
 		'requires_document',
+		'document_required_after_days',
 		'min_service_days',
 		'allow_half_day',
 		'gender_specific',
@@ -60,6 +61,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		carry_forward_allowed?: unknown;
 		max_carry_forward_days?: unknown;
 		requires_document?: unknown;
+		document_required_after_days?: unknown;
 		min_service_days?: unknown;
 		allow_half_day?: unknown;
 		gender_specific?: unknown;
@@ -75,6 +77,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		carry_forward_allowed,
 		max_carry_forward_days,
 		requires_document,
+		document_required_after_days,
 		min_service_days,
 		allow_half_day,
 		gender_specific,
@@ -91,6 +94,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			carry_forward_allowed,
 			max_carry_forward_days,
 			requires_document,
+			document_required_after_days,
 			min_service_days,
 			allow_half_day,
 			gender_specific,

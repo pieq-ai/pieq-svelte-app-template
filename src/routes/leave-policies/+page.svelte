@@ -96,6 +96,7 @@
 		carryForwardAllowed = false;
 		maxCarryForwardDays = '';
 		requiresDocument = false;
+		documentRequiredAfterDays = '';
 		minServiceDays = '0';
 		allowHalfDay = false;
 		genderSpecific = false;
@@ -114,6 +115,7 @@
 		const quotaErr = getQuotaError(annualQuota);
 		const maxPerMonthErr = getMaxPerMonthError(maxPerMonth, annualQuota);
 		const carryForwardErr = getCarryForwardDaysError(carryForwardAllowed, maxCarryForwardDays);
+		const documentRequiredAfterDaysErr = getDocumentRequiredAfterDaysError(requiresDocument, documentRequiredAfterDays);
 		const minServiceErr = getMinServiceDaysError(minServiceDays);
 		const genderErr = getGenderError(genderSpecific, applicableGender);
 
@@ -122,6 +124,7 @@
 		errors.annual_quota = quotaErr;
 		errors.max_per_month = maxPerMonthErr;
 		errors.max_carry_forward_days = carryForwardErr;
+		errors.document_required_after_days = documentRequiredAfterDaysErr;
 		errors.min_service_days = minServiceErr;
 		errors.applicable_gender = genderErr;
 
@@ -131,6 +134,7 @@
 			quotaErr ||
 			maxPerMonthErr ||
 			carryForwardErr ||
+			documentRequiredAfterDaysErr ||
 			minServiceErr ||
 			genderErr
 		) {
@@ -149,6 +153,7 @@
 			carry_forward_allowed: carryForwardAllowed,
 			max_carry_forward_days: carryForwardAllowed ? maxCarryForwardDays : null,
 			requires_document: requiresDocument,
+			document_required_after_days: requiresDocument ? (documentRequiredAfterDays === '' ? null : Number(documentRequiredAfterDays)) : null,
 			min_service_days: minServiceDays,
 			allow_half_day: allowHalfDay,
 			gender_specific: genderSpecific,
@@ -178,6 +183,7 @@
 					carryForwardAllowed = false;
 					maxCarryForwardDays = '';
 					requiresDocument = false;
+					documentRequiredAfterDays = '';
 					minServiceDays = '0';
 					allowHalfDay = false;
 					genderSpecific = false;
@@ -220,6 +226,7 @@
 	let carryForwardAllowed = $state(false);
 	let maxCarryForwardDays = $state('');
 	let requiresDocument = $state(false);
+	let documentRequiredAfterDays = $state('');
 	let minServiceDays = $state('');
 	let allowHalfDay = $state(false);
 	let genderSpecific = $state(false);
@@ -231,6 +238,7 @@
 
 		const originalMaxPerMonth = editingPolicy.max_per_month !== null ? String(editingPolicy.max_per_month) : '';
 		const originalMaxCarryForwardDays = editingPolicy.max_carry_forward_days !== null ? String(editingPolicy.max_carry_forward_days) : '';
+		const originalDocumentRequiredAfterDays = editingPolicy.document_required_after_days !== null ? String(editingPolicy.document_required_after_days) : '';
 		const originalMinServiceDays = String(editingPolicy.min_service_days);
 		const originalApplicableGender = editingPolicy.applicable_gender || '';
 
@@ -251,6 +259,7 @@
 			carryForwardAllowed !== editingPolicy.carry_forward_allowed ||
 			maxCarryForwardDays !== originalMaxCarryForwardDays ||
 			requiresDocument !== editingPolicy.requires_document ||
+			documentRequiredAfterDays !== originalDocumentRequiredAfterDays ||
 			minServiceDays !== originalMinServiceDays ||
 			allowHalfDay !== editingPolicy.allow_half_day ||
 			genderSpecific !== editingPolicy.gender_specific ||
@@ -271,6 +280,7 @@
 				carryForwardAllowed !== false ||
 				maxCarryForwardDays !== '' ||
 				requiresDocument !== false ||
+				documentRequiredAfterDays !== '' ||
 				minServiceDays !== '0' ||
 				allowHalfDay !== false ||
 				genderSpecific !== false ||
@@ -337,6 +347,7 @@
 		carryForwardAllowed = false;
 		maxCarryForwardDays = '';
 		requiresDocument = false;
+		documentRequiredAfterDays = '';
 		minServiceDays = '0';
 		allowHalfDay = false;
 		genderSpecific = false;
@@ -390,8 +401,9 @@
 	$effect(() => {
 		if (isFormModalOpen) {
 			hasSynchronized = false;
-			submissionAttempted = false;
 			errors = {};
+			touched = {};
+			submissionAttempted = false;
 		}
 	});
 
@@ -408,6 +420,7 @@
 			carryForwardAllowed = editingPolicy.carry_forward_allowed;
 			maxCarryForwardDays = editingPolicy.max_carry_forward_days !== null ? String(editingPolicy.max_carry_forward_days) : '';
 			requiresDocument = editingPolicy.requires_document;
+			documentRequiredAfterDays = editingPolicy.document_required_after_days !== null ? String(editingPolicy.document_required_after_days) : '';
 			minServiceDays = String(editingPolicy.min_service_days);
 			allowHalfDay = editingPolicy.allow_half_day;
 			genderSpecific = editingPolicy.gender_specific;
@@ -422,6 +435,7 @@
 			carryForwardAllowed = false;
 			maxCarryForwardDays = '';
 			requiresDocument = false;
+			documentRequiredAfterDays = '';
 			minServiceDays = '0';
 			allowHalfDay = false;
 			genderSpecific = false;
@@ -450,12 +464,14 @@
 			carryForwardAllowed = false;
 			maxCarryForwardDays = '';
 			requiresDocument = false;
+			documentRequiredAfterDays = '';
 			minServiceDays = '0';
 			allowHalfDay = false;
 			genderSpecific = false;
 			applicableGender = '';
 			status = true;
 			errors = {};
+			touched = {};
 			submissionAttempted = false;
 			hasSynchronized = false;
 			isDiscardModalOpen = false;
@@ -468,7 +484,27 @@
 	let formError = $derived(form && 'error' in form ? form.error : null);
 
 	let errors = $state<Record<string, string>>({});
+	let touched = $state<Record<string, boolean>>({});
 	let submissionAttempted = $state(false);
+
+	function getFieldError(
+		value: string,
+		getErr: (val: string) => string,
+		isTouched: boolean,
+		submitAttempted: boolean,
+		backendErr?: string
+	): string {
+		if (backendErr) return backendErr;
+		const clientErr = getErr(value);
+		if (!clientErr) return '';
+		if (value && value.trim() !== '') {
+			return clientErr;
+		}
+		if (isTouched || submitAttempted) {
+			return clientErr;
+		}
+		return '';
+	}
 
 	function getLeaveTypeIdError(id: string): string {
 		if (!id) return 'Leave type is required.';
@@ -534,13 +570,29 @@
 		return '';
 	}
 
-	let quotaError = $derived(errors.annual_quota || '');
-	let maxPerMonthError = $derived(errors.max_per_month || '');
-	let carryForwardDaysError = $derived(errors.max_carry_forward_days || '');
-	let minServiceDaysError = $derived(errors.min_service_days || '');
-	let genderError = $derived(errors.applicable_gender || '');
-	let employmentTypesError = $derived(errors.employment_type_cuids || '');
-	let leaveTypeIdError = $derived(errors.leave_type_cuid || '');
+	function getDocumentRequiredAfterDaysError(required: boolean, daysStr: string): string {
+		if (!required) return '';
+		if (!daysStr || String(daysStr).trim() === '') return '';
+		const days = Number(daysStr);
+		if (isNaN(days) || !Number.isInteger(days) || days < 0) {
+			return 'Document required after days must be a positive integer or 0';
+		}
+		return '';
+	}
+
+	let quotaError = $derived(getFieldError(annualQuota, getQuotaError, touched.annual_quota, submissionAttempted, errors.annual_quota));
+	let maxPerMonthError = $derived(getFieldError(maxPerMonth, (val) => getMaxPerMonthError(val, annualQuota), touched.max_per_month, submissionAttempted, errors.max_per_month));
+	let carryForwardDaysError = $derived(getFieldError(maxCarryForwardDays, (val) => getCarryForwardDaysError(carryForwardAllowed, val), touched.max_carry_forward_days, submissionAttempted, errors.max_carry_forward_days));
+	let documentRequiredAfterDaysError = $derived(getFieldError(documentRequiredAfterDays, (val) => getDocumentRequiredAfterDaysError(requiresDocument, val), touched.document_required_after_days, submissionAttempted, errors.document_required_after_days));
+	let minServiceDaysError = $derived(getFieldError(minServiceDays, getMinServiceDaysError, touched.min_service_days, submissionAttempted, errors.min_service_days));
+	let genderError = $derived(getFieldError(applicableGender, (val) => getGenderError(genderSpecific, val), touched.applicable_gender, submissionAttempted, errors.applicable_gender));
+	let employmentTypesError = $derived.by(() => {
+		if (errors.employment_type_cuids) return errors.employment_type_cuids;
+		const err = getEmploymentTypesError(selectedEmploymentTypes);
+		if (err && (touched.employment_type_cuids || submissionAttempted)) return err;
+		return '';
+	});
+	let leaveTypeIdError = $derived(getFieldError(leaveTypeId, getLeaveTypeIdError, touched.leave_type_cuid, submissionAttempted, errors.leave_type_cuid));
 
 	function toggleEmploymentType(uuid: string) {
 		if (selectedEmploymentTypes.includes(uuid)) {
@@ -966,13 +1018,10 @@
 			bind:value={leaveTypeId}
 			onchange={() => {
 				if (form && form.field === 'leave_type_cuid') form = null;
-				const err = getLeaveTypeIdError(leaveTypeId);
-				if (!err) {
-					errors.leave_type_cuid = '';
-				} else if (submissionAttempted || errors.leave_type_cuid) {
-					errors.leave_type_cuid = err;
-				}
+				errors.leave_type_cuid = '';
+				touched.leave_type_cuid = true;
 			}}
+			onblur={() => touched.leave_type_cuid = true}
 			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {(form && 'field' in form && form.field === 'leave_type_cuid') || leaveTypeIdError ? 'border-destructive focus-visible:ring-destructive' : ''}"
 			required
 		>
@@ -1002,13 +1051,10 @@
 						onchange={() => {
 							toggleEmploymentType(empType.cuid);
 							if (form && form.field === 'employment_type_cuids') form = null;
-							const err = getEmploymentTypesError(selectedEmploymentTypes);
-							if (!err) {
-								errors.employment_type_cuids = '';
-							} else if (submissionAttempted || errors.employment_type_cuids) {
-								errors.employment_type_cuids = err;
-							}
+							errors.employment_type_cuids = '';
+							touched.employment_type_cuids = true;
 						}}
+						onblur={() => touched.employment_type_cuids = true}
 						class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 					/>
 					<Label class="cursor-pointer select-none font-normal text-xs">{empType.employment_name}</Label>
@@ -1022,63 +1068,50 @@
 		{/if}
 	</div>
 
-	<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-		<div class="space-y-2">
-			<Label for="modal_annual_quota" class={(form && 'field' in form && form.field === 'annual_quota') || quotaError ? 'text-destructive' : ''}>Annual Quota (Days) <span class="text-destructive">*</span></Label>
-			<Input
-				id="modal_annual_quota"
-				name="annual_quota"
-				bind:value={annualQuota}
-				oninput={() => {
-					if (form && form.field === 'annual_quota') form = null;
-					const err = getQuotaError(annualQuota);
-					if (!err) {
-						errors.annual_quota = '';
-					} else if (submissionAttempted || errors.annual_quota) {
-						errors.annual_quota = err;
-					}
-					const mErr = getMaxPerMonthError(maxPerMonth, annualQuota);
-					if (!mErr) {
-						errors.max_per_month = '';
-					} else if (submissionAttempted || errors.max_per_month) {
-						errors.max_per_month = mErr;
-					}
-				}}
-				placeholder="e.g. 12 or 1.5"
-				required
-				class={(form && 'field' in form && form.field === 'annual_quota') || quotaError ? 'border-destructive focus-visible:ring-destructive' : ''}
-			/>
-			{#if quotaError}
-				<p class="text-xs font-medium text-destructive mt-1">{quotaError}</p>
-			{:else if form && 'field' in form && form.field === 'annual_quota'}
-				<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
-			{/if}
-		</div>
+	<div class="space-y-2">
+		<Label for="modal_annual_quota" class={(form && 'field' in form && form.field === 'annual_quota') || quotaError ? 'text-destructive' : ''}>Annual Quota (Days) <span class="text-destructive">*</span></Label>
+		<Input
+			id="modal_annual_quota"
+			name="annual_quota"
+			bind:value={annualQuota}
+			oninput={() => {
+				if (form && form.field === 'annual_quota') form = null;
+				errors.annual_quota = '';
+				errors.max_per_month = '';
+				touched.annual_quota = true;
+			}}
+			onblur={() => touched.annual_quota = true}
+			placeholder="e.g. 12 or 1.5"
+			required
+			class={(form && 'field' in form && form.field === 'annual_quota') || quotaError ? 'border-destructive focus-visible:ring-destructive' : ''}
+		/>
+		{#if quotaError}
+			<p class="text-xs font-medium text-destructive mt-1">{quotaError}</p>
+		{:else if form && 'field' in form && form.field === 'annual_quota'}
+			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+		{/if}
+	</div>
 
-		<div class="space-y-2">
-			<Label for="modal_max_per_month" class={(form && 'field' in form && form.field === 'max_per_month') || maxPerMonthError ? 'text-destructive' : ''}>Max Per Month (Optional)</Label>
-			<Input
-				id="modal_max_per_month"
-				name="max_per_month"
-				bind:value={maxPerMonth}
-				oninput={() => {
-					if (form && form.field === 'max_per_month') form = null;
-					const err = getMaxPerMonthError(maxPerMonth, annualQuota);
-					if (!err) {
-						errors.max_per_month = '';
-					} else if (submissionAttempted || errors.max_per_month) {
-						errors.max_per_month = err;
-					}
-				}}
-				placeholder="e.g. 2"
-				class={(form && 'field' in form && form.field === 'max_per_month') || maxPerMonthError ? 'border-destructive focus-visible:ring-destructive' : ''}
-			/>
-			{#if maxPerMonthError}
-				<p class="text-xs font-medium text-destructive mt-1">{maxPerMonthError}</p>
-			{:else if form && 'field' in form && form.field === 'max_per_month'}
-				<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
-			{/if}
-		</div>
+	<div class="space-y-2">
+		<Label for="modal_max_per_month" class={(form && 'field' in form && form.field === 'max_per_month') || maxPerMonthError ? 'text-destructive' : ''}>Max Per Month (Optional)</Label>
+		<Input
+			id="modal_max_per_month"
+			name="max_per_month"
+			bind:value={maxPerMonth}
+			oninput={() => {
+				if (form && form.field === 'max_per_month') form = null;
+				errors.max_per_month = '';
+				touched.max_per_month = true;
+			}}
+			onblur={() => touched.max_per_month = true}
+			placeholder="e.g. 2"
+			class={(form && 'field' in form && form.field === 'max_per_month') || maxPerMonthError ? 'border-destructive focus-visible:ring-destructive' : ''}
+		/>
+		{#if maxPerMonthError}
+			<p class="text-xs font-medium text-destructive mt-1">{maxPerMonthError}</p>
+		{:else if form && 'field' in form && form.field === 'max_per_month'}
+			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+		{/if}
 	</div>
 
 	<!-- Carry Forward Options -->
@@ -1090,17 +1123,10 @@
 			bind:checked={carryForwardAllowed}
 			onchange={() => {
 				if (form && form.field === 'carry_forward_allowed') form = null;
-				if (!carryForwardAllowed) {
-					errors.max_carry_forward_days = '';
-				} else {
-					const err = getCarryForwardDaysError(carryForwardAllowed, maxCarryForwardDays);
-					if (!err) {
-						errors.max_carry_forward_days = '';
-					} else if (submissionAttempted || errors.max_carry_forward_days) {
-						errors.max_carry_forward_days = err;
-					}
-				}
+				errors.max_carry_forward_days = '';
+				touched.carry_forward_allowed = true;
 			}}
+			onblur={() => touched.carry_forward_allowed = true}
 			class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 		/>
 		<Label for="modal_carry_forward_allowed" class="cursor-pointer select-none">Carry Forward Allowed</Label>
@@ -1115,13 +1141,10 @@
 				bind:value={maxCarryForwardDays}
 				oninput={() => {
 					if (form && form.field === 'max_carry_forward_days') form = null;
-					const err = getCarryForwardDaysError(carryForwardAllowed, maxCarryForwardDays);
-					if (!err) {
-						errors.max_carry_forward_days = '';
-					} else if (submissionAttempted || errors.max_carry_forward_days) {
-						errors.max_carry_forward_days = err;
-					}
+					errors.max_carry_forward_days = '';
+					touched.max_carry_forward_days = true;
 				}}
+				onblur={() => touched.max_carry_forward_days = true}
 				placeholder="e.g. 5"
 				required={carryForwardAllowed}
 				class={(form && 'field' in form && form.field === 'max_carry_forward_days') || carryForwardDaysError ? 'border-destructive focus-visible:ring-destructive' : ''}
@@ -1136,14 +1159,54 @@
 
 	<!-- Other Checkboxes -->
 	<div class="flex items-center space-x-2">
-		<input type="checkbox" id="modal_allow_half_day" name="allow_half_day" bind:checked={allowHalfDay} onchange={() => { if (form && form.field === 'allow_half_day') form = null; errors.allow_half_day = ''; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+		<input type="checkbox" id="modal_allow_half_day" name="allow_half_day" bind:checked={allowHalfDay} onchange={() => { if (form && form.field === 'allow_half_day') form = null; errors.allow_half_day = ''; touched.allow_half_day = true; }} onblur={() => touched.allow_half_day = true} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
 		<Label for="modal_allow_half_day" class="cursor-pointer select-none">Allow Half Day</Label>
 	</div>
 
 	<div class="flex items-center space-x-2">
-		<input type="checkbox" id="modal_requires_document" name="requires_document" bind:checked={requiresDocument} onchange={() => { if (form && form.field === 'requires_document') form = null; errors.requires_document = ''; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+		<input
+			type="checkbox"
+			id="modal_requires_document"
+			name="requires_document"
+			bind:checked={requiresDocument}
+			onchange={() => {
+				if (form && form.field === 'requires_document') form = null;
+				errors.requires_document = '';
+				errors.document_required_after_days = '';
+				touched.requires_document = true;
+				if (!requiresDocument) {
+					documentRequiredAfterDays = '';
+				}
+			}}
+			onblur={() => touched.requires_document = true}
+			class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+		/>
 		<Label for="modal_requires_document" class="cursor-pointer select-none">Requires Document Attachment</Label>
 	</div>
+
+	{#if requiresDocument}
+		<div transition:slide class="space-y-2 pl-4">
+			<Label for="modal_document_required_after_days" class={(form && 'field' in form && form.field === 'document_required_after_days') || documentRequiredAfterDaysError ? 'text-destructive' : ''}>Document Required After Days</Label>
+			<Input
+				id="modal_document_required_after_days"
+				name="document_required_after_days"
+				bind:value={documentRequiredAfterDays}
+				oninput={() => {
+					if (form && form.field === 'document_required_after_days') form = null;
+					errors.document_required_after_days = '';
+					touched.document_required_after_days = true;
+				}}
+				onblur={() => touched.document_required_after_days = true}
+				placeholder="Leave blank or 0 to require for all requests"
+				class={(form && 'field' in form && form.field === 'document_required_after_days') || documentRequiredAfterDaysError ? 'border-destructive focus-visible:ring-destructive' : ''}
+			/>
+			{#if documentRequiredAfterDaysError}
+				<p class="text-xs font-medium text-destructive mt-1">{documentRequiredAfterDaysError}</p>
+			{:else if form && 'field' in form && form.field === 'document_required_after_days'}
+				<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+			{/if}
+		</div>
+	{/if}
 
 	<!-- Gender Specific Rules -->
 	<div class="flex items-center space-x-2">
@@ -1154,17 +1217,10 @@
 			bind:checked={genderSpecific}
 			onchange={() => {
 				if (form && form.field === 'gender_specific') form = null;
-				if (!genderSpecific) {
-					errors.applicable_gender = '';
-				} else {
-					const err = getGenderError(genderSpecific, applicableGender);
-					if (!err) {
-						errors.applicable_gender = '';
-					} else if (submissionAttempted || errors.applicable_gender) {
-						errors.applicable_gender = err;
-					}
-				}
+				errors.applicable_gender = '';
+				touched.gender_specific = true;
 			}}
+			onblur={() => touched.gender_specific = true}
 			class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 		/>
 		<Label for="modal_gender_specific" class="cursor-pointer select-none">Gender Specific Leave</Label>
@@ -1179,13 +1235,10 @@
 				bind:value={applicableGender}
 				onchange={() => {
 					if (form && form.field === 'applicable_gender') form = null;
-					const err = getGenderError(genderSpecific, applicableGender);
-					if (!err) {
-						errors.applicable_gender = '';
-					} else if (submissionAttempted || errors.applicable_gender) {
-						errors.applicable_gender = err;
-					}
+					errors.applicable_gender = '';
+					touched.applicable_gender = true;
 				}}
+				onblur={() => touched.applicable_gender = true}
 				required={genderSpecific}
 				class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {(form && 'field' in form && form.field === 'applicable_gender') || genderError ? 'border-destructive focus-visible:ring-destructive' : ''}"
 			>
@@ -1202,51 +1255,48 @@
 		</div>
 	{/if}
 
-	<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-2">
-		<!-- Min Service Days -->
-		<div class="space-y-2">
-			<Label for="modal_min_service_days" class={(form && 'field' in form && form.field === 'min_service_days') || minServiceDaysError ? 'text-destructive' : ''}>Min Service Days (Active service req.) <span class="text-destructive">*</span></Label>
-			<Input
-				id="modal_min_service_days"
-				name="min_service_days"
-				bind:value={minServiceDays}
-				oninput={() => {
-					if (form && form.field === 'min_service_days') form = null;
-					const err = getMinServiceDaysError(minServiceDays);
-					if (!err) {
-						errors.min_service_days = '';
-					} else if (submissionAttempted || errors.min_service_days) {
-						errors.min_service_days = err;
-					}
-				}}
-				placeholder="e.g. 90"
-				class={(form && 'field' in form && form.field === 'min_service_days') || minServiceDaysError ? 'border-destructive focus-visible:ring-destructive' : ''}
-			/>
-			{#if minServiceDaysError}
-				<p class="text-xs font-medium text-destructive mt-1">{minServiceDaysError}</p>
-			{:else if form && 'field' in form && form.field === 'min_service_days'}
-				<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
-			{/if}
-		</div>
+	<!-- Min Service Days -->
+	<div class="space-y-2">
+		<Label for="modal_min_service_days" class={(form && 'field' in form && form.field === 'min_service_days') || minServiceDaysError ? 'text-destructive' : ''}>Min Service Days (Active service req.) <span class="text-destructive">*</span></Label>
+		<Input
+			id="modal_min_service_days"
+			name="min_service_days"
+			bind:value={minServiceDays}
+			oninput={() => {
+				if (form && form.field === 'min_service_days') form = null;
+				errors.min_service_days = '';
+				touched.min_service_days = true;
+			}}
+			onblur={() => touched.min_service_days = true}
+			placeholder="e.g. 90"
+			class={(form && 'field' in form && form.field === 'min_service_days') || minServiceDaysError ? 'border-destructive focus-visible:ring-destructive' : ''}
+		/>
+		{#if minServiceDaysError}
+			<p class="text-xs font-medium text-destructive mt-1">{minServiceDaysError}</p>
+		{:else if form && 'field' in form && form.field === 'min_service_days'}
+			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+		{/if}
+	</div>
 
-		<!-- Status Dropdown -->
-		<div class="space-y-2">
-			<Label for="modal_status">Status <span class="text-destructive">*</span></Label>
-			<select
-				id="modal_status"
-				name="status"
-				bind:value={status}
-				onchange={() => {
-					if (form && form.field === 'status') form = null;
-					errors.status = '';
-				}}
-				class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none"
-				required
-			>
-				<option value={true}>Active</option>
-				<option value={false}>Inactive</option>
-			</select>
-		</div>
+	<!-- Status Dropdown -->
+	<div class="space-y-2 pb-2">
+		<Label for="modal_status">Status <span class="text-destructive">*</span></Label>
+		<select
+			id="modal_status"
+			name="status"
+			bind:value={status}
+			onchange={() => {
+				if (form && form.field === 'status') form = null;
+				errors.status = '';
+				touched.status = true;
+			}}
+			onblur={() => touched.status = true}
+			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none"
+			required
+		>
+			<option value={true}>Active</option>
+			<option value={false}>Inactive</option>
+		</select>
 	</div>
 
 	<!-- Alert Errors -->

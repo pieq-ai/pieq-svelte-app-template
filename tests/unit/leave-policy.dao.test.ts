@@ -46,6 +46,8 @@ describe('leave-policy DAO', () => {
 						annual_quota: 10,
 						max_per_month: null,
 						max_carry_forward_days: null,
+						requires_document: false,
+						document_required_after_days: null,
 						status: true
 					})
 				},
@@ -67,6 +69,7 @@ describe('leave-policy DAO', () => {
 			gender_specific: false,
 			min_service_days: 0,
 			requires_document: false,
+			document_required_after_days: null,
 			allow_half_day: false,
 			applicable_gender: null,
 			leave_type_cuid: 'leave-type-1',
@@ -90,6 +93,7 @@ describe('leave-policy DAO', () => {
 			gender_specific: false,
 			min_service_days: 0,
 			requires_document: false,
+			document_required_after_days: null,
 			allow_half_day: false,
 			applicable_gender: null,
 			leave_type_cuid: 'leave-type-1',

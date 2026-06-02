@@ -296,8 +296,9 @@
 	$effect(() => {
 		if (isFormModalOpen) {
 			hasSynchronized = false;
-			submissionAttempted = false;
 			errors = {};
+			touched = {};
+			submissionAttempted = false;
 		}
 	});
 
@@ -344,6 +345,7 @@
 			requiresApproval = true;
 			status = true;
 			errors = {};
+			touched = {};
 			submissionAttempted = false;
 			hasSynchronized = false;
 			isDiscardModalOpen = false;
@@ -356,7 +358,27 @@
 	let formError = $derived(form && 'error' in form ? form.error : null);
 
 	let errors = $state<Record<string, string>>({});
+	let touched = $state<Record<string, boolean>>({});
 	let submissionAttempted = $state(false);
+
+	function getFieldError(
+		value: string,
+		getErr: (val: string) => string,
+		isTouched: boolean,
+		submitAttempted: boolean,
+		backendErr?: string
+	): string {
+		if (backendErr) return backendErr;
+		const clientErr = getErr(value);
+		if (!clientErr) return '';
+		if (value && value.trim() !== '') {
+			return clientErr;
+		}
+		if (isTouched || submitAttempted) {
+			return clientErr;
+		}
+		return '';
+	}
 
 	function getNameClientError(name: string): string {
 		if (!name || name.trim() === '') {
@@ -391,8 +413,8 @@
 		return '';
 	}
 
-	let nameClientError = $derived(errors.leave_name || '');
-	let codeClientError = $derived(errors.leave_code || '');
+	let nameClientError = $derived(getFieldError(leaveName, getNameClientError, touched.leave_name, submissionAttempted, errors.leave_name));
+	let codeClientError = $derived(getFieldError(leaveCode, getCodeClientError, touched.leave_code, submissionAttempted, errors.leave_code));
 
 	// Derived list
 	let filteredTypes = $derived.by(() => {
@@ -690,60 +712,52 @@
 		<input type="hidden" name="cuid" value={editCuid} />
 	{/if}
 
-	<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-		<div class="space-y-2">
-			<Label for="modal_leave_name" class={(form && 'field' in form && form.field === 'leave_name') || nameClientError ? 'text-destructive' : ''}>Leave Name <span class="text-destructive">*</span></Label>
-			<Input
-				id="modal_leave_name"
-				name="leave_name"
-				bind:value={leaveName}
-				oninput={() => {
-					if (form && form.field === 'leave_name') form = null;
-					const err = getNameClientError(leaveName);
-					if (!err) {
-						errors.leave_name = '';
-					} else if (submissionAttempted || errors.leave_name) {
-						errors.leave_name = err;
-					}
-				}}
-				placeholder="e.g. Sick Leave"
-				required
-				minlength={6}
-				pattern="^[a-zA-Z\s]+$"
-				class={(form && 'field' in form && form.field === 'leave_name') || nameClientError ? 'border-destructive focus-visible:ring-destructive' : ''}
-			/>
-			{#if nameClientError}
-				<p class="text-xs font-medium text-destructive mt-1">{nameClientError}</p>
-			{:else if form && 'field' in form && form.field === 'leave_name'}
-				<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
-			{/if}
-		</div>
+	<div class="space-y-2">
+		<Label for="modal_leave_name" class={(form && 'field' in form && form.field === 'leave_name') || nameClientError ? 'text-destructive' : ''}>Leave Name <span class="text-destructive">*</span></Label>
+		<Input
+			id="modal_leave_name"
+			name="leave_name"
+			bind:value={leaveName}
+			oninput={() => {
+				if (form && form.field === 'leave_name') form = null;
+				errors.leave_name = '';
+				touched.leave_name = true;
+			}}
+			onblur={() => touched.leave_name = true}
+			placeholder="e.g. Sick Leave"
+			required
+			minlength={6}
+			pattern="^[a-zA-Z\s]+$"
+			class={(form && 'field' in form && form.field === 'leave_name') || nameClientError ? 'border-destructive focus-visible:ring-destructive' : ''}
+		/>
+		{#if nameClientError}
+			<p class="text-xs font-medium text-destructive mt-1">{nameClientError}</p>
+		{:else if form && 'field' in form && form.field === 'leave_name'}
+			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+		{/if}
+	</div>
 
-		<div class="space-y-2">
-			<Label for="modal_leave_code" class={(form && 'field' in form && form.field === 'leave_code') || codeClientError ? 'text-destructive' : ''}>Leave Code <span class="text-destructive">*</span></Label>
-			<Input
-				id="modal_leave_code"
-				name="leave_code"
-				bind:value={leaveCode}
-				oninput={() => {
-					if (form && form.field === 'leave_code') form = null;
-					const err = getCodeClientError(leaveCode);
-					if (!err) {
-						errors.leave_code = '';
-					} else if (submissionAttempted || errors.leave_code) {
-						errors.leave_code = err;
-					}
-				}}
-				placeholder="e.g. SL"
-				required
-				class="uppercase {(form && 'field' in form && form.field === 'leave_code') || codeClientError ? 'border-destructive focus-visible:ring-destructive' : ''}"
-			/>
-			{#if codeClientError}
-				<p class="text-xs font-medium text-destructive mt-1">{codeClientError}</p>
-			{:else if form && 'field' in form && form.field === 'leave_code'}
-				<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
-			{/if}
-		</div>
+	<div class="space-y-2">
+		<Label for="modal_leave_code" class={(form && 'field' in form && form.field === 'leave_code') || codeClientError ? 'text-destructive' : ''}>Leave Code <span class="text-destructive">*</span></Label>
+		<Input
+			id="modal_leave_code"
+			name="leave_code"
+			bind:value={leaveCode}
+			oninput={() => {
+				if (form && form.field === 'leave_code') form = null;
+				errors.leave_code = '';
+				touched.leave_code = true;
+			}}
+			onblur={() => touched.leave_code = true}
+			placeholder="e.g. SL"
+			required
+			class="uppercase {(form && 'field' in form && form.field === 'leave_code') || codeClientError ? 'border-destructive focus-visible:ring-destructive' : ''}"
+		/>
+		{#if codeClientError}
+			<p class="text-xs font-medium text-destructive mt-1">{codeClientError}</p>
+		{:else if form && 'field' in form && form.field === 'leave_code'}
+			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+		{/if}
 	</div>
 
 	<div class="space-y-2">
@@ -782,7 +796,9 @@
 			onchange={() => {
 				if (form && form.field === 'status') form = null;
 				errors.status = '';
+				touched.status = true;
 			}}
+			onblur={() => touched.status = true}
 			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none"
 			required
 		>

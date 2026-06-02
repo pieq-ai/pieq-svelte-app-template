@@ -363,6 +363,7 @@ describe('leave policy service', () => {
 				carry_forward_allowed: true,
 				max_carry_forward_days: 20, // exceeds annual quota of 15
 				requires_document: false,
+				document_required_after_days: null,
 				min_service_days: 30,
 				allow_half_day: true,
 				gender_specific: true,
@@ -420,6 +421,79 @@ describe('leave policy service', () => {
 				})
 			).rejects.toThrowError(
 				new LeaveValidationError('min_service_days', 'Min service days must be a positive integer')
+			);
+		});
+
+		// 6.5. Document Required After Days Validations
+		it('should reject document_required_after_days when requires_document is false', async () => {
+			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
+				id: 1,
+				cuid: 'leave-type-1',
+				leave_name: 'Annual',
+				leave_code: 'ANN',
+				description: null,
+				is_paid: true,
+				requires_approval: true,
+				status: true,
+				...auditFields
+			} as unknown as LeaveType);
+			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
+				id: 1,
+				cuid: 'emp-type-1',
+				employment_name: 'Part Time',
+				status: true,
+				...auditFields
+			} as unknown as EmploymentType);
+
+			await expect(
+				createLeavePolicy({
+					...validBaseInput,
+					requires_document: false,
+					document_required_after_days: 3
+				})
+			).rejects.toThrowError(
+				new LeaveValidationError('document_required_after_days', 'Document required after days must be empty when document upload is not required')
+			);
+		});
+
+		it('should reject invalid document_required_after_days when requires_document is true', async () => {
+			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
+				id: 1,
+				cuid: 'leave-type-1',
+				leave_name: 'Annual',
+				leave_code: 'ANN',
+				description: null,
+				is_paid: true,
+				requires_approval: true,
+				status: true,
+				...auditFields
+			} as unknown as LeaveType);
+			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
+				id: 1,
+				cuid: 'emp-type-1',
+				employment_name: 'Part Time',
+				status: true,
+				...auditFields
+			} as unknown as EmploymentType);
+
+			await expect(
+				createLeavePolicy({
+					...validBaseInput,
+					requires_document: true,
+					document_required_after_days: -1
+				})
+			).rejects.toThrowError(
+				new LeaveValidationError('document_required_after_days', 'Document required after days must be a positive integer or 0')
+			);
+
+			await expect(
+				createLeavePolicy({
+					...validBaseInput,
+					requires_document: true,
+					document_required_after_days: 1.5
+				})
+			).rejects.toThrowError(
+				new LeaveValidationError('document_required_after_days', 'Document required after days must be a positive integer or 0')
 			);
 		});
 
@@ -547,6 +621,7 @@ describe('leave policy service', () => {
 				carry_forward_allowed: true,
 				max_carry_forward_days: 5,
 				requires_document: false,
+				document_required_after_days: null,
 				min_service_days: 30,
 				allow_half_day: true,
 				gender_specific: true,
@@ -569,6 +644,7 @@ describe('leave policy service', () => {
 					carry_forward_allowed: true,
 					max_carry_forward_days: 5,
 					requires_document: false,
+					document_required_after_days: null,
 					min_service_days: 30,
 					allow_half_day: true,
 					gender_specific: true,
@@ -603,6 +679,7 @@ describe('leave policy service', () => {
 				carry_forward_allowed: false,
 				max_carry_forward_days: null,
 				requires_document: false,
+				document_required_after_days: null,
 				min_service_days: 0,
 				allow_half_day: false,
 				gender_specific: false,
@@ -659,6 +736,7 @@ describe('leave policy service', () => {
 					carry_forward_allowed: true,
 					max_carry_forward_days: 5,
 					requires_document: false,
+					document_required_after_days: null,
 					min_service_days: 0,
 					allow_half_day: false,
 					gender_specific: false,

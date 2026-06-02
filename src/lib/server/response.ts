@@ -65,6 +65,7 @@ export interface LeavePolicyInput {
 	carry_forward_allowed: boolean;
 	max_carry_forward_days?: number | null;
 	requires_document: boolean;
+	document_required_after_days?: number | null;
 	min_service_days: number;
 	allow_half_day: boolean;
 	gender_specific: boolean;
@@ -81,6 +82,7 @@ export interface LeavePolicyDTO {
 	carry_forward_allowed: boolean;
 	max_carry_forward_days: number | null;
 	requires_document: boolean;
+	document_required_after_days: number | null;
 	min_service_days: number;
 	allow_half_day: boolean;
 	gender_specific: boolean;
@@ -98,6 +100,7 @@ export function formatLeavePolicy(policy: LeavePolicyInput): LeavePolicyDTO {
 		carry_forward_allowed: policy.carry_forward_allowed,
 		max_carry_forward_days: policy.max_carry_forward_days || null,
 		requires_document: policy.requires_document,
+		document_required_after_days: policy.document_required_after_days !== undefined && policy.document_required_after_days !== null ? Number(policy.document_required_after_days) : null,
 		min_service_days: policy.min_service_days,
 		allow_half_day: policy.allow_half_day,
 		gender_specific: policy.gender_specific,

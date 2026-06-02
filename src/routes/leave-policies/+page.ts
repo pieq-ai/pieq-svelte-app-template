@@ -9,6 +9,7 @@ export interface LeavePolicy {
 	carry_forward_allowed: boolean;
 	max_carry_forward_days: number | null;
 	requires_document: boolean;
+	document_required_after_days: number | null;
 	min_service_days: number;
 	allow_half_day: boolean;
 	gender_specific: boolean;

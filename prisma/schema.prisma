@@ -35,6 +35,7 @@ model LeavePolicy {
   carry_forward_allowed    Boolean                @default(false)
   max_carry_forward_days   Decimal?               @db.Decimal(4, 1)
   requires_document        Boolean                @default(false)
+  document_required_after_days Int?
   min_service_days         Int                    @default(0)
   allow_half_day           Boolean                @default(false)
   gender_specific          Boolean                @default(false)
