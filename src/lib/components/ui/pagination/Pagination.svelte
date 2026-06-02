@@ -34,29 +34,44 @@
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 text-sm text-muted-foreground border-t border-border mt-4 w-full">
 	<!-- Record Counter -->
 	<div class="select-none text-xs text-muted-foreground">
-		Showing {start} to {end} of {totalItems} entries
+		{#if totalItems === 0}
+			Showing 0-0 of 0 records
+		{:else}
+			Showing {start}-{end} of {totalItems} records
+		{/if}
 	</div>
 
 	<!-- Pagination Controls -->
-	<div class="flex items-center gap-2" data-slot="pagination">
+	<div class="flex items-center gap-1.5" data-slot="pagination">
 		<Button
 			variant="outline"
-			class="px-3.5 py-1.5 h-8 bg-card border-border text-foreground hover:bg-accent text-xs font-medium rounded-md select-none"
+			class="px-3.5 py-1.5 h-8 bg-card border-border text-foreground hover:bg-accent text-xs font-semibold rounded-md select-none cursor-pointer"
 			disabled={currentPage === 1}
 			onclick={() => setPage(currentPage - 1)}
 		>
-			Previous
+			&lt; Previous
 		</Button>
-		<span class="text-xs text-muted-foreground select-none px-2 min-w-[70px] text-center">
-			Page {currentPage} of {totalPages}
-		</span>
+
+		{#each Array(totalPages) as _, i}
+			{@const p = i + 1}
+			<Button
+				variant={currentPage === p ? "default" : "outline"}
+				class={currentPage === p 
+					? "h-8 w-8 p-0 bg-black text-white hover:bg-black/90 font-semibold rounded-md select-none border-black cursor-pointer"
+					: "h-8 w-8 p-0 bg-card border-border text-foreground hover:bg-accent font-semibold rounded-md select-none cursor-pointer"}
+				onclick={() => setPage(p)}
+			>
+				{p}
+			</Button>
+		{/each}
+
 		<Button
 			variant="outline"
-			class="px-3.5 py-1.5 h-8 bg-card border-border text-foreground hover:bg-accent text-xs font-medium rounded-md select-none"
+			class="px-3.5 py-1.5 h-8 bg-card border-border text-foreground hover:bg-accent text-xs font-semibold rounded-md select-none cursor-pointer"
 			disabled={currentPage === totalPages}
 			onclick={() => setPage(currentPage + 1)}
 		>
-			Next
+			Next &gt;
 		</Button>
 	</div>
 </div>

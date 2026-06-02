@@ -28,7 +28,8 @@
 		toast,
 		ConfirmModal,
 		FormModal,
-		Pagination
+		Pagination,
+		Dropdown
 	} from '$lib/components/ui';
 	import type { PageData } from './$types';
 
@@ -204,6 +205,19 @@
 	let holidayName = $state('');
 	let holidayDate = $state('');
 	let holidayType = $state<'National' | 'Regional' | 'Restricted'>('National');
+
+	const filterTypeOptions = [
+		{ value: 'all', label: 'All Holiday Types' },
+		{ value: 'National', label: 'National' },
+		{ value: 'Regional', label: 'Regional' },
+		{ value: 'Restricted', label: 'Restricted' }
+	];
+
+	const holidayTypeOptions = [
+		{ value: 'National', label: 'National Holiday' },
+		{ value: 'Regional', label: 'Regional Holiday' },
+		{ value: 'Restricted', label: 'Restricted Holiday' }
+	];
 
 	let hasChanges = $derived.by(() => {
 		if (!editCuid || !editingHoliday) return false;
@@ -593,19 +607,12 @@
 					</Button>
 				{/if}
 			</div>
-			<div class="relative w-full sm:w-48">
-				<select
+			<div class="w-full sm:w-48">
+				<Dropdown
 					bind:value={filterType}
-					class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent pl-3 pr-8 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none appearance-none cursor-pointer"
-				>
-					<option value="all">All Holiday Types</option>
-					<option value="National">National</option>
-					<option value="Regional">Regional</option>
-					<option value="Restricted">Restricted</option>
-				</select>
-				<svg class="absolute right-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.24 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
-				</svg>
+					options={filterTypeOptions}
+					isFilter={true}
+				/>
 			</div>
 		</div>
 
@@ -623,7 +630,7 @@
 							>
 								<span>Date</span>
 								<span class="text-[10px] transition-colors {sortKey === 'holiday_date' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'holiday_date' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+									{sortKey === 'holiday_date' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
 								</span>
 							</div>
 						</TableHead>
@@ -636,7 +643,7 @@
 							>
 								<span>Holiday Name</span>
 								<span class="text-[10px] transition-colors {sortKey === 'holiday_name' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'holiday_name' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+									{sortKey === 'holiday_name' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
 								</span>
 							</div>
 						</TableHead>
@@ -649,7 +656,7 @@
 							>
 								<span>Category</span>
 								<span class="text-[10px] transition-colors {sortKey === 'holiday_type' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'holiday_type' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+									{sortKey === 'holiday_type' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
 								</span>
 							</div>
 						</TableHead>
@@ -789,23 +796,18 @@
 
 	<div class="space-y-2">
 		<Label for="modal_holiday_type" class={form && 'field' in form && form.field === 'holiday_type' ? 'text-destructive' : ''}>Category <span class="text-destructive">*</span></Label>
-		<select
+		<Dropdown
 			id="modal_holiday_type"
 			name="holiday_type"
 			bind:value={holidayType}
+			options={holidayTypeOptions}
+			required={true}
 			onchange={() => {
 				if (form && form.field === 'holiday_type') form = null;
 				errors.holiday_type = '';
 				touched.holiday_type = true;
 			}}
-			onblur={() => touched.holiday_type = true}
-			class="dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {form && 'field' in form && form.field === 'holiday_type' ? 'border-destructive focus-visible:ring-destructive' : 'border-input'}"
-			required
-		>
-			<option value="National">National Holiday</option>
-			<option value="Regional">Regional Holiday</option>
-			<option value="Restricted">Restricted Holiday</option>
-		</select>
+		/>
 		{#if form && 'field' in form && form.field === 'holiday_type'}
 			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
 		{/if}

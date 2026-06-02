@@ -27,7 +27,8 @@
 		toast,
 		ConfirmModal,
 		FormModal,
-		Pagination
+		Pagination,
+		Dropdown
 	} from '$lib/components/ui';
 	import type { PageData } from './$types.js';
 
@@ -44,6 +45,39 @@
 	let filterLeaveType = $state<string>('all');
 	let filterEmploymentType = $state<string>('all');
 	let filterStatus = $state<string>('all');
+
+	let filterLeaveTypeOptions = $derived([
+		{ value: 'all', label: 'All Leave Types' },
+		...data.leaveTypes.map(type => ({ value: type.cuid, label: type.leave_name }))
+	]);
+
+	let filterEmploymentTypeOptions = $derived([
+		{ value: 'all', label: 'All Employment Types' },
+		...data.employmentTypes.map(type => ({ value: type.cuid, label: type.employment_name }))
+	]);
+
+	const filterStatusOptions = [
+		{ value: 'all', label: 'All Statuses' },
+		{ value: 'active', label: 'Active' },
+		{ value: 'inactive', label: 'Inactive' }
+	];
+
+	let modalLeaveTypeOptions = $derived([
+		...data.leaveTypes
+			.filter((t) => t.status || (editingPolicy && editingPolicy.leave_type_cuid === t.cuid))
+			.map(type => ({ value: type.cuid, label: type.leave_name }))
+	]);
+
+	const genderOptions = [
+		{ value: 'Male', label: 'Male' },
+		{ value: 'Female', label: 'Female' },
+		{ value: 'Others', label: 'Others' }
+	];
+
+	const statusOptions = [
+		{ value: true, label: 'Active' },
+		{ value: false, label: 'Inactive' }
+	];
 
 	function handleSort(key: string) {
 		currentPage = 1; // Reset to page 1 on sort change
@@ -770,50 +804,30 @@
 			</div>
 
 			<!-- Leave Type Filter -->
-			<div class="relative w-full md:w-48 shrink-0">
-				<select
+			<div class="w-full md:w-48 shrink-0">
+				<Dropdown
 					bind:value={filterLeaveType}
-					class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent pl-3 pr-8 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none appearance-none cursor-pointer"
-				>
-					<option value="all">All Leave Types</option>
-					{#each data.leaveTypes as type (type.cuid)}
-						<option value={type.cuid}>{type.leave_name}</option>
-					{/each}
-				</select>
-				<svg class="absolute right-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.24 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
-				</svg>
+					options={filterLeaveTypeOptions}
+					isFilter={true}
+				/>
 			</div>
 
 			<!-- Employment Type Filter -->
-			<div class="relative w-full md:w-52 shrink-0">
-				<select
+			<div class="w-full md:w-52 shrink-0">
+				<Dropdown
 					bind:value={filterEmploymentType}
-					class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent pl-3 pr-8 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none appearance-none cursor-pointer"
-				>
-					<option value="all">All Employment Types</option>
-					{#each data.employmentTypes as type (type.cuid)}
-						<option value={type.cuid}>{type.employment_name}</option>
-					{/each}
-				</select>
-				<svg class="absolute right-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.24 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
-				</svg>
+					options={filterEmploymentTypeOptions}
+					isFilter={true}
+				/>
 			</div>
 
 			<!-- Status Filter -->
-			<div class="relative w-full md:w-36 shrink-0">
-				<select
+			<div class="w-full md:w-36 shrink-0">
+				<Dropdown
 					bind:value={filterStatus}
-					class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent pl-3 pr-8 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none appearance-none cursor-pointer"
-				>
-					<option value="all">All Statuses</option>
-					<option value="active">Active</option>
-					<option value="inactive">Inactive</option>
-				</select>
-				<svg class="absolute right-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.24 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
-				</svg>
+					options={filterStatusOptions}
+					isFilter={true}
+				/>
 			</div>
 		</div>
 
@@ -831,7 +845,7 @@
 							>
 								<span>Leave Type</span>
 								<span class="text-[10px] transition-colors {sortKey === 'leave_type_cuid' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'leave_type_cuid' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+									{sortKey === 'leave_type_cuid' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
 								</span>
 							</div>
 						</TableHead>
@@ -844,7 +858,7 @@
 							>
 								<span>Employment Types</span>
 								<span class="text-[10px] transition-colors {sortKey === 'employment_type_cuids' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'employment_type_cuids' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+									{sortKey === 'employment_type_cuids' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
 								</span>
 							</div>
 						</TableHead>
@@ -857,7 +871,7 @@
 							>
 								<span>Quota (Annual)</span>
 								<span class="text-[10px] transition-colors {sortKey === 'annual_quota' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'annual_quota' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+									{sortKey === 'annual_quota' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
 								</span>
 							</div>
 						</TableHead>
@@ -870,7 +884,7 @@
 							>
 								<span>Carry Fwd</span>
 								<span class="text-[10px] transition-colors {sortKey === 'carry_forward_allowed' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'carry_forward_allowed' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+									{sortKey === 'carry_forward_allowed' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
 								</span>
 							</div>
 						</TableHead>
@@ -883,7 +897,7 @@
 							>
 								<span>Half Day</span>
 								<span class="text-[10px] transition-colors {sortKey === 'allow_half_day' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'allow_half_day' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+									{sortKey === 'allow_half_day' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
 								</span>
 							</div>
 						</TableHead>
@@ -896,7 +910,7 @@
 							>
 								<span>Gender</span>
 								<span class="text-[10px] transition-colors {sortKey === 'gender_specific' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'gender_specific' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+									{sortKey === 'gender_specific' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
 								</span>
 							</div>
 						</TableHead>
@@ -909,7 +923,7 @@
 							>
 								<span>Status</span>
 								<span class="text-[10px] transition-colors {sortKey === 'status' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'status' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+									{sortKey === 'status' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
 								</span>
 							</div>
 						</TableHead>
@@ -1012,24 +1026,20 @@
 	<!-- Leave Type Dropdown -->
 	<div class="space-y-2">
 		<Label for="modal_leave_type_cuid" class={(form && 'field' in form && form.field === 'leave_type_cuid') || leaveTypeIdError ? 'text-destructive' : ''}>Leave Type <span class="text-destructive">*</span></Label>
-		<select
+		<Dropdown
 			id="modal_leave_type_cuid"
 			name="leave_type_cuid"
 			bind:value={leaveTypeId}
+			options={modalLeaveTypeOptions}
+			placeholder="Select Leave Type"
+			required={true}
+			hasError={!!((form && 'field' in form && form.field === 'leave_type_cuid') || leaveTypeIdError)}
 			onchange={() => {
 				if (form && form.field === 'leave_type_cuid') form = null;
 				errors.leave_type_cuid = '';
 				touched.leave_type_cuid = true;
 			}}
-			onblur={() => touched.leave_type_cuid = true}
-			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {(form && 'field' in form && form.field === 'leave_type_cuid') || leaveTypeIdError ? 'border-destructive focus-visible:ring-destructive' : ''}"
-			required
-		>
-			<option value="">Select Leave Type</option>
-			{#each data.leaveTypes.filter((t) => t.status || (editingPolicy && editingPolicy.leave_type_cuid === t.cuid)) as type (type.cuid)}
-				<option value={type.cuid}>{type.leave_name}</option>
-			{/each}
-		</select>
+		/>
 		{#if leaveTypeIdError}
 			<p class="text-xs font-medium text-destructive mt-1">{leaveTypeIdError}</p>
 		{:else if form && 'field' in form && form.field === 'leave_type_cuid'}
@@ -1229,24 +1239,20 @@
 	{#if genderSpecific}
 		<div transition:slide class="space-y-2 pl-4">
 			<Label for="modal_applicable_gender" class={(form && 'field' in form && form.field === 'applicable_gender') || genderError ? 'text-destructive' : ''}>Applicable Gender <span class="text-destructive">*</span></Label>
-			<select
+			<Dropdown
 				id="modal_applicable_gender"
 				name="applicable_gender"
 				bind:value={applicableGender}
+				options={genderOptions}
+				placeholder="Select Gender"
+				required={genderSpecific}
+				hasError={!!((form && 'field' in form && form.field === 'applicable_gender') || genderError)}
 				onchange={() => {
 					if (form && form.field === 'applicable_gender') form = null;
 					errors.applicable_gender = '';
 					touched.applicable_gender = true;
 				}}
-				onblur={() => touched.applicable_gender = true}
-				required={genderSpecific}
-				class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none {(form && 'field' in form && form.field === 'applicable_gender') || genderError ? 'border-destructive focus-visible:ring-destructive' : ''}"
-			>
-				<option value="">Select Gender</option>
-				<option value="Male">Male</option>
-				<option value="Female">Female</option>
-				<option value="Others">Others</option>
-			</select>
+			/>
 			{#if genderError}
 				<p class="text-xs font-medium text-destructive mt-1">{genderError}</p>
 			{:else if form && 'field' in form && form.field === 'applicable_gender'}
@@ -1280,23 +1286,23 @@
 
 	<!-- Status Dropdown -->
 	<div class="space-y-2 pb-2">
-		<Label for="modal_status">Status <span class="text-destructive">*</span></Label>
-		<select
+		<Label for="modal_status" class={form && form.field === 'status' ? 'text-destructive' : ''}>Status <span class="text-destructive">*</span></Label>
+		<Dropdown
 			id="modal_status"
 			name="status"
 			bind:value={status}
+			options={statusOptions}
+			required={true}
+			hasError={!!(form && form.field === 'status')}
 			onchange={() => {
 				if (form && form.field === 'status') form = null;
 				errors.status = '';
 				touched.status = true;
 			}}
-			onblur={() => touched.status = true}
-			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none"
-			required
-		>
-			<option value={true}>Active</option>
-			<option value={false}>Inactive</option>
-		</select>
+		/>
+		{#if form && form.field === 'status'}
+			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+		{/if}
 	</div>
 
 	<!-- Alert Errors -->

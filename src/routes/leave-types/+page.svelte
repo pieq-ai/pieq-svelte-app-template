@@ -27,7 +27,8 @@
 		toast,
 		ConfirmModal,
 		FormModal,
-		Pagination
+		Pagination,
+		Dropdown
 	} from '$lib/components/ui';
 	import type { PageData } from './$types.js';
 
@@ -181,6 +182,17 @@
 	let isPaid = $state(true);
 	let requiresApproval = $state(true);
 	let status = $state(true);
+
+	const filterStatusOptions = [
+		{ value: 'all', label: 'All Statuses' },
+		{ value: 'active', label: 'Active' },
+		{ value: 'inactive', label: 'Inactive' }
+	];
+
+	const statusOptions = [
+		{ value: true, label: 'Active' },
+		{ value: false, label: 'Inactive' }
+	];
 
 	let hasChanges = $derived.by(() => {
 		if (!editCuid || !editingType) return false;
@@ -534,18 +546,12 @@
 					</Button>
 				{/if}
 			</div>
-			<div class="relative w-full sm:w-48">
-				<select
+			<div class="w-full sm:w-48">
+				<Dropdown
 					bind:value={filterStatus}
-					class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent pl-3 pr-8 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none appearance-none cursor-pointer"
-				>
-					<option value="all">All Statuses</option>
-					<option value="active">Active</option>
-					<option value="inactive">Inactive</option>
-				</select>
-				<svg class="absolute right-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.24 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
-				</svg>
+					options={filterStatusOptions}
+					isFilter={true}
+				/>
 			</div>
 		</div>
 
@@ -563,7 +569,7 @@
 							>
 								<span>Leave Name</span>
 								<span class="text-[10px] transition-colors {sortKey === 'leave_name' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'leave_name' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+									{sortKey === 'leave_name' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
 								</span>
 							</div>
 						</TableHead>
@@ -576,7 +582,7 @@
 							>
 								<span>Leave Code</span>
 								<span class="text-[10px] transition-colors {sortKey === 'leave_code' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'leave_code' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+									{sortKey === 'leave_code' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
 								</span>
 							</div>
 						</TableHead>
@@ -589,7 +595,7 @@
 							>
 								<span>Paid</span>
 								<span class="text-[10px] transition-colors {sortKey === 'is_paid' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'is_paid' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+									{sortKey === 'is_paid' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
 								</span>
 							</div>
 						</TableHead>
@@ -602,7 +608,7 @@
 							>
 								<span>Approval Required</span>
 								<span class="text-[10px] transition-colors {sortKey === 'requires_approval' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'requires_approval' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+									{sortKey === 'requires_approval' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
 								</span>
 							</div>
 						</TableHead>
@@ -615,7 +621,7 @@
 							>
 								<span>Status</span>
 								<span class="text-[10px] transition-colors {sortKey === 'status' ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-foreground'}">
-									{sortKey === 'status' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+									{sortKey === 'status' ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
 								</span>
 							</div>
 						</TableHead>
@@ -788,23 +794,22 @@
 
 	<!-- Status Dropdown -->
 	<div class="space-y-2 pb-2">
-		<Label for="modal_status">Status <span class="text-destructive">*</span></Label>
-		<select
+		<Label for="modal_status" class={form && 'field' in form && form.field === 'status' ? 'text-destructive' : ''}>Status <span class="text-destructive">*</span></Label>
+		<Dropdown
 			id="modal_status"
 			name="status"
 			bind:value={status}
+			options={statusOptions}
+			required={true}
 			onchange={() => {
 				if (form && form.field === 'status') form = null;
 				errors.status = '';
 				touched.status = true;
 			}}
-			onblur={() => touched.status = true}
-			class="dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] focus-visible:ring-3 md:text-sm w-full min-w-0 outline-none"
-			required
-		>
-			<option value={true}>Active</option>
-			<option value={false}>Inactive</option>
-		</select>
+		/>
+		{#if form && 'field' in form && form.field === 'status'}
+			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
+		{/if}
 	</div>
 
 	{#if formError && (!form || !('field' in form) || !form.field)}
