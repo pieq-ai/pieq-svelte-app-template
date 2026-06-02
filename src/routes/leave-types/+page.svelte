@@ -125,7 +125,7 @@
 		};
 
 		try {
-			const url = editCuid ? `/api/leave/types/${editCuid}` : '/api/leave/types';
+			const url = editCuid ? `/api/leave/types/leaveTypeCuid=${editCuid}` : '/api/leave/types';
 			const res = await fetch(url, {
 				method: editCuid ? 'PUT' : 'POST',
 				headers: { 'Content-Type': 'application/json' },

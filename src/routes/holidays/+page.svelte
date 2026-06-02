@@ -126,7 +126,7 @@
 		};
 
 		try {
-			const url = editCuid ? `/api/holidays/${editCuid}` : '/api/holidays';
+			const url = editCuid ? `/api/holidays/holidayCuid=${editCuid}` : '/api/holidays';
 			const res = await fetch(url, {
 				method: editCuid ? 'PUT' : 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -169,7 +169,7 @@
 	async function handleDelete(cuid: string) {
 		isSubmitting = true;
 		try {
-			const res = await fetch(`/api/holidays/${cuid}`, {
+			const res = await fetch(`/api/holidays/holidayCuid=${cuid}`, {
 				method: 'DELETE'
 			});
 			const result = await res.json();
