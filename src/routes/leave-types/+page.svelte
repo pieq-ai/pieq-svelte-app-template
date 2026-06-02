@@ -619,39 +619,25 @@
 								<TableCell class="font-mono text-xs font-bold uppercase">{type.leave_code}</TableCell>
 								<TableCell class="text-center">
 									{#if type.is_paid}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] shadow-xs select-none mx-auto">
-											<span class="size-1.5 rounded-full bg-emerald-500"></span>
-											Paid
-										</span>
+										Paid
 									{:else}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white/70 border border-[#2A2A2A] shadow-xs select-none mx-auto">
-											<span class="size-1.5 rounded-full bg-neutral-400"></span>
-											Unpaid
-										</span>
+										Unpaid
 									{/if}
 								</TableCell>
 								<TableCell class="text-center">
 									{#if type.requires_approval}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] shadow-xs select-none mx-auto">
-											<span class="size-1.5 rounded-full bg-blue-500"></span>
-											Yes
-										</span>
+										Yes
 									{:else}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white/70 border border-[#2A2A2A] shadow-xs select-none mx-auto">
-											<span class="size-1.5 rounded-full bg-neutral-400"></span>
-											Auto-Approve
-										</span>
+										Auto-Approve
 									{/if}
 								</TableCell>
 								<TableCell class="text-center">
 									{#if type.status}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] shadow-xs select-none mx-auto">
-											<span class="size-1.5 rounded-full bg-emerald-500"></span>
+										<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-neutral-900 text-neutral-50 dark:bg-neutral-100 dark:text-neutral-950 shadow-xs select-none mx-auto">
 											Active
 										</span>
 									{:else}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white/70 border border-[#2A2A2A] shadow-xs select-none mx-auto">
-											<span class="size-1.5 rounded-full bg-rose-500"></span>
+										<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-300 shadow-xs select-none mx-auto">
 											Inactive
 										</span>
 									{/if}

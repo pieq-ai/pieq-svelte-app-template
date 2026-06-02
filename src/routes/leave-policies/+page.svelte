@@ -879,52 +879,32 @@
 								<TableCell class="text-right font-mono font-semibold">{policy.annual_quota}</TableCell>
 								<TableCell class="text-center text-xs">
 									{#if policy.carry_forward_allowed}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] shadow-xs select-none mx-auto">
-											<span class="size-1.5 rounded-full bg-emerald-500"></span>
-											Yes ({policy.max_carry_forward_days})
-										</span>
+										Yes ({policy.max_carry_forward_days})
 									{:else}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white/70 border border-[#2A2A2A] shadow-xs select-none mx-auto">
-											<span class="size-1.5 rounded-full bg-neutral-400"></span>
-											No
-										</span>
+										No
 									{/if}
 								</TableCell>
 								<TableCell class="text-center text-xs">
 									{#if policy.allow_half_day}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] shadow-xs select-none mx-auto">
-											<span class="size-1.5 rounded-full bg-blue-500"></span>
-											Allowed
-										</span>
+										Allowed
 									{:else}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white/70 border border-[#2A2A2A] shadow-xs select-none mx-auto">
-											<span class="size-1.5 rounded-full bg-neutral-400"></span>
-											No
-										</span>
+										No
 									{/if}
 								</TableCell>
-								<TableCell class="text-center text-xs">
+								<TableCell class="text-center text-xs capitalize">
 									{#if policy.gender_specific}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] shadow-xs select-none mx-auto capitalize">
-											<span class="size-1.5 rounded-full bg-amber-500"></span>
-											{policy.applicable_gender}
-										</span>
+										{policy.applicable_gender}
 									{:else}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white/70 border border-[#2A2A2A] shadow-xs select-none mx-auto">
-											<span class="size-1.5 rounded-full bg-neutral-400"></span>
-											All
-										</span>
+										All
 									{/if}
 								</TableCell>
 								<TableCell class="text-center">
 									{#if policy.status}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] shadow-xs select-none mx-auto">
-											<span class="size-1.5 rounded-full bg-emerald-500"></span>
+										<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-neutral-900 text-neutral-50 dark:bg-neutral-100 dark:text-neutral-950 shadow-xs select-none mx-auto">
 											Active
 										</span>
 									{:else}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white/70 border border-[#2A2A2A] shadow-xs select-none mx-auto">
-											<span class="size-1.5 rounded-full bg-rose-500"></span>
+										<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-300 shadow-xs select-none mx-auto">
 											Inactive
 										</span>
 									{/if}

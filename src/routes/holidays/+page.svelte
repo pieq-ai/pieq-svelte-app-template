@@ -651,22 +651,7 @@
 									{holiday.holiday_name}
 								</TableCell>
 								<TableCell>
-									{#if holiday.holiday_type === 'National'}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] capitalize shadow-xs select-none">
-											<span class="size-1.5 rounded-full bg-blue-500"></span>
-											{holiday.holiday_type}
-										</span>
-									{:else if holiday.holiday_type === 'Regional'}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] capitalize shadow-xs select-none">
-											<span class="size-1.5 rounded-full bg-amber-500"></span>
-											{holiday.holiday_type}
-										</span>
-									{:else}
-										<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1E1E1E] text-white border border-[#2A2A2A] capitalize shadow-xs select-none">
-											<span class="size-1.5 rounded-full bg-neutral-400"></span>
-											{holiday.holiday_type}
-										</span>
-									{/if}
+									{holiday.holiday_type}
 								</TableCell>
 								<TableCell class="text-right relative">
 									<Button
