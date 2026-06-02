@@ -114,17 +114,8 @@
 			formStatus !== originalStatus;
 	});
 
-	// Create validation
-	let isCreateValid = $derived.by(() => {
-		const nameTrimmed = formName.trim();
-		if (!nameTrimmed) return false;
-		if (nameTrimmed.length < 2) return false;
-		if (/\d/.test(nameTrimmed)) return false;
-		if (!/^[A-Za-z ]+$/.test(nameTrimmed)) return false;
-		if (nameTrimmed.length > 255) return false;
-		if (!formStartTime || !formEndTime) return false;
-		return true;
-	});
+	// Create enablement: enabled once required fields contain any value
+	let isCreateEnabled = $derived(formName.trim() !== '' && formStartTime !== '' && formEndTime !== '');
 
 	let activeDropdownId = $state<string | null>(null);
 
@@ -804,8 +795,8 @@
 			>Cancel</button>
 			<button
 				type="submit"
-				disabled={formLoading || (editShift ? !isUpdateChanged : !isCreateValid)}
-				style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:opacity 0.2s;opacity:{(formLoading || (editShift ? !isUpdateChanged : !isCreateValid)) ? 0.4 : 1};cursor:{(formLoading || (editShift ? !isUpdateChanged : !isCreateValid)) ? 'not-allowed' : 'pointer'}"
+				disabled={formLoading || (editShift ? !isUpdateChanged : !isCreateEnabled)}
+				style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:opacity 0.2s;opacity:{(formLoading || (editShift ? !isUpdateChanged : !isCreateEnabled)) ? 0.4 : 1};cursor:{(formLoading || (editShift ? !isUpdateChanged : !isCreateEnabled)) ? 'not-allowed' : 'pointer'}"
 			>
 				{#if formLoading}
 					<LoaderCircleIcon class="animate-spin" size={14} />

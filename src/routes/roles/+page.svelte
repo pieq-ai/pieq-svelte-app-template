@@ -99,16 +99,8 @@
 		return formName.trim() !== originalName || formStatus !== originalStatus;
 	});
 
-	// Create validation
-	let isCreateValid = $derived.by(() => {
-		const nameTrimmed = formName.trim();
-		if (!nameTrimmed) return false;
-		if (nameTrimmed.length < 2) return false;
-		const nameRegex = /^[A-Za-z ]+$/;
-		if (!nameRegex.test(nameTrimmed)) return false;
-		if (nameTrimmed.length > 255) return false;
-		return true;
-	});
+	// Create enablement: enabled once required fields contain any value
+	let isCreateEnabled = $derived(formName.trim() !== '');
 
 	let activeDropdownId = $state<string | null>(null);
 
@@ -640,8 +632,8 @@
 			>Cancel</button>
 			<button
 				type="submit"
-				disabled={formLoading || (editRole ? !isUpdateChanged : !isCreateValid)}
-				style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:opacity 0.2s;opacity:{(formLoading || (editRole ? !isUpdateChanged : !isCreateValid)) ? 0.4 : 1};cursor:{(formLoading || (editRole ? !isUpdateChanged : !isCreateValid)) ? 'not-allowed' : 'pointer'}"
+				disabled={formLoading || (editRole ? !isUpdateChanged : !isCreateEnabled)}
+				style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:opacity 0.2s;opacity:{(formLoading || (editRole ? !isUpdateChanged : !isCreateEnabled)) ? 0.4 : 1};cursor:{(formLoading || (editRole ? !isUpdateChanged : !isCreateEnabled)) ? 'not-allowed' : 'pointer'}"
 			>
 				{#if formLoading}
 					<LoaderCircleIcon class="animate-spin" size={14} />

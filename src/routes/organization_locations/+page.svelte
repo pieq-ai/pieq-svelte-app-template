@@ -144,34 +144,8 @@
 			formStatus !== originalStatus;
 	});
 
-	// Create validation
-	let isCreateValid = $derived.by(() => {
-		const nameTrimmed = formName.trim();
-		if (!nameTrimmed || nameTrimmed.length < 2 || nameTrimmed.length > 255) return false;
-
-		const address1Trimmed = formAddress1.trim();
-		const cityTrimmed = formCity.trim();
-		const pinTrimmed = formPinCode.trim();
-		const tzTrimmed = formTimezone.trim();
-
-		if (!address1Trimmed || !cityTrimmed || !formCountryCuid || !formStateCuid || !pinTrimmed || !tzTrimmed) return false;
-
-		const lower = nameTrimmed.toLowerCase();
-		if (
-			lower.includes('<script') ||
-			lower.includes('script>') ||
-			lower.includes('drop table') ||
-			lower.includes('select ') ||
-			lower.includes('--') ||
-			lower.includes('/*')
-		) return false;
-
-		if (/^\d+$/.test(nameTrimmed)) return false;
-		if (!/[A-Za-z]/.test(nameTrimmed)) return false;
-		if (/[A-Za-z]\d|\d[A-Za-z]/.test(nameTrimmed)) return false;
-
-		return true;
-	});
+	// Create enablement: enabled once required fields contain any value
+	let isCreateEnabled = $derived(formName.trim() !== '' && formAddress1.trim() !== '' && formCity.trim() !== '' && formCountryCuid !== '' && formStateCuid !== '' && formPinCode.trim() !== '' && formTimezone.trim() !== '');
 
 	// Dropdown choices
 	let countries = $state<any[]>([]);
@@ -1066,8 +1040,8 @@
 			>Cancel</button>
 			<button
 				type="submit"
-				disabled={formLoading || (editLocation ? !isUpdateChanged : !isCreateValid)}
-				style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:opacity 0.2s;opacity:{(formLoading || (editLocation ? !isUpdateChanged : !isCreateValid)) ? 0.4 : 1};cursor:{(formLoading || (editLocation ? !isUpdateChanged : !isCreateValid)) ? 'not-allowed' : 'pointer'}"
+				disabled={formLoading || (editLocation ? !isUpdateChanged : !isCreateEnabled)}
+				style="padding:9px 18px;border-radius:8px;background:#C2652A;color:white;border:none;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:opacity 0.2s;opacity:{(formLoading || (editLocation ? !isUpdateChanged : !isCreateEnabled)) ? 0.4 : 1};cursor:{(formLoading || (editLocation ? !isUpdateChanged : !isCreateEnabled)) ? 'not-allowed' : 'pointer'}"
 			>
 				{#if formLoading}
 					<LoaderCircleIcon class="animate-spin" size={14} />
