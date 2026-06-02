@@ -94,31 +94,86 @@
 
 	let activeMenuCuid = $state<string | null>(null);
 	let menuPosition = $state({ top: 0, left: 0 });
+	let activeTriggerEl = $state<HTMLElement | null>(null);
 
 	function toggleMenu(cuid: string, event: MouseEvent) {
 		event.stopPropagation();
 		if (activeMenuCuid === cuid) {
 			activeMenuCuid = null;
+			activeTriggerEl = null;
 		} else {
-			const rect = (event.currentTarget as HTMLButtonElement).getBoundingClientRect();
-			menuPosition = {
-				top: rect.bottom,
-				left: rect.right - 112 // width of w-28 is 112px
-			};
 			activeMenuCuid = cuid;
+			activeTriggerEl = event.currentTarget as HTMLElement;
+			updateMenuPosition();
 		}
 	}
 
-	// Close kebab menu on click outside or scroll
+	function updateMenuPosition() {
+		if (activeTriggerEl) {
+			const rect = activeTriggerEl.getBoundingClientRect();
+			const menuEl = document.querySelector('.kebab-dropdown-menu') as HTMLElement;
+			const menuHeight = menuEl ? menuEl.getBoundingClientRect().height : 45;
+			const menuWidth = 112; // w-28 is 112px
+
+			const spaceBelow = window.innerHeight - rect.bottom;
+			const spaceAbove = rect.top;
+
+			let topPos = rect.bottom + 4; // default downward
+			if (spaceBelow < menuHeight + 10 && spaceAbove > spaceBelow) {
+				topPos = rect.top - menuHeight - 4; // open upward
+			}
+
+			let leftPos = rect.right - menuWidth;
+			// Horizontal boundaries check
+			if (leftPos < 4) {
+				leftPos = 4;
+			} else if (leftPos + menuWidth > window.innerWidth - 4) {
+				leftPos = window.innerWidth - menuWidth - 4;
+			}
+
+			menuPosition = {
+				top: topPos,
+				left: leftPos
+			};
+		}
+	}
+
+	// Dynamic position tracking when menu is open
 	$effect(() => {
-		const handleDismiss = () => {
-			activeMenuCuid = null;
+		if (!activeMenuCuid || !activeTriggerEl) return;
+
+		window.addEventListener('scroll', updateMenuPosition, { capture: true, passive: true });
+		window.addEventListener('resize', updateMenuPosition, { passive: true });
+
+		let frameId: number;
+		const loop = () => {
+			updateMenuPosition();
+			frameId = requestAnimationFrame(loop);
+		};
+		frameId = requestAnimationFrame(loop);
+
+		return () => {
+			window.removeEventListener('scroll', updateMenuPosition, { capture: true });
+			window.removeEventListener('resize', updateMenuPosition);
+			cancelAnimationFrame(frameId);
+		};
+	});
+
+	// Close kebab menu on click outside
+	$effect(() => {
+		const handleDismiss = (e: MouseEvent) => {
+			if (activeMenuCuid && activeTriggerEl) {
+				const target = e.target as HTMLElement;
+				const isDropdownClick = target.closest('.kebab-dropdown-menu');
+				if (!activeTriggerEl.contains(target) && !isDropdownClick) {
+					activeMenuCuid = null;
+					activeTriggerEl = null;
+				}
+			}
 		};
 		document.addEventListener('click', handleDismiss);
-		window.addEventListener('scroll', handleDismiss, { passive: true });
 		return () => {
 			document.removeEventListener('click', handleDismiss);
-			window.removeEventListener('scroll', handleDismiss);
 		};
 	});
 
@@ -934,7 +989,7 @@
 								</span>
 							</div>
 						</TableHead>
-						<TableHead class="w-24 text-right">Actions</TableHead>
+						<TableHead class="w-24 text-center">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -947,24 +1002,24 @@
 					{:else}
 						{#each paginatedPolicies as policy (policy.cuid)}
 							<TableRow>
-								<TableCell class="font-semibold">{getLeaveTypeName(policy.leave_type_cuid)}</TableCell>
-								<TableCell class="text-xs">{getEmploymentTypeNames(policy.employment_type_cuids)}</TableCell>
-								<TableCell class="text-right font-mono font-semibold">{policy.annual_quota}</TableCell>
-								<TableCell class="text-center text-xs">
+								<TableCell class="font-normal">{getLeaveTypeName(policy.leave_type_cuid)}</TableCell>
+								<TableCell class="font-normal">{getEmploymentTypeNames(policy.employment_type_cuids)}</TableCell>
+								<TableCell class="text-right font-normal">{policy.annual_quota}</TableCell>
+								<TableCell class="text-center font-normal">
 									{#if policy.carry_forward_allowed}
 										Yes ({policy.max_carry_forward_days})
 									{:else}
 										No
 									{/if}
 								</TableCell>
-								<TableCell class="text-center text-xs">
+								<TableCell class="text-center font-normal">
 									{#if policy.allow_half_day}
 										Allowed
 									{:else}
 										No
 									{/if}
 								</TableCell>
-								<TableCell class="text-center text-xs capitalize">
+								<TableCell class="text-center font-normal capitalize">
 									{#if policy.gender_specific}
 										{policy.applicable_gender}
 									{:else}
@@ -973,16 +1028,16 @@
 								</TableCell>
 								<TableCell class="text-center">
 									{#if policy.status}
-										<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-neutral-900 text-neutral-50 dark:bg-neutral-100 dark:text-neutral-950 shadow-xs select-none mx-auto">
+										<span class="inline-flex items-center px-3 py-1 rounded-full font-normal bg-neutral-900 text-neutral-50 dark:bg-neutral-100 dark:text-neutral-950 shadow-xs select-none mx-auto">
 											Active
 										</span>
 									{:else}
-										<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-300 shadow-xs select-none mx-auto">
+										<span class="inline-flex items-center px-3 py-1 rounded-full font-normal bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-300 shadow-xs select-none mx-auto">
 											Inactive
 										</span>
 									{/if}
 								</TableCell>
-								<TableCell class="text-right relative">
+								<TableCell class="text-center relative">
 									<Button
 										variant="ghost"
 										size="icon-sm"
@@ -994,12 +1049,12 @@
 									{#if activeMenuCuid === policy.cuid}
 										<div
 											style="position: fixed; top: {menuPosition.top}px; left: {menuPosition.left}px;"
-											class="z-50 w-28 rounded-md border bg-popover text-popover-foreground shadow-md outline-none text-left"
+											class="kebab-dropdown-menu z-100 w-28 rounded-md border bg-popover text-popover-foreground shadow-md outline-none text-left"
 										>
 											<div class="py-1">
 												<a
 													href={resolve(('/leave-policies?edit=' + policy.cuid) as '/leave-policies')}
-													class="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+													class="block px-4 py-2 text-sm text-[#F45310] hover:bg-[#F45310]/10 hover:text-[#F45310] transition-colors"
 													onclick={() => activeMenuCuid = null}
 												>
 													Edit
@@ -1321,21 +1376,36 @@
 		</div>
 	{/if}
 
-	<Button type="submit" class="w-full" disabled={isSubmitDisabled}>
-		{#if isSubmitting}
-			<LoaderCircleIcon class="size-4 animate-spin" />
-			Saving...
-		{:else}
-			{editUuid ? 'Update Leave Policy' : 'Save Leave Policy'}
-		{/if}
-	</Button>
+	<div class="flex items-center justify-end gap-3 pt-4 border-t border-border mt-6">
+		<Button
+			type="button"
+			variant="outline"
+			class="flex-1 sm:flex-initial sm:min-w-28 font-medium"
+			onclick={handleCloseRequest}
+			disabled={isSubmitting}
+		>
+			Cancel
+		</Button>
+		<Button
+			type="submit"
+			class="flex-1 sm:flex-initial sm:min-w-28 font-medium"
+			disabled={isSubmitDisabled}
+		>
+			{#if isSubmitting}
+				<LoaderCircleIcon class="size-4 animate-spin" />
+				Saving...
+			{:else}
+				{editUuid ? 'Update Leave Policy' : 'Save Leave Policy'}
+			{/if}
+		</Button>
+	</div>
 </FormModal>
 
 <ConfirmModal
 	bind:isOpen={isDiscardModalOpen}
 	title="Unsaved Changes"
-	message="You have unsaved changes. Are you sure you want to discard them? Any unsaved edits will be lost."
-	confirmLabel="Discard Changes"
+	message="You have unsaved changes. Do you want to continue editing or close without saving?"
+	confirmLabel="Close Without Saving"
 	cancelLabel="Continue Editing"
 	variant="destructive"
 	onConfirm={confirmDiscard}

@@ -27,7 +27,9 @@
 	--destructive: oklch(0.577 0.245 27.325);
 	--border: oklch(0.922 0 0);
 	--input: oklch(0.922 0 0);
-	--ring: #F45310;
+	--input-focus: #a3a3a3;
+	--input-focus-ring: #e5e5e5;
+	--ring: #e5e5e5;
 	--chart-1: oklch(0.87 0 0);
 	--chart-2: oklch(0.556 0 0);
 	--chart-3: oklch(0.439 0 0);
@@ -66,7 +68,9 @@
 	--destructive: oklch(0.704 0.191 22.216);
 	--border: oklch(1 0 0 / 10%);
 	--input: oklch(1 0 0 / 15%);
-	--ring: #F45310;
+	--input-focus: #737373;
+	--input-focus-ring: rgba(115, 115, 115, 0.25);
+	--ring: #27272a;
 	--chart-1: oklch(0.87 0 0);
 	--chart-2: oklch(0.556 0 0);
 	--chart-3: oklch(0.439 0 0);
@@ -99,6 +103,8 @@
 	--color-chart-1: var(--chart-1);
 	--color-ring: var(--ring);
 	--color-input: var(--input);
+	--color-input-focus: var(--input-focus);
+	--color-input-focus-ring: var(--input-focus-ring);
 	--color-border: var(--border);
 	--color-destructive: var(--destructive);
 	--color-accent-foreground: var(--accent-foreground);

@@ -64,7 +64,7 @@
 	>
 		<div
 			transition:scale={{ duration: 150, start: 0.95 }}
-			class="w-full max-w-md bg-card text-card-foreground rounded-lg border border-border shadow-lg flex flex-col p-6"
+			class="w-full max-w-md bg-card text-card-foreground rounded-2xl border border-border shadow-lg flex flex-col p-6"
 			onclick={(e) => e.stopPropagation()}
 		>
 			<h3 class="font-semibold text-lg tracking-tight mb-2">{title}</h3>
@@ -73,7 +73,8 @@
 			<div class="flex items-center justify-end gap-3">
 				<Button
 					type="button"
-					variant="ghost"
+					variant={cancelLabel === 'Continue Editing' ? 'outline' : 'ghost'}
+					class="font-medium text-black dark:text-white"
 					onclick={handleCancel}
 					disabled={isConfirming}
 				>
@@ -82,6 +83,7 @@
 				<Button
 					type="button"
 					variant={variant === 'destructive' ? 'destructive' : 'default'}
+					class={confirmLabel === 'Close Without Saving' ? 'bg-[#800020] text-white hover:bg-[#800020]/90 border-none font-semibold' : ''}
 					onclick={handleConfirm}
 					disabled={isConfirming}
 				>

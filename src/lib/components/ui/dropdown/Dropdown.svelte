@@ -80,8 +80,8 @@
 		{disabled}
 		onclick={toggle}
 		class={cn(
-			"flex items-center justify-between w-full h-9 rounded-md border border-input bg-card px-3 py-1.5 text-sm shadow-xs transition-colors hover:bg-accent/30 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 select-none cursor-pointer",
-			isOpen && "ring-2 ring-ring ring-offset-2",
+			"flex items-center justify-between w-full h-9 rounded-md border border-input bg-card px-3 py-1.5 text-sm shadow-xs transition-colors hover:bg-accent/30 focus-visible:outline-hidden focus-visible:ring-4 focus-visible:ring-input-focus-ring focus-visible:border-input-focus disabled:cursor-not-allowed disabled:opacity-50 select-none cursor-pointer",
+			isOpen && "ring-4 ring-input-focus-ring border-input-focus",
 			hasError && "border-destructive focus-visible:ring-destructive"
 		)}
 	>

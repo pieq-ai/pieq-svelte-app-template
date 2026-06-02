@@ -8,7 +8,7 @@ export interface CreateHolidayData {
 
 export async function list() {
 	return db.holidayCalendar.findMany({
-		orderBy: { holiday_date: 'asc' }
+		orderBy: { created_at: 'desc' }
 	});
 }
 

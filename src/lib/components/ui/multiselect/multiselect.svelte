@@ -70,7 +70,7 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		onclick={() => (isOpen = !isOpen)}
-		class="dark:bg-input/30 border-input min-h-9 w-full rounded-md border bg-transparent px-3 py-1.5 text-sm shadow-xs transition-colors focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-3 cursor-pointer flex flex-wrap gap-1.5 items-center justify-between"
+		class="dark:bg-input/30 border-input min-h-9 w-full rounded-md border bg-transparent px-3 py-1.5 text-sm shadow-xs transition-colors focus-within:border-input-focus focus-within:ring-input-focus-ring focus-within:ring-4 cursor-pointer flex flex-wrap gap-1.5 items-center justify-between"
 	>
 		{#if selectedOptions.length === 0}
 			<span class="text-muted-foreground select-none">{placeholder}</span>

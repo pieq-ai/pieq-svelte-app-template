@@ -29,7 +29,8 @@
 		ConfirmModal,
 		FormModal,
 		Pagination,
-		Dropdown
+		Dropdown,
+		DatePicker
 	} from '$lib/components/ui';
 	import type { PageData } from './$types';
 
@@ -66,31 +67,86 @@
 
 	let activeMenuCuid = $state<string | null>(null);
 	let menuPosition = $state({ top: 0, left: 0 });
+	let activeTriggerEl = $state<HTMLElement | null>(null);
 
 	function toggleMenu(cuid: string, event: MouseEvent) {
 		event.stopPropagation();
 		if (activeMenuCuid === cuid) {
 			activeMenuCuid = null;
+			activeTriggerEl = null;
 		} else {
-			const rect = (event.currentTarget as HTMLButtonElement).getBoundingClientRect();
-			menuPosition = {
-				top: rect.bottom,
-				left: rect.right - 112 // width of w-28 is 112px
-			};
 			activeMenuCuid = cuid;
+			activeTriggerEl = event.currentTarget as HTMLElement;
+			updateMenuPosition();
 		}
 	}
 
-	// Close kebab menu on click outside or scroll
+	function updateMenuPosition() {
+		if (activeTriggerEl) {
+			const rect = activeTriggerEl.getBoundingClientRect();
+			const menuEl = document.querySelector('.kebab-dropdown-menu') as HTMLElement;
+			const menuHeight = menuEl ? menuEl.getBoundingClientRect().height : 80;
+			const menuWidth = 112; // w-28 is 112px
+
+			const spaceBelow = window.innerHeight - rect.bottom;
+			const spaceAbove = rect.top;
+
+			let topPos = rect.bottom + 4; // default downward
+			if (spaceBelow < menuHeight + 10 && spaceAbove > spaceBelow) {
+				topPos = rect.top - menuHeight - 4; // open upward
+			}
+
+			let leftPos = rect.right - menuWidth;
+			// Horizontal boundaries check
+			if (leftPos < 4) {
+				leftPos = 4;
+			} else if (leftPos + menuWidth > window.innerWidth - 4) {
+				leftPos = window.innerWidth - menuWidth - 4;
+			}
+
+			menuPosition = {
+				top: topPos,
+				left: leftPos
+			};
+		}
+	}
+
+	// Dynamic position tracking when menu is open
 	$effect(() => {
-		const handleDismiss = () => {
-			activeMenuCuid = null;
+		if (!activeMenuCuid || !activeTriggerEl) return;
+
+		window.addEventListener('scroll', updateMenuPosition, { capture: true, passive: true });
+		window.addEventListener('resize', updateMenuPosition, { passive: true });
+
+		let frameId: number;
+		const loop = () => {
+			updateMenuPosition();
+			frameId = requestAnimationFrame(loop);
+		};
+		frameId = requestAnimationFrame(loop);
+
+		return () => {
+			window.removeEventListener('scroll', updateMenuPosition, { capture: true });
+			window.removeEventListener('resize', updateMenuPosition);
+			cancelAnimationFrame(frameId);
+		};
+	});
+
+	// Close kebab menu on click outside
+	$effect(() => {
+		const handleDismiss = (e: MouseEvent) => {
+			if (activeMenuCuid && activeTriggerEl) {
+				const target = e.target as HTMLElement;
+				const isDropdownClick = target.closest('.kebab-dropdown-menu');
+				if (!activeTriggerEl.contains(target) && !isDropdownClick) {
+					activeMenuCuid = null;
+					activeTriggerEl = null;
+				}
+			}
 		};
 		document.addEventListener('click', handleDismiss);
-		window.addEventListener('scroll', handleDismiss, { passive: true });
 		return () => {
 			document.removeEventListener('click', handleDismiss);
-			window.removeEventListener('scroll', handleDismiss);
 		};
 	});
 
@@ -452,10 +508,7 @@
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
 			result = result.filter(
-				(h) =>
-					h.holiday_name.toLowerCase().includes(query) ||
-					h.holiday_type.toLowerCase().includes(query) ||
-					h.cuid.toLowerCase().includes(query)
+				(h) => h.holiday_name.toLowerCase().includes(query)
 			);
 		}
 
@@ -482,13 +535,6 @@
 				}
 
 				return 0;
-			});
-		} else {
-			// Fallback/default: Sort by holiday_date ascending
-			result.sort((a, b) => {
-				const timeA = new Date(a.holiday_date).getTime();
-				const timeB = new Date(b.holiday_date).getTime();
-				return timeA - timeB;
 			});
 		}
 
@@ -569,13 +615,13 @@
 			<CardHeader>
 				<CardDescription class="text-black dark:text-white">Next Scheduled Holiday</CardDescription>
 				{#if nextHoliday}
-					<CardTitle class="text-xl font-bold line-clamp-1 text-black dark:text-white">{nextHoliday.holiday_name}</CardTitle>
-					<CardDescription class="text-xs text-black dark:text-white mt-1">
+					<CardTitle class="text-xl font-bold line-clamp-1 text-[#800020] dark:text-[#b83d58]">{nextHoliday.holiday_name}</CardTitle>
+					<CardDescription class="text-xs text-[#800020] dark:text-[#b83d58]/80 mt-1">
 						{formatDate(nextHoliday.holiday_date)}
 					</CardDescription>
 				{:else}
-					<CardTitle class="text-xl font-bold text-black dark:text-white">None Scheduled</CardTitle>
-					<CardDescription class="text-xs text-black dark:text-white mt-1">
+					<CardTitle class="text-xl font-bold text-[#800020] dark:text-[#b83d58]">None Scheduled</CardTitle>
+					<CardDescription class="text-xs text-[#800020] dark:text-[#b83d58]/80 mt-1">
 						No upcoming holidays
 					</CardDescription>
 				{/if}
@@ -660,7 +706,7 @@
 								</span>
 							</div>
 						</TableHead>
-						<TableHead class="w-24 text-right">Actions</TableHead>
+						<TableHead class="w-24 text-center">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -673,16 +719,16 @@
 					{:else}
 						{#each paginatedHolidays as holiday (holiday.cuid)}
 							<TableRow>
-								<TableCell class="font-medium">
+								<TableCell class="font-normal">
 									{formatDate(holiday.holiday_date)}
 								</TableCell>
-								<TableCell class="font-semibold">
+								<TableCell class="font-normal">
 									{holiday.holiday_name}
 								</TableCell>
 								<TableCell>
 									{holiday.holiday_type}
 								</TableCell>
-								<TableCell class="text-right relative">
+								<TableCell class="text-center relative">
 									<Button
 										variant="ghost"
 										size="icon-sm"
@@ -694,19 +740,19 @@
 									{#if activeMenuCuid === holiday.cuid}
 										<div
 											style="position: fixed; top: {menuPosition.top}px; left: {menuPosition.left}px;"
-											class="z-50 w-28 rounded-md border bg-popover text-popover-foreground shadow-md outline-none text-left"
+											class="kebab-dropdown-menu z-100 w-28 rounded-md border bg-popover text-popover-foreground shadow-md outline-none text-left"
 										>
 											<div class="py-1">
 												<a
 													href={resolve(('/holidays?edit=' + holiday.cuid) as '/holidays')}
-													class="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+													class="block px-4 py-2 text-sm text-[#F45310] hover:bg-[#F45310]/10 hover:text-[#F45310] transition-colors"
 													onclick={() => activeMenuCuid = null}
 												>
 													Edit
 												</a>
 												<button
 													type="button"
-													class="w-full text-left block px-4 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+													class="w-full text-left block px-4 py-2 text-sm text-[#800020] hover:bg-[#800020]/10 hover:text-[#800020] transition-colors cursor-pointer"
 													disabled={isSubmitting}
 													onclick={() => {
 														activeMenuCuid = null;
@@ -770,22 +816,20 @@
 	</div>
 
 	<div class="space-y-2">
-		<Label for="modal_holiday_date" class={(form && 'field' in form && form.field === 'holiday_date') || clientDateError ? 'text-destructive' : ''}>Date <span class="text-destructive">*</span></Label>
-		<Input
+		<Label for="modal_holiday_date" class={(form && 'field' in form && form.field === 'holiday_date') || clientDateError ? 'text-destructive' : ''}>Holiday Date <span class="text-destructive">*</span></Label>
+		<DatePicker
 			id="modal_holiday_date"
 			name="holiday_date"
-			type="date"
 			bind:value={holidayDate}
-			oninput={() => {
+			onchange={() => {
 				if (form && form.field === 'holiday_date') form = null;
 				errors.holiday_date = '';
 				touched.holiday_date = true;
 			}}
-			onblur={() => touched.holiday_date = true}
-			required
+			required={true}
 			min={tomorrowStr}
 			max="2099-12-31"
-			class={(form && 'field' in form && form.field === 'holiday_date') || clientDateError ? 'border-destructive focus-visible:ring-destructive' : ''}
+			hasError={!!clientDateError || !!(form && 'field' in form && form.field === 'holiday_date')}
 		/>
 		{#if clientDateError}
 			<p class="text-xs font-medium text-destructive mt-1">{clientDateError}</p>
@@ -821,14 +865,29 @@
 		</div>
 	{/if}
 
-	<Button type="submit" class="w-full" disabled={isSubmitDisabled}>
-		{#if isSubmitting}
-			<LoaderCircleIcon class="size-4 animate-spin" />
-			Saving...
-		{:else}
-			{editCuid ? 'Update Holiday Record' : 'Save Holiday Record'}
-		{/if}
-	</Button>
+	<div class="flex items-center justify-end gap-3 pt-4 border-t border-border mt-6">
+		<Button
+			type="button"
+			variant="outline"
+			class="flex-1 sm:flex-initial sm:min-w-28 font-medium"
+			onclick={handleCloseRequest}
+			disabled={isSubmitting}
+		>
+			Cancel
+		</Button>
+		<Button
+			type="submit"
+			class="flex-1 sm:flex-initial sm:min-w-28 font-medium"
+			disabled={isSubmitDisabled}
+		>
+			{#if isSubmitting}
+				<LoaderCircleIcon class="size-4 animate-spin" />
+				Saving...
+			{:else}
+				{editCuid ? 'Update Holiday Record' : 'Save Holiday Record'}
+			{/if}
+		</Button>
+	</div>
 </FormModal>
 
 <ConfirmModal
@@ -845,8 +904,8 @@
 <ConfirmModal
 	bind:isOpen={isDiscardModalOpen}
 	title="Unsaved Changes"
-	message="You have unsaved changes. Are you sure you want to discard them? Any unsaved edits will be lost."
-	confirmLabel="Discard Changes"
+	message="You have unsaved changes. Do you want to continue editing or close without saving?"
+	confirmLabel="Close Without Saving"
 	cancelLabel="Continue Editing"
 	variant="destructive"
 	onConfirm={confirmDiscard}
