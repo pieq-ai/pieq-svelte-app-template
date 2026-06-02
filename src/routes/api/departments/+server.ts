@@ -6,20 +6,11 @@ import { mapToDb, toDepartmentDTO } from '$lib/server/utils/mapping.js';
 
 /**
  * GET /api/departments
- * GET /api/departments?cuid=
- * Handles listing all departments or finding one by CUID2.
+ * Handles listing all departments.
  */
 export async function GET(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
-
-		const url = new URL(event.request.url);
-		const cuid = url.searchParams.get('cuid');
-
-		if (cuid) {
-			const department = await departmentService.getDepartmentByCuid2(cuid);
-			return json({ data: toDepartmentDTO(department) });
-		}
 
 		const departments = await departmentService.getDepartments();
 		return json({ data: departments.map(toDepartmentDTO) });
@@ -47,59 +38,6 @@ export async function POST(event: RequestEvent) {
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : 400;
-		return json({ error: message }, { status });
-	}
-}
-
-/**
- * PUT /api/departments?cuid=
- * Handles updating an existing department.
- */
-export async function PUT(event: RequestEvent) {
-	try {
-		permissionGuard.requireAuth(event.locals.user);
-		permissionGuard.requireAdmin(event.locals.user);
-
-		const url = new URL(event.request.url);
-		const cuid = url.searchParams.get('cuid');
-
-		if (!cuid) {
-			return json({ error: 'Department CUID is required as a query parameter' }, { status: 400 });
-		}
-
-		let body = await event.request.json();
-		body = mapToDb(body);
-		body.updated_by = event.locals.user?.id;
-		const updatedDepartment = await departmentService.updateDepartment(cuid, body);
-		return json({ data: { cuid: updatedDepartment.cuid, message: 'Successfully updated' } });
-	} catch (error) {
-		const message = (error as Error).message;
-		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
-		return json({ error: message }, { status });
-	}
-}
-
-/**
- * DELETE /api/departments?cuid=
- * Handles soft deleting a department (sets status = inactive).
- */
-export async function DELETE(event: RequestEvent) {
-	try {
-		permissionGuard.requireAuth(event.locals.user);
-		permissionGuard.requireAdmin(event.locals.user);
-
-		const url = new URL(event.request.url);
-		const cuid = url.searchParams.get('cuid');
-
-		if (!cuid) {
-			return json({ error: 'Department CUID is required as a query parameter' }, { status: 400 });
-		}
-
-		const deletedDepartment = await departmentService.deleteDepartment(cuid, event.locals.user?.id);
-		return json({ data: { cuid: deletedDepartment.cuid, message: 'Successfully disabled' } });
-	} catch (error) {
-		const message = (error as Error).message;
-		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
 		return json({ error: message }, { status });
 	}
 }

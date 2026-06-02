@@ -46,20 +46,3 @@ export async function POST(event: RequestEvent) {
 		return json({ error: message }, { status: getStatus(message) });
 	}
 }
-
-export async function DELETE(event: RequestEvent) {
-	try {
-		permissionGuard.requireAuth(event.locals.user);
-		const url = new URL(event.request.url);
-		const systemRoleCuid = url.searchParams.get('roleCuid') ?? '';
-		const permissionCuid = url.searchParams.get('permissionCuid') ?? '';
-		await rolePermissionService.removePermissionFromRoleByCuid2(
-			systemRoleCuid,
-			permissionCuid
-		);
-		return json({ data: { message: 'Successfully removed permission' } });
-	} catch (error) {
-		const message = (error as Error).message;
-		return json({ error: message }, { status: getStatus(message) });
-	}
-}

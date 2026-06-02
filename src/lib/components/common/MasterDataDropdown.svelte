@@ -112,7 +112,7 @@
 		try {
 			const response = await fetch(
 				editingOption
-					? `/api/master-data/${master}?cuid=${editingOption.id}`
+					? `/api/master-data/${master}/masterCuid=${editingOption.id}`
 					: `/api/master-data/${master}`,
 				{
 					method: editingOption ? 'PUT' : 'POST',

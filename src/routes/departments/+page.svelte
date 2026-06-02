@@ -191,7 +191,7 @@
 
 		try {
 			const response = await fetch(
-				editingDept ? `/api/departments?cuid=${editingDept.cuid}` : '/api/departments',
+				editingDept ? `/api/departments/departmentCuid=${editingDept.cuid}` : '/api/departments',
 				{
 					method: editingDept ? 'PUT' : 'POST',
 					headers: { 'Content-Type': 'application/json' },
@@ -219,7 +219,7 @@
 		if (!itemToDelete) return;
 		isDeleting = true;
 		try {
-			const response = await fetch(`/api/departments?cuid=${itemToDelete.cuid}`, {
+			const response = await fetch(`/api/departments/departmentCuid=${itemToDelete.cuid}`, {
 				method: 'DELETE'
 			});
 			const resData = await response.json();

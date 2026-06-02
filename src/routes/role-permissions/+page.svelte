@@ -116,7 +116,7 @@
 		try {
 			const response = await fetch(
 				wasAssigned
-					? `/api/role-permissions?roleCuid=${role.cuid}&permissionCuid=${permission.cuid}`
+					? `/api/role-permissions/roleCuid=${role.cuid}/permissionCuid=${permission.cuid}`
 					: '/api/role-permissions',
 				{
 					method: wasAssigned ? 'DELETE' : 'POST',

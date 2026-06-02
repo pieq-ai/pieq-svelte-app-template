@@ -166,7 +166,7 @@
 		isSubmitting = true;
 		try {
 			const response = await fetch(
-				editingRole ? `/api/system-roles?cuid=${editingRole.cuid}` : '/api/system-roles',
+				editingRole ? `/api/system-roles/systemRoleCuid=${editingRole.cuid}` : '/api/system-roles',
 				{
 					method: editingRole ? 'PUT' : 'POST',
 					headers: { 'Content-Type': 'application/json' },
@@ -193,7 +193,7 @@
 		if (!itemToDelete) return;
 		isDeleting = true;
 		try {
-			const response = await fetch(`/api/system-roles?cuid=${itemToDelete.cuid}`, { method: 'DELETE' });
+			const response = await fetch(`/api/system-roles/systemRoleCuid=${itemToDelete.cuid}`, { method: 'DELETE' });
 			const body = await response.json();
 			if (response.ok) {
 				await loadRoles();

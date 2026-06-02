@@ -15,15 +15,6 @@ function getMaster(event: RequestEvent) {
 	return event.params.master ?? '';
 }
 
-function getCuid(event: RequestEvent) {
-	const url = new URL(event.request.url);
-	const cuid = url.searchParams.get('cuid');
-	if (!cuid) {
-		throw new Error('Master data CUID is required as a query parameter');
-	}
-	return cuid;
-}
-
 export async function GET(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
@@ -51,22 +42,6 @@ export async function POST(event: RequestEvent) {
 			{ data: { cuid: newMasterData.id, message: 'Successfully created' } },
 			{ status: 201 }
 		);
-	} catch (error) {
-		const message = (error as Error).message;
-		return json({ error: message }, { status: getStatus(message) });
-	}
-}
-
-export async function PUT(event: RequestEvent) {
-	try {
-		permissionGuard.requireAuth(event.locals.user);
-		let body = await event.request.json();
-		body = mapToDb(body);
-		body.updated_by = event.locals.user?.id;
-		const updatedMasterData = await masterDataService.updateMasterData(getMaster(event), getCuid(event), body);
-		return json({
-			data: { cuid: updatedMasterData.id, message: 'Successfully updated' }
-		});
 	} catch (error) {
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getStatus(message) });
