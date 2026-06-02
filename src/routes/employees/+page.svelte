@@ -257,12 +257,12 @@
 					<TableHeader>
 						<TableRow>
 							<TableHead>
-								<Button variant="ghost" size="sm" class="-ml-2 h-8" onclick={() => handleSort('name')}>
+								<Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => handleSort('name')}>
 									Name {sortIndicator('name')}
 								</Button>
 							</TableHead>
 							<TableHead>
-								<Button variant="ghost" size="sm" class="-ml-2 h-8" onclick={() => handleSort('age')}>
+								<Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => handleSort('age')}>
 									Age {sortIndicator('age')}
 								</Button>
 							</TableHead>

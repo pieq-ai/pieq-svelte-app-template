@@ -246,7 +246,7 @@
 			<TableHeader class="bg-muted">
 				<TableRow>
 					<TableHead class="font-bold text-foreground text-[15px]">
-						<Button variant="ghost" size="sm" class="-ml-2 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('permission_key')}>
+						<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('permission_key')}>
 							Permission Key
 							{#if sortColumn === 'permission_key' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -258,7 +258,7 @@
 						</Button>
 					</TableHead>
 					<TableHead class="w-28 text-center font-bold text-foreground text-[15px]">
-						<Button variant="ghost" size="sm" class="-ml-2 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
+						<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
 							Status
 							{#if sortColumn === 'status' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
