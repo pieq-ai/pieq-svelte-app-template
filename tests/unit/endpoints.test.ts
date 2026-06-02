@@ -3,15 +3,15 @@ import { db } from '../../src/lib/server/db.js';
 
 // Import Role Endpoints
 import * as rolesApi from '../../src/routes/api/roles/+server.js';
-import * as rolesCuidApi from '../../src/routes/api/roles/[cuid]/+server.js';
+import * as rolesCuidApi from '../../src/routes/api/roles/roleCuid=[roleCuid]/+server.js';
 
 // Import Shift Endpoints
 import * as shiftsApi from '../../src/routes/api/shifts/+server.js';
-import * as shiftsCuidApi from '../../src/routes/api/shifts/[cuid]/+server.js';
+import * as shiftsCuidApi from '../../src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.js';
 
 // Import Location Endpoints
 import * as locationsApi from '../../src/routes/api/organization_location/+server.ts';
-import * as locationsCuidApi from '../../src/routes/api/organization_location/[cuid]/+server.ts';
+import * as locationsCuidApi from '../../src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts';
 
 describe('API Endpoint Integration Tests', () => {
   beforeAll(async () => {
@@ -79,35 +79,35 @@ describe('API Endpoint Integration Tests', () => {
       expect(getJson.data.some((r: any) => r.cuid === cuid)).toBe(true);
 
       // 7. PUT: 400 Bad Request - Invalid CUID format
-      const invalidCuidPut = new Request(`http://localhost/api/roles/short`, {
+      const invalidCuidPut = new Request(`http://localhost/api/roles/roleCuid=short`, {
         method: 'PUT',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ name: 'API Role Updated' })
       });
-      const putRes400 = await rolesCuidApi.PUT({ request: invalidCuidPut, params: { cuid: 'short' } });
+      const putRes400 = await rolesCuidApi.PUT({ request: invalidCuidPut, params: { roleCuid: 'short' } });
       expect(putRes400.status).toBe(400);
 
       // 8. PUT: 404 Not Found - Correct CUID format but non-existent
       const nonExistentCuid = 'c123456789012345678901234';
-      const notFoundPut = new Request(`http://localhost/api/roles/${nonExistentCuid}`, {
+      const notFoundPut = new Request(`http://localhost/api/roles/roleCuid=${nonExistentCuid}`, {
         method: 'PUT',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ name: 'API Role Updated' })
       });
-      const putRes404 = await rolesCuidApi.PUT({ request: notFoundPut, params: { cuid: nonExistentCuid } });
+      const putRes404 = await rolesCuidApi.PUT({ request: notFoundPut, params: { roleCuid: nonExistentCuid } });
       expect(putRes404.status).toBe(404);
 
       // 9. PUT: 200 OK - Successful partial update
-      const validPutRequest = new Request(`http://localhost/api/roles/${cuid}`, {
+      const validPutRequest = new Request(`http://localhost/api/roles/roleCuid=${cuid}`, {
         method: 'PUT',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ name: 'API Role Updated' })
       });
-      const putRes200 = await rolesCuidApi.PUT({ request: validPutRequest, params: { cuid } });
+      const putRes200 = await rolesCuidApi.PUT({ request: validPutRequest, params: { roleCuid: cuid } });
       expect(putRes200.status).toBe(200);
 
       // 10. DELETE: 200 OK - Soft-delete
-      const deleteRes = await rolesCuidApi.DELETE({ params: { cuid } });
+      const deleteRes = await rolesCuidApi.DELETE({ params: { roleCuid: cuid } });
       expect(deleteRes.status).toBe(200);
 
       // Cleanup
@@ -132,8 +132,8 @@ describe('API Endpoint Integration Tests', () => {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           shift_name: 'API Shift',
-          start_time: '1970-01-01T09:00:00Z',
-          end_time: '1970-01-01T17:00:00Z',
+          start_time: '1970-01-01T10:00:00Z',
+          end_time: '1970-01-01T18:00:00Z',
           minimum_work_hours: 8
         })
       });
@@ -148,20 +148,20 @@ describe('API Endpoint Integration Tests', () => {
       expect(getRes.status).toBe(200);
 
       // 4. PUT: 200 OK
-      const validPutRequest = new Request(`http://localhost/api/shifts/${cuid}`, {
+      const validPutRequest = new Request(`http://localhost/api/shifts/shiftCuid=${cuid}`, {
         method: 'PUT',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ minimum_work_hours: 7.5 })
       });
-      const putRes = await shiftsCuidApi.PUT({ request: validPutRequest, params: { cuid } });
+      const putRes = await shiftsCuidApi.PUT({ request: validPutRequest, params: { shiftCuid: cuid } });
       expect(putRes.status).toBe(200);
 
       // 5. DELETE: 200 OK - Soft-delete
-      const deleteRes = await shiftsCuidApi.DELETE({ params: { cuid } });
+      const deleteRes = await shiftsCuidApi.DELETE({ params: { shiftCuid: cuid } });
       expect(deleteRes.status).toBe(200);
 
       // 6. PATCH: 200 OK - Activation
-      const patchRes = await shiftsCuidApi.PATCH({ params: { cuid } });
+      const patchRes = await shiftsCuidApi.PATCH({ params: { shiftCuid: cuid } });
       expect(patchRes.status).toBe(200);
 
       // Cleanup
@@ -196,20 +196,20 @@ describe('API Endpoint Integration Tests', () => {
       expect(getRes.status).toBe(200);
 
       // 3. PUT: 200 OK
-      const validPutRequest = new Request(`http://localhost/api/organization_location/${cuid}`, {
+      const validPutRequest = new Request(`http://localhost/api/organization_location/locationCuid=${cuid}`, {
         method: 'PUT',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ city: 'New API Town' })
       });
-      const putRes = await locationsCuidApi.PUT({ request: validPutRequest, params: { cuid } });
+      const putRes = await locationsCuidApi.PUT({ request: validPutRequest, params: { locationCuid: cuid } });
       expect(putRes.status).toBe(200);
 
       // 4. DELETE: 200 OK - Soft-delete
-      const deleteRes = await locationsCuidApi.DELETE({ params: { cuid } });
+      const deleteRes = await locationsCuidApi.DELETE({ params: { locationCuid: cuid } });
       expect(deleteRes.status).toBe(200);
 
       // 5. PATCH: 200 OK - Activation
-      const patchRes = await locationsCuidApi.PATCH({ params: { cuid } });
+      const patchRes = await locationsCuidApi.PATCH({ params: { locationCuid: cuid } });
       expect(patchRes.status).toBe(200);
 
       // Cleanup

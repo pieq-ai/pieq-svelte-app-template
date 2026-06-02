@@ -363,7 +363,7 @@
 		formLoading = true;
 		formError = '';
 		try {
-			const url = editShift ? `/api/shifts/${editShift.cuid}` : '/api/shifts';
+			const url = editShift ? `/api/shifts/shiftCuid=${editShift.cuid}` : '/api/shifts';
 			const method = editShift ? 'PUT' : 'POST';
 
 			const startTimeIso = `1970-01-01T${formStartTime}:00.000Z`;
@@ -410,7 +410,7 @@
 			isDestructive: true,
 			onConfirm: async () => {
 				try {
-					const res = await fetch(`/api/shifts/${cuid}`, { method: 'DELETE' });
+					const res = await fetch(`/api/shifts/shiftCuid=${cuid}`, { method: 'DELETE' });
 					const json = await res.json();
 					if (res.ok) {
 						await fetchShifts();
@@ -434,7 +434,7 @@
 			isDestructive: false,
 			onConfirm: async () => {
 				try {
-					const res = await fetch(`/api/shifts/${cuid}`, { method: 'PATCH' });
+					const res = await fetch(`/api/shifts/shiftCuid=${cuid}`, { method: 'PATCH' });
 					const json = await res.json();
 					if (res.ok) {
 						await fetchShifts();

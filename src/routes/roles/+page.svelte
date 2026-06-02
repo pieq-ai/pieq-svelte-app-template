@@ -282,7 +282,7 @@
 		formLoading = true;
 		formError = '';
 		try {
-			const url = editRole ? `/api/roles/${editRole.cuid}` : '/api/roles';
+			const url = editRole ? `/api/roles/roleCuid=${editRole.cuid}` : '/api/roles';
 			const method = editRole ? 'PUT' : 'POST';
 			const payload: any = { name: nameTrimmed };
 			if (editRole) {
@@ -320,7 +320,7 @@
 			isDestructive: true,
 			onConfirm: async () => {
 				try {
-					const res = await fetch(`/api/roles/${cuid}`, { method: 'DELETE' });
+					const res = await fetch(`/api/roles/roleCuid=${cuid}`, { method: 'DELETE' });
 					const json = await res.json();
 					if (res.ok) {
 						await fetchRoles();

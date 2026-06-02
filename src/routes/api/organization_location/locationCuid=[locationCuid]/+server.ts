@@ -1,4 +1,4 @@
-// src/routes/api/organization_location/[cuid]/+server.ts
+// src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as locationService from '$lib/server/services/organization_location.service.js';
 import { sendUpdated, sendDeleted } from '$lib/server/response.js';
@@ -26,7 +26,7 @@ function parseCuid(param: string | undefined): string {
  */
 export async function PUT({ request, params }) {
   try {
-    const cuid = parseCuid(params.cuid);
+    const cuid = parseCuid(params.locationCuid);
     const contentType = request.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       return json({ error: 'Content-Type must be application/json' }, { status: 415 });
@@ -53,7 +53,7 @@ export async function PUT({ request, params }) {
  */
 export async function PATCH({ params }) {
   try {
-    const cuid = parseCuid(params.cuid);
+    const cuid = parseCuid(params.locationCuid);
     const location = await locationService.activateLocation(cuid);
     return sendUpdated('Company Location', location.cuid);
   } catch (err: any) {
@@ -68,7 +68,7 @@ export async function PATCH({ params }) {
  */
 export async function DELETE({ params }) {
   try {
-    const cuid = parseCuid(params.cuid);
+    const cuid = parseCuid(params.locationCuid);
     const location = await locationService.deleteLocation(cuid);
     return sendDeleted('Company Location', location.cuid);
   } catch (err: any) {

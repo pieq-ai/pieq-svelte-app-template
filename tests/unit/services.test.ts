@@ -76,8 +76,8 @@ describe('Service Layer Unit Tests', () => {
       // 4. Update Shift with duplicate name throws 409
       const sibling = await shiftService.createShift({
         shift_name: 'Sibling Shift',
-        start_time: '1970-01-01T09:00:00Z',
-        end_time: '1970-01-01T17:00:00Z',
+        start_time: '1970-01-01T09:30:00Z',
+        end_time: '1970-01-01T17:30:00Z',
         minimum_work_hours: 8
       });
       await expect(shiftService.updateShift(shift.cuid, { shift_name: 'Sibling Shift' })).rejects.toThrow('Shift name already exists');

@@ -243,6 +243,17 @@
 
 	// Filter
 	let filterStatus = $state<'all' | 'active' | 'inactive'>('all');
+	let filterCountry = $state<string>('all');
+	let filterState = $state<string>('all');
+
+	$effect(() => {
+		if (filterCountry !== 'all') {
+			const activeStates = states.filter(s => s.country_cuid === filterCountry);
+			if (filterState !== 'all' && !activeStates.some(s => s.cuid === filterState)) {
+				filterState = 'all';
+			}
+		}
+	});
 
 	let totalPages = $derived(Math.max(1, Math.ceil(total / limit)));
 	let pageNumbers = $derived(Array.from({ length: totalPages }, (_, i) => i + 1));
@@ -313,6 +324,13 @@
 		let list = locations;
 		if (filterStatus === 'active') list = locations.filter((loc) => loc.is_active);
 		else if (filterStatus === 'inactive') list = locations.filter((loc) => !loc.is_active);
+
+		if (filterCountry !== 'all') {
+			list = list.filter((loc) => loc.country_cuid === filterCountry);
+		}
+		if (filterState !== 'all') {
+			list = list.filter((loc) => loc.state_cuid === filterState);
+		}
 
 		if (searchQuery.trim() !== '') {
 			const query = searchQuery.toLowerCase().trim();
@@ -485,7 +503,7 @@
 		}
 
 		try {
-			const url = editLocation ? `/api/organization_location/${editLocation.cuid}` : '/api/organization_location';
+			const url = editLocation ? `/api/organization_location/locationCuid=${editLocation.cuid}` : '/api/organization_location';
 			const method = editLocation ? 'PUT' : 'POST';
 			const payload: any = {
 				location_name: nameTrimmed,
@@ -532,7 +550,7 @@
 			isDestructive: true,
 			onConfirm: async () => {
 				try {
-					const res = await fetch(`/api/organization_location/${cuid}`, { method: 'DELETE' });
+					const res = await fetch(`/api/organization_location/locationCuid=${cuid}`, { method: 'DELETE' });
 					const json = await res.json();
 					if (res.ok) {
 						await fetchLocations();
@@ -556,7 +574,7 @@
 			isDestructive: false,
 			onConfirm: async () => {
 				try {
-					const res = await fetch(`/api/organization_location/${cuid}`, { method: 'PATCH' });
+					const res = await fetch(`/api/organization_location/locationCuid=${cuid}`, { method: 'PATCH' });
 					const json = await res.json();
 					if (res.ok) {
 						await fetchLocations();
@@ -659,6 +677,42 @@
 				<option value="inactive">Inactive</option>
 			</select>
 			<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-filter" style="position:absolute;right:14px;color:var(--muted-foreground);pointer-events:none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+		</div>
+
+		<!-- Country Filter -->
+		<div style="position:relative;display:flex;align-items:center;min-width:145px">
+			<select
+				bind:value={filterCountry}
+				class="filter-select"
+				id="location-country-filter"
+				style="width:100%;border:1px solid var(--border);background:var(--card);color:var(--foreground);font-size:14px;padding:9px 36px 9px 16px;border-radius:10px;outline:none;cursor:pointer;appearance:none;transition:border-color .2s;box-shadow:0 1px 2px rgba(0,0,0,0.02)"
+				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--pieq-primary)')}
+				onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+			>
+				<option value="all">All Countries</option>
+				{#each countries as c}
+					<option value={c.cuid}>{c.country_name}</option>
+				{/each}
+			</select>
+			<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe" style="position:absolute;right:14px;color:var(--muted-foreground);pointer-events:none"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+		</div>
+
+		<!-- State Filter -->
+		<div style="position:relative;display:flex;align-items:center;min-width:145px">
+			<select
+				bind:value={filterState}
+				class="filter-select"
+				id="location-state-filter"
+				style="width:100%;border:1px solid var(--border);background:var(--card);color:var(--foreground);font-size:14px;padding:9px 36px 9px 16px;border-radius:10px;outline:none;cursor:pointer;appearance:none;transition:border-color .2s;box-shadow:0 1px 2px rgba(0,0,0,0.02)"
+				onfocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--pieq-primary)')}
+				onblur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+			>
+				<option value="all">All States</option>
+				{#each (filterCountry === 'all' ? states : states.filter(s => s.country_cuid === filterCountry)) as s}
+					<option value={s.cuid}>{s.state_name}</option>
+				{/each}
+			</select>
+			<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map" style="position:absolute;right:14px;color:var(--muted-foreground);pointer-events:none"><path d="M14.1 6a2 2 0 0 0-3.6 0L3 20V6l7.5-4 7 4 3.5-2v14l-7.9 4Z"/></svg>
 		</div>
 
 		<button

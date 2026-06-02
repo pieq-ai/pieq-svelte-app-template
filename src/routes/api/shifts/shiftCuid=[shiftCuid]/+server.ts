@@ -1,4 +1,4 @@
-// src/routes/api/shifts/[cuid]/+server.ts
+// src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as shiftService from '$lib/server/services/shift.service.js';
 import { sendUpdated, sendDeleted } from '$lib/server/response.js';
@@ -26,7 +26,7 @@ function parseCuid(param: string | undefined): string {
  */
 export async function PUT({ request, params }) {
   try {
-    const cuid = parseCuid(params.cuid);
+    const cuid = parseCuid(params.shiftCuid);
     const contentType = request.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       return json({ error: 'Content-Type must be application/json' }, { status: 415 });
@@ -53,7 +53,7 @@ export async function PUT({ request, params }) {
  */
 export async function PATCH({ params }) {
   try {
-    const cuid = parseCuid(params.cuid);
+    const cuid = parseCuid(params.shiftCuid);
     const shift = await shiftService.activateShift(cuid);
     return sendUpdated('Shift', shift.cuid);
   } catch (err: any) {
@@ -68,7 +68,7 @@ export async function PATCH({ params }) {
  */
 export async function DELETE({ params }) {
   try {
-    const cuid = parseCuid(params.cuid);
+    const cuid = parseCuid(params.shiftCuid);
     const shift = await shiftService.deleteShift(cuid);
     return sendDeleted('Shift', shift.cuid);
   } catch (err: any) {

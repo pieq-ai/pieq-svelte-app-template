@@ -1,4 +1,4 @@
-// src/routes/api/roles/[cuid]/+server.ts
+// src/routes/api/roles/roleCuid=[roleCuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as roleService from '$lib/server/services/role.service.js';
 import { sendUpdated, sendDeleted } from '$lib/server/response.js';
@@ -26,7 +26,7 @@ function parseCuid(param: string | undefined): string {
  */
 export async function PUT({ request, params }) {
   try {
-    const cuid = parseCuid(params.cuid);
+    const cuid = parseCuid(params.roleCuid);
     if (request.headers.get('content-type')?.includes('application/json') === false) {
       return json({ error: 'Content-Type must be application/json' }, { status: 415 });
     }
@@ -45,7 +45,7 @@ export async function PUT({ request, params }) {
  */
 export async function DELETE({ params }) {
   try {
-    const cuid = parseCuid(params.cuid);
+    const cuid = parseCuid(params.roleCuid);
     const result = await roleService.deleteRole(cuid);
     return sendDeleted('Role', result.cuid);
   } catch (err: any) {
