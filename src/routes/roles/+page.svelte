@@ -148,8 +148,7 @@
 			if (sortDirection === 'asc') {
 				sortDirection = 'desc';
 			} else {
-				sortColumn = null;
-				sortDirection = null;
+				sortDirection = 'asc';
 			}
 		} else {
 			sortColumn = col;
@@ -580,25 +579,25 @@
 <!-- Create / Edit Modal -->
 <Modal bind:show={showForm} title={editRole ? 'Edit Role' : 'Create New Role'} onclose={attemptCloseForm}>
 	{#if showConfirmation}
-		<div style="position:fixed;inset:0;background:rgba(15,11,10,0.65);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box">
-			<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;width:100%;max-width:320px;box-shadow:0 10px 25px rgba(0,0,0,0.2);display:flex;flex-direction:column;gap:16px;text-align:center">
-				<h3 style="font-size:16px;font-weight:700;color:var(--foreground);margin:0">Unsaved Changes</h3>
-				<p style="font-size:13px;color:var(--muted-foreground);margin:0">You have unsaved modifications. Are you sure you want to discard them?</p>
-				<div style="display:flex;flex-direction:column;gap:8px">
-					<button
-						type="button"
-						onclick={discardChanges}
-						style="width:100%;padding:9px;border-radius:8px;background:#800020;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:opacity 0.15s"
-						onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.opacity = '0.9')}
-						onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.opacity = '1')}
-					>Discard Changes</button>
+		<div style="position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box">
+			<div style="background:#ffffff;border:none;border-radius:24px;padding:32px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,0.15);display:flex;flex-direction:column;gap:0;text-align:left;box-sizing:border-box">
+				<h3 style="font-size:22px;font-weight:700;color:#000000;margin:0 0 10px 0;font-family:'Inter Variable',sans-serif">Unsaved Changes</h3>
+				<p style="font-size:15px;color:#737373;margin:0 0 28px 0;line-height:1.5;font-family:'Inter Variable',sans-serif">You have unsaved changes. Do you want to continue editing or close without saving?</p>
+				<div style="display:flex;flex-direction:row;gap:12px;justify-content:flex-start;align-items:center">
 					<button
 						type="button"
 						onclick={continueEditing}
-						style="width:100%;padding:9px;border-radius:8px;background:none;border:1px solid var(--border);color:var(--foreground);font-size:13px;font-weight:600;cursor:pointer;transition:background 0.15s"
-						onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = 'var(--muted)')}
-						onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '')}
+						style="padding:10px 20px;border-radius:12px;background:#ffffff;border:1px solid #e5e7eb;color:#000000;font-size:15px;font-weight:600;cursor:pointer;transition:background 0.15s;font-family:'Inter Variable',sans-serif"
+						onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = '#f9fafb')}
+						onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '#ffffff')}
 					>Continue Editing</button>
+					<button
+						type="button"
+						onclick={discardChanges}
+						style="padding:10px 20px;border-radius:12px;background:#800020;border:none;color:#ffffff;font-size:15px;font-weight:600;cursor:pointer;transition:opacity 0.15s;font-family:'Inter Variable',sans-serif"
+						onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.opacity = '0.9')}
+						onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.opacity = '1')}
+					>Close Without Saving</button>
 				</div>
 			</div>
 		</div>
