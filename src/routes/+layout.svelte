@@ -116,10 +116,12 @@
 		<!-- Bottom section -->
 		<div class="space-y-2 border-t border-white/10 p-3">
 			{#if authenticatedUser}
+				{@const isSettingsActive = $page.url.pathname.startsWith(resolve('/settings'))}
 				<Button
 					href={resolve('/settings')}
 					variant="ghost"
-					class={`h-10 w-full justify-start gap-3 text-white hover:bg-hrms-tertiary hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+					aria-current={isSettingsActive ? 'page' : undefined}
+					class={`h-10 w-full justify-start gap-3 text-white hover:bg-hrms-primary hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isSettingsActive ? 'bg-hrms-primary font-semibold' : ''}`}
 					title={isSidebarCollapsed ? 'Settings' : undefined}
 					aria-label="Settings"
 				>
@@ -132,7 +134,7 @@
 					<Button
 						type="submit"
 						variant="ghost"
-						class={`h-10 w-full justify-start gap-3 text-white hover:bg-hrms-tertiary hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-hrms-destructive hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 						title={isSidebarCollapsed ? 'Sign out' : undefined}
 						aria-label="Sign out"
 					>

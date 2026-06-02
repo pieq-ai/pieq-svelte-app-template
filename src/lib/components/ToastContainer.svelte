@@ -23,9 +23,22 @@
 					</svg>
 				{/if}
 			</div>
-			<span class="text-sm font-semibold text-zinc-900 dark:text-zinc-50 leading-snug">
+			<span class="flex-1 text-sm font-semibold text-zinc-900 dark:text-zinc-50 leading-snug">
 				{item.message}
 			</span>
+			<button
+				type="button"
+				onclick={() => toast.dismiss(item.id)}
+				aria-label="Dismiss notification"
+				class="flex shrink-0 items-center justify-center rounded-full p-0.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
+			>
+				<!-- Inline SVG cross — avoids the global border-border conflict -->
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="18" y1="6" x2="6" y2="18" />
+					<line x1="6" y1="6" x2="18" y2="18" />
+				</svg>
+			</button>
 		</div>
 	{/each}
 </div>
+

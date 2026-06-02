@@ -20,7 +20,7 @@
 	--muted-foreground: oklch(0.556 0 0);
 	--accent: oklch(0.97 0 0);
 	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
+	--destructive: oklch(0.35 0.14 10);
 	--border: oklch(0.922 0 0);
 	--input: oklch(0.922 0 0);
 	--ring: oklch(0.708 0 0);
@@ -55,7 +55,7 @@
 	--muted-foreground: oklch(0.708 0 0);
 	--accent: oklch(0.269 0 0);
 	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
+	--destructive: oklch(0.52 0.17 10);
 	--border: oklch(1 0 0 / 10%);
 	--input: oklch(1 0 0 / 15%);
 	--ring: oklch(0.556 0 0);
@@ -81,6 +81,7 @@
 	--color-hrms-primary-dark: var(--hrms-primary-dark);
 	--color-hrms-secondary: var(--hrms-secondary);
 	--color-hrms-tertiary: var(--hrms-tertiary);
+	--color-hrms-destructive: var(--hrms-destructive);
 	--color-hrms-neutral: var(--hrms-neutral);
 	--color-hrms-sidebar-bg: var(--hrms-sidebar-bg);
 	--color-hrms-sidebar-text: var(--hrms-sidebar-text);
@@ -145,18 +146,22 @@
 :root {
 	--sidebar-w: 224px;
 	--sidebar-w-collapsed: 60px;
-	--hrms-primary: #C2652A;
-	--hrms-primary-dark: #a8531f;
-	--hrms-primary-rgb: 194 101 42;
+	/* Primary/Brand: #F45310 */
+	--hrms-primary: #F45310;
+	--hrms-primary-dark: #d4430a;
+	--hrms-primary-rgb: 244 83 16;
 	--hrms-secondary: #262626;
-	--hrms-tertiary: #8C3C3C;
+	/* Destructive/Logout: #800020 */
+	--hrms-tertiary: #800020;
+	--hrms-destructive: #800020;
+	--hrms-destructive-rgb: 128 0 32;
 	--hrms-neutral: #737373;
 	--hrms-sidebar-bg: #1a1a1a;
 	--hrms-sidebar-text: #d4d4d4;
 	--hrms-sidebar-text-muted: #737373;
 	--hrms-sidebar-hover: rgb(var(--hrms-primary-rgb) / 0.12);
 	--hrms-sidebar-active-bg: rgb(var(--hrms-primary-rgb) / 0.18);
-	--hrms-sidebar-active-border: #C2652A;
+	--hrms-sidebar-active-border: #F45310;
 	--hrms-sidebar-border: rgba(255,255,255,0.07);
 	--hrms-transition: 240ms cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -333,12 +338,12 @@
 
 /* Sign out specific */
 .signout-btn {
-	color: #e5817a;
+	color: rgb(var(--hrms-destructive-rgb) / 0.9);
 }
 .signout-btn:hover {
-	background: rgba(140,60,60,0.18);
-	color: #f87171;
-	border-left-color: var(--hrms-tertiary);
+	background: rgb(var(--hrms-destructive-rgb) / 0.15);
+	color: var(--hrms-destructive);
+	border-left-color: var(--hrms-destructive);
 }
 
 /* Sign in btn */
@@ -346,7 +351,7 @@
 	color: var(--hrms-primary);
 }
 .signin-btn:hover {
-	background: rgba(194,101,42,0.15);
+	background: rgb(var(--hrms-primary-rgb) / 0.15);
 	color: var(--hrms-primary);
 }
 

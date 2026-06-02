@@ -63,7 +63,7 @@
 		>
 			<div class="px-6 py-5 space-y-4">
 				<div class="flex items-start gap-4">
-					<div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20">
+					<div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-hrms-destructive/10 text-hrms-destructive border border-hrms-destructive/20">
 						<AlertTriangleIcon class="size-5" />
 					</div>
 					<div class="space-y-1.5">
@@ -79,19 +79,19 @@
 
 			<!-- Footer -->
 			<div class="flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800 px-6 py-4 bg-slate-50/50">
+				<!-- Primary safe action: keep editing -->
 				<Button
 					type="button"
-					variant="outline"
-					class="hover:bg-slate-100 border-slate-200"
+					class="bg-hrms-primary text-white hover:bg-hrms-primary-dark border-0 shadow-sm"
 					disabled={isConfirming}
 					onclick={oncancel}
 				>
 					{cancelText}
 				</Button>
+				<!-- Destructive action: discard -->
 				<Button
 					type="button"
-					variant="destructive"
-					class="shadow-sm shadow-destructive/10"
+					class="bg-hrms-destructive text-white hover:bg-hrms-destructive/90 border-0 shadow-sm"
 					disabled={isConfirming}
 					onclick={onconfirm}
 				>

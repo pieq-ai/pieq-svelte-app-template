@@ -261,7 +261,7 @@
 
       const res = await fetch(
         editingId
-          ? `/api/salary-components/${editingId}`
+          ? `/api/salary-components?salaryComponentCuid=${editingId}`
           : "/api/salary-components",
         {
           method: editingId ? "PUT" : "POST",
@@ -297,6 +297,27 @@
   let activeDropdown = $state<string | null>(null);
   /** cuid of the row whose kebab menu is currently open; null = none */
   let openKebabCuid = $state<string | null>(null);
+  /** The trigger element for the currently open kebab — used to track live position on scroll */
+  let kebabTriggerEl = $state<HTMLElement | null>(null);
+  /** Live-computed position derived from the trigger element's bounding rect */
+  let kebabPos = $state<{ top: number; left: number } | null>(null);
+
+  /** Recomputes kebabPos from the current bounding rect of the trigger element */
+  function updateKebabPos() {
+    if (!kebabTriggerEl) return;
+    const rect = kebabTriggerEl.getBoundingClientRect();
+    kebabPos = { top: rect.bottom + 4, left: rect.left + rect.width / 2 };
+  }
+
+  /** Re-anchor on scroll while a kebab is open */
+  $effect(() => {
+    if (!kebabTriggerEl) return;
+    updateKebabPos();
+    window.addEventListener('scroll', updateKebabPos, { passive: true, capture: true });
+    return () => {
+      window.removeEventListener('scroll', updateKebabPos, { capture: true });
+    };
+  });
 
   function toggleDropdown(name: string, e: MouseEvent) {
     e.stopPropagation();
@@ -310,12 +331,16 @@
   function closeAllDropdowns() {
     activeDropdown = null;
     openKebabCuid = null;
+    kebabTriggerEl = null;
+    kebabPos = null;
   }
 
   function handleKeydown(e: KeyboardEvent) {
     if (e.key === "Escape") {
       activeDropdown = null;
       openKebabCuid = null;
+      kebabTriggerEl = null;
+      kebabPos = null;
     }
   }
 </script>
@@ -531,8 +556,14 @@
                 class="h-8 w-8 text-muted-foreground hover:text-foreground mx-auto"
                 onclick={(e) => {
                   e.stopPropagation();
-                  openKebabCuid =
-                    openKebabCuid === comp.cuid ? null : comp.cuid;
+                  if (openKebabCuid === comp.cuid) {
+                    openKebabCuid = null;
+                    kebabTriggerEl = null;
+                    kebabPos = null;
+                  } else {
+                    kebabTriggerEl = e.currentTarget as HTMLElement;
+                    openKebabCuid = comp.cuid;
+                  }
                 }}
                 aria-label="Row actions"
                 title="Actions"
@@ -540,30 +571,6 @@
                 <MoreVerticalIcon class="size-4" />
               </Button>
 
-              <!-- Kebab dropdown containing ONLY Edit -->
-              {#if openKebabCuid === comp.cuid}
-                <div
-                  role="menu"
-                  tabindex="-1"
-                  transition:scale={{ start: 0.95, duration: 100 }}
-                  class="absolute right-1/2 translate-x-1/2 top-9 z-50 w-28 rounded-lg border border-border bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
-                  onclick={(e) => e.stopPropagation()}
-                  onkeydown={(e) => e.stopPropagation()}
-                >
-                  <!-- Edit -->
-                  <button
-                    type="button"
-                    onclick={() => {
-                      openKebabCuid = null;
-                      handleOpenEdit(comp);
-                    }}
-                    class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-                  >
-                    <PencilIcon class="size-3.5" />
-                    Edit
-                  </button>
-                </div>
-              {/if}
             </div>
           </TableCell>
         </TableRow>
@@ -578,6 +585,39 @@
     {/if}
   </Card>
 </div>
+
+<!-- Kebab action menu — position:fixed escapes table overflow clipping without needing a portal -->
+{#if openKebabCuid !== null && kebabPos !== null}
+  {@const activeCuid = openKebabCuid}
+  {@const pos = kebabPos}
+  {@const activeComp = pagedItems.find((c) => c.cuid === activeCuid)}
+  {#if activeComp}
+    <div
+      role="menu"
+      tabindex="-1"
+      transition:scale={{ start: 0.95, duration: 100 }}
+      style="position:fixed; top:{pos.top}px; left:{pos.left}px; transform:translateX(-50%); z-index:9999;"
+      class="w-28 rounded-lg border border-border bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
+      onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => e.stopPropagation()}
+    >
+      <button
+        type="button"
+        onclick={() => {
+          const comp = activeComp;
+          openKebabCuid = null;
+          kebabTriggerEl = null;
+          kebabPos = null;
+          handleOpenEdit(comp);
+        }}
+        class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+      >
+        <PencilIcon class="size-3.5" />
+        Edit
+      </button>
+    </div>
+  {/if}
+{/if}
 
 <!-- Create / Edit Modal -->
 <MasterFormModal
