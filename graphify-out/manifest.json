@@ -1,0 +1,472 @@
+{
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\components.json": {
+    "mtime": 1779874327.3732147,
+    "ast_hash": "eb13ec38531fba59bf65831df72a2c06",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\eslint.config.js": {
+    "mtime": 1779874327.3774812,
+    "ast_hash": "87f0eea244f98760a366c2dbfeb2c461",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\package.json": {
+    "mtime": 1779874327.3774812,
+    "ast_hash": "9576b53c683fb1cf5847bc92587d9047",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\playwright.config.ts": {
+    "mtime": 1779874327.3794897,
+    "ast_hash": "947fdd352e9d98b9fa9340a85cc84c22",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma.config.ts": {
+    "mtime": 1779874327.3804958,
+    "ast_hash": "2633c24dcf854c6db56cc17131477d65",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260529142010_init\\migration.sql": {
+    "mtime": 1780123297.129399,
+    "ast_hash": "884ae698b05a01304ee71adda78735dd",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\app.d.ts": {
+    "mtime": 1779882242.7662144,
+    "ast_hash": "18fb47bb27733ec7df5fc95b3aedb32f",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\hooks.client.js": {
+    "mtime": 1779874327.3900938,
+    "ast_hash": "bc6265d203faa0869bd04f3ae87ba0b3",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\hooks.server.js": {
+    "mtime": 1780123329.9160118,
+    "ast_hash": "7f562ea2c00e86eb8e7f15f32f8765b3",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\instrumentation.server.js": {
+    "mtime": 1779874327.3961735,
+    "ast_hash": "433c27588c28109057f226199c859c9d",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\api\\client.ts": {
+    "mtime": 1779874327.3961735,
+    "ast_hash": "6384b0f086c6c3f17c9d56f8881c81e4",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\auth\\index.ts": {
+    "mtime": 1779874327.4009745,
+    "ast_hash": "221f1a2d7178d4515c5591f5f950b830",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ConfirmDialog.svelte": {
+    "mtime": 1780462984.7420192,
+    "ast_hash": "c88836184283827c4e28d986e2841c54",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\MasterFormModal.svelte": {
+    "mtime": 1780399303.3195245,
+    "ast_hash": "cde3e9c29c1cdde138764f2576154dce",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\MasterTable.svelte": {
+    "mtime": 1780465025.968269,
+    "ast_hash": "cc7b7341d384e75b5b5cada66649437e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\Pagination.svelte": {
+    "mtime": 1780032456.2308178,
+    "ast_hash": "5cf4c2b6b94b77717b7e84a8d3ea92bd",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\SearchBar.svelte": {
+    "mtime": 1779881464.318113,
+    "ast_hash": "06597cf2e4aca1077a43f653a4a5adf8",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\StatusBadge.svelte": {
+    "mtime": 1779966977.4439936,
+    "ast_hash": "c21b067d7ee580bd3f3aee426a59c5da",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ToastContainer.svelte": {
+    "mtime": 1780394432.7715676,
+    "ast_hash": "87d0954ea177f4af31f2bd2045b02cb0",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\index.ts": {
+    "mtime": 1779975094.9609797,
+    "ast_hash": "ec8e9121f57e78d6fcc142d5560fb0bb",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\alert\\alert-action.svelte": {
+    "mtime": 1779874327.4044883,
+    "ast_hash": "40fd36cb3b5a704ede61d3fb5b648d07",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\alert\\alert-description.svelte": {
+    "mtime": 1779874327.4044883,
+    "ast_hash": "b4bfd5d3061df1615c013f1990c20c7d",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\alert\\alert-title.svelte": {
+    "mtime": 1779874327.411837,
+    "ast_hash": "d3ee78ce96bdb4b5e79f7e1450773ac5",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\alert\\alert.svelte": {
+    "mtime": 1779874327.411837,
+    "ast_hash": "383b70bb96ea4e3198be089b58864360",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\alert\\index.ts": {
+    "mtime": 1779874327.411837,
+    "ast_hash": "80d5e0732e426644b5ad8b8d371eba6b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\badge\\badge.svelte": {
+    "mtime": 1779874327.411837,
+    "ast_hash": "6656b5682e3035f955cd3f46095b4882",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\badge\\index.ts": {
+    "mtime": 1779874327.4164486,
+    "ast_hash": "9ce2e2a1c834765794e26afe1c994c88",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\button\\button.svelte": {
+    "mtime": 1779874327.4184625,
+    "ast_hash": "77fcb2b150ad34cea6794ee67729e15b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\button\\index.ts": {
+    "mtime": 1779874327.420477,
+    "ast_hash": "849937ba3d13c02ebf7490e485e38190",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\card\\card-action.svelte": {
+    "mtime": 1779874327.420477,
+    "ast_hash": "0f3ce2a2bdd98883db605652799ba48a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\card\\card-content.svelte": {
+    "mtime": 1779874327.4224906,
+    "ast_hash": "11b9f451a6415070beeb90415164dbf0",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\card\\card-description.svelte": {
+    "mtime": 1779874327.4224906,
+    "ast_hash": "67f2e221834bcaa1150626bb4bc8307f",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\card\\card-footer.svelte": {
+    "mtime": 1779874327.425418,
+    "ast_hash": "8d6662caf92cf14ad010cfca7248e660",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\card\\card-header.svelte": {
+    "mtime": 1779874327.427634,
+    "ast_hash": "2a644a720ceae93ff585030897463d4d",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\card\\card-title.svelte": {
+    "mtime": 1779874327.427634,
+    "ast_hash": "17d302982346a50d6ba601c7cc2a264f",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\card\\card.svelte": {
+    "mtime": 1779956807.766248,
+    "ast_hash": "c46f7994f27ef2815bc928e4161e73c7",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\card\\index.ts": {
+    "mtime": 1779874327.4315312,
+    "ast_hash": "95ef6973d7e2a2edfdbdae2766f2e0dc",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\input\\index.ts": {
+    "mtime": 1779874327.4315312,
+    "ast_hash": "dd6cbed034cbe30d515a9d292f110e0d",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\input\\input.svelte": {
+    "mtime": 1779874327.4335425,
+    "ast_hash": "1cdeb6fa3b575d5b147054a7d0468f62",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\label\\index.ts": {
+    "mtime": 1779874327.4348633,
+    "ast_hash": "c8b9bebedd6595022b205195ffab9df6",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\label\\label.svelte": {
+    "mtime": 1779874327.4348633,
+    "ast_hash": "45bb7762991c36be7a2622d166c92668",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\table\\index.ts": {
+    "mtime": 1779874327.438152,
+    "ast_hash": "7c7b6aaf881d953470b1534f4c76d7ce",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\table\\table-body.svelte": {
+    "mtime": 1779874327.438152,
+    "ast_hash": "97602b299d6f69e67b5041cf57ba400e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\table\\table-caption.svelte": {
+    "mtime": 1779874327.4412372,
+    "ast_hash": "ea161014d1ce53c293748714b32927cf",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\table\\table-cell.svelte": {
+    "mtime": 1779874327.443568,
+    "ast_hash": "eeed17cfe8d5fc7db197ad0056e748d0",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\table\\table-footer.svelte": {
+    "mtime": 1779874327.443568,
+    "ast_hash": "9ff147d74d1c9c55c4807239348714ce",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\table\\table-head.svelte": {
+    "mtime": 1779874327.4463634,
+    "ast_hash": "7da0aaae59d513c809dd8fb8ff4eb788",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\table\\table-header.svelte": {
+    "mtime": 1779874327.4463634,
+    "ast_hash": "1465be951d96c5faff4f816a70dd949c",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\table\\table-row.svelte": {
+    "mtime": 1779874327.4463634,
+    "ast_hash": "d97845dbc71f74ab8c5c8dea41c04043",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\components\\ui\\table\\table.svelte": {
+    "mtime": 1779874327.4463634,
+    "ast_hash": "1cca2f2aa84db51ebcb52eac0a608f97",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\config\\index.ts": {
+    "mtime": 1779874327.450764,
+    "ast_hash": "d4c2f4645fc883f334601335af99704e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\constants.ts": {
+    "mtime": 1779874327.450764,
+    "ast_hash": "0a85ca1015a27b3b32328200050cd26d",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\constants\\salary-component-type.ts": {
+    "mtime": 1780049032.9895241,
+    "ast_hash": "fba4933d2b7657eb050131c5485e7de5",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\index.ts": {
+    "mtime": 1779874327.450764,
+    "ast_hash": "01ef991b18c237594d7f9d78781e0f5e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\auth.js": {
+    "mtime": 1779874327.457476,
+    "ast_hash": "4bddcb63073cc1d69de1021e15c08bd2",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\config.js": {
+    "mtime": 1779874327.45921,
+    "ast_hash": "0c2d1683dd1fc808da2d3df10b1cae12",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\dao\\salary-component.dao.ts": {
+    "mtime": 1780463538.371258,
+    "ast_hash": "d91d68b82c0681924294911ac05ab292",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\db.ts": {
+    "mtime": 1780123309.2036612,
+    "ast_hash": "179d383c24c32424f3399952bd1797eb",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\serializers\\salary-component.serializer.ts": {
+    "mtime": 1780317804.658816,
+    "ast_hash": "c907f9a8c8920ff52577cf364a0c4fb1",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\services\\salary-component.service.ts": {
+    "mtime": 1780463567.5698688,
+    "ast_hash": "18b030f8a0fb16f69dc17357327cc4a3",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\validators\\salary-component.validator.ts": {
+    "mtime": 1780037385.062331,
+    "ast_hash": "5c62bb3c0b48042aac4449a9cd74714d",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\toast.svelte.ts": {
+    "mtime": 1779975079.0432115,
+    "ast_hash": "d4a4b7d9e16b615a6b1c964819ddcbae",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\types\\config.ts": {
+    "mtime": 1779874327.4640877,
+    "ast_hash": "7488589326552357ff11abbc047079e2",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\types\\oidc.ts": {
+    "mtime": 1779874327.4640877,
+    "ast_hash": "03c092b39d75cc91d98e6b8db1d947f5",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\types\\salary-component.ts": {
+    "mtime": 1780321592.9969778,
+    "ast_hash": "9b187205c60df41b961470b82abd2b4c",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\types\\user.ts": {
+    "mtime": 1779874327.4673133,
+    "ast_hash": "0e63865820d445e65224029a30e4ae2a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\utils.ts": {
+    "mtime": 1779874327.4693258,
+    "ast_hash": "4d01a73d6c0ff471a574cbed7303e2d6",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\validators\\salary-component.ts": {
+    "mtime": 1779954125.5222228,
+    "ast_hash": "9afffb8cb136e4368794ab4ccad327bf",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\params\\uuid.ts": {
+    "mtime": 1779874327.4693258,
+    "ast_hash": "b69abc94d5fa97910734907cab8cb089",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\+layout.server.ts": {
+    "mtime": 1779874327.4726777,
+    "ast_hash": "428d3427a9414706bd97ecb654269036",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\+layout.svelte": {
+    "mtime": 1780397883.3004956,
+    "ast_hash": "934cb779c8ee4686df56c3f2c5fc32fa",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\+page.svelte": {
+    "mtime": 1779874327.474692,
+    "ast_hash": "74149283c43d64c98ecf69ad82c3b40d",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\api\\salary-components\\+server.ts": {
+    "mtime": 1780394472.6579442,
+    "ast_hash": "113eb13077052036b53e244f3951de0a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\api\\salary-components\\[id]\\+server.ts": {
+    "mtime": 1780317358.422535,
+    "ast_hash": "026a4965ceef22d8c13b15295f535429",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\auth\\signin\\+page.svelte": {
+    "mtime": 1779874327.474692,
+    "ast_hash": "1772b1d18512b5ab2ee9e4b7880cd65b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\dashboard\\+page.server.ts": {
+    "mtime": 1779874327.481827,
+    "ast_hash": "75133fb7fede8a6171742eca7ae4f3bb",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\dashboard\\+page.svelte": {
+    "mtime": 1779874327.481827,
+    "ast_hash": "2afbff7764282695ca3f9b73aeb131d2",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\dashboard\\[id=uuid]\\+page.server.ts": {
+    "mtime": 1779874327.481827,
+    "ast_hash": "61e82102f031dbb380c1e37b9e62ab72",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\dashboard\\[id=uuid]\\+page.svelte": {
+    "mtime": 1779874327.485787,
+    "ast_hash": "746e2989ff6a041fbfca376032aeda76",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\salary-components\\+page.svelte": {
+    "mtime": 1780465265.2091475,
+    "ast_hash": "cead27f1e21f71975437ea9dfb47d26e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\settings\\+page.svelte": {
+    "mtime": 1779948993.1365302,
+    "ast_hash": "6d1c677065157113301030e3d4a5f865",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\service-worker.js": {
+    "mtime": 1779874327.4926474,
+    "ast_hash": "9ff172672239467fbbff4130695185a6",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\svelte.config.js": {
+    "mtime": 1779874327.496677,
+    "ast_hash": "d28a87dfe5093876060b428f66e5da7d",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\e2e\\dashboard.spec.ts": {
+    "mtime": 1779874327.5014558,
+    "ast_hash": "2cfc17fb0a0a9afcc52120fdd6efa034",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\config.test.ts": {
+    "mtime": 1779874327.5034688,
+    "ast_hash": "22640121a2eab5480e5bd33e20a94ec1",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\constants.test.ts": {
+    "mtime": 1779874327.50642,
+    "ast_hash": "43a03167291d0a79de5eea213f26df2e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\salary-component.validator.test.ts": {
+    "mtime": 1780037418.0501652,
+    "ast_hash": "1a6b9f1bc03bbda2f1f0d7e1d06809d1",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tsconfig.json": {
+    "mtime": 1779874327.50642,
+    "ast_hash": "8c140b518df24278a8aa09a661d3378a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\vite.config.ts": {
+    "mtime": 1780127158.0417235,
+    "ast_hash": "82dc567173a75d981a60936e9289b8c0",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\README.md": {
+    "mtime": 1779874327.3732147,
+    "ast_hash": "52789e043c70742690908ed0f5ff8fb0",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\app.html": {
+    "mtime": 1779874327.3880572,
+    "ast_hash": "fcebbb17486417f9bda8120e5ae448d8",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\error.html": {
+    "mtime": 1779874327.3900938,
+    "ast_hash": "431b9bcb7a44ead6a0c13ed00db638c5",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\static\\robots.txt": {
+    "mtime": 1779874327.496677,
+    "ast_hash": "17fb6d5f32c1874fae9a6bad26f1fcff",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\assets\\favicon.svg": {
+    "mtime": 1780296756.9831223,
+    "ast_hash": "15f30d0f7ec6406e757063c79c42177d",
+    "semantic_hash": ""
+  }
+}
