@@ -16,7 +16,7 @@ Use this template to build full-stack features quickly while keeping a clear sep
 | Auth | [Auth.js](https://authjs.dev/) + Keycloak OIDC |
 | Deployment | `@sveltejs/adapter-node` (Node.js) |
 
-**Working example included:** the `/employees` page and `/api/employees` endpoint demonstrate the full stack — UI → API route → DAO → PostgreSQL — without requiring sign-in.
+**Working example included:** the `/employees` page (SSR load + form action) and `/api/employees` endpoint demonstrate the full stack — UI → Controller → Service → DAO → PostgreSQL — without requiring sign-in. The page works with JavaScript disabled.
 
 ---
 
@@ -106,15 +106,22 @@ The dev port is derived from `APP_URL` in `.env`. If port 5173 is busy, Vite pic
 
 ### High-level request flow
 
+The template demonstrates two complementary patterns. **Prefer pattern A** for in-app pages; reserve pattern B for external/REST clients.
+
+**A. Server-rendered page with form actions (`/employees`):**
+
 ```
 Browser (+page.svelte)
-    │  fetch('/api/employees')
+    │  receives SSR'd data on first paint; form posts to ?/create
     ▼
-API route (+server.ts)          ← HTTP layer: parse body, status codes, JSON shape
-    │  employeeDao.list()
++page.server.ts                 ← Controller: load() + actions
+    │  employeeService.listEmployees() / createEmployee(input)
     ▼
-DAO ($lib/server/dao)           ← database queries only
-    │  db.employee.findMany()
+Service ($lib/server/services)  ← Validation, orchestration, typed errors
+    │  employeeDao.list() / create(data)
+    ▼
+DAO ($lib/server/dao)           ← Prisma queries only
+    │  db.employee.findMany() / create()
     ▼
 Prisma client (src/lib/server/db.ts)
     │  @prisma/adapter-pg + pg driver
@@ -122,22 +129,37 @@ Prisma client (src/lib/server/db.ts)
 PostgreSQL
 ```
 
-For authenticated pages (e.g. `/dashboard`), SvelteKit **load functions** in `+page.server.ts` run on the server instead of client `fetch`, and `hooks.server.js` attaches the session before the route handler runs.
+**B. REST endpoint for external clients (`/api/employees`):**
+
+```
+External client (curl, browser fetch)
+    │  GET/POST /api/employees (JSON)
+    ▼
++server.ts                      ← HTTP layer: JSON parse, status codes
+    │  employeeService.list() / create()
+    ▼
+Service → DAO → Prisma → PostgreSQL  (same path as above)
+```
+
+For authenticated pages (e.g. `/dashboard`), `hooks.server.js` attaches the Auth.js session to `event.locals` before the route handler runs, and `+page.server.ts` `load` enforces access.
 
 ### Layered architecture
 
 ```
 View          +page.svelte, $lib/components
-              Renders UI; calls API routes or receives data from load functions
+              Renders UI; receives data from load functions; submits via form actions
 
-Controller    +page.server.ts, +server.ts
-              HTTP concerns: request/response, validation, status codes
+Controller    +page.server.ts (load + actions), +server.ts (REST)
+              HTTP / form-data concerns: parse, status codes, redirects, fail()
 
 Service       $lib/server/services/*.service.ts
-              Business rules, orchestration (used by auth/user flows)
+              Input validation, business rules, orchestration.
+              Throws typed errors (e.g. EmployeeValidationError) that controllers
+              translate to 400 / fail(400).
 
 DAO           $lib/server/dao/*.dao.ts
-              Prisma queries only — no HTTP, no UI logic
+              Prisma queries only — no HTTP, no validation, no UI logic.
+              Errors propagate to the service layer.
 
 Database      PostgreSQL via Prisma
 ```
@@ -150,26 +172,30 @@ This is the simplest path to understand the template:
 
 | File | Role |
 | --- | --- |
-| [`src/routes/employees/+page.svelte`](src/routes/employees/+page.svelte) | UI: loads list on mount, POSTs new employees |
-| [`src/routes/api/employees/+server.ts`](src/routes/api/employees/+server.ts) | REST handler: `GET` list, `POST` create |
-| [`src/lib/server/dao/employee.dao.ts`](src/lib/server/dao/employee.dao.ts) | `list()` and `create()` Prisma calls |
+| [`src/routes/employees/+page.svelte`](src/routes/employees/+page.svelte) | UI: reads SSR'd `data.employees`, submits create via `<form action="?/create" use:enhance>` |
+| [`src/routes/employees/+page.server.ts`](src/routes/employees/+page.server.ts) | Controller (page): `load()` + `actions.create` |
+| [`src/routes/api/employees/+server.ts`](src/routes/api/employees/+server.ts) | Controller (REST): `GET` list, `POST` create |
+| [`src/lib/server/services/employee.service.ts`](src/lib/server/services/employee.service.ts) | Service: validation + `listEmployees()` / `createEmployee()` |
+| [`src/lib/server/dao/employee.dao.ts`](src/lib/server/dao/employee.dao.ts) | DAO: thin Prisma wrapper |
 | [`src/lib/server/db.ts`](src/lib/server/db.ts) | Singleton Prisma client |
 | [`prisma/schema.prisma`](prisma/schema.prisma) | `Employee` model → `employees` table |
 
-**Data flow on page load:**
+**Data flow on page load (SSR):**
 
-1. `onMount` in `+page.svelte` calls `GET /api/employees`
-2. `+server.ts` calls `employeeDao.list()`
-3. DAO runs `db.employee.findMany()`
-4. Response: `{ "data": [ { "id", "uuid", "name", "age" }, ... ] }`
-5. UI binds the array to the table
+1. SvelteKit calls `load()` in `+page.server.ts`
+2. `load()` calls `employeeService.listEmployees()` → `employeeDao.list()` → Prisma
+3. HTML is rendered server-side with the table populated; first paint shows the data
+4. `+page.svelte` consumes `data.employees`
 
-**Data flow on form submit:**
+**Data flow on form submit (works without JS):**
 
-1. Form POSTs JSON `{ "name", "age" }` to `/api/employees`
-2. API validates input, calls `employeeDao.create()`
-3. Response: `{ "data": { "id", "uuid", "name", "age" } }` with status `201`
-4. UI prepends the new row without a full page reload
+1. Form posts `multipart/form-data` to `?/create`
+2. `actions.create` reads `FormData`, calls `employeeService.createEmployee({ name, age })`
+3. Service validates input. On failure → `fail(400, { error, field, name, age })`
+4. On success → returns `{ created: {...} }`; `use:enhance` optimistically prepends the row and calls `update({ reset: true })`
+5. Without JS: SvelteKit re-runs `load()` and re-renders the page server-side — the new row appears after a normal navigation
+
+**External REST clients** (curl, third-party apps) still use `/api/employees` for `GET` / `POST`. Both controllers delegate to the same service, so validation and shape are identical.
 
 ### Database and Prisma
 
@@ -181,7 +207,7 @@ Auth user profile comes from the Keycloak session (see `$lib/types/user.ts`), no
 
 **Connection URL** is read from `DATABASE_URL` in [`.env`](.env), wired through [`prisma.config.ts`](prisma.config.ts) (Prisma 7 style — not in `schema.prisma`).
 
-**Generated client** output: `src/generated/prisma/`. Regenerate after every schema change:
+**Generated client** output: `src/lib/generated/prisma/` (so `$lib/generated/...` resolves). Regenerate after every schema change:
 
 ```bash
 yarn db:generate
@@ -286,29 +312,29 @@ Base path: `/api/employees`
 
 Copy [`.env.example`](.env.example) to `.env`.
 
+### Required (read by `getAppConfig()` on every server load)
+
+| Variable | Purpose | Example |
+| --- | --- | --- |
+| `APP_URL` | Public app origin (redirects, dev port) | `http://localhost:5173` |
+| `API_BASE_URL` | External Pieq API base URL | `https://preprod.api.pieq.ai/` |
+| `OIDC_URL` | Keycloak base URL | `https://preprod.auth.pieq.ai/` |
+| `OIDC_REALM` | Keycloak realm | `pieq-sso` |
+| `OIDC_CLIENT_ID` | OIDC client ID | `pieq-app` |
+
 ### Required for database features
 
 | Variable | Purpose | Example |
 | --- | --- | --- |
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:password@localhost:5432/postgres` |
 
-### Required for authentication
+### Required for authentication (Keycloak sign-in)
 
 | Variable | Purpose | Example |
 | --- | --- | --- |
-| `APP_URL` | Public app origin (redirects, dev port) | `http://localhost:5173` |
 | `AUTH_SECRET` | Auth.js session encryption | `openssl rand -base64 32` |
-| `OIDC_URL` | Keycloak base URL | `https://preprod.auth.pieq.ai/` |
-| `OIDC_REALM` | Keycloak realm | `pieq-sso` |
-| `OIDC_CLIENT_ID` | OIDC client ID | `pieq-app` |
 | `OIDC_CLIENT_SECRET` | Keycloak client secret (server only) | from Keycloak admin |
 | `AUTH_TRUST_HOST` | Trust proxy host in dev/deploy | `true` |
-
-### Optional / integration
-
-| Variable | Purpose | Default |
-| --- | --- | --- |
-| `API_BASE_URL` | External Pieq API base URL | `https://preprod.api.pieq.ai/` |
 
 ### `APP_URL` per environment
 
@@ -346,7 +372,10 @@ src/
 │   │   ├── config.js               # Env → server config
 │   │   ├── db.ts                   # Prisma singleton
 │   │   ├── dao/
-│   │   │   └── employee.dao.ts
+│   │   │   └── employee.dao.ts     # Thin Prisma wrapper
+│   │   └── services/
+│   │       └── employee.service.ts # Validation + orchestration
+│   ├── generated/prisma/           # Generated Prisma client (do not edit)
 │   ├── config/                     # Client runtime config reader
 │   ├── auth/                       # Client OIDC helpers
 │   ├── api/client.ts               # External Pieq API client
@@ -355,10 +384,11 @@ src/
 │   │   ├── index.ts                # Re-exports shadcn UI components
 │   │   └── ui/                     # shadcn-svelte components (button, input, card, …)
 │   └── types/
-├── generated/prisma/               # Generated Prisma client (do not edit)
 ├── routes/
-│   ├── employees/+page.svelte      # Employees UI (client fetch → API)
-│   ├── api/employees/+server.ts    # Employees REST API
+│   ├── employees/
+│   │   ├── +page.svelte            # SSR table + use:enhance create form
+│   │   └── +page.server.ts         # load() + actions.create
+│   ├── api/employees/+server.ts    # Employees REST API (delegates to service)
 │   ├── dashboard/                  # Protected example route
 │   └── auth/signin/                # Custom sign-in page
 ├── hooks.server.js                 # Auth, locals, route guard
@@ -375,14 +405,16 @@ prisma/
 
 ## Adding a new feature
 
-Use the employees module as a template:
+Use the employees module as a template — follow every step:
 
 1. **Schema** — add a model in `prisma/schema.prisma`, then `yarn db:migrate` and `yarn db:generate`
-2. **DAO** — add queries in `$lib/server/dao/<entity>.dao.ts`
-3. **Service** (optional) — add business logic in `$lib/server/services/<entity>.service.ts`
-4. **API** — add `$lib/server`-backed route in `src/routes/api/<entity>/+server.ts`
-5. **UI** — add `+page.svelte` (and optionally `+page.server.ts` for SSR load)
-6. **Restart dev server** after Prisma schema changes
+2. **DAO** — add queries in `$lib/server/dao/<entity>.dao.ts`. Keep it thin: Prisma calls only, errors propagate.
+3. **Service** — add validation + orchestration in `$lib/server/services/<entity>.service.ts`. Throw typed errors (e.g. `XxxValidationError`) for client-fixable problems.
+4. **Page Controller** (preferred for in-app UI) — add `+page.server.ts` with `load()` (calls the service) and `actions` (form-action create/update/delete). Pages built this way work without JS.
+5. **REST Controller** (only when you need external HTTP access) — add `src/routes/api/<entity>/+server.ts`. Translate `XxxValidationError` to HTTP 400.
+6. **View** — add `+page.svelte`. Consume `data` from `load`; submit via `<form action="?/...">` + `use:enhance`. Avoid `onMount` + client `fetch` for in-app pages.
+7. **Test** — add `tests/unit/<entity>.service.test.ts` with the DAO mocked via `vi.mock`.
+8. **Restart dev server** after Prisma schema changes so the cached client picks up the new model.
 
 For external Pieq API calls from the browser, use `$lib/api/client` after the layout has set `window.__PIEQ_CONFIG__`.
 
@@ -660,10 +692,30 @@ For Vercel, Netlify, or Cloudflare, swap the adapter in `svelte.config.js` and v
 
 ## Testing
 
-- **Unit:** `tests/unit/` — config, service layer with mocked DAOs
+- **Unit:** `tests/unit/`
+  - [`config.test.ts`](tests/unit/config.test.ts) — env loading + Keycloak issuer derivation
+  - [`constants.test.ts`](tests/unit/constants.test.ts) — auth callback URL builder
+  - [`employee.service.test.ts`](tests/unit/employee.service.test.ts) — service-layer validation with `vi.mock`ed DAO
 - **E2E:** `tests/e2e/` — unauthenticated dashboard redirect
 
 Authenticated e2e flows require Keycloak in CI (test realm + secrets).
+
+---
+
+## Roadmap
+
+Known gaps tracked for follow-up PRs. Contributions welcome.
+
+| Tag | Item |
+| --- | --- |
+| **H5** | Inject `window.__PIEQ_CONFIG__` synchronously via `app.html` instead of a client `$effect` (eliminates first-paint race) |
+| **H7** | Replace `localStorage` OIDC token mirror with a server-side proxy route (`/api/proxy/[...path]`); tokens never reach the browser |
+| **M2** | Migrate remaining `*.js` files (`auth`, `config`, hooks) to TypeScript |
+| **M3** | Add `+error.svelte` for themed error pages |
+| **M6** | Re-theme shadcn palette to Pieq orange |
+| **M7** | Add a Prisma seed script for first-run demo data |
+| **L6** | `docker-compose.yml` with Postgres for local dev |
+| **L7** | GitHub Actions CI (`check` + `lint` + `test:unit` on PRs) |
 
 ---
 
