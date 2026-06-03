@@ -1,45 +1,41 @@
 import { json } from '@sveltejs/kit';
-import type { RequestEvent } from '@sveltejs/kit';
-import * as employeeDao from '$lib/server/dao/employee.dao';
-import * as permissionGuard from '$lib/server/guards/permission.guard.js';
-import { toEmployeeDTO } from '$lib/server/utils/mapping.js';
+import type { RequestHandler } from './$types';
+import {
+	createEmployee,
+	EmployeeValidationError,
+	listEmployees
+} from '$lib/server/services/employee.service';
 
-function getErrorStatus(message: string, fallback = 500) {
-	return message === 'Unauthorized' ? 401 : fallback;
-}
-
-export async function GET(event: RequestEvent) {
+export const GET: RequestHandler = async () => {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
-
-		const employees = await employeeDao.list();
-		return json({ data: employees.map(toEmployeeDTO) });
+		const employees = await listEmployees();
+		return json({ data: employees });
 	} catch (error) {
-		const message = (error as Error).message;
-		return json({ error: message }, { status: getErrorStatus(message) });
+		console.error('GET /api/employees failed', error);
+		return json({ error: 'Failed to list employees' }, { status: 500 });
 	}
 };
 
-export async function POST(event: RequestEvent) {
+export const POST: RequestHandler = async ({ request }) => {
+	let body: unknown;
+
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		body = await request.json();
+	} catch {
+		return json({ error: 'Request body must be valid JSON' }, { status: 400 });
+	}
 
-		const { request } = event;
-		const body = await request.json();
-		const { name, age } = body;
+	const { name, age } = (body ?? {}) as { name?: unknown; age?: unknown };
 
-		if (!name || typeof name !== 'string') {
-			return json({ error: 'Name is required and must be a string' }, { status: 400 });
-		}
-
-		if (age === undefined || isNaN(Number(age))) {
-			return json({ error: 'Age is required and must be a valid number' }, { status: 400 });
-		}
-
-		const employee = await employeeDao.create({ name, age: Number(age) });
-		return json({ data: { cuid: employee.cuid, message: 'Successfully created' } }, { status: 201 });
+	try {
+		const employee = await createEmployee({ name, age });
+		return json({ data: employee }, { status: 201 });
 	} catch (error) {
-		const message = (error as Error).message;
-		return json({ error: message }, { status: getErrorStatus(message) });
+		if (error instanceof EmployeeValidationError) {
+			return json({ error: error.message, field: error.field }, { status: 400 });
+		}
+
+		console.error('POST /api/employees failed', error);
+		return json({ error: 'Failed to create employee' }, { status: 500 });
 	}
 };

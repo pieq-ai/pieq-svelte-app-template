@@ -1,28 +1,11 @@
 -- CreateTable
-CREATE TABLE "employee" (
-    "id" BIGSERIAL NOT NULL,
-    "emp_code" VARCHAR(20) NOT NULL,
-    "cuid" TEXT NOT NULL,
-    "first_name" VARCHAR(100) NOT NULL,
-    "last_name" VARCHAR(100) NOT NULL,
-    "dob" DATE NOT NULL,
-    "gender" VARCHAR(100) NOT NULL,
-    "blood_group_cuid" TEXT NOT NULL,
-    "marital_status" VARCHAR(100) NOT NULL,
-    "nationality_cuid" TEXT NOT NULL,
-    "mobile_no" VARCHAR(15) NOT NULL,
-    "personal_email" VARCHAR(255) NOT NULL,
-    "aadhar_no" VARCHAR(12) NOT NULL,
-    "pan_no" VARCHAR(10) NOT NULL,
-    "emergency_contact_name" VARCHAR(150),
-    "emergency_contact_no" VARCHAR(15),
-    "relation_cuid" TEXT,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "created_by" VARCHAR(100),
-    "updated_at" TIMESTAMPTZ NOT NULL,
-    "updated_by" VARCHAR(100),
+CREATE TABLE "employees" (
+    "id" SERIAL NOT NULL,
+    "uuid" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "age" INTEGER NOT NULL,
 
-    CONSTRAINT "employee_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "employees_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -248,25 +231,7 @@ CREATE TABLE "languages" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "employee_emp_code_key" ON "employee"("emp_code");
-
--- CreateIndex
-CREATE UNIQUE INDEX "employee_cuid_key" ON "employee"("cuid");
-
--- CreateIndex
-CREATE UNIQUE INDEX "employee_mobile_no_key" ON "employee"("mobile_no");
-
--- CreateIndex
-CREATE UNIQUE INDEX "employee_personal_email_key" ON "employee"("personal_email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "employee_aadhar_no_key" ON "employee"("aadhar_no");
-
--- CreateIndex
-CREATE UNIQUE INDEX "employee_pan_no_key" ON "employee"("pan_no");
-
--- CreateIndex
-CREATE INDEX "employee_cuid_idx" ON "employee"("cuid");
+CREATE UNIQUE INDEX "employees_uuid_key" ON "employees"("uuid");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "system_roles_cuid_key" ON "system_roles"("cuid");
@@ -414,15 +379,6 @@ CREATE UNIQUE INDEX "languages_languages_name_key" ON "languages"("languages_nam
 
 -- CreateIndex
 CREATE INDEX "languages_cuid_idx" ON "languages"("cuid");
-
--- AddForeignKey
-ALTER TABLE "employee" ADD CONSTRAINT "employee_blood_group_cuid_fkey" FOREIGN KEY ("blood_group_cuid") REFERENCES "blood_group"("cuid") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "employee" ADD CONSTRAINT "employee_nationality_cuid_fkey" FOREIGN KEY ("nationality_cuid") REFERENCES "nationality"("cuid") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "employee" ADD CONSTRAINT "employee_relation_cuid_fkey" FOREIGN KEY ("relation_cuid") REFERENCES "relation_type"("cuid") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "role_permission" ADD CONSTRAINT "role_permission_system_role_cuid_fkey" FOREIGN KEY ("system_role_cuid") REFERENCES "system_roles"("cuid") ON DELETE RESTRICT ON UPDATE CASCADE;

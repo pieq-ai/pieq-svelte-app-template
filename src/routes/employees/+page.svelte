@@ -1,12 +1,9 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { enhance } from '$app/forms';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
-	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
-	import { createDirtyChecker } from '$lib/utils';
 	import {
 		Alert,
 		AlertDescription,
@@ -14,7 +11,6 @@
 		Button,
 		Card,
 		CardContent,
-		CrudModal,
 		CardDescription,
 		CardHeader,
 		CardTitle,
@@ -27,47 +23,46 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components';
+	import type { PageData, ActionData } from './$types';
 
-	let employeesList = $state<Array<{ cuid: string; name: string; age: number }>>([]);
-	let isLoading = $state(true);
-	let loadError = $state('');
+	let { data, form }: { data: PageData; form: ActionData } = $props();
+
+	type Employee = PageData['employees'][number];
+	type SortColumn = 'id' | 'name' | 'age';
+
+	let employees: Employee[] = $derived([...data.employees]);
 
 	let searchQuery = $state('');
-	let sortColumn = $state('name');
+	let sortColumn = $state<SortColumn>('id');
 	let sortDirection = $state<'asc' | 'desc'>('asc');
 
-	let newName = $state('');
-	let newAge = $state('');
+	let newName: string = $derived(
+		form && 'name' in form && typeof form.name === 'string' ? form.name : ''
+	);
+	let newAge: string = $derived(
+		form && 'age' in form && typeof form.age === 'string' ? form.age : ''
+	);
 	let isSubmitting = $state(false);
-	let errorMessage = $state('');
 	let successMessage = $state('');
-	let isCreateModalOpen = $state(false);
 
-	const dirtyChecker = createDirtyChecker<{ name: string; age: string }>();
-	let isDirty = $derived(dirtyChecker.isDirty({ name: newName.trim(), age: newAge }));
-
-	function openCreateModal() {
-		newName = '';
-		newAge = '';
-		dirtyChecker.snapshot({ name: '', age: '' });
-		isCreateModalOpen = true;
-	}
+	let formError = $derived(form && 'error' in form ? form.error : null);
 
 	let filteredEmployees = $derived.by(() => {
-		let result = [...employeesList];
+		let result = [...employees];
 
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
 			result = result.filter(
 				(emp) =>
 					emp.name.toLowerCase().includes(query) ||
-					emp.cuid.toLowerCase().includes(query)
+					emp.uuid.toLowerCase().includes(query) ||
+					emp.id.toString().includes(query)
 			);
 		}
 
 		result.sort((a, b) => {
-			const valA = a[sortColumn as keyof typeof a];
-			const valB = b[sortColumn as keyof typeof b];
+			const valA = a[sortColumn];
+			const valB = b[sortColumn];
 
 			if (typeof valA === 'string' && typeof valB === 'string') {
 				return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
@@ -81,42 +76,17 @@
 		return result;
 	});
 
-	let totalEmployees = $derived(employeesList.length);
+	let totalEmployees = $derived(employees.length);
 	let averageAge = $derived(
 		totalEmployees > 0
-			? Math.round(employeesList.reduce((acc, emp) => acc + emp.age, 0) / totalEmployees)
+			? Math.round(employees.reduce((acc, emp) => acc + emp.age, 0) / totalEmployees)
 			: 0
 	);
 	let maxAge = $derived(
-		totalEmployees > 0 ? Math.max(...employeesList.map((e) => e.age)) : 0
+		totalEmployees > 0 ? Math.max(...employees.map((e) => e.age)) : 0
 	);
 
-	async function loadEmployees() {
-		isLoading = true;
-		loadError = '';
-
-		try {
-			const response = await fetch('/api/employees');
-			const resData = await response.json();
-
-			if (response.ok) {
-				employeesList = resData.data ?? [];
-			} else {
-				loadError = resData.error || 'Failed to load employees.';
-			}
-		} catch (err) {
-			loadError = 'An error occurred while loading employees.';
-			console.error(err);
-		} finally {
-			isLoading = false;
-		}
-	}
-
-	onMount(() => {
-		loadEmployees();
-	});
-
-	function handleSort(column: string) {
+	function handleSort(column: SortColumn) {
 		if (sortColumn === column) {
 			sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
 		} else {
@@ -125,51 +95,9 @@
 		}
 	}
 
-	function sortIndicator(column: string) {
+	function sortIndicator(column: SortColumn) {
 		if (sortColumn !== column) return '';
 		return sortDirection === 'asc' ? '↑' : '↓';
-	}
-
-	async function handleAddEmployee(e: Event) {
-		e.preventDefault();
-		if (!isDirty) return;
-		const ageValue = Number(newAge);
-		if (!newName.trim() || newAge === '' || newAge == null || isNaN(ageValue)) {
-			errorMessage = 'Please provide both Name and Age.';
-			return;
-		}
-
-		errorMessage = '';
-		successMessage = '';
-		isSubmitting = true;
-
-		try {
-			const response = await fetch('/api/employees', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name: newName.trim(), age: ageValue })
-			});
-
-			const resData = await response.json();
-
-			if (response.ok && resData.data) {
-				await loadEmployees();
-				newName = '';
-				newAge = '';
-				isCreateModalOpen = false;
-				successMessage = 'Employee added successfully!';
-				setTimeout(() => {
-					successMessage = '';
-				}, 3000);
-			} else {
-				errorMessage = resData.error || 'Failed to add employee.';
-			}
-		} catch (err) {
-			errorMessage = 'An error occurred. Please try again.';
-			console.error(err);
-		} finally {
-			isSubmitting = false;
-		}
 	}
 </script>
 
@@ -177,62 +105,43 @@
 	<title>System Employees Directory</title>
 </svelte:head>
 
-<div class="w-full space-y-5 px-4 py-6">
-	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
-		<div class="space-y-1">
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">System Employees</h1>
-		</div>
-		<Button
-			type="button"
-			class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
-			onclick={openCreateModal}
-		>
-			<PlusIcon class="size-4" />
-			Add Employee
-		</Button>
+<div class="mx-auto max-w-5xl space-y-8 px-1 py-4">
+	<div class="space-y-1 border-b border-border pb-6">
+		<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
+		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">System Employees</h1>
+		<p class="text-muted-foreground">
+			Manage and monitor employee records with dynamic metrics and seamless creation.
+		</p>
 	</div>
 
 	<div class="grid gap-4 sm:grid-cols-3">
 		<Card>
 			<CardHeader>
 				<CardDescription>Total Active Employees</CardDescription>
-				<CardTitle class="text-4xl text-[#262626] tabular-nums">{totalEmployees}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums">{totalEmployees}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader>
 				<CardDescription>Average Employee Age</CardDescription>
-				<CardTitle class="text-4xl text-[#262626] tabular-nums">{averageAge} yrs</CardTitle>
+				<CardTitle class="text-4xl tabular-nums">{averageAge} yrs</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader>
 				<CardDescription>Max Registered Age</CardDescription>
-				<CardTitle class="text-4xl text-[#262626] tabular-nums">{maxAge} yrs</CardTitle>
+				<CardTitle class="text-4xl tabular-nums">{maxAge} yrs</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
 
-	<div class="space-y-4">
-		<div class="space-y-4">
-			{#if loadError}
-				<Alert variant="destructive">
-					<AlertDescription>{loadError}</AlertDescription>
-				</Alert>
-			{/if}
-			{#if successMessage}
-				<div transition:slide>
-					<Alert>
-						<AlertDescription>{successMessage}</AlertDescription>
-					</Alert>
-				</div>
-			{/if}
-
+	<div class="grid items-start gap-8 lg:grid-cols-3">
+		<div class="space-y-4 lg:col-span-2">
 			<div class="relative">
 				<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
 				<Input
 					type="search"
-					placeholder="Search by name..."
+					placeholder="Search by name, ID or UUID..."
 					bind:value={searchQuery}
 					class="pl-9 pr-9"
 				/>
@@ -250,44 +159,61 @@
 				{/if}
 			</div>
 
-			<Card class="py-0">
-			<Table>
+			<Card>
+				<Table>
 					<TableHeader>
 						<TableRow>
 							<TableHead>
-								<Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => handleSort('name')}>
+								<Button
+									variant="ghost"
+									size="sm"
+									class="-ml-2 h-8"
+									onclick={() => handleSort('id')}
+								>
+									ID {sortIndicator('id')}
+								</Button>
+							</TableHead>
+							<TableHead>
+								<Button
+									variant="ghost"
+									size="sm"
+									class="-ml-2 h-8"
+									onclick={() => handleSort('name')}
+								>
 									Name {sortIndicator('name')}
 								</Button>
 							</TableHead>
 							<TableHead>
-								<Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => handleSort('age')}>
+								<Button
+									variant="ghost"
+									size="sm"
+									class="-ml-2 h-8"
+									onclick={() => handleSort('age')}
+								>
 									Age {sortIndicator('age')}
 								</Button>
 							</TableHead>
-							<TableHead>CUID</TableHead>
+							<TableHead>UUID</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{#if isLoading}
+						{#if filteredEmployees.length === 0}
 							<TableRow>
-								<TableCell colspan={3} class="py-8 text-center text-muted-foreground">
-									Loading employees...
-								</TableCell>
-							</TableRow>
-						{:else if filteredEmployees.length === 0}
-							<TableRow>
-								<TableCell colspan={3} class="py-8 text-center text-muted-foreground">
+								<TableCell colspan={4} class="py-12 text-center text-muted-foreground">
 									No employees match the criteria.
 								</TableCell>
 							</TableRow>
 						{:else}
-							{#each filteredEmployees as emp (emp.cuid)}
+							{#each filteredEmployees as emp (emp.uuid)}
 								<TableRow>
+									<TableCell class="font-medium">#{emp.id}</TableCell>
 									<TableCell class="font-semibold">{emp.name}</TableCell>
 									<TableCell>
 										<Badge variant="secondary">{emp.age} yrs old</Badge>
 									</TableCell>
-									<TableCell class="font-mono text-xs text-muted-foreground">{emp.cuid}</TableCell>
+									<TableCell class="font-mono text-xs text-muted-foreground">
+										{emp.uuid}
+									</TableCell>
 								</TableRow>
 							{/each}
 						{/if}
@@ -295,56 +221,96 @@
 				</Table>
 			</Card>
 
-			<p class="text-sm text-muted-foreground">
-				Showing {filteredEmployees.length === 0 ? 0 : 1}-{filteredEmployees.length} of {filteredEmployees.length} record{filteredEmployees.length === 1 ? '' : 's'}
+			<p class="text-xs text-muted-foreground">
+				Showing {filteredEmployees.length} of {totalEmployees} entries
 			</p>
 		</div>
 
-	</div>
-
-	{#if isCreateModalOpen}
-		<CrudModal
-			open={isCreateModalOpen}
-			title="Add New Employee"
-			description="Persist a new employee record in PostgreSQL via the API endpoint."
-			isDirty={isDirty}
-			onClose={() => (isCreateModalOpen = false)}
-		>
-			<form onsubmit={handleAddEmployee} class="space-y-4">
-				<div class="space-y-2">
-					<Label for="name">Full Name</Label>
-					<Input id="name" bind:value={newName} placeholder="e.g. Charlie Brown"/>
-				</div>
-
-				<div class="space-y-2">
-					<Label for="age">Age</Label>
-					<Input
-						id="age"
-						type="number"
-						bind:value={newAge}
-						placeholder="e.g. 29"
-						min="1"
-						max="120"
-					/>
-				</div>
-
-				{#if errorMessage}
-					<div transition:slide>
-						<Alert variant="destructive">
-							<AlertDescription>{errorMessage}</AlertDescription>
-						</Alert>
+		<Card>
+			<CardHeader>
+				<CardTitle>Add New Employee</CardTitle>
+				<CardDescription>
+					Persist a new employee record in PostgreSQL via the API endpoint.
+				</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<form
+					method="POST"
+					action="?/create"
+					class="space-y-4"
+					use:enhance={() => {
+						isSubmitting = true;
+						return async ({ result, update }) => {
+							if (
+								result.type === 'success' &&
+								result.data &&
+								'created' in result.data
+							) {
+								const created = result.data.created as Employee;
+								employees = [created, ...employees];
+								successMessage = 'Employee added successfully!';
+								setTimeout(() => {
+									successMessage = '';
+								}, 3000);
+								await update({ reset: true });
+							} else {
+								await update({ reset: false });
+							}
+							isSubmitting = false;
+						};
+					}}
+				>
+					<div class="space-y-2">
+						<Label for="name">Full Name</Label>
+						<Input
+							id="name"
+							name="name"
+							bind:value={newName}
+							placeholder="e.g. Charlie Brown"
+							required
+						/>
 					</div>
-				{/if}
 
-				<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || !isDirty}>
-					{#if isSubmitting}
-						<LoaderCircleIcon class="size-4 animate-spin" />
-						Saving Employee...
-					{:else}
-						Save Employee Record
+					<div class="space-y-2">
+						<Label for="age">Age</Label>
+						<Input
+							id="age"
+							name="age"
+							type="number"
+							bind:value={newAge}
+							placeholder="e.g. 29"
+							min="1"
+							max="120"
+							required
+						/>
+					</div>
+
+					{#if formError}
+						<div transition:slide>
+							<Alert variant="destructive">
+								<AlertDescription>{formError}</AlertDescription>
+							</Alert>
+						</div>
 					{/if}
-				</Button>
-			</form>
-		</CrudModal>
-	{/if}
+
+					{#if successMessage}
+						<div transition:slide>
+							<Alert>
+								<AlertDescription>{successMessage}</AlertDescription>
+							</Alert>
+						</div>
+					{/if}
+
+					<Button type="submit" class="w-full" disabled={isSubmitting}>
+						{#if isSubmitting}
+							<LoaderCircleIcon class="size-4 animate-spin" />
+							Saving Employee...
+						{:else}
+							Save Employee Record
+						{/if}
+					</Button>
+				</form>
+			</CardContent>
+		</Card>
+	</div>
 </div>
