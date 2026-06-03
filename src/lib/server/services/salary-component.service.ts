@@ -1,4 +1,4 @@
-import * as repository from '$lib/server/repositories/salary-component.repository.js';
+import * as dao from '$lib/server/dao/salary-component.dao.js';
 import type {
 	CreateSalaryComponentDto,
 	UpdateSalaryComponentDto,
@@ -34,12 +34,12 @@ export async function createComponent(dto: CreateSalaryComponentDto) {
 	const trimmedName = dto.component_name.trim();
 
 	// Business validation: check for duplicates (name must be globally unique)
-	const existing = await repository.findByName(trimmedName);
+	const existing = await dao.findByName(trimmedName);
 	if (existing) {
 		throw new DuplicateComponentError();
 	}
 
-	return repository.create({
+	return dao.create({
 		...dto,
 		component_name: trimmedName
 	});
@@ -52,7 +52,7 @@ export async function createComponent(dto: CreateSalaryComponentDto) {
  */
 export async function updateComponent(cuid: string, dto: UpdateSalaryComponentDto) {
 	// First check if it exists
-	const current = await repository.findByCuid(cuid);
+	const current = await dao.findByCuid(cuid);
 	if (!current) {
 		throw new ComponentNotFoundError(cuid);
 	}
@@ -62,13 +62,13 @@ export async function updateComponent(cuid: string, dto: UpdateSalaryComponentDt
 
 	// Business validation: check for duplicates if name is changing
 	if (dto.component_name !== undefined) {
-		const existing = await repository.findByName(updatedName);
+		const existing = await dao.findByName(updatedName);
 		if (existing && existing.cuid !== cuid) {
 			throw new DuplicateComponentError();
 		}
 	}
 
-	return repository.update(cuid, {
+	return dao.update(cuid, {
 		...dto,
 		component_name: dto.component_name !== undefined ? updatedName : undefined
 	});
@@ -78,7 +78,7 @@ export async function updateComponent(cuid: string, dto: UpdateSalaryComponentDt
  * Retrieves a single Salary Component by its external cuid.
  */
 export async function getComponentByCuid(cuid: string) {
-	const component = await repository.findByCuid(cuid);
+	const component = await dao.findByCuid(cuid);
 	if (!component) {
 		throw new ComponentNotFoundError(cuid);
 	}
@@ -97,7 +97,7 @@ export async function getComponents(filters: SalaryComponentFilters) {
 		pageSize: filters.pageSize !== undefined ? Number(filters.pageSize) : undefined
 	};
 
-	return repository.findMany(processedFilters);
+	return dao.findMany(processedFilters);
 }
 
 /**
@@ -109,12 +109,12 @@ export async function toggleComponentStatus(
 	is_active: boolean,
 	updated_by?: string | null
 ) {
-	const current = await repository.findByCuid(cuid);
+	const current = await dao.findByCuid(cuid);
 	if (!current) {
 		throw new ComponentNotFoundError(cuid);
 	}
 
-	return repository.update(cuid, { is_active, updated_by });
+	return dao.update(cuid, { is_active, updated_by });
 }
 
 /**
@@ -122,5 +122,5 @@ export async function toggleComponentStatus(
  * No row data is fetched — backed by three parallel COUNT queries.
  */
 export async function getStats() {
-	return repository.getStats();
+	return dao.getStats();
 }

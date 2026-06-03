@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { fade, scale } from 'svelte/transition';
-	import AlertTriangleIcon from '@lucide/svelte/icons/alert-triangle';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import { Button } from '$lib/components';
 
@@ -57,41 +56,36 @@
 			aria-modal="true"
 			aria-labelledby={dialogTitleId}
 			tabindex="-1"
-			class="relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-background shadow-xl dark:border-slate-800"
+			class="relative w-full max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-background shadow-xl dark:border-slate-800"
 			onclick={(e) => e.stopPropagation()}
 			onkeydown={(e) => e.stopPropagation()}
 		>
-			<div class="px-6 py-5 space-y-4">
-				<div class="flex items-start gap-4">
-					<div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-hrms-destructive/10 text-hrms-destructive border border-hrms-destructive/20">
-						<AlertTriangleIcon class="size-5" />
-					</div>
-					<div class="space-y-1.5">
-						<h3 id={dialogTitleId} class="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-							{title}
-						</h3>
-						<p class="text-sm text-slate-500 font-medium leading-relaxed">
-							{message}
-						</p>
-					</div>
-				</div>
+			<!-- Body -->
+			<div class="px-6 pt-7 pb-5 text-center space-y-2">
+				<h3 id={dialogTitleId} class="text-base font-semibold text-foreground tracking-tight">
+					{title}
+				</h3>
+				<p class="text-sm text-muted-foreground leading-relaxed">
+					{message}
+				</p>
 			</div>
 
 			<!-- Footer -->
-			<div class="flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800 px-6 py-4 bg-slate-50/50">
-				<!-- Primary safe action: keep editing -->
+			<div class="grid grid-cols-2 gap-3 border-t border-border px-6 py-4">
+				<!-- Safe action: continue editing -->
 				<Button
 					type="button"
-					class="bg-hrms-primary text-white hover:bg-hrms-primary-dark border-0 shadow-sm"
+					variant="outline"
+					class="w-full"
 					disabled={isConfirming}
 					onclick={oncancel}
 				>
 					{cancelText}
 				</Button>
-				<!-- Destructive action: discard -->
+				<!-- Destructive action: close without saving -->
 				<Button
 					type="button"
-					class="bg-hrms-destructive text-white hover:bg-hrms-destructive/90 border-0 shadow-sm"
+					class="w-full bg-hrms-destructive text-white hover:bg-hrms-destructive/90 border-0"
 					disabled={isConfirming}
 					onclick={onconfirm}
 				>

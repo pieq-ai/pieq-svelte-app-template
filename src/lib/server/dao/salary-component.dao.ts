@@ -87,6 +87,7 @@ export async function findMany(filters: SalaryComponentFilters) {
 		totalPages: paginated ? Math.ceil(total / pageSize) : 1
 	};
 }
+
 /**
  * Returns aggregate counts for the stats cards.
  * Uses three parallel COUNT queries — no row data is fetched.

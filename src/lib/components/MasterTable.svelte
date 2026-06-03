@@ -2,7 +2,6 @@
 	import type { Snippet } from 'svelte';
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
-	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import DatabaseIcon from '@lucide/svelte/icons/database';
 	import {
@@ -50,7 +49,13 @@
 
 	function handleSort(key: string) {
 		if (sortBy === key) {
-			sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+			if (sortOrder === 'asc') {
+				sortOrder = 'desc';
+			} else {
+				// Third click: reset — clear active column, restore default
+				sortBy = '';
+				sortOrder = 'asc';
+			}
 		} else {
 			sortBy = key;
 			sortOrder = 'asc';
@@ -72,15 +77,15 @@
 								onclick={() => handleSort(header.key)}
 							>
 								<span>{header.label}</span>
-								{#if sortBy === header.key}
-									{#if sortOrder === 'asc'}
-										<ArrowUpIcon class="size-3.5 text-primary shrink-0" />
-									{:else}
-										<ArrowDownIcon class="size-3.5 text-primary shrink-0" />
+								<!-- Sort indicator: horizontal arrows, neutral, state-driven -->
+								<span class="flex shrink-0 items-center">
+									{#if sortBy !== header.key || sortOrder === 'asc'}
+										<ArrowUpIcon class="size-3 opacity-50" />
 									{/if}
-								{:else}
-									<ArrowUpDownIcon class="size-3.5 opacity-40 hover:opacity-100 shrink-0" />
-								{/if}
+									{#if sortBy !== header.key || sortOrder === 'desc'}
+										<ArrowDownIcon class="size-3 opacity-50" />
+									{/if}
+								</span>
 							</Button>
 						{:else}
 							<span class="px-0 py-1 inline-block">{header.label}</span>

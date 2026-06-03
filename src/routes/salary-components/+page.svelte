@@ -67,7 +67,7 @@
   let filterActive = $state<"all" | "true" | "false">("all");
 
 
-  let sortBy = $state("component_name");
+  let sortBy = $state("");
   let sortOrder = $state<"asc" | "desc">("asc");
 
   let isModalOpen = $state(false);
@@ -750,9 +750,9 @@
 <!-- Unsaved Changes Confirmation -->
 <ConfirmDialog
   isOpen={showDiscardConfirm}
-  title="Discard unsaved changes?"
-  message="You have unsaved changes. Are you sure you want to discard them?"
-  confirmText="Discard Changes"
+  title="Unsaved Changes"
+  message="You have unsaved changes. Do you want to continue editing or close without saving?"
+  confirmText="Close Without Saving"
   cancelText="Continue Editing"
   onconfirm={handleDiscardConfirm}
   oncancel={handleDiscardCancel}
