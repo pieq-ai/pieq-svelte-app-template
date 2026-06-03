@@ -745,14 +745,14 @@
 											<div class="py-1">
 												<a
 													href={resolve(('/holidays?edit=' + holiday.cuid) as '/holidays')}
-													class="block px-4 py-2 text-sm text-[#F45310] hover:bg-[#F45310]/10 hover:text-[#F45310] transition-colors"
+													class="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-foreground transition-colors"
 													onclick={() => activeMenuCuid = null}
 												>
 													Edit
 												</a>
 												<button
 													type="button"
-													class="w-full text-left block px-4 py-2 text-sm text-[#800020] hover:bg-[#800020]/10 hover:text-[#800020] transition-colors cursor-pointer"
+													class="w-full text-left block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
 													disabled={isSubmitting}
 													onclick={() => {
 														activeMenuCuid = null;

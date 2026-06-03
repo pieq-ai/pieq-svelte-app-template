@@ -749,7 +749,7 @@
 											<div class="py-1">
 												<a
 													href={resolve(('/leave-types?edit=' + type.cuid) as '/leave-types')}
-													class="block px-4 py-2 text-sm text-[#F45310] hover:bg-[#F45310]/10 hover:text-[#F45310] transition-colors"
+													class="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-foreground transition-colors"
 													onclick={() => activeMenuCuid = null}
 												>
 													Edit
