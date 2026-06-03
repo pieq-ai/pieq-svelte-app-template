@@ -18,7 +18,7 @@ export async function GET(event: RequestEvent) {
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getErrorStatus(message) });
 	}
-}
+};
 
 export async function POST(event: RequestEvent) {
 	try {
@@ -42,4 +42,4 @@ export async function POST(event: RequestEvent) {
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getErrorStatus(message) });
 	}
-}
+};

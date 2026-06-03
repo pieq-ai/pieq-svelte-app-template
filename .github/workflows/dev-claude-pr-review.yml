@@ -1,0 +1,27 @@
+# Dev Claude PR review (label-gated re-runs)
+#
+# - Runs when a PR to main is opened (initial review).
+# - Does not run on every push; add the label below when you want another review.
+# - Create this label in the repo: GitHub → Issues or Settings → Labels → name must match exactly.
+#   Label: ready-for-claude-review
+# - To re-review: remove the label (if present), then add it again on the PR sidebar (labeled fires on add).
+
+name: Dev-Claude-PR-Review
+
+on:
+  pull_request:
+    types: [opened, labeled]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  claude_pr_review:
+    if: >-
+      github.event.action == 'opened' ||
+      (github.event.action == 'labeled' && github.event.label.name == 'ready-for-claude-review')
+    uses: pieq-ai/pieq-github-actions/.github/workflows/reusable-claude-pr-review.yml@main
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

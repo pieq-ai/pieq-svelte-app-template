@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
+	import { enhance } from '$app/forms';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SearchIcon from '@lucide/svelte/icons/search';
@@ -12,6 +13,7 @@
 		Badge,
 		Button,
 		Card,
+		CardContent,
 		CrudModal,
 		CardDescription,
 		CardHeader,
@@ -230,7 +232,7 @@
 				<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
 				<Input
 					type="search"
-					placeholder="Search by name or CUID..."
+					placeholder="Search by name..."
 					bind:value={searchQuery}
 					class="pl-9 pr-9"
 				/>
@@ -311,7 +313,7 @@
 			<form onsubmit={handleAddEmployee} class="space-y-4">
 				<div class="space-y-2">
 					<Label for="name">Full Name</Label>
-					<Input id="name" bind:value={newName} placeholder="e.g. Charlie Brown" required />
+					<Input id="name" bind:value={newName} placeholder="e.g. Charlie Brown"/>
 				</div>
 
 				<div class="space-y-2">
@@ -323,7 +325,6 @@
 						placeholder="e.g. 29"
 						min="1"
 						max="120"
-						required
 					/>
 				</div>
 
