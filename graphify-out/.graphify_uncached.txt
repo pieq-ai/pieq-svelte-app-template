@@ -1,0 +1,7 @@
+C:\Users\user\pieq-svelte-app-template\.github\workflows\dev-claude-pr-review.yml
+C:\Users\user\pieq-svelte-app-template\PR.md
+C:\Users\user\pieq-svelte-app-template\README.md
+C:\Users\user\pieq-svelte-app-template\src\app.html
+C:\Users\user\pieq-svelte-app-template\src\error.html
+C:\Users\user\pieq-svelte-app-template\static\robots.txt
+C:\Users\user\pieq-svelte-app-template\src\lib\assets\favicon.svg
