@@ -136,9 +136,9 @@
 				}
 			}
 		};
-		document.addEventListener('click', handleDismiss);
+		document.addEventListener('click', handleDismiss, { capture: true });
 		return () => {
-			document.removeEventListener('click', handleDismiss);
+			document.removeEventListener('click', handleDismiss, { capture: true });
 		};
 	});
 
@@ -436,15 +436,8 @@
 		backendErr?: string
 	): string {
 		if (backendErr) return backendErr;
-		const clientErr = getErr(value);
-		if (!clientErr) return '';
-		if (value && value.trim() !== '') {
-			return clientErr;
-		}
-		if (isTouched || submitAttempted) {
-			return clientErr;
-		}
-		return '';
+		if (!submitAttempted) return '';
+		return getErr(value);
 	}
 
 	function getNameClientError(name: string): string {
@@ -551,11 +544,7 @@
 	<!-- Header -->
 	<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-border pb-6">
 		<div class="space-y-1">
-			<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
 			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Leave Type Master</h1>
-			<p class="text-muted-foreground">
-				Configure types of leave available to employees within the system.
-			</p>
 		</div>
 		<div class="shrink-0">
 			<Button onclick={openAddModal}>+ Add Leave Type</Button>

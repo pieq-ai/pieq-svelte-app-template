@@ -48,9 +48,9 @@
 			}
 		}
 
-		document.addEventListener('click', handleClickOutside);
+		document.addEventListener('click', handleClickOutside, { capture: true });
 		return () => {
-			document.removeEventListener('click', handleClickOutside);
+			document.removeEventListener('click', handleClickOutside, { capture: true });
 		};
 	});
 

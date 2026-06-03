@@ -184,9 +184,9 @@
 				}
 			}
 		};
-		document.addEventListener('click', handleDismiss);
+		document.addEventListener('click', handleDismiss, { capture: true });
 		return () => {
-			document.removeEventListener('click', handleDismiss);
+			document.removeEventListener('click', handleDismiss, { capture: true });
 		};
 	});
 
