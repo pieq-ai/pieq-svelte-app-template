@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
+	import { enhance } from '$app/forms';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
@@ -14,28 +14,32 @@
 		Input,
 		Label
 	} from '$lib/components';
+	import type { PageData, ActionData } from './$types';
 
-	let employeesList = $state<Array<{ id: number; uuid: string; name: string; age: number }>>([]);
-	let isLoading = $state(true);
-	let loadError = $state('');
+	let { data, form }: { data: PageData; form: ActionData } = $props();
+
+	type Employee = PageData['employees'][number];
+	type SortColumn = 'id' | 'name' | 'age';
+
+	let employees: Employee[] = $derived([...data.employees]);
 
 	let searchQuery = $state('');
-	let sortColumn = $state('id');
+	let sortColumn = $state<SortColumn>('id');
 	let sortDirection = $state<'asc' | 'desc'>('asc');
 
-	// Filter
-	let filterStatus = $state<'all' | 'active' | 'inactive'>('all');
-
-	// Modal state
-	let showAddModal = $state(false);
-	let newName = $state('');
-	let newAge = $state('');
+	let newName: string = $derived(
+		form && 'name' in form && typeof form.name === 'string' ? form.name : ''
+	);
+	let newAge: string = $derived(
+		form && 'age' in form && typeof form.age === 'string' ? form.age : ''
+	);
 	let isSubmitting = $state(false);
-	let errorMessage = $state('');
 	let successMessage = $state('');
 
+	let formError = $derived(form && 'error' in form ? form.error : null);
+
 	let filteredEmployees = $derived.by(() => {
-		let result = [...employeesList];
+		let result = [...employees];
 
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
@@ -48,8 +52,8 @@
 		}
 
 		result.sort((a, b) => {
-			const valA = a[sortColumn as keyof typeof a];
-			const valB = b[sortColumn as keyof typeof b];
+			const valA = a[sortColumn];
+			const valB = b[sortColumn];
 
 			if (typeof valA === 'string' && typeof valB === 'string') {
 				return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
@@ -63,40 +67,17 @@
 		return result;
 	});
 
-	let totalEmployees = $derived(employeesList.length);
+	let totalEmployees = $derived(employees.length);
 	let averageAge = $derived(
 		totalEmployees > 0
-			? Math.round(employeesList.reduce((acc, emp) => acc + emp.age, 0) / totalEmployees)
+			? Math.round(employees.reduce((acc, emp) => acc + emp.age, 0) / totalEmployees)
 			: 0
 	);
-	let maxAge = $derived(totalEmployees > 0 ? Math.max(...employeesList.map((e) => e.age)) : 0);
+	let maxAge = $derived(
+		totalEmployees > 0 ? Math.max(...employees.map((e) => e.age)) : 0
+	);
 
-	async function loadEmployees() {
-		isLoading = true;
-		loadError = '';
-
-		try {
-			const response = await fetch('/api/employees');
-			const resData = await response.json();
-
-			if (response.ok) {
-				employeesList = resData.data ?? [];
-			} else {
-				loadError = resData.error || 'Failed to load employees.';
-			}
-		} catch (err) {
-			loadError = 'An error occurred while loading employees.';
-			console.error(err);
-		} finally {
-			isLoading = false;
-		}
-	}
-
-	onMount(() => {
-		loadEmployees();
-	});
-
-	function handleSort(column: string) {
+	function handleSort(column: SortColumn) {
 		if (sortColumn === column) {
 			sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
 		} else {
@@ -105,7 +86,7 @@
 		}
 	}
 
-	function sortIndicator(column: string) {
+	function sortIndicator(column: SortColumn) {
 		if (sortColumn !== column) return '';
 		return sortDirection === 'asc' ? ' ↑' : ' ↓';
 	}
@@ -123,45 +104,6 @@
 		newName = '';
 		newAge = '';
 		errorMessage = '';
-	}
-
-	async function handleAddEmployee(e: Event) {
-		e.preventDefault();
-		const ageValue = Number(newAge);
-		if (!newName.trim() || newAge === '' || newAge == null || isNaN(ageValue)) {
-			errorMessage = 'Please provide both Name and Age.';
-			return;
-		}
-
-		errorMessage = '';
-		successMessage = '';
-		isSubmitting = true;
-
-		try {
-			const response = await fetch('/api/employees', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name: newName.trim(), age: ageValue })
-			});
-
-			const resData = await response.json();
-
-			if (response.ok && resData.data) {
-				employeesList = [resData.data, ...employeesList];
-				closeAddModal();
-				successMessage = 'Employee added successfully!';
-				setTimeout(() => {
-					successMessage = '';
-				}, 3000);
-			} else {
-				errorMessage = resData.error || 'Failed to add employee.';
-			}
-		} catch (err) {
-			errorMessage = 'An error occurred. Please try again.';
-			console.error(err);
-		} finally {
-			isSubmitting = false;
-		}
 	}
 </script>
 
@@ -217,197 +159,163 @@
 	</div>
 {/if}
 
-{#if loadError}
-	<div style="margin-bottom:16px">
-		<Alert variant="destructive">
-			<AlertDescription>{loadError}</AlertDescription>
-		</Alert>
-	</div>
-{/if}
-
-<!-- Toolbar -->
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-	<!-- Search -->
-	<div style="position:relative;flex:1;min-width:200px;max-width:340px">
-		<span style="position:absolute;top:50%;left:10px;transform:translateY(-50%);color:var(--muted-foreground);display:flex">
-			<SearchIcon size={15} />
-		</span>
-		<input
-			type="search"
-			placeholder="Search by name, ID or UUID..."
-			bind:value={searchQuery}
-			style="width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 32px 8px 32px;font-size:13px;background:var(--card);color:var(--foreground);outline:none;box-sizing:border-box;transition:all .2s"
-			onfocus={(e) => {
-				const t = e.currentTarget as HTMLElement;
-				t.style.borderColor = '#a3a3a3';
-				t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
-			}}
-			onblur={(e) => {
-				const t = e.currentTarget as HTMLElement;
-				t.style.borderColor = 'var(--border)';
-				t.style.boxShadow = 'none';
-			}}
-		/>
-		{#if searchQuery}
-			<button
-				onclick={() => (searchQuery = '')}
-				style="position:absolute;top:50%;right:8px;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted-foreground);display:flex;padding:2px"
-				aria-label="Clear search"
-			>
-				<XIcon size={14} />
-			</button>
-		{/if}
-	</div>
-
-	<!-- Filter + count -->
-	<div style="display:flex;align-items:center;gap:12px">
-		<div style="display:flex;align-items:center;gap:6px">
-			<span style="font-size:13px;color:var(--muted-foreground)">Filter:</span>
-			<select bind:value={filterStatus} class="filter-select" id="employee-filter-select">
-				<option value="all">All</option>
-				<option value="active">Active</option>
-				<option value="inactive">Inactive</option>
-			</select>
-		</div>
-		<p style="font-size:12px;color:var(--muted-foreground);white-space:nowrap">
-			{filteredEmployees.length} of {totalEmployees}
-		</p>
-	</div>
-</div>
-
-<!-- Table card -->
-<div class="enterprise-table-card">
-	{#if isLoading}
-		<div style="padding:64px;text-align:center;color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;gap:10px">
-			<LoaderCircleIcon class="animate-spin" size={18} />
-			Loading employees...
-		</div>
-	{:else if filteredEmployees.length === 0}
-		<div style="padding:64px;text-align:center">
-			<span style="display:block;margin:0 auto 12px;color:var(--muted-foreground)">
-				<UsersIcon size={32} />
-			</span>
-			<p style="color:var(--muted-foreground);font-size:14px">No employees match the criteria.</p>
-		</div>
-	{:else}
-		<table style="width:100%;border-collapse:collapse">
-			<thead style="background:var(--muted)">
-				<tr>
-					<th
-						style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground);cursor:pointer;user-select:none"
-						onclick={() => handleSort('id')}
-					>#ID{sortIndicator('id')}</th>
-					<th
-						style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground);cursor:pointer;user-select:none"
-						onclick={() => handleSort('name')}
-					>Name{sortIndicator('name')}</th>
-					<th
-						style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground);cursor:pointer;user-select:none"
-						onclick={() => handleSort('age')}
-					>Age{sortIndicator('age')}</th>
-					<th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted-foreground)">UUID</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each filteredEmployees as emp (emp.uuid)}
-					<tr
-						style="border-top:1px solid var(--border);transition:background .15s"
-						onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = 'var(--muted)')}
-						onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '')}
+	<div class="grid items-start gap-8 lg:grid-cols-3">
+		<div class="space-y-4 lg:col-span-2">
+			<div class="relative">
+				<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+				<Input
+					type="search"
+					placeholder="Search by name, ID or UUID..."
+					bind:value={searchQuery}
+					class="pl-9 pr-9"
+				/>
+				{#if searchQuery}
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						class="absolute top-1/2 right-1 -translate-y-1/2"
+						aria-label="Clear search"
+						onclick={() => (searchQuery = '')}
 					>
-						<td style="padding:13px 20px;font-size:13px;color:var(--muted-foreground);font-weight:500">#{emp.id}</td>
-						<td style="padding:13px 20px;font-size:14px;font-weight:600;color:var(--foreground)">{emp.name}</td>
-						<td style="padding:13px 20px">
-							<span style="display:inline-flex;align-items:center;padding:2px 10px;background:#F4531018;color:#F45310;border-radius:99px;font-size:12px;font-weight:600">
-								{emp.age} yrs
-							</span>
-						</td>
-						<td style="padding:13px 20px;font-size:11px;font-family:monospace;color:var(--muted-foreground)">{emp.uuid}</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-	{/if}
-</div>
-
-<!-- Add Employee Modal -->
-{#if showAddModal}
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div
-		class="modal-overlay"
-		onclick={(e) => { if (e.target === e.currentTarget) closeAddModal(); }}
-	>
-		<div class="modal-card">
-			<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-				<h2 style="font-size:18px;font-weight:700;margin:0">Add New Employee</h2>
-				<button
-					onclick={closeAddModal}
-					style="background:none;border:none;cursor:pointer;color:var(--muted-foreground);padding:4px;border-radius:6px"
-					aria-label="Close modal"
-				>
-					<XIcon size={18} />
-				</button>
+						<XIcon class="size-4" />
+					</Button>
+				{/if}
 			</div>
 
-			<form onsubmit={handleAddEmployee} style="display:flex;flex-direction:column;gap:16px">
-				<div style="display:flex;flex-direction:column;gap:6px">
-					<label for="emp-name" style="font-size:13px;font-weight:600">
-						Full Name <span style="color:#F45310">*</span>
-					</label>
-					<input
-						id="emp-name"
-						type="text"
-						bind:value={newName}
-						placeholder="e.g. Charlie Brown"
-						required
-						style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:all .2s;box-sizing:border-box"
-						onfocus={(e) => {
-							const t = e.currentTarget as HTMLElement;
-							t.style.borderColor = '#a3a3a3';
-							t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
-						}}
-						onblur={(e) => {
-							const t = e.currentTarget as HTMLElement;
-							t.style.borderColor = 'var(--border)';
-							t.style.boxShadow = 'none';
-						}}
-					/>
-				</div>
+			<Card>
+				<Table>
+					<TableHeader>
+						<TableRow>
+							<TableHead>
+								<Button
+									variant="ghost"
+									size="sm"
+									class="-ml-2 h-8"
+									onclick={() => handleSort('id')}
+								>
+									ID {sortIndicator('id')}
+								</Button>
+							</TableHead>
+							<TableHead>
+								<Button
+									variant="ghost"
+									size="sm"
+									class="-ml-2 h-8"
+									onclick={() => handleSort('name')}
+								>
+									Name {sortIndicator('name')}
+								</Button>
+							</TableHead>
+							<TableHead>
+								<Button
+									variant="ghost"
+									size="sm"
+									class="-ml-2 h-8"
+									onclick={() => handleSort('age')}
+								>
+									Age {sortIndicator('age')}
+								</Button>
+							</TableHead>
+							<TableHead>UUID</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
+						{#if filteredEmployees.length === 0}
+							<TableRow>
+								<TableCell colspan={4} class="py-12 text-center text-muted-foreground">
+									No employees match the criteria.
+								</TableCell>
+							</TableRow>
+						{:else}
+							{#each filteredEmployees as emp (emp.uuid)}
+								<TableRow>
+									<TableCell class="font-medium">#{emp.id}</TableCell>
+									<TableCell class="font-semibold">{emp.name}</TableCell>
+									<TableCell>
+										<Badge variant="secondary">{emp.age} yrs old</Badge>
+									</TableCell>
+									<TableCell class="font-mono text-xs text-muted-foreground">
+										{emp.uuid}
+									</TableCell>
+								</TableRow>
+							{/each}
+						{/if}
+					</TableBody>
+				</Table>
+			</Card>
 
-				<div style="display:flex;flex-direction:column;gap:6px">
-					<label for="emp-age" style="font-size:13px;font-weight:600">
-						Age <span style="color:#F45310">*</span>
-					</label>
-					<input
-						id="emp-age"
-						type="number"
-						bind:value={newAge}
-						placeholder="e.g. 29"
-						min="1"
-						max="120"
-						required
-						style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:all .2s;box-sizing:border-box"
-						onfocus={(e) => {
-							const t = e.currentTarget as HTMLElement;
-							t.style.borderColor = '#a3a3a3';
-							t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
-						}}
-						onblur={(e) => {
-							const t = e.currentTarget as HTMLElement;
-							t.style.borderColor = 'var(--border)';
-							t.style.boxShadow = 'none';
-						}}
-					/>
-				</div>
+			<p class="text-xs text-muted-foreground">
+				Showing {filteredEmployees.length} of {totalEmployees} entries
+			</p>
+		</div>
 
-				{#if errorMessage}
-					<div transition:slide>
-						<Alert variant="destructive">
-							<AlertDescription>{errorMessage}</AlertDescription>
-						</Alert>
+		<Card>
+			<CardHeader>
+				<CardTitle>Add New Employee</CardTitle>
+				<CardDescription>
+					Persist a new employee record in PostgreSQL via the API endpoint.
+				</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<form
+					method="POST"
+					action="?/create"
+					class="space-y-4"
+					use:enhance={() => {
+						isSubmitting = true;
+						return async ({ result, update }) => {
+							if (
+								result.type === 'success' &&
+								result.data &&
+								'created' in result.data
+							) {
+								const created = result.data.created as Employee;
+								employees = [created, ...employees];
+								successMessage = 'Employee added successfully!';
+								setTimeout(() => {
+									successMessage = '';
+								}, 3000);
+								await update({ reset: true });
+							} else {
+								await update({ reset: false });
+							}
+							isSubmitting = false;
+						};
+					}}
+				>
+					<div class="space-y-2">
+						<Label for="name">Full Name</Label>
+						<Input
+							id="name"
+							name="name"
+							bind:value={newName}
+							placeholder="e.g. Charlie Brown"
+							required
+						/>
 					</div>
-				{/if}
+
+					<div class="space-y-2">
+						<Label for="age">Age</Label>
+						<Input
+							id="age"
+							name="age"
+							type="number"
+							bind:value={newAge}
+							placeholder="e.g. 29"
+							min="1"
+							max="120"
+							required
+						/>
+					</div>
+
+					{#if formError}
+						<div transition:slide>
+							<Alert variant="destructive">
+								<AlertDescription>{formError}</AlertDescription>
+							</Alert>
+						</div>
+					{/if}
 
 				<div style="display:flex;justify-content:flex-end;gap:10px;padding-top:4px">
 					<button

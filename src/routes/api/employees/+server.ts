@@ -1,31 +1,41 @@
 import { json } from '@sveltejs/kit';
-import * as employeeDao from '$lib/server/dao/employee.dao';
+import type { RequestHandler } from './$types';
+import {
+	createEmployee,
+	EmployeeValidationError,
+	listEmployees
+} from '$lib/server/services/employee.service';
 
-export async function GET() {
+export const GET: RequestHandler = async () => {
 	try {
-		const employees = await employeeDao.list();
+		const employees = await listEmployees();
 		return json({ data: employees });
 	} catch (error) {
-		return json({ error: (error as Error).message }, { status: 500 });
+		console.error('GET /api/employees failed', error);
+		return json({ error: 'Failed to list employees' }, { status: 500 });
 	}
-}
+};
 
-export async function POST({ request }) {
+export const POST: RequestHandler = async ({ request }) => {
+	let body: unknown;
+
 	try {
-		const body = await request.json();
-		const { name, age } = body;
+		body = await request.json();
+	} catch {
+		return json({ error: 'Request body must be valid JSON' }, { status: 400 });
+	}
 
-		if (!name || typeof name !== 'string') {
-			return json({ error: 'Name is required and must be a string' }, { status: 400 });
-		}
+	const { name, age } = (body ?? {}) as { name?: unknown; age?: unknown };
 
-		if (age === undefined || isNaN(Number(age))) {
-			return json({ error: 'Age is required and must be a valid number' }, { status: 400 });
-		}
-
-		const employee = await employeeDao.create({ name, age: Number(age) });
+	try {
+		const employee = await createEmployee({ name, age });
 		return json({ data: employee }, { status: 201 });
 	} catch (error) {
-		return json({ error: (error as Error).message }, { status: 500 });
+		if (error instanceof EmployeeValidationError) {
+			return json({ error: error.message, field: error.field }, { status: 400 });
+		}
+
+		console.error('POST /api/employees failed', error);
+		return json({ error: 'Failed to create employee' }, { status: 500 });
 	}
-}
+};
