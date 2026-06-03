@@ -63,7 +63,7 @@
 	}
 </script>
 
-<div class="w-full overflow-x-auto rounded-xl border border-slate-200/80 bg-card shadow-sm shadow-slate-100/50">
+<div class="w-full overflow-x-auto">
 	<Table>
 		<TableHeader class="bg-slate-50/50 dark:bg-slate-900/10">
 			<TableRow class="hover:bg-transparent">

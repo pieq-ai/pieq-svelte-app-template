@@ -356,9 +356,6 @@
   <div class="flex items-center justify-between">
     <div>
       <h1 class="text-3xl font-bold tracking-tight">Salary Components</h1>
-      <p class="mt-2 text-muted-foreground">
-        Define and manage salary earning and deduction configurations.
-      </p>
     </div>
     <Button
       onclick={handleOpenCreate}
@@ -414,113 +411,111 @@
     </Card>
   </div>
 
-  <!-- Filter + Table Card -->
-  <Card class="pt-1 gap-2">
-    <!-- Toolbar -->
-    <div
-      class="flex flex-col gap-3 border-b p-3 sm:flex-row sm:items-center sm:justify-between"
-    >
-      <div class="w-full max-w-xs">
-        <SearchBar
-          bind:value={searchQuery}
-          placeholder="Search component name..."
-        />
+  <!-- Filter Toolbar -->
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div class="w-full max-w-xs">
+      <SearchBar
+        bind:value={searchQuery}
+        placeholder="Search component name..."
+      />
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <!-- Filter Type Dropdown -->
+      <div class="relative">
+        <button
+          type="button"
+          onclick={(e) => toggleDropdown("filterType", e)}
+          class="relative h-9 w-40 rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
+        >
+          <span>
+            {filterType === "all"
+              ? "All Types"
+              : filterType === "earning"
+                ? "Earning"
+                : "Deduction"}
+          </span>
+          <span
+            class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70"
+          >
+            <ChevronDownIcon class="size-4" />
+          </span>
+        </button>
+
+        {#if activeDropdown === "filterType"}
+          <div
+            transition:scale={{ start: 0.95, duration: 100 }}
+            class="absolute left-0 mt-1.5 z-50 w-full min-w-40 rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
+          >
+            {#each [{ value: "all", label: "All Types" }, { value: "earning", label: "Earning" }, { value: "deduction", label: "Deduction" }] as opt (opt.value)}
+              <button
+                type="button"
+                onclick={() => {
+                  filterType = opt.value as "all" | SalaryComponentType;
+                  activeDropdown = null;
+                }}
+                class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300
+							{filterType === opt.value ? 'bg-slate-100 dark:bg-slate-800' : ''}"
+              >
+                <span>{opt.label}</span>
+                {#if filterType === opt.value}
+                  <CheckIcon class="size-3.5 shrink-0" />
+                {/if}
+              </button>
+            {/each}
+          </div>
+        {/if}
       </div>
-      <div class="flex flex-wrap items-center gap-2">
-        <!-- Filter Type Dropdown -->
-        <div class="relative">
-          <button
-            type="button"
-            onclick={(e) => toggleDropdown("filterType", e)}
-            class="relative h-9 w-40 rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
+
+      <!-- Filter Active Dropdown -->
+      <div class="relative">
+        <button
+          type="button"
+          onclick={(e) => toggleDropdown("filterActive", e)}
+          class="relative h-9 w-40 rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
+        >
+          <span>
+            {filterActive === "all"
+              ? "All Statuses"
+              : filterActive === "true"
+                ? "Active"
+                : "Inactive"}
+          </span>
+          <span
+            class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70"
           >
-            <span>
-              {filterType === "all"
-                ? "All Types"
-                : filterType === "earning"
-                  ? "Earning"
-                  : "Deduction"}
-            </span>
-            <span
-              class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70"
-            >
-              <ChevronDownIcon class="size-4" />
-            </span>
-          </button>
+            <ChevronDownIcon class="size-4" />
+          </span>
+        </button>
 
-          {#if activeDropdown === "filterType"}
-            <div
-              transition:scale={{ start: 0.95, duration: 100 }}
-              class="absolute left-0 mt-1.5 z-50 w-full min-w-40 rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
-            >
-              {#each [{ value: "all", label: "All Types" }, { value: "earning", label: "Earning" }, { value: "deduction", label: "Deduction" }] as opt (opt.value)}
-                <button
-                  type="button"
-                  onclick={() => {
-                    filterType = opt.value as "all" | SalaryComponentType;
-                    activeDropdown = null;
-                  }}
-                  class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300
-									{filterType === opt.value ? 'bg-slate-100 dark:bg-slate-800' : ''}"
-                >
-                  <span>{opt.label}</span>
-                  {#if filterType === opt.value}
-                    <CheckIcon class="size-3.5 shrink-0" />
-                  {/if}
-                </button>
-              {/each}
-            </div>
-          {/if}
-        </div>
-
-        <!-- Filter Active Dropdown -->
-        <div class="relative">
-          <button
-            type="button"
-            onclick={(e) => toggleDropdown("filterActive", e)}
-            class="relative h-9 w-40 rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
+        {#if activeDropdown === "filterActive"}
+          <div
+            transition:scale={{ start: 0.95, duration: 100 }}
+            class="absolute left-0 mt-1.5 z-50 w-full min-w-40 rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
           >
-            <span>
-              {filterActive === "all"
-                ? "All Statuses"
-                : filterActive === "true"
-                  ? "Active"
-                  : "Inactive"}
-            </span>
-            <span
-              class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70"
-            >
-              <ChevronDownIcon class="size-4" />
-            </span>
-          </button>
-
-          {#if activeDropdown === "filterActive"}
-            <div
-              transition:scale={{ start: 0.95, duration: 100 }}
-              class="absolute left-0 mt-1.5 z-50 w-full min-w-40 rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
-            >
-              {#each [{ value: "all", label: "All Statuses" }, { value: "true", label: "Active" }, { value: "false", label: "Inactive" }] as opt (opt.value)}
-                <button
-                  type="button"
-                  onclick={() => {
-                    filterActive = opt.value as "all" | "true" | "false";
-                    activeDropdown = null;
-                  }}
-                  class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300
-									{filterActive === opt.value ? 'bg-slate-100 dark:bg-slate-800' : ''}"
-                >
-                  <span>{opt.label}</span>
-                  {#if filterActive === opt.value}
-                    <CheckIcon class="size-3.5 shrink-0" />
-                  {/if}
-                </button>
-              {/each}
-            </div>
-          {/if}
-        </div>
+            {#each [{ value: "all", label: "All Statuses" }, { value: "true", label: "Active" }, { value: "false", label: "Inactive" }] as opt (opt.value)}
+              <button
+                type="button"
+                onclick={() => {
+                  filterActive = opt.value as "all" | "true" | "false";
+                  activeDropdown = null;
+                }}
+                class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300
+							{filterActive === opt.value ? 'bg-slate-100 dark:bg-slate-800' : ''}"
+              >
+                <span>{opt.label}</span>
+                {#if filterActive === opt.value}
+                  <CheckIcon class="size-3.5 shrink-0" />
+                {/if}
+              </button>
+            {/each}
+          </div>
+        {/if}
       </div>
     </div>
+  </div>
 
+  <!-- Table Card -->
+  <Card class="pt-0 pb-0 gap-0">
     <!-- Table -->
     <MasterTable
       {headers}
@@ -542,7 +537,7 @@
           <TableCell>
             <span
               class="inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-medium w-15
-							{comp.is_active ? 'bg-foreground text-background' : 'bg-muted text-foreground'}"
+					{comp.is_active ? 'bg-foreground text-background' : 'bg-muted text-foreground'}"
             >
               {comp.is_active ? "Active" : "Inactive"}
             </span>
@@ -576,14 +571,12 @@
         </TableRow>
       {/snippet}
     </MasterTable>
-
-    <!-- Pagination -->
-    {#if totalItems > 0}
-      <div class="border-t p-3">
-        <Pagination bind:page {totalPages} total={totalItems} {pageSize} />
-      </div>
-    {/if}
   </Card>
+
+  <!-- Pagination -->
+  {#if totalItems > 0}
+    <Pagination bind:page {totalPages} total={totalItems} {pageSize} />
+  {/if}
 </div>
 
 <!-- Kebab action menu — position:fixed escapes table overflow clipping without needing a portal -->
