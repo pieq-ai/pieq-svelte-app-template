@@ -5,7 +5,6 @@
 
 	// Lucide icons
 	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
-	import UsersIcon from '@lucide/svelte/icons/users';
 	import ShieldIcon from '@lucide/svelte/icons/shield';
 	import SettingsIcon from '@lucide/svelte/icons/settings';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
@@ -39,7 +38,6 @@
 
 	const mainNavItems = [
 		{ href: '/dashboard', label: 'Dashboard', icon: LayoutDashboardIcon },
-		{ href: '/employees', label: 'Employees', icon: UsersIcon },
 		{ href: '/roles', label: 'Roles', icon: ShieldIcon },
 		{ href: '/shifts', label: 'Shifts', icon: ClockIcon },
 		{ href: '/organization_locations', label: 'Locations', icon: MapPinIcon }

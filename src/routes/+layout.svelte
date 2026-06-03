@@ -3,10 +3,17 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
 	import { Sidebar, ToastContainer, ConfirmationModal } from '$lib/components';
+	import MenuIcon from '@lucide/svelte/icons/menu';
 
 	let { children, data } = $props();
 
 	let sidebarCollapsed = $state(false);
+
+	$effect(() => {
+		if (typeof window !== 'undefined') {
+			sidebarCollapsed = window.innerWidth < 768;
+		}
+	});
 
 	$effect(() => {
 		if (typeof window !== 'undefined' && data.config) {
@@ -43,6 +50,15 @@
 
 	<!-- Main content area shifts with sidebar -->
 	<div class="pieq-main" class:sidebar-collapsed={sidebarCollapsed}>
+		{#if data.user}
+			<div class="mobile-topbar">
+				<button onclick={() => sidebarCollapsed = !sidebarCollapsed} class="mobile-menu-btn" aria-label="Toggle menu">
+					<MenuIcon size={20} />
+				</button>
+				<span class="mobile-brand-name">PieQ HRMS</span>
+				<div style="width: 32px;"></div>
+			</div>
+		{/if}
 		<div class="pieq-content">
 			{@render children()}
 		</div>

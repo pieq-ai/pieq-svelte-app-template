@@ -13,7 +13,7 @@
 
 <svelte:head>
 	<title>PieQ HRMS – Enterprise HR Management</title>
-	<meta name="description" content="PieQ HRMS — Manage employees, roles, departments, and more in one enterprise-grade platform." />
+	<meta name="description" content="PieQ HRMS — Manage roles, shifts, locations, and more in one enterprise-grade platform." />
 </svelte:head>
 
 <div style="min-height:70vh;display:flex;align-items:center;justify-content:center">
@@ -32,7 +32,7 @@
 		</h1>
 
 		<p style="font-size:15px;color:var(--muted-foreground);line-height:1.6;margin-bottom:36px">
-			Streamline your workforce — manage employees, roles, and permissions with a powerful, modern HR platform.
+			Streamline your workforce — manage roles, shifts, locations, and permissions with a powerful, modern HR platform.
 		</p>
 
 		{#if data.user}
@@ -59,7 +59,7 @@
 
 		<!-- Feature pills -->
 		<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:40px">
-			{#each ['Employee Management', 'Role-Based Access', 'Secure Auth', 'Real-time Data'] as feat}
+			{#each ['Role-Based Access', 'Shift Management', 'Locations Configuration', 'Secure Auth'] as feat}
 				<span style="padding:5px 14px;border:1px solid var(--border);border-radius:99px;font-size:12px;color:var(--muted-foreground);background:var(--card)">{feat}</span>
 			{/each}
 		</div>

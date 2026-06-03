@@ -636,9 +636,6 @@
 		<h1 style="font-size:26px;font-weight:700;color:var(--foreground);margin:0;line-height:1.2">
 			Company Location Master
 		</h1>
-		<p style="color:var(--muted-foreground);font-size:13px;margin-top:4px">
-			Create and manage company office branches, headquarters, and location structures.
-		</p>
 	</div>
 
 	<button class="btn-add-entity" onclick={openCreate} id="add-location-btn">
@@ -652,23 +649,20 @@
 	<div class="stat-card">
 		<div class="stat-card-label">Total Locations</div>
 		<div class="stat-card-value">{totalLocations}</div>
-		<div style="font-size: 11px; color: var(--muted-foreground); margin-top: 6px;">Total registered company locations</div>
 	</div>
 	<div class="stat-card">
 		<div class="stat-card-label">Active Locations</div>
 		<div class="stat-card-value" style="color: #F45310">{activeLocationsCount}</div>
-		<div style="font-size: 11px; color: var(--muted-foreground); margin-top: 6px;">Currently active company locations</div>
 	</div>
 	<div class="stat-card">
 		<div class="stat-card-label">Inactive Locations</div>
 		<div class="stat-card-value" style="color: #800020">{inactiveLocationsCount}</div>
-		<div style="font-size: 11px; color: var(--muted-foreground); margin-top: 6px;">Currently inactive company locations</div>
 	</div>
 </div>
 
 <!-- Toolbar: filter and search -->
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:16px;width:100%">
-	<div style="position:relative;flex:1;max-width:500px;display:flex;align-items:center">
+<div class="page-toolbar">
+	<div class="toolbar-search-wrapper">
 		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search" style="position:absolute;left:14px;color:var(--muted-foreground);pointer-events:none"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
 		<input
 			type="text"
@@ -689,7 +683,7 @@
 		/>
 	</div>
 	
-	<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+	<div class="location-filters">
 		<!-- Status Filter -->
 		<div style="position:relative;display:flex;align-items:center;">
 			<button

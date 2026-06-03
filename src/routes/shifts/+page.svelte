@@ -478,9 +478,6 @@
 		<h1 style="font-size:26px;font-weight:700;color:var(--foreground);margin:0;line-height:1.2">
 			Shift Master
 		</h1>
-		<p style="color:var(--muted-foreground);font-size:13px;margin-top:4px">
-			Create and manage employee work shifts and timing constraints.
-		</p>
 	</div>
 
 	<button class="btn-add-entity" onclick={openCreate} id="add-shift-btn">
@@ -494,23 +491,20 @@
 	<div class="stat-card">
 		<div class="stat-card-label">Total Shifts</div>
 		<div class="stat-card-value">{totalShifts}</div>
-		<div style="font-size: 11px; color: var(--muted-foreground); margin-top: 6px;">Total registered work shifts</div>
 	</div>
 	<div class="stat-card">
 		<div class="stat-card-label">Active Shifts</div>
 		<div class="stat-card-value" style="color: #F45310">{activeShiftsCount}</div>
-		<div style="font-size: 11px; color: var(--muted-foreground); margin-top: 6px;">Currently active work shifts</div>
 	</div>
 	<div class="stat-card">
 		<div class="stat-card-label">Avg Min Work Hours</div>
 		<div class="stat-card-value" style="color: #800020">{avgMinWorkHours} hrs</div>
-		<div style="font-size: 11px; color: var(--muted-foreground); margin-top: 6px;">Average minimum shift hours</div>
 	</div>
 </div>
 
 <!-- Toolbar: filter and search -->
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:16px;width:100%">
-	<div style="position:relative;flex:1;max-width:500px;display:flex;align-items:center">
+<div class="page-toolbar">
+	<div class="toolbar-search-wrapper">
 		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search" style="position:absolute;left:14px;color:var(--muted-foreground);pointer-events:none"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
 		<input
 			type="text"
@@ -531,7 +525,7 @@
 		/>
 	</div>
 	
-	<div style="display:flex;align-items:center;gap:12px">
+	<div class="toolbar-actions">
 		<div style="display:flex;align-items:center;gap:6px;position:relative">
 			<span style="font-size:13px;color:var(--muted-foreground)">Filter:</span>
 			<button
