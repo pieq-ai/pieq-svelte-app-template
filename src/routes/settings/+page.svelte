@@ -1,6 +1,6 @@
 <script lang="ts">
 	import SettingsIcon from '@lucide/svelte/icons/settings';
-	import { Badge, Card, CardContent, CardHeader, CardTitle } from '$lib/components';
+	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components';
 </script>
 
 <svelte:head>
@@ -9,9 +9,7 @@
 
 <div class="w-full space-y-6 px-1 py-4">
 	<div class="space-y-1 border-b border-border pb-6">
-		<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
 		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Settings</h1>
-		<p class="text-muted-foreground">Application preferences and administrative controls.</p>
 	</div>
 
 	<Card>

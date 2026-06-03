@@ -218,9 +218,7 @@
 <div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<Badge variant="secondary" class="uppercase">RBAC Foundation</Badge>
 			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">System Roles</h1>
-			<p class="text-muted-foreground">Manage application roles used for future authorization mapping.</p>
 		</div>
 		{#if permissions.canCreate}
 			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={openCreateModal}>

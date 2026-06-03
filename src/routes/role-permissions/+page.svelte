@@ -6,7 +6,6 @@
 	import {
 		Alert,
 		AlertDescription,
-		Badge,
 		Card,
 		CardContent,
 		PermissionMatrixCell,
@@ -152,9 +151,7 @@
 <div class="w-full space-y-6 px-1 py-4">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<Badge variant="secondary" class="uppercase">RBAC Foundation</Badge>
 			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Role Permission Matrix</h1>
-			<p class="text-muted-foreground">Toggle permissions across active system roles.</p>
 		</div>
 	</div>
 

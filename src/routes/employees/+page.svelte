@@ -178,11 +178,7 @@
 <div class="w-full space-y-5 px-4 py-6">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
 			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">System Employees</h1>
-			<p class="text-muted-foreground">
-				Manage and monitor employee records with dynamic metrics and seamless creation.
-			</p>
 		</div>
 		<Button
 			type="button"

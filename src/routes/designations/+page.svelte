@@ -244,11 +244,7 @@
 <div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
 			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Designation Directory</h1>
-			<p class="text-muted-foreground">
-				Manage enterprise job titles used by employment records and reporting structures.
-			</p>
 		</div>
 		<Button
 			type="button"
