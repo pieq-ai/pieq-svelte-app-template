@@ -88,8 +88,9 @@ export async function updateShift(cuid: string, payload: unknown): Promise<Shift
   
   // Duplicate name check if name provided
   if (valid.shift_name) {
+    const nameToCheck = valid.shift_name.toLowerCase();
     const existing = await shiftDao.getShifts();
-    if (existing.some((s) => s.shift_name.toLowerCase() === valid.shift_name.toLowerCase() && s.cuid !== cuid)) {
+    if (existing.some((s) => s.shift_name.toLowerCase() === nameToCheck && s.cuid !== cuid)) {
       const err: any = new Error('Shift name already exists');
       err.status = 409;
       throw err;

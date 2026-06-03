@@ -1,9 +1,16 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import * as roleDao from '../../src/lib/server/dao/role.dao.js';
 import * as shiftDao from '../../src/lib/server/dao/shift.dao.js';
 import * as locationDao from '../../src/lib/server/dao/organization_location.dao.js';
+import { db } from '../../src/lib/server/db.js';
 
 describe('Role, Shift, and Location CRUD Integration Tests', () => {
+  beforeAll(async () => {
+    await db.role.deleteMany({ where: { name: { in: ['Test Integration Role', 'Test Integration Role Updated'] } } });
+    await db.shift.deleteMany({ where: { shift_name: { in: ['Test Integration Shift', 'Test Integration Shift Updated'] } } });
+    await db.companyLocation.deleteMany({ where: { location_name: { in: ['Test Integration Location', 'Test Integration Location Updated'] } } });
+  });
+
   it('should successfully perform CRUD on Role', async () => {
     // 1. Create Role
     const roleName = 'Test Integration Role';

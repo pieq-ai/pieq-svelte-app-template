@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 /// <reference types="@sveltejs/kit" />
 import { build, files, version } from '$service-worker';
 

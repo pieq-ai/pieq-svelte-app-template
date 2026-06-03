@@ -16,7 +16,6 @@
 	let locations = $state<CompanyLocation[]>([]);
 	let page = $state(1);
 	let limit = $state(10);
-	let total = $derived(filteredLocations.length);
 	let loading = $state(false);
 	let searchQuery = $state('');
 
@@ -222,6 +221,11 @@
 		}
 	});
 
+	// Filter
+	let filterStatus = $state<'all' | 'active' | 'inactive'>('all');
+	let filterCountry = $state<string>('all');
+	let filterState = $state<string>('all');
+
 	let selectedStatusLabel = $derived(
 		filterStatus === 'all' ? 'All' : filterStatus === 'active' ? 'Active' : 'Inactive'
 	);
@@ -253,11 +257,6 @@
 		showStateDropdown = false;
 	}
 
-	// Filter
-	let filterStatus = $state<'all' | 'active' | 'inactive'>('all');
-	let filterCountry = $state<string>('all');
-	let filterState = $state<string>('all');
-
 	$effect(() => {
 		if (filterCountry !== 'all') {
 			const activeStates = states.filter(s => s.country_cuid === filterCountry);
@@ -266,9 +265,6 @@
 			}
 		}
 	});
-
-	let totalPages = $derived(Math.max(1, Math.ceil(total / limit)));
-	let pageNumbers = $derived(Array.from({ length: totalPages }, (_, i) => i + 1));
 
 	// Sorting states
 	let sortColumn = $state<string | null>(null);
@@ -311,6 +307,8 @@
 					const numB = valB ? 1 : 0;
 					return sortDirection === 'asc' ? numA - numB : numB - numA;
 				}
+				if (valA === null || valA === undefined) return sortDirection === 'asc' ? 1 : -1;
+				if (valB === null || valB === undefined) return sortDirection === 'asc' ? -1 : 1;
 				if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
 				if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
 				return 0;
@@ -366,6 +364,10 @@
 		}
 		return list;
 	});
+
+	let total = $derived(filteredLocations.length);
+	let totalPages = $derived(Math.max(1, Math.ceil(total / limit)));
+	let pageNumbers = $derived(Array.from({ length: totalPages }, (_, i) => i + 1));
 
 	async function fetchLocations() {
 		loading = true;

@@ -16,7 +16,7 @@
 	import MenuIcon from '@lucide/svelte/icons/menu';
 
 	interface Props {
-		user?: { email?: string; name?: string } | null;
+		user?: { email?: string | null; name?: string | null } | null;
 		collapsed?: boolean;
 		oncollapse?: (v: boolean) => void;
 	}
@@ -85,7 +85,7 @@
 		{#if user}
 			{#each mainNavItems as item}
 				<a
-					href={resolve(item.href)}
+					href={resolve(item.href as any)}
 					class="sidebar-nav-item"
 					class:active={isActive(item.href)}
 				>
@@ -113,7 +113,7 @@
 	<div class="sidebar-bottom">
 		{#if user}
 			<!-- Settings -->
-			<a href={resolve('/settings')} class="sidebar-nav-item" class:active={isActive('/settings')}>
+			<a href={resolve('/settings' as any)} class="sidebar-nav-item" class:active={isActive('/settings')}>
 				<span class="nav-item-icon"><SettingsIcon size={18} /></span>
 				<span class="nav-item-label">Settings</span>
 				<span class="sidebar-tooltip">Settings</span>

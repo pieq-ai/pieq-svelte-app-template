@@ -39,8 +39,9 @@ export async function updateRole(cuid: string, payload: unknown): Promise<Role> 
   }
   // Duplicate name check if name provided
   if (valid.name) {
+    const nameToCheck = valid.name.toLowerCase();
     const existing = await roleDao.getRoles();
-    if (existing.some((r) => r.name.toLowerCase() === valid.name.toLowerCase() && r.status && r.cuid !== cuid)) {
+    if (existing.some((r) => r.name.toLowerCase() === nameToCheck && r.status && r.cuid !== cuid)) {
       const err: any = new Error('Role name already exists');
       err.status = 409;
       throw err;

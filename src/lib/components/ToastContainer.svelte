@@ -9,7 +9,7 @@
 	import AlertTriangleIcon from '@lucide/svelte/icons/alert-triangle';
 </script>
 
-<div class="toast-container" aria-live="polite" aria-instant="true">
+<div class="toast-container" aria-live="polite">
 	{#each toast.toasts as t (t.id)}
 		<div
 			class="toast-item {t.type}"

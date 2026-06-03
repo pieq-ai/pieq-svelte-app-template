@@ -1,16 +1,16 @@
 // src/lib/server/services/organization_location.service.ts
-import type { CompanyLocationCreateDTO, CompanyLocationUpdateDTO, CompanyLocation } from '$lib/types/organization_location';
+import type { CompanyLocation } from '$lib/types/organization_location';
 import * as locationDao from '$lib/server/dao/organization_location.dao.js';
-import { validateCreatePayload, validateUpdatePayload, validatePaginationParams } from '$lib/server/validators/organization_location.validator.js';
+import { validateCreatePayload, validateUpdatePayload } from '$lib/server/validators/organization_location.validator.js';
 
 /** List only active locations. */
-export async function listLocations(query?: Record<string, unknown>): Promise<{ data: CompanyLocation[] }> {
+export async function listLocations(_query?: Record<string, unknown>): Promise<{ data: CompanyLocation[] }> {
   const data = await locationDao.getLocations();
   return { data };
 }
 
 /** List ALL locations (active + inactive). */
-export async function listAllLocations(query?: Record<string, unknown>): Promise<{ data: CompanyLocation[] }> {
+export async function listAllLocations(_query?: Record<string, unknown>): Promise<{ data: CompanyLocation[] }> {
   const data = await locationDao.getAllLocations();
   return { data };
 }
@@ -43,8 +43,9 @@ export async function updateLocation(cuid: string, payload: unknown): Promise<Co
   
   // Duplicate name check if name provided
   if (valid.location_name) {
+    const nameToCheck = valid.location_name.toLowerCase();
     const existing = await locationDao.getLocations();
-    if (existing.some((loc) => loc.location_name.toLowerCase() === valid.location_name.toLowerCase() && loc.cuid !== cuid)) {
+    if (existing.some((loc) => loc.location_name.toLowerCase() === nameToCheck && loc.cuid !== cuid)) {
       const err: any = new Error('Company Location name already exists');
       err.status = 409;
       throw err;

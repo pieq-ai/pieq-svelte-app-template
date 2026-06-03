@@ -16,7 +16,6 @@
 	let shifts = $state<Shift[]>([]);
 	let page = $state(1);
 	let limit = $state(10);
-	let total = $derived(filteredShifts.length);
 	let loading = $state(false);
 	let searchQuery = $state('');
 
@@ -170,9 +169,6 @@
 	// Filter
 	let filterStatus = $state<'all' | 'active' | 'inactive'>('all');
 
-	let totalPages = $derived(Math.max(1, Math.ceil(total / limit)));
-	let pageNumbers = $derived(Array.from({ length: totalPages }, (_, i) => i + 1));
-
 	// Sorting states
 	let sortColumn = $state<string | null>(null);
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
@@ -255,6 +251,10 @@
 		}
 		return list;
 	});
+
+	let total = $derived(filteredShifts.length);
+	let totalPages = $derived(Math.max(1, Math.ceil(total / limit)));
+	let pageNumbers = $derived(Array.from({ length: totalPages }, (_, i) => i + 1));
 
 	async function fetchShifts() {
 		loading = true;
