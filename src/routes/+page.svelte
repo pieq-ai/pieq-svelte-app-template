@@ -16,31 +16,29 @@
 	<meta name="description" content="PieQ HRMS — Manage roles, shifts, locations, and more in one enterprise-grade platform." />
 </svelte:head>
 
-<div style="min-height:70vh;display:flex;align-items:center;justify-content:center">
-	<div style="text-align:center;max-width:520px;padding:40px 24px">
+<div class="min-h-[70vh] flex items-center justify-center">
+	<div class="text-center max-w-[520px] py-10 px-6">
 		<!-- Brand mark -->
-		<div style="width:72px;height:72px;background:#F45310;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 24px #F4531040">
-			<span style="font-size:28px;font-weight:800;color:white;letter-spacing:-1px">PQ</span>
+		<div class="w-18 h-18 bg-pieq-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[0_8px_24px_rgba(244,83,16,0.25)]">
+			<span class="text-[28px] font-extrabold text-white tracking-[-1px]">PQ</span>
 		</div>
 
-		<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#F45310;margin-bottom:12px">
+		<p class="text-[11px] font-bold uppercase tracking-[2px] text-pieq-primary mb-3">
 			Enterprise HR Suite
 		</p>
 
-		<h1 style="font-size:36px;font-weight:800;color:var(--foreground);line-height:1.15;margin-bottom:16px;letter-spacing:-0.5px">
+		<h1 class="text-4xl font-extrabold text-foreground leading-[1.15] mb-4 tracking-[-0.5px]">
 			PieQ HRMS
 		</h1>
 
-		<p style="font-size:15px;color:var(--muted-foreground);line-height:1.6;margin-bottom:36px">
+		<p class="text-[15px] text-muted-foreground leading-[1.6] mb-9">
 			Streamline your workforce — manage roles, shifts, locations, and permissions with a powerful, modern HR platform.
 		</p>
 
 		{#if data.user}
 			<a
 				href={resolve('/dashboard')}
-				style="display:inline-flex;align-items:center;gap:8px;background:#F45310;color:white;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;text-decoration:none;transition:background .2s,transform .1s;box-shadow:0 4px 16px #F4531030"
-				onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = '#d8470a'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
-				onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = '#F45310'; (e.currentTarget as HTMLElement).style.transform = ''; }}
+				class="inline-flex items-center gap-2 bg-pieq-primary text-white text-sm font-semibold px-7 py-3 rounded-[10px] no-underline transition-[background-color,transform] duration-200 hover:bg-[#d8470a] hover:-translate-y-0.5 shadow-[0_4px_16px_rgba(244,83,16,0.18)]"
 			>
 				<LayoutDashboardIcon size={17} />
 				Go to Dashboard
@@ -48,9 +46,7 @@
 		{:else}
 			<button
 				onclick={handleSignIn}
-				style="display:inline-flex;align-items:center;gap:8px;background:#F45310;color:white;font-size:14px;font-weight:600;padding:12px 28px;border-radius:10px;border:none;cursor:pointer;transition:background .2s,transform .1s;box-shadow:0 4px 16px #F4531030"
-				onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = '#d8470a'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
-				onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = '#F45310'; (e.currentTarget as HTMLElement).style.transform = ''; }}
+				class="inline-flex items-center gap-2 bg-pieq-primary text-white text-sm font-semibold px-7 py-3 rounded-[10px] no-underline transition-[background-color,transform] duration-200 hover:bg-[#d8470a] hover:-translate-y-0.5 shadow-[0_4px_16px_rgba(244,83,16,0.18)] border-none cursor-pointer"
 			>
 				<LogInIcon size={17} />
 				Sign in with Keycloak
@@ -58,9 +54,9 @@
 		{/if}
 
 		<!-- Feature pills -->
-		<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:40px">
+		<div class="flex flex-wrap gap-2 justify-center mt-10">
 			{#each ['Role-Based Access', 'Shift Management', 'Locations Configuration', 'Secure Auth'] as feat}
-				<span style="padding:5px 14px;border:1px solid var(--border);border-radius:99px;font-size:12px;color:var(--muted-foreground);background:var(--card)">{feat}</span>
+				<span class="px-3.5 py-1.25 border border-border rounded-full text-xs text-muted-foreground bg-card">{feat}</span>
 			{/each}
 		</div>
 	</div>

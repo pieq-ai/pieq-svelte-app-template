@@ -11,90 +11,90 @@
 </svelte:head>
 
 <!-- Page header -->
-<div class="page-topbar" style="margin-bottom:24px">
+<div class="flex items-center justify-between mb-6 max-md:flex-col max-md:items-stretch max-md:gap-4">
 	<div>
 		<span
-			style="display:inline-block;background:#F453101a;color:#F45310;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:99px;margin-bottom:6px"
+			class="inline-block bg-pieq-primary/10 text-pieq-primary text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.75 rounded-full mb-1.5"
 		>Overview</span>
-		<h1 style="font-size:26px;font-weight:700;color:var(--foreground);margin:0;line-height:1.2">
+		<h1 class="text-[26px] font-bold text-foreground m-0 leading-[1.2]">
 			Dashboard
 		</h1>
-		<p style="color:var(--muted-foreground);font-size:13px;margin-top:4px">
+		<p class="text-muted-foreground text-sm mt-1">
 			Welcome back, {data.context.user.name ?? data.context.user.email}
 		</p>
 	</div>
 </div>
 
 <!-- Stats strip -->
-<div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
-	<div class="stat-card" style="border-left:3px solid #F45310">
-		<div class="stat-card-label">Assigned Roles</div>
-		<div class="stat-card-value" style="font-size:28px">{data.context.stats.roleCount}</div>
+<div class="grid gap-4 mb-7 grid-cols-[repeat(auto-fit,minmax(180px,1fr))] max-md:grid-cols-[repeat(auto-fit,minmax(140px,1fr))] max-md:gap-3 max-md:mb-5">
+	<div class="bg-card border border-border rounded-xl p-5 shadow-sm border-l-[3px] border-l-pieq-primary">
+		<div class="text-xs font-medium text-muted-foreground tracking-wide mb-1.5">Assigned Roles</div>
+		<div class="text-[28px] font-bold text-foreground leading-none tabular-nums">{data.context.stats.roleCount}</div>
 	</div>
-	<div class="stat-card">
-		<div class="stat-card-label">Member Since</div>
-		<div style="font-size:18px;font-weight:700;color:var(--foreground)">{data.context.stats.memberSince}</div>
+	<div class="bg-card border border-border rounded-xl p-5 shadow-sm">
+		<div class="text-xs font-medium text-muted-foreground tracking-wide mb-1.5">Member Since</div>
+		<div class="text-lg font-bold text-foreground leading-none">{data.context.stats.memberSince}</div>
 	</div>
 </div>
 
 <!-- Cards grid -->
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:4px">
+<div class="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4 mt-1">
 
 	<!-- Profile card -->
-	<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-		<div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
-			<UserCircleIcon size={18} style="color:#F45310" />
-			<span style="font-size:14px;font-weight:700;color:var(--foreground)">Profile</span>
+	<div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+		<div class="px-5 py-4 border-b border-border flex items-center gap-2.5">
+			<UserCircleIcon size={18} class="text-pieq-primary" />
+			<span class="text-sm font-bold text-foreground">Profile</span>
 		</div>
-		<div style="padding:20px;display:flex;flex-direction:column;gap:14px">
-			<dl style="display:flex;flex-direction:column;gap:12px">
+		<div class="p-5 flex flex-col gap-3.5">
+			<dl class="flex flex-col gap-3">
 				<div>
-					<dt style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-foreground);margin-bottom:3px">Name</dt>
-					<dd style="font-size:14px;font-weight:600;color:var(--foreground);margin:0">{data.context.user.name ?? '—'}</dd>
+					<dt class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.75">Name</dt>
+					<dd class="text-sm font-semibold text-foreground m-0">{data.context.user.name ?? '—'}</dd>
 				</div>
 				<div>
-					<dt style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-foreground);margin-bottom:3px">Email</dt>
-					<dd style="font-size:14px;color:var(--foreground);margin:0">{data.context.user.email}</dd>
+					<dt class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.75">Email</dt>
+					<dd class="text-sm text-foreground m-0">{data.context.user.email}</dd>
 				</div>
 				<div>
-					<dt style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-foreground);margin-bottom:3px">Member Since</dt>
-					<dd style="font-size:14px;color:var(--foreground);margin:0">{data.context.stats.memberSince}</dd>
+					<dt class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.75">Member Since</dt>
+					<dd class="text-sm text-foreground m-0">{data.context.stats.memberSince}</dd>
 				</div>
 			</dl>
 		</div>
 	</div>
 
 	<!-- Roles card -->
-	<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-		<div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
-			<ShieldIcon size={18} style="color:#F45310" />
-			<span style="font-size:14px;font-weight:700;color:var(--foreground)">Assigned Roles</span>
+	<div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+		<div class="px-5 py-4 border-b border-border flex items-center gap-2.5">
+			<ShieldIcon size={18} class="text-pieq-primary" />
+			<span class="text-sm font-bold text-foreground">Assigned Roles</span>
 		</div>
-		<div style="padding:20px">
+		<div class="p-5">
 			{#if data.context.roles.length > 0}
-				<div style="display:flex;flex-wrap:wrap;gap:8px">
+				<div class="flex flex-wrap gap-2">
 					{#each data.context.roles as role (role)}
-						<span style="display:inline-flex;align-items:center;padding:4px 12px;background:#F4531018;color:#F45310;border-radius:99px;font-size:12px;font-weight:600">{role}</span>
+						<span class="inline-flex items-center px-3 py-1 bg-pieq-primary/10 text-pieq-primary rounded-full text-xs font-semibold">{role}</span>
 					{/each}
 				</div>
 			{:else}
-				<p style="font-size:13px;color:var(--muted-foreground);margin:0">No realm roles assigned.</p>
+				<p class="text-[13px] text-muted-foreground m-0">No realm roles assigned.</p>
 			{/if}
-			<p style="font-size:12px;color:var(--muted-foreground);margin-top:16px">Total: {data.context.stats.roleCount} role{data.context.stats.roleCount !== 1 ? 's' : ''}</p>
+			<p class="text-xs text-muted-foreground mt-4">Total: {data.context.stats.roleCount} role{data.context.stats.roleCount !== 1 ? 's' : ''}</p>
 		</div>
 	</div>
 </div>
 
 {#if data.showAdminSection}
-	<div style="margin-top:16px;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-		<div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+	<div class="mt-4 bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+		<div class="px-5 py-4 border-b border-border flex items-center gap-2.5">
 			<ShieldIcon size={18} style="color:#8C3C3C" />
-			<span style="font-size:14px;font-weight:700;color:var(--foreground)">Admin</span>
-			<span style="padding:2px 8px;background:#8C3C3C20;color:#8C3C3C;border-radius:99px;font-size:10px;font-weight:700;text-transform:uppercase">Restricted</span>
+			<span class="text-sm font-bold text-foreground">Admin</span>
+			<span class="px-2 py-0.5 bg-[#8C3C3C]/10 text-[#8C3C3C] rounded-full text-[10px] font-bold uppercase">Restricted</span>
 		</div>
-		<div style="padding:20px">
-			<p style="font-size:13px;color:var(--muted-foreground);margin:0">
-				Visible only when the Keycloak token includes the <code style="background:var(--muted);padding:1px 6px;border-radius:4px;font-size:12px">admin</code> role.
+		<div class="p-5">
+			<p class="text-[13px] text-muted-foreground m-0">
+				Visible only when the Keycloak token includes the <code class="bg-muted px-1.5 py-0.5 rounded text-xs">admin</code> role.
 			</p>
 		</div>
 	</div>

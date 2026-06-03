@@ -470,84 +470,55 @@
 </svelte:head>
 
 <!-- Page header -->
-<div class="page-topbar">
+<div class="flex items-center justify-between mb-7 max-md:flex-col max-md:items-stretch max-md:gap-4">
 	<div>
-		<span
-			style="display:inline-block;background:#F453101a;color:#F45310;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:99px;margin-bottom:6px"
-		>HRMS Module</span>
-		<h1 style="font-size:26px;font-weight:700;color:var(--foreground);margin:0;line-height:1.2">
+		<h1 class="text-[26px] font-bold text-foreground m-0 leading-[1.2]">
 			Shift Master
 		</h1>
 	</div>
 
-	<button class="btn-add-entity" onclick={openCreate} id="add-shift-btn">
+	<button class="inline-flex items-center gap-1.5 bg-pieq-primary text-white text-[13px] font-semibold px-4 py-2 rounded-lg no-underline transition-[background-color,transform] duration-200 hover:bg-[#a8541f] hover:-translate-y-0.5 active:translate-y-0 cursor-pointer border-none max-md:self-start" onclick={openCreate} id="add-shift-btn">
 		<PlusIcon size={16} />
 		Add Shift
 	</button>
 </div>
 
 <!-- Stats Grid -->
-<div class="stats-grid">
-	<div class="stat-card">
-		<div class="stat-card-label">Total Shifts</div>
-		<div class="stat-card-value">{totalShifts}</div>
+<div class="grid gap-4 mb-7 grid-cols-[repeat(auto-fit,minmax(160px,1fr))] max-md:grid-cols-[repeat(auto-fit,minmax(140px,1fr))] max-md:gap-3 max-md:mb-5">
+	<div class="bg-card border border-border rounded-xl p-5 shadow-sm">
+		<div class="text-xs font-medium text-muted-foreground tracking-wide mb-1.5">Total Shifts</div>
+		<div class="text-[32px] font-bold text-foreground leading-none tabular-nums">{totalShifts}</div>
 	</div>
-	<div class="stat-card">
-		<div class="stat-card-label">Active Shifts</div>
-		<div class="stat-card-value" style="color: #F45310">{activeShiftsCount}</div>
+	<div class="bg-card border border-border rounded-xl p-5 shadow-sm">
+		<div class="text-xs font-medium text-muted-foreground tracking-wide mb-1.5">Active Shifts</div>
+		<div class="text-[32px] font-bold leading-none tabular-nums text-pieq-primary">{activeShiftsCount}</div>
 	</div>
-	<div class="stat-card">
-		<div class="stat-card-label">Avg Min Work Hours</div>
-		<div class="stat-card-value" style="color: #800020">{avgMinWorkHours} hrs</div>
+	<div class="bg-card border border-border rounded-xl p-5 shadow-sm">
+		<div class="text-xs font-medium text-muted-foreground tracking-wide mb-1.5">Avg Min Work Hours</div>
+		<div class="text-[32px] font-bold leading-none tabular-nums text-pieq-tertiary">{avgMinWorkHours} hrs</div>
 	</div>
 </div>
 
 <!-- Toolbar: filter and search -->
-<div class="page-toolbar">
-	<div class="toolbar-search-wrapper">
-		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search" style="position:absolute;left:14px;color:var(--muted-foreground);pointer-events:none"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+<div class="flex items-center justify-between mb-5 gap-4 w-full max-md:flex-col max-md:items-stretch max-md:gap-3">
+	<div class="relative flex-1 max-w-[500px] flex items-center max-md:max-w-full max-md:w-full">
+		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3.5 text-muted-foreground pointer-events-none"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
 		<input
 			type="text"
 			bind:value={searchQuery}
 			placeholder="Search by shift name..."
 			id="shift-search-input"
-			style="width:100%;border:1px solid var(--border);background:var(--card);color:var(--foreground);font-size:14px;padding:9px 12px 9px 40px;border-radius:10px;outline:none;transition:all .2s;box-shadow:0 1px 2px rgba(0,0,0,0.02)"
-			onfocus={(e) => {
-				const t = e.currentTarget as HTMLElement;
-				t.style.borderColor = '#a3a3a3';
-				t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
-			}}
-			onblur={(e) => {
-				const t = e.currentTarget as HTMLElement;
-				t.style.borderColor = 'var(--border)';
-				t.style.boxShadow = 'none';
-			}}
+			class="w-full border border-border bg-card text-foreground text-sm py-2.25 pl-10 pr-3 rounded-xl outline-none transition-all duration-200 shadow-sm focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
+			oninput={() => formError = ''}
 		/>
 	</div>
 	
-	<div class="toolbar-actions">
-		<div style="display:flex;align-items:center;gap:6px;position:relative">
-			<span style="font-size:13px;color:var(--muted-foreground)">Filter:</span>
+	<div class="flex items-center gap-3 max-md:w-full max-md:justify-between max-md:flex-wrap">
+		<div class="flex items-center gap-1.5 relative max-md:w-full">
+			<span class="text-[13px] text-muted-foreground">Filter:</span>
 			<button
 				onclick={(e) => { e.stopPropagation(); showStatusDropdown = !showStatusDropdown; }}
-				style="background: var(--card); border: 1.5px solid #d1d5db; border-radius: 12px; padding: 10px 16px; font-size: 14px; font-weight: 500; color: var(--foreground); display: inline-flex; align-items: center; justify-content: space-between; gap: 48px; min-width: 140px; cursor: pointer; transition: all .2s; outline: none; box-shadow: 0 1px 2px rgba(0,0,0,0.02)"
-				onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#a3a3a3')}
-				onmouseleave={(e) => {
-					const t = e.currentTarget as HTMLElement;
-					if (document.activeElement !== t) {
-						t.style.borderColor = '#d1d5db';
-					}
-				}}
-				onfocus={(e) => {
-					const t = e.currentTarget as HTMLElement;
-					t.style.borderColor = '#a3a3a3';
-					t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
-				}}
-				onblur={(e) => {
-					const t = e.currentTarget as HTMLElement;
-					t.style.borderColor = '#d1d5db';
-					t.style.boxShadow = 'none';
-				}}
+				class="bg-card border-[1.5px] border-neutral-300 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground inline-flex items-center justify-between gap-12 min-w-[140px] cursor-pointer transition-all duration-200 outline-none shadow-sm hover:border-neutral-400 focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15 max-md:w-full max-md:min-w-full max-md:gap-3"
 				id="shift-filter-select-trigger"
 			>
 				<span>{filterStatus === 'all' ? 'All' : filterStatus === 'active' ? 'Active' : 'Inactive'}</span>
@@ -555,16 +526,16 @@
 			</button>
 
 			{#if showStatusDropdown}
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div
-					style="position: absolute; top: calc(100% + 4px); right: 0; z-index: 60; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); min-width: 140px; padding: 4px; display: flex; flex-direction: column; gap: 2px;"
+					class="absolute top-[calc(100%+4px)] right-0 z-60 bg-white border border-neutral-200 rounded-xl shadow-lg min-w-[140px] p-1 flex flex-col gap-0.5"
 					onclick={(e) => e.stopPropagation()}
 				>
 					{#each [{ value: 'all', label: 'All' }, { value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }] as opt}
 						<button
 							onclick={() => handleStatusSelect(opt.value as any)}
-							style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; font-size: 14px; font-weight: 500; border: none; background: none; cursor: pointer; text-align: left; border-radius: 8px; color: var(--foreground); transition: background 0.15s"
-							onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = '#f3f4f6')}
-							onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = 'none')}
+							class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
 						>
 							<span>{opt.label}</span>
 							{#if filterStatus === opt.value}
@@ -579,26 +550,26 @@
 </div>
 
 <!-- Table card -->
-<div class="enterprise-table-card">
+<div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm max-md:overflow-x-auto max-md:w-full max-md:[-webkit-overflow-scrolling:touch]">
 	{#if loading}
-		<div style="padding:64px;text-align:center;color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;gap:10px">
+		<div class="py-16 text-center text-muted-foreground flex items-center justify-center gap-2.5">
 			<LoaderCircleIcon class="animate-spin" size={18} />
 			Loading shifts...
 		</div>
 	{:else if filteredShifts.length === 0}
-		<div style="padding:64px;text-align:center;color:var(--muted-foreground)">
+		<div class="py-16 text-center text-muted-foreground">
 			{shifts.length === 0
 				? 'No shifts found. Click Add Shift to create one.'
 				: 'No shifts match the current filter.'}
 		</div>
 	{:else}
-		<table style="width:100%;border-collapse:collapse">
-			<thead style="background:#F9FAFB">
-				<tr style="border-bottom:1px solid var(--border)">
-					<th style="padding:14px 20px;text-align:left;font-size:14px;font-weight:700;color:var(--foreground);white-space:nowrap">
+		<table class="w-full border-collapse">
+			<thead class="bg-[#F9FAFB]">
+				<tr class="border-b border-border">
+					<th class="px-5 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap">
 						<button
 							onclick={() => toggleSort('shift_name')}
-							style="display:flex;align-items:center;gap:6px;cursor:pointer;border:none;background:none;font-size:14px;font-weight:700;color:var(--foreground);padding:0"
+							class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
 						>
 							Shift Name
 							{#if sortColumn === 'shift_name'}
@@ -612,10 +583,10 @@
 							{/if}
 						</button>
 					</th>
-					<th style="padding:14px 20px;text-align:left;font-size:14px;font-weight:700;color:var(--foreground);white-space:nowrap">
+					<th class="px-5 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap">
 						<button
 							onclick={() => toggleSort('start_time')}
-							style="display:flex;align-items:center;gap:6px;cursor:pointer;border:none;background:none;font-size:14px;font-weight:700;color:var(--foreground);padding:0"
+							class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
 						>
 							Start Time
 							{#if sortColumn === 'start_time'}
@@ -629,10 +600,10 @@
 							{/if}
 						</button>
 					</th>
-					<th style="padding:14px 20px;text-align:left;font-size:14px;font-weight:700;color:var(--foreground);white-space:nowrap">
+					<th class="px-5 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap">
 						<button
 							onclick={() => toggleSort('end_time')}
-							style="display:flex;align-items:center;gap:6px;cursor:pointer;border:none;background:none;font-size:14px;font-weight:700;color:var(--foreground);padding:0"
+							class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
 						>
 							End Time
 							{#if sortColumn === 'end_time'}
@@ -646,10 +617,10 @@
 							{/if}
 						</button>
 					</th>
-					<th style="padding:14px 20px;text-align:left;font-size:14px;font-weight:700;color:var(--foreground);white-space:nowrap">
+					<th class="px-5 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap">
 						<button
 							onclick={() => toggleSort('minimum_work_hours')}
-							style="display:flex;align-items:center;gap:6px;cursor:pointer;border:none;background:none;font-size:14px;font-weight:700;color:var(--foreground);padding:0"
+							class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
 						>
 							Min Work Hours
 							{#if sortColumn === 'minimum_work_hours'}
@@ -663,10 +634,10 @@
 							{/if}
 						</button>
 					</th>
-					<th style="padding:14px 20px;text-align:left;font-size:14px;font-weight:700;color:var(--foreground);white-space:nowrap">
+					<th class="px-5 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap">
 						<button
 							onclick={() => toggleSort('status')}
-							style="display:flex;align-items:center;gap:6px;cursor:pointer;border:none;background:none;font-size:14px;font-weight:700;color:var(--foreground);padding:0"
+							class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
 						>
 							Status
 							{#if sortColumn === 'status'}
@@ -680,54 +651,48 @@
 							{/if}
 						</button>
 					</th>
-					<th style="padding:14px 20px;text-align:right;font-size:14px;font-weight:700;color:var(--foreground);white-space:nowrap">Actions</th>
+					<th class="px-5 py-3.5 text-right text-sm font-bold text-foreground whitespace-nowrap">Actions</th>
 				</tr>
 			</thead>
 			<tbody>
 				{#each paginatedShifts as shift (shift.cuid)}
-					<tr
-						style="border-top:1px solid var(--border);transition:background-color .2s ease"
-						onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}
-						onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = ''; }}
-					>
-						<td style="padding:14px 20px">
-							<div style="display:flex;align-items:center;gap:8px">
-								<span style="font-size:14px;font-weight:600">{shift.shift_name}</span>
+					<tr class="border-t border-border transition-colors duration-200 hover:bg-muted">
+						<td class="px-5 py-3.5">
+							<div class="flex items-center gap-2">
+								<span class="text-sm font-semibold">{shift.shift_name}</span>
 							</div>
 						</td>
-						<td style="padding:14px 20px;font-size:13px">{formatTimeForDisplay(shift.start_time)}</td>
-						<td style="padding:14px 20px;font-size:13px">{formatTimeForDisplay(shift.end_time)}</td>
-						<td style="padding:14px 20px;font-size:13px;font-weight:600">{shift.minimum_work_hours} hrs</td>
-						<td style="padding:14px 20px">
+						<td class="px-5 py-3.5 text-sm">{formatTimeForDisplay(shift.start_time)}</td>
+						<td class="px-5 py-3.5 text-sm">{formatTimeForDisplay(shift.end_time)}</td>
+						<td class="px-5 py-3.5 text-sm font-semibold">{shift.minimum_work_hours} hrs</td>
+						<td class="px-5 py-3.5">
 							{#if shift.status}
-								<span class="badge-active">Active</span>
+								<span class="inline-flex items-center justify-center w-16 py-1 rounded-full text-[11px] font-semibold bg-[#111827] text-white">Active</span>
 							{:else}
-								<span class="badge-inactive">Inactive</span>
+								<span class="inline-flex items-center justify-center w-16 py-1 rounded-full text-[11px] font-semibold bg-neutral-100 text-neutral-700">Inactive</span>
 							{/if}
 						</td>
-						<td style="padding:14px 20px;text-align:right;position:relative">
-							<div style="display:inline-flex;align-items:center;justify-content:flex-end">
+						<td class="px-5 py-3.5 text-right relative">
+							<div class="inline-flex items-center justify-end">
 								<button
 									onclick={(e) => toggleDropdown(shift.cuid, e)}
 									aria-label="Actions"
 									title="Actions"
-									style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid var(--border);background:none;cursor:pointer;transition:background .15s;color:var(--foreground)"
-									onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = 'var(--muted)')}
-									onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '')}
+									class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-transparent cursor-pointer transition-colors duration-150 text-foreground hover:bg-muted"
 								>
 									<MoreVerticalIcon size={15} />
 								</button>
 
 								{#if activeDropdownId === shift.cuid}
+									<!-- svelte-ignore a11y_click_events_have_key_events -->
+									<!-- svelte-ignore a11y_no_static_element_interactions -->
 									<div
-										style="position:absolute;right:20px;top:44px;z-index:50;background:var(--background);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.08);min-width:110px;padding:4px 0"
+										class="absolute right-5 top-11 z-50 bg-background border border-border rounded-lg shadow-md min-w-[110px] py-1"
 										onclick={(e) => e.stopPropagation()}
 									>
 										<button
 											onclick={() => { openEdit(shift); activeDropdownId = null; }}
-											style="width:100%;display:flex;align-items:center;gap:12px;padding:8px 12px;font-size:13px;border:none;background:none;cursor:pointer;text-align:left;color:var(--foreground);transition:background .15s"
-											onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = 'var(--muted)')}
-											onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '')}
+											class="w-full flex items-center gap-3 px-3 py-2 text-xs border-none bg-transparent cursor-pointer text-left text-foreground transition-colors duration-150 hover:bg-muted"
 										>
 											<Pencil2Icon size={13} />
 											Edit
@@ -742,38 +707,32 @@
 		</table>
 
 		<!-- Pagination -->
-		<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--border)">
-			<p style="font-size:14px;color:var(--muted-foreground)">
+		<div class="flex items-center justify-between px-5 py-3.5 border-t border-border">
+			<p class="text-sm text-muted-foreground">
 				Showing {total === 0 ? 0 : (page - 1) * limit + 1}-{Math.min(page * limit, total)} of {total} records
 			</p>
-			<div style="display:flex;align-items:center;gap:8px">
+			<div class="flex items-center gap-2">
 				<button
 					disabled={page <= 1}
 					onclick={prevPage}
-					style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--card);font-size:13px;font-weight:500;cursor:pointer;color:var(--muted-foreground);opacity:{page <= 1 ? 0.4 : 1};display:inline-flex;align-items:center;transition:background 0.15s"
-					onmouseenter={(e) => { if (page > 1) (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}
-					onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--card)'; }}
+					class="px-3 py-1.5 border border-border rounded-md bg-card text-xs font-medium cursor-pointer text-muted-foreground inline-flex items-center transition-colors duration-150 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
 				><span style="margin-right: 8px;">&lt;</span>Previous</button>
 				{#each pageNumbers as p}
 					{#if p === page}
-						<span style="background:#111827;color:#ffffff;width:32px;height:32px;border-radius:6px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-size:14px">
+						<span class="bg-[#111827] text-white w-8 h-8 rounded-md font-bold inline-flex items-center justify-center text-sm">
 							{p}
 						</span>
 					{:else}
 						<button
 							onclick={() => page = p}
-							style="width:32px;height:32px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--foreground);font-weight:600;cursor:pointer;font-size:14px;transition:all 0.15s"
-							onmouseenter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}
-							onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--card)'; }}
+							class="w-8 h-8 rounded-md border border-border bg-card text-foreground font-semibold cursor-pointer text-sm transition-all duration-150 hover:bg-muted"
 						>{p}</button>
 					{/if}
 				{/each}
 				<button
 					disabled={page >= totalPages}
 					onclick={nextPage}
-					style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--card);font-size:13px;font-weight:500;cursor:pointer;color:var(--muted-foreground);opacity:{page >= totalPages ? 0.4 : 1};display:inline-flex;align-items:center;transition:background 0.15s"
-					onmouseenter={(e) => { if (page < totalPages) (e.currentTarget as HTMLElement).style.background = 'var(--muted)'; }}
-					onmouseleave={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--card)'; }}
+					class="px-3 py-1.5 border border-border rounded-md bg-card text-xs font-medium cursor-pointer text-muted-foreground inline-flex items-center transition-colors duration-150 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
 				>Next<span style="margin-left: 8px;">&gt;</span></button>
 			</div>
 		</div>
@@ -783,34 +742,30 @@
 <!-- Create / Edit Modal -->
 <Modal bind:show={showForm} title={editShift ? 'Edit Shift' : 'Create New Shift'} onclose={attemptCloseForm}>
 	{#if showConfirmation}
-		<div style="position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box">
-			<div style="background:#ffffff;border:none;border-radius:24px;padding:32px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,0.15);display:flex;flex-direction:column;gap:0;text-align:left;box-sizing:border-box">
-				<h3 style="font-size:22px;font-weight:700;color:#000000;margin:0 0 10px 0;font-family:'Inter Variable',sans-serif">Unsaved Changes</h3>
-				<p style="font-size:15px;color:#737373;margin:0 0 28px 0;line-height:1.5;font-family:'Inter Variable',sans-serif">You have unsaved changes. Do you want to continue editing or close without saving?</p>
-				<div style="display:flex;flex-direction:row;gap:12px;justify-content:flex-start;align-items:center">
+		<div class="fixed inset-0 bg-black/55 backdrop-blur-sm z-300 flex items-center justify-center p-6 box-border">
+			<div class="bg-white border-none rounded-3xl p-8 w-full max-w-[480px] shadow-2xl flex flex-col gap-0 text-left box-border">
+				<h3 class="text-xl font-bold text-black m-0 mb-2.5 font-sans">Unsaved Changes</h3>
+				<p class="text-[15px] text-[#737373] m-0 mb-7 leading-normal font-sans">You have unsaved changes. Do you want to continue editing or close without saving?</p>
+				<div class="flex flex-row gap-3 justify-start items-center">
 					<button
 						type="button"
 						onclick={continueEditing}
-						style="padding:10px 20px;border-radius:12px;background:#ffffff;border:1px solid #e5e7eb;color:#000000;font-size:15px;font-weight:600;cursor:pointer;transition:background 0.15s;font-family:'Inter Variable',sans-serif"
-						onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.background = '#f9fafb')}
-						onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.background = '#ffffff')}
+						class="px-5 py-2.5 rounded-xl bg-white border border-neutral-200 text-black text-[15px] font-semibold cursor-pointer transition-colors duration-150 hover:bg-neutral-50 font-sans"
 					>Continue Editing</button>
 					<button
 						type="button"
 						onclick={discardChanges}
-						style="padding:10px 20px;border-radius:12px;background:#800020;border:none;color:#ffffff;font-size:15px;font-weight:600;cursor:pointer;transition:opacity 0.15s;font-family:'Inter Variable',sans-serif"
-						onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.opacity = '0.9')}
-						onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.opacity = '1')}
+						class="px-5 py-2.5 rounded-xl bg-pieq-tertiary border-none text-white text-[15px] font-semibold cursor-pointer transition-opacity duration-150 hover:opacity-90 font-sans"
 					>Close Without Saving</button>
 				</div>
 			</div>
 		</div>
 	{/if}
 
-	<form onsubmit={submitForm} style="display:flex;flex-direction:column;gap:16px">
-		<div style="display:flex;flex-direction:column;gap:6px">
-			<label for="shift-name" style="font-size:13px;font-weight:600">
-				Shift Name <span style="color:#F45310">*</span>
+	<form onsubmit={submitForm} class="flex flex-col gap-4">
+		<div class="flex flex-col gap-1.5">
+			<label for="shift-name" class="text-[13px] font-semibold">
+				Shift Name <span class="text-pieq-primary">*</span>
 			</label>
 			<input
 				id="shift-name"
@@ -818,72 +773,42 @@
 				bind:value={formName}
 				oninput={() => formError = ''}
 				placeholder="e.g. Morning Shift"
-				style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:all .2s;box-sizing:border-box"
-				onfocus={(e) => {
-					const t = e.currentTarget as HTMLElement;
-					t.style.borderColor = '#a3a3a3';
-					t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
-				}}
-				onblur={(e) => {
-					const t = e.currentTarget as HTMLElement;
-					t.style.borderColor = 'var(--border)';
-					t.style.boxShadow = 'none';
-				}}
+				class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
 			/>
 			{#if formError}
-				<p style="color:#800020;font-size:12px;margin:0">{formError}</p>
+				<p class="text-pieq-tertiary text-xs m-0">{formError}</p>
 			{/if}
 		</div>
 
-		<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-			<div style="display:flex;flex-direction:column;gap:6px">
-				<label for="shift-start-time" style="font-size:13px;font-weight:600">
-					Start Time <span style="color:#F45310">*</span>
+		<div class="grid grid-cols-2 gap-3">
+			<div class="flex flex-col gap-1.5">
+				<label for="shift-start-time" class="text-[13px] font-semibold">
+					Start Time <span class="text-pieq-primary">*</span>
 				</label>
 				<input
 					id="shift-start-time"
 					type="time"
 					bind:value={formStartTime}
 					oninput={() => formError = ''}
-					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:all .2s;box-sizing:border-box"
-					onfocus={(e) => {
-						const t = e.currentTarget as HTMLElement;
-						t.style.borderColor = '#a3a3a3';
-						t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
-					}}
-					onblur={(e) => {
-						const t = e.currentTarget as HTMLElement;
-						t.style.borderColor = 'var(--border)';
-						t.style.boxShadow = 'none';
-					}}
+					class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
 				/>
 			</div>
-			<div style="display:flex;flex-direction:column;gap:6px">
-				<label for="shift-end-time" style="font-size:13px;font-weight:600">
-					End Time <span style="color:#F45310">*</span>
+			<div class="flex flex-col gap-1.5">
+				<label for="shift-end-time" class="text-[13px] font-semibold">
+					End Time <span class="text-pieq-primary">*</span>
 				</label>
 				<input
 					id="shift-end-time"
 					type="time"
 					bind:value={formEndTime}
 					oninput={() => formError = ''}
-					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:all .2s;box-sizing:border-box"
-					onfocus={(e) => {
-						const t = e.currentTarget as HTMLElement;
-						t.style.borderColor = '#a3a3a3';
-						t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
-					}}
-					onblur={(e) => {
-						const t = e.currentTarget as HTMLElement;
-						t.style.borderColor = 'var(--border)';
-						t.style.boxShadow = 'none';
-					}}
+					class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
 				/>
 			</div>
 		</div>
 
-		<div style="display:flex;flex-direction:column;gap:6px">
-			<label for="shift-min-hours" style="font-size:13px;font-weight:600">
+		<div class="flex flex-col gap-1.5">
+			<label for="shift-min-hours" class="text-[13px] font-semibold">
 				Minimum Work Hours
 			</label>
 			<input
@@ -891,29 +816,19 @@
 				type="text"
 				value="{calculatedMinHours} hours"
 				disabled
-				style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--muted);color:var(--muted-foreground);outline:none;box-sizing:border-box;cursor:not-allowed"
+				class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-muted text-muted-foreground outline-none box-border cursor-not-allowed"
 			/>
 		</div>
 
 		{#if editShift}
-			<div style="display:flex;flex-direction:column;gap:6px">
-				<label for="shift-status" style="font-size:13px;font-weight:600">
+			<div class="flex flex-col gap-1.5">
+				<label for="shift-status" class="text-[13px] font-semibold">
 					Status
 				</label>
 				<select
 					id="shift-status"
 					bind:value={formStatus}
-					style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--background);color:var(--foreground);outline:none;transition:all .2s;box-sizing:border-box"
-					onfocus={(e) => {
-						const t = e.currentTarget as HTMLElement;
-						t.style.borderColor = '#a3a3a3';
-						t.style.boxShadow = '0 0 0 4px rgba(115, 115, 115, 0.15)';
-					}}
-					onblur={(e) => {
-						const t = e.currentTarget as HTMLElement;
-						t.style.borderColor = 'var(--border)';
-						t.style.boxShadow = 'none';
-					}}
+					class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
 				>
 					<option value={true}>Active</option>
 					<option value={false}>Inactive</option>
@@ -921,11 +836,11 @@
 			</div>
 		{/if}
 
-		<div style="display:flex;justify-content:flex-end;padding-top:4px">
+		<div class="flex justify-end pt-1">
 			<button
 				type="submit"
 				disabled={formLoading || (editShift ? !isUpdateChanged : !isCreateEnabled)}
-				style="padding:9px 18px;border-radius:8px;background:#F45310;color:white;border:none;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:opacity 0.2s;opacity:{(formLoading || (editShift ? !isUpdateChanged : !isCreateEnabled)) ? 0.4 : 1};cursor:{(formLoading || (editShift ? !isUpdateChanged : !isCreateEnabled)) ? 'not-allowed' : 'pointer'}"
+				class="px-4.5 py-2.25 rounded-lg bg-pieq-primary text-white border-none text-[13px] font-semibold inline-flex items-center gap-1.5 transition-opacity duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
 			>
 				{#if formLoading}
 					<LoaderCircleIcon class="animate-spin" size={14} />

@@ -44,34 +44,34 @@
 	];
 </script>
 
-<aside class="pieq-sidebar" class:collapsed>
+<aside
+	class="min-h-screen bg-sidebar-bg text-sidebar-fg flex flex-col shrink-0 transition-[width,transform] duration-250 ease-in-out fixed top-0 left-0 bottom-0 z-40 border-r border-sidebar-border overflow-visible max-md:-translate-x-full max-md:shadow-[0_0_20px_rgba(0,0,0,0.15)] {collapsed ? 'w-sidebar-collapsed-w' : 'w-sidebar-w max-md:translate-x-0 max-md:w-sidebar-w!'}"
+>
 	<!-- Brand -->
-	<div class="sidebar-brand" style="display:flex;align-items:center;justify-content:{collapsed ? 'center' : 'space-between'};width:100%;box-sizing:border-box;padding:{collapsed ? '16px 0' : '24px 16px 16px'};border-bottom:none;position:relative">
+	<div
+		class="flex items-center w-full box-border border-b-0 relative gap-2.5 min-h-[64px] overflow-hidden whitespace-nowrap {collapsed ? 'justify-center py-4 px-0' : 'justify-between pt-6 px-4 pb-4'}"
+	>
 		{#if !collapsed}
-			<div style="display:flex;align-items:center;gap:10px">
-				<div class="sidebar-brand-icon" style="background:#F45310;color:white;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(244, 83, 16, 0.3)">
+			<div class="flex items-center gap-2.5">
+				<div class="w-9 h-9 bg-sidebar-accent rounded-lg flex items-center justify-center shrink-0 text-white font-extrabold text-[15px] tracking-[-0.5px] shadow-[0_4px_12px_rgba(244,83,16,0.3)]">
 					<Building2Icon size={20} />
 				</div>
-				<span class="sidebar-brand-name" style="font-size:16px;font-weight:700;color:white;letter-spacing:-0.5px">PieQ HRMS</span>
+				<span class="text-base font-bold text-white tracking-[-0.5px] whitespace-nowrap leading-[1.2]">PieQ HRMS</span>
 			</div>
 			<button
 				onclick={toggle}
-				style="background:none;border:none;color:#ffffff;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;transition:color 0.2s"
+				class="bg-transparent border-none text-white cursor-pointer p-1 flex items-center justify-center transition-colors duration-200 hover:text-sidebar-accent"
 				aria-label="Collapse sidebar"
 				title="Collapse sidebar"
-				onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.color = '#F45310')}
-				onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.color = '#ffffff')}
 			>
 				<MenuIcon size={18} />
 			</button>
 		{:else}
 			<button
 				onclick={toggle}
-				style="background:none;border:none;color:#ffffff;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;transition:color 0.2s"
+				class="bg-transparent border-none text-white cursor-pointer p-1 flex items-center justify-center transition-colors duration-200 hover:text-sidebar-accent"
 				aria-label="Expand sidebar"
 				title="Expand sidebar"
-				onmouseenter={(e) => ((e.currentTarget as HTMLElement).style.color = '#F45310')}
-				onmouseleave={(e) => ((e.currentTarget as HTMLElement).style.color = '#ffffff')}
 			>
 				<MenuIcon size={18} />
 			</button>
@@ -79,60 +79,57 @@
 	</div>
 
 	<!-- Main Navigation -->
-	<nav class="sidebar-nav">
+	<nav class="flex-1 py-3 overflow-y-auto overflow-x-hidden">
 		{#if user}
 			{#each mainNavItems as item}
 				<a
 					href={resolve(item.href as any)}
-					class="sidebar-nav-item"
-					class:active={isActive(item.href)}
+					class="group flex items-center gap-2.5 px-4 py-2.5 cursor-pointer text-white no-underline transition-[background-color,color,box-shadow] duration-200 ease-in-out whitespace-nowrap overflow-hidden relative text-sm font-medium my-0.5 mx-2 rounded-lg hover:bg-pieq-primary hover:text-white {isActive(item.href) ? 'bg-pieq-primary' : ''}"
 				>
-					<span class="nav-item-icon">
+					<span class="w-5 h-5 shrink-0 text-white transition-colors duration-150 group-hover:text-white">
 						<item.icon size={18} />
 					</span>
-					<span class="nav-item-label">{item.label}</span>
-					<span class="sidebar-tooltip">{item.label}</span>
+					<span class="overflow-hidden whitespace-nowrap transition-all duration-150 {collapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'}">{item.label}</span>
+					<span class="absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 bg-pieq-secondary text-white text-xs font-medium px-2.5 py-1.25 rounded-md whitespace-nowrap pointer-events-none z-50 shadow-[0_4px_12px_rgba(0,0,0,0.3)] before:content-[''] before:absolute before:right-full before:top-1/2 before:-translate-y-1/2 before:border-[5px] before:border-transparent before:border-r-pieq-secondary {collapsed ? 'hidden group-hover:block' : 'hidden'}">{item.label}</span>
 				</a>
 			{/each}
 		{:else}
 			<a
 				href={resolve('/')}
-				class="sidebar-nav-item"
-				class:active={$page.url.pathname === '/'}
+				class="group flex items-center gap-2.5 px-4 py-2.5 cursor-pointer text-white no-underline transition-[background-color,color,box-shadow] duration-200 ease-in-out whitespace-nowrap overflow-hidden relative text-sm font-medium my-0.5 mx-2 rounded-lg hover:bg-pieq-primary hover:text-white {isActive('/') ? 'bg-pieq-primary' : ''}"
 			>
-				<span class="nav-item-icon"><HomeIcon size={18} /></span>
-				<span class="nav-item-label">Home</span>
-				<span class="sidebar-tooltip">Home</span>
+				<span class="w-5 h-5 shrink-0 text-white transition-colors duration-150 group-hover:text-white"><HomeIcon size={18} /></span>
+				<span class="overflow-hidden whitespace-nowrap transition-all duration-150 {collapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'}">Home</span>
+				<span class="absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 bg-pieq-secondary text-white text-xs font-medium px-2.5 py-1.25 rounded-md whitespace-nowrap pointer-events-none z-50 shadow-[0_4px_12px_rgba(0,0,0,0.3)] before:content-[''] before:absolute before:right-full before:top-1/2 before:-translate-y-1/2 before:border-[5px] before:border-transparent before:border-r-pieq-secondary {collapsed ? 'hidden group-hover:block' : 'hidden'}">Home</span>
 			</a>
 		{/if}
 	</nav>
 
 	<!-- Bottom Section -->
-	<div class="sidebar-bottom">
+	<div class="py-2.5 pb-4 border-t border-white/8">
 		{#if user}
 			<!-- Settings -->
-			<a href={resolve('/settings' as any)} class="sidebar-nav-item" class:active={isActive('/settings')}>
-				<span class="nav-item-icon"><SettingsIcon size={18} /></span>
-				<span class="nav-item-label">Settings</span>
-				<span class="sidebar-tooltip">Settings</span>
+			<a href={resolve('/settings' as any)} class="group flex items-center gap-2.5 px-4 py-2.5 cursor-pointer text-white no-underline transition-[background-color,color,box-shadow] duration-200 ease-in-out whitespace-nowrap overflow-hidden relative text-sm font-medium my-0.5 mx-2 rounded-lg hover:bg-pieq-primary hover:text-white {isActive('/settings') ? 'bg-pieq-primary' : ''}">
+				<span class="w-5 h-5 shrink-0 text-white transition-colors duration-150 group-hover:text-white"><SettingsIcon size={18} /></span>
+				<span class="overflow-hidden whitespace-nowrap transition-all duration-150 {collapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'}">Settings</span>
+				<span class="absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 bg-pieq-secondary text-white text-xs font-medium px-2.5 py-1.25 rounded-md whitespace-nowrap pointer-events-none z-50 shadow-[0_4px_12px_rgba(0,0,0,0.3)] before:content-[''] before:absolute before:right-full before:top-1/2 before:-translate-y-1/2 before:border-[5px] before:border-transparent before:border-r-pieq-secondary {collapsed ? 'hidden group-hover:block' : 'hidden'}">Settings</span>
 			</a>
 
 			<!-- Sign out -->
 			<button
 				type="button"
 				onclick={handleSignOut}
-				class="sidebar-nav-item sidebar-sign-out"
-				style="width: calc(100% - 16px); border: none; background: none; cursor: pointer; text-align: left; box-sizing: border-box;"
+				class="group flex items-center gap-2.5 px-4 py-2.5 cursor-pointer text-white no-underline transition-[background-color,color,box-shadow] duration-200 ease-in-out whitespace-nowrap overflow-hidden relative text-sm font-medium my-0.5 mx-2 rounded-lg hover:bg-pieq-tertiary hover:text-white w-[calc(100%-16px)] border-none bg-transparent text-left box-border"
 			>
-				<span class="nav-item-icon" style="color:#ffffff"><LogOutIcon size={18} /></span>
-				<span class="nav-item-label" style="color:#ffffff">Sign out</span>
-				<span class="sidebar-tooltip">Sign out</span>
+				<span class="w-5 h-5 shrink-0 text-white transition-colors duration-150 group-hover:text-white"><LogOutIcon size={18} /></span>
+				<span class="overflow-hidden whitespace-nowrap transition-all duration-150 {collapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'}">Sign out</span>
+				<span class="absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 bg-pieq-secondary text-white text-xs font-medium px-2.5 py-1.25 rounded-md whitespace-nowrap pointer-events-none z-50 shadow-[0_4px_12px_rgba(0,0,0,0.3)] before:content-[''] before:absolute before:right-full before:top-1/2 before:-translate-y-1/2 before:border-[5px] before:border-transparent before:border-r-pieq-secondary {collapsed ? 'hidden group-hover:block' : 'hidden'}">Sign out</span>
 			</button>
 
 			<!-- User Information strip -->
 			{#if !collapsed}
-				<div class="sidebar-user" style="padding:12px 24px 4px;margin-top:8px">
-					<span class="sidebar-user-email" style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:500;text-overflow:ellipsis;overflow:hidden;display:block" title={user.email ?? user.name ?? ''}>
+				<div class="flex items-center gap-2.5 py-3 px-6 pb-1 mt-2 overflow-hidden whitespace-nowrap">
+					<span class="text-[11px] text-white/40 font-medium truncate block w-full" title={user.email ?? user.name ?? ''}>
 						{user.email ?? user.name ?? ''}
 					</span>
 				</div>

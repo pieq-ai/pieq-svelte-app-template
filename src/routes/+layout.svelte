@@ -41,7 +41,7 @@
 	<title>PieQ HRMS</title>
 </svelte:head>
 
-<div class="pieq-shell">
+<div class="flex min-h-screen bg-background">
 	<!-- Persistent Sidebar -->
 	<Sidebar
 		user={data.user}
@@ -49,17 +49,19 @@
 	/>
 
 	<!-- Main content area shifts with sidebar -->
-	<div class="pieq-main" class:sidebar-collapsed={sidebarCollapsed}>
+	<div
+		class="flex-1 transition-[margin] duration-250 ease-in-out min-h-screen flex flex-col {sidebarCollapsed ? 'ml-sidebar-collapsed-w' : 'ml-sidebar-w'} max-md:ml-0 max-md:overflow-x-hidden max-md:w-full"
+	>
 		{#if data.user}
-			<div class="mobile-topbar">
-				<button onclick={() => sidebarCollapsed = !sidebarCollapsed} class="mobile-menu-btn" aria-label="Toggle menu">
+			<div class="hidden max-md:flex items-center justify-between bg-sidebar-bg text-white px-4 py-3 border-b border-sidebar-border sticky top-0 z-30 box-border w-full">
+				<button onclick={() => sidebarCollapsed = !sidebarCollapsed} class="bg-none border-none text-white cursor-pointer p-1.5 flex items-center justify-center rounded-md transition-colors duration-200 hover:bg-white/8" aria-label="Toggle menu">
 					<MenuIcon size={20} />
 				</button>
-				<span class="mobile-brand-name">PieQ HRMS</span>
+				<span class="text-[15px] font-bold">PieQ HRMS</span>
 				<div style="width: 32px;"></div>
 			</div>
 		{/if}
-		<div class="pieq-content">
+		<div class="flex-1 px-9 py-8 max-w-[1200px] max-md:px-5 max-md:py-4">
 			{@render children()}
 		</div>
 	</div>

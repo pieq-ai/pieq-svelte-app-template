@@ -43,25 +43,25 @@
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
-		class="modal-overlay"
+		class="fixed inset-0 z-200 flex items-center justify-center bg-[rgba(15,11,10,0.4)] backdrop-blur-md"
 		transition:fade={{ duration: 150 }}
 		onclick={(e) => { if (e.target === e.currentTarget) onclose(); }}
 	>
 		<div
-			class="modal-card"
+			class="bg-card border border-border rounded-2xl w-full max-w-[440px] mx-4 shadow-xl flex flex-col overflow-hidden"
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="modal-title"
 			transition:scale={{ duration: 150, start: 0.95 }}
 		>
 			<!-- Header -->
-			<div class="modal-header">
-				<h2 id="modal-title" class="modal-title-text">
+			<div class="flex items-center justify-between px-6 py-5 border-b border-border">
+				<h2 id="modal-title" class="text-lg font-bold text-foreground m-0 leading-[1.2]">
 					{title}
 				</h2>
 				<button
 					onclick={onclose}
-					class="modal-close-btn"
+					class="bg-transparent border-none cursor-pointer text-muted-foreground p-1.5 rounded-lg flex items-center justify-center transition-colors duration-150 hover:bg-muted hover:text-foreground"
 					aria-label="Close modal"
 				>
 					<XIcon size={18} />
@@ -69,75 +69,9 @@
 			</div>
 
 			<!-- Body / Content -->
-			<div class="modal-body">
+			<div class="p-6 overflow-y-auto max-h-[calc(100vh-120px)]">
 				{@render children?.()}
 			</div>
 		</div>
 	</div>
 {/if}
-
-<style>
-	.modal-overlay {
-		position: fixed;
-		inset: 0;
-		z-index: 200;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: rgba(15, 11, 10, 0.4);
-		backdrop-filter: blur(8px);
-	}
-
-	.modal-card {
-		background: var(--card);
-		border: 1px solid var(--border);
-		border-radius: 16px;
-		width: 100%;
-		max-width: 440px;
-		margin: 0 16px;
-		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-		display: flex;
-		flex-direction: column;
-		overflow: hidden;
-	}
-
-	.modal-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 20px 24px;
-		border-bottom: 1px solid var(--border);
-	}
-
-	.modal-title-text {
-		font-size: 18px;
-		font-weight: 700;
-		color: var(--foreground);
-		margin: 0;
-		line-height: 1.2;
-	}
-
-	.modal-close-btn {
-		background: none;
-		border: none;
-		cursor: pointer;
-		color: var(--muted-foreground);
-		padding: 6px;
-		border-radius: 8px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		transition: background-color 0.15s, color 0.15s;
-	}
-
-	.modal-close-btn:hover {
-		background-color: var(--muted);
-		color: var(--foreground);
-	}
-
-	.modal-body {
-		padding: 24px;
-		overflow-y: auto;
-		max-height: calc(100vh - 120px);
-	}
-</style>

@@ -9,44 +9,44 @@
 	<title>Settings – PieQ HRMS</title>
 </svelte:head>
 
-<div class="page-topbar">
+<div class="flex items-center justify-between mb-7">
 	<div>
 		<span
-			style="display:inline-block;background:#F453101a;color:#F45310;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:99px;margin-bottom:6px"
+			class="inline-block bg-pieq-primary/10 text-pieq-primary text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.75 rounded-full mb-1.5"
 		>System</span>
-		<h1 style="font-size:26px;font-weight:700;color:var(--foreground);margin:0;line-height:1.2">
+		<h1 class="text-[26px] font-bold text-foreground m-0 leading-[1.2]">
 			Settings
 		</h1>
-		<p style="color:var(--muted-foreground);font-size:13px;margin-top:4px">
+		<p class="text-[13px] text-muted-foreground mt-1">
 			Manage system preferences and configurations.
 		</p>
 	</div>
 </div>
 
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:8px">
+<div class="grid gap-4 mt-2 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
 	{#each [
 		{ icon: BellIcon, title: 'Notifications', desc: 'Configure alerts and notification preferences.', tag: 'Coming soon' },
 		{ icon: ShieldIcon, title: 'Security', desc: 'Manage access control, sessions, and audit logs.', tag: 'Coming soon' },
 		{ icon: PaletteIcon, title: 'Appearance', desc: 'Customize theme, colors, and display options.', tag: 'Coming soon' },
 		{ icon: SettingsIcon, title: 'General', desc: 'Organization name, timezone, locale settings.', tag: 'Coming soon' }
 	] as item}
-		<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:14px;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-			<div style="display:flex;align-items:flex-start;justify-content:space-between">
-				<div style="width:40px;height:40px;background:#F453101a;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#F45310">
+		<div class="bg-card border border-border rounded-xl p-6 flex flex-col gap-3.5 shadow-sm">
+			<div class="flex items-start justify-between">
+				<div class="w-10 h-10 bg-pieq-primary/10 rounded-lg flex items-center justify-center text-pieq-primary">
 					<item.icon size={20} />
 				</div>
-				<span style="font-size:10px;font-weight:600;padding:2px 8px;background:var(--muted);color:var(--muted-foreground);border-radius:99px;text-transform:uppercase;letter-spacing:.5px">{item.tag}</span>
+				<span class="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-full uppercase tracking-wider">{item.tag}</span>
 			</div>
 			<div>
-				<h3 style="font-size:15px;font-weight:700;margin:0 0 4px;color:var(--foreground)">{item.title}</h3>
-				<p style="font-size:13px;color:var(--muted-foreground);margin:0;line-height:1.5">{item.desc}</p>
+				<h3 class="text-[15px] font-bold mb-1 text-foreground">{item.title}</h3>
+				<p class="text-[13px] text-muted-foreground m-0 leading-normal">{item.desc}</p>
 			</div>
 		</div>
 	{/each}
 </div>
 
-<div style="margin-top:32px;padding:20px;background:var(--muted);border-radius:12px;border:1px solid var(--border)">
-	<p style="font-size:13px;color:var(--muted-foreground);margin:0;text-align:center">
+<div class="mt-8 p-5 bg-muted rounded-xl border border-border">
+	<p class="text-[13px] text-muted-foreground m-0 text-center">
 		Settings module is under active development. Check back in the next release.
 	</p>
 </div>
