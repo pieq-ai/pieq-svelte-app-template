@@ -184,7 +184,7 @@
 
 		const validationError = getValidationError(formDesignationName);
 		if (validationError) {
-			toast.error(validationError);
+			designationNameInput?.focus();
 			return;
 		}
 
@@ -338,7 +338,13 @@
 						</TableRow>
 					{:else}
 						{#each paginatedDesignations as designation (designation.cuid)}
-							<TableRow>
+							<TableRow 
+								onclick={(e) => {
+									if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
+									openEditModal(designation);
+								}} 
+								class="cursor-pointer"
+							>
 								<TableCell>
 									<div class="flex flex-col">
 										<span class="font-semibold">{designation.designation_name}</span>
@@ -379,10 +385,10 @@
 				bind:value={formDesignationName}
 				class={nameValidationError || backendError ? 'border-destructive' : ''}
 				placeholder="e.g. Senior HR Manager"
-				oninput={() => { isNameTouched = true; backendError = ''; }}
+				oninput={() => { backendError = ''; }}
 			/>
 			{#if nameValidationError || backendError}
-				<p class="text-xs text-destructive">{nameValidationError || backendError}</p>
+				<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
 			{/if}
 		</div>
 		{#if editingDesignation}

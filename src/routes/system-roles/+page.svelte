@@ -172,7 +172,7 @@
 		isNameTouched = true;
 		const validationError = getValidationError(roleName);
 		if (validationError) {
-			toast.error(validationError);
+			roleNameInput?.focus();
 			return;
 		}
 
@@ -313,7 +313,13 @@
 					<TableRow><TableCell colspan={3} class="py-8 text-center text-muted-foreground">{UI_CONSTANTS.EMPTY_STATE_MESSAGE}</TableCell></TableRow>
 				{:else}
 					{#each paginatedRoles as role (role.cuid)}
-						<TableRow>
+						<TableRow 
+							onclick={(e) => {
+								if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
+								openEditModal(role);
+							}} 
+							class="cursor-pointer"
+						>
 							<TableCell class="font-semibold">{role.system_role_name}</TableCell>
 							<TableCell class="text-center"><Badge variant={role.status === true ? 'default' : 'secondary'}>{role.status ? 'Active' : 'Inactive'}</Badge></TableCell>
 							<TableCell class="text-right">
@@ -348,10 +354,10 @@
 				bind:value={roleName}
 				class={nameValidationError || backendError ? 'border-destructive' : ''}
 				placeholder="e.g. HR Manager"
-				oninput={() => { isNameTouched = true; backendError = ''; }}
+				oninput={() => { backendError = ''; }}
 			/>
 			{#if nameValidationError || backendError}
-				<p class="text-xs text-destructive">{nameValidationError || backendError}</p>
+				<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
 			{/if}
 		</div>
 		{#if editingRole}

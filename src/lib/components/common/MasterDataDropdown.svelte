@@ -108,7 +108,7 @@
 		isValueTouched = true;
 		const currentError = getValidationError(masterValue);
 		if (currentError) {
-			errorMessage = currentError;
+			masterInput?.focus();
 			return;
 		}
 
@@ -177,10 +177,10 @@
 				bind:ref={masterInput}
 				bind:value={masterValue}
 				class={validationError || backendError ? 'border-destructive' : ''}
-				oninput={() => { isValueTouched = true; backendError = ''; }}
+				oninput={() => { backendError = ''; }}
 			/>
 			{#if validationError || backendError}
-				<p class="text-xs text-destructive">{validationError || backendError}</p>
+				<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{validationError || backendError}</p>
 			{/if}
 		</div>
 

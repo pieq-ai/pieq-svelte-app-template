@@ -11,7 +11,8 @@ export function buildAuthCallbackUrl(appUrl: string): string {
 export const UI_CONSTANTS = {
 	EMPTY_STATE_MESSAGE: 'No Records Found',
 	BUTTON_SAVE: 'Save',
-	BUTTON_UPDATE: 'Update',
+	BUTTON_UPDATE: 'Save',
 	BUTTON_CANCEL: 'Cancel',
-	BUTTON_SAVING: 'Saving...'
+	BUTTON_SAVING: 'Saving...',
+	VALIDATION_ERROR_COLOR: '#800020'
 };

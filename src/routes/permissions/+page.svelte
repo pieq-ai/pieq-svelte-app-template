@@ -164,7 +164,7 @@
 		isKeyTouched = true;
 		const validationError = getValidationError(permissionKey);
 		if (validationError) {
-			toast.error(validationError);
+			permissionKeyInput?.focus();
 			return;
 		}
 
@@ -285,7 +285,13 @@
 					<TableRow><TableCell colspan={3} class="py-8 text-center text-muted-foreground">{UI_CONSTANTS.EMPTY_STATE_MESSAGE}</TableCell></TableRow>
 				{:else}
 					{#each paginatedPermissions as permission (permission.cuid)}
-						<TableRow>
+						<TableRow 
+							onclick={(e) => {
+								if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
+								openEditModal(permission);
+							}} 
+							class="cursor-pointer"
+						>
 							<TableCell class="font-mono text-sm font-semibold">{permission.permission_key}</TableCell>
 							<TableCell class="text-center"><Badge variant={permission.status === true ? 'default' : 'secondary'}>{permission.status ? 'Active' : 'Inactive'}</Badge></TableCell>
 							<TableCell class="text-right">
@@ -320,10 +326,10 @@
 				bind:value={permissionKey}
 				class={keyValidationError || backendError ? 'border-destructive' : ''}
 				placeholder="employee_view"
-				oninput={() => { isKeyTouched = true; backendError = ''; }}
+				oninput={() => { backendError = ''; }}
 			/>
 			{#if keyValidationError || backendError}
-				<p class="text-xs text-destructive">{keyValidationError || backendError}</p>
+				<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{keyValidationError || backendError}</p>
 			{/if}
 		</div>
 		{#if editingPermission}

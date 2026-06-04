@@ -132,6 +132,9 @@
 	html {
 		@apply font-sans;
 	}
+	button, a, [role="button"], input[type="button"], input[type="submit"], input[type="reset"] {
+		cursor: pointer;
+	}
 }
 
 /* Sonner Toast Overrides */
