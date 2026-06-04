@@ -561,7 +561,7 @@
 	{:else if filteredShifts.length === 0}
 		<div class="py-16 text-center text-muted-foreground">
 			{shifts.length === 0
-				? 'No shifts found. Click Add Shift to create one.'
+				? 'No records found'
 				: 'No shifts match the current filter.'}
 		</div>
 	{:else}
@@ -872,7 +872,7 @@
 				{#if formLoading}
 					<LoaderCircleIcon class="animate-spin" size={14} />
 				{/if}
-				{formLoading ? 'Saving...' : editShift ? 'Update Shift' : 'Create Shift'}
+				{formLoading ? 'Saving...' : editShift ? 'Update' : 'Save'}
 			</button>
 		</div>
 	</form>

@@ -448,7 +448,7 @@
 	{:else if filteredRoles.length === 0}
 		<div class="py-16 text-center text-muted-foreground">
 			{roles.length === 0
-				? 'No roles found. Click Add Role to create one.'
+				? 'No records found'
 				: 'No roles match the current filter.'}
 		</div>
 	{:else}
@@ -665,7 +665,7 @@
 				{#if formLoading}
 					<LoaderCircleIcon class="animate-spin" size={14} />
 				{/if}
-				{formLoading ? 'Saving...' : editRole ? 'Update Role' : 'Create Role'}
+				{formLoading ? 'Saving...' : editRole ? 'Update' : 'Save'}
 			</button>
 		</div>
 	</form>

@@ -811,7 +811,7 @@
 	{:else if filteredLocations.length === 0}
 		<div class="py-16 text-center text-muted-foreground">
 			{locations.length === 0
-				? 'No locations found. Click Add Location to create one.'
+				? 'No records found'
 				: 'No locations match the current filter.'}
 		</div>
 	{:else}
@@ -1307,7 +1307,7 @@
 				{#if formLoading}
 					<LoaderCircleIcon class="animate-spin" size={14} />
 				{/if}
-				{formLoading ? 'Saving...' : editLocation ? 'Update Location' : 'Create Location'}
+				{formLoading ? 'Saving...' : editLocation ? 'Update' : 'Save'}
 			</button>
 		</div>
 	</form>
