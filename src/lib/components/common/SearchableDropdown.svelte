@@ -3,6 +3,7 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import { Button, Input, Label } from '$lib/components';
+	import { UI_CONSTANTS } from '$lib/constants';
 	import type { MasterPermissionConfig } from '$lib/permissions/mock-permissions';
 
 	export interface DropdownOption {
@@ -64,7 +65,7 @@
 				{/if}
 			</div>
 		{:else}
-			<p class="px-3 py-4 text-sm text-muted-foreground">No options found.</p>
+			<p class="px-3 py-4 text-sm text-muted-foreground">{UI_CONSTANTS.EMPTY_STATE_MESSAGE}</p>
 		{/each}
 	</div>
 	{#if permissions.canCreate && onAdd}

@@ -8,6 +8,7 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { toast } from '$lib/toast';
 	import { createDirtyChecker } from '$lib/utils';
+	import { UI_CONSTANTS } from '$lib/constants';
 
 	import {
 		Badge,
@@ -332,7 +333,7 @@
 					{:else if filteredDesignations.length === 0}
 						<TableRow>
 							<TableCell colspan={3} class="py-8 text-center text-muted-foreground">
-								No designations match the criteria.
+								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 							</TableCell>
 						</TableRow>
 					{:else}
@@ -388,7 +389,7 @@
 			<StatusDropdown value={formDesignationStatus} onChange={(val) => (formDesignationStatus = val)} />
 		{/if}
 		<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingDesignation && !isDirty)}>
-			{isSubmitting ? 'Saving...' : (editingDesignation ? 'Save Designation' : 'Create Designation')}
+			{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingDesignation ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 		</Button>
 	</form>
 </CrudModal>

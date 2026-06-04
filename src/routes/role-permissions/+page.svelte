@@ -11,6 +11,7 @@
 		PermissionMatrixCell,
 		SearchInput
 	} from '$lib/components';
+	import { UI_CONSTANTS } from '$lib/constants';
 
 	interface SystemRole {
 		cuid: string;
@@ -170,10 +171,10 @@
 				<LoaderCircleIcon class="mx-auto size-6 animate-spin" />
 			</CardContent>
 		</Card>
-	{:else if activeRoles.length === 0 || activePermissions.length === 0}
+	{:else if activeRoles.length === 0 || activePermissions.length === 0 || filteredRoles.length === 0 || filteredPermissions.length === 0}
 		<Card>
 			<CardContent class="py-12 text-center text-muted-foreground">
-				Add active roles and permissions before assigning mappings.
+				{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 			</CardContent>
 		</Card>
 	{:else}

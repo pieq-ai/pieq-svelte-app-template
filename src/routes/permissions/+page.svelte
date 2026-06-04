@@ -8,6 +8,7 @@
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import { toast } from '$lib/toast';
 	import { createDirtyChecker } from '$lib/utils';
+	import { UI_CONSTANTS } from '$lib/constants';
 	import {
 		Alert,
 		AlertDescription,
@@ -281,7 +282,7 @@
 				{#if isLoading}
 					<TableRow><TableCell colspan={3} class="py-8 text-center"><LoaderCircleIcon class="mx-auto size-6 animate-spin" /></TableCell></TableRow>
 				{:else if filteredPermissions.length === 0}
-					<TableRow><TableCell colspan={3} class="py-8 text-center text-muted-foreground">No permissions found.</TableCell></TableRow>
+					<TableRow><TableCell colspan={3} class="py-8 text-center text-muted-foreground">{UI_CONSTANTS.EMPTY_STATE_MESSAGE}</TableCell></TableRow>
 				{:else}
 					{#each paginatedPermissions as permission (permission.cuid)}
 						<TableRow>
@@ -329,7 +330,7 @@
 			<StatusDropdown value={permissionStatus} onChange={(val) => (permissionStatus = val)} />
 		{/if}
 		<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingPermission && !isDirty)}>
-			{isSubmitting ? 'Saving...' : (editingPermission ? 'Save Permission' : 'Create Permission')}
+			{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingPermission ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 		</Button>
 	</form>
 </CrudModal>

@@ -8,6 +8,7 @@
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import { toast } from '$lib/toast';
 	import { createDirtyChecker } from '$lib/utils';
+	import { UI_CONSTANTS } from '$lib/constants';
 	import {
 		Alert,
 		AlertDescription,
@@ -309,7 +310,7 @@
 				{#if isLoading}
 					<TableRow><TableCell colspan={3} class="py-8 text-center"><LoaderCircleIcon class="mx-auto size-6 animate-spin" /></TableCell></TableRow>
 				{:else if filteredRoles.length === 0}
-					<TableRow><TableCell colspan={3} class="py-8 text-center text-muted-foreground">No roles found.</TableCell></TableRow>
+					<TableRow><TableCell colspan={3} class="py-8 text-center text-muted-foreground">{UI_CONSTANTS.EMPTY_STATE_MESSAGE}</TableCell></TableRow>
 				{:else}
 					{#each paginatedRoles as role (role.cuid)}
 						<TableRow>
@@ -357,7 +358,7 @@
 			<StatusDropdown value={roleStatus} onChange={(val) => (roleStatus = val)} />
 		{/if}
 		<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingRole && !isDirty)}>
-			{isSubmitting ? 'Saving...' : (editingRole ? 'Save Role' : 'Create Role')}
+			{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingRole ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 		</Button>
 	</form>
 </CrudModal>

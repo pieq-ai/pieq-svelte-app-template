@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { UI_CONSTANTS } from '$lib/constants';
 	import { Alert, AlertDescription, Button, CrudModal, Input, Label, SearchableDropdown } from '$lib/components';
 	import { getMasterConfig, type MasterKey } from '$lib/master-data/master-config';
 	import { getMasterPermissions, type MasterPermissionConfig } from '$lib/permissions/mock-permissions';
@@ -184,7 +185,7 @@
 		</div>
 
 		<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting}>
-			{isSubmitting ? 'Saving...' : 'Save'}
+			{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingOption ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 		</Button>
 	</form>
 </CrudModal>
