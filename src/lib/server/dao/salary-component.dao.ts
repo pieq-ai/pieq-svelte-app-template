@@ -1,10 +1,9 @@
 import { db } from '$lib/server/db.js';
 import type {
 	CreateSalaryComponentDto,
-	UpdateSalaryComponentDto,
-	SalaryComponentFilters
+	UpdateSalaryComponentDto
 } from '$lib/types/salary-component.js';
-import type { Prisma } from '$lib/generated/prisma/client.js';
+
 
 export async function create(data: CreateSalaryComponentDto) {
 	return db.salaryComponent.create({
@@ -44,47 +43,21 @@ export async function findByName(name: string) {
 	});
 }
 
-export async function findMany(filters: SalaryComponentFilters) {
-	const where: Prisma.SalaryComponentWhereInput = {};
-
-	if (filters.search) {
-		where.component_name = {
-			contains: filters.search,
-			mode: 'insensitive'
-		};
-	}
-
-	const orderBy: Prisma.SalaryComponentOrderByWithRelationInput = {};
-	if (
-		filters.sortBy === 'component_name' ||
-		filters.sortBy === 'component_type' ||
-		filters.sortBy === 'is_active'
-	) {
-		orderBy[filters.sortBy] = filters.sortOrder ?? 'asc';
-	} else {
-		orderBy.component_name = 'asc';
-	}
-
-	// Only paginate when pageSize is explicitly provided; otherwise fetch all records
-	const paginated = filters.pageSize !== undefined;
-	const page = Math.max(1, filters.page ?? 1);
-	const pageSize = Math.max(1, filters.pageSize ?? 1);
-
+export async function findMany() {
+	// Search and sorting are fully client-side; always fetch all records with a stable order.
 	const [items, total] = await Promise.all([
 		db.salaryComponent.findMany({
-			where,
-			...(paginated && { skip: (page - 1) * pageSize, take: pageSize }),
-			orderBy
+			orderBy: { component_name: 'asc' }
 		}),
-		db.salaryComponent.count({ where })
+		db.salaryComponent.count()
 	]);
 
 	return {
 		items,
 		total,
-		page,
-		pageSize: filters.pageSize,
-		totalPages: paginated ? Math.ceil(total / pageSize) : 1
+		page: 1,
+		pageSize: undefined,
+		totalPages: 1
 	};
 }
 

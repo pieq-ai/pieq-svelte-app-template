@@ -3,23 +3,10 @@ import * as service from '$lib/server/services/salary-component.service.js';
 import { validateCreateSalaryComponent, validateUpdateSalaryComponent } from '$lib/server/validators/salary-component.validator.js';
 import { serializeSalaryComponent } from '$lib/server/serializers/salary-component.serializer.js';
 
-export async function GET({ url }) {
+export async function GET() {
 	try {
-		let search = url.searchParams.get('search') || undefined;
-		if (search) {
-			search = search.trim().replace(/^["']|["']$/g, '').trim() || undefined;
-		}
-
-		const sortBy =
-			(url.searchParams.get('sortBy') as 'component_name' | 'component_type' | 'is_active') ||
-			'component_name';
-		const sortOrder = (url.searchParams.get('sortOrder') as 'asc' | 'desc') || 'asc';
-
-		const result = await service.getComponents({
-			search,
-			sortBy,
-			sortOrder
-		});
+		// Fetch all records with a stable default order — search & sort are client-side
+		const result = await service.getComponents();
 
 		return json({ data: result.items.map(serializeSalaryComponent) });
 	} catch (error) {

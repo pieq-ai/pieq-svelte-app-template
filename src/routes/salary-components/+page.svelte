@@ -25,23 +25,50 @@
     SalaryComponentType,
   } from "$lib/types/salary-component";
   import { validateComponentName } from "$lib/validators/salary-component";
-  import { SvelteURLSearchParams } from "svelte/reactivity";
+
   import { toast } from "$lib/toast.svelte";
   import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
   import { scale } from "svelte/transition";
 
-  /** Full dataset returned from the API for the current filter combination */
+  /** Full dataset fetched once on mount — all search/sort/filter is client-side */
   let allItems = $state<SalaryComponent[]>([]);
 
   let page = $state(1);
   let pageSize = $state(10);
 
-  /** Slice of allItems for the current page — derived client-side */
-  let filteredItems = $derived(
-    allItems
+  /**
+   * Client-side derived list:
+   *   1. Filter by component_type and is_active dropdowns
+   *   2. Filter by search query (case-insensitive component_name match)
+   *   3. Apply 3-state sort: default (no sort) → asc → desc
+   */
+  let filteredItems = $derived.by(() => {
+    let result = allItems
       .filter((c) => filterType === "all" || c.component_type === filterType)
       .filter((c) => filterActive === "all" || c.is_active === (filterActive === "true"))
-  );
+      .filter((c) =>
+        searchQuery.trim() === ""
+          ? true
+          : c.component_name.toLowerCase().includes(searchQuery.trim().toLowerCase())
+      );
+
+    if (sortBy) {
+      result = [...result].sort((a, b) => {
+        const key = sortBy as "component_name" | "component_type" | "is_active";
+        const valA = a[key];
+        const valB = b[key];
+        const cmp =
+          typeof valA === "string" && typeof valB === "string"
+            ? valA.localeCompare(valB)
+            : typeof valA === "boolean" && typeof valB === "boolean"
+              ? Number(valB) - Number(valA) // active (true) before inactive (false)
+              : valA < valB ? -1 : valA > valB ? 1 : 0;
+        return sortOrder === "desc" ? -cmp : cmp;
+      });
+    }
+
+    return result;
+  });
 
   let pagedItems = $derived(
     filteredItems.slice((page - 1) * pageSize, page * pageSize)
@@ -126,17 +153,15 @@
     },
   ];
 
+  /**
+   * Fetch ALL salary components from the API — no search/sort params.
+   * Called once on mount and again after create/update/delete.
+   */
   async function loadComponents() {
     try {
       isLoading = true;
 
-      const params = new SvelteURLSearchParams();
-
-      if (searchQuery) params.set("search", searchQuery);
-      params.set("sortBy", sortBy);
-      params.set("sortOrder", sortOrder);
-
-      const res = await fetch(`/api/salary-components?${params}`);
+      const res = await fetch(`/api/salary-components`);
 
       if (!res.ok) {
         const errorJson = await res.json();
@@ -157,20 +182,17 @@
     }
   }
 
-  // API effect: fires only when search or sort changes
-  let previousApiFilters = "";
+  // Load once on mount — search/sort/filter are all handled client-side
   $effect(() => {
-    const apiFilters = `${searchQuery}-${sortBy}-${sortOrder}`;
-    if (previousApiFilters && previousApiFilters !== apiFilters) {
-      page = 1;
-    }
-    previousApiFilters = apiFilters;
     loadComponents();
   });
 
-  // Page-reset effect: fires on client-side filter changes (no API call)
+  // Page-reset effect: fires on client-side filter/search/sort changes (no API call)
   let clientFiltersInitialized = false;
   $effect(() => {
+    void searchQuery;
+    void sortBy;
+    void sortOrder;
     void filterType;
     void filterActive;
     if (clientFiltersInitialized) {

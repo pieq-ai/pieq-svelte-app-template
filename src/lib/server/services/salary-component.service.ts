@@ -1,8 +1,7 @@
 import * as dao from '$lib/server/dao/salary-component.dao.js';
 import type {
 	CreateSalaryComponentDto,
-	UpdateSalaryComponentDto,
-	SalaryComponentFilters
+	UpdateSalaryComponentDto
 } from '$lib/types/salary-component.js';
 
 export class BusinessValidationError extends Error {
@@ -86,18 +85,10 @@ export async function getComponentByCuid(cuid: string) {
 }
 
 /**
- * Retrieves lists of Salary Components with filters, sorting, and pagination.
+ * Retrieves all Salary Components. Search and sorting are handled client-side.
  */
-export async function getComponents(filters: SalaryComponentFilters) {
-	// Pre-process filters — only coerce page/pageSize when explicitly provided
-	const processedFilters: SalaryComponentFilters = {
-		...filters,
-		search: filters.search?.trim(),
-		page: filters.page !== undefined ? Number(filters.page) : undefined,
-		pageSize: filters.pageSize !== undefined ? Number(filters.pageSize) : undefined
-	};
-
-	return dao.findMany(processedFilters);
+export async function getComponents() {
+	return dao.findMany();
 }
 
 /**
