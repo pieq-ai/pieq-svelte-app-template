@@ -206,11 +206,18 @@
 	let showCountryDropdown = $state(false);
 	let showStateDropdown = $state(false);
 
+	let showModalCountryDropdown = $state(false);
+	let showModalStateDropdown = $state(false);
+	let showModalStatusDropdown = $state(false);
+
 	function closeDropdowns() {
 		activeDropdownId = null;
 		showStatusDropdown = false;
 		showCountryDropdown = false;
 		showStateDropdown = false;
+		showModalCountryDropdown = false;
+		showModalStateDropdown = false;
+		showModalStatusDropdown = false;
 	}
 	if (typeof window !== 'undefined') {
 		window.addEventListener('click', closeDropdowns);
@@ -428,6 +435,9 @@
 		formTimezone = '';
 		formError = '';
 		editLocation = null;
+		showModalCountryDropdown = false;
+		showModalStateDropdown = false;
+		showModalStatusDropdown = false;
 		resetStateTracking();
 	}
 
@@ -1135,37 +1145,101 @@
 
 		<div class="grid grid-cols-2 gap-3">
 			<div class="flex flex-col gap-1.5">
-				<label for="location-country" class="text-[13px] font-semibold">
+				<span class="text-[13px] font-semibold">
 					Country <span class="text-pieq-primary">*</span>
-				</label>
-				<select
-					id="location-country"
-					bind:value={formCountryCuid}
-					onchange={() => formError = ''}
-					class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-				>
-					<option value="">Select Country</option>
-					{#each countries as country}
-						<option value={country.cuid}>{country.country_name}</option>
-					{/each}
-				</select>
+				</span>
+				<div class="relative w-full">
+					<button
+						type="button"
+						onclick={(e) => { e.stopPropagation(); showModalCountryDropdown = !showModalCountryDropdown; showModalStateDropdown = false; showModalStatusDropdown = false; }}
+						class="w-full bg-card border-[1.5px] border-neutral-300 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground inline-flex items-center justify-between cursor-pointer transition-all duration-200 outline-none shadow-sm hover:border-neutral-400 focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
+						id="location-country"
+					>
+						<span>{countries.find(c => c.cuid === formCountryCuid)?.country_name || 'Select Country'}</span>
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down" style="color:#737373"><path d="m6 9 6 6 6-6"/></svg>
+					</button>
+
+					{#if showModalCountryDropdown}
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
+						<!-- svelte-ignore a11y_no_static_element_interactions -->
+						<div
+							class="absolute top-[calc(100%+4px)] left-0 z-60 bg-white border border-neutral-200 rounded-xl shadow-lg w-full max-h-[250px] overflow-y-auto p-1 flex flex-col gap-0.5"
+							onclick={(e) => e.stopPropagation()}
+						>
+							<button
+								type="button"
+								onclick={() => { formCountryCuid = ''; formStateCuid = ''; showModalCountryDropdown = false; formError = ''; }}
+								class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
+							>
+								<span>Select Country</span>
+								{#if !formCountryCuid}
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" style="color:#111827"><path d="M20 6 9 17l-5-5"/></svg>
+								{/if}
+							</button>
+							{#each countries as country}
+								<button
+									type="button"
+									onclick={() => { formCountryCuid = country.cuid; formStateCuid = ''; showModalCountryDropdown = false; formError = ''; }}
+									class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
+								>
+									<span>{country.country_name}</span>
+									{#if formCountryCuid === country.cuid}
+										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" style="color:#111827"><path d="M20 6 9 17l-5-5"/></svg>
+									{/if}
+								</button>
+							{/each}
+						</div>
+					{/if}
+				</div>
 			</div>
 			<div class="flex flex-col gap-1.5">
-				<label for="location-state" class="text-[13px] font-semibold">
+				<span class="text-[13px] font-semibold">
 					State <span class="text-pieq-primary">*</span>
-				</label>
-				<select
-					id="location-state"
-					bind:value={formStateCuid}
-					onchange={() => formError = ''}
-					disabled={!formCountryCuid}
-					class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border disabled:opacity-50 disabled:cursor-not-allowed focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-				>
-					<option value="">Select State</option>
-					{#each filteredStates as state}
-						<option value={state.cuid}>{state.state_name}</option>
-					{/each}
-				</select>
+				</span>
+				<div class="relative w-full">
+					<button
+						type="button"
+						onclick={(e) => { e.stopPropagation(); showModalStateDropdown = !showModalStateDropdown; showModalCountryDropdown = false; showModalStatusDropdown = false; }}
+						disabled={!formCountryCuid}
+						class="w-full bg-card border-[1.5px] border-neutral-300 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground inline-flex items-center justify-between cursor-pointer transition-all duration-200 outline-none shadow-sm hover:border-neutral-400 focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
+						id="location-state"
+					>
+						<span>{filteredStates.find(s => s.cuid === formStateCuid)?.state_name || 'Select State'}</span>
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down" style="color:#737373"><path d="m6 9 6 6 6-6"/></svg>
+					</button>
+
+					{#if showModalStateDropdown}
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
+						<!-- svelte-ignore a11y_no_static_element_interactions -->
+						<div
+							class="absolute top-[calc(100%+4px)] left-0 z-60 bg-white border border-neutral-200 rounded-xl shadow-lg w-full max-h-[250px] overflow-y-auto p-1 flex flex-col gap-0.5"
+							onclick={(e) => e.stopPropagation()}
+						>
+							<button
+								type="button"
+								onclick={() => { formStateCuid = ''; showModalStateDropdown = false; formError = ''; }}
+								class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
+							>
+								<span>Select State</span>
+								{#if !formStateCuid}
+									<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" style="color:#111827"><path d="M20 6 9 17l-5-5"/></svg>
+								{/if}
+							</button>
+							{#each filteredStates as state}
+								<button
+									type="button"
+									onclick={() => { formStateCuid = state.cuid; showModalStateDropdown = false; formError = ''; }}
+									class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
+								>
+									<span>{state.state_name}</span>
+									{#if formStateCuid === state.cuid}
+										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" style="color:#111827"><path d="M20 6 9 17l-5-5"/></svg>
+									{/if}
+								</button>
+							{/each}
+						</div>
+					{/if}
+				</div>
 			</div>
 		</div>
 
@@ -1185,17 +1259,42 @@
 
 		{#if editLocation}
 			<div class="flex flex-col gap-1.5">
-				<label for="location-status" class="text-[13px] font-semibold">
+				<span class="text-[13px] font-semibold">
 					Status
-				</label>
-				<select
-					id="location-status"
-					bind:value={formStatus}
-					class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-				>
-					<option value={true}>Active</option>
-					<option value={false}>Inactive</option>
-				</select>
+				</span>
+				<div class="relative w-full">
+					<button
+						type="button"
+						onclick={(e) => { e.stopPropagation(); showModalStatusDropdown = !showModalStatusDropdown; showModalCountryDropdown = false; showModalStateDropdown = false; }}
+						class="w-full bg-card border-[1.5px] border-neutral-300 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground inline-flex items-center justify-between cursor-pointer transition-all duration-200 outline-none shadow-sm hover:border-neutral-400 focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
+						id="location-status"
+					>
+						<span>{formStatus ? 'Active' : 'Inactive'}</span>
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down" style="color:#737373"><path d="m6 9 6 6 6-6"/></svg>
+					</button>
+
+					{#if showModalStatusDropdown}
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
+						<!-- svelte-ignore a11y_no_static_element_interactions -->
+						<div
+							class="absolute top-[calc(100%+4px)] left-0 z-60 bg-white border border-neutral-200 rounded-xl shadow-lg w-full p-1 flex flex-col gap-0.5"
+							onclick={(e) => e.stopPropagation()}
+						>
+							{#each [{ value: true, label: 'Active' }, { value: false, label: 'Inactive' }] as opt}
+								<button
+									type="button"
+									onclick={() => { formStatus = opt.value; showModalStatusDropdown = false; formError = ''; }}
+									class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
+								>
+									<span>{opt.label}</span>
+									{#if formStatus === opt.value}
+										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" style="color:#111827"><path d="M20 6 9 17l-5-5"/></svg>
+									{/if}
+								</button>
+							{/each}
+						</div>
+					{/if}
+				</div>
 			</div>
 		{/if}
 

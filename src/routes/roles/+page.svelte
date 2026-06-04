@@ -113,10 +113,12 @@
 	}
 
 	let showStatusDropdown = $state(false);
+	let showModalStatusDropdown = $state(false);
 
 	function closeDropdowns() {
 		activeDropdownId = null;
 		showStatusDropdown = false;
+		showModalStatusDropdown = false;
 	}
 	if (typeof window !== 'undefined') {
 		window.addEventListener('click', closeDropdowns);
@@ -254,6 +256,7 @@
 		formName = '';
 		formError = '';
 		editRole = null;
+		showModalStatusDropdown = false;
 		resetStateTracking();
 	}
 
@@ -614,17 +617,42 @@
 
 		{#if editRole}
 			<div class="flex flex-col gap-1.5">
-				<label for="role-status" class="text-[13px] font-semibold">
+				<span class="text-[13px] font-semibold">
 					Status
-				</label>
-				<select
-					id="role-status"
-					bind:value={formStatus}
-					class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-				>
-					<option value={true}>Active</option>
-					<option value={false}>Inactive</option>
-				</select>
+				</span>
+				<div class="relative w-full">
+					<button
+						type="button"
+						onclick={(e) => { e.stopPropagation(); showModalStatusDropdown = !showModalStatusDropdown; }}
+						class="w-full bg-card border-[1.5px] border-neutral-300 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground inline-flex items-center justify-between cursor-pointer transition-all duration-200 outline-none shadow-sm hover:border-neutral-400 focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
+						id="role-status"
+					>
+						<span>{formStatus ? 'Active' : 'Inactive'}</span>
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down" style="color:#737373"><path d="m6 9 6 6 6-6"/></svg>
+					</button>
+
+					{#if showModalStatusDropdown}
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
+						<!-- svelte-ignore a11y_no_static_element_interactions -->
+						<div
+							class="absolute top-[calc(100%+4px)] left-0 z-60 bg-white border border-neutral-200 rounded-xl shadow-lg w-full p-1 flex flex-col gap-0.5"
+							onclick={(e) => e.stopPropagation()}
+						>
+							{#each [{ value: true, label: 'Active' }, { value: false, label: 'Inactive' }] as opt}
+								<button
+									type="button"
+									onclick={() => { formStatus = opt.value; showModalStatusDropdown = false; formError = ''; }}
+									class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
+								>
+									<span>{opt.label}</span>
+									{#if formStatus === opt.value}
+										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" style="color:#111827"><path d="M20 6 9 17l-5-5"/></svg>
+									{/if}
+								</button>
+							{/each}
+						</div>
+					{/if}
+				</div>
 			</div>
 		{/if}
 
