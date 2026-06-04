@@ -1,5 +1,6 @@
 import { getMasterConfig, isMasterKey, type MasterKey } from '$lib/master-data/master-config.js';
 import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
+import { ValidationError } from '$lib/server/utils/errors.js';
 
 export interface MasterDataDto {
 	name: string;
@@ -102,7 +103,7 @@ async function ensureUnique(master: MasterKey, name: string, countryCuid2?: stri
 	});
 
 	if (duplicate) {
-		throw new Error(`${getMasterConfig(master).label} already exists`);
+		throw new ValidationError('name', `${getMasterConfig(master).label} already exists`);
 	}
 }
 

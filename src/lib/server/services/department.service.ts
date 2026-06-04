@@ -1,5 +1,6 @@
 import * as departmentDao from '$lib/server/dao/department.dao.js';
 import { validateDepartmentName } from '$lib/server/validators/department.validator.js';
+import { ValidationError } from '$lib/server/utils/errors.js';
 
 export interface CreateDepartmentDto {
 	dept_name: string;
@@ -60,7 +61,7 @@ export async function createDepartment(dto: CreateDepartmentDto) {
 	// Uniqueness check
 	const existing = await departmentDao.findByName(dept_name);
 	if (existing) {
-		throw new Error(`Department name "${dept_name}" already exists`);
+		throw new ValidationError('dept_name', `Department name "${dept_name}" already exists`);
 	}
 
 	return toPublicDepartment(await departmentDao.create({
@@ -103,7 +104,7 @@ export async function updateDepartment(cuid: string, dto: UpdateDepartmentDto) {
 			// Uniqueness check for new name
 			const duplicate = await departmentDao.findByName(dept_name);
 			if (duplicate) {
-				throw new Error(`Department name "${dept_name}" already exists`);
+				throw new ValidationError('dept_name', `Department name "${dept_name}" already exists`);
 			}
 		}
 		updateData.dept_name = dept_name;

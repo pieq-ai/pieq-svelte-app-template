@@ -34,6 +34,8 @@
 	let editingOption = $state<DropdownOption | null>(null);
 	let masterValue = $state('');
 	let isValueTouched = $state(false);
+	let backendError = $state('');
+	let masterInput: HTMLInputElement;
 
 	function getValidationError(input: string) {
 		const trimmed = input.trim();
@@ -84,6 +86,7 @@
 		editingOption = null;
 		masterValue = '';
 		errorMessage = '';
+		backendError = '';
 		isValueTouched = false;
 		isModalOpen = true;
 	}
@@ -94,6 +97,7 @@
 		editingOption = option;
 		masterValue = option.label;
 		errorMessage = '';
+		backendError = '';
 		isValueTouched = false;
 		isModalOpen = true;
 	}
@@ -127,6 +131,9 @@
 					onSelect(body.data.cuid);
 				}
 				isModalOpen = false;
+			} else if (response.status === 409 && body.field === 'name') {
+				backendError = body.error;
+				masterInput?.focus();
 			} else {
 				errorMessage = body.error || `Unable to save ${config.label.toLowerCase()}.`;
 			}
@@ -166,18 +173,15 @@
 			<Label for={`${master}_value`}>{config.label}</Label>
 			<Input
 				id={`${master}_value`}
+				bind:this={masterInput}
 				bind:value={masterValue}
-				class={validationError ? 'border-destructive' : ''}
-				oninput={() => (isValueTouched = true)}
+				class={validationError || backendError ? 'border-destructive' : ''}
+				oninput={() => { isValueTouched = true; backendError = ''; }}
 			/>
-			{#if validationError}
-				<p class="text-xs text-destructive">{validationError}</p>
+			{#if validationError || backendError}
+				<p class="text-xs text-destructive">{validationError || backendError}</p>
 			{/if}
 		</div>
-
-		{#if errorMessage}
-			<Alert variant="destructive"><AlertDescription>{errorMessage}</AlertDescription></Alert>
-		{/if}
 
 		<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting}>
 			{isSubmitting ? 'Saving...' : 'Save'}

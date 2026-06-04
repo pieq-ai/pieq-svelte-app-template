@@ -1,4 +1,5 @@
 import { json } from '@sveltejs/kit';
+import { ValidationError } from '$lib/server/utils/errors.js';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import * as systemRoleService from '$lib/server/services/system-role.service.js';
@@ -17,6 +18,9 @@ export async function GET(event: RequestEvent) {
 		if (!cuid) return json({ error: 'System role CUID is required' }, { status: 400 });
 		return json({ data: toSystemRoleDTO(await systemRoleService.getSystemRoleByCuid2(cuid)) });
 	} catch (error) {
+		if (error instanceof ValidationError) {
+			return json({ error: error.message, field: error.field }, { status: 409 });
+		}
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getStatus(message) });
 	}
@@ -33,6 +37,9 @@ export async function PUT(event: RequestEvent) {
 		const updatedRole = await systemRoleService.updateSystemRole(cuid, body);
 		return json({ data: { cuid: updatedRole.cuid, message: 'Successfully updated' } });
 	} catch (error) {
+		if (error instanceof ValidationError) {
+			return json({ error: error.message, field: error.field }, { status: 409 });
+		}
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getStatus(message) });
 	}
@@ -46,6 +53,9 @@ export async function DELETE(event: RequestEvent) {
 		const deletedRole = await systemRoleService.deleteSystemRole(cuid);
 		return json({ data: { cuid: deletedRole.cuid, message: 'Successfully disabled' } });
 	} catch (error) {
+		if (error instanceof ValidationError) {
+			return json({ error: error.message, field: error.field }, { status: 409 });
+		}
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getStatus(message) });
 	}

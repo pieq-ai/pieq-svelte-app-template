@@ -1,4 +1,5 @@
 import { json } from '@sveltejs/kit';
+import { ValidationError } from '$lib/server/utils/errors.js';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import * as masterDataService from '$lib/server/services/master-data.service.js';
@@ -30,6 +31,9 @@ export async function PUT(event: RequestEvent) {
 			data: { cuid: updatedMasterData.id, message: 'Successfully updated' }
 		});
 	} catch (error) {
+		if (error instanceof ValidationError) {
+			return json({ error: error.message, field: error.field }, { status: 409 });
+		}
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getStatus(message) });
 	}

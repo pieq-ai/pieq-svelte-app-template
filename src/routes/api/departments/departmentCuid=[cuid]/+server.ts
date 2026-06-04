@@ -3,6 +3,7 @@ import type { RequestEvent } from '@sveltejs/kit';
 import * as departmentService from '$lib/server/services/department.service.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import { mapToDb, toDepartmentDTO } from '$lib/server/utils/mapping.js';
+import { ValidationError } from '$lib/server/utils/errors.js';
 
 export async function GET(event: RequestEvent) {
 	try {

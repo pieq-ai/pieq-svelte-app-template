@@ -1,4 +1,5 @@
 import { json } from '@sveltejs/kit';
+import { ValidationError } from '$lib/server/utils/errors.js';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import * as systemRoleService from '$lib/server/services/system-role.service.js';
@@ -16,6 +17,9 @@ export async function GET(event: RequestEvent) {
 		const systemRoles = await systemRoleService.getSystemRoles();
 		return json({ data: systemRoles.map(toSystemRoleDTO) });
 	} catch (error) {
+		if (error instanceof ValidationError) {
+			return json({ error: error.message, field: error.field }, { status: 409 });
+		}
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getStatus(message) });
 	}
@@ -30,6 +34,9 @@ export async function POST(event: RequestEvent) {
 		const newRole = await systemRoleService.createSystemRole(body);
 		return json({ data: { cuid: newRole.cuid, message: 'Successfully created' } }, { status: 201 });
 	} catch (error) {
+		if (error instanceof ValidationError) {
+			return json({ error: error.message, field: error.field }, { status: 409 });
+		}
 		const message = (error as Error).message;
 		return json({ error: message }, { status: getStatus(message) });
 	}

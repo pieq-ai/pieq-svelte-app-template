@@ -1,4 +1,5 @@
 import * as permissionDao from '$lib/server/dao/permission.dao.js';
+import { ValidationError } from '$lib/server/utils/errors.js';
 
 export interface CreatePermissionDto {
 	permission_key: string;
@@ -70,7 +71,7 @@ async function ensurePermissionKeyIsUnique(permission_key: string, currentId?: n
 	);
 
 	if (duplicate) {
-		throw new Error('Permission already exists');
+		throw new ValidationError('permission_key', 'Permission already exists');
 	}
 }
 

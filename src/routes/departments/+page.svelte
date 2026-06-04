@@ -58,6 +58,8 @@
 	let isSubmitting = $state(false);
 	let isModalOpen = $state(false);
 	let isNameTouched = $state(false);
+	let backendError = $state('');
+	let deptNameInput: HTMLInputElement;
 
 	const dirtyChecker = createDirtyChecker<{ dept_name: string; status: boolean }>();
 	let isDirty = $derived(dirtyChecker.isDirty({ dept_name: formDeptName.trim(), status: formDeptStatus }));
@@ -163,6 +165,7 @@
 		formDeptName = '';
 		formDeptStatus = true;
 		isNameTouched = false;
+		backendError = '';
 		dirtyChecker.snapshot({ dept_name: '', status: true });
 		isModalOpen = true;
 	}
@@ -172,6 +175,7 @@
 		formDeptName = dept.dept_name;
 		formDeptStatus = dept.status;
 		isNameTouched = false;
+		backendError = '';
 		dirtyChecker.snapshot({ dept_name: dept.dept_name, status: dept.status });
 		isModalOpen = true;
 	}
@@ -204,6 +208,9 @@
 				await loadDepartments();
 				toast.success(editingDept ? 'Department updated successfully' : 'Department created successfully');
 				isModalOpen = false;
+			} else if (response.status === 409 && resData.field === 'dept_name') {
+				backendError = resData.error;
+				deptNameInput?.focus();
 			} else {
 				toast.error(resData.error || 'Failed to save department.');
 			}
@@ -371,13 +378,14 @@
 			<Label for="dept_name">Department Name</Label>
 			<Input
 				id="dept_name"
+				bind:this={deptNameInput}
 				bind:value={formDeptName}
-				class={nameValidationError ? 'border-destructive' : ''}
+				class={nameValidationError || backendError ? 'border-destructive' : ''}
 				placeholder="e.g. Finance"
-				oninput={() => (isNameTouched = true)}
+				oninput={() => { isNameTouched = true; backendError = ''; }}
 			/>
-			{#if nameValidationError}
-				<p class="text-xs text-destructive">{nameValidationError}</p>
+			{#if nameValidationError || backendError}
+				<p class="text-xs text-destructive">{nameValidationError || backendError}</p>
 			{/if}
 		</div>
 		{#if editingDept}

@@ -1,4 +1,5 @@
 import * as designationDao from '$lib/server/dao/designation.dao.js';
+import { ValidationError } from '$lib/server/utils/errors.js';
 
 export interface CreateDesignationDto {
 	designation_name: string;
@@ -59,7 +60,7 @@ async function ensureDesignationNameIsUnique(designation_name: string, currentCu
 	);
 
 	if (duplicate) {
-		throw new Error('Designation already exists');
+		throw new ValidationError('designation_name', 'Designation already exists');
 	}
 }
 

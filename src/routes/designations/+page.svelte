@@ -58,6 +58,8 @@
 	let isSubmitting = $state(false);
 	let isModalOpen = $state(false);
 	let isNameTouched = $state(false);
+	let backendError = $state('');
+	let designationNameInput: HTMLInputElement;
 
 	const dirtyChecker = createDirtyChecker<{ designation_name: string; status: boolean }>();
 	let isDirty = $derived(dirtyChecker.isDirty({ designation_name: formDesignationName.trim(), status: formDesignationStatus }));
@@ -159,6 +161,7 @@
 		formDesignationName = '';
 		formDesignationStatus = true;
 		isNameTouched = false;
+		backendError = '';
 		dirtyChecker.snapshot({ designation_name: '', status: true });
 		isModalOpen = true;
 	}
@@ -168,6 +171,7 @@
 		formDesignationName = designation.designation_name;
 		formDesignationStatus = designation.status;
 		isNameTouched = false;
+		backendError = '';
 		dirtyChecker.snapshot({ designation_name: designation.designation_name, status: designation.status });
 		isModalOpen = true;
 	}
@@ -200,6 +204,9 @@
 				await loadDesignations();
 				toast.success(editingDesignation ? 'Designation updated successfully' : 'Designation created successfully');
 				isModalOpen = false;
+			} else if (response.status === 409 && resData.field === 'designation_name') {
+				backendError = resData.error;
+				designationNameInput?.focus();
 			} else {
 				toast.error(resData.error || 'Failed to save designation.');
 			}
@@ -367,13 +374,14 @@
 			<Label for="designation_name">Designation Name</Label>
 			<Input
 				id="designation_name"
+				bind:this={designationNameInput}
 				bind:value={formDesignationName}
-				class={nameValidationError ? 'border-destructive' : ''}
+				class={nameValidationError || backendError ? 'border-destructive' : ''}
 				placeholder="e.g. Senior HR Manager"
-				oninput={() => (isNameTouched = true)}
+				oninput={() => { isNameTouched = true; backendError = ''; }}
 			/>
-			{#if nameValidationError}
-				<p class="text-xs text-destructive">{nameValidationError}</p>
+			{#if nameValidationError || backendError}
+				<p class="text-xs text-destructive">{nameValidationError || backendError}</p>
 			{/if}
 		</div>
 		{#if editingDesignation}

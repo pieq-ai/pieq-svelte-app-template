@@ -1,4 +1,5 @@
 import * as systemRoleDao from '$lib/server/dao/system-role.dao.js';
+import { ValidationError } from '$lib/server/utils/errors.js';
 
 export interface CreateSystemRoleDto {
 	system_role_name: string;
@@ -70,7 +71,7 @@ async function ensureRoleNameIsUnique(system_role_name: string, currentId?: numb
 	);
 
 	if (duplicate) {
-		throw new Error('System role already exists');
+		throw new ValidationError('system_role_name', 'System role already exists');
 	}
 }
 

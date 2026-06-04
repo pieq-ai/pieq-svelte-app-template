@@ -14,6 +14,9 @@
 		Badge,
 		Button,
 		Card,
+		CardHeader,
+		CardTitle,
+		CardDescription,
 		CrudModal,
 		ConfirmModal,
 		FilterDropdown,
@@ -42,6 +45,11 @@
 	let roles = $state<SystemRole[]>([]);
 	let isLoading = $state(true);
 	let loadError = $state('');
+
+	let totalCount = $derived(roles.length);
+	let activeCount = $derived(roles.filter((r) => r.status === true).length);
+	let inactiveCount = $derived(roles.filter((r) => r.status === false).length);
+
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
 	
@@ -57,6 +65,8 @@
 	let roleName = $state('');
 	let roleStatus = $state<boolean>(true);
 	let isNameTouched = $state(false);
+	let backendError = $state('');
+	let roleNameInput: HTMLInputElement;
 
 	const dirtyChecker = createDirtyChecker<{ system_role_name: string; status: boolean }>();
 	let isDirty = $derived(dirtyChecker.isDirty({ system_role_name: roleName.trim(), status: roleStatus }));
@@ -140,6 +150,7 @@
 		roleName = '';
 		roleStatus = true;
 		isNameTouched = false;
+		backendError = '';
 		dirtyChecker.snapshot({ system_role_name: '', status: true });
 		isModalOpen = true;
 	}
@@ -149,6 +160,7 @@
 		roleName = role.system_role_name;
 		roleStatus = role.status;
 		isNameTouched = false;
+		backendError = '';
 		dirtyChecker.snapshot({ system_role_name: role.system_role_name, status: role.status });
 		isModalOpen = true;
 	}
@@ -178,6 +190,9 @@
 				await loadRoles();
 				toast.success(editingRole ? 'System role updated successfully.' : 'System role created successfully.');
 				isModalOpen = false;
+			} else if (response.status === 409 && body.field === 'system_role_name') {
+				backendError = body.error;
+				roleNameInput?.focus();
 			} else {
 				toast.error(body.error || 'Unable to save system role.');
 			}
@@ -226,6 +241,28 @@
 				Add Role
 			</Button>
 		{/if}
+	</div>
+
+	<!-- Metrics Cards -->
+	<div class="grid gap-4 sm:grid-cols-3">
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Total Roles</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalCount}</CardTitle>
+			</CardHeader>
+		</Card>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Active Roles</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{activeCount}</CardTitle>
+			</CardHeader>
+		</Card>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Inactive Roles</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{inactiveCount}</CardTitle>
+			</CardHeader>
+		</Card>
 	</div>
 
 	{#if loadError}
@@ -306,13 +343,14 @@
 			<Label for="system_role_name">Role Name</Label>
 			<Input
 				id="system_role_name"
+				bind:this={roleNameInput}
 				bind:value={roleName}
-				class={nameValidationError ? 'border-destructive' : ''}
+				class={nameValidationError || backendError ? 'border-destructive' : ''}
 				placeholder="e.g. HR Manager"
-				oninput={() => (isNameTouched = true)}
+				oninput={() => { isNameTouched = true; backendError = ''; }}
 			/>
-			{#if nameValidationError}
-				<p class="text-xs text-destructive">{nameValidationError}</p>
+			{#if nameValidationError || backendError}
+				<p class="text-xs text-destructive">{nameValidationError || backendError}</p>
 			{/if}
 		</div>
 		{#if editingRole}

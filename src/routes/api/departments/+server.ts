@@ -3,6 +3,7 @@ import type { RequestEvent } from '@sveltejs/kit';
 import * as departmentService from '$lib/server/services/department.service.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import { mapToDb, toDepartmentDTO } from '$lib/server/utils/mapping.js';
+import { ValidationError } from '$lib/server/utils/errors.js';
 
 /**
  * GET /api/departments
@@ -36,6 +37,9 @@ export async function POST(event: RequestEvent) {
 		const newDepartment = await departmentService.createDepartment(body);
 		return json({ data: { cuid: newDepartment.cuid, message: 'Successfully created' } }, { status: 201 });
 	} catch (error) {
+		if (error instanceof ValidationError) {
+			return json({ error: error.message, field: error.field }, { status: 409 });
+		}
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : 400;
 		return json({ error: message }, { status });

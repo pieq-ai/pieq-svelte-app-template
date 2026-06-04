@@ -57,6 +57,8 @@
 	let permissionKey = $state('');
 	let permissionStatus = $state<boolean>(true);
 	let isKeyTouched = $state(false);
+	let backendError = $state('');
+	let permissionKeyInput: HTMLInputElement;
 
 	const dirtyChecker = createDirtyChecker<{ permission_key: string; status: boolean }>();
 	let isDirty = $derived(dirtyChecker.isDirty({ permission_key: permissionKey.trim(), status: permissionStatus }));
@@ -140,6 +142,7 @@
 		permissionKey = '';
 		permissionStatus = true;
 		isKeyTouched = false;
+		backendError = '';
 		dirtyChecker.snapshot({ permission_key: '', status: true });
 		isModalOpen = true;
 	}
@@ -149,6 +152,7 @@
 		permissionKey = permission.permission_key;
 		permissionStatus = permission.status;
 		isKeyTouched = false;
+		backendError = '';
 		dirtyChecker.snapshot({ permission_key: permission.permission_key, status: permission.status });
 		isModalOpen = true;
 	}
@@ -180,6 +184,9 @@
 				await loadPermissions();
 				toast.success(editingPermission ? 'Permission updated successfully.' : 'Permission created successfully.');
 				isModalOpen = false;
+			} else if (response.status === 409 && body.field === 'permission_key') {
+				backendError = body.error;
+				permissionKeyInput?.focus();
 			} else {
 				toast.error(body.error || 'Unable to save permission.');
 			}
@@ -308,13 +315,14 @@
 			<Label for="permission_key">Permission Key</Label>
 			<Input
 				id="permission_key"
+				bind:this={permissionKeyInput}
 				bind:value={permissionKey}
-				class={keyValidationError ? 'border-destructive' : ''}
+				class={keyValidationError || backendError ? 'border-destructive' : ''}
 				placeholder="employee_view"
-				oninput={() => (isKeyTouched = true)}
+				oninput={() => { isKeyTouched = true; backendError = ''; }}
 			/>
-			{#if keyValidationError}
-				<p class="text-xs text-destructive">{keyValidationError}</p>
+			{#if keyValidationError || backendError}
+				<p class="text-xs text-destructive">{keyValidationError || backendError}</p>
 			{/if}
 		</div>
 		{#if editingPermission}
