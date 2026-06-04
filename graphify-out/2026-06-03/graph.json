@@ -490,10 +490,19 @@
       "norm_label": "@types/pg"
     },
     {
-      "label": "clsx",
+      "label": "bits-ui",
       "file_type": "code",
       "source_file": "package.json",
       "source_location": "L35",
+      "id": "package_devdependencies_bits_ui",
+      "community": 2,
+      "norm_label": "bits-ui"
+    },
+    {
+      "label": "clsx",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L36",
       "id": "package_devdependencies_clsx",
       "community": 5,
       "norm_label": "clsx"
@@ -502,7 +511,7 @@
       "label": "dotenv-cli",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L36",
+      "source_location": "L37",
       "id": "package_devdependencies_dotenv_cli",
       "community": 5,
       "norm_label": "dotenv-cli"
@@ -511,7 +520,7 @@
       "label": "eslint",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L37",
+      "source_location": "L38",
       "id": "package_devdependencies_eslint",
       "community": 5,
       "norm_label": "eslint"
@@ -520,7 +529,7 @@
       "label": "eslint-plugin-svelte",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L38",
+      "source_location": "L39",
       "id": "package_devdependencies_eslint_plugin_svelte",
       "community": 5,
       "norm_label": "eslint-plugin-svelte"
@@ -529,16 +538,25 @@
       "label": "globals",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L39",
+      "source_location": "L40",
       "id": "package_devdependencies_globals",
       "community": 5,
       "norm_label": "globals"
     },
     {
+      "label": "mode-watcher",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L41",
+      "id": "package_devdependencies_mode_watcher",
+      "community": 5,
+      "norm_label": "mode-watcher"
+    },
+    {
       "label": "prisma",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L40",
+      "source_location": "L42",
       "id": "package_devdependencies_prisma",
       "community": 5,
       "norm_label": "prisma"
@@ -547,7 +565,7 @@
       "label": "shadcn-svelte",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L41",
+      "source_location": "L43",
       "id": "package_devdependencies_shadcn_svelte",
       "community": 5,
       "norm_label": "shadcn-svelte"
@@ -556,16 +574,16 @@
       "label": "svelte",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L42",
+      "source_location": "L44",
       "id": "package_devdependencies_svelte",
-      "community": 9,
+      "community": 2,
       "norm_label": "svelte"
     },
     {
       "label": "svelte-check",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L43",
+      "source_location": "L45",
       "id": "package_devdependencies_svelte_check",
       "community": 5,
       "norm_label": "svelte-check"
@@ -574,7 +592,7 @@
       "label": "tailwind-merge",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L44",
+      "source_location": "L46",
       "id": "package_devdependencies_tailwind_merge",
       "community": 5,
       "norm_label": "tailwind-merge"
@@ -583,7 +601,7 @@
       "label": "tailwind-variants",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L45",
+      "source_location": "L47",
       "id": "package_devdependencies_tailwind_variants",
       "community": 5,
       "norm_label": "tailwind-variants"
@@ -592,7 +610,7 @@
       "label": "tailwindcss",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L46",
+      "source_location": "L48",
       "id": "package_devdependencies_tailwindcss",
       "community": 5,
       "norm_label": "tailwindcss"
@@ -601,7 +619,7 @@
       "label": "tw-animate-css",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L47",
+      "source_location": "L49",
       "id": "package_devdependencies_tw_animate_css",
       "community": 5,
       "norm_label": "tw-animate-css"
@@ -610,7 +628,7 @@
       "label": "typescript",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L48",
+      "source_location": "L50",
       "id": "package_devdependencies_typescript",
       "community": 5,
       "norm_label": "typescript"
@@ -619,7 +637,7 @@
       "label": "typescript-eslint",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L49",
+      "source_location": "L51",
       "id": "package_devdependencies_typescript_eslint",
       "community": 5,
       "norm_label": "typescript-eslint"
@@ -628,7 +646,7 @@
       "label": "vite",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L50",
+      "source_location": "L52",
       "id": "package_devdependencies_vite",
       "community": 5,
       "norm_label": "vite"
@@ -637,7 +655,7 @@
       "label": "vitest",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L51",
+      "source_location": "L53",
       "id": "package_devdependencies_vitest",
       "community": 5,
       "norm_label": "vitest"
@@ -646,7 +664,7 @@
       "label": "dependencies",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L53",
+      "source_location": "L55",
       "id": "package_dependencies",
       "community": 3,
       "norm_label": "dependencies"
@@ -655,7 +673,7 @@
       "label": "@auth/core",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L54",
+      "source_location": "L56",
       "id": "package_dependencies_auth_core",
       "community": 3,
       "norm_label": "@auth/core"
@@ -664,7 +682,7 @@
       "label": "@auth/sveltekit",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L55",
+      "source_location": "L57",
       "id": "package_dependencies_auth_sveltekit",
       "community": 3,
       "norm_label": "@auth/sveltekit"
@@ -673,7 +691,7 @@
       "label": "@prisma/adapter-pg",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L56",
+      "source_location": "L58",
       "id": "package_dependencies_prisma_adapter_pg",
       "community": 3,
       "norm_label": "@prisma/adapter-pg"
@@ -682,7 +700,7 @@
       "label": "@prisma/client",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L57",
+      "source_location": "L59",
       "id": "package_dependencies_prisma_client",
       "community": 3,
       "norm_label": "@prisma/client"
@@ -691,7 +709,7 @@
       "label": "dotenv",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L58",
+      "source_location": "L60",
       "id": "package_dependencies_dotenv",
       "community": 3,
       "norm_label": "dotenv"
@@ -700,7 +718,7 @@
       "label": "pg",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L59",
+      "source_location": "L61",
       "id": "package_dependencies_pg",
       "community": 3,
       "norm_label": "pg"
@@ -709,9 +727,9 @@
       "label": "svelte-sonner",
       "file_type": "code",
       "source_file": "package.json",
-      "source_location": "L60",
+      "source_location": "L62",
       "id": "package_dependencies_svelte_sonner",
-      "community": 3,
+      "community": 11,
       "norm_label": "svelte-sonner"
     },
     {
@@ -931,6 +949,278 @@
       "norm_label": "signout()"
     },
     {
+      "label": "ConfirmModal.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/common/ConfirmModal.svelte",
+      "source_location": "L1",
+      "id": "common_confirmmodal",
+      "community": 2,
+      "norm_label": "confirmmodal.svelte"
+    },
+    {
+      "label": "$lib/components",
+      "file_type": "code",
+      "source_file": "src/lib/components",
+      "confidence": "EXTRACTED",
+      "id": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "community": 43,
+      "norm_label": "$lib/components"
+    },
+    {
+      "label": "CrudModal.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/common/CrudModal.svelte",
+      "confidence": "EXTRACTED",
+      "source_location": "L1",
+      "id": "common_crudmodal",
+      "community": 2,
+      "norm_label": "crudmodal.svelte"
+    },
+    {
+      "label": "if()",
+      "file_type": "code",
+      "source_file": "src/lib/components/common/CrudModal.svelte",
+      "source_location": "L30",
+      "id": "common_crudmodal_if",
+      "community": 2,
+      "norm_label": "if()"
+    },
+    {
+      "label": "svelte",
+      "file_type": "code",
+      "source_file": "svelte",
+      "confidence": "EXTRACTED",
+      "id": "svelte",
+      "community": 2,
+      "norm_label": "svelte"
+    },
+    {
+      "label": "@lucide/svelte/icons/x",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/x",
+      "confidence": "EXTRACTED",
+      "id": "x",
+      "community": 12,
+      "norm_label": "@lucide/svelte/icons/x"
+    },
+    {
+      "label": "Dropdown.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/common/Dropdown.svelte",
+      "source_location": "L1",
+      "id": "common_dropdown",
+      "community": 2,
+      "norm_label": "dropdown.svelte"
+    },
+    {
+      "label": "$lib/utils.js",
+      "file_type": "code",
+      "source_file": "src/lib/utils.js",
+      "confidence": "EXTRACTED",
+      "id": "c_users_user_pieq_svelte_app_template_src_lib_utils_js",
+      "community": 2,
+      "norm_label": "$lib/utils.js"
+    },
+    {
+      "label": "@lucide/svelte/icons/chevron-down",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/chevron-down",
+      "confidence": "EXTRACTED",
+      "id": "chevron_down",
+      "community": 2,
+      "norm_label": "@lucide/svelte/icons/chevron-down"
+    },
+    {
+      "label": "@lucide/svelte/icons/filter",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/filter",
+      "confidence": "EXTRACTED",
+      "id": "filter",
+      "community": 2,
+      "norm_label": "@lucide/svelte/icons/filter"
+    },
+    {
+      "label": "@lucide/svelte/icons/check",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/check",
+      "confidence": "EXTRACTED",
+      "id": "check",
+      "community": 2,
+      "norm_label": "@lucide/svelte/icons/check"
+    },
+    {
+      "label": "$lib/components/ui/dropdown-menu/index.js",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.js",
+      "confidence": "EXTRACTED",
+      "id": "c_users_user_pieq_svelte_app_template_src_lib_components_ui_dropdown_menu_index_js",
+      "community": 2,
+      "norm_label": "$lib/components/ui/dropdown-menu/index.js"
+    },
+    {
+      "label": "FilterDropdown.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/common/FilterDropdown.svelte",
+      "source_location": "L1",
+      "id": "common_filterdropdown",
+      "community": 2,
+      "norm_label": "filterdropdown.svelte"
+    },
+    {
+      "label": "$lib/components/index.js",
+      "file_type": "code",
+      "source_file": "src/lib/components/index.js",
+      "confidence": "EXTRACTED",
+      "id": "c_users_user_pieq_svelte_app_template_src_lib_components_index_js",
+      "community": 2,
+      "norm_label": "$lib/components/index.js"
+    },
+    {
+      "label": "MasterDataDropdown.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/common/MasterDataDropdown.svelte",
+      "source_location": "L1",
+      "id": "common_masterdatadropdown",
+      "community": 43,
+      "norm_label": "masterdatadropdown.svelte"
+    },
+    {
+      "label": "$lib/master-data/master-config",
+      "file_type": "code",
+      "source_file": "src/lib/master-data/master-config",
+      "confidence": "EXTRACTED",
+      "id": "c_users_user_pieq_svelte_app_template_src_lib_master_data_master_config",
+      "community": 43,
+      "norm_label": "$lib/master-data/master-config"
+    },
+    {
+      "label": "$lib/permissions/mock-permissions",
+      "file_type": "code",
+      "source_file": "src/lib/permissions/mock-permissions",
+      "confidence": "EXTRACTED",
+      "id": "c_users_user_pieq_svelte_app_template_src_lib_permissions_mock_permissions",
+      "community": 43,
+      "norm_label": "$lib/permissions/mock-permissions"
+    },
+    {
+      "label": "SearchableDropdown.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/common/SearchableDropdown.svelte",
+      "confidence": "EXTRACTED",
+      "source_location": "L1",
+      "id": "common_searchabledropdown",
+      "community": 43,
+      "norm_label": "searchabledropdown.svelte"
+    },
+    {
+      "label": "Pagination.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/common/Pagination.svelte",
+      "source_location": "L1",
+      "id": "common_pagination",
+      "community": 2,
+      "norm_label": "pagination.svelte"
+    },
+    {
+      "label": "@lucide/svelte/icons/chevron-left",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/chevron-left",
+      "confidence": "EXTRACTED",
+      "id": "chevron_left",
+      "community": 2,
+      "norm_label": "@lucide/svelte/icons/chevron-left"
+    },
+    {
+      "label": "@lucide/svelte/icons/chevron-right",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/chevron-right",
+      "confidence": "EXTRACTED",
+      "id": "chevron_right",
+      "community": 2,
+      "norm_label": "@lucide/svelte/icons/chevron-right"
+    },
+    {
+      "label": "PermissionMatrixCell.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/common/PermissionMatrixCell.svelte",
+      "source_location": "L1",
+      "id": "common_permissionmatrixcell",
+      "community": 15,
+      "norm_label": "permissionmatrixcell.svelte"
+    },
+    {
+      "label": "@lucide/svelte/icons/loader-circle",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/loader-circle",
+      "confidence": "EXTRACTED",
+      "id": "loader_circle",
+      "community": 15,
+      "norm_label": "@lucide/svelte/icons/loader-circle"
+    },
+    {
+      "label": "SearchInput.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/common/SearchInput.svelte",
+      "source_location": "L1",
+      "id": "common_searchinput",
+      "community": 12,
+      "norm_label": "searchinput.svelte"
+    },
+    {
+      "label": "@lucide/svelte/icons/search",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/search",
+      "confidence": "EXTRACTED",
+      "id": "search",
+      "community": 12,
+      "norm_label": "@lucide/svelte/icons/search"
+    },
+    {
+      "label": "@lucide/svelte/icons/pencil",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/pencil",
+      "confidence": "EXTRACTED",
+      "id": "pencil",
+      "community": 43,
+      "norm_label": "@lucide/svelte/icons/pencil"
+    },
+    {
+      "label": "@lucide/svelte/icons/plus",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/plus",
+      "confidence": "EXTRACTED",
+      "id": "plus",
+      "community": 43,
+      "norm_label": "@lucide/svelte/icons/plus"
+    },
+    {
+      "label": "StatusDropdown.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/common/StatusDropdown.svelte",
+      "source_location": "L1",
+      "id": "common_statusdropdown",
+      "community": 2,
+      "norm_label": "statusdropdown.svelte"
+    },
+    {
+      "label": "TableActions.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/common/TableActions.svelte",
+      "source_location": "L1",
+      "id": "common_tableactions",
+      "community": 43,
+      "norm_label": "tableactions.svelte"
+    },
+    {
+      "label": "@lucide/svelte/icons/more-vertical",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/more-vertical",
+      "confidence": "EXTRACTED",
+      "id": "more_vertical",
+      "community": 43,
+      "norm_label": "@lucide/svelte/icons/more-vertical"
+    },
+    {
       "label": "index.ts",
       "file_type": "code",
       "source_file": "src/lib/components/index.ts",
@@ -945,7 +1235,7 @@
       "source_file": "src/lib/components/layout/index.ts",
       "source_location": "L1",
       "id": "layout_index",
-      "community": 14,
+      "community": 2,
       "norm_label": "index.ts"
     },
     {
@@ -954,7 +1244,7 @@
       "source_file": "src/lib/components/layout/sidebar/index.ts",
       "source_location": "L1",
       "id": "sidebar_index",
-      "community": 14,
+      "community": 2,
       "norm_label": "index.ts"
     },
     {
@@ -981,7 +1271,7 @@
       "source_file": "$app/state",
       "confidence": "EXTRACTED",
       "id": "state",
-      "community": 11,
+      "community": 45,
       "norm_label": "$app/state"
     },
     {
@@ -999,7 +1289,7 @@
       "source_file": "svelte/transition",
       "confidence": "EXTRACTED",
       "id": "transition",
-      "community": 9,
+      "community": 14,
       "norm_label": "svelte/transition"
     },
     {
@@ -1057,15 +1347,6 @@
       "norm_label": "@lucide/svelte/icons/log-out"
     },
     {
-      "label": "@lucide/svelte/icons/x",
-      "file_type": "code",
-      "source_file": "@lucide/svelte/icons/x",
-      "confidence": "EXTRACTED",
-      "id": "x",
-      "community": 14,
-      "norm_label": "@lucide/svelte/icons/x"
-    },
-    {
       "label": "alert-action.svelte",
       "file_type": "code",
       "source_file": "src/lib/components/ui/alert/alert-action.svelte",
@@ -1082,15 +1363,6 @@
       "id": "elements",
       "community": 2,
       "norm_label": "svelte/elements"
-    },
-    {
-      "label": "$lib/utils.js",
-      "file_type": "code",
-      "source_file": "src/lib/utils.js",
-      "confidence": "EXTRACTED",
-      "id": "c_users_user_pieq_svelte_app_template_src_lib_utils_js",
-      "community": 2,
-      "norm_label": "$lib/utils.js"
     },
     {
       "label": "alert-description.svelte",
@@ -1156,14 +1428,13 @@
       "norm_label": "index.ts"
     },
     {
-      "label": "../button/button.svelte",
+      "label": "button.svelte",
       "file_type": "code",
       "source_file": "src/lib/components/ui/button/button.svelte",
       "source_location": "L1",
-      "confidence": "EXTRACTED",
       "id": "button_button",
       "community": 2,
-      "norm_label": "../button/button.svelte"
+      "norm_label": "button.svelte"
     },
     {
       "label": "index.ts",
@@ -1247,65 +1518,183 @@
       "norm_label": "index.ts"
     },
     {
-      "label": "DatePicker.svelte",
+      "label": "dropdown-menu-checkbox-group.svelte",
       "file_type": "code",
-      "source_file": "src/lib/components/ui/datepicker/DatePicker.svelte",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-checkbox-group.svelte",
       "source_location": "L1",
-      "id": "datepicker_datepicker",
+      "id": "dropdown_menu_dropdown_menu_checkbox_group",
       "community": 2,
-      "norm_label": "datepicker.svelte"
+      "norm_label": "dropdown-menu-checkbox-group.svelte"
+    },
+    {
+      "label": "bits-ui",
+      "file_type": "code",
+      "source_file": "bits-ui",
+      "confidence": "EXTRACTED",
+      "id": "bits_ui",
+      "community": 2,
+      "norm_label": "bits-ui"
+    },
+    {
+      "label": "dropdown-menu-checkbox-item.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte",
+      "source_location": "L1",
+      "id": "dropdown_menu_dropdown_menu_checkbox_item",
+      "community": 2,
+      "norm_label": "dropdown-menu-checkbox-item.svelte"
+    },
+    {
+      "label": "@lucide/svelte/icons/minus",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/minus",
+      "confidence": "EXTRACTED",
+      "id": "minus",
+      "community": 2,
+      "norm_label": "@lucide/svelte/icons/minus"
+    },
+    {
+      "label": "dropdown-menu-content.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-content.svelte",
+      "source_location": "L1",
+      "id": "dropdown_menu_dropdown_menu_content",
+      "community": 2,
+      "norm_label": "dropdown-menu-content.svelte"
+    },
+    {
+      "label": "dropdown-menu-portal.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-portal.svelte",
+      "confidence": "EXTRACTED",
+      "source_location": "L1",
+      "id": "dropdown_menu_dropdown_menu_portal",
+      "community": 2,
+      "norm_label": "dropdown-menu-portal.svelte"
+    },
+    {
+      "label": "dropdown-menu-group-heading.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte",
+      "source_location": "L1",
+      "id": "dropdown_menu_dropdown_menu_group_heading",
+      "community": 2,
+      "norm_label": "dropdown-menu-group-heading.svelte"
+    },
+    {
+      "label": "dropdown-menu-group.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-group.svelte",
+      "source_location": "L1",
+      "id": "dropdown_menu_dropdown_menu_group",
+      "community": 2,
+      "norm_label": "dropdown-menu-group.svelte"
+    },
+    {
+      "label": "dropdown-menu-item.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-item.svelte",
+      "source_location": "L1",
+      "id": "dropdown_menu_dropdown_menu_item",
+      "community": 2,
+      "norm_label": "dropdown-menu-item.svelte"
+    },
+    {
+      "label": "dropdown-menu-label.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-label.svelte",
+      "source_location": "L1",
+      "id": "dropdown_menu_dropdown_menu_label",
+      "community": 2,
+      "norm_label": "dropdown-menu-label.svelte"
+    },
+    {
+      "label": "dropdown-menu-radio-group.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-radio-group.svelte",
+      "source_location": "L1",
+      "id": "dropdown_menu_dropdown_menu_radio_group",
+      "community": 2,
+      "norm_label": "dropdown-menu-radio-group.svelte"
+    },
+    {
+      "label": "dropdown-menu-radio-item.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-radio-item.svelte",
+      "source_location": "L1",
+      "id": "dropdown_menu_dropdown_menu_radio_item",
+      "community": 2,
+      "norm_label": "dropdown-menu-radio-item.svelte"
+    },
+    {
+      "label": "dropdown-menu-separator.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-separator.svelte",
+      "source_location": "L1",
+      "id": "dropdown_menu_dropdown_menu_separator",
+      "community": 2,
+      "norm_label": "dropdown-menu-separator.svelte"
+    },
+    {
+      "label": "dropdown-menu-shortcut.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-shortcut.svelte",
+      "source_location": "L1",
+      "id": "dropdown_menu_dropdown_menu_shortcut",
+      "community": 2,
+      "norm_label": "dropdown-menu-shortcut.svelte"
+    },
+    {
+      "label": "dropdown-menu-sub-content.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-sub-content.svelte",
+      "source_location": "L1",
+      "id": "dropdown_menu_dropdown_menu_sub_content",
+      "community": 2,
+      "norm_label": "dropdown-menu-sub-content.svelte"
+    },
+    {
+      "label": "dropdown-menu-sub-trigger.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-sub-trigger.svelte",
+      "source_location": "L1",
+      "id": "dropdown_menu_dropdown_menu_sub_trigger",
+      "community": 2,
+      "norm_label": "dropdown-menu-sub-trigger.svelte"
+    },
+    {
+      "label": "dropdown-menu-sub.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-sub.svelte",
+      "source_location": "L1",
+      "id": "dropdown_menu_dropdown_menu_sub",
+      "community": 2,
+      "norm_label": "dropdown-menu-sub.svelte"
+    },
+    {
+      "label": "dropdown-menu-trigger.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-trigger.svelte",
+      "source_location": "L1",
+      "id": "dropdown_menu_dropdown_menu_trigger",
+      "community": 2,
+      "norm_label": "dropdown-menu-trigger.svelte"
+    },
+    {
+      "label": "dropdown-menu.svelte",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu.svelte",
+      "source_location": "L1",
+      "id": "dropdown_menu_dropdown_menu",
+      "community": 2,
+      "norm_label": "dropdown-menu.svelte"
     },
     {
       "label": "index.ts",
       "file_type": "code",
-      "source_file": "src/lib/components/ui/datepicker/index.ts",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
       "source_location": "L1",
-      "id": "datepicker_index",
-      "community": 2,
-      "norm_label": "index.ts"
-    },
-    {
-      "label": "Dropdown.svelte",
-      "file_type": "code",
-      "source_file": "src/lib/components/ui/dropdown/Dropdown.svelte",
-      "source_location": "L1",
-      "id": "dropdown_dropdown",
-      "community": 2,
-      "norm_label": "dropdown.svelte"
-    },
-    {
-      "label": "@lucide/svelte/icons/chevron-down",
-      "file_type": "code",
-      "source_file": "@lucide/svelte/icons/chevron-down",
-      "confidence": "EXTRACTED",
-      "id": "chevron_down",
-      "community": 2,
-      "norm_label": "@lucide/svelte/icons/chevron-down"
-    },
-    {
-      "label": "@lucide/svelte/icons/filter",
-      "file_type": "code",
-      "source_file": "@lucide/svelte/icons/filter",
-      "confidence": "EXTRACTED",
-      "id": "filter",
-      "community": 2,
-      "norm_label": "@lucide/svelte/icons/filter"
-    },
-    {
-      "label": "@lucide/svelte/icons/check",
-      "file_type": "code",
-      "source_file": "@lucide/svelte/icons/check",
-      "confidence": "EXTRACTED",
-      "id": "check",
-      "community": 2,
-      "norm_label": "@lucide/svelte/icons/check"
-    },
-    {
-      "label": "index.ts",
-      "file_type": "code",
-      "source_file": "src/lib/components/ui/index.ts",
-      "source_location": "L1",
-      "id": "ui_index",
+      "id": "dropdown_menu_index",
       "community": 2,
       "norm_label": "index.ts"
     },
@@ -1346,149 +1735,85 @@
       "norm_label": "label.svelte"
     },
     {
-      "label": "ConfirmModal.svelte",
-      "file_type": "code",
-      "source_file": "src/lib/components/ui/modal/ConfirmModal.svelte",
-      "source_location": "L1",
-      "id": "modal_confirmmodal",
-      "community": 9,
-      "norm_label": "confirmmodal.svelte"
-    },
-    {
-      "label": "@lucide/svelte/icons/loader-circle",
-      "file_type": "code",
-      "source_file": "@lucide/svelte/icons/loader-circle",
-      "confidence": "EXTRACTED",
-      "id": "loader_circle",
-      "community": 9,
-      "norm_label": "@lucide/svelte/icons/loader-circle"
-    },
-    {
-      "label": "FormModal.svelte",
-      "file_type": "code",
-      "source_file": "src/lib/components/ui/modal/FormModal.svelte",
-      "source_location": "L1",
-      "id": "modal_formmodal",
-      "community": 9,
-      "norm_label": "formmodal.svelte"
-    },
-    {
-      "label": "@sveltejs/kit",
-      "file_type": "code",
-      "source_file": "@sveltejs/kit",
-      "confidence": "EXTRACTED",
-      "id": "kit",
-      "community": 17,
-      "norm_label": "@sveltejs/kit"
-    },
-    {
-      "label": "svelte",
-      "file_type": "code",
-      "source_file": "svelte",
-      "confidence": "EXTRACTED",
-      "id": "svelte",
-      "community": 9,
-      "norm_label": "svelte"
-    },
-    {
-      "label": "Modal.svelte",
-      "file_type": "code",
-      "source_file": "src/lib/components/ui/modal/Modal.svelte",
-      "confidence": "EXTRACTED",
-      "source_location": "L1",
-      "id": "modal_modal",
-      "community": 9,
-      "norm_label": "modal.svelte"
-    },
-    {
-      "label": "$app/forms",
-      "file_type": "code",
-      "source_file": "$app/forms",
-      "confidence": "EXTRACTED",
-      "id": "forms",
-      "community": 9,
-      "norm_label": "$app/forms"
-    },
-    {
-      "label": "onCloseRequest()",
-      "file_type": "code",
-      "source_file": "src/lib/components/ui/modal/Modal.svelte",
-      "source_location": "L20",
-      "id": "modal_modal_oncloserequest",
-      "community": 9,
-      "norm_label": "oncloserequest()"
-    },
-    {
       "label": "index.ts",
       "file_type": "code",
-      "source_file": "src/lib/components/ui/modal/index.ts",
+      "source_file": "src/lib/components/ui/sonner/index.ts",
       "source_location": "L1",
-      "id": "modal_index",
-      "community": 9,
+      "id": "sonner_index",
+      "community": 5,
       "norm_label": "index.ts"
     },
     {
-      "label": "index.ts",
+      "label": "sonner.svelte",
       "file_type": "code",
-      "source_file": "src/lib/components/ui/multiselect/index.ts",
+      "source_file": "src/lib/components/ui/sonner/sonner.svelte",
       "source_location": "L1",
-      "id": "multiselect_index",
-      "community": 9,
-      "norm_label": "index.ts"
+      "id": "sonner_sonner",
+      "community": 5,
+      "norm_label": "sonner.svelte"
     },
     {
-      "label": "multiselect.svelte",
+      "label": "svelte-sonner",
       "file_type": "code",
-      "source_file": "src/lib/components/ui/multiselect/multiselect.svelte",
-      "source_location": "L1",
-      "id": "multiselect_multiselect",
-      "community": 9,
-      "norm_label": "multiselect.svelte"
-    },
-    {
-      "label": "handleClickOutside()",
-      "file_type": "code",
-      "source_file": "src/lib/components/ui/multiselect/multiselect.svelte",
-      "source_location": "L45",
-      "id": "multiselect_multiselect_handleclickoutside",
-      "community": 9,
-      "norm_label": "handleclickoutside()"
-    },
-    {
-      "label": "Pagination.svelte",
-      "file_type": "code",
-      "source_file": "src/lib/components/ui/pagination/Pagination.svelte",
-      "source_location": "L1",
-      "id": "pagination_pagination",
-      "community": 2,
-      "norm_label": "pagination.svelte"
-    },
-    {
-      "label": "@lucide/svelte/icons/chevron-left",
-      "file_type": "code",
-      "source_file": "@lucide/svelte/icons/chevron-left",
+      "source_file": "svelte-sonner",
       "confidence": "EXTRACTED",
-      "id": "chevron_left",
-      "community": 2,
-      "norm_label": "@lucide/svelte/icons/chevron-left"
+      "id": "svelte_sonner",
+      "community": 11,
+      "norm_label": "svelte-sonner"
     },
     {
-      "label": "@lucide/svelte/icons/chevron-right",
+      "label": "mode-watcher",
       "file_type": "code",
-      "source_file": "@lucide/svelte/icons/chevron-right",
+      "source_file": "mode-watcher",
       "confidence": "EXTRACTED",
-      "id": "chevron_right",
-      "community": 2,
-      "norm_label": "@lucide/svelte/icons/chevron-right"
+      "id": "mode_watcher",
+      "community": 5,
+      "norm_label": "mode-watcher"
     },
     {
-      "label": "index.ts",
+      "label": "@lucide/svelte/icons/loader-2",
       "file_type": "code",
-      "source_file": "src/lib/components/ui/pagination/index.ts",
-      "source_location": "L1",
-      "id": "pagination_index",
-      "community": 2,
-      "norm_label": "index.ts"
+      "source_file": "@lucide/svelte/icons/loader-2",
+      "confidence": "EXTRACTED",
+      "id": "loader_2",
+      "community": 5,
+      "norm_label": "@lucide/svelte/icons/loader-2"
+    },
+    {
+      "label": "@lucide/svelte/icons/circle-check",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/circle-check",
+      "confidence": "EXTRACTED",
+      "id": "circle_check",
+      "community": 5,
+      "norm_label": "@lucide/svelte/icons/circle-check"
+    },
+    {
+      "label": "@lucide/svelte/icons/octagon-x",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/octagon-x",
+      "confidence": "EXTRACTED",
+      "id": "octagon_x",
+      "community": 5,
+      "norm_label": "@lucide/svelte/icons/octagon-x"
+    },
+    {
+      "label": "@lucide/svelte/icons/info",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/info",
+      "confidence": "EXTRACTED",
+      "id": "info",
+      "community": 5,
+      "norm_label": "@lucide/svelte/icons/info"
+    },
+    {
+      "label": "@lucide/svelte/icons/triangle-alert",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/triangle-alert",
+      "confidence": "EXTRACTED",
+      "id": "triangle_alert",
+      "community": 5,
+      "norm_label": "@lucide/svelte/icons/triangle-alert"
     },
     {
       "label": "index.ts",
@@ -1572,67 +1897,22 @@
       "norm_label": "table.svelte"
     },
     {
-      "label": "ErrorIcon.svelte",
+      "label": "toaster.svelte",
       "file_type": "code",
-      "source_file": "src/lib/components/ui/toast/ErrorIcon.svelte",
+      "source_file": "src/lib/components/ui/toaster.svelte",
       "source_location": "L1",
-      "id": "toast_erroricon",
-      "community": 3,
-      "norm_label": "erroricon.svelte"
+      "id": "ui_toaster",
+      "community": 2,
+      "norm_label": "toaster.svelte"
     },
     {
-      "label": "InfoIcon.svelte",
+      "label": "$app/environment",
       "file_type": "code",
-      "source_file": "src/lib/components/ui/toast/InfoIcon.svelte",
-      "source_location": "L1",
-      "id": "toast_infoicon",
-      "community": 3,
-      "norm_label": "infoicon.svelte"
-    },
-    {
-      "label": "SuccessIcon.svelte",
-      "file_type": "code",
-      "source_file": "src/lib/components/ui/toast/SuccessIcon.svelte",
-      "source_location": "L1",
-      "id": "toast_successicon",
-      "community": 3,
-      "norm_label": "successicon.svelte"
-    },
-    {
-      "label": "WarningIcon.svelte",
-      "file_type": "code",
-      "source_file": "src/lib/components/ui/toast/WarningIcon.svelte",
-      "source_location": "L1",
-      "id": "toast_warningicon",
-      "community": 3,
-      "norm_label": "warningicon.svelte"
-    },
-    {
-      "label": "index.ts",
-      "file_type": "code",
-      "source_file": "src/lib/components/ui/toast/index.ts",
-      "source_location": "L1",
-      "id": "toast_index",
-      "community": 3,
-      "norm_label": "index.ts"
-    },
-    {
-      "label": "toast.ts",
-      "file_type": "code",
-      "source_file": "src/lib/components/ui/toast/toast.ts",
-      "source_location": "L1",
-      "id": "toast_toast",
-      "community": 3,
-      "norm_label": "toast.ts"
-    },
-    {
-      "label": "toast",
-      "file_type": "code",
-      "source_file": "src/lib/components/ui/toast/toast.ts",
-      "source_location": "L7",
-      "id": "toast_toast_toast",
-      "community": 3,
-      "norm_label": "toast"
+      "source_file": "$app/environment",
+      "confidence": "EXTRACTED",
+      "id": "environment",
+      "community": 2,
+      "norm_label": "$app/environment"
     },
     {
       "label": "index.ts",
@@ -1741,6 +2021,69 @@
       "id": "lib_index",
       "community": 2,
       "norm_label": "index.ts"
+    },
+    {
+      "label": "master-config.ts",
+      "file_type": "code",
+      "source_file": "src/lib/master-data/master-config.ts",
+      "source_location": "L1",
+      "id": "master_data_master_config",
+      "community": 44,
+      "norm_label": "master-config.ts"
+    },
+    {
+      "label": "MasterKey",
+      "file_type": "code",
+      "source_file": "src/lib/master-data/master-config.ts",
+      "source_location": "L1",
+      "id": "master_data_master_config_masterkey",
+      "community": 44,
+      "norm_label": "masterkey"
+    },
+    {
+      "label": "MasterConfig",
+      "file_type": "code",
+      "source_file": "src/lib/master-data/master-config.ts",
+      "source_location": "L3",
+      "id": "master_data_master_config_masterconfig",
+      "community": 44,
+      "norm_label": "masterconfig"
+    },
+    {
+      "label": "getMasterConfig()",
+      "file_type": "code",
+      "source_file": "src/lib/master-data/master-config.ts",
+      "source_location": "L7",
+      "id": "master_data_master_config_getmasterconfig",
+      "community": 44,
+      "norm_label": "getmasterconfig()"
+    },
+    {
+      "label": "mock-permissions.ts",
+      "file_type": "code",
+      "source_file": "src/lib/permissions/mock-permissions.ts",
+      "source_location": "L1",
+      "id": "permissions_mock_permissions",
+      "community": 46,
+      "norm_label": "mock-permissions.ts"
+    },
+    {
+      "label": "MasterPermissionConfig",
+      "file_type": "code",
+      "source_file": "src/lib/permissions/mock-permissions.ts",
+      "source_location": "L1",
+      "id": "permissions_mock_permissions_masterpermissionconfig",
+      "community": 46,
+      "norm_label": "masterpermissionconfig"
+    },
+    {
+      "label": "getMasterPermissions()",
+      "file_type": "code",
+      "source_file": "src/lib/permissions/mock-permissions.ts",
+      "source_location": "L6",
+      "id": "permissions_mock_permissions_getmasterpermissions",
+      "community": 46,
+      "norm_label": "getmasterpermissions()"
     },
     {
       "label": "auth.js",
@@ -2180,7 +2523,7 @@
       "source_file": "src/lib/server/db.ts",
       "source_location": "L38",
       "id": "server_db_db",
-      "community": 1,
+      "community": 0,
       "norm_label": "db"
     },
     {
@@ -2477,7 +2820,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L1",
       "id": "services_leave_policy_service",
-      "community": 1,
+      "community": 0,
       "norm_label": "leave-policy.service.ts"
     },
     {
@@ -2486,7 +2829,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L5",
       "id": "services_leave_policy_service_createleavepolicyinput",
-      "community": 1,
+      "community": 0,
       "norm_label": "createleavepolicyinput"
     },
     {
@@ -2495,7 +2838,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L21",
       "id": "services_leave_policy_service_updateleavepolicyinput",
-      "community": 1,
+      "community": 0,
       "norm_label": "updateleavepolicyinput"
     },
     {
@@ -2504,7 +2847,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L37",
       "id": "services_leave_policy_service_validateandmappolicyinput",
-      "community": 1,
+      "community": 0,
       "norm_label": "validateandmappolicyinput()"
     },
     {
@@ -2531,7 +2874,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L216",
       "id": "services_leave_policy_service_createleavepolicy",
-      "community": 1,
+      "community": 0,
       "norm_label": "createleavepolicy()"
     },
     {
@@ -2549,7 +2892,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L258",
       "id": "services_leave_policy_service_deleteleavepolicy",
-      "community": 1,
+      "community": 0,
       "norm_label": "deleteleavepolicy()"
     },
     {
@@ -2913,15 +3256,6 @@
       "norm_label": "$lib/auth"
     },
     {
-      "label": "$lib/components/ui",
-      "file_type": "code",
-      "source_file": "src/lib/components/ui",
-      "confidence": "EXTRACTED",
-      "id": "c_users_user_pieq_svelte_app_template_src_lib_components_ui",
-      "community": 11,
-      "norm_label": "$lib/components/ui"
-    },
-    {
       "label": "$lib/components/layout",
       "file_type": "code",
       "source_file": "src/lib/components/layout",
@@ -2931,21 +3265,12 @@
       "norm_label": "$lib/components/layout"
     },
     {
-      "label": "svelte-sonner",
-      "file_type": "code",
-      "source_file": "svelte-sonner",
-      "confidence": "EXTRACTED",
-      "id": "svelte_sonner",
-      "community": 3,
-      "norm_label": "svelte-sonner"
-    },
-    {
       "label": "$app/navigation",
       "file_type": "code",
       "source_file": "$app/navigation",
       "confidence": "EXTRACTED",
       "id": "navigation",
-      "community": 15,
+      "community": 11,
       "norm_label": "$app/navigation"
     },
     {
@@ -2981,7 +3306,7 @@
       "source_file": "src/routes/api/holidays/+server.ts",
       "source_location": "L1",
       "id": "holidays_server",
-      "community": 6,
+      "community": 0,
       "norm_label": "+server.ts"
     },
     {
@@ -2990,7 +3315,7 @@
       "source_file": "src/routes/api/holidays/+server.ts",
       "source_location": "L15",
       "id": "holidays_server_get",
-      "community": 6,
+      "community": 0,
       "norm_label": "get()"
     },
     {
@@ -3278,7 +3603,7 @@
       "source_file": "src/routes/auth/signin/+page.svelte",
       "source_location": "L1",
       "id": "signin_page",
-      "community": 11,
+      "community": 45,
       "norm_label": "+page.svelte"
     },
     {
@@ -3287,7 +3612,7 @@
       "source_file": "src/routes/auth/signin/+page.svelte",
       "source_location": "L19",
       "id": "signin_page_redirectto",
-      "community": 11,
+      "community": 45,
       "norm_label": "redirectto"
     },
     {
@@ -3296,7 +3621,7 @@
       "source_file": "src/routes/auth/signin/+page.svelte",
       "source_location": "L21",
       "id": "signin_page_handlesignin",
-      "community": 11,
+      "community": 45,
       "norm_label": "handlesignin()"
     },
     {
@@ -3323,7 +3648,7 @@
       "source_file": "src/routes/dashboard/+page.svelte",
       "source_location": "L1",
       "id": "dashboard_page",
-      "community": 11,
+      "community": 43,
       "norm_label": "+page.svelte"
     },
     {
@@ -3350,7 +3675,7 @@
       "source_file": "src/routes/dashboard/[id=cuid]/+page.svelte",
       "source_location": "L1",
       "id": "id_cuid_page",
-      "community": 11,
+      "community": 43,
       "norm_label": "+page.svelte"
     },
     {
@@ -3363,6 +3688,15 @@
       "norm_label": "+page.svelte"
     },
     {
+      "label": "@sveltejs/kit",
+      "file_type": "code",
+      "source_file": "@sveltejs/kit",
+      "confidence": "EXTRACTED",
+      "id": "kit",
+      "community": 17,
+      "norm_label": "@sveltejs/kit"
+    },
+    {
       "label": "svelte/reactivity",
       "file_type": "code",
       "source_file": "svelte/reactivity",
@@ -3370,15 +3704,6 @@
       "id": "reactivity",
       "community": 15,
       "norm_label": "svelte/reactivity"
-    },
-    {
-      "label": "@lucide/svelte/icons/search",
-      "file_type": "code",
-      "source_file": "@lucide/svelte/icons/search",
-      "confidence": "EXTRACTED",
-      "id": "search",
-      "community": 15,
-      "norm_label": "@lucide/svelte/icons/search"
     },
     {
       "label": "@lucide/svelte/icons/ellipsis-vertical",
@@ -3483,7 +3808,7 @@
       "label": "handleCloseRequest()",
       "file_type": "code",
       "source_file": "src/routes/leave-policies/+page.svelte",
-      "source_location": "L420",
+      "source_location": "L422",
       "id": "leave_policies_page_handlecloserequest",
       "community": 12,
       "norm_label": "handlecloserequest()"
@@ -3492,7 +3817,7 @@
       "label": "confirmDiscard()",
       "file_type": "code",
       "source_file": "src/routes/leave-policies/+page.svelte",
-      "source_location": "L428",
+      "source_location": "L430",
       "id": "leave_policies_page_confirmdiscard",
       "community": 12,
       "norm_label": "confirmdiscard()"
@@ -3624,6 +3949,15 @@
       "norm_label": "confirmdiscard()"
     },
     {
+      "label": "if()",
+      "file_type": "code",
+      "source_file": "src/routes/leave-types/+page.svelte",
+      "source_location": "L444",
+      "id": "leave_types_page_if",
+      "community": 13,
+      "norm_label": "if()"
+    },
+    {
       "label": "./$types.js",
       "file_type": "code",
       "source_file": "src/routes/leave-types/$types.ts",
@@ -3665,7 +3999,7 @@
       "source_file": "src/routes/settings/+page.svelte",
       "source_location": "L1",
       "id": "settings_page",
-      "community": 11,
+      "community": 43,
       "norm_label": "+page.svelte"
     },
     {
@@ -3782,7 +4116,7 @@
       "source_file": "tests/unit/leave-policy.service.test.ts",
       "source_location": "L1",
       "id": "unit_leave_policy_service_test",
-      "community": 1,
+      "community": 0,
       "norm_label": "leave-policy.service.test.ts"
     },
     {
@@ -3791,7 +4125,7 @@
       "source_file": "tests/unit/leave-policy.service.test.ts",
       "source_location": "L36",
       "id": "unit_leave_policy_service_test_auditfields",
-      "community": 1,
+      "community": 0,
       "norm_label": "auditfields"
     },
     {
@@ -4731,6 +5065,24 @@
       "norm_label": "service worker"
     },
     {
+      "label": "$app/forms",
+      "file_type": "code",
+      "source_file": "$app/forms",
+      "confidence": "EXTRACTED",
+      "community": 9,
+      "norm_label": "$app/forms",
+      "id": "forms"
+    },
+    {
+      "label": "$lib/components/ui",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui",
+      "confidence": "EXTRACTED",
+      "community": 43,
+      "norm_label": "$lib/components/ui",
+      "id": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
+    },
+    {
       "label": "Claude PR Review Workflow",
       "file_type": "document",
       "source_file": ".github/workflows/dev-claude-pr-review.yml",
@@ -5195,6 +5547,16 @@
       "source_file": "package.json",
       "source_location": "L35",
       "weight": 1.0,
+      "source": "package_devdependencies",
+      "target": "package_devdependencies_bits_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L35",
+      "weight": 1.0,
       "confidence_score": 1.0,
       "source": "package_devdependencies",
       "target": "package_devdependencies_clsx"
@@ -5288,6 +5650,16 @@
       "confidence_score": 1.0,
       "source": "package_devdependencies",
       "target": "package_devdependencies_lucide_svelte"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "package_devdependencies",
+      "target": "package_devdependencies_mode_watcher",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -5478,6 +5850,28 @@
       "confidence_score": 1.0,
       "source": "package_devdependencies",
       "target": "package_devdependencies_vitest"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L35",
+      "weight": 1.0,
+      "context": "import",
+      "source": "package_devdependencies_bits_ui",
+      "target": "bits_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L41",
+      "weight": 1.0,
+      "context": "import",
+      "source": "package_devdependencies_mode_watcher",
+      "target": "mode_watcher",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -5974,6 +6368,1003 @@
       "target": "auth_index_signout"
     },
     {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/ConfirmModal.svelte",
+      "source": "common_confirmmodal",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/ConfirmModal.svelte",
+      "source": "common_confirmmodal",
+      "target": "common_crudmodal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "common_confirmmodal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/CrudModal.svelte",
+      "source": "common_crudmodal",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/Dropdown.svelte",
+      "source": "common_dropdown",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/MasterDataDropdown.svelte",
+      "source": "common_masterdatadropdown",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/Pagination.svelte",
+      "source": "common_pagination",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/SearchableDropdown.svelte",
+      "source": "common_searchabledropdown",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/SearchInput.svelte",
+      "source": "common_searchinput",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/StatusDropdown.svelte",
+      "source": "common_statusdropdown",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/TableActions.svelte",
+      "source": "common_tableactions",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/dashboard/+page.svelte",
+      "source": "dashboard_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/dashboard/[id=cuid]/+page.svelte",
+      "source": "id_cuid_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/+layout.svelte",
+      "source": "routes_layout",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/+page.svelte",
+      "source": "routes_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/settings/+page.svelte",
+      "source": "settings_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/auth/signin/+page.svelte",
+      "source": "signin_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/holidays/+page.svelte",
+      "source": "src_routes_holidays_page_svelte_holidays_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/leave-policies/+page.svelte",
+      "source": "src_routes_leave_policies_page_svelte_leave_policies_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/leave-types/+page.svelte",
+      "source": "src_routes_leave_types_page_svelte_leave_types_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/CrudModal.svelte",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "common_crudmodal",
+      "target": "common_crudmodal_if",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "dynamic_import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/CrudModal.svelte",
+      "source": "common_crudmodal",
+      "target": "svelte",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/CrudModal.svelte",
+      "source": "common_crudmodal",
+      "target": "x",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "common_crudmodal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/MasterDataDropdown.svelte",
+      "source": "common_masterdatadropdown",
+      "target": "svelte",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte",
+      "source": "dropdown_menu_dropdown_menu_checkbox_item",
+      "target": "svelte",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-content.svelte",
+      "source": "dropdown_menu_dropdown_menu_content",
+      "target": "svelte",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte",
+      "source": "dropdown_menu_dropdown_menu_group_heading",
+      "target": "svelte",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/toaster.svelte",
+      "source": "ui_toaster",
+      "target": "svelte",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/SearchInput.svelte",
+      "source": "common_searchinput",
+      "target": "x",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/layout/sidebar/sidebar.svelte",
+      "confidence_score": 1.0,
+      "source": "sidebar_sidebar",
+      "target": "x"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/holidays/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "src_routes_holidays_page_svelte_holidays_page",
+      "target": "x"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/leave-policies/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "src_routes_leave_policies_page_svelte_leave_policies_page",
+      "target": "x"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/leave-types/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "src_routes_leave_types_page_svelte_leave_types_page",
+      "target": "x"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/Dropdown.svelte",
+      "source": "common_dropdown",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui_dropdown_menu_index_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/Dropdown.svelte",
+      "source": "common_dropdown",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/Dropdown.svelte",
+      "source": "common_dropdown",
+      "target": "check",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/Dropdown.svelte",
+      "source": "common_dropdown",
+      "target": "chevron_down",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/Dropdown.svelte",
+      "source": "common_dropdown",
+      "target": "filter",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "common_dropdown",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/alert/alert.svelte",
+      "confidence_score": 1.0,
+      "source": "alert_alert",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/alert/alert-action.svelte",
+      "confidence_score": 1.0,
+      "source": "alert_alert_action",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/alert/alert-description.svelte",
+      "confidence_score": 1.0,
+      "source": "alert_alert_description",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/alert/alert-title.svelte",
+      "confidence_score": 1.0,
+      "source": "alert_alert_title",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/badge/badge.svelte",
+      "confidence_score": 1.0,
+      "source": "badge_badge",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/button/button.svelte",
+      "confidence_score": 1.0,
+      "source": "button_button",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/card/card.svelte",
+      "confidence_score": 1.0,
+      "source": "card_card",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/card/card-action.svelte",
+      "confidence_score": 1.0,
+      "source": "card_card_action",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/card/card-content.svelte",
+      "confidence_score": 1.0,
+      "source": "card_card_content",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/card/card-description.svelte",
+      "confidence_score": 1.0,
+      "source": "card_card_description",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/card/card-footer.svelte",
+      "confidence_score": 1.0,
+      "source": "card_card_footer",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/card/card-header.svelte",
+      "confidence_score": 1.0,
+      "source": "card_card_header",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/card/card-title.svelte",
+      "confidence_score": 1.0,
+      "source": "card_card_title",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte",
+      "source": "dropdown_menu_dropdown_menu_checkbox_item",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-content.svelte",
+      "source": "dropdown_menu_dropdown_menu_content",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte",
+      "source": "dropdown_menu_dropdown_menu_group_heading",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-item.svelte",
+      "source": "dropdown_menu_dropdown_menu_item",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-label.svelte",
+      "source": "dropdown_menu_dropdown_menu_label",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-radio-item.svelte",
+      "source": "dropdown_menu_dropdown_menu_radio_item",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-separator.svelte",
+      "source": "dropdown_menu_dropdown_menu_separator",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-shortcut.svelte",
+      "source": "dropdown_menu_dropdown_menu_shortcut",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-sub-content.svelte",
+      "source": "dropdown_menu_dropdown_menu_sub_content",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-sub-trigger.svelte",
+      "source": "dropdown_menu_dropdown_menu_sub_trigger",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/input/input.svelte",
+      "confidence_score": 1.0,
+      "source": "input_input",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/label/label.svelte",
+      "confidence_score": 1.0,
+      "source": "label_label",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/table/table.svelte",
+      "confidence_score": 1.0,
+      "source": "table_table",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/table/table-body.svelte",
+      "confidence_score": 1.0,
+      "source": "table_table_body",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/table/table-caption.svelte",
+      "confidence_score": 1.0,
+      "source": "table_table_caption",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/table/table-cell.svelte",
+      "confidence_score": 1.0,
+      "source": "table_table_cell",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/table/table-footer.svelte",
+      "confidence_score": 1.0,
+      "source": "table_table_footer",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/table/table-head.svelte",
+      "confidence_score": 1.0,
+      "source": "table_table_head",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/table/table-header.svelte",
+      "confidence_score": 1.0,
+      "source": "table_table_header",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/table/table-row.svelte",
+      "confidence_score": 1.0,
+      "source": "table_table_row",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/StatusDropdown.svelte",
+      "source": "common_statusdropdown",
+      "target": "chevron_down",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/FilterDropdown.svelte",
+      "source": "common_filterdropdown",
+      "target": "filter",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/FilterDropdown.svelte",
+      "source": "common_filterdropdown",
+      "target": "check",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/PermissionMatrixCell.svelte",
+      "source": "common_permissionmatrixcell",
+      "target": "check",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/StatusDropdown.svelte",
+      "source": "common_statusdropdown",
+      "target": "check",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte",
+      "source": "dropdown_menu_dropdown_menu_checkbox_item",
+      "target": "check",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-radio-item.svelte",
+      "source": "dropdown_menu_dropdown_menu_radio_item",
+      "target": "check",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/FilterDropdown.svelte",
+      "source": "common_filterdropdown",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui_dropdown_menu_index_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/StatusDropdown.svelte",
+      "source": "common_statusdropdown",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui_dropdown_menu_index_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/TableActions.svelte",
+      "source": "common_tableactions",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui_dropdown_menu_index_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/FilterDropdown.svelte",
+      "source": "common_filterdropdown",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_index_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "common_filterdropdown",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/MasterDataDropdown.svelte",
+      "source": "common_masterdatadropdown",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_master_data_master_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/MasterDataDropdown.svelte",
+      "source": "common_masterdatadropdown",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_permissions_mock_permissions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/MasterDataDropdown.svelte",
+      "source": "common_masterdatadropdown",
+      "target": "common_searchabledropdown",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "common_masterdatadropdown",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/SearchableDropdown.svelte",
+      "source": "common_searchabledropdown",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_permissions_mock_permissions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/SearchableDropdown.svelte",
+      "source": "common_searchabledropdown",
+      "target": "pencil",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/SearchableDropdown.svelte",
+      "source": "common_searchabledropdown",
+      "target": "plus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/SearchableDropdown.svelte",
+      "source": "common_searchabledropdown",
+      "target": "search",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "common_searchabledropdown",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/Pagination.svelte",
+      "source": "common_pagination",
+      "target": "chevron_left",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/Pagination.svelte",
+      "source": "common_pagination",
+      "target": "chevron_right",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "common_pagination",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-sub-trigger.svelte",
+      "source": "dropdown_menu_dropdown_menu_sub_trigger",
+      "target": "chevron_right",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/PermissionMatrixCell.svelte",
+      "source": "common_permissionmatrixcell",
+      "target": "loader_circle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L33",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "common_permissionmatrixcell",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/holidays/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "src_routes_holidays_page_svelte_holidays_page",
+      "target": "loader_circle"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/leave-policies/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "src_routes_leave_policies_page_svelte_leave_policies_page",
+      "target": "loader_circle"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/leave-types/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "src_routes_leave_types_page_svelte_leave_types_page",
+      "target": "loader_circle"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/SearchInput.svelte",
+      "source": "common_searchinput",
+      "target": "search",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "common_searchinput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/holidays/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "src_routes_holidays_page_svelte_holidays_page",
+      "target": "search"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/leave-policies/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "src_routes_leave_policies_page_svelte_leave_policies_page",
+      "target": "search"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/leave-types/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "src_routes_leave_types_page_svelte_leave_types_page",
+      "target": "search"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/TableActions.svelte",
+      "source": "common_tableactions",
+      "target": "pencil",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "common_statusdropdown",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/TableActions.svelte",
+      "source": "common_tableactions",
+      "target": "more_vertical",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "common_tableactions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "alert_index",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "badge_index",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "button_index",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "card_index",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "input_index",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/index.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "components_index",
+      "target": "label_index",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "re_exports",
       "context": "export",
       "confidence": "EXTRACTED",
@@ -5989,11 +7380,11 @@
       "context": "export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/components/index.ts",
-      "source_location": "L1",
+      "source_location": "L13",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "components_index",
-      "target": "ui_index"
+      "target": "table_index",
+      "confidence_score": 1.0
     },
     {
       "relation": "re_exports",
@@ -6113,14 +7504,6 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/layout/sidebar/sidebar.svelte",
-      "confidence_score": 1.0,
-      "source": "sidebar_sidebar",
-      "target": "x"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/auth/signin/+page.svelte",
       "confidence_score": 1.0,
       "source": "signin_page",
@@ -6193,30 +7576,6 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/modal/ConfirmModal.svelte",
-      "confidence_score": 1.0,
-      "source": "modal_confirmmodal",
-      "target": "transition"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/modal/Modal.svelte",
-      "confidence_score": 1.0,
-      "source": "modal_modal",
-      "target": "transition"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/multiselect/multiselect.svelte",
-      "confidence_score": 1.0,
-      "source": "multiselect_multiselect",
-      "target": "transition"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/holidays/+page.svelte",
       "confidence_score": 1.0,
       "source": "src_routes_holidays_page_svelte_holidays_page",
@@ -6237,38 +7596,6 @@
       "confidence_score": 1.0,
       "source": "src_routes_leave_types_page_svelte_leave_types_page",
       "target": "transition"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/holidays/+page.svelte",
-      "confidence_score": 1.0,
-      "source": "src_routes_holidays_page_svelte_holidays_page",
-      "target": "x"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/leave-policies/+page.svelte",
-      "confidence_score": 1.0,
-      "source": "src_routes_leave_policies_page_svelte_leave_policies_page",
-      "target": "x"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/leave-types/+page.svelte",
-      "confidence_score": 1.0,
-      "source": "src_routes_leave_types_page_svelte_leave_types_page",
-      "target": "x"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/alert/alert-action.svelte",
-      "confidence_score": 1.0,
-      "source": "alert_alert_action",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
     },
     {
       "relation": "imports_from",
@@ -6388,6 +7715,22 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-label.svelte",
+      "source": "dropdown_menu_dropdown_menu_label",
+      "target": "elements",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-shortcut.svelte",
+      "source": "dropdown_menu_dropdown_menu_shortcut",
+      "target": "elements",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
       "source_file": "src/lib/components/ui/input/input.svelte",
       "confidence_score": 1.0,
       "source": "input_input",
@@ -6464,198 +7807,6 @@
       "confidence_score": 1.0,
       "source": "table_table_row",
       "target": "elements"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/alert/alert.svelte",
-      "confidence_score": 1.0,
-      "source": "alert_alert",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/alert/alert-description.svelte",
-      "confidence_score": 1.0,
-      "source": "alert_alert_description",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/alert/alert-title.svelte",
-      "confidence_score": 1.0,
-      "source": "alert_alert_title",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/badge/badge.svelte",
-      "confidence_score": 1.0,
-      "source": "badge_badge",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/button/button.svelte",
-      "confidence_score": 1.0,
-      "source": "button_button",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/card/card.svelte",
-      "confidence_score": 1.0,
-      "source": "card_card",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/card/card-action.svelte",
-      "confidence_score": 1.0,
-      "source": "card_card_action",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/card/card-content.svelte",
-      "confidence_score": 1.0,
-      "source": "card_card_content",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/card/card-description.svelte",
-      "confidence_score": 1.0,
-      "source": "card_card_description",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/card/card-footer.svelte",
-      "confidence_score": 1.0,
-      "source": "card_card_footer",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/card/card-header.svelte",
-      "confidence_score": 1.0,
-      "source": "card_card_header",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/card/card-title.svelte",
-      "confidence_score": 1.0,
-      "source": "card_card_title",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/datepicker/DatePicker.svelte",
-      "confidence_score": 1.0,
-      "source": "datepicker_datepicker",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/dropdown/Dropdown.svelte",
-      "confidence_score": 1.0,
-      "source": "dropdown_dropdown",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/input/input.svelte",
-      "confidence_score": 1.0,
-      "source": "input_input",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/label/label.svelte",
-      "confidence_score": 1.0,
-      "source": "label_label",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/table/table.svelte",
-      "confidence_score": 1.0,
-      "source": "table_table",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/table/table-body.svelte",
-      "confidence_score": 1.0,
-      "source": "table_table_body",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/table/table-caption.svelte",
-      "confidence_score": 1.0,
-      "source": "table_table_caption",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/table/table-cell.svelte",
-      "confidence_score": 1.0,
-      "source": "table_table_cell",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/table/table-footer.svelte",
-      "confidence_score": 1.0,
-      "source": "table_table_footer",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/table/table-head.svelte",
-      "confidence_score": 1.0,
-      "source": "table_table_head",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/table/table-header.svelte",
-      "confidence_score": 1.0,
-      "source": "table_table_header",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/table/table-row.svelte",
-      "confidence_score": 1.0,
-      "source": "table_table_row",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js"
     },
     {
       "relation": "imports_from",
@@ -6718,17 +7869,6 @@
       "relation": "re_exports",
       "context": "export",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/index.ts",
-      "source_location": "L23",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "ui_index",
-      "target": "alert_index"
-    },
-    {
-      "relation": "re_exports",
-      "context": "export",
-      "confidence": "EXTRACTED",
       "source_file": "src/lib/components/ui/badge/index.ts",
       "source_location": "L1",
       "weight": 1.0,
@@ -6740,50 +7880,12 @@
       "relation": "re_exports",
       "context": "export",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/index.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "ui_index",
-      "target": "badge_index"
-    },
-    {
-      "relation": "re_exports",
-      "context": "export",
-      "confidence": "EXTRACTED",
       "source_file": "src/lib/components/ui/button/index.ts",
       "source_location": "L8",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "button_index",
       "target": "button_button"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/modal/ConfirmModal.svelte",
-      "confidence_score": 1.0,
-      "source": "modal_confirmmodal",
-      "target": "button_button"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/pagination/Pagination.svelte",
-      "confidence_score": 1.0,
-      "source": "pagination_pagination",
-      "target": "button_button"
-    },
-    {
-      "relation": "re_exports",
-      "context": "export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/index.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "ui_index",
-      "target": "button_index"
     },
     {
       "relation": "imports_from",
@@ -6863,149 +7965,327 @@
       "target": "card_card"
     },
     {
-      "relation": "re_exports",
-      "context": "export",
+      "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/index.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "ui_index",
-      "target": "card_index"
-    },
-    {
-      "relation": "re_exports",
-      "context": "export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/datepicker/index.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "datepicker_index",
-      "target": "datepicker_datepicker"
-    },
-    {
-      "relation": "re_exports",
-      "context": "export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/index.ts",
-      "source_location": "L34",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "ui_index",
-      "target": "datepicker_index"
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-checkbox-group.svelte",
+      "source": "dropdown_menu_dropdown_menu_checkbox_group",
+      "target": "bits_ui",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
+      "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/dropdown/Dropdown.svelte",
-      "confidence_score": 1.0,
-      "source": "dropdown_dropdown",
-      "target": "check"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/dropdown/Dropdown.svelte",
-      "confidence_score": 1.0,
-      "source": "dropdown_dropdown",
-      "target": "chevron_down"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/dropdown/Dropdown.svelte",
-      "confidence_score": 1.0,
-      "source": "dropdown_dropdown",
-      "target": "filter"
-    },
-    {
-      "relation": "re_exports",
-      "context": "export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/index.ts",
-      "source_location": "L33",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "ui_index",
-      "target": "dropdown_dropdown"
-    },
-    {
-      "relation": "re_exports",
-      "context": "export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/index.ts",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
       "source_location": "L3",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "ui_index",
-      "target": "input_index"
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu_checkbox_group",
+      "confidence_score": 1.0
     },
     {
-      "relation": "re_exports",
-      "context": "export",
+      "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/index.ts",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu.svelte",
+      "source": "dropdown_menu_dropdown_menu",
+      "target": "bits_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte",
+      "source": "dropdown_menu_dropdown_menu_checkbox_item",
+      "target": "bits_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-content.svelte",
+      "source": "dropdown_menu_dropdown_menu_content",
+      "target": "bits_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-group.svelte",
+      "source": "dropdown_menu_dropdown_menu_group",
+      "target": "bits_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte",
+      "source": "dropdown_menu_dropdown_menu_group_heading",
+      "target": "bits_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-item.svelte",
+      "source": "dropdown_menu_dropdown_menu_item",
+      "target": "bits_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-portal.svelte",
+      "source": "dropdown_menu_dropdown_menu_portal",
+      "target": "bits_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-radio-group.svelte",
+      "source": "dropdown_menu_dropdown_menu_radio_group",
+      "target": "bits_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-radio-item.svelte",
+      "source": "dropdown_menu_dropdown_menu_radio_item",
+      "target": "bits_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-separator.svelte",
+      "source": "dropdown_menu_dropdown_menu_separator",
+      "target": "bits_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-sub.svelte",
+      "source": "dropdown_menu_dropdown_menu_sub",
+      "target": "bits_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-sub-content.svelte",
+      "source": "dropdown_menu_dropdown_menu_sub_content",
+      "target": "bits_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-sub-trigger.svelte",
+      "source": "dropdown_menu_dropdown_menu_sub_trigger",
+      "target": "bits_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-trigger.svelte",
+      "source": "dropdown_menu_dropdown_menu_trigger",
+      "target": "bits_ui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte",
+      "source": "dropdown_menu_dropdown_menu_checkbox_item",
+      "target": "minus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "ui_index",
-      "target": "label_index"
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu_checkbox_item",
+      "confidence_score": 1.0
     },
     {
-      "relation": "re_exports",
-      "context": "export",
+      "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/index.ts",
-      "source_location": "L29",
+      "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-content.svelte",
+      "source": "dropdown_menu_dropdown_menu_content",
+      "target": "dropdown_menu_dropdown_menu_portal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
+      "source_location": "L5",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "ui_index",
-      "target": "modal_index"
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu_content",
+      "confidence_score": 1.0
     },
     {
-      "relation": "re_exports",
-      "context": "export",
+      "relation": "imports_from",
+      "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/index.ts",
-      "source_location": "L30",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
+      "source_location": "L17",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "ui_index",
-      "target": "multiselect_index"
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu_portal",
+      "confidence_score": 1.0
     },
     {
-      "relation": "re_exports",
-      "context": "export",
+      "relation": "imports_from",
+      "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/index.ts",
-      "source_location": "L32",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
+      "source_location": "L16",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "ui_index",
-      "target": "pagination_index"
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu_group_heading",
+      "confidence_score": 1.0
     },
     {
-      "relation": "re_exports",
-      "context": "export",
+      "relation": "imports_from",
+      "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/index.ts",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu_group",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu_item",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu_label",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu_radio_group",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu_radio_item",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu_separator",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu_shortcut",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
       "source_location": "L14",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "ui_index",
-      "target": "table_index"
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu_sub_content",
+      "confidence_score": 1.0
     },
     {
-      "relation": "re_exports",
-      "context": "export",
+      "relation": "imports_from",
+      "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/index.ts",
-      "source_location": "L31",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
+      "source_location": "L15",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "ui_index",
-      "target": "toast_index"
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu_sub_trigger",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu_sub",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu_trigger",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/dropdown-menu/index.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "dropdown_menu_index",
+      "target": "dropdown_menu_dropdown_menu",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -7030,224 +8310,111 @@
       "target": "label_label"
     },
     {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/modal/ConfirmModal.svelte",
-      "confidence_score": 1.0,
-      "source": "modal_confirmmodal",
-      "target": "loader_circle"
-    },
-    {
       "relation": "re_exports",
       "context": "export",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/modal/index.ts",
-      "source_location": "L3",
+      "source_file": "src/lib/components/ui/sonner/index.ts",
+      "source_location": "L1",
       "weight": 1.0,
+      "source": "sonner_index",
+      "target": "sonner_sonner",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/sonner/sonner.svelte",
+      "source": "sonner_sonner",
+      "target": "circle_check",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/sonner/sonner.svelte",
+      "source": "sonner_sonner",
+      "target": "info",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/sonner/sonner.svelte",
+      "source": "sonner_sonner",
+      "target": "loader_2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/sonner/sonner.svelte",
+      "source": "sonner_sonner",
+      "target": "mode_watcher",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/sonner/sonner.svelte",
+      "source": "sonner_sonner",
+      "target": "octagon_x",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/sonner/sonner.svelte",
+      "source": "sonner_sonner",
+      "target": "svelte_sonner",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/sonner/sonner.svelte",
+      "source": "sonner_sonner",
+      "target": "triangle_alert",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/+layout.svelte",
       "confidence_score": 1.0,
-      "source": "modal_index",
-      "target": "modal_confirmmodal"
+      "source": "routes_layout",
+      "target": "svelte_sonner"
     },
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/holidays/+page.svelte",
-      "confidence_score": 1.0,
       "source": "src_routes_holidays_page_svelte_holidays_page",
-      "target": "loader_circle"
+      "target": "svelte_sonner",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/leave-policies/+page.svelte",
-      "confidence_score": 1.0,
       "source": "src_routes_leave_policies_page_svelte_leave_policies_page",
-      "target": "loader_circle"
+      "target": "svelte_sonner",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/leave-types/+page.svelte",
-      "confidence_score": 1.0,
       "source": "src_routes_leave_types_page_svelte_leave_types_page",
-      "target": "loader_circle"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/modal/FormModal.svelte",
-      "confidence_score": 1.0,
-      "source": "modal_formmodal",
-      "target": "forms"
+      "target": "svelte_sonner",
+      "confidence_score": 1.0
     },
     {
       "relation": "dynamic_import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/modal/FormModal.svelte",
-      "confidence_score": 1.0,
-      "source": "modal_formmodal",
-      "target": "kit"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/modal/FormModal.svelte",
-      "confidence_score": 1.0,
-      "source": "modal_formmodal",
-      "target": "modal_modal"
-    },
-    {
-      "relation": "dynamic_import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/modal/FormModal.svelte",
-      "confidence_score": 1.0,
-      "source": "modal_formmodal",
-      "target": "svelte"
-    },
-    {
-      "relation": "re_exports",
-      "context": "export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/modal/index.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modal_index",
-      "target": "modal_formmodal"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/dashboard/+page.server.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dashboard_page_server",
-      "target": "kit"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/dashboard/[id=cuid]/+page.server.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "id_cuid_page_server",
-      "target": "kit"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/response.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_response",
-      "target": "kit"
-    },
-    {
-      "relation": "dynamic_import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/holidays/+page.svelte",
-      "confidence_score": 1.0,
-      "source": "src_routes_holidays_page_svelte_holidays_page",
-      "target": "kit"
-    },
-    {
-      "relation": "dynamic_import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/leave-policies/+page.svelte",
-      "confidence_score": 1.0,
-      "source": "src_routes_leave_policies_page_svelte_leave_policies_page",
-      "target": "kit"
-    },
-    {
-      "relation": "dynamic_import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/leave-types/+page.svelte",
-      "confidence_score": 1.0,
-      "source": "src_routes_leave_types_page_svelte_leave_types_page",
-      "target": "kit"
-    },
-    {
-      "relation": "dynamic_import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/modal/Modal.svelte",
-      "confidence_score": 1.0,
-      "source": "modal_modal",
-      "target": "svelte"
-    },
-    {
-      "relation": "re_exports",
-      "context": "export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/modal/index.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modal_index",
-      "target": "modal_modal"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/modal/Modal.svelte",
-      "source_location": "L20",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "modal_modal",
-      "target": "modal_modal_oncloserequest"
-    },
-    {
-      "relation": "re_exports",
-      "context": "export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/multiselect/index.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "multiselect_index",
-      "target": "multiselect_multiselect"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/multiselect/multiselect.svelte",
-      "source_location": "L45",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "multiselect_multiselect",
-      "target": "multiselect_multiselect_handleclickoutside"
-    },
-    {
-      "relation": "re_exports",
-      "context": "export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/pagination/index.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "pagination_index",
-      "target": "pagination_pagination"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/pagination/Pagination.svelte",
-      "confidence_score": 1.0,
-      "source": "pagination_pagination",
-      "target": "chevron_left"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/pagination/Pagination.svelte",
-      "confidence_score": 1.0,
-      "source": "pagination_pagination",
-      "target": "chevron_right"
+      "source_file": "src/lib/components/ui/toaster.svelte",
+      "source": "ui_toaster",
+      "target": "svelte_sonner",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -7339,90 +8506,11 @@
     },
     {
       "relation": "imports_from",
-      "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/toast/toast.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "toast_toast",
-      "target": "toast_erroricon"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/toast/toast.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "toast_toast",
-      "target": "toast_infoicon"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/toast/toast.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "toast_toast",
-      "target": "toast_successicon"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/toast/toast.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "toast_toast",
-      "target": "toast_warningicon"
-    },
-    {
-      "relation": "re_exports",
-      "context": "export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/toast/index.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "toast_index",
-      "target": "toast_toast"
-    },
-    {
-      "relation": "re_exports",
-      "context": "re-export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/toast/index.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "toast_index",
-      "target": "toast_toast_toast"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/toast/toast.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "toast_toast",
-      "target": "svelte_sonner"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/ui/toast/toast.ts",
-      "source_location": "L7",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "toast_toast",
-      "target": "toast_toast_toast"
+      "source_file": "src/lib/components/ui/toaster.svelte",
+      "source": "ui_toaster",
+      "target": "environment",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -7612,6 +8700,56 @@
       "confidence_score": 1.0,
       "source": "unit_constants_test",
       "target": "lib_constants_buildauthcallbackurl"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/master-data/master-config.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "master_data_master_config",
+      "target": "master_data_master_config_getmasterconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/master-data/master-config.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "master_data_master_config",
+      "target": "master_data_master_config_masterconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/master-data/master-config.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "master_data_master_config",
+      "target": "master_data_master_config_masterkey",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/permissions/mock-permissions.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "permissions_mock_permissions",
+      "target": "permissions_mock_permissions_getmasterpermissions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/permissions/mock-permissions.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "permissions_mock_permissions",
+      "target": "permissions_mock_permissions_masterpermissionconfig",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -8603,6 +9741,17 @@
       "confidence_score": 1.0,
       "source": "policies_server",
       "target": "server_response"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/response.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_response",
+      "target": "kit"
     },
     {
       "relation": "contains",
@@ -12098,14 +13247,6 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/+layout.svelte",
-      "confidence_score": 1.0,
-      "source": "routes_layout",
-      "target": "svelte_sonner"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/+page.svelte",
       "confidence_score": 1.0,
       "source": "routes_page",
@@ -12118,70 +13259,6 @@
       "confidence_score": 1.0,
       "source": "signin_page",
       "target": "c_users_user_pieq_svelte_app_template_src_lib_auth"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/dashboard/+page.svelte",
-      "confidence_score": 1.0,
-      "source": "dashboard_page",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/dashboard/[id=cuid]/+page.svelte",
-      "confidence_score": 1.0,
-      "source": "id_cuid_page",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/+page.svelte",
-      "confidence_score": 1.0,
-      "source": "routes_page",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/settings/+page.svelte",
-      "confidence_score": 1.0,
-      "source": "settings_page",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/auth/signin/+page.svelte",
-      "confidence_score": 1.0,
-      "source": "signin_page",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/holidays/+page.svelte",
-      "confidence_score": 1.0,
-      "source": "src_routes_holidays_page_svelte_holidays_page",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/leave-policies/+page.svelte",
-      "confidence_score": 1.0,
-      "source": "src_routes_leave_policies_page_svelte_leave_policies_page",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
-    },
-    {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/leave-types/+page.svelte",
-      "confidence_score": 1.0,
-      "source": "src_routes_leave_types_page_svelte_leave_types_page",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
     },
     {
       "relation": "imports_from",
@@ -12206,6 +13283,14 @@
       "confidence_score": 1.0,
       "source": "src_routes_leave_types_page_svelte_leave_types_page",
       "target": "navigation"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "routes_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
     },
     {
       "relation": "contains",
@@ -12458,6 +13543,14 @@
       "target": "leavetypecuid_leavetypecuid_cuid_server_put"
     },
     {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/auth/signin/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "signin_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/auth/signin/+page.svelte",
@@ -12488,6 +13581,25 @@
       "target": "dashboard_page_server_load"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/dashboard/+page.server.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "dashboard_page_server",
+      "target": "kit"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/dashboard/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "dashboard_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/dashboard/[id=cuid]/+page.server.ts",
@@ -12496,6 +13608,33 @@
       "confidence_score": 1.0,
       "source": "id_cuid_page_server",
       "target": "id_cuid_page_server_load"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/dashboard/[id=cuid]/+page.server.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "id_cuid_page_server",
+      "target": "kit"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/dashboard/[id=cuid]/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "id_cuid_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/holidays/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "src_routes_holidays_page_svelte_holidays_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
     },
     {
       "relation": "imports_from",
@@ -12514,6 +13653,14 @@
       "target": "ellipsis_vertical"
     },
     {
+      "relation": "dynamic_import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/holidays/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "src_routes_holidays_page_svelte_holidays_page",
+      "target": "kit"
+    },
+    {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/holidays/+page.svelte",
@@ -12522,28 +13669,20 @@
       "target": "reactivity"
     },
     {
-      "relation": "imports_from",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/holidays/+page.svelte",
-      "confidence_score": 1.0,
-      "source": "src_routes_holidays_page_svelte_holidays_page",
-      "target": "search"
-    },
-    {
-      "relation": "imports_from",
+      "relation": "dynamic_import",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/leave-policies/+page.svelte",
       "confidence_score": 1.0,
       "source": "src_routes_leave_policies_page_svelte_leave_policies_page",
-      "target": "search"
+      "target": "kit"
     },
     {
-      "relation": "imports_from",
+      "relation": "dynamic_import",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/leave-types/+page.svelte",
       "confidence_score": 1.0,
       "source": "src_routes_leave_types_page_svelte_leave_types_page",
-      "target": "search"
+      "target": "kit"
     },
     {
       "relation": "imports_from",
@@ -12591,6 +13730,14 @@
       "confidence_score": 1.0,
       "source": "src_routes_holidays_page_ts_holidays_page",
       "target": "holidays_page_load"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/leave-policies/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "src_routes_leave_policies_page_svelte_leave_policies_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
     },
     {
       "relation": "imports_from",
@@ -12727,6 +13874,14 @@
       "source_file": "src/routes/leave-types/+page.svelte",
       "confidence_score": 1.0,
       "source": "src_routes_leave_types_page_svelte_leave_types_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/leave-types/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "src_routes_leave_types_page_svelte_leave_types_page",
       "target": "c_users_user_pieq_svelte_app_template_src_routes_leave_types_types_ts"
     },
     {
@@ -12768,6 +13923,16 @@
       "confidence_score": 1.0,
       "source": "src_routes_leave_types_page_svelte_leave_types_page",
       "target": "leave_types_page_handlesubmit"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/leave-types/+page.svelte",
+      "source_location": "L462",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_routes_leave_types_page_svelte_leave_types_page",
+      "target": "leave_types_page_if"
     },
     {
       "relation": "contains",
@@ -12829,6 +13994,14 @@
       "confidence_score": 1.0,
       "source": "src_routes_leave_types_page_ts_leave_types_page",
       "target": "leave_types_page_load"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/settings/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "settings_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_components_ui"
     },
     {
       "relation": "contains",
@@ -13036,9 +14209,9 @@
       "source_file": ".agents/rules/graphify.md",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "rules_graphify",
-      "target": "rules_graphify_graphify",
-      "confidence_score": 1.0
+      "target": "rules_graphify_graphify"
     },
     {
       "relation": "contains",
@@ -13046,9 +14219,9 @@
       "source_file": ".agents/workflows/graphify.md",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "workflows_graphify",
-      "target": "workflows_graphify_workflow_graphify",
-      "confidence_score": 1.0
+      "target": "workflows_graphify_workflow_graphify"
     },
     {
       "relation": "contains",
@@ -13842,5 +15015,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "2c5bde1ecbdf31d62456ff62a8d46e9688d30dec"
+  "built_at_commit": "5952a7b618e45663abd7e3b1dd2eedeeab27e81c"
 }
