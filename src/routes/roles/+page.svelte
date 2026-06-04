@@ -265,23 +265,19 @@
 		const nameTrimmed = formName.trim();
 		if (!nameTrimmed) {
 			formError = 'Role name is required.';
-			toast.error(formError);
 			return;
 		}
 		if (nameTrimmed.length < 2) {
 			formError = 'Role name must be at least 2 characters.';
-			toast.error(formError);
 			return;
 		}
 		const nameRegex = /^[A-Za-z ]+$/;
 		if (!nameRegex.test(nameTrimmed)) {
 			formError = 'Role name must contain only letters and spaces.';
-			toast.error(formError);
 			return;
 		}
 		if (nameTrimmed.length > 255) {
 			formError = 'Role name exceeds maximum length of 255 characters.';
-			toast.error(formError);
 			return;
 		}
 		formLoading = true;
@@ -494,7 +490,9 @@
 			</thead>
 			<tbody>
 				{#each paginatedRoles as role (role.cuid)}
-					<tr class="border-t border-border transition-colors duration-200 hover:bg-muted">
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<!-- svelte-ignore a11y_no_static_element_interactions -->
+					<tr class="border-t border-border transition-colors duration-200 hover:bg-muted cursor-pointer" onclick={() => openEdit(role)}>
 						<td class="px-5 py-3.5">
 							<div class="flex items-center gap-2">
 								<span class="text-sm font-semibold">{role.name}</span>
@@ -507,7 +505,7 @@
 								<span class="inline-flex items-center justify-center w-16 py-1 rounded-full text-[11px] font-semibold bg-neutral-100 text-neutral-700">Inactive</span>
 							{/if}
 						</td>
-						<td class="px-5 py-3.5 text-right relative">
+						<td class="px-5 py-3.5 text-right relative" onclick={(e) => e.stopPropagation()}>
 							<div class="inline-flex items-center justify-end">
 								<button
 									onclick={(e) => toggleDropdown(role.cuid, e)}
@@ -656,7 +654,15 @@
 			</div>
 		{/if}
 
-		<div class="flex justify-end pt-1">
+		<div class="flex justify-end gap-2 pt-1">
+			<button
+				type="button"
+				onclick={attemptCloseForm}
+				disabled={formLoading}
+				class="px-4.5 py-2.25 rounded-lg bg-transparent border border-border text-foreground text-[13px] font-semibold inline-flex items-center gap-1.5 transition-colors duration-200 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
+			>
+				Cancel
+			</button>
 			<button
 				type="submit"
 				disabled={formLoading || (editRole ? !isUpdateChanged : !isCreateEnabled)}

@@ -333,33 +333,27 @@
 		const nameTrimmed = formName.trim();
 		if (!nameTrimmed) {
 			formError = 'Shift name is required.';
-			toast.error(formError);
 			return;
 		}
 		if (nameTrimmed.length < 2) {
 			formError = 'Shift name must be at least 2 characters.';
-			toast.error(formError);
 			return;
 		}
 		if (/\d/.test(nameTrimmed)) {
 			formError = 'Shift name cannot contain numbers.';
-			toast.error(formError);
 			return;
 		}
 		if (!/^[A-Za-z ]+$/.test(nameTrimmed)) {
 			formError = 'Shift name cannot contain special characters.';
-			toast.error(formError);
 			return;
 		}
 		if (nameTrimmed.length > 255) {
 			formError = 'Shift name exceeds maximum length of 255 characters.';
-			toast.error(formError);
 			return;
 		}
 
 		if (!formStartTime || !formEndTime) {
 			formError = 'Start Time and End Time are required.';
-			toast.error(formError);
 			return;
 		}
 
@@ -658,7 +652,9 @@
 			</thead>
 			<tbody>
 				{#each paginatedShifts as shift (shift.cuid)}
-					<tr class="border-t border-border transition-colors duration-200 hover:bg-muted">
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<!-- svelte-ignore a11y_no_static_element_interactions -->
+					<tr class="border-t border-border transition-colors duration-200 hover:bg-muted cursor-pointer" onclick={() => openEdit(shift)}>
 						<td class="px-5 py-3.5">
 							<div class="flex items-center gap-2">
 								<span class="text-sm font-semibold">{shift.shift_name}</span>
@@ -674,7 +670,7 @@
 								<span class="inline-flex items-center justify-center w-16 py-1 rounded-full text-[11px] font-semibold bg-neutral-100 text-neutral-700">Inactive</span>
 							{/if}
 						</td>
-						<td class="px-5 py-3.5 text-right relative">
+						<td class="px-5 py-3.5 text-right relative" onclick={(e) => e.stopPropagation()}>
 							<div class="inline-flex items-center justify-end">
 								<button
 									onclick={(e) => toggleDropdown(shift.cuid, e)}
@@ -863,7 +859,15 @@
 			</div>
 		{/if}
 
-		<div class="flex justify-end pt-1">
+		<div class="flex justify-end gap-2 pt-1">
+			<button
+				type="button"
+				onclick={attemptCloseForm}
+				disabled={formLoading}
+				class="px-4.5 py-2.25 rounded-lg bg-transparent border border-border text-foreground text-[13px] font-semibold inline-flex items-center gap-1.5 transition-colors duration-200 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
+			>
+				Cancel
+			</button>
 			<button
 				type="submit"
 				disabled={formLoading || (editShift ? !isUpdateChanged : !isCreateEnabled)}
