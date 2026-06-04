@@ -392,37 +392,14 @@
 	let isSubmitDisabled = $derived.by(() => {
 		if (isSubmitting) return true;
 		
-		const leaveTypeErr = getLeaveTypeIdError(leaveTypeId);
-		const empTypesErr = getEmploymentTypesError(selectedEmploymentTypes);
-		const quotaErr = getQuotaError(annualLimit);
-		const maxPerMonthErr = getMaxPerMonthError(maxPerMonth, annualLimit);
-		const carryForwardErr = getCarryForwardDaysError(carryForwardAllowed, maxCarryForwardDays);
-		const docErr = getDocumentRequiredAfterDaysError(documentRequired, documentRequiredAfterDays);
-		const minServiceErr = getMinServiceDaysError(minServiceDays);
-		const genderErr = getGenderError(genderSpecific, applicableGender);
-
-		const hasValidationErrors =
-			!!leaveTypeErr ||
-			!!empTypesErr ||
-			!!quotaErr ||
-			!!maxPerMonthErr ||
-			!!carryForwardErr ||
-			!!docErr ||
-			!!minServiceErr ||
-			!!genderErr;
+		if (!leaveTypeId || selectedEmploymentTypes.length === 0 || !annualLimit || !minServiceDays) return true;
+		if (genderSpecific && !applicableGender) return true;
+		if (carryForwardAllowed && !maxCarryForwardDays) return true;
 
 		if (editUuid) {
-			if (!leaveTypeId || selectedEmploymentTypes.length === 0 || !annualLimit || !minServiceDays) return true;
-			if (genderSpecific && !applicableGender) return true;
-			if (carryForwardAllowed && !maxCarryForwardDays) return true;
-			if (hasValidationErrors) return true;
 			return !hasChanges;
-		} else {
-			if (!leaveTypeId || selectedEmploymentTypes.length === 0 || !annualLimit || !minServiceDays) return true;
-			if (genderSpecific && !applicableGender) return true;
-			if (carryForwardAllowed && !maxCarryForwardDays) return true;
-			return hasValidationErrors;
 		}
+		return false;
 	});
 
 	let isDiscardModalOpen = $state(false);
@@ -996,7 +973,7 @@
 					{#if filteredPolicies.length === 0}
 						<TableRow>
 							<TableCell colspan={8} class="py-12 text-center text-muted-foreground">
-								No leave policies found.
+								No records found
 							</TableCell>
 						</TableRow>
 					{:else}
@@ -1361,7 +1338,7 @@
 		</div>
 	{/if}
 
-	<div class="flex items-center justify-end gap-3 pt-4 border-t border-border mt-6">
+	<div class="flex items-center justify-end gap-3 pt-4 mt-6">
 		<Button
 			type="button"
 			variant="outline"
@@ -1378,9 +1355,9 @@
 		>
 			{#if isSubmitting}
 				<LoaderCircleIcon class="size-4 animate-spin" />
-				Saving...
+				{editUuid ? 'Updating...' : 'Saving...'}
 			{:else}
-				{editUuid ? 'Update Leave Policy' : 'Save Leave Policy'}
+				{editUuid ? 'Update' : 'Save'}
 			{/if}
 		</Button>
 	</div>

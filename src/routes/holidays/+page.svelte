@@ -358,18 +358,12 @@
 
 	let isSubmitDisabled = $derived.by(() => {
 		if (isSubmitting) return true;
-		
-		const nameErr = getHolidayNameError(holidayName);
-		const dateErr = getClientDateError(holidayDate);
-		const hasValidationErrors = !!nameErr || !!dateErr;
 
 		if (editCuid) {
 			if (!holidayName.trim() || !holidayDate || !holidayType) return true;
-			if (hasValidationErrors) return true;
 			return !hasChanges;
 		} else {
-			if (!holidayName.trim() || !holidayDate || !holidayType) return true;
-			return hasValidationErrors;
+			return !holidayName.trim() || !holidayDate || !holidayType;
 		}
 	});
 
@@ -737,7 +731,7 @@
 					{#if filteredHolidays.length === 0}
 						<TableRow>
 							<TableCell colspan={4} class="py-12 text-center text-muted-foreground">
-								No holidays scheduled.
+								No records found
 							</TableCell>
 						</TableRow>
 					{:else}
@@ -889,7 +883,7 @@
 		</div>
 	{/if}
 
-	<div class="flex items-center justify-end gap-3 pt-4 border-t border-border mt-6">
+	<div class="flex items-center justify-end gap-3 pt-4 mt-6">
 		<Button
 			type="button"
 			variant="outline"
@@ -906,9 +900,9 @@
 		>
 			{#if isSubmitting}
 				<LoaderCircleIcon class="size-4 animate-spin" />
-				Saving...
+				{editCuid ? 'Updating...' : 'Saving...'}
 			{:else}
-				{editCuid ? 'Update Holiday Record' : 'Save Holiday Record'}
+				{editCuid ? 'Update' : 'Save'}
 			{/if}
 		</Button>
 	</div>

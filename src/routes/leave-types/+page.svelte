@@ -278,18 +278,12 @@
 
 	let isSubmitDisabled = $derived.by(() => {
 		if (isSubmitting) return true;
-		
-		const nameErr = getNameClientError(leaveName);
-		const codeErr = getCodeClientError(leaveCode);
-		const hasValidationErrors = !!nameErr || !!codeErr;
 
 		if (editCuid) {
 			if (!leaveName.trim() || !leaveCode.trim()) return true;
-			if (hasValidationErrors) return true;
 			return !hasChanges;
 		} else {
-			if (!leaveName.trim() || !leaveCode.trim()) return true;
-			return hasValidationErrors;
+			return !leaveName.trim() || !leaveCode.trim();
 		}
 	});
 
@@ -683,7 +677,7 @@
 					{#if filteredTypes.length === 0}
 						<TableRow>
 							<TableCell colspan={6} class="py-12 text-center text-muted-foreground">
-								No leave types found.
+								No records found
 							</TableCell>
 						</TableRow>
 					{:else}
@@ -871,7 +865,7 @@
 		</div>
 	{/if}
 
-	<div class="flex items-center justify-end gap-3 pt-4 border-t border-border mt-6">
+	<div class="flex items-center justify-end gap-3 pt-4 mt-6">
 		<Button
 			type="button"
 			variant="outline"
@@ -888,9 +882,9 @@
 		>
 			{#if isSubmitting}
 				<LoaderCircleIcon class="size-4 animate-spin" />
-				Saving...
+				{editCuid ? 'Updating...' : 'Saving...'}
 			{:else}
-				{editCuid ? 'Update Leave Type' : 'Save Leave Type'}
+				{editCuid ? 'Update' : 'Save'}
 			{/if}
 		</Button>
 	</div>

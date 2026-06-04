@@ -49,7 +49,7 @@
 			onclick={(e) => e.stopPropagation()}
 		>
 			<!-- Modal Header -->
-			<div class="flex items-center justify-between border-b border-border px-6 py-4">
+			<div class="flex items-center justify-between px-6 py-4">
 				<h3 class="font-semibold text-lg tracking-tight">{title}</h3>
 				<button
 					type="button"
