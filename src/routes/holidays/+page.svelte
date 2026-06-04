@@ -40,6 +40,8 @@
 	let currentPage = $state(1);
 	let searchQuery = $state('');
 	let filterType = $state<string>('all');
+	let filterStartDate = $state('');
+	let filterEndDate = $state('');
 	let isSubmitting = $state(false);
 	let isFormModalOpen = $state(false);
 
@@ -494,6 +496,14 @@
 
 	let formError = $derived(form && 'error' in form ? form.error : null);
 
+	function getISODateString(dateInput: string | Date): string {
+		const d = new Date(dateInput);
+		const year = d.getUTCFullYear();
+		const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+		const day = String(d.getUTCDate()).padStart(2, '0');
+		return `${year}-${month}-${day}`;
+	}
+
 	// Derived lists and metrics
 	let filteredHolidays = $derived.by(() => {
 		let result = [...data.holidays];
@@ -507,6 +517,14 @@
 
 		if (filterType !== 'all') {
 			result = result.filter((h) => h.holiday_type === filterType);
+		}
+
+		if (filterStartDate) {
+			result = result.filter((h) => getISODateString(h.holiday_date) >= filterStartDate);
+		}
+
+		if (filterEndDate) {
+			result = result.filter((h) => getISODateString(h.holiday_date) <= filterEndDate);
 		}
 
 		// Sort behavior
@@ -542,6 +560,10 @@
 		searchQuery;
 		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 		filterType;
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+		filterStartDate;
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+		filterEndDate;
 		currentPage = 1;
 	});
 
@@ -555,7 +577,7 @@
 	let nextHoliday = $derived.by(() => {
 		const todayTime = new SvelteDate().setHours(0, 0, 0, 0);
 		const futureHolidays = data.holidays
-			.filter((h) => new Date(h.holiday_date).getTime() >= todayTime)
+			.filter((h) => new Date(h.holiday_date).getTime() > todayTime)
 			.sort((a, b) => new Date(a.holiday_date).getTime() - new Date(b.holiday_date).getTime());
 		return futureHolidays[0] || null;
 	});
@@ -609,10 +631,7 @@
 						{formatDate(nextHoliday.holiday_date)}
 					</CardDescription>
 				{:else}
-					<CardTitle class="text-xl font-bold text-[#800020] dark:text-[#b83d58]">None Scheduled</CardTitle>
-					<CardDescription class="text-xs text-[#800020] dark:text-[#b83d58]/80 mt-1">
-						No upcoming holidays
-					</CardDescription>
+					<CardTitle class="text-xl font-bold text-[#800020] dark:text-[#b83d58]">No upcoming holidays</CardTitle>
 				{/if}
 			</CardHeader>
 		</Card>
@@ -620,8 +639,8 @@
 
 	<div class="space-y-4">
 		<!-- Search & Filter controls -->
-		<div class="flex flex-col gap-4 sm:flex-row sm:items-center">
-			<div class="relative flex-1">
+		<div class="flex flex-col gap-4 lg:flex-row lg:items-center">
+			<div class="relative flex-1 min-w-0">
 				<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
 				<Input
 					type="search"
@@ -642,12 +661,28 @@
 					</Button>
 				{/if}
 			</div>
-			<div class="w-full sm:w-48">
-				<Dropdown
-					bind:value={filterType}
-					options={filterTypeOptions}
-					isFilter={true}
-				/>
+			<div class="flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full lg:w-auto">
+				<div class="w-full sm:w-40">
+					<DatePicker
+						placeholder="Start Date"
+						bind:value={filterStartDate}
+						max={filterEndDate || '2099-12-31'}
+					/>
+				</div>
+				<div class="w-full sm:w-40">
+					<DatePicker
+						placeholder="End Date"
+						bind:value={filterEndDate}
+						min={filterStartDate}
+					/>
+				</div>
+				<div class="w-full sm:w-48">
+					<Dropdown
+						bind:value={filterType}
+						options={filterTypeOptions}
+						isFilter={true}
+					/>
+				</div>
 			</div>
 		</div>
 
@@ -883,9 +918,13 @@
 	bind:isOpen={isConfirmOpen}
 	title={confirmTitle}
 	message={confirmMessage}
-	onConfirm={() => {
+	confirmLabel="Delete"
+	cancelLabel="Cancel"
+	variant="destructive"
+	isConfirming={isSubmitting}
+	onConfirm={async () => {
 		if (activeDeleteCuid) {
-			handleDelete(activeDeleteCuid);
+			await handleDelete(activeDeleteCuid);
 		}
 	}}
 />

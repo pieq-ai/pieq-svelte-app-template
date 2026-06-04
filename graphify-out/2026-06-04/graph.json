@@ -729,7 +729,7 @@
       "source_file": "package.json",
       "source_location": "L62",
       "id": "package_dependencies_svelte_sonner",
-      "community": 12,
+      "community": 51,
       "norm_label": "svelte-sonner"
     },
     {
@@ -828,7 +828,7 @@
       "source_file": "src/hooks.server.js",
       "source_location": "L1",
       "id": "src_hooks_server",
-      "community": 17,
+      "community": 7,
       "norm_label": "hooks.server.js"
     },
     {
@@ -837,7 +837,7 @@
       "source_file": "src/hooks.server.js",
       "source_location": "L6",
       "id": "src_hooks_server_customauthhandle",
-      "community": 17,
+      "community": 7,
       "norm_label": "customauthhandle()"
     },
     {
@@ -846,7 +846,7 @@
       "source_file": "src/hooks.server.js",
       "source_location": "L16",
       "id": "src_hooks_server_injectlocals",
-      "community": 17,
+      "community": 7,
       "norm_label": "injectlocals()"
     },
     {
@@ -855,7 +855,7 @@
       "source_file": "src/hooks.server.js",
       "source_location": "L48",
       "id": "src_hooks_server_routeguard",
-      "community": 17,
+      "community": 7,
       "norm_label": "routeguard()"
     },
     {
@@ -864,7 +864,7 @@
       "source_file": "src/hooks.server.js",
       "source_location": "L66",
       "id": "src_hooks_server_handle",
-      "community": 17,
+      "community": 7,
       "norm_label": "handle"
     },
     {
@@ -963,7 +963,7 @@
       "source_file": "src/lib/components/layout/index.ts",
       "source_location": "L1",
       "id": "layout_index",
-      "community": 12,
+      "community": 2,
       "norm_label": "index.ts"
     },
     {
@@ -972,7 +972,7 @@
       "source_file": "src/lib/components/layout/sidebar/index.ts",
       "source_location": "L1",
       "id": "sidebar_index",
-      "community": 12,
+      "community": 2,
       "norm_label": "index.ts"
     },
     {
@@ -981,7 +981,7 @@
       "source_file": "src/lib/components/layout/sidebar/sidebar.svelte",
       "source_location": "L1",
       "id": "sidebar_sidebar",
-      "community": 12,
+      "community": 54,
       "norm_label": "sidebar.svelte"
     },
     {
@@ -990,7 +990,7 @@
       "source_file": "src/lib/components/layout/sidebar/sidebar.svelte",
       "source_location": "L99",
       "id": "sidebar_sidebar_each",
-      "community": 12,
+      "community": 54,
       "norm_label": "#each()"
     },
     {
@@ -999,7 +999,7 @@
       "source_file": "$app/state",
       "confidence": "EXTRACTED",
       "id": "state",
-      "community": 12,
+      "community": 56,
       "norm_label": "$app/state"
     },
     {
@@ -1017,7 +1017,7 @@
       "source_file": "svelte/transition",
       "confidence": "EXTRACTED",
       "id": "transition",
-      "community": 12,
+      "community": 17,
       "norm_label": "svelte/transition"
     },
     {
@@ -1026,7 +1026,7 @@
       "source_file": "@lucide/svelte/icons/layout-dashboard",
       "confidence": "EXTRACTED",
       "id": "layout_dashboard",
-      "community": 12,
+      "community": 54,
       "norm_label": "@lucide/svelte/icons/layout-dashboard"
     },
     {
@@ -1035,7 +1035,7 @@
       "source_file": "@lucide/svelte/icons/calendar",
       "confidence": "EXTRACTED",
       "id": "calendar",
-      "community": 12,
+      "community": 54,
       "norm_label": "@lucide/svelte/icons/calendar"
     },
     {
@@ -1044,7 +1044,7 @@
       "source_file": "@lucide/svelte/icons/calendar-cog",
       "confidence": "EXTRACTED",
       "id": "calendar_cog",
-      "community": 12,
+      "community": 54,
       "norm_label": "@lucide/svelte/icons/calendar-cog"
     },
     {
@@ -1053,7 +1053,7 @@
       "source_file": "@lucide/svelte/icons/shield-check",
       "confidence": "EXTRACTED",
       "id": "shield_check",
-      "community": 12,
+      "community": 54,
       "norm_label": "@lucide/svelte/icons/shield-check"
     },
     {
@@ -1062,7 +1062,7 @@
       "source_file": "@lucide/svelte/icons/settings",
       "confidence": "EXTRACTED",
       "id": "settings",
-      "community": 12,
+      "community": 54,
       "norm_label": "@lucide/svelte/icons/settings"
     },
     {
@@ -1071,7 +1071,7 @@
       "source_file": "@lucide/svelte/icons/log-out",
       "confidence": "EXTRACTED",
       "id": "log_out",
-      "community": 12,
+      "community": 54,
       "norm_label": "@lucide/svelte/icons/log-out"
     },
     {
@@ -1080,7 +1080,7 @@
       "source_file": "@lucide/svelte/icons/x",
       "confidence": "EXTRACTED",
       "id": "x",
-      "community": 12,
+      "community": 54,
       "norm_label": "@lucide/svelte/icons/x"
     },
     {
@@ -1369,7 +1369,7 @@
       "source_file": "src/lib/components/ui/modal/ConfirmModal.svelte",
       "source_location": "L1",
       "id": "modal_confirmmodal",
-      "community": 12,
+      "community": 17,
       "norm_label": "confirmmodal.svelte"
     },
     {
@@ -1378,7 +1378,7 @@
       "source_file": "@lucide/svelte/icons/loader-circle",
       "confidence": "EXTRACTED",
       "id": "loader_circle",
-      "community": 12,
+      "community": 53,
       "norm_label": "@lucide/svelte/icons/loader-circle"
     },
     {
@@ -1396,7 +1396,7 @@
       "source_file": "@sveltejs/kit",
       "confidence": "EXTRACTED",
       "id": "kit",
-      "community": 17,
+      "community": 55,
       "norm_label": "@sveltejs/kit"
     },
     {
@@ -1451,7 +1451,7 @@
       "source_file": "src/lib/components/ui/multiselect/index.ts",
       "source_location": "L1",
       "id": "multiselect_index",
-      "community": 12,
+      "community": 2,
       "norm_label": "index.ts"
     },
     {
@@ -1460,17 +1460,26 @@
       "source_file": "src/lib/components/ui/multiselect/multiselect.svelte",
       "source_location": "L1",
       "id": "multiselect_multiselect",
-      "community": 12,
+      "community": 2,
       "norm_label": "multiselect.svelte"
     },
     {
       "label": "handleClickOutside()",
       "file_type": "code",
       "source_file": "src/lib/components/ui/multiselect/multiselect.svelte",
-      "source_location": "L45",
+      "source_location": "L47",
       "id": "multiselect_multiselect_handleclickoutside",
-      "community": 12,
+      "community": 2,
       "norm_label": "handleclickoutside()"
+    },
+    {
+      "label": "#each()",
+      "file_type": "code",
+      "source_file": "src/lib/components/ui/multiselect/multiselect.svelte",
+      "source_location": "L141",
+      "id": "multiselect_multiselect_each",
+      "community": 2,
+      "norm_label": "#each()"
     },
     {
       "label": "Pagination.svelte",
@@ -1874,7 +1883,7 @@
       "source_file": "src/lib/server/dao/holiday.dao.ts",
       "source_location": "L1",
       "id": "dao_holiday_dao",
-      "community": 1,
+      "community": 6,
       "norm_label": "holiday.dao.ts"
     },
     {
@@ -1883,7 +1892,7 @@
       "source_file": "src/lib/server/dao/holiday.dao.ts",
       "source_location": "L3",
       "id": "dao_holiday_dao_createholidaydata",
-      "community": 1,
+      "community": 6,
       "norm_label": "createholidaydata"
     },
     {
@@ -1892,7 +1901,7 @@
       "source_file": "src/lib/server/dao/holiday.dao.ts",
       "source_location": "L9",
       "id": "dao_holiday_dao_list",
-      "community": 1,
+      "community": 6,
       "norm_label": "list()"
     },
     {
@@ -1901,7 +1910,7 @@
       "source_file": "src/lib/server/dao/holiday.dao.ts",
       "source_location": "L15",
       "id": "dao_holiday_dao_create",
-      "community": 1,
+      "community": 6,
       "norm_label": "create()"
     },
     {
@@ -1910,7 +1919,7 @@
       "source_file": "src/lib/server/dao/holiday.dao.ts",
       "source_location": "L25",
       "id": "dao_holiday_dao_update",
-      "community": 1,
+      "community": 6,
       "norm_label": "update()"
     },
     {
@@ -1919,7 +1928,7 @@
       "source_file": "src/lib/server/dao/holiday.dao.ts",
       "source_location": "L32",
       "id": "dao_holiday_dao_deleteholiday",
-      "community": 1,
+      "community": 6,
       "norm_label": "deleteholiday()"
     },
     {
@@ -1928,7 +1937,7 @@
       "source_file": "src/lib/server/dao/holiday.dao.ts",
       "source_location": "L38",
       "id": "dao_holiday_dao_findbycuid",
-      "community": 1,
+      "community": 6,
       "norm_label": "findbycuid()"
     },
     {
@@ -1937,7 +1946,7 @@
       "source_file": "src/lib/server/dao/holiday.dao.ts",
       "source_location": "L44",
       "id": "dao_holiday_dao_findbynameanddate",
-      "community": 1,
+      "community": 6,
       "norm_label": "findbynameanddate()"
     },
     {
@@ -1946,7 +1955,7 @@
       "source_file": "src/lib/server/dao/holiday.dao.ts",
       "source_location": "L53",
       "id": "dao_holiday_dao_findduplicateexcludingcuid",
-      "community": 1,
+      "community": 6,
       "norm_label": "findduplicateexcludingcuid()"
     },
     {
@@ -1955,7 +1964,7 @@
       "source_file": "src/lib/server/dao/holiday.dao.ts",
       "source_location": "L67",
       "id": "dao_holiday_dao_findbydate",
-      "community": 1,
+      "community": 6,
       "norm_label": "findbydate()"
     },
     {
@@ -1964,7 +1973,7 @@
       "source_file": "src/lib/server/dao/holiday.dao.ts",
       "source_location": "L73",
       "id": "dao_holiday_dao_findbydateexcludingcuid",
-      "community": 1,
+      "community": 6,
       "norm_label": "findbydateexcludingcuid()"
     },
     {
@@ -1973,7 +1982,7 @@
       "source_file": "src/lib/server/dao/holiday.dao.ts",
       "source_location": "L82",
       "id": "dao_holiday_dao_findbynameandyear",
-      "community": 1,
+      "community": 6,
       "norm_label": "findbynameandyear()"
     },
     {
@@ -1982,7 +1991,7 @@
       "source_file": "src/lib/server/dao/holiday.dao.ts",
       "source_location": "L99",
       "id": "dao_holiday_dao_findbynameandyearexcludingcuid",
-      "community": 1,
+      "community": 6,
       "norm_label": "findbynameandyearexcludingcuid()"
     },
     {
@@ -2495,7 +2504,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L1",
       "id": "services_leave_policy_service",
-      "community": 0,
+      "community": 1,
       "norm_label": "leave-policy.service.ts"
     },
     {
@@ -2504,7 +2513,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L5",
       "id": "services_leave_policy_service_createleavepolicyinput",
-      "community": 0,
+      "community": 1,
       "norm_label": "createleavepolicyinput"
     },
     {
@@ -2513,7 +2522,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L21",
       "id": "services_leave_policy_service_updateleavepolicyinput",
-      "community": 0,
+      "community": 1,
       "norm_label": "updateleavepolicyinput"
     },
     {
@@ -2522,7 +2531,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L37",
       "id": "services_leave_policy_service_validateandmappolicyinput",
-      "community": 0,
+      "community": 1,
       "norm_label": "validateandmappolicyinput()"
     },
     {
@@ -2549,7 +2558,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L216",
       "id": "services_leave_policy_service_createleavepolicy",
-      "community": 0,
+      "community": 1,
       "norm_label": "createleavepolicy()"
     },
     {
@@ -2567,7 +2576,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L258",
       "id": "services_leave_policy_service_deleteleavepolicy",
-      "community": 0,
+      "community": 1,
       "norm_label": "deleteleavepolicy()"
     },
     {
@@ -2954,7 +2963,7 @@
       "source_file": "svelte-sonner",
       "confidence": "EXTRACTED",
       "id": "svelte_sonner",
-      "community": 12,
+      "community": 51,
       "norm_label": "svelte-sonner"
     },
     {
@@ -3296,7 +3305,7 @@
       "source_file": "src/routes/auth/signin/+page.svelte",
       "source_location": "L1",
       "id": "signin_page",
-      "community": 12,
+      "community": 56,
       "norm_label": "+page.svelte"
     },
     {
@@ -3305,7 +3314,7 @@
       "source_file": "src/routes/auth/signin/+page.svelte",
       "source_location": "L19",
       "id": "signin_page_redirectto",
-      "community": 12,
+      "community": 56,
       "norm_label": "redirectto"
     },
     {
@@ -3314,7 +3323,7 @@
       "source_file": "src/routes/auth/signin/+page.svelte",
       "source_location": "L21",
       "id": "signin_page_handlesignin",
-      "community": 12,
+      "community": 56,
       "norm_label": "handlesignin()"
     },
     {
@@ -3323,7 +3332,7 @@
       "source_file": "src/routes/dashboard/+page.server.ts",
       "source_location": "L1",
       "id": "dashboard_page_server",
-      "community": 17,
+      "community": 55,
       "norm_label": "+page.server.ts"
     },
     {
@@ -3332,7 +3341,7 @@
       "source_file": "src/routes/dashboard/+page.server.ts",
       "source_location": "L4",
       "id": "dashboard_page_server_load",
-      "community": 17,
+      "community": 55,
       "norm_label": "load()"
     },
     {
@@ -3350,7 +3359,7 @@
       "source_file": "src/routes/dashboard/[id=cuid]/+page.server.ts",
       "source_location": "L1",
       "id": "id_cuid_page_server",
-      "community": 17,
+      "community": 55,
       "norm_label": "+page.server.ts"
     },
     {
@@ -3359,7 +3368,7 @@
       "source_file": "src/routes/dashboard/[id=cuid]/+page.server.ts",
       "source_location": "L4",
       "id": "id_cuid_page_server_load",
-      "community": 17,
+      "community": 55,
       "norm_label": "load()"
     },
     {
@@ -3377,7 +3386,7 @@
       "source_file": "src/routes/holidays/+page.svelte",
       "source_location": "L1",
       "id": "src_routes_holidays_page_svelte_holidays_page",
-      "community": 12,
+      "community": 53,
       "norm_label": "+page.svelte"
     },
     {
@@ -3386,7 +3395,7 @@
       "source_file": "svelte/reactivity",
       "confidence": "EXTRACTED",
       "id": "reactivity",
-      "community": 12,
+      "community": 53,
       "norm_label": "svelte/reactivity"
     },
     {
@@ -3395,7 +3404,7 @@
       "source_file": "@lucide/svelte/icons/search",
       "confidence": "EXTRACTED",
       "id": "search",
-      "community": 12,
+      "community": 53,
       "norm_label": "@lucide/svelte/icons/search"
     },
     {
@@ -3404,7 +3413,7 @@
       "source_file": "@lucide/svelte/icons/ellipsis-vertical",
       "confidence": "EXTRACTED",
       "id": "ellipsis_vertical",
-      "community": 12,
+      "community": 53,
       "norm_label": "@lucide/svelte/icons/ellipsis-vertical"
     },
     {
@@ -3413,7 +3422,7 @@
       "source_file": "src/routes/holidays/$types",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_routes_holidays_types",
-      "community": 12,
+      "community": 53,
       "norm_label": "./$types"
     },
     {
@@ -3422,7 +3431,7 @@
       "source_file": "src/routes/holidays/+page.ts",
       "source_location": "L1",
       "id": "src_routes_holidays_page_ts_holidays_page",
-      "community": 12,
+      "community": 53,
       "norm_label": "+page.ts"
     },
     {
@@ -3431,7 +3440,7 @@
       "source_file": "src/routes/holidays/+page.ts",
       "source_location": "L3",
       "id": "holidays_page_holiday",
-      "community": 12,
+      "community": 53,
       "norm_label": "holiday"
     },
     {
@@ -3440,7 +3449,7 @@
       "source_file": "src/routes/holidays/+page.ts",
       "source_location": "L11",
       "id": "holidays_page_load",
-      "community": 12,
+      "community": 53,
       "norm_label": "load()"
     },
     {
@@ -3449,7 +3458,7 @@
       "source_file": "src/routes/leave-policies/+page.svelte",
       "source_location": "L1",
       "id": "src_routes_leave_policies_page_svelte_leave_policies_page",
-      "community": 12,
+      "community": 51,
       "norm_label": "+page.svelte"
     },
     {
@@ -3458,7 +3467,7 @@
       "source_file": "src/routes/leave-policies/+page.svelte",
       "source_location": "L83",
       "id": "leave_policies_page_handlesort",
-      "community": 12,
+      "community": 51,
       "norm_label": "handlesort()"
     },
     {
@@ -3467,7 +3476,7 @@
       "source_file": "src/routes/leave-policies/+page.svelte",
       "source_location": "L100",
       "id": "leave_policies_page_togglemenu",
-      "community": 12,
+      "community": 51,
       "norm_label": "togglemenu()"
     },
     {
@@ -3476,7 +3485,7 @@
       "source_file": "src/routes/leave-policies/+page.svelte",
       "source_location": "L112",
       "id": "leave_policies_page_updatemenuposition",
-      "community": 12,
+      "community": 51,
       "norm_label": "updatemenuposition()"
     },
     {
@@ -3485,7 +3494,7 @@
       "source_file": "src/routes/leave-policies/+page.svelte",
       "source_location": "L181",
       "id": "leave_policies_page_openaddmodal",
-      "community": 12,
+      "community": 51,
       "norm_label": "openaddmodal()"
     },
     {
@@ -3494,25 +3503,25 @@
       "source_file": "src/routes/leave-policies/+page.svelte",
       "source_location": "L198",
       "id": "leave_policies_page_handlesubmit",
-      "community": 12,
+      "community": 51,
       "norm_label": "handlesubmit()"
     },
     {
       "label": "handleCloseRequest()",
       "file_type": "code",
       "source_file": "src/routes/leave-policies/+page.svelte",
-      "source_location": "L459",
+      "source_location": "L432",
       "id": "leave_policies_page_handlecloserequest",
-      "community": 12,
+      "community": 51,
       "norm_label": "handlecloserequest()"
     },
     {
       "label": "confirmDiscard()",
       "file_type": "code",
       "source_file": "src/routes/leave-policies/+page.svelte",
-      "source_location": "L467",
+      "source_location": "L440",
       "id": "leave_policies_page_confirmdiscard",
-      "community": 12,
+      "community": 51,
       "norm_label": "confirmdiscard()"
     },
     {
@@ -3521,7 +3530,7 @@
       "source_file": "src/routes/leave-policies/$types.ts",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_routes_leave_policies_types_ts",
-      "community": 12,
+      "community": 51,
       "norm_label": "./$types.js"
     },
     {
@@ -3575,7 +3584,7 @@
       "source_file": "src/routes/leave-types/+page.svelte",
       "source_location": "L1",
       "id": "src_routes_leave_types_page_svelte_leave_types_page",
-      "community": 12,
+      "community": 52,
       "norm_label": "+page.svelte"
     },
     {
@@ -3584,7 +3593,7 @@
       "source_file": "src/routes/leave-types/+page.svelte",
       "source_location": "L47",
       "id": "leave_types_page_handlesort",
-      "community": 12,
+      "community": 52,
       "norm_label": "handlesort()"
     },
     {
@@ -3593,7 +3602,7 @@
       "source_file": "src/routes/leave-types/+page.svelte",
       "source_location": "L64",
       "id": "leave_types_page_togglemenu",
-      "community": 12,
+      "community": 52,
       "norm_label": "togglemenu()"
     },
     {
@@ -3602,7 +3611,7 @@
       "source_file": "src/routes/leave-types/+page.svelte",
       "source_location": "L76",
       "id": "leave_types_page_updatemenuposition",
-      "community": 12,
+      "community": 52,
       "norm_label": "updatemenuposition()"
     },
     {
@@ -3611,7 +3620,7 @@
       "source_file": "src/routes/leave-types/+page.svelte",
       "source_location": "L145",
       "id": "leave_types_page_openaddmodal",
-      "community": 12,
+      "community": 52,
       "norm_label": "openaddmodal()"
     },
     {
@@ -3620,7 +3629,7 @@
       "source_file": "src/routes/leave-types/+page.svelte",
       "source_location": "L155",
       "id": "leave_types_page_handlesubmit",
-      "community": 12,
+      "community": 52,
       "norm_label": "handlesubmit()"
     },
     {
@@ -3629,7 +3638,7 @@
       "source_file": "src/routes/leave-types/+page.svelte",
       "source_location": "L300",
       "id": "leave_types_page_handlecloserequest",
-      "community": 12,
+      "community": 52,
       "norm_label": "handlecloserequest()"
     },
     {
@@ -3638,7 +3647,7 @@
       "source_file": "src/routes/leave-types/+page.svelte",
       "source_location": "L308",
       "id": "leave_types_page_confirmdiscard",
-      "community": 12,
+      "community": 52,
       "norm_label": "confirmdiscard()"
     },
     {
@@ -3647,7 +3656,7 @@
       "source_file": "src/routes/leave-types/+page.svelte",
       "source_location": "L444",
       "id": "leave_types_page_if",
-      "community": 12,
+      "community": 52,
       "norm_label": "if()"
     },
     {
@@ -3656,7 +3665,7 @@
       "source_file": "src/routes/leave-types/$types.ts",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_routes_leave_types_types_ts",
-      "community": 12,
+      "community": 52,
       "norm_label": "./$types.js"
     },
     {
@@ -3809,7 +3818,7 @@
       "source_file": "tests/unit/leave-policy.service.test.ts",
       "source_location": "L1",
       "id": "unit_leave_policy_service_test",
-      "community": 0,
+      "community": 1,
       "norm_label": "leave-policy.service.test.ts"
     },
     {
@@ -3818,7 +3827,7 @@
       "source_file": "tests/unit/leave-policy.service.test.ts",
       "source_location": "L36",
       "id": "unit_leave_policy_service_test_auditfields",
-      "community": 0,
+      "community": 1,
       "norm_label": "auditfields"
     },
     {
@@ -6877,6 +6886,14 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/multiselect/multiselect.svelte",
+      "source": "multiselect_multiselect",
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_utils_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
       "source_file": "src/lib/components/ui/table/table.svelte",
       "confidence_score": 1.0,
       "source": "table_table",
@@ -7212,6 +7229,14 @@
       "target": "dropdown_dropdown"
     },
     {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/multiselect/multiselect.svelte",
+      "source": "multiselect_multiselect",
+      "target": "check",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "re_exports",
       "context": "export",
       "confidence": "EXTRACTED",
@@ -7492,6 +7517,16 @@
       "confidence_score": 1.0,
       "source": "multiselect_index",
       "target": "multiselect_multiselect"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/ui/multiselect/multiselect.svelte",
+      "source_location": "L141",
+      "weight": 1.0,
+      "source": "multiselect_multiselect",
+      "target": "multiselect_multiselect_each",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",

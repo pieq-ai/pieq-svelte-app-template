@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { cn } from "$lib/utils.js";
+	import { untrack } from 'svelte';
 
 	let {
 		value = $bindable(''),
@@ -46,23 +47,26 @@
 
 	// Sync value -> inputValue display
 	$effect(() => {
-		if (value) {
-			const parts = value.split('-');
-			if (parts.length === 3) {
-				const expected = `${parts[1]}/${parts[2]}/${parts[0]}`;
-				if (inputValue !== expected) {
-					inputValue = expected;
+		const currentVal = value;
+		untrack(() => {
+			if (currentVal) {
+				const parts = currentVal.split('-');
+				if (parts.length === 3) {
+					const expected = `${parts[1]}/${parts[2]}/${parts[0]}`;
+					if (inputValue !== expected) {
+						inputValue = expected;
+					}
+					const valYear = parseInt(parts[0]);
+					const valMonth = parseInt(parts[1]) - 1;
+					if (currentYear !== valYear || currentMonth !== valMonth) {
+						currentYear = valYear;
+						currentMonth = valMonth;
+					}
 				}
-				const valYear = parseInt(parts[0]);
-				const valMonth = parseInt(parts[1]) - 1;
-				if (currentYear !== valYear || currentMonth !== valMonth) {
-					currentYear = valYear;
-					currentMonth = valMonth;
-				}
+			} else {
+				inputValue = '';
 			}
-		} else {
-			inputValue = '';
-		}
+		});
 	});
 
 	function isDateToday(year: number, month: number, day: number) {

@@ -1,16 +1,16 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-04)
 
 ## Corpus Check
-- 126 files · ~36,744 words
+- 126 files · ~36,750 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 551 nodes · 918 edges · 57 communities (32 shown, 25 thin omitted)
+- 551 nodes · 919 edges · 57 communities (32 shown, 25 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 37 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a7cb01ff`
+- Built from commit: `fe8e845c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -186,7 +186,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `devDependencies` connect `Development & Build Tools` to `Dashboard Loader and Server Actions`, `Core Dependency Layer`?**
   _High betweenness centrality (0.084) - this node is a cross-community bridge._
 - **Why does `svelte` connect `Dashboard Loader and Server Actions` to `Development & Build Tools`?**
-  _High betweenness centrality (0.052) - this node is a cross-community bridge._
+  _High betweenness centrality (0.055) - this node is a cross-community bridge._
 - **Why does `dependencies` connect `Core Dependency Layer` to `Community 51`?**
   _High betweenness centrality (0.045) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `errorResponse()` (e.g. with `DELETE()` and `GET()`) actually correct?**
