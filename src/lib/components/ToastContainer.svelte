@@ -9,11 +9,11 @@
 	import AlertTriangleIcon from '@lucide/svelte/icons/alert-triangle';
 </script>
 
-<div class="fixed bottom-6 right-6 z-300 flex flex-col gap-2.5 max-w-[380px] w-[calc(100vw-48px)] pointer-events-none" aria-live="polite">
+<div class="fixed top-6 right-6 z-300 flex flex-col gap-2.5 max-w-[380px] w-[calc(100vw-48px)] pointer-events-none" aria-live="polite">
 	{#each toast.toasts as t (t.id)}
 		<div
 			class="flex items-center gap-3 px-4 py-3.5 bg-white border border-border rounded-xl shadow-md pointer-events-auto select-none relative overflow-hidden"
-			transition:fly={{ y: 20, duration: 250 }}
+			transition:fly={{ y: -20, duration: 250 }}
 			animate:flip={{ duration: 200 }}
 		>
 			<span class="flex items-center justify-center shrink-0">
