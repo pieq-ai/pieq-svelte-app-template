@@ -98,3 +98,12 @@ model Country {
 
   @@map("countries")
 }
+
+model Employee {
+  id   Int    @id @default(autoincrement())
+  uuid String @unique @default(uuid())
+  name String
+  age  Int
+
+  @@map("employees")
+}

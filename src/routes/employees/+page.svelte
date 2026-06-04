@@ -4,15 +4,24 @@
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import UsersIcon from '@lucide/svelte/icons/users';
 	import {
 		Alert,
 		AlertDescription,
 		Badge,
 		Button,
+		Card,
+		CardContent,
+		CardDescription,
+		CardHeader,
+		CardTitle,
 		Input,
-		Label
+		Label,
+		Table,
+		TableBody,
+		TableCell,
+		TableHead,
+		TableHeader,
+		TableRow
 	} from '$lib/components';
 	import type { PageData, ActionData } from './$types';
 
@@ -88,76 +97,43 @@
 
 	function sortIndicator(column: SortColumn) {
 		if (sortColumn !== column) return '';
-		return sortDirection === 'asc' ? ' ↑' : ' ↓';
-	}
-
-	function openAddModal() {
-		newName = '';
-		newAge = '';
-		errorMessage = '';
-		successMessage = '';
-		showAddModal = true;
-	}
-
-	function closeAddModal() {
-		showAddModal = false;
-		newName = '';
-		newAge = '';
-		errorMessage = '';
+		return sortDirection === 'asc' ? '↑' : '↓';
 	}
 </script>
 
 <svelte:head>
-	<title>Employees – PieQ HRMS</title>
+	<title>System Employees Directory</title>
 </svelte:head>
 
-<!-- Page header -->
-<div class="page-topbar">
-	<div>
-		<span
-			style="display:inline-block;background:#F453101a;color:#F45310;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:99px;margin-bottom:6px"
-		>HRMS Module</span>
-		<h1 style="font-size:26px;font-weight:700;color:var(--foreground);margin:0;line-height:1.2">
-			Employees
-		</h1>
-		<p style="color:var(--muted-foreground);font-size:13px;margin-top:4px">
-			Manage and monitor employee records with dynamic metrics.
+<div class="mx-auto max-w-5xl space-y-8 px-1 py-4">
+	<div class="space-y-1 border-b border-border pb-6">
+		<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
+		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">System Employees</h1>
+		<p class="text-muted-foreground">
+			Manage and monitor employee records with dynamic metrics and seamless creation.
 		</p>
 	</div>
 
-	<button class="btn-add-entity" onclick={openAddModal} id="add-employee-btn">
-		<PlusIcon size={16} />
-		Add Employee
-	</button>
-</div>
-
-<!-- Stats -->
-<div class="stats-grid">
-	<div class="stat-card">
-		<div class="stat-card-label">Total Employees</div>
-		<div class="stat-card-value">{totalEmployees}</div>
-		<div style="font-size: 11px; color: var(--muted-foreground); margin-top: 6px;">Total registered enterprise employees</div>
+	<div class="grid gap-4 sm:grid-cols-3">
+		<Card>
+			<CardHeader>
+				<CardDescription>Total Active Employees</CardDescription>
+				<CardTitle class="text-4xl tabular-nums">{totalEmployees}</CardTitle>
+			</CardHeader>
+		</Card>
+		<Card>
+			<CardHeader>
+				<CardDescription>Average Employee Age</CardDescription>
+				<CardTitle class="text-4xl tabular-nums">{averageAge} yrs</CardTitle>
+			</CardHeader>
+		</Card>
+		<Card>
+			<CardHeader>
+				<CardDescription>Max Registered Age</CardDescription>
+				<CardTitle class="text-4xl tabular-nums">{maxAge} yrs</CardTitle>
+			</CardHeader>
+		</Card>
 	</div>
-	<div class="stat-card">
-		<div class="stat-card-label">Average Age</div>
-		<div class="stat-card-value" style="color: #F45310">{averageAge}<span style="font-size:16px;font-weight:400;color:var(--muted-foreground)"> yrs</span></div>
-		<div style="font-size: 11px; color: var(--muted-foreground); margin-top: 6px;">Mean age of workforce</div>
-	</div>
-	<div class="stat-card">
-		<div class="stat-card-label">Max Registered Age</div>
-		<div class="stat-card-value" style="color: #800020">{maxAge}<span style="font-size:16px;font-weight:400;color:var(--muted-foreground)"> yrs</span></div>
-		<div style="font-size: 11px; color: var(--muted-foreground); margin-top: 6px;">Highest employee age recorded</div>
-	</div>
-</div>
-
-<!-- Success toast -->
-{#if successMessage}
-	<div transition:slide style="margin-bottom:16px">
-		<Alert>
-			<AlertDescription>{successMessage}</AlertDescription>
-		</Alert>
-	</div>
-{/if}
 
 	<div class="grid items-start gap-8 lg:grid-cols-3">
 		<div class="space-y-4 lg:col-span-2">
@@ -317,19 +293,24 @@
 						</div>
 					{/if}
 
-				<div style="display:flex;justify-content:flex-end;gap:10px;padding-top:4px">
-					<button
-						type="submit"
-						disabled={isSubmitting}
-						style="padding:9px 18px;border-radius:8px;background:#F45310;color:white;border:none;font-size:13px;font-weight:600;cursor:pointer;opacity:{isSubmitting ? 0.7 : 1};display:inline-flex;align-items:center;gap:6px"
-					>
+					{#if successMessage}
+						<div transition:slide>
+							<Alert>
+								<AlertDescription>{successMessage}</AlertDescription>
+							</Alert>
+						</div>
+					{/if}
+
+					<Button type="submit" class="w-full" disabled={isSubmitting}>
 						{#if isSubmitting}
-							<LoaderCircleIcon class="animate-spin" size={14} />
+							<LoaderCircleIcon class="size-4 animate-spin" />
+							Saving Employee...
+						{:else}
+							Save Employee Record
 						{/if}
-						{isSubmitting ? 'Saving...' : 'Save Employee'}
-					</button>
-				</div>
-			</form>
-		</div>
+					</Button>
+				</form>
+			</CardContent>
+		</Card>
 	</div>
-{/if}
+</div>
