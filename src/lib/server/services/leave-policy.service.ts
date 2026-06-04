@@ -5,11 +5,11 @@ import { LeaveValidationError } from './leave-type.service.js';
 export interface CreateLeavePolicyInput {
 	leave_type_cuid: unknown;
 	employment_type_cuids: unknown;
-	annual_quota: unknown;
+	annual_limit: unknown;
 	max_per_month?: unknown;
 	carry_forward_allowed?: unknown;
 	max_carry_forward_days?: unknown;
-	requires_document?: unknown;
+	document_required?: unknown;
 	document_required_after_days?: unknown;
 	min_service_days?: unknown;
 	allow_half_day?: unknown;
@@ -21,11 +21,11 @@ export interface CreateLeavePolicyInput {
 export interface UpdateLeavePolicyInput {
 	leave_type_cuid?: unknown;
 	employment_type_cuids?: unknown;
-	annual_quota?: unknown;
+	annual_limit?: unknown;
 	max_per_month?: unknown;
 	carry_forward_allowed?: unknown;
 	max_carry_forward_days?: unknown;
-	requires_document?: unknown;
+	document_required?: unknown;
 	document_required_after_days?: unknown;
 	min_service_days?: unknown;
 	allow_half_day?: unknown;
@@ -80,12 +80,12 @@ async function validateAndMapPolicyInput(
 		}
 	}
 
-	if (input.annual_quota === undefined || input.annual_quota === null || String(input.annual_quota).trim() === '') {
-		throw new LeaveValidationError('annual_quota', 'Annual quota is required');
+	if (input.annual_limit === undefined || input.annual_limit === null || String(input.annual_limit).trim() === '') {
+		throw new LeaveValidationError('annual_limit', 'Annual limit is required');
 	}
-	const annual_quota = Number(input.annual_quota);
-	if (isNaN(annual_quota) || annual_quota < 0) {
-		throw new LeaveValidationError('annual_quota', 'Annual quota must be a positive number');
+	const annual_limit = Number(input.annual_limit);
+	if (isNaN(annual_limit) || annual_limit < 0) {
+		throw new LeaveValidationError('annual_limit', 'Annual limit must be a positive number');
 	}
 
 	let max_per_month: number | null = null;
@@ -94,8 +94,8 @@ async function validateAndMapPolicyInput(
 		if (isNaN(max_per_month) || max_per_month < 0) {
 			throw new LeaveValidationError('max_per_month', 'Max per month must be a positive number');
 		}
-		if (max_per_month > annual_quota) {
-			throw new LeaveValidationError('max_per_month', 'Max per month cannot exceed annual quota');
+		if (max_per_month > annual_limit) {
+			throw new LeaveValidationError('max_per_month', 'Max per month cannot exceed annual limit');
 		}
 	}
 
@@ -131,9 +131,9 @@ async function validateAndMapPolicyInput(
 		}
 	}
 
-	const requires_document = Boolean(input.requires_document);
+	const document_required = Boolean(input.document_required);
 	let document_required_after_days: number | null = null;
-	if (requires_document) {
+	if (document_required) {
 		if (
 			input.document_required_after_days !== undefined &&
 			input.document_required_after_days !== null &&
@@ -189,11 +189,11 @@ async function validateAndMapPolicyInput(
 	return {
 		policyData: {
 			leave_type_cuid,
-			annual_quota,
+			annual_limit,
 			max_per_month,
 			carry_forward_allowed,
 			max_carry_forward_days,
-			requires_document,
+			document_required,
 			document_required_after_days,
 			min_service_days,
 			allow_half_day,
@@ -231,11 +231,11 @@ export async function updateLeavePolicy(cuid: string, input: UpdateLeavePolicyIn
 	const mappedExistingPolicy = {
 		leave_type_cuid: existingPolicy.leave_type_cuid,
 		employment_type_cuids: existingPolicy.employment_type_cuids,
-		annual_quota: existingPolicy.annual_quota,
+		annual_limit: existingPolicy.annual_limit,
 		max_per_month: existingPolicy.max_per_month,
 		carry_forward_allowed: existingPolicy.carry_forward_allowed,
 		max_carry_forward_days: existingPolicy.max_carry_forward_days,
-		requires_document: existingPolicy.requires_document,
+		document_required: existingPolicy.document_required,
 		document_required_after_days: existingPolicy.document_required_after_days,
 		min_service_days: existingPolicy.min_service_days,
 		allow_half_day: existingPolicy.allow_half_day,

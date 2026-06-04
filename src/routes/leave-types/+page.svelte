@@ -544,7 +544,7 @@
 	<!-- Header -->
 	<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-border pb-6">
 		<div class="space-y-1">
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Leave Type Master</h1>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Leave Types</h1>
 		</div>
 		<div class="shrink-0">
 			<Button onclick={openAddModal}>+ Add Leave Type</Button>

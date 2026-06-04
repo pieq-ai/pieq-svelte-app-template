@@ -30,11 +30,11 @@ model LeavePolicy {
 
   leave_type_cuid          String                 @db.Text
 
-  annual_quota             Decimal                @db.Decimal(5, 1)
+  annual_limit             Decimal                @db.Decimal(5, 1)
   max_per_month            Decimal?               @db.Decimal(4, 1)
   carry_forward_allowed    Boolean                @default(false)
   max_carry_forward_days   Decimal?               @db.Decimal(4, 1)
-  requires_document        Boolean                @default(false)
+  document_required        Boolean                @default(false)
   document_required_after_days Int?
   min_service_days         Int                    @default(0)
   allow_half_day           Boolean                @default(false)

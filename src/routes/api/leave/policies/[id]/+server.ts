@@ -42,11 +42,11 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 	const allowedKeys = [
 		'leave_type_cuid',
 		'employment_type_cuids',
-		'annual_quota',
+		'annual_limit',
 		'max_per_month',
 		'carry_forward_allowed',
 		'max_carry_forward_days',
-		'requires_document',
+		'document_required',
 		'document_required_after_days',
 		'min_service_days',
 		'allow_half_day',
@@ -63,11 +63,11 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 	const trimmedBody = trimStringFields(body) as {
 		leave_type_cuid?: unknown;
 		employment_type_cuids?: unknown;
-		annual_quota?: unknown;
+		annual_limit?: unknown;
 		max_per_month?: unknown;
 		carry_forward_allowed?: unknown;
 		max_carry_forward_days?: unknown;
-		requires_document?: unknown;
+		document_required?: unknown;
 		document_required_after_days?: unknown;
 		min_service_days?: unknown;
 		allow_half_day?: unknown;
@@ -79,11 +79,11 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 	const {
 		leave_type_cuid,
 		employment_type_cuids,
-		annual_quota,
+		annual_limit,
 		max_per_month,
 		carry_forward_allowed,
 		max_carry_forward_days,
-		requires_document,
+		document_required,
 		document_required_after_days,
 		min_service_days,
 		allow_half_day,
@@ -98,11 +98,11 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 		const data = await updateLeavePolicy(id, {
 			leave_type_cuid,
 			employment_type_cuids,
-			annual_quota,
+			annual_limit,
 			max_per_month,
 			carry_forward_allowed,
 			max_carry_forward_days,
-			requires_document,
+			document_required,
 			document_required_after_days,
 			min_service_days,
 			allow_half_day,

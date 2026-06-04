@@ -27,12 +27,12 @@
 			icon: LayoutDashboardIcon
 		},
 		{
-			name: 'Leave Type',
+			name: 'Leave Types',
 			href: '/leave-types',
 			icon: CalendarCogIcon
 		},
 		{
-			name: 'Leave Policy',
+			name: 'Leave Policies',
 			href: '/leave-policies',
 			icon: ShieldCheckIcon
 		},

@@ -180,11 +180,11 @@
 	function openAddModal() {
 		leaveTypeId = '';
 		selectedEmploymentTypes = [];
-		annualQuota = '';
+		annualLimit = '';
 		maxPerMonth = '';
 		carryForwardAllowed = false;
 		maxCarryForwardDays = '';
-		requiresDocument = false;
+		documentRequired = false;
 		documentRequiredAfterDays = '';
 		minServiceDays = '0';
 		allowHalfDay = false;
@@ -201,16 +201,16 @@
 		// Validate all fields client-side simultaneously
 		const leaveTypeErr = getLeaveTypeIdError(leaveTypeId);
 		const empTypesErr = getEmploymentTypesError(selectedEmploymentTypes);
-		const quotaErr = getQuotaError(annualQuota);
-		const maxPerMonthErr = getMaxPerMonthError(maxPerMonth, annualQuota);
+		const quotaErr = getQuotaError(annualLimit);
+		const maxPerMonthErr = getMaxPerMonthError(maxPerMonth, annualLimit);
 		const carryForwardErr = getCarryForwardDaysError(carryForwardAllowed, maxCarryForwardDays);
-		const documentRequiredAfterDaysErr = getDocumentRequiredAfterDaysError(requiresDocument, documentRequiredAfterDays);
+		const documentRequiredAfterDaysErr = getDocumentRequiredAfterDaysError(documentRequired, documentRequiredAfterDays);
 		const minServiceErr = getMinServiceDaysError(minServiceDays);
 		const genderErr = getGenderError(genderSpecific, applicableGender);
 
 		errors.leave_type_cuid = leaveTypeErr;
 		errors.employment_type_cuids = empTypesErr;
-		errors.annual_quota = quotaErr;
+		errors.annual_limit = quotaErr;
 		errors.max_per_month = maxPerMonthErr;
 		errors.max_carry_forward_days = carryForwardErr;
 		errors.document_required_after_days = documentRequiredAfterDaysErr;
@@ -237,12 +237,12 @@
 		const body = {
 			leave_type_cuid: leaveTypeId,
 			employment_type_cuids: selectedEmploymentTypes,
-			annual_quota: annualQuota,
+			annual_limit: annualLimit,
 			max_per_month: maxPerMonth || null,
 			carry_forward_allowed: carryForwardAllowed,
 			max_carry_forward_days: carryForwardAllowed ? maxCarryForwardDays : null,
-			requires_document: requiresDocument,
-			document_required_after_days: requiresDocument ? (documentRequiredAfterDays === '' ? null : Number(documentRequiredAfterDays)) : null,
+			document_required: documentRequired,
+			document_required_after_days: documentRequired ? (documentRequiredAfterDays === '' ? null : Number(documentRequiredAfterDays)) : null,
 			min_service_days: minServiceDays,
 			allow_half_day: allowHalfDay,
 			gender_specific: genderSpecific,
@@ -267,11 +267,11 @@
 				} else {
 					leaveTypeId = '';
 					selectedEmploymentTypes = [];
-					annualQuota = '';
+					annualLimit = '';
 					maxPerMonth = '';
 					carryForwardAllowed = false;
 					maxCarryForwardDays = '';
-					requiresDocument = false;
+					documentRequired = false;
 					documentRequiredAfterDays = '';
 					minServiceDays = '0';
 					allowHalfDay = false;
@@ -310,11 +310,11 @@
 	// Form local state
 	let leaveTypeId = $state('');
 	let selectedEmploymentTypes = $state<string[]>([]);
-	let annualQuota = $state('');
+	let annualLimit = $state('');
 	let maxPerMonth = $state('');
 	let carryForwardAllowed = $state(false);
 	let maxCarryForwardDays = $state('');
-	let requiresDocument = $state(false);
+	let documentRequired = $state(false);
 	let documentRequiredAfterDays = $state('');
 	let minServiceDays = $state('');
 	let allowHalfDay = $state(false);
@@ -343,11 +343,11 @@
 		return (
 			leaveTypeId !== String(editingPolicy.leave_type_cuid) ||
 			!empTypesEqual ||
-			annualQuota !== String(editingPolicy.annual_quota) ||
+			annualLimit !== String(editingPolicy.annual_limit) ||
 			maxPerMonth !== originalMaxPerMonth ||
 			carryForwardAllowed !== editingPolicy.carry_forward_allowed ||
 			maxCarryForwardDays !== originalMaxCarryForwardDays ||
-			requiresDocument !== editingPolicy.requires_document ||
+			documentRequired !== editingPolicy.document_required ||
 			documentRequiredAfterDays !== originalDocumentRequiredAfterDays ||
 			minServiceDays !== originalMinServiceDays ||
 			allowHalfDay !== editingPolicy.allow_half_day ||
@@ -364,11 +364,11 @@
 			return (
 				leaveTypeId !== '' ||
 				selectedEmploymentTypes.length > 0 ||
-				annualQuota !== '' ||
+				annualLimit !== '' ||
 				maxPerMonth !== '' ||
 				carryForwardAllowed !== false ||
 				maxCarryForwardDays !== '' ||
-				requiresDocument !== false ||
+				documentRequired !== false ||
 				documentRequiredAfterDays !== '' ||
 				minServiceDays !== '0' ||
 				allowHalfDay !== false ||
@@ -384,10 +384,10 @@
 		
 		const leaveTypeErr = getLeaveTypeIdError(leaveTypeId);
 		const empTypesErr = getEmploymentTypesError(selectedEmploymentTypes);
-		const quotaErr = getQuotaError(annualQuota);
-		const maxPerMonthErr = getMaxPerMonthError(maxPerMonth, annualQuota);
+		const quotaErr = getQuotaError(annualLimit);
+		const maxPerMonthErr = getMaxPerMonthError(maxPerMonth, annualLimit);
 		const carryForwardErr = getCarryForwardDaysError(carryForwardAllowed, maxCarryForwardDays);
-		const docErr = getDocumentRequiredAfterDaysError(requiresDocument, documentRequiredAfterDays);
+		const docErr = getDocumentRequiredAfterDaysError(documentRequired, documentRequiredAfterDays);
 		const minServiceErr = getMinServiceDaysError(minServiceDays);
 		const genderErr = getGenderError(genderSpecific, applicableGender);
 
@@ -402,13 +402,13 @@
 			!!genderErr;
 
 		if (editUuid) {
-			if (!leaveTypeId || selectedEmploymentTypes.length === 0 || !annualQuota || !minServiceDays) return true;
+			if (!leaveTypeId || selectedEmploymentTypes.length === 0 || !annualLimit || !minServiceDays) return true;
 			if (genderSpecific && !applicableGender) return true;
 			if (carryForwardAllowed && !maxCarryForwardDays) return true;
 			if (hasValidationErrors) return true;
 			return !hasChanges;
 		} else {
-			if (!leaveTypeId || selectedEmploymentTypes.length === 0 || !annualQuota || !minServiceDays) return true;
+			if (!leaveTypeId || selectedEmploymentTypes.length === 0 || !annualLimit || !minServiceDays) return true;
 			if (genderSpecific && !applicableGender) return true;
 			if (carryForwardAllowed && !maxCarryForwardDays) return true;
 			return hasValidationErrors;
@@ -433,11 +433,11 @@
 		
 		leaveTypeId = '';
 		selectedEmploymentTypes = [];
-		annualQuota = '';
+		annualLimit = '';
 		maxPerMonth = '';
 		carryForwardAllowed = false;
 		maxCarryForwardDays = '';
-		requiresDocument = false;
+		documentRequired = false;
 		documentRequiredAfterDays = '';
 		minServiceDays = '0';
 		allowHalfDay = false;
@@ -506,11 +506,11 @@
 		if (editingPolicy) {
 			leaveTypeId = String(editingPolicy.leave_type_cuid);
 			selectedEmploymentTypes = editingPolicy.employment_type_cuids;
-			annualQuota = String(editingPolicy.annual_quota);
+			annualLimit = String(editingPolicy.annual_limit);
 			maxPerMonth = editingPolicy.max_per_month !== null ? String(editingPolicy.max_per_month) : '';
 			carryForwardAllowed = editingPolicy.carry_forward_allowed;
 			maxCarryForwardDays = editingPolicy.max_carry_forward_days !== null ? String(editingPolicy.max_carry_forward_days) : '';
-			requiresDocument = editingPolicy.requires_document;
+			documentRequired = editingPolicy.document_required;
 			documentRequiredAfterDays = editingPolicy.document_required_after_days !== null ? String(editingPolicy.document_required_after_days) : '';
 			minServiceDays = String(editingPolicy.min_service_days);
 			allowHalfDay = editingPolicy.allow_half_day;
@@ -521,11 +521,11 @@
 		} else if (!editUuid) {
 			leaveTypeId = '';
 			selectedEmploymentTypes = [];
-			annualQuota = '';
+			annualLimit = '';
 			maxPerMonth = '';
 			carryForwardAllowed = false;
 			maxCarryForwardDays = '';
-			requiresDocument = false;
+			documentRequired = false;
 			documentRequiredAfterDays = '';
 			minServiceDays = '0';
 			allowHalfDay = false;
@@ -550,11 +550,11 @@
 			isSubmitting = false;
 			leaveTypeId = '';
 			selectedEmploymentTypes = [];
-			annualQuota = '';
+			annualLimit = '';
 			maxPerMonth = '';
 			carryForwardAllowed = false;
 			maxCarryForwardDays = '';
-			requiresDocument = false;
+			documentRequired = false;
 			documentRequiredAfterDays = '';
 			minServiceDays = '0';
 			allowHalfDay = false;
@@ -664,10 +664,10 @@
 		return '';
 	}
 
-	let quotaError = $derived(getFieldError(annualQuota, getQuotaError, touched.annual_quota, submissionAttempted, errors.annual_quota));
-	let maxPerMonthError = $derived(getFieldError(maxPerMonth, (val) => getMaxPerMonthError(val, annualQuota), touched.max_per_month, submissionAttempted, errors.max_per_month));
+	let quotaError = $derived(getFieldError(annualLimit, getQuotaError, touched.annual_limit, submissionAttempted, errors.annual_limit));
+	let maxPerMonthError = $derived(getFieldError(maxPerMonth, (val) => getMaxPerMonthError(val, annualLimit), touched.max_per_month, submissionAttempted, errors.max_per_month));
 	let carryForwardDaysError = $derived(getFieldError(maxCarryForwardDays, (val) => getCarryForwardDaysError(carryForwardAllowed, val), touched.max_carry_forward_days, submissionAttempted, errors.max_carry_forward_days));
-	let documentRequiredAfterDaysError = $derived(getFieldError(documentRequiredAfterDays, (val) => getDocumentRequiredAfterDaysError(requiresDocument, val), touched.document_required_after_days, submissionAttempted, errors.document_required_after_days));
+	let documentRequiredAfterDaysError = $derived(getFieldError(documentRequiredAfterDays, (val) => getDocumentRequiredAfterDaysError(documentRequired, val), touched.document_required_after_days, submissionAttempted, errors.document_required_after_days));
 	let minServiceDaysError = $derived(getFieldError(minServiceDays, getMinServiceDaysError, touched.min_service_days, submissionAttempted, errors.min_service_days));
 	let genderError = $derived(getFieldError(applicableGender, (val) => getGenderError(genderSpecific, val), touched.applicable_gender, submissionAttempted, errors.applicable_gender));
 	let employmentTypesError = $derived.by(() => {
@@ -801,7 +801,7 @@
 	<!-- Header -->
 	<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-border pb-6">
 		<div class="space-y-1">
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Leave Policy Master</h1>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Leave Policies</h1>
 		</div>
 		<div class="shrink-0">
 			<Button onclick={openAddModal}>+ Add Leave Policy</Button>
@@ -918,12 +918,12 @@
 							<!-- svelte-ignore a11y_click_events_have_key_events -->
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
-								onclick={() => handleSort('annual_quota')}
+								onclick={() => handleSort('annual_limit')}
 								class="flex items-center justify-end gap-1.5 cursor-pointer select-none group"
 							>
-								<span>Quota (Annual)</span>
-								<span class="text-sm transition-colors {sortKey === 'annual_quota' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
-									{sortKey === 'annual_quota' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
+								<span>Limit (Annual)</span>
+								<span class="text-sm transition-colors {sortKey === 'annual_limit' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
+									{sortKey === 'annual_limit' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
 							</div>
 						</TableHead>
@@ -994,7 +994,7 @@
 							<TableRow>
 								<TableCell class="font-normal">{getLeaveTypeName(policy.leave_type_cuid)}</TableCell>
 								<TableCell class="font-normal">{getEmploymentTypeNames(policy.employment_type_cuids)}</TableCell>
-								<TableCell class="text-right font-normal">{policy.annual_quota}</TableCell>
+								<TableCell class="text-right font-normal">{policy.annual_limit}</TableCell>
 								<TableCell class="text-center font-normal">
 									{#if policy.carry_forward_allowed}
 										Yes ({policy.max_carry_forward_days})
@@ -1131,25 +1131,25 @@
 	</div>
 
 	<div class="space-y-2">
-		<Label for="modal_annual_quota" class={(form && 'field' in form && form.field === 'annual_quota') || quotaError ? 'text-destructive' : ''}>Annual Quota (Days) <span class="text-destructive">*</span></Label>
+		<Label for="modal_annual_limit" class={(form && 'field' in form && form.field === 'annual_limit') || quotaError ? 'text-destructive' : ''}>Annual Limit (Days) <span class="text-destructive">*</span></Label>
 		<Input
-			id="modal_annual_quota"
-			name="annual_quota"
-			bind:value={annualQuota}
+			id="modal_annual_limit"
+			name="annual_limit"
+			bind:value={annualLimit}
 			oninput={() => {
-				if (form && form.field === 'annual_quota') form = null;
-				errors.annual_quota = '';
+				if (form && form.field === 'annual_limit') form = null;
+				errors.annual_limit = '';
 				errors.max_per_month = '';
-				touched.annual_quota = true;
+				touched.annual_limit = true;
 			}}
-			onblur={() => touched.annual_quota = true}
+			onblur={() => touched.annual_limit = true}
 			placeholder="e.g. 12 or 1.5"
 			required
-			class={(form && 'field' in form && form.field === 'annual_quota') || quotaError ? 'border-destructive focus-visible:ring-destructive' : ''}
+			class={(form && 'field' in form && form.field === 'annual_limit') || quotaError ? 'border-destructive focus-visible:ring-destructive' : ''}
 		/>
 		{#if quotaError}
 			<p class="text-xs font-medium text-destructive mt-1">{quotaError}</p>
-		{:else if form && 'field' in form && form.field === 'annual_quota'}
+		{:else if form && 'field' in form && form.field === 'annual_limit'}
 			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
 		{/if}
 	</div>
@@ -1228,25 +1228,25 @@
 	<div class="flex items-center space-x-2">
 		<input
 			type="checkbox"
-			id="modal_requires_document"
-			name="requires_document"
-			bind:checked={requiresDocument}
+			id="modal_document_required"
+			name="document_required"
+			bind:checked={documentRequired}
 			onchange={() => {
-				if (form && form.field === 'requires_document') form = null;
-				errors.requires_document = '';
+				if (form && form.field === 'document_required') form = null;
+				errors.document_required = '';
 				errors.document_required_after_days = '';
-				touched.requires_document = true;
-				if (!requiresDocument) {
+				touched.document_required = true;
+				if (!documentRequired) {
 					documentRequiredAfterDays = '';
 				}
 			}}
-			onblur={() => touched.requires_document = true}
+			onblur={() => touched.document_required = true}
 			class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 		/>
-		<Label for="modal_requires_document" class="cursor-pointer select-none">Requires Document Attachment</Label>
+		<Label for="modal_document_required" class="cursor-pointer select-none">Document Required</Label>
 	</div>
 
-	{#if requiresDocument}
+	{#if documentRequired}
 		<div transition:slide class="space-y-2 pl-4">
 			<Label for="modal_document_required_after_days" class={(form && 'field' in form && form.field === 'document_required_after_days') || documentRequiredAfterDaysError ? 'text-destructive' : ''}>Document Required After Days</Label>
 			<Input

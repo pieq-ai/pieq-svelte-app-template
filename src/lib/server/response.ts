@@ -60,11 +60,11 @@ export function formatLeaveType(type: LeaveTypeInput): LeaveTypeDTO {
 export interface LeavePolicyInput {
 	cuid: string;
 	leave_type_cuid: string;
-	annual_quota: number;
+	annual_limit: number;
 	max_per_month?: number | null;
 	carry_forward_allowed: boolean;
 	max_carry_forward_days?: number | null;
-	requires_document: boolean;
+	document_required: boolean;
 	document_required_after_days?: number | null;
 	min_service_days: number;
 	allow_half_day: boolean;
@@ -77,11 +77,11 @@ export interface LeavePolicyInput {
 export interface LeavePolicyDTO {
 	cuid: string;
 	leave_type_cuid: string;
-	annual_quota: number;
+	annual_limit: number;
 	max_per_month: number | null;
 	carry_forward_allowed: boolean;
 	max_carry_forward_days: number | null;
-	requires_document: boolean;
+	document_required: boolean;
 	document_required_after_days: number | null;
 	min_service_days: number;
 	allow_half_day: boolean;
@@ -95,11 +95,11 @@ export function formatLeavePolicy(policy: LeavePolicyInput): LeavePolicyDTO {
 	return {
 		cuid: policy.cuid,
 		leave_type_cuid: policy.leave_type_cuid,
-		annual_quota: policy.annual_quota,
+		annual_limit: policy.annual_limit,
 		max_per_month: policy.max_per_month || null,
 		carry_forward_allowed: policy.carry_forward_allowed,
 		max_carry_forward_days: policy.max_carry_forward_days || null,
-		requires_document: policy.requires_document,
+		document_required: policy.document_required,
 		document_required_after_days: policy.document_required_after_days !== undefined && policy.document_required_after_days !== null ? Number(policy.document_required_after_days) : null,
 		min_service_days: policy.min_service_days,
 		allow_half_day: policy.allow_half_day,

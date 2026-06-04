@@ -44,11 +44,11 @@ describe('leave policy service', () => {
 		const validBaseInput = {
 			leave_type_cuid: 'leave-type-1',
 			employment_type_cuids: ['emp-type-1'],
-			annual_quota: 15,
+			annual_limit: 15,
 			max_per_month: 2,
 			carry_forward_allowed: true,
 			max_carry_forward_days: 5,
-			requires_document: false,
+			document_required: false,
 			min_service_days: 30,
 			allow_half_day: true,
 			gender_specific: true,
@@ -173,7 +173,7 @@ describe('leave policy service', () => {
 		});
 
 		// 3. Quota Validations
-		it('should reject missing or invalid annual_quota', async () => {
+		it('should reject missing or invalid annual_limit', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
 				id: 1,
 				cuid: 'leave-type-1',
@@ -196,31 +196,31 @@ describe('leave policy service', () => {
 			await expect(
 				createLeavePolicy({
 					...validBaseInput,
-					annual_quota: ''
+					annual_limit: ''
 				})
-			).rejects.toThrowError(new LeaveValidationError('annual_quota', 'Annual quota is required'));
+			).rejects.toThrowError(new LeaveValidationError('annual_limit', 'Annual limit is required'));
 
 			await expect(
 				createLeavePolicy({
 					...validBaseInput,
-					annual_quota: -5
+					annual_limit: -5
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('annual_quota', 'Annual quota must be a positive number')
+				new LeaveValidationError('annual_limit', 'Annual limit must be a positive number')
 			);
 
 			await expect(
 				createLeavePolicy({
 					...validBaseInput,
-					annual_quota: 'invalid-num'
+					annual_limit: 'invalid-num'
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('annual_quota', 'Annual quota must be a positive number')
+				new LeaveValidationError('annual_limit', 'Annual limit must be a positive number')
 			);
 		});
 
 		// 4. Max Per Month Validations
-		it('should reject negative max_per_month or exceeding annual quota', async () => {
+		it('should reject negative max_per_month or exceeding annual limit', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
 				id: 1,
 				cuid: 'leave-type-1',
@@ -252,10 +252,10 @@ describe('leave policy service', () => {
 			await expect(
 				createLeavePolicy({
 					...validBaseInput,
-					max_per_month: 20 // annual quota is 15
+					max_per_month: 20 // annual limit is 15
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('max_per_month', 'Max per month cannot exceed annual quota')
+				new LeaveValidationError('max_per_month', 'Max per month cannot exceed annual limit')
 			);
 		});
 
@@ -358,11 +358,11 @@ describe('leave policy service', () => {
 				id: 1,
 				cuid: 'policy-cuid',
 				leave_type_cuid: 'leave-type-1',
-				annual_quota: 15,
+				annual_limit: 15,
 				max_per_month: 2,
 				carry_forward_allowed: true,
-				max_carry_forward_days: 20, // exceeds annual quota of 15
-				requires_document: false,
+				max_carry_forward_days: 20, // exceeds annual limit of 15
+				document_required: false,
 				document_required_after_days: null,
 				min_service_days: 30,
 				allow_half_day: true,
@@ -425,7 +425,7 @@ describe('leave policy service', () => {
 		});
 
 		// 6.5. Document Required After Days Validations
-		it('should reject document_required_after_days when requires_document is false', async () => {
+		it('should reject document_required_after_days when document_required is false', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
 				id: 1,
 				cuid: 'leave-type-1',
@@ -448,7 +448,7 @@ describe('leave policy service', () => {
 			await expect(
 				createLeavePolicy({
 					...validBaseInput,
-					requires_document: false,
+					document_required: false,
 					document_required_after_days: 3
 				})
 			).rejects.toThrowError(
@@ -456,7 +456,7 @@ describe('leave policy service', () => {
 			);
 		});
 
-		it('should reject invalid document_required_after_days when requires_document is true', async () => {
+		it('should reject invalid document_required_after_days when document_required is true', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
 				id: 1,
 				cuid: 'leave-type-1',
@@ -479,7 +479,7 @@ describe('leave policy service', () => {
 			await expect(
 				createLeavePolicy({
 					...validBaseInput,
-					requires_document: true,
+					document_required: true,
 					document_required_after_days: -1
 				})
 			).rejects.toThrowError(
@@ -489,7 +489,7 @@ describe('leave policy service', () => {
 			await expect(
 				createLeavePolicy({
 					...validBaseInput,
-					requires_document: true,
+					document_required: true,
 					document_required_after_days: 1.5
 				})
 			).rejects.toThrowError(
@@ -569,11 +569,11 @@ describe('leave policy service', () => {
 				id: 10,
 				cuid: 'existing-policy-cuid',
 				leave_type_cuid: 'leave-type-1',
-				annual_quota: 15,
+				annual_limit: 15,
 				max_per_month: null,
 				carry_forward_allowed: false,
 				max_carry_forward_days: null,
-				requires_document: false,
+				document_required: false,
 				min_service_days: 0,
 				allow_half_day: false,
 				gender_specific: false,
@@ -616,11 +616,11 @@ describe('leave policy service', () => {
 				id: 1,
 				cuid: 'policy-cuid',
 				leave_type_cuid: 'leave-type-1',
-				annual_quota: 15,
+				annual_limit: 15,
 				max_per_month: 2,
 				carry_forward_allowed: true,
 				max_carry_forward_days: 5,
-				requires_document: false,
+				document_required: false,
 				document_required_after_days: null,
 				min_service_days: 30,
 				allow_half_day: true,
@@ -639,11 +639,11 @@ describe('leave policy service', () => {
 			expect(leavePolicyDao.create).toHaveBeenCalledWith(
 				{
 					leave_type_cuid: 'leave-type-1',
-					annual_quota: 15,
+					annual_limit: 15,
 					max_per_month: 2,
 					carry_forward_allowed: true,
 					max_carry_forward_days: 5,
-					requires_document: false,
+					document_required: false,
 					document_required_after_days: null,
 					min_service_days: 30,
 					allow_half_day: true,
@@ -664,7 +664,7 @@ describe('leave policy service', () => {
 
 			await expect(
 				updateLeavePolicy(targetCuid, {
-					annual_quota: 20
+					annual_limit: 20
 				})
 			).rejects.toThrow('Leave policy not found');
 		});
@@ -674,11 +674,11 @@ describe('leave policy service', () => {
 				id: 1,
 				cuid: targetCuid,
 				leave_type_cuid: 'leave-type-1',
-				annual_quota: 15,
+				annual_limit: 15,
 				max_per_month: null,
 				carry_forward_allowed: false,
 				max_carry_forward_days: null,
-				requires_document: false,
+				document_required: false,
 				document_required_after_days: null,
 				min_service_days: 0,
 				allow_half_day: false,
@@ -712,7 +712,7 @@ describe('leave policy service', () => {
 
 			const expectedOutput = {
 				...existingPolicy,
-				annual_quota: 20,
+				annual_limit: 20,
 				carry_forward_allowed: true,
 				max_carry_forward_days: 5,
 				...auditFields
@@ -721,7 +721,7 @@ describe('leave policy service', () => {
 			vi.mocked(leavePolicyDao.update).mockResolvedValue(expectedOutput);
 
 			const result = await updateLeavePolicy(targetCuid, {
-				annual_quota: 20,
+				annual_limit: 20,
 				carry_forward_allowed: true,
 				max_carry_forward_days: 5
 			});
@@ -731,11 +731,11 @@ describe('leave policy service', () => {
 				targetCuid,
 				{
 					leave_type_cuid: 'leave-type-1',
-					annual_quota: 20,
+					annual_limit: 20,
 					max_per_month: null,
 					carry_forward_allowed: true,
 					max_carry_forward_days: 5,
-					requires_document: false,
+					document_required: false,
 					document_required_after_days: null,
 					min_service_days: 0,
 					allow_half_day: false,
@@ -756,11 +756,11 @@ describe('leave policy service', () => {
 				id: 1,
 				cuid: targetCuid,
 				leave_type_cuid: 'leave-type-1',
-				annual_quota: 10,
+				annual_limit: 10,
 				max_per_month: null,
 				carry_forward_allowed: false,
 				max_carry_forward_days: null,
-				requires_document: false,
+				document_required: false,
 				min_service_days: 0,
 				allow_half_day: false,
 				gender_specific: false,

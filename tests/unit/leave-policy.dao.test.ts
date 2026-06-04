@@ -43,10 +43,10 @@ describe('leave-policy DAO', () => {
 				leavePolicy: {
 					update: vi.fn().mockResolvedValue({
 						cuid: 'test-policy-cuid',
-						annual_quota: 10,
+						annual_limit: 10,
 						max_per_month: null,
 						max_carry_forward_days: null,
-						requires_document: false,
+						document_required: false,
 						document_required_after_days: null,
 						status: true
 					})
@@ -64,11 +64,11 @@ describe('leave-policy DAO', () => {
 	it('should update policy status and reset deactivated_by_leave_type to false', async () => {
 		await update('test-policy-cuid', {
 			status: true,
-			annual_quota: 12,
+			annual_limit: 12,
 			carry_forward_allowed: false,
 			gender_specific: false,
 			min_service_days: 0,
-			requires_document: false,
+			document_required: false,
 			document_required_after_days: null,
 			allow_half_day: false,
 			applicable_gender: null,
@@ -88,11 +88,11 @@ describe('leave-policy DAO', () => {
 
 	it('should not set deactivated_by_leave_type if status is not updated', async () => {
 		await update('test-policy-cuid', {
-			annual_quota: 12,
+			annual_limit: 12,
 			carry_forward_allowed: false,
 			gender_specific: false,
 			min_service_days: 0,
-			requires_document: false,
+			document_required: false,
 			document_required_after_days: null,
 			allow_half_day: false,
 			applicable_gender: null,

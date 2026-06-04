@@ -2,11 +2,11 @@ import { db } from '$lib/server/db.js';
 
 export interface CreateLeavePolicyData {
 	leave_type_cuid: string;
-	annual_quota: number;
+	annual_limit: number;
 	max_per_month: number | null;
 	carry_forward_allowed: boolean;
 	max_carry_forward_days: number | null;
-	requires_document: boolean;
+	document_required: boolean;
 	document_required_after_days: number | null;
 	min_service_days: number;
 	allow_half_day: boolean;
@@ -37,7 +37,7 @@ export async function list() {
 
 	return policies.map((p) => ({
 		...p,
-		annual_quota: Number(p.annual_quota),
+		annual_limit: Number(p.annual_limit),
 		max_per_month: p.max_per_month !== null ? Number(p.max_per_month) : null,
 		max_carry_forward_days: p.max_carry_forward_days !== null ? Number(p.max_carry_forward_days) : null,
 		employment_type_cuids: mappingsMap.get(p.cuid) || []
@@ -49,11 +49,11 @@ export async function create(policyData: CreateLeavePolicyData, employmentTypeCu
 		const createdPolicy = await tx.leavePolicy.create({
 			data: {
 				leave_type_cuid: policyData.leave_type_cuid,
-				annual_quota: policyData.annual_quota,
+				annual_limit: policyData.annual_limit,
 				max_per_month: policyData.max_per_month,
 				carry_forward_allowed: policyData.carry_forward_allowed,
 				max_carry_forward_days: policyData.max_carry_forward_days,
-				requires_document: policyData.requires_document,
+				document_required: policyData.document_required,
 				document_required_after_days: policyData.document_required_after_days,
 				min_service_days: policyData.min_service_days,
 				allow_half_day: policyData.allow_half_day,
@@ -74,7 +74,7 @@ export async function create(policyData: CreateLeavePolicyData, employmentTypeCu
 
 		return {
 			...createdPolicy,
-			annual_quota: Number(createdPolicy.annual_quota),
+			annual_limit: Number(createdPolicy.annual_limit),
 			max_per_month: createdPolicy.max_per_month !== null ? Number(createdPolicy.max_per_month) : null,
 			max_carry_forward_days: createdPolicy.max_carry_forward_days !== null ? Number(createdPolicy.max_carry_forward_days) : null,
 			employment_type_cuids: employmentTypeCuids
@@ -88,11 +88,11 @@ export async function update(cuid: string, policyData: Partial<CreateLeavePolicy
 			where: { cuid },
 			data: {
 				leave_type_cuid: policyData.leave_type_cuid,
-				annual_quota: policyData.annual_quota,
+				annual_limit: policyData.annual_limit,
 				max_per_month: policyData.max_per_month,
 				carry_forward_allowed: policyData.carry_forward_allowed,
 				max_carry_forward_days: policyData.max_carry_forward_days,
-				requires_document: policyData.requires_document,
+				document_required: policyData.document_required,
 				document_required_after_days: policyData.document_required_after_days,
 				min_service_days: policyData.min_service_days,
 				allow_half_day: policyData.allow_half_day,
@@ -128,7 +128,7 @@ export async function update(cuid: string, policyData: Partial<CreateLeavePolicy
 
 		return {
 			...updatedPolicy,
-			annual_quota: Number(updatedPolicy.annual_quota),
+			annual_limit: Number(updatedPolicy.annual_limit),
 			max_per_month: updatedPolicy.max_per_month !== null ? Number(updatedPolicy.max_per_month) : null,
 			max_carry_forward_days: updatedPolicy.max_carry_forward_days !== null ? Number(updatedPolicy.max_carry_forward_days) : null,
 			employment_type_cuids: mappings.map((m) => m.employment_type_cuid)
@@ -175,7 +175,7 @@ export async function findByCuid(cuid: string) {
 
 	return {
 		...policy,
-		annual_quota: Number(policy.annual_quota),
+		annual_limit: Number(policy.annual_limit),
 		max_per_month: policy.max_per_month !== null ? Number(policy.max_per_month) : null,
 		max_carry_forward_days: policy.max_carry_forward_days !== null ? Number(policy.max_carry_forward_days) : null,
 		employment_type_cuids: mappings.map((m) => m.employment_type_cuid)
