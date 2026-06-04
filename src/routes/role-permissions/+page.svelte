@@ -85,7 +85,7 @@
 		isLoading = true;
 		loadError = '';
 		try {
-			const response = await fetch('/api/role-permissions');
+			const response = await fetch(`/api/role-permissions?t=${Date.now()}`);
 			const body = await response.json();
 			if (response.ok) {
 				data = body.data;

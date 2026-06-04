@@ -11,6 +11,9 @@ function getStatus(message: string) {
 }
 
 export async function GET(event: RequestEvent) {
+	event.setHeaders({
+		'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate'
+	});
 	try {
 		permissionGuard.requireAuth(event.locals.user);
 		const matrix = await rolePermissionService.getRolePermissionMatrix();
