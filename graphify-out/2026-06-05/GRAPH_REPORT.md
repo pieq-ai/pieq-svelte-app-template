@@ -1,16 +1,16 @@
-# Graph Report - pieq-svelte-app-template  (2026-06-04)
+# Graph Report - pieq-svelte-app-template  (2026-06-05)
 
 ## Corpus Check
-- 126 files · ~36,750 words
+- 126 files · ~36,727 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 551 nodes · 919 edges · 57 communities (32 shown, 25 thin omitted)
+- 552 nodes · 920 edges · 56 communities (32 shown, 24 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 37 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `fe8e845c`
+- Built from commit: `06c55839`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -60,7 +60,6 @@
 - [[_COMMUNITY_Community 53|Community 53]]
 - [[_COMMUNITY_Community 54|Community 54]]
 - [[_COMMUNITY_Community 55|Community 55]]
-- [[_COMMUNITY_Community 56|Community 56]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `errorResponse()` - 36 edges
@@ -89,7 +88,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (57 total, 25 thin omitted)
+## Communities (56 total, 24 thin omitted)
 
 ### Community 0 - "API Routes and Server Handlers"
 Cohesion: 0.10
@@ -132,16 +131,16 @@ Cohesion: 0.15
 Nodes (12): compilerOptions, allowJs, checkJs, esModuleInterop, forceConsistentCasingInFileNames, moduleResolution, resolveJsonModule, rewriteRelativeImportExtensions (+4 more)
 
 ### Community 12 - "Leave Policy Management UI & Navigation"
-Cohesion: 0.23
-Nodes (8): $lib/assets/favicon.svg, $lib/auth, $lib/components, $lib/components/layout, $lib/components/ui, ./layout.css, $app/navigation, $app/paths
+Cohesion: 0.19
+Nodes (9): $lib/assets/favicon.svg, $lib/auth, $lib/components, $lib/components/layout, $lib/components/ui, ./layout.css, $app/paths, redirectTo (+1 more)
 
 ### Community 16 - "Tailwind UI Helper Utilities"
 Cohesion: 0.33
 Nodes (4): WithElementRef, WithoutChild, WithoutChildren, WithoutChildrenOrChild
 
 ### Community 17 - "Dashboard Loader and Server Actions"
-Cohesion: 0.31
-Nodes (3): $app/forms, svelte, svelte/transition
+Cohesion: 0.27
+Nodes (4): $app/forms, @lucide/svelte/icons/loader-circle, svelte, svelte/transition
 
 ### Community 18 - "Leave Policy Table Rendering"
 Cohesion: 0.40
@@ -168,8 +167,8 @@ Cohesion: 0.22
 Nodes (3): ./$types.js, toggleMenu(), updateMenuPosition()
 
 ### Community 53 - "Community 53"
-Cohesion: 0.22
-Nodes (6): ./$types, @lucide/svelte/icons/ellipsis-vertical, Holiday, @lucide/svelte/icons/loader-circle, svelte/reactivity, @lucide/svelte/icons/search
+Cohesion: 0.20
+Nodes (6): ./$types, @lucide/svelte/icons/ellipsis-vertical, Holiday, $app/navigation, svelte/reactivity, @lucide/svelte/icons/search
 
 ### Community 54 - "Community 54"
 Cohesion: 0.22
@@ -178,7 +177,7 @@ Nodes (7): @lucide/svelte/icons/calendar, @lucide/svelte/icons/calendar-cog, @lu
 ## Knowledge Gaps
 - **194 isolated node(s):** `css.lint.unknownAtRules`, `$schema`, `css`, `baseColor`, `components` (+189 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **25 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **24 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_

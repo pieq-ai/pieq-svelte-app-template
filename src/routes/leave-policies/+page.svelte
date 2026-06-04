@@ -778,6 +778,33 @@
 	let totalPolicies = $derived(data.policies.length);
 	let activePoliciesCount = $derived(data.policies.filter((p) => p.status).length);
 	let inactivePoliciesCount = $derived(data.policies.filter((p) => !p.status).length);
+
+	function isInteractive(target: HTMLElement | null, rowElement: HTMLElement): boolean {
+		let curr = target;
+		while (curr && curr !== rowElement) {
+			const tagName = curr.tagName.toLowerCase();
+			if (
+				tagName === 'a' ||
+				tagName === 'button' ||
+				tagName === 'input' ||
+				tagName === 'select' ||
+				tagName === 'textarea' ||
+				curr.getAttribute('role') === 'button' ||
+				curr.classList.contains('kebab-dropdown-menu')
+			) {
+				return true;
+			}
+			curr = curr.parentElement;
+		}
+		return false;
+	}
+
+	function handleRowClick(cuid: string, event: MouseEvent) {
+		const target = event.target as HTMLElement;
+		const row = event.currentTarget as HTMLElement;
+		if (isInteractive(target, row)) return;
+		goto(resolve(('/leave-policies?edit=' + cuid) as '/leave-policies'));
+	}
 </script>
 
 <svelte:head>
@@ -978,7 +1005,7 @@
 						</TableRow>
 					{:else}
 						{#each paginatedPolicies as policy (policy.cuid)}
-							<TableRow>
+							<TableRow onclick={(e) => handleRowClick(policy.cuid, e)} class="cursor-pointer">
 								<TableCell class="font-normal">{getLeaveTypeName(policy.leave_type_cuid)}</TableCell>
 								<TableCell class="font-normal">{getEmploymentTypeNames(policy.employment_type_cuids)}</TableCell>
 								<TableCell class="text-right font-normal">{policy.annual_limit}</TableCell>

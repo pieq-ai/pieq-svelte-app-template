@@ -585,6 +585,33 @@
 			timeZone: 'UTC'
 		});
 	}
+
+	function isInteractive(target: HTMLElement | null, rowElement: HTMLElement): boolean {
+		let curr = target;
+		while (curr && curr !== rowElement) {
+			const tagName = curr.tagName.toLowerCase();
+			if (
+				tagName === 'a' ||
+				tagName === 'button' ||
+				tagName === 'input' ||
+				tagName === 'select' ||
+				tagName === 'textarea' ||
+				curr.getAttribute('role') === 'button' ||
+				curr.classList.contains('kebab-dropdown-menu')
+			) {
+				return true;
+			}
+			curr = curr.parentElement;
+		}
+		return false;
+	}
+
+	function handleRowClick(cuid: string, event: MouseEvent) {
+		const target = event.target as HTMLElement;
+		const row = event.currentTarget as HTMLElement;
+		if (isInteractive(target, row)) return;
+		goto(resolve(('/holidays?edit=' + cuid) as '/holidays'));
+	}
 </script>
 
 <svelte:head>
@@ -736,7 +763,7 @@
 						</TableRow>
 					{:else}
 						{#each paginatedHolidays as holiday (holiday.cuid)}
-							<TableRow>
+							<TableRow onclick={(e) => handleRowClick(holiday.cuid, e)} class="cursor-pointer">
 								<TableCell class="font-normal">
 									{formatDate(holiday.holiday_date)}
 								</TableCell>

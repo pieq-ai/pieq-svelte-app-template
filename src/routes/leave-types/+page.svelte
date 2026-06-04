@@ -528,6 +528,33 @@
 	let totalTypes = $derived(data.leaveTypes.length);
 	let activeTypesCount = $derived(data.leaveTypes.filter((t) => t.status).length);
 	let inactiveTypesCount = $derived(data.leaveTypes.filter((t) => !t.status).length);
+
+	function isInteractive(target: HTMLElement | null, rowElement: HTMLElement): boolean {
+		let curr = target;
+		while (curr && curr !== rowElement) {
+			const tagName = curr.tagName.toLowerCase();
+			if (
+				tagName === 'a' ||
+				tagName === 'button' ||
+				tagName === 'input' ||
+				tagName === 'select' ||
+				tagName === 'textarea' ||
+				curr.getAttribute('role') === 'button' ||
+				curr.classList.contains('kebab-dropdown-menu')
+			) {
+				return true;
+			}
+			curr = curr.parentElement;
+		}
+		return false;
+	}
+
+	function handleRowClick(cuid: string, event: MouseEvent) {
+		const target = event.target as HTMLElement;
+		const row = event.currentTarget as HTMLElement;
+		if (isInteractive(target, row)) return;
+		goto(resolve(('/leave-types?edit=' + cuid) as '/leave-types'));
+	}
 </script>
 
 <svelte:head>
@@ -682,7 +709,7 @@
 						</TableRow>
 					{:else}
 						{#each paginatedTypes as type (type.cuid)}
-							<TableRow>
+							<TableRow onclick={(e) => handleRowClick(type.cuid, e)} class="cursor-pointer">
 								<TableCell class="font-normal">
 									<div>{type.leave_name}</div>
 									{#if type.description}
