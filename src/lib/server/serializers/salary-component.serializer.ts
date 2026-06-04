@@ -1,4 +1,4 @@
-import type { SalaryComponent as PrismaSalaryComponent } from '../../../generated/prisma/client.js';
+import type { SalaryComponent as PrismaSalaryComponent } from '$lib/generated/prisma/client.js';
 
 /**
  * JSON-safe representation of a SalaryComponent exposed to clients.

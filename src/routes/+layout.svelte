@@ -12,6 +12,7 @@
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
 	import SettingsIcon from '@lucide/svelte/icons/settings';
 	import WalletIcon from '@lucide/svelte/icons/wallet';
+	import UsersIcon from '@lucide/svelte/icons/users';
 
 	let { children, data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);
@@ -19,6 +20,7 @@
 
 	const protectedNavItems = [
 		{ label: 'Dashboard', href: resolve('/dashboard'), icon: LayoutDashboardIcon },
+		{ label: 'Employees', href: resolve('/employees'), icon: UsersIcon },
 		{ label: 'Salary Components', href: resolve('/salary-components'), icon: WalletIcon }
 	];
 

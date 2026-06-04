@@ -4,7 +4,7 @@ import type {
 	UpdateSalaryComponentDto,
 	SalaryComponentFilters
 } from '$lib/types/salary-component.js';
-import type { Prisma } from '../../../generated/prisma/client.js';
+import type { Prisma } from '$lib/generated/prisma/client.js';
 
 export async function create(data: CreateSalaryComponentDto) {
 	return db.salaryComponent.create({

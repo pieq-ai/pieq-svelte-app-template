@@ -1,16 +1,16 @@
-# Graph Report - pieq-svelte-app-template  (2026-06-03)
+# Graph Report - pieq-svelte-app-template  (2026-06-04)
 
 ## Corpus Check
-- 90 files · ~17,269 words
+- 99 files · ~20,707 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 416 nodes · 533 edges · 29 communities (25 shown, 4 thin omitted)
+- 479 nodes · 614 edges · 32 communities (26 shown, 6 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d5134169`
+- Built from commit: `06bad3fd`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -35,18 +35,21 @@
 - [[_COMMUNITY_Community 17|Community 17]]
 - [[_COMMUNITY_Community 18|Community 18]]
 - [[_COMMUNITY_Community 20|Community 20]]
+- [[_COMMUNITY_Community 29|Community 29]]
+- [[_COMMUNITY_Community 30|Community 30]]
+- [[_COMMUNITY_Community 31|Community 31]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `$lib/utils.js` - 23 edges
-2. `pieq-svelte-app-template` - 16 edges
+2. `pieq-svelte-app-template` - 18 edges
 3. `scripts` - 15 edges
 4. `compilerOptions` - 11 edges
-5. `getAppConfig()` - 8 edges
-6. `validateUpdateSalaryComponent()` - 8 edges
-7. `Scripts` - 8 edges
-8. `ToastStore` - 7 edges
-9. `How the setup works` - 7 edges
-10. `aliases` - 6 edges
+5. `Changes` - 11 edges
+6. `getAppConfig()` - 8 edges
+7. `validateUpdateSalaryComponent()` - 8 edges
+8. `Harden `pieq-svelte-app-template` based on initial review` - 8 edges
+9. `Scripts` - 8 edges
+10. `createEmployee()` - 7 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Window` --references--> `AppConfig`  [EXTRACTED]
@@ -55,15 +58,15 @@
   src/lib/server/auth.js → src/lib/server/config.js
 - `load()` --calls--> `getAppConfig()`  [EXTRACTED]
   src/routes/+layout.server.ts → src/lib/server/config.js
-- `POST()` --calls--> `validateCreateSalaryComponent()`  [EXTRACTED]
-  src/routes/api/salary-components/+server.ts → src/lib/server/validators/salary-component.validator.ts
-- `PUT()` --calls--> `validateUpdateSalaryComponent()`  [EXTRACTED]
-  src/routes/api/salary-components/[id]/+server.ts → src/lib/server/validators/salary-component.validator.ts
+- `load()` --calls--> `listEmployees()`  [EXTRACTED]
+  src/routes/employees/+page.server.ts → src/lib/server/services/employee.service.ts
+- `GET()` --calls--> `listEmployees()`  [EXTRACTED]
+  src/routes/api/employees/+server.ts → src/lib/server/services/employee.service.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (29 total, 4 thin omitted)
+## Communities (32 total, 6 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.06
@@ -75,11 +78,11 @@ Nodes (30): $lib/types/salary-component, $lib/validators/salary-component, @luci
 
 ### Community 2 - "Community 2"
 Cohesion: 0.05
-Nodes (36): 1. Clone and install dependencies, 2. Configure environment, 3. Set up the database, 4. Start the dev server, 5. Verify everything works, Adding a new feature, API reference — Employees, `APP_URL` per environment (+28 more)
+Nodes (40): 1. Clone and install dependencies, 2. Configure environment, 3. Set up the database, 4. Start the dev server, 5. Verify everything works, Adding a new feature, API reference — Employees, `APP_URL` per environment (+32 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.10
-Nodes (13): svelte/animate, @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, $lib/components, $lib/toast.svelte, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/chevron-right, @lucide/svelte/icons/database (+5 more)
+Cohesion: 0.07
+Nodes (22): svelte/animate, @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, $lib/components, $lib/toast.svelte, ./$types, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/chevron-right (+14 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.12
@@ -102,8 +105,8 @@ Cohesion: 0.17
 Nodes (12): load(), auth, createAuth(), appUrlFromEnv, buildIssuer(), clearConfigCache(), getAppConfig(), getAuthConfig() (+4 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.12
-Nodes (14): @lucide/svelte/icons/building-2, $lib/assets/favicon.svg, $lib/auth, ./layout.css, @lucide/svelte/icons/layout-dashboard, @lucide/svelte/icons/log-in, @lucide/svelte/icons/log-out, @lucide/svelte/icons/menu (+6 more)
+Cohesion: 0.11
+Nodes (15): @lucide/svelte/icons/building-2, $lib/assets/favicon.svg, $lib/auth, ./layout.css, @lucide/svelte/icons/layout-dashboard, @lucide/svelte/icons/log-in, @lucide/svelte/icons/log-out, @lucide/svelte/icons/menu (+7 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.12
@@ -118,8 +121,8 @@ Cohesion: 0.25
 Nodes (3): load(), Toast, ToastStore
 
 ### Community 14 - "Community 14"
-Cohesion: 0.43
-Nodes (4): createClient(), db, getDb(), isValidClient()
+Cohesion: 0.12
+Nodes (17): CreateEmployeeData, actions, load(), GET(), POST(), createClient(), db, getDb() (+9 more)
 
 ### Community 15 - "Community 15"
 Cohesion: 0.33
@@ -129,25 +132,29 @@ Nodes (4): WithElementRef, WithoutChild, WithoutChildren, WithoutChildrenOrChild
 Cohesion: 0.40
 Nodes (4): SALARY_COMPONENT_TYPE_LABELS, SALARY_COMPONENT_TYPE_OPTIONS, SALARY_COMPONENT_TYPES, SalaryComponentType
 
+### Community 29 - "Community 29"
+Cohesion: 0.10
+Nodes (20): Changes, Harden `pieq-svelte-app-template` based on initial review, High-priority fixes (in this PR), Motivation, Out of scope (tracked as follow-ups), `README.md`, Reviewer notes, Risk & rollback (+12 more)
+
 ## Knowledge Gaps
-- **174 isolated node(s):** `$schema`, `css`, `baseColor`, `components`, `utils` (+169 more)
+- **209 isolated node(s):** `$schema`, `css`, `baseColor`, `components`, `utils` (+204 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `devDependencies` connect `Community 6` to `Community 4`, `Community 7`?**
-  _High betweenness centrality (0.106) - this node is a cross-community bridge._
+  _High betweenness centrality (0.124) - this node is a cross-community bridge._
 - **Why does `svelte` connect `Community 4` to `Community 6`?**
-  _High betweenness centrality (0.075) - this node is a cross-community bridge._
+  _High betweenness centrality (0.102) - this node is a cross-community bridge._
+- **Why does `db` connect `Community 14` to `Community 0`?**
+  _High betweenness centrality (0.055) - this node is a cross-community bridge._
 - **What connects `$schema`, `css`, `baseColor` to the rest of the system?**
-  _174 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _209 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.06431372549019608 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
   _Cohesion score 0.05128205128205128 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.05405405405405406 - nodes in this community are weakly interconnected._
-- **Should `Community 4` be split into smaller, more focused modules?**
-  _Cohesion score 0.0960591133004926 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.04878048780487805 - nodes in this community are weakly interconnected._
