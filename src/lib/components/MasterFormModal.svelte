@@ -112,7 +112,7 @@
               <LoaderCircleIcon class="mr-1.5 size-4 animate-spin" />
               Saving...
             {:else}
-              Save Changes
+              Save
             {/if}
           </Button>
         </div>

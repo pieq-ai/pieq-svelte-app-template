@@ -93,6 +93,9 @@
   // 'all' | 'true' | 'false' maps to undefined | true | false for the API
   let filterActive = $state<"all" | "true" | "false">("all");
 
+  /** Inline validation error for the Component Name field */
+  let formNameError = $state<string | null>(null);
+
 
   let sortBy = $state("");
   let sortOrder = $state<"asc" | "desc">("asc");
@@ -208,6 +211,7 @@
     formType = "earning";
     formIsActive = true;
     formIsTaxable = false;
+    formNameError = null;
 
     // Capture snapshot for dirty detection
     formInitialName = "";
@@ -225,6 +229,7 @@
     formType = component.component_type;
     formIsActive = component.is_active;
     formIsTaxable = component.is_taxable;
+    formNameError = null;
 
     // Capture snapshot for dirty detection
     formInitialName = component.component_name;
@@ -265,11 +270,13 @@
     const trimmedName = formName.trim();
     formName = trimmedName;
 
+    // Client-side validation — show inline, not as toast
     const nameError = validateComponentName(trimmedName);
     if (nameError) {
-      toast.error(nameError);
+      formNameError = nameError;
       return;
     }
+    formNameError = null;
 
     try {
       isSubmitting = true;
@@ -296,8 +303,14 @@
 
       const json = await res.json();
 
-      if (!res.ok)
+      if (!res.ok) {
+        // Validation/duplicate errors from the server → show inline on the name field
+        if (res.status === 400) {
+          formNameError = json.message || "Invalid input.";
+          return;
+        }
         throw new Error(json.message || "Failed to save salary component");
+      }
 
       await loadComponents();
 
@@ -384,7 +397,7 @@
       class="gap-2 bg-hrms-primary text-white hover:bg-hrms-primary-dark border-0"
     >
       <PlusIcon class="size-4" />
-      Create Component
+      Add Component
     </Button>
   </div>
 
@@ -545,10 +558,13 @@
       {isLoading}
       bind:sortBy
       bind:sortOrder
-      emptyMessage="No salary components found matching your selection."
+      emptyMessage="No records found."
     >
       {#snippet itemSnippet(comp: SalaryComponent)}
-        <TableRow class="hover:bg-muted/50 transition-colors">
+        <TableRow
+          class="hover:bg-muted/50 transition-colors cursor-pointer"
+          onclick={() => handleOpenEdit(comp)}
+        >
           <TableCell class="font-medium pl-5">{comp.component_name}</TableCell>
           <TableCell>
             <span class="capitalize">{comp.component_type}</span>
@@ -644,14 +660,19 @@
   onsubmit={handleFormSubmit}
 >
   <div class="space-y-4">
-    <div class="space-y-2">
+    <div class="space-y-1.5">
       <Label for="component_name">Component Name</Label>
       <Input
         id="component_name"
         type="text"
         bind:value={formName}
+        oninput={() => (formNameError = null)}
         placeholder="e.g. Basic Pay, HRA, Provident Fund"
+        class={formNameError ? "border-hrms-destructive focus-visible:ring-hrms-destructive/30" : ""}
       />
+      {#if formNameError}
+        <p class="text-xs text-hrms-destructive">{formNameError}</p>
+      {/if}
     </div>
 
     <div class="grid grid-cols-2 gap-4">

@@ -39,7 +39,7 @@
 		{placeholder}
 		value={internalValue}
 		oninput={handleInput}
-		class="bg-card hover:border-slate-350 focus-visible:ring-primary pl-9 pr-9 transition-all"
+		class="bg-card hover:border-slate-350 focus-visible:ring-ring/50 pl-9 pr-9 transition-all"
 	/>
 	{#if internalValue}
 		<Button
