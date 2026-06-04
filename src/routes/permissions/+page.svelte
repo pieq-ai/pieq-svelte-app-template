@@ -58,7 +58,7 @@
 	let permissionStatus = $state<boolean>(true);
 	let isKeyTouched = $state(false);
 	let backendError = $state('');
-	let permissionKeyInput: HTMLInputElement;
+	let permissionKeyInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{ permission_key: string; status: boolean }>();
 	let isDirty = $derived(dirtyChecker.isDirty({ permission_key: permissionKey.trim(), status: permissionStatus }));
@@ -315,7 +315,7 @@
 			<Label for="permission_key">Permission Key</Label>
 			<Input
 				id="permission_key"
-				bind:this={permissionKeyInput}
+				bind:ref={permissionKeyInput}
 				bind:value={permissionKey}
 				class={keyValidationError || backendError ? 'border-destructive' : ''}
 				placeholder="employee_view"

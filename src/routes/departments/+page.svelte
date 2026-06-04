@@ -59,7 +59,7 @@
 	let isModalOpen = $state(false);
 	let isNameTouched = $state(false);
 	let backendError = $state('');
-	let deptNameInput: HTMLInputElement;
+	let deptNameInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{ dept_name: string; status: boolean }>();
 	let isDirty = $derived(dirtyChecker.isDirty({ dept_name: formDeptName.trim(), status: formDeptStatus }));
@@ -378,7 +378,7 @@
 			<Label for="dept_name">Department Name</Label>
 			<Input
 				id="dept_name"
-				bind:this={deptNameInput}
+				bind:ref={deptNameInput}
 				bind:value={formDeptName}
 				class={nameValidationError || backendError ? 'border-destructive' : ''}
 				placeholder="e.g. Finance"

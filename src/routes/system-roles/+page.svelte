@@ -66,7 +66,7 @@
 	let roleStatus = $state<boolean>(true);
 	let isNameTouched = $state(false);
 	let backendError = $state('');
-	let roleNameInput: HTMLInputElement;
+	let roleNameInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{ system_role_name: string; status: boolean }>();
 	let isDirty = $derived(dirtyChecker.isDirty({ system_role_name: roleName.trim(), status: roleStatus }));
@@ -343,7 +343,7 @@
 			<Label for="system_role_name">Role Name</Label>
 			<Input
 				id="system_role_name"
-				bind:this={roleNameInput}
+				bind:ref={roleNameInput}
 				bind:value={roleName}
 				class={nameValidationError || backendError ? 'border-destructive' : ''}
 				placeholder="e.g. HR Manager"

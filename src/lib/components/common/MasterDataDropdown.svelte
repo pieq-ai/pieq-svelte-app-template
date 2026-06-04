@@ -35,7 +35,7 @@
 	let masterValue = $state('');
 	let isValueTouched = $state(false);
 	let backendError = $state('');
-	let masterInput: HTMLInputElement;
+	let masterInput = $state<HTMLInputElement | null>(null);
 
 	function getValidationError(input: string) {
 		const trimmed = input.trim();
@@ -173,7 +173,7 @@
 			<Label for={`${master}_value`}>{config.label}</Label>
 			<Input
 				id={`${master}_value`}
-				bind:this={masterInput}
+				bind:ref={masterInput}
 				bind:value={masterValue}
 				class={validationError || backendError ? 'border-destructive' : ''}
 				oninput={() => { isValueTouched = true; backendError = ''; }}

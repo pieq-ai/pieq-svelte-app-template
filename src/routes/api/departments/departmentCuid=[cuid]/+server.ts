@@ -34,6 +34,9 @@ export async function PUT(event: RequestEvent) {
 		const updatedDepartment = await departmentService.updateDepartment(cuid, body);
 		return json({ data: { cuid: updatedDepartment.cuid, message: 'Successfully updated' } });
 	} catch (error) {
+		if (error instanceof ValidationError) {
+			return json({ error: error.message, field: error.field }, { status: 409 });
+		}
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
 		return json({ error: message }, { status });

@@ -59,7 +59,7 @@
 	let isModalOpen = $state(false);
 	let isNameTouched = $state(false);
 	let backendError = $state('');
-	let designationNameInput: HTMLInputElement;
+	let designationNameInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{ designation_name: string; status: boolean }>();
 	let isDirty = $derived(dirtyChecker.isDirty({ designation_name: formDesignationName.trim(), status: formDesignationStatus }));
@@ -374,7 +374,7 @@
 			<Label for="designation_name">Designation Name</Label>
 			<Input
 				id="designation_name"
-				bind:this={designationNameInput}
+				bind:ref={designationNameInput}
 				bind:value={formDesignationName}
 				class={nameValidationError || backendError ? 'border-destructive' : ''}
 				placeholder="e.g. Senior HR Manager"
