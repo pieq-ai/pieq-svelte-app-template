@@ -380,28 +380,33 @@
 	isDirty={isDirty}
 	onClose={() => (isModalOpen = false)}
 >
-	<form class="space-y-3" onsubmit={handleSaveDepartment}>
-		<div class="space-y-2">
-			<Label for="dept_name">Department Name</Label>
-			<Input
-				id="dept_name"
-				bind:ref={deptNameInput}
-				bind:value={formDeptName}
-				class={nameValidationError || backendError ? 'border-destructive' : ''}
-				placeholder="e.g. Finance"
-				oninput={() => { backendError = ''; }}
-			/>
-			{#if nameValidationError || backendError}
-				<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
+	{#snippet children({ cancel })}
+		<form class="space-y-3" onsubmit={handleSaveDepartment}>
+			<div class="space-y-2">
+				<Label for="dept_name">Department Name</Label>
+				<Input
+					id="dept_name"
+					bind:ref={deptNameInput}
+					bind:value={formDeptName}
+					class={nameValidationError || backendError ? 'border-destructive' : ''}
+					placeholder="e.g. Finance"
+					oninput={() => { backendError = ''; }}
+				/>
+				{#if nameValidationError || backendError}
+					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
+				{/if}
+			</div>
+			{#if editingDept}
+				<StatusDropdown value={formDeptStatus} onChange={(val) => (formDeptStatus = val)} />
 			{/if}
-		</div>
-		{#if editingDept}
-			<StatusDropdown value={formDeptStatus} onChange={(val) => (formDeptStatus = val)} />
-		{/if}
-		<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingDept && !isDirty)}>
-			{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingDept ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
-		</Button>
-	</form>
+			<div class="flex items-center justify-end gap-3 pt-4">
+				<Button type="button" variant="outline" onclick={cancel}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
+				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingDept && !isDirty)}>
+					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingDept ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
+				</Button>
+			</div>
+		</form>
+	{/snippet}
 </CrudModal>
 
 <ConfirmModal

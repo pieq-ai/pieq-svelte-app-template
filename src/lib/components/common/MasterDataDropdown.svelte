@@ -169,23 +169,28 @@
 	description="Master values are validated on the frontend and again in the service layer."
 	onClose={() => (isModalOpen = false)}
 >
-	<form class="space-y-4" onsubmit={saveMasterValue}>
-		<div class="space-y-2">
-			<Label for={`${master}_value`}>{config.label}</Label>
-			<Input
-				id={`${master}_value`}
-				bind:ref={masterInput}
-				bind:value={masterValue}
-				class={validationError || backendError ? 'border-destructive' : ''}
-				oninput={() => { backendError = ''; }}
-			/>
-			{#if validationError || backendError}
-				<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{validationError || backendError}</p>
-			{/if}
-		</div>
+	{#snippet children({ cancel })}
+		<form class="space-y-4" onsubmit={saveMasterValue}>
+			<div class="space-y-2">
+				<Label for={`${master}_value`}>{config.label}</Label>
+				<Input
+					id={`${master}_value`}
+					bind:ref={masterInput}
+					bind:value={masterValue}
+					class={validationError || backendError ? 'border-destructive' : ''}
+					oninput={() => { backendError = ''; }}
+				/>
+				{#if validationError || backendError}
+					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{validationError || backendError}</p>
+				{/if}
+			</div>
 
-		<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting}>
-			{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingOption ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
-		</Button>
-	</form>
+			<div class="flex items-center justify-end gap-3 pt-4">
+				<Button type="button" variant="outline" onclick={cancel}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
+				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting}>
+					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingOption ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
+				</Button>
+			</div>
+		</form>
+	{/snippet}
 </CrudModal>

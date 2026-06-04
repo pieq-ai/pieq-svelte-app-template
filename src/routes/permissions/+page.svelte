@@ -317,28 +317,33 @@
 	isDirty={isDirty}
 	onClose={() => (isModalOpen = false)}
 >
-	<form class="space-y-3" onsubmit={savePermission}>
-		<div class="space-y-2">
-			<Label for="permission_key">Permission Key</Label>
-			<Input
-				id="permission_key"
-				bind:ref={permissionKeyInput}
-				bind:value={permissionKey}
-				class={keyValidationError || backendError ? 'border-destructive' : ''}
-				placeholder="employee_view"
-				oninput={() => { backendError = ''; }}
-			/>
-			{#if keyValidationError || backendError}
-				<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{keyValidationError || backendError}</p>
+	{#snippet children({ cancel })}
+		<form class="space-y-3" onsubmit={savePermission}>
+			<div class="space-y-2">
+				<Label for="permission_key">Permission Key</Label>
+				<Input
+					id="permission_key"
+					bind:ref={permissionKeyInput}
+					bind:value={permissionKey}
+					class={keyValidationError || backendError ? 'border-destructive' : ''}
+					placeholder="employee_view"
+					oninput={() => { backendError = ''; }}
+				/>
+				{#if keyValidationError || backendError}
+					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{keyValidationError || backendError}</p>
+				{/if}
+			</div>
+			{#if editingPermission}
+				<StatusDropdown value={permissionStatus} onChange={(val) => (permissionStatus = val)} />
 			{/if}
-		</div>
-		{#if editingPermission}
-			<StatusDropdown value={permissionStatus} onChange={(val) => (permissionStatus = val)} />
-		{/if}
-		<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingPermission && !isDirty)}>
-			{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingPermission ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
-		</Button>
-	</form>
+			<div class="flex items-center justify-end gap-3 pt-4">
+				<Button type="button" variant="outline" onclick={cancel}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
+				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingPermission && !isDirty)}>
+					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingPermission ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
+				</Button>
+			</div>
+		</form>
+	{/snippet}
 </CrudModal>
 
 <ConfirmModal

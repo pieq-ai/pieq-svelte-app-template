@@ -10,7 +10,7 @@
 		closeLabel?: string;
 		isDirty?: boolean;
 		onClose: () => void;
-		children?: import('svelte').Snippet;
+		children?: import('svelte').Snippet<[{ cancel: () => void }]>;
 	}
 
 	let { open, title, description = '', closeLabel = 'Close modal', isDirty = false, onClose, children }: Props = $props();
@@ -69,7 +69,7 @@
 				<XIcon class="size-4" />
 			</Button>
 			<CardContent>
-				{@render children?.()}
+				{@render children?.({ cancel: handleCloseAttempt })}
 			</CardContent>
 		</Card>
 	</div>
@@ -80,14 +80,14 @@
 		<Card class="w-full max-w-sm">
 			<CardHeader>
 				<CardTitle>Unsaved Changes</CardTitle>
-				<CardDescription>You have unsaved changes. Do you want to continue editing or close without saving?</CardDescription>
+				<CardDescription>You have unsaved changes. Are you sure you want to close this form?</CardDescription>
 			</CardHeader>
 			<div class="flex justify-end gap-2 p-6 pt-0">
 				<Button variant="outline" onclick={() => (showUnsavedConfirm = false)}>Continue Editing</Button>
 				<Button class="bg-danger text-danger-foreground hover:bg-danger/90 focus-visible:ring-danger/50 focus-visible:border-danger" onclick={() => {
 					showUnsavedConfirm = false;
 					onClose();
-				}}>Close Without Saving</Button>
+				}}>Discard Changes</Button>
 			</div>
 		</Card>
 	</div>

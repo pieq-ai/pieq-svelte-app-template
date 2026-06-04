@@ -345,28 +345,33 @@
 	isDirty={isDirty}
 	onClose={() => (isModalOpen = false)}
 >
-	<form class="space-y-3" onsubmit={saveRole}>
-		<div class="space-y-2">
-			<Label for="system_role_name">Role Name</Label>
-			<Input
-				id="system_role_name"
-				bind:ref={roleNameInput}
-				bind:value={roleName}
-				class={nameValidationError || backendError ? 'border-destructive' : ''}
-				placeholder="e.g. HR Manager"
-				oninput={() => { backendError = ''; }}
-			/>
-			{#if nameValidationError || backendError}
-				<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
+	{#snippet children({ cancel })}
+		<form class="space-y-3" onsubmit={saveRole}>
+			<div class="space-y-2">
+				<Label for="role_name">Role Name</Label>
+				<Input
+					id="role_name"
+					bind:ref={roleNameInput}
+					bind:value={roleName}
+					class={nameValidationError || backendError ? 'border-destructive' : ''}
+					placeholder="e.g. HR Manager"
+					oninput={() => { backendError = ''; }}
+				/>
+				{#if nameValidationError || backendError}
+					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
+				{/if}
+			</div>
+			{#if editingRole}
+				<StatusDropdown value={roleStatus} onChange={(val) => (roleStatus = val)} />
 			{/if}
-		</div>
-		{#if editingRole}
-			<StatusDropdown value={roleStatus} onChange={(val) => (roleStatus = val)} />
-		{/if}
-		<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingRole && !isDirty)}>
-			{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingRole ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
-		</Button>
-	</form>
+			<div class="flex items-center justify-end gap-3 pt-4">
+				<Button type="button" variant="outline" onclick={cancel}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
+				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingRole && !isDirty)}>
+					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingRole ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
+				</Button>
+			</div>
+		</form>
+	{/snippet}
 </CrudModal>
 
 <ConfirmModal

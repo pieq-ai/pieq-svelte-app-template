@@ -376,28 +376,33 @@
 	isDirty={isDirty}
 	onClose={() => (isModalOpen = false)}
 >
-	<form class="space-y-3" onsubmit={handleSaveDesignation}>
-		<div class="space-y-2">
-			<Label for="designation_name">Designation Name</Label>
-			<Input
-				id="designation_name"
-				bind:ref={designationNameInput}
-				bind:value={formDesignationName}
-				class={nameValidationError || backendError ? 'border-destructive' : ''}
-				placeholder="e.g. Senior HR Manager"
-				oninput={() => { backendError = ''; }}
-			/>
-			{#if nameValidationError || backendError}
-				<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
+	{#snippet children({ cancel })}
+		<form class="space-y-3" onsubmit={handleSaveDesignation}>
+			<div class="space-y-2">
+				<Label for="designation_name">Designation Name</Label>
+				<Input
+					id="designation_name"
+					bind:ref={designationNameInput}
+					bind:value={formDesignationName}
+					class={nameValidationError || backendError ? 'border-destructive' : ''}
+					placeholder="e.g. Senior HR Manager"
+					oninput={() => { backendError = ''; }}
+				/>
+				{#if nameValidationError || backendError}
+					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
+				{/if}
+			</div>
+			{#if editingDesignation}
+				<StatusDropdown value={formDesignationStatus} onChange={(val) => (formDesignationStatus = val)} />
 			{/if}
-		</div>
-		{#if editingDesignation}
-			<StatusDropdown value={formDesignationStatus} onChange={(val) => (formDesignationStatus = val)} />
-		{/if}
-		<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingDesignation && !isDirty)}>
-			{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingDesignation ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
-		</Button>
-	</form>
+			<div class="flex items-center justify-end gap-3 pt-4">
+				<Button type="button" variant="outline" onclick={cancel}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
+				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingDesignation && !isDirty)}>
+					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingDesignation ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
+				</Button>
+			</div>
+		</form>
+	{/snippet}
 </CrudModal>
 
 <ConfirmModal
