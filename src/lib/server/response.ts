@@ -111,12 +111,14 @@ export function formatLeavePolicy(policy: LeavePolicyInput): LeavePolicyDTO {
 }
 
 export interface EmploymentTypeInput {
+	id: number;
 	cuid: string;
 	employment_name: string;
 	status: boolean;
 }
 
 export interface EmploymentTypeDTO {
+	id: number;
 	cuid: string;
 	employment_name: string;
 	status: boolean;
@@ -124,6 +126,7 @@ export interface EmploymentTypeDTO {
 
 export function formatEmploymentType(et: EmploymentTypeInput): EmploymentTypeDTO {
 	return {
+		id: et.id,
 		cuid: et.cuid,
 		employment_name: et.employment_name,
 		status: et.status

@@ -28,7 +28,8 @@
 		ConfirmModal,
 		FormModal,
 		Pagination,
-		Dropdown
+		Dropdown,
+		MultiSelect
 	} from '$lib/components/ui';
 	import type { PageData } from './$types.js';
 
@@ -321,6 +322,15 @@
 	let genderSpecific = $state(false);
 	let applicableGender = $state<'Male' | 'Female' | 'Others' | ''>('');
 	let status = $state(true);
+
+	let multiSelectOptions = $derived(
+		data.employmentTypes
+			.filter((et) => et.status || (editingPolicy && editingPolicy.employment_type_cuids.includes(et.cuid)))
+			.map((et) => ({
+				id: et.cuid,
+				label: et.employment_name
+			}))
+	);
 
 	let hasChanges = $derived.by(() => {
 		if (!editUuid || !editingPolicy) return false;
@@ -921,7 +931,7 @@
 								onclick={() => handleSort('annual_limit')}
 								class="flex items-center justify-end gap-1.5 cursor-pointer select-none group"
 							>
-								<span>Limit (Annual)</span>
+								<span>Annual Limit</span>
 								<span class="text-sm transition-colors {sortKey === 'annual_limit' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
 									{sortKey === 'annual_limit' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
 								</span>
@@ -1102,27 +1112,12 @@
 	<!-- Employment Types -->
 	<div class="space-y-2">
 		<Label class={(form && 'field' in form && form.field === 'employment_type_cuids') || employmentTypesError ? 'text-destructive' : ''}>Applicable Employment Types <span class="text-destructive">*</span></Label>
-		<div class="border rounded-md p-3 space-y-2 max-h-36 overflow-y-auto bg-transparent">
-			{#each data.employmentTypes.filter((et) => et.status || (editingPolicy && editingPolicy.employment_type_cuids.includes(et.cuid))) as empType (empType.cuid)}
-				<div class="flex items-center space-x-2">
-					<input
-						type="checkbox"
-						name="employment_type_cuids"
-						value={empType.cuid}
-						checked={selectedEmploymentTypes.includes(empType.cuid)}
-						onchange={() => {
-							toggleEmploymentType(empType.cuid);
-							if (form && form.field === 'employment_type_cuids') form = null;
-							errors.employment_type_cuids = '';
-							touched.employment_type_cuids = true;
-						}}
-						onblur={() => touched.employment_type_cuids = true}
-						class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-					/>
-					<Label class="cursor-pointer select-none font-normal text-xs">{empType.employment_name}</Label>
-				</div>
-			{/each}
-		</div>
+		<MultiSelect
+			options={multiSelectOptions}
+			bind:selectedIds={selectedEmploymentTypes}
+			placeholder="Select Employment Types"
+			name="employment_type_cuids"
+		/>
 		{#if employmentTypesError}
 			<p class="text-xs font-medium text-destructive mt-1">{employmentTypesError}</p>
 		{:else if form && 'field' in form && form.field === 'employment_type_cuids'}

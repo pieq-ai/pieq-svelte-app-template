@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
+	import { cn } from '$lib/utils.js';
+	import CheckIcon from '@lucide/svelte/icons/check';
 
 	interface Option {
-		id: number;
+		id: string | number;
 		label: string;
 	}
 
@@ -13,7 +15,7 @@
 		name = 'selected_ids'
 	}: {
 		options: Option[];
-		selectedIds: number[];
+		selectedIds: (string | number)[];
 		placeholder?: string;
 		name?: string;
 	} = $props();
@@ -28,7 +30,7 @@
 		return options.filter((opt) => opt.label.toLowerCase().includes(query));
 	});
 
-	function toggleOption(id: number) {
+	function toggleOption(id: string | number) {
 		if (selectedIds.includes(id)) {
 			selectedIds = selectedIds.filter((x) => x !== id);
 		} else {
@@ -36,7 +38,7 @@
 		}
 	}
 
-	function removeOption(id: number, e: MouseEvent) {
+	function removeOption(id: string | number, e: MouseEvent) {
 		e.stopPropagation();
 		selectedIds = selectedIds.filter((x) => x !== id);
 	}
@@ -70,7 +72,10 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		onclick={() => (isOpen = !isOpen)}
-		class="dark:bg-input/30 border-input min-h-9 w-full rounded-md border bg-transparent px-3 py-1.5 text-sm shadow-xs transition-colors focus-within:border-input-focus focus-within:ring-input-focus-ring focus-within:ring-4 cursor-pointer flex flex-wrap gap-1.5 items-center justify-between"
+		class={cn(
+			"flex items-center justify-between w-full min-h-9 rounded-md border border-input bg-card px-3 py-1.5 text-sm shadow-xs transition-colors hover:bg-accent/30 focus-within:ring-4 focus-within:ring-input-focus-ring focus-within:border-input-focus cursor-pointer flex-wrap gap-1.5 select-none",
+			isOpen && "ring-4 ring-input-focus-ring border-input-focus"
+		)}
 	>
 		{#if selectedOptions.length === 0}
 			<span class="text-muted-foreground select-none">{placeholder}</span>
@@ -102,7 +107,7 @@
 	{#if isOpen}
 		<div
 			transition:slide={{ duration: 150 }}
-			class="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover text-popover-foreground shadow-md outline-none"
+			class="absolute left-0 z-50 mt-1 w-full min-w-[120px] origin-top-right rounded-md border border-border bg-popover text-popover-foreground shadow-md outline-hidden py-1 max-h-60 overflow-y-auto"
 		>
 			<!-- Search bar inside dropdown -->
 			<div class="flex items-center border-b border-border px-3 py-2 bg-transparent">
@@ -134,19 +139,22 @@
 					</div>
 				{:else}
 					{#each filteredOptions as opt (opt.id)}
+						{@const isSelected = selectedIds.includes(opt.id)}
 						<!-- svelte-ignore a11y_click_events_have_key_events -->
 						<!-- svelte-ignore a11y_no_static_element_interactions -->
-						<div
+						<button
+							type="button"
 							onclick={() => toggleOption(opt.id)}
-							class="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-xs outline-none hover:bg-accent hover:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50"
+							class={cn(
+								"flex items-center justify-between w-full px-3 py-2 text-left text-sm hover:bg-[#F4F4F4] transition-colors cursor-pointer select-none",
+								isSelected && "bg-[#F4F4F4]/50 font-medium"
+							)}
 						>
-							{#if selectedIds.includes(opt.id)}
-								<span class="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 text-primary"><polyline points="20 6 9 17 4 12"></polyline></svg>
-								</span>
+							<span class="truncate">{opt.label}</span>
+							{#if isSelected}
+								<CheckIcon class="size-4 shrink-0 text-foreground ml-2" />
 							{/if}
-							<span>{opt.label}</span>
-						</div>
+						</button>
 					{/each}
 				{/if}
 			</div>
