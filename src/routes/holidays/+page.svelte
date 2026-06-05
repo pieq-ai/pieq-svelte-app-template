@@ -561,17 +561,24 @@
 		currentPage = 1;
 	});
 
+	let todayStr = $derived.by(() => {
+		const today = new SvelteDate();
+		const y = today.getFullYear();
+		const m = String(today.getMonth() + 1).padStart(2, '0');
+		const d = String(today.getDate()).padStart(2, '0');
+		return `${y}-${m}-${d}`;
+	});
+
 	let totalHolidays = $derived(data.holidays.length);
 	let upcomingHolidaysCount = $derived(
 		data.holidays.filter(
-			(h) => new Date(h.holiday_date).getTime() >= new SvelteDate().setHours(0, 0, 0, 0)
+			(h) => getISODateString(h.holiday_date) > todayStr
 		).length
 	);
 
 	let nextHoliday = $derived.by(() => {
-		const todayTime = new SvelteDate().setHours(0, 0, 0, 0);
 		const futureHolidays = data.holidays
-			.filter((h) => new Date(h.holiday_date).getTime() > todayTime)
+			.filter((h) => getISODateString(h.holiday_date) > todayStr)
 			.sort((a, b) => new Date(a.holiday_date).getTime() - new Date(b.holiday_date).getTime());
 		return futureHolidays[0] || null;
 	});
