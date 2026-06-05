@@ -1,16 +1,16 @@
-# Graph Report - pieq-svelte-app-template  (2026-06-04)
+# Graph Report - pieq-svelte-app-template  (2026-06-05)
 
 ## Corpus Check
-- 131 files · ~66,042 words
+- 117 files · ~37,350 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1030 nodes · 1288 edges · 49 communities (36 shown, 13 thin omitted)
+- 548 nodes · 791 edges · 39 communities (26 shown, 13 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 3 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `46a61e29`
+- Built from commit: `16b43995`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -42,20 +42,10 @@
 - [[_COMMUNITY_Error Entrypoint Page|Error Entrypoint Page]]
 - [[_COMMUNITY_Robots Configuration|Robots Configuration]]
 - [[_COMMUNITY_Community 34|Community 34]]
-- [[_COMMUNITY_Community 35|Community 35]]
 - [[_COMMUNITY_Community 36|Community 36]]
 - [[_COMMUNITY_Community 37|Community 37]]
-- [[_COMMUNITY_Community 38|Community 38]]
-- [[_COMMUNITY_Community 39|Community 39]]
-- [[_COMMUNITY_Community 40|Community 40]]
-- [[_COMMUNITY_Community 41|Community 41]]
-- [[_COMMUNITY_Community 42|Community 42]]
 - [[_COMMUNITY_Community 43|Community 43]]
 - [[_COMMUNITY_Community 44|Community 44]]
-- [[_COMMUNITY_Community 45|Community 45]]
-- [[_COMMUNITY_Community 46|Community 46]]
-- [[_COMMUNITY_Community 47|Community 47]]
-- [[_COMMUNITY_Community 48|Community 48]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `$lib/utils.js` - 23 edges
@@ -82,22 +72,17 @@
   src/routes/api/countries/+server.ts → src/lib/server/response.ts
 
 ## Import Cycles
-- 3-file cycle: `src/generated/prisma/commonInputTypes.ts -> src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/commonInputTypes.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/CompanyLocation.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/Country.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/Role.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/Shift.ts -> src/generated/prisma/internal/prismaNamespace.ts`
-- 3-file cycle: `src/generated/prisma/internal/prismaNamespace.ts -> src/generated/prisma/models.ts -> src/generated/prisma/models/State.ts -> src/generated/prisma/internal/prismaNamespace.ts`
+- None detected.
 
-## Communities (49 total, 13 thin omitted)
+## Communities (39 total, 13 thin omitted)
 
 ### Community 0 - "UI Views & Modals"
-Cohesion: 0.16
-Nodes (12): $lib/confirmation.svelte.js, $lib/types/organization_location, $lib/types/role, $lib/types/shift, @lucide/svelte/icons/check, @lucide/svelte/icons/clock, @lucide/svelte/icons/loader-circle, @lucide/svelte/icons/more-vertical (+4 more)
+Cohesion: 0.07
+Nodes (31): @lucide/svelte/icons/alert-circle, @lucide/svelte/icons/alert-triangle, svelte/animate, $lib/components, $lib/confirmation.svelte.js, $lib/toast.svelte.js, $lib/types/organization_location, $lib/types/role (+23 more)
 
 ### Community 1 - "REST API Endpoint Handlers"
-Cohesion: 0.05
-Nodes (45): GET(), getShiftByCuid(), updateShift(), DELETE(), parseCuid(), PATCH(), PUT(), GET() (+37 more)
+Cohesion: 0.11
+Nodes (28): GET(), DELETE(), parseCuid(), PATCH(), PUT(), GET(), POST(), DELETE() (+20 more)
 
 ### Community 3 - "App Client Configuration & Types"
 Cohesion: 0.12
@@ -108,24 +93,24 @@ Cohesion: 0.10
 Nodes (6): CompanyLocation, CompanyLocationCreateDTO, CompanyLocationUpdateDTO, rejectUnknownKeys(), validateCreatePayload(), validateUpdatePayload()
 
 ### Community 5 - "Development Dependencies"
-Cohesion: 0.04
-Nodes (48): devDependencies, clsx, dotenv-cli, eslint, @eslint/compat, @eslint/js, eslint-plugin-svelte, @fontsource-variable/inter (+40 more)
+Cohesion: 0.05
+Nodes (41): dependencies, @auth/core, @auth/sveltekit, dotenv, @paralleldrive/cuid2, pg, @prisma/adapter-pg, @prisma/client (+33 more)
 
 ### Community 6 - "Shift Management"
-Cohesion: 0.02
-Nodes (107): Args, At, AtLeast, AtLoose, AtStrict, BatchPayload, Boolean, BooleanFieldRefInput (+99 more)
+Cohesion: 0.13
+Nodes (13): getShiftByCuid(), updateShift(), activateShift(), createShift(), formatTimeToHHMMSS(), updateShift(), Shift, ShiftCreateDTO (+5 more)
 
 ### Community 7 - "Project Dependencies & Scripts"
-Cohesion: 0.09
-Nodes (18): config, LogOptions, PrismaClient, PrismaClientConstructor, dependencies, @auth/core, @auth/sveltekit, dotenv (+10 more)
+Cohesion: 0.13
+Nodes (15): scripts, build, check, check:watch, db:generate, db:migrate, db:push, db:studio (+7 more)
 
 ### Community 8 - "Lucide Icons & Layouts"
-Cohesion: 0.20
-Nodes (9): @lucide/svelte/icons/building-2, @lucide/svelte/icons/home, @lucide/svelte/icons/layout-dashboard, @lucide/svelte/icons/log-in, @lucide/svelte/icons/log-out, @lucide/svelte/icons/map-pin, $app/paths, $app/stores (+1 more)
+Cohesion: 0.09
+Nodes (21): @lucide/svelte/icons/bell, @lucide/svelte/icons/building-2, $lib/assets/favicon.svg, $lib/auth, ./layout.css, @lucide/svelte/icons/calendar, @lucide/svelte/icons/clock, @lucide/svelte/icons/home (+13 more)
 
 ### Community 9 - "Role Management"
-Cohesion: 0.14
-Nodes (8): Role, RoleCreateDTO, RoleUpdateDTO, rejectUnknownKeys(), sanitizeString(), validateCreatePayload(), validatePaginationParams(), validateUpdatePayload()
+Cohesion: 0.09
+Nodes (12): createClient(), db, getDb(), isValidClient(), Role, RoleCreateDTO, RoleUpdateDTO, rejectUnknownKeys() (+4 more)
 
 ### Community 10 - "Auth Server Hook & Configuration"
 Cohesion: 0.16
@@ -155,30 +140,6 @@ Nodes (4): WithElementRef, WithoutChild, WithoutChildren, WithoutChildrenOrChild
 Cohesion: 0.09
 Nodes (22): Code quality, Common workflows, Database (Prisma), Development, Other, Quick reference, Scripts, Testing (+14 more)
 
-### Community 35 - "Community 35"
-Cohesion: 0.03
-Nodes (64): AggregateRole, BoolFieldUpdateOperationsInput, DateTimeFieldUpdateOperationsInput, GetRoleAggregateType, GetRoleGroupByPayload, IntFieldUpdateOperationsInput, Prisma__RoleClient, RoleAggregateArgs (+56 more)
-
-### Community 38 - "Community 38"
-Cohesion: 0.03
-Nodes (61): AggregateCompanyLocation, CompanyLocationAggregateArgs, CompanyLocationAvgAggregateInputType, CompanyLocationAvgAggregateOutputType, CompanyLocationAvgOrderByAggregateInput, CompanyLocationCountAggregateInputType, CompanyLocationCountAggregateOutputType, CompanyLocationCountArgs (+53 more)
-
-### Community 39 - "Community 39"
-Cohesion: 0.03
-Nodes (61): AggregateShift, DecimalFieldUpdateOperationsInput, GetShiftAggregateType, GetShiftGroupByPayload, Prisma__ShiftClient, ShiftAggregateArgs, ShiftAvgAggregateInputType, ShiftAvgAggregateOutputType (+53 more)
-
-### Community 40 - "Community 40"
-Cohesion: 0.03
-Nodes (61): AggregateState, GetStateAggregateType, GetStateGroupByPayload, Prisma__StateClient, StateAggregateArgs, StateAvgAggregateInputType, StateAvgAggregateOutputType, StateAvgOrderByAggregateInput (+53 more)
-
-### Community 41 - "Community 41"
-Cohesion: 0.03
-Nodes (60): AggregateCountry, CountryAggregateArgs, CountryAvgAggregateInputType, CountryAvgAggregateOutputType, CountryAvgOrderByAggregateInput, CountryCountAggregateInputType, CountryCountAggregateOutputType, CountryCountArgs (+52 more)
-
-### Community 42 - "Community 42"
-Cohesion: 0.04
-Nodes (43): CompanyLocationScalarFieldEnum, CountryScalarFieldEnum, ModelName, NullsOrder, NullTypes, QueryMode, RoleScalarFieldEnum, ShiftScalarFieldEnum (+35 more)
-
 ### Community 43 - "Community 43"
 Cohesion: 0.16
 Nodes (14): ./$types, CreateEmployeeData, actions, load(), GET(), POST(), createEmployee(), CreateEmployeeInput (+6 more)
@@ -187,41 +148,25 @@ Nodes (14): ./$types, CreateEmployeeData, actions, load(), GET(), POST(), create
 Cohesion: 0.10
 Nodes (20): Changes, Harden `pieq-svelte-app-template` based on initial review, High-priority fixes (in this PR), Motivation, Out of scope (tracked as follow-ups), `README.md`, Reviewer notes, Risk & rollback (+12 more)
 
-### Community 45 - "Community 45"
-Cohesion: 0.13
-Nodes (11): averageAge, closeAddModal(), filteredEmployees, formError, handleAddEmployee(), isSubmitting, maxAge, successMessage (+3 more)
-
-### Community 46 - "Community 46"
-Cohesion: 0.20
-Nodes (7): $lib/assets/favicon.svg, $lib/auth, $lib/components, ./layout.css, @lucide/svelte/icons/menu, redirectTo, $app/state
-
-### Community 47 - "Community 47"
-Cohesion: 0.22
-Nodes (7): @lucide/svelte/icons/alert-circle, @lucide/svelte/icons/alert-triangle, svelte/animate, $lib/toast.svelte.js, @lucide/svelte/icons/info, svelte/transition, @lucide/svelte/icons/x
-
-### Community 48 - "Community 48"
-Cohesion: 0.25
-Nodes (6): @lucide/svelte/icons/bell, @lucide/svelte/icons/calendar, @lucide/svelte/icons/palette, @lucide/svelte/icons/settings, @lucide/svelte/icons/shield, @lucide/svelte/icons/user-circle
-
 ## Knowledge Gaps
-- **655 isolated node(s):** `$schema`, `css`, `baseColor`, `components`, `utils` (+650 more)
+- **191 isolated node(s):** `$schema`, `css`, `baseColor`, `components`, `utils` (+186 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `dependencies` connect `Project Dependencies & Scripts` to `Development Dependencies`?**
-  _High betweenness centrality (0.190) - this node is a cross-community bridge._
-- **Why does `PrismaClient` connect `Project Dependencies & Scripts` to `REST API Endpoint Handlers`?**
-  _High betweenness centrality (0.182) - this node is a cross-community bridge._
+- **Why does `devDependencies` connect `Development Dependencies` to `UI Views & Modals`?**
+  _High betweenness centrality (0.109) - this node is a cross-community bridge._
+- **Why does `svelte` connect `UI Views & Modals` to `Development Dependencies`?**
+  _High betweenness centrality (0.092) - this node is a cross-community bridge._
+- **Why does `db` connect `Role Management` to `REST API Endpoint Handlers`, `Community 43`, `Organization Location Management`, `Shift Management`?**
+  _High betweenness centrality (0.090) - this node is a cross-community bridge._
 - **What connects `$schema`, `css`, `baseColor` to the rest of the system?**
-  _655 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _191 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `UI Views & Modals` be split into smaller, more focused modules?**
+  _Cohesion score 0.06547619047619048 - nodes in this community are weakly interconnected._
 - **Should `REST API Endpoint Handlers` be split into smaller, more focused modules?**
-  _Cohesion score 0.053946053946053944 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.11379800853485064 - nodes in this community are weakly interconnected._
 - **Should `shadcn UI Components` be split into smaller, more focused modules?**
   _Cohesion score 0.13445378151260504 - nodes in this community are weakly interconnected._
-- **Should `App Client Configuration & Types` be split into smaller, more focused modules?**
-  _Cohesion score 0.11576354679802955 - nodes in this community are weakly interconnected._
-- **Should `Organization Location Management` be split into smaller, more focused modules?**
-  _Cohesion score 0.09655172413793103 - nodes in this community are weakly interconnected._

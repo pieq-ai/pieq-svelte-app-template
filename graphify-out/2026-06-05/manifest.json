@@ -10,9 +10,9 @@
     "semantic_hash": "45134c4f59084c5d3d103d44200b4092"
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\package.json": {
-    "mtime": 1780558574.54853,
-    "ast_hash": "28a5c1bbb566d19c420893723855aab2",
-    "semantic_hash": ""
+    "mtime": 1779959728.8271377,
+    "ast_hash": "75e017625ce952bc47bd85262fcb744b",
+    "semantic_hash": "75e017625ce952bc47bd85262fcb744b"
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\playwright.config.ts": {
     "mtime": 1779959728.8276682,
@@ -23,6 +23,11 @@
     "mtime": 1779959728.8281896,
     "ast_hash": "2633c24dcf854c6db56cc17131477d65",
     "semantic_hash": "2633c24dcf854c6db56cc17131477d65"
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260529095903_added_roles_shift_location_tables\\migration.sql": {
+    "mtime": 1780048743.4067824,
+    "ast_hash": "6a1f396cfedaceddf5d8fcec02643d57",
+    "semantic_hash": "6a1f396cfedaceddf5d8fcec02643d57"
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\app.d.ts": {
     "mtime": 1779959728.8309245,
@@ -65,13 +70,13 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\components\\Sidebar.svelte": {
-    "mtime": 1780654574.1245809,
-    "ast_hash": "cd9b04ee8e94c7e4ad0a029020f06dde",
+    "mtime": 1780476383.511519,
+    "ast_hash": "d060bb17e7e056d320ec642a1848e102",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\components\\ToastContainer.svelte": {
-    "mtime": 1780567802.069777,
-    "ast_hash": "32680b90ea1d90552c3696e4c5d13487",
+    "mtime": 1780476396.2695665,
+    "ast_hash": "bd534f466875efe65c1156e384143bbd",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\components\\index.ts": {
@@ -370,8 +375,8 @@
     "semantic_hash": "428d3427a9414706bd97ecb654269036"
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\+layout.svelte": {
-    "mtime": 1780655829.9289722,
-    "ast_hash": "f95ab4d0f12ee3c53a8c124cd0c97fd4",
+    "mtime": 1780476409.1764033,
+    "ast_hash": "23a19e4bfd8a107ac36b70bb149a5d0b",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\+page.svelte": {
@@ -440,8 +445,8 @@
     "semantic_hash": "75133fb7fede8a6171742eca7ae4f3bb"
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\dashboard\\+page.svelte": {
-    "mtime": 1780655370.6881864,
-    "ast_hash": "7beda9bcfa4c188a848b8153295e8841",
+    "mtime": 1780475767.7587974,
+    "ast_hash": "60c6b3df2830bf0b7203ad9a3e49b190",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\dashboard\\[id=uuid]\\+page.server.ts": {
@@ -460,23 +465,23 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\organization_locations\\+page.svelte": {
-    "mtime": 1780655210.5321314,
-    "ast_hash": "ed06c36cbc48f536598981f74dd13e30",
+    "mtime": 1780556026.441762,
+    "ast_hash": "e2366de083200f161e5c32d3a2975b64",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\roles\\+page.svelte": {
-    "mtime": 1780655190.7000842,
-    "ast_hash": "c4da2d2c5a77b56d0b27938632e15ce0",
+    "mtime": 1780555981.72833,
+    "ast_hash": "f5a0e8c42fd9dfdf998b4119f074c020",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\settings\\+page.svelte": {
-    "mtime": 1780655220.307088,
-    "ast_hash": "f5f6c622621fb0ddccc9f847ae9adfab",
+    "mtime": 1780475968.9915352,
+    "ast_hash": "ae6f49a1613d596bc3c1407ad7051804",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\shifts\\+page.svelte": {
-    "mtime": 1780655199.7828736,
-    "ast_hash": "522383e668415dd6b9ea19cff73b98e8",
+    "mtime": 1780555959.2497187,
+    "ast_hash": "4508c81d4eb52314c95cade145db4d61",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\service-worker.js": {
@@ -490,9 +495,9 @@
     "semantic_hash": "d28a87dfe5093876060b428f66e5da7d"
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\tests\\e2e\\dashboard.spec.ts": {
-    "mtime": 1780557521.9018927,
-    "ast_hash": "222c129b1883da13d9b7dfa1128bc29f",
-    "semantic_hash": ""
+    "mtime": 1779959728.8986614,
+    "ast_hash": "2cfc17fb0a0a9afcc52120fdd6efa034",
+    "semantic_hash": "2cfc17fb0a0a9afcc52120fdd6efa034"
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\tests\\unit\\config.test.ts": {
     "mtime": 1779959728.8986614,
@@ -579,6 +584,76 @@
     "ast_hash": "637776aa6f7496d069afe7520c845c8a",
     "semantic_hash": "637776aa6f7496d069afe7520c845c8a"
   },
+  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260527113307_employees\\migration.sql": {
+    "mtime": 1780485087.644879,
+    "ast_hash": "b6ea761ca65ba36095228ef8332ca5e3",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\src\\generated\\prisma\\browser.ts": {
+    "mtime": 1780331628.2592075,
+    "ast_hash": "24623eecfdc02d8444a671b827100448",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\src\\generated\\prisma\\client.ts": {
+    "mtime": 1780331628.2592075,
+    "ast_hash": "2dcc6f551d9de949571bf8619679e564",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\src\\generated\\prisma\\commonInputTypes.ts": {
+    "mtime": 1780331628.2652602,
+    "ast_hash": "106f5e80d5ef9ca134d8ec131abdd3c0",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\src\\generated\\prisma\\enums.ts": {
+    "mtime": 1780331628.2571871,
+    "ast_hash": "fa6c58ad2d5526df3ff4f7e351d5f2f2",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\src\\generated\\prisma\\internal\\class.ts": {
+    "mtime": 1780331628.2952702,
+    "ast_hash": "ca1c3e9e0817a4ff6a27656cdd0f4a5a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\src\\generated\\prisma\\internal\\prismaNamespace.ts": {
+    "mtime": 1780331628.2932513,
+    "ast_hash": "363183541ec724bac08e3ebd02d4db8e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\src\\generated\\prisma\\internal\\prismaNamespaceBrowser.ts": {
+    "mtime": 1780331628.2932513,
+    "ast_hash": "8b16180738b8d42e4932dcf8cae566dd",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\src\\generated\\prisma\\models.ts": {
+    "mtime": 1780331628.2632418,
+    "ast_hash": "d7e5f3da2ba3a4b000b229229d2a17de",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\src\\generated\\prisma\\models\\CompanyLocation.ts": {
+    "mtime": 1780331628.291235,
+    "ast_hash": "8727a1459b94740eea549d8a094e7c34",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\src\\generated\\prisma\\models\\Country.ts": {
+    "mtime": 1780331628.2932513,
+    "ast_hash": "618b3b46290ce1f1db377c980ecf72f4",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\src\\generated\\prisma\\models\\Role.ts": {
+    "mtime": 1780331628.291235,
+    "ast_hash": "e42963e7785b42420e5edeedb52726ea",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\src\\generated\\prisma\\models\\Shift.ts": {
+    "mtime": 1780331628.291235,
+    "ast_hash": "c4582c15f68f9154a42e62985d518a60",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\src\\generated\\prisma\\models\\State.ts": {
+    "mtime": 1780331628.2932513,
+    "ast_hash": "e08e5a66e2f63172c03e81e200b1c947",
+    "semantic_hash": ""
+  },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\services\\employee.service.ts": {
     "mtime": 1780485087.644879,
     "ast_hash": "bde6e0b6cdb4dc3d1edec8e184ebb279",
@@ -602,11 +677,6 @@
   "C:\\Users\\user\\pieq-svelte-app-template\\PR.md": {
     "mtime": 1780485087.635155,
     "ast_hash": "f7fb645076aec7af563b43386106fbfb",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260604075853_added_tables\\migration.sql": {
-    "mtime": 1780559933.7259493,
-    "ast_hash": "0bef90a4faa87c54a4a85570b829af7b",
     "semantic_hash": ""
   }
 }

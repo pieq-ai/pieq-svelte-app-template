@@ -4,10 +4,17 @@
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
 	import { Sidebar, ToastContainer, ConfirmationModal } from '$lib/components';
 	import MenuIcon from '@lucide/svelte/icons/menu';
+	import { page } from '$app/stores';
 
 	let { children, data } = $props();
 
 	let sidebarCollapsed = $state(false);
+
+	const isMasterPage = $derived(
+		$page.url.pathname === '/roles' ||
+		$page.url.pathname === '/shifts' ||
+		$page.url.pathname === '/organization_locations'
+	);
 
 	$effect(() => {
 		if (typeof window !== 'undefined') {
@@ -61,7 +68,7 @@
 				<div style="width: 32px;"></div>
 			</div>
 		{/if}
-		<div class="flex-1 w-full px-9 py-8 max-w-[1200px] mx-auto max-md:px-5 max-md:py-4">
+		<div class="flex-1 w-full px-9 py-8 {isMasterPage ? 'max-w-none' : 'max-w-[1200px]'} mx-auto max-md:px-5 max-md:py-4">
 			{@render children()}
 		</div>
 	</div>
