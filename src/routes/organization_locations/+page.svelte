@@ -1010,7 +1010,7 @@
 
 <!-- Table card -->
 <div
-  class="bg-card border border-border rounded-xl overflow-hidden shadow-sm max-md:overflow-x-auto max-md:w-full max-md:[-webkit-overflow-scrolling:touch]"
+  class="bg-card border border-border rounded-xl overflow-x-auto w-full [-webkit-overflow-scrolling:touch] shadow-sm"
 >
   {#if loading}
     <div
