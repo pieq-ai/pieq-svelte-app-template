@@ -411,9 +411,6 @@
       </CardHeader>
       <CardContent>
         <p class="text-3xl font-bold text-black dark:text-white">{totalAllComponents}</p>
-        <p class="mt-1 text-xs text-muted-foreground">
-          Registered salary masters
-        </p>
       </CardContent>
     </Card>
 
@@ -425,9 +422,6 @@
       </CardHeader>
       <CardContent>
         <p class="text-3xl font-bold text-hrms-primary">{earningsCount}</p>
-        <p class="mt-1 text-xs text-muted-foreground">
-          Additions to gross base salary
-        </p>
       </CardContent>
     </Card>
 
@@ -439,16 +433,13 @@
       </CardHeader>
       <CardContent>
         <p class="text-3xl font-bold text-hrms-destructive">{deductionsCount}</p>
-        <p class="mt-1 text-xs text-muted-foreground">
-          Statutory and optional cutbacks
-        </p>
       </CardContent>
     </Card>
   </div>
 
   <!-- Filter Toolbar -->
-  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <div class="w-full max-w-xs">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
+    <div class="flex-1 min-w-0">
       <SearchBar
         bind:value={searchQuery}
         placeholder="Search component name..."

@@ -21,9 +21,9 @@
 
 <div class="flex flex-col items-center justify-between pl-2 gap-4 sm:flex-row">
 	<p class="text-sm text-slate-500 font-medium">
-		Showing <span class="text-slate-800 dark:text-slate-200 font-semibold">{startEntry}</span> to
-		<span class="text-slate-800 dark:text-slate-200 font-semibold">{endEntry}</span> of
-		<span class="text-slate-800 dark:text-slate-200 font-semibold">{total}</span> entries
+		Showing <span class="text-slate-500 dark:text-slate-200 font-semibold">{startEntry}</span> -
+		<span class="text-slate-500 dark:text-slate-200 font-semibold">{endEntry}</span> of
+		<span class="text-slate-500 dark:text-slate-200 font-semibold">{total}</span> records
 	</p>
 
 	<div class="flex items-center gap-2">
