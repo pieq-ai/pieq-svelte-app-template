@@ -14,7 +14,7 @@
 		<span
 			class="inline-block bg-pieq-primary/10 text-pieq-primary text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.75 rounded-full mb-1.5"
 		>System</span>
-		<h1 class="text-[26px] font-bold text-foreground m-0 leading-[1.2]">
+		<h1 class="text-3xl font-bold tracking-tight text-foreground m-0">
 			Settings
 		</h1>
 		<p class="text-[13px] text-muted-foreground mt-1">

@@ -373,7 +373,7 @@
   class="flex items-center justify-between mb-5 max-md:flex-col max-md:items-stretch max-md:gap-4"
 >
   <div>
-    <h1 class="text-[26px] font-bold text-foreground m-0 leading-[1.2]">
+    <h1 class="text-3xl font-bold tracking-tight text-foreground m-0">
       Role Master
     </h1>
   </div>
@@ -810,7 +810,7 @@
             type="button"
             onclick={discardChanges}
             class="px-5 py-2.5 rounded-xl bg-pieq-tertiary border-none text-white text-[15px] font-semibold cursor-pointer transition-opacity duration-150 hover:opacity-90 font-sans"
-            >Close Without Saving</button
+            >Discard Changes</button
           >
         </div>
       </div>
@@ -923,7 +923,7 @@
         {#if formLoading}
           <LoaderCircleIcon class="animate-spin" size={14} />
         {/if}
-        {formLoading ? "Saving..." : editRole ? "Update" : "Save"}
+        {formLoading ? "Saving..." : "Save"}
       </button>
     </div>
   </form>

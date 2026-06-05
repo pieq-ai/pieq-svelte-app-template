@@ -50,7 +50,7 @@
 
 	<!-- Main content area shifts with sidebar -->
 	<div
-		class="flex-1 transition-[margin] duration-250 ease-in-out min-h-screen flex flex-col {sidebarCollapsed ? 'ml-sidebar-collapsed-w' : 'ml-sidebar-w'} max-md:ml-0 max-md:overflow-x-hidden max-md:w-full"
+		class="flex-1 min-w-0 transition-[margin] duration-250 ease-in-out min-h-screen flex flex-col {sidebarCollapsed ? 'ml-sidebar-collapsed-w' : 'ml-sidebar-w'} max-md:ml-0 max-md:overflow-x-hidden max-md:w-full"
 	>
 		{#if data.user}
 			<div class="hidden max-md:flex items-center justify-between bg-sidebar-bg text-white px-4 py-3 border-b border-sidebar-border sticky top-0 z-30 box-border w-full">
@@ -61,7 +61,7 @@
 				<div style="width: 32px;"></div>
 			</div>
 		{/if}
-		<div class="flex-1 px-9 py-8 max-w-[1200px] max-md:px-5 max-md:py-4">
+		<div class="flex-1 w-full px-9 py-8 max-w-[1200px] mx-auto max-md:px-5 max-md:py-4">
 			{@render children()}
 		</div>
 	</div>

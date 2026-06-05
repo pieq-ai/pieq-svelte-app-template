@@ -13,6 +13,7 @@
 	import MapPinIcon from '@lucide/svelte/icons/map-pin';
 	import Building2Icon from '@lucide/svelte/icons/building-2';
 	import MenuIcon from '@lucide/svelte/icons/menu';
+	import UsersIcon from '@lucide/svelte/icons/users';
 
 	interface Props {
 		user?: { email?: string | null; name?: string | null } | null;
@@ -38,6 +39,7 @@
 
 	const mainNavItems = [
 		{ href: '/dashboard', label: 'Dashboard', icon: LayoutDashboardIcon },
+		{ href: '/employees', label: 'Employees', icon: UsersIcon },
 		{ href: '/roles', label: 'Roles', icon: ShieldIcon },
 		{ href: '/shifts', label: 'Shifts', icon: ClockIcon },
 		{ href: '/organization_locations', label: 'Locations', icon: MapPinIcon }
