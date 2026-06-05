@@ -21,15 +21,3 @@ CREATE UNIQUE INDEX "salary_components_cuid_key" ON "salary_components"("cuid");
 -- Salary component name must be globally unique regardless of component type
 CREATE UNIQUE INDEX "salary_components_component_name_key" ON "salary_components"("component_name");
 
--- CreateTable
-CREATE TABLE "employees" (
-    "id" SERIAL NOT NULL,
-    "uuid" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "age" INTEGER NOT NULL,
-
-    CONSTRAINT "employees_pkey" PRIMARY KEY ("id")
-);
-
--- CreateIndex
-CREATE UNIQUE INDEX "employees_uuid_key" ON "employees"("uuid");
