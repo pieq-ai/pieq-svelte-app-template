@@ -15,6 +15,9 @@
 		Badge,
 		Button,
 		Card,
+		CardHeader,
+		CardTitle,
+		CardDescription,
 		CrudModal,
 		ConfirmModal,
 		FilterDropdown,
@@ -101,6 +104,10 @@
 	});
 
 	let paginatedPermissions = $derived(filteredPermissions.slice((currentPage - 1) * pageSize, currentPage * pageSize));
+
+	let totalCount = $derived(permissions.length);
+	let activeCount = $derived(permissions.filter((p) => p.status === true).length);
+	let inactiveCount = $derived(permissions.filter((p) => p.status === false).length);
 
 	function handleSort(column: string) {
 		if (sortColumn === column) {
@@ -236,6 +243,28 @@
 				Add Permission
 			</Button>
 		{/if}
+	</div>
+
+	<!-- Metrics Cards -->
+	<div class="grid gap-4 sm:grid-cols-3">
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Total Permissions</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalCount}</CardTitle>
+			</CardHeader>
+		</Card>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Active Permissions</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{activeCount}</CardTitle>
+			</CardHeader>
+		</Card>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Inactive Permissions</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{inactiveCount}</CardTitle>
+			</CardHeader>
+		</Card>
 	</div>
 
 	{#if loadError}
