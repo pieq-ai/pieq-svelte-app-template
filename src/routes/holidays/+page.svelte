@@ -171,7 +171,6 @@
 		errors.holiday_date = dateErr;
 
 		if (nameErr || dateErr) {
-			toast.error('Please fix the validation errors.');
 			return;
 		}
 

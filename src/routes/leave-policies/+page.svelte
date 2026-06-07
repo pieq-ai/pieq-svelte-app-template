@@ -228,7 +228,6 @@
 			minServiceErr ||
 			genderErr
 		) {
-			toast.error('Please fix the validation errors.');
 			return;
 		}
 

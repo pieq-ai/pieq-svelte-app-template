@@ -164,7 +164,6 @@
 		errors.leave_code = codeErr;
 
 		if (nameErr || codeErr) {
-			toast.error('Please fix the validation errors.');
 			return;
 		}
 
