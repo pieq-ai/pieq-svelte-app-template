@@ -16,6 +16,7 @@ export interface LeavePolicy {
 	applicable_gender: 'Male' | 'Female' | 'Others' | null;
 	status: boolean;
 	employment_type_cuids: string[];
+	updated_at: string;
 }
 
 export interface LeaveType {
@@ -27,6 +28,7 @@ export interface LeaveType {
 	is_paid: boolean;
 	requires_approval: boolean;
 	status: boolean;
+	updated_at: string;
 }
 
 export interface EmploymentType {

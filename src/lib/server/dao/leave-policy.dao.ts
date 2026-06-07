@@ -17,7 +17,7 @@ export interface CreateLeavePolicyData {
 
 export async function list() {
 	const policies = await db.leavePolicy.findMany({
-		orderBy: { created_at: 'desc' }
+		orderBy: { updated_at: 'desc' }
 	});
 
 	const policyCuids = policies.map((p) => p.cuid);

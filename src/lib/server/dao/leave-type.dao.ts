@@ -11,7 +11,7 @@ export interface CreateLeaveTypeData {
 
 export async function list() {
 	return db.leaveType.findMany({
-		orderBy: { created_at: 'desc' }
+		orderBy: { updated_at: 'desc' }
 	});
 }
 
