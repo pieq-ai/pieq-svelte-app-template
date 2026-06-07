@@ -3393,7 +3393,7 @@
       "label": "async()",
       "file_type": "code",
       "source_file": "src/routes/holidays/+page.svelte",
-      "source_location": "L952",
+      "source_location": "L958",
       "id": "holidays_page_async",
       "community": 53,
       "norm_label": "async()"
@@ -14291,5 +14291,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "94d43373b099f194fd0dcc3475b49f6c8ab288a6"
+  "built_at_commit": "158761f25f5a8690c50662d3055b08f8784fde16"
 }

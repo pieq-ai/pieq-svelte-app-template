@@ -45,8 +45,8 @@
 	let isSubmitting = $state(false);
 	let isFormModalOpen = $state(false);
 
-	let sortKey = $state<string | null>(null);
-	let sortDirection = $state<'asc' | 'desc' | null>(null);
+	let sortKey = $state<string | null>('holiday_date');
+	let sortDirection = $state<'asc' | 'desc' | null>('asc');
 
 	function handleSort(key: string) {
 		currentPage = 1; // Reset to page 1 on sort change
@@ -539,6 +539,12 @@
 				}
 
 				return 0;
+			});
+		} else {
+			result.sort((a, b) => {
+				const timeA = new Date(a.holiday_date).getTime();
+				const timeB = new Date(b.holiday_date).getTime();
+				return timeA - timeB;
 			});
 		}
 
