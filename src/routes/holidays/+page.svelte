@@ -245,14 +245,6 @@
 		}
 	}
 
-	let tomorrowStr = $derived.by(() => {
-		const today = new Date();
-		const tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-		const y = tomorrow.getFullYear();
-		const m = String(tomorrow.getMonth() + 1).padStart(2, '0');
-		const d = String(tomorrow.getDate()).padStart(2, '0');
-		return `${y}-${m}-${d}`;
-	});
 
 	// Active Edit Mode Detection from URL query parameter
 	let editCuid = $derived(page.url.searchParams.get('edit'));
@@ -346,8 +338,8 @@
 		const selectedDate = new Date(year, month, day);
 		const today = new Date();
 		const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-		if (selectedDate.getTime() <= todayMidnight.getTime()) {
-			return 'Holiday date must be a future date.';
+		if (selectedDate.getTime() < todayMidnight.getTime()) {
+			return 'Holiday date cannot be in the past.';
 		}
 		return '';
 	}
@@ -884,7 +876,6 @@
 				touched.holiday_date = true;
 			}}
 			required={true}
-			min={tomorrowStr}
 			max="2099-12-31"
 			hasError={!!clientDateError || !!(form && 'field' in form && form.field === 'holiday_date')}
 		/>

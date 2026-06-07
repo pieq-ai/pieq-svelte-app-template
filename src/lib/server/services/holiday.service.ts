@@ -99,10 +99,10 @@ function validateHolidayDate(raw: unknown): Date {
 
 	const today = new Date();
 	const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-	if (date.getTime() <= todayUTC.getTime()) {
+	if (date.getTime() < todayUTC.getTime()) {
 		throw new HolidayValidationError(
 			'holiday_date',
-			'Holiday date must be a future date.'
+			'Holiday date cannot be in the past.'
 		);
 	}
 

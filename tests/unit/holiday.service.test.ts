@@ -162,7 +162,7 @@ describe('holiday service', () => {
 			);
 		});
 
-		it('should reject past or current dates', async () => {
+		it('should reject past dates and allow current date', async () => {
 			// May 28, 2026 (past)
 			await expect(
 				createHoliday({
@@ -171,19 +171,27 @@ describe('holiday service', () => {
 					holiday_type: 'National'
 				})
 			).rejects.toThrowError(
-				new HolidayValidationError('holiday_date', 'Holiday date must be a future date.')
+				new HolidayValidationError('holiday_date', 'Holiday date cannot be in the past.')
 			);
 
-			// May 29, 2026 (today)
-			await expect(
-				createHoliday({
-					holiday_name: 'New Year Day',
-					holiday_date: '2026-05-29',
-					holiday_type: 'National'
-				})
-			).rejects.toThrowError(
-				new HolidayValidationError('holiday_date', 'Holiday date must be a future date.')
-			);
+			// May 29, 2026 (today) - should be allowed
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(holidayDao.findByNameAndYear).mockResolvedValue(null);
+			vi.mocked(holidayDao.create).mockResolvedValue({
+				id: 99,
+				cuid: 'today-cuid',
+				holiday_name: 'Today Holiday',
+				holiday_date: new Date(Date.UTC(2026, 4, 29)),
+				holiday_type: 'National',
+				...auditFields
+			});
+
+			const result = await createHoliday({
+				holiday_name: 'Today Holiday',
+				holiday_date: '2026-05-29',
+				holiday_type: 'National'
+			});
+			expect(result.cuid).toBe('today-cuid');
 		});
 
 		// Type checks
