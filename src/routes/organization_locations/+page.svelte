@@ -562,6 +562,10 @@
       addCountryError = "Country name must be at least 2 characters.";
       return;
     }
+    if (!/^[A-Za-z\s]+$/.test(nameTrimmed)) {
+      addCountryError = "Country name can contain only letters and spaces.";
+      return;
+    }
     if (nameTrimmed.length > 255) {
       addCountryError = "Country name exceeds maximum length of 255 characters.";
       return;
@@ -594,6 +598,10 @@
     }
     if (nameTrimmed.length < 2) {
       addStateError = "State name must be at least 2 characters.";
+      return;
+    }
+    if (!/^[A-Za-z\s]+$/.test(nameTrimmed)) {
+      addStateError = "State name can contain only letters and spaces.";
       return;
     }
     if (nameTrimmed.length > 255) {

@@ -79,19 +79,42 @@
 {/if}
 
 {#if showUnsavedConfirm}
-	<div class="fixed inset-0 z-60 flex items-center justify-center bg-[#262626]/70 px-4 py-6">
-		<Card class="w-full max-w-sm">
-			<CardHeader>
-				<CardTitle>Cancel Changes</CardTitle>
-				<CardDescription>Are you sure you want to cancel? All unsaved changes will be lost.</CardDescription>
-			</CardHeader>
-			<div class="flex justify-end gap-2 p-6 pt-0">
-				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => {
-					showUnsavedConfirm = false;
-					onClose();
-				}}>Cancel</Button>
-				<Button variant="outline" onclick={() => (showUnsavedConfirm = false)}>Continue Editing</Button>
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div 
+		class="fixed inset-0 z-100 flex items-center justify-center bg-[rgba(15,11,10,0.4)] backdrop-blur-md px-4 py-6"
+		onclick={(e) => { if (e.target === e.currentTarget) showUnsavedConfirm = false; }}
+	>
+		<div
+			class="bg-card border border-border/50 rounded-[24px] w-full max-w-[420px] shadow-2xl flex flex-col p-6 sm:p-7 md:p-8"
+			role="dialog"
+			aria-modal="true"
+		>
+			<h3 class="text-xl font-bold text-foreground m-0 leading-tight mb-2">
+				Cancel Changes
+			</h3>
+			<p class="text-sm text-muted-foreground m-0 leading-relaxed mb-6">
+				Are you sure you want to cancel? All unsaved changes will be lost.
+			</p>
+			<div class="flex justify-end gap-3">
+				<button
+					type="button"
+					class="h-[38px] px-5 rounded-[12px] border border-[#e5e7eb] bg-card text-[14px] font-semibold cursor-pointer text-foreground hover:bg-muted transition-colors duration-150"
+					onclick={() => {
+						showUnsavedConfirm = false;
+						onClose();
+					}}
+				>
+					Cancel
+				</button>
+				<button
+					type="button"
+					class="h-[38px] px-5 rounded-[12px] border-none text-white text-[14px] font-semibold cursor-pointer transition-colors duration-150 bg-[#800020] hover:bg-[#600018]"
+					onclick={() => (showUnsavedConfirm = false)}
+				>
+					Keep Editing
+				</button>
 			</div>
-		</Card>
+		</div>
 	</div>
 {/if}
