@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/salary-component.service.js';
-import { validateCreateSalaryComponent, validateUpdateSalaryComponent } from '$lib/server/validators/salary-component.validator.js';
+import { validateCreateSalaryComponent } from '$lib/server/validators/salary-component.validator.js';
 import { serializeSalaryComponent } from '$lib/server/serializers/salary-component.serializer.js';
 
 export async function GET() {
@@ -64,47 +64,3 @@ export async function POST({ request }) {
 	}
 }
 
-export async function PUT({ url, request }) {
-	try {
-		const cuid = url.searchParams.get('salaryComponentCuid');
-		if (!cuid) {
-			return json(
-				{ message: 'Missing required query parameter: salaryComponentCuid' },
-				{ status: 400 }
-			);
-		}
-
-		const body = await request.json();
-
-		// Validation step
-		const { errors, validatedData } = validateUpdateSalaryComponent(body);
-		if (errors.length > 0 || !validatedData) {
-			const combinedMsg = errors.map((e) => e.message).join(', ');
-			return json(
-				{ message: `Validation failed: ${combinedMsg}` },
-				{ status: 400 }
-			);
-		}
-
-		// Service update step
-		const updated = await service.updateComponent(cuid, validatedData);
-
-		return json({
-			data: {
-				cuid: updated.cuid,
-				message: 'success'
-			}
-		});
-	} catch (error) {
-		console.error('Error in PUT /api/salary-components:', error);
-		const isNotFound = (error as Error).name === 'ComponentNotFoundError';
-		const isValidationError =
-			(error as Error).name === 'DuplicateComponentError' ||
-			(error as Error).name === 'BusinessValidationError';
-
-		return json(
-			{ message: (error as Error).message || 'Failed to update salary component' },
-			{ status: isNotFound ? 404 : isValidationError ? 400 : 500 }
-		);
-	}
-}

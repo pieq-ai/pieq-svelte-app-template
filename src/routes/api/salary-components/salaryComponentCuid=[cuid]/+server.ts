@@ -5,7 +5,7 @@ import { serializeSalaryComponent } from '$lib/server/serializers/salary-compone
 
 export async function GET({ params }) {
 	try {
-		const cuid = params.id;
+		const cuid = params.cuid;
 		if (!cuid) {
 			return json(
 				{
@@ -19,7 +19,7 @@ export async function GET({ params }) {
 		const component = await service.getComponentByCuid(cuid);
 		return json({ data: serializeSalaryComponent(component) });
 	} catch (error) {
-		console.error(`Error in GET /api/salary-components/${params.id}:`, error);
+		console.error(`Error in GET /api/salary-components/salaryComponentCuid=${params.cuid}:`, error);
 		const isNotFound = (error as Error).name === 'ComponentNotFoundError';
 		return json(
 			{
@@ -33,7 +33,7 @@ export async function GET({ params }) {
 
 export async function PUT({ params, request }) {
 	try {
-		const cuid = params.id;
+		const cuid = params.cuid;
 		if (!cuid) {
 			return json(
 				{
@@ -67,7 +67,7 @@ export async function PUT({ params, request }) {
 			}
 		});
 	} catch (error) {
-		console.error(`Error in PUT /api/salary-components/${params.id}:`, error);
+		console.error(`Error in PUT /api/salary-components/salaryComponentCuid=${params.cuid}:`, error);
 		const isNotFound = (error as Error).name === 'ComponentNotFoundError';
 		const isValidationError =
 			(error as Error).name === 'DuplicateComponentError' ||
@@ -84,7 +84,7 @@ export async function PUT({ params, request }) {
 
 export async function DELETE({ params }) {
 	try {
-		const cuid = params.id;
+		const cuid = params.cuid;
 		if (!cuid) {
 			return json(
 				{
@@ -104,7 +104,7 @@ export async function DELETE({ params }) {
 			}
 		});
 	} catch (error) {
-		console.error(`Error in DELETE /api/salary-components/${params.id}:`, error);
+		console.error(`Error in DELETE /api/salary-components/salaryComponentCuid=${params.cuid}:`, error);
 		const isNotFound = (error as Error).name === 'ComponentNotFoundError';
 		return json(
 			{
