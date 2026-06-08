@@ -4,6 +4,7 @@
 	import { resolve } from '$app/paths';
 
 	let { data } = $props();
+	let authenticatedUser = $derived(data.user ?? null);
 
 	function handleSignIn() {
 		signInWithKeycloak('/dashboard');
@@ -14,7 +15,7 @@
 	<title>Pieq Svelte App Template</title>
 </svelte:head>
 
-<div class="space-y-8">
+<div class="space-y-4">
 	<div class="space-y-3">
 		<p class="text-sm font-medium uppercase tracking-wide text-muted-foreground">Boilerplate</p>
 		<h1 class="text-4xl font-bold tracking-tight">SvelteKit layered architecture</h1>
@@ -24,7 +25,7 @@
 	</div>
 
 	<div class="flex flex-wrap gap-3">
-		{#if data.user}
+		{#if authenticatedUser}
 			<Button href={resolve('/dashboard')}>Go to dashboard</Button>
 		{:else}
 			<Button onclick={handleSignIn}>Sign in with Keycloak</Button>

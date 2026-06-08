@@ -1,0 +1,53 @@
+<script lang="ts">
+	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import CheckIcon from '@lucide/svelte/icons/check';
+	import { Button, Label } from '$lib/components';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+
+	interface Props {
+		value: boolean;
+		onChange: (val: boolean) => void;
+		id?: string;
+		name?: string;
+	}
+
+	let { value, onChange, id = 'status', name = 'status' }: Props = $props();
+</script>
+
+<div class="space-y-2">
+	<Label for={id}>Status</Label>
+	<DropdownMenu.Root>
+		<DropdownMenu.Trigger>
+			{#snippet child({ props })}
+				<Button
+					{id}
+					{name}
+					variant="outline"
+					class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none"
+					{...props}
+				>
+					{value ? 'Active' : 'Inactive'}
+					<ChevronDownIcon class="ml-2 size-4 opacity-50" />
+				</Button>
+			{/snippet}
+		</DropdownMenu.Trigger>
+		<DropdownMenu.Content>
+			<DropdownMenu.Group>
+				<DropdownMenu.Item
+					onclick={() => onChange(true)}
+					class="cursor-pointer justify-between {value === true ? 'bg-accent text-accent-foreground' : ''}"
+				>
+					Active
+					{#if value === true}<CheckIcon class="size-4" />{/if}
+				</DropdownMenu.Item>
+				<DropdownMenu.Item
+					onclick={() => onChange(false)}
+					class="cursor-pointer justify-between {value === false ? 'bg-accent text-accent-foreground' : ''}"
+				>
+					Inactive
+					{#if value === false}<CheckIcon class="size-4" />{/if}
+				</DropdownMenu.Item>
+			</DropdownMenu.Group>
+		</DropdownMenu.Content>
+	</DropdownMenu.Root>
+</div>

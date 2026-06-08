@@ -24,6 +24,7 @@ declare global {
 	}
 
 	var __db: import('$lib/generated/prisma/client').PrismaClient | undefined;
+	var __dbSchemaVersion: string | undefined;
 }
 
 declare module '@auth/core/types' {

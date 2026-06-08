@@ -1,4 +1,5 @@
 import tailwindcss from '@tailwindcss/vite';
+// Triggering dev server hard restart to clear Prisma module cache
 import { defineConfig } from 'vitest/config';
 import { loadEnv } from 'vite';
 import { sveltekit } from '@sveltejs/kit/vite';
@@ -34,6 +35,9 @@ export default defineConfig(({ mode }) => {
 		plugins: [tailwindcss(), sveltekit()],
 		server: {
 			port: devPort
+		},
+		ssr: {
+			noExternal: ['bits-ui', 'svelte-sonner']
 		},
 		test: {
 			expect: { requireAssertions: true },

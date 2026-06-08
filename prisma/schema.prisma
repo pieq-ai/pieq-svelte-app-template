@@ -47,3 +47,285 @@ model Employee {
 
   @@map("employees")
 }
+
+model SystemRoles {
+  id Int @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  system_role_name String @unique @db.VarChar(100)
+
+  status          Boolean          @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@index([cuid])
+  @@map("system_roles")
+}
+
+model Department {
+  id        Int    @id @default(autoincrement())
+  cuid     String @unique @default(cuid())
+  dept_name String @unique @db.VarChar(150)
+
+  status Boolean @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@index([cuid])
+  @@map("department")
+}
+
+model Permissions {
+  id Int @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  permission_key String @unique @db.VarChar(100)
+
+  status          Boolean          @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@index([cuid])
+  @@map("permissions")
+}
+
+model RolePermission {
+  id Int @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  system_role_cuid String
+  permission_cuid String
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@unique([system_role_cuid, permission_cuid])
+  @@index([cuid])
+  @@map("role_permission")
+}
+
+model BloodGroup {
+  id Int @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  blood_group_name String     @unique @db.VarChar(5)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@index([cuid])
+  @@map("blood_group")
+}
+
+model Designation {
+  id               Int    @id @default(autoincrement())
+  cuid            String @unique @default(cuid())
+  designation_name String @unique @db.VarChar(150)
+
+  status Boolean @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@index([cuid])
+  @@map("designation")
+}
+
+model PayGrade {
+  id Int @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  paygrade_name String @unique @db.VarChar(100)
+
+  status Boolean @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@index([cuid])
+  @@map("pay_grade")
+}
+
+model Nationality {
+  id Int @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  nationality_name String @unique @db.VarChar(100)
+
+  status    Boolean    @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@index([cuid])
+  @@map("nationality")
+}
+
+model EmploymentType {
+  id Int @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  employment_name String @unique @db.VarChar(50)
+
+  status Boolean @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@index([cuid])
+  @@map("employment_type")
+}
+
+model RelationType {
+  id Int @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  relation_name String @unique @db.VarChar(50)
+
+  status    Boolean    @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@index([cuid])
+  @@map("relation_type")
+}
+
+model DocumentType {
+  id Int @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  document_type_name String @unique @db.VarChar(100)
+
+  status Boolean @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@index([cuid])
+  @@map("document_type")
+}
+
+model State {
+  id Int @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  country_cuid String
+
+  state_name String @db.VarChar(100)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@unique([country_cuid, state_name])
+  @@index([country_cuid])
+  @@index([cuid])
+  @@map("state")
+}
+
+model Country {
+  id Int @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  country_name String  @unique @db.VarChar(100)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@index([cuid])
+  @@map("country")
+}
+
+model Skills {
+  id Int @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  skills_name String @unique @db.VarChar(100)
+
+  status Boolean @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@index([cuid])
+  @@map("skills")
+}
+
+model AttendanceSource {
+  id Int @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  attendance_source_name String @unique @db.VarChar(100)
+
+  status Boolean @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@index([cuid])
+  @@map("attendance_source")
+}
+
+model Languages {
+  id Int @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  languages_name String @unique @db.VarChar(100)
+
+  status Boolean @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@index([cuid])
+  @@map("languages")
+}
