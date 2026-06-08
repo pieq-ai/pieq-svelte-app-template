@@ -1,7 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { Role } from "$lib/types/role";
-  import { fetchAllRoles, createRole, updateRole, deleteRole } from "$lib/api/roles";
+  import {
+    fetchAllRoles,
+    createRole,
+    updateRole,
+    deleteRole,
+  } from "$lib/api/roles";
   import { ApiError } from "$lib/api/local";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import Pencil2Icon from "@lucide/svelte/icons/pencil";
@@ -294,14 +299,19 @@
     formError = "";
     try {
       if (editRole) {
-        await updateRole(editRole.cuid, { name: nameTrimmed, status: formStatus });
+        await updateRole(editRole.cuid, {
+          name: nameTrimmed,
+          status: formStatus,
+        });
       } else {
         await createRole(nameTrimmed);
       }
       const isEdit = !!editRole;
       closeForm();
       await fetchRoles();
-      toast.success(isEdit ? "Role updated successfully" : "Role created successfully");
+      toast.success(
+        isEdit ? "Role updated successfully" : "Role created successfully",
+      );
     } catch (e) {
       formError = e instanceof ApiError ? e.message : "Something went wrong.";
       toast.error(formError);
@@ -324,7 +334,9 @@
           await fetchRoles();
           toast.success("Role deactivated successfully");
         } catch (e) {
-          toast.error(e instanceof ApiError ? e.message : "Failed to deactivate role");
+          toast.error(
+            e instanceof ApiError ? e.message : "Failed to deactivate role",
+          );
         }
       },
     });
@@ -353,9 +365,7 @@
   class="flex items-center justify-between mb-5 max-md:flex-col max-md:items-stretch max-md:gap-4"
 >
   <div>
-    <h1 class="text-3xl font-bold tracking-tight text-foreground m-0">
-      Roles
-    </h1>
+    <h1 class="text-3xl font-bold tracking-tight text-foreground m-0">Roles</h1>
   </div>
 
   <button
@@ -773,24 +783,23 @@
         class="bg-white border-none rounded-3xl p-8 w-full max-w-[480px] shadow-2xl flex flex-col gap-0 text-left box-border"
       >
         <h3 class="text-xl font-bold text-black m-0 mb-2.5 font-sans">
-          Unsaved Changes
+          Cancel Changes
         </h3>
         <p class="text-[15px] text-[#737373] m-0 mb-7 leading-normal font-sans">
-          You have unsaved changes. Do you want to continue editing or close
-          without saving?
+          Are you sure you want to cancel? All unsaved changes will be lost.
         </p>
-        <div class="flex flex-row gap-3 justify-start items-center">
-          <button
-            type="button"
-            onclick={continueEditing}
-            class="px-5 py-2.5 rounded-xl bg-white border border-neutral-200 text-black text-[15px] font-semibold cursor-pointer transition-colors duration-150 hover:bg-neutral-50 font-sans"
-            >Continue Editing</button
-          >
+        <div class="flex flex-row gap-3 justify-end items-center">
           <button
             type="button"
             onclick={discardChanges}
+            class="px-5 py-2.5 rounded-xl bg-white border border-neutral-200 text-black text-[15px] font-semibold cursor-pointer transition-colors duration-150 hover:bg-neutral-50 font-sans"
+            >Cancel</button
+          >
+          <button
+            type="button"
+            onclick={continueEditing}
             class="px-5 py-2.5 rounded-xl bg-pieq-tertiary border-none text-white text-[15px] font-semibold cursor-pointer transition-opacity duration-150 hover:opacity-90 font-sans"
-            >Discard Changes</button
+            >Keep Editing</button
           >
         </div>
       </div>

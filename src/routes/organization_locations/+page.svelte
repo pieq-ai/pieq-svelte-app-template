@@ -185,7 +185,11 @@
       states = await fetchStates();
     } catch (e) {
       console.error("Failed to fetch dropdown choices", e);
-      toast.error(e instanceof ApiError ? e.message : "Failed to load countries or states");
+      toast.error(
+        e instanceof ApiError
+          ? e.message
+          : "Failed to load countries or states",
+      );
     }
   }
 
@@ -426,7 +430,9 @@
       locations = await fetchAllLocations();
     } catch (e) {
       console.error("Failed to fetch locations", e);
-      toast.error(e instanceof ApiError ? e.message : "Failed to load locations");
+      toast.error(
+        e instanceof ApiError ? e.message : "Failed to load locations",
+      );
     } finally {
       loading = false;
     }
@@ -606,7 +612,9 @@
           await fetchLocations();
           toast.success("Company Location deactivated successfully");
         } catch (e) {
-          toast.error(e instanceof ApiError ? e.message : "Failed to deactivate location");
+          toast.error(
+            e instanceof ApiError ? e.message : "Failed to deactivate location",
+          );
         }
       },
     });
@@ -625,7 +633,9 @@
           await fetchLocations();
           toast.success("Company Location activated successfully");
         } catch (e) {
-          toast.error(e instanceof ApiError ? e.message : "Failed to activate location");
+          toast.error(
+            e instanceof ApiError ? e.message : "Failed to activate location",
+          );
         }
       },
     });
@@ -1598,24 +1608,23 @@
         class="bg-white border-none rounded-3xl p-8 w-full max-w-[480px] shadow-2xl flex flex-col gap-0 text-left box-border"
       >
         <h3 class="text-xl font-bold text-black m-0 mb-2.5 font-sans">
-          Unsaved Changes
+          Cancel Changes
         </h3>
         <p class="text-[15px] text-[#737373] m-0 mb-7 leading-normal font-sans">
-          You have unsaved changes. Do you want to continue editing or close
-          without saving?
+          Are you sure you want to cancel? All unsaved changes will be lost.
         </p>
-        <div class="flex flex-row gap-3 justify-start items-center">
-          <button
-            type="button"
-            onclick={continueEditing}
-            class="px-5 py-2.5 rounded-xl bg-white border border-neutral-200 text-black text-[15px] font-semibold cursor-pointer transition-colors duration-150 hover:bg-neutral-50 font-sans"
-            >Continue Editing</button
-          >
+        <div class="flex flex-row gap-3 justify-end items-center">
           <button
             type="button"
             onclick={discardChanges}
+            class="px-5 py-2.5 rounded-xl bg-white border border-neutral-200 text-black text-[15px] font-semibold cursor-pointer transition-colors duration-150 hover:bg-neutral-50 font-sans"
+            >Cancel</button
+          >
+          <button
+            type="button"
+            onclick={continueEditing}
             class="px-5 py-2.5 rounded-xl bg-pieq-tertiary border-none text-white text-[15px] font-semibold cursor-pointer transition-opacity duration-150 hover:opacity-90 font-sans"
-            >Discard Changes</button
+            >Keep Editing</button
           >
         </div>
       </div>

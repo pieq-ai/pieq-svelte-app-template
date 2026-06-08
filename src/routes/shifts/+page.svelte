@@ -458,7 +458,9 @@
       const isEdit = !!editShift;
       closeForm();
       await fetchShifts();
-      toast.success(isEdit ? "Shift updated successfully" : "Shift created successfully");
+      toast.success(
+        isEdit ? "Shift updated successfully" : "Shift created successfully",
+      );
     } catch (e) {
       formError = e instanceof ApiError ? e.message : "Something went wrong.";
       toast.error(formError);
@@ -481,7 +483,9 @@
           await fetchShifts();
           toast.success("Shift deactivated successfully");
         } catch (e) {
-          toast.error(e instanceof ApiError ? e.message : "Failed to deactivate shift");
+          toast.error(
+            e instanceof ApiError ? e.message : "Failed to deactivate shift",
+          );
         }
       },
     });
@@ -500,7 +504,9 @@
           await fetchShifts();
           toast.success("Shift activated successfully");
         } catch (e) {
-          toast.error(e instanceof ApiError ? e.message : "Failed to activate shift");
+          toast.error(
+            e instanceof ApiError ? e.message : "Failed to activate shift",
+          );
         }
       },
     });
@@ -1139,24 +1145,23 @@
         class="bg-white border-none rounded-3xl p-8 w-full max-w-[480px] shadow-2xl flex flex-col gap-0 text-left box-border"
       >
         <h3 class="text-xl font-bold text-black m-0 mb-2.5 font-sans">
-          Unsaved Changes
+          Cancel Changes
         </h3>
         <p class="text-[15px] text-[#737373] m-0 mb-7 leading-normal font-sans">
-          You have unsaved changes. Do you want to continue editing or close
-          without saving?
+          Are you sure you want to cancel? All unsaved changes will be lost.
         </p>
-        <div class="flex flex-row gap-3 justify-start items-center">
-          <button
-            type="button"
-            onclick={continueEditing}
-            class="px-5 py-2.5 rounded-xl bg-white border border-neutral-200 text-black text-[15px] font-semibold cursor-pointer transition-colors duration-150 hover:bg-neutral-50 font-sans"
-            >Continue Editing</button
-          >
+        <div class="flex flex-row gap-3 justify-end items-center">
           <button
             type="button"
             onclick={discardChanges}
+            class="px-5 py-2.5 rounded-xl bg-white border border-neutral-200 text-black text-[15px] font-semibold cursor-pointer transition-colors duration-150 hover:bg-neutral-50 font-sans"
+            >Cancel</button
+          >
+          <button
+            type="button"
+            onclick={continueEditing}
             class="px-5 py-2.5 rounded-xl bg-pieq-tertiary border-none text-white text-[15px] font-semibold cursor-pointer transition-opacity duration-150 hover:opacity-90 font-sans"
-            >Discard Changes</button
+            >Keep Editing</button
           >
         </div>
       </div>
@@ -1222,8 +1227,8 @@
               isMinHoursManuallyEdited = false;
               formMinHours = calculatedMinHours;
               formMinHoursError = "";
-            }}
-          >Reset to auto</span>
+            }}>Reset to auto</span
+          >
         {/if}
       </div>
       <input
@@ -1234,11 +1239,14 @@
         bind:value={formMinHours}
         oninput={() => {
           isMinHoursManuallyEdited = true;
-          formMinHoursError = formMinHours > calculatedMinHours
-            ? `Cannot exceed shift duration (${formatHoursReadable(calculatedMinHours)})`
-            : "";
+          formMinHoursError =
+            formMinHours > calculatedMinHours
+              ? `Cannot exceed shift duration (${formatHoursReadable(calculatedMinHours)})`
+              : "";
         }}
-        class="w-full border {formMinHoursError ? 'border-red-400' : 'border-border'} rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
+        class="w-full border {formMinHoursError
+          ? 'border-red-400'
+          : 'border-border'} rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
       />
       <p class="text-[11px] text-muted-foreground m-0">
         Shift duration: {formatHoursReadable(calculatedMinHours)}

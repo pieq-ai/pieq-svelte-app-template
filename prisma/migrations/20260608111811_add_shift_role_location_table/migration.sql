@@ -4,6 +4,8 @@ CREATE TABLE "roles" (
     "cuid" TEXT NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_by" VARCHAR(255),
+    "updated_by" VARCHAR(255),
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
 
@@ -19,6 +21,8 @@ CREATE TABLE "shifts" (
     "end_time" TIME(6) NOT NULL,
     "minimum_work_hours" DECIMAL(4,2) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_by" VARCHAR(255),
+    "updated_by" VARCHAR(255),
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
 
@@ -38,6 +42,8 @@ CREATE TABLE "company_locations" (
     "pin_code" VARCHAR(10) NOT NULL,
     "timezone" VARCHAR(60) NOT NULL,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "created_by" VARCHAR(255),
+    "updated_by" VARCHAR(255),
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
 
@@ -61,16 +67,6 @@ CREATE TABLE "countries" (
     "country_name" VARCHAR(100) NOT NULL,
 
     CONSTRAINT "countries_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "employees" (
-    "id" SERIAL NOT NULL,
-    "uuid" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "age" INTEGER NOT NULL,
-
-    CONSTRAINT "employees_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -102,6 +98,3 @@ CREATE UNIQUE INDEX "countries_cuid_key" ON "countries"("cuid");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "countries_country_name_key" ON "countries"("country_name");
-
--- CreateIndex
-CREATE UNIQUE INDEX "employees_uuid_key" ON "employees"("uuid");
