@@ -89,7 +89,7 @@
 			</Button>
 		</div>
 		<!-- Main nav -->
-		<nav class="flex flex-1 flex-col gap-1 px-3 py-4">
+		<nav class="flex flex-1 flex-col gap-1 px-3 py-4 overflow-y-auto">
 			{#if authenticatedUser}
 				{#each protectedNavItems as item (item.href)}
 					{@const Icon = item.icon}
@@ -153,7 +153,7 @@
 				</form>
 			{/if}
 			{#if authenticatedUser && !isSidebarCollapsed}
-				<p class="truncate px-3 text-xs text-[#737373]">{authenticatedUser.email}</p>
+				<p class="px-3 text-xs text-[#737373] break-words line-clamp-2" title={authenticatedUser.email}>{authenticatedUser.email}</p>
 			{/if}
 		</div>
 	</aside>

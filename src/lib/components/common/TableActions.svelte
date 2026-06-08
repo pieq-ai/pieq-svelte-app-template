@@ -31,7 +31,7 @@
 			</Button>
 		{/snippet}
 	</DropdownMenu.Trigger>
-	<DropdownMenu.Content align="end">
+	<DropdownMenu.Content align="end" preventScroll={false}>
 		{#if canEdit}
 			<DropdownMenu.Item onclick={onEdit} class="cursor-pointer">
 				<PencilIcon class="mr-2 size-4" />

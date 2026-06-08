@@ -23,15 +23,15 @@
 				<dl class="space-y-3 text-sm">
 					<div>
 						<dt class="font-medium text-muted-foreground">Name</dt>
-						<dd>{data.context.user?.name ?? '—'}</dd>
+						<dd class="break-words">{data.context.user?.name ?? '—'}</dd>
 					</div>
 					<div>
 						<dt class="font-medium text-muted-foreground">Email</dt>
-						<dd>{data.context.user?.email}</dd>
+						<dd class="break-words">{data.context.user?.email}</dd>
 					</div>
 					<div>
 						<dt class="font-medium text-muted-foreground">Member since</dt>
-						<dd>{data.context.stats.memberSince}</dd>
+						<dd class="break-words">{data.context.stats.memberSince}</dd>
 					</div>
 				</dl>
 			</CardContent>

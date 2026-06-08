@@ -255,7 +255,7 @@
 <div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Department Directory</h1>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl break-words">Department Directory</h1>
 		</div>
 		<Button
 			type="button"
@@ -311,7 +311,7 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-28 text-center font-bold text-foreground text-[15px]">
+						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
 							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
 								Status
 							{#if sortColumn === 'status' && sortDirection === 'asc'}
@@ -323,7 +323,7 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-24 text-right font-bold text-foreground text-[15px]">Actions</TableHead>
+						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
