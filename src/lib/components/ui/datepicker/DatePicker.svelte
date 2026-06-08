@@ -30,10 +30,20 @@
 
 	let isOpen = $state(false);
 	let inputValue = $state('');
+	let showMonthYearPanel = $state(false);
 	
 	const today = new Date();
 	let currentMonth = $state(today.getMonth());
 	let currentYear = $state(today.getFullYear());
+
+	let minYear = $derived(min ? parseInt(min.split('-')[0]) : 1900);
+	let maxYear = $derived(max ? parseInt(max.split('-')[0]) : 2100);
+
+	$effect(() => {
+		if (!isOpen) {
+			showMonthYearPanel = false;
+		}
+	});
 
 	let triggerContainer = $state<HTMLDivElement | null>(null);
 	let popupPosition = $state({ top: 0, left: 0 });
@@ -329,9 +339,9 @@
 			style="position: fixed; top: {popupPosition.top}px; left: {popupPosition.left}px;"
 			class="datepicker-popup z-100 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-4 shadow-lg w-[280px] select-none text-left"
 		>
-			<!-- Header Month/Year Selector -->
-			<div class="flex items-center justify-between mb-4">
-				<div class="flex gap-2">
+			{#if showMonthYearPanel}
+				<!-- Month/Year panel -->
+				<div class="flex items-center justify-between mb-4">
 					<button
 						type="button"
 						onclick={prevYear}
@@ -340,29 +350,16 @@
 					>
 						«
 					</button>
-					<button
-						type="button"
-						onclick={prevMonth}
-						class="text-neutral-500 hover:text-[#262626] dark:hover:text-neutral-100 p-0.5 cursor-pointer font-bold text-xs select-none transition-colors"
-						title="Previous Month"
+					
+					<select
+						bind:value={currentYear}
+						class="bg-transparent font-medium text-neutral-900 dark:text-neutral-100 text-sm border border-neutral-200 dark:border-neutral-700 rounded px-2 py-0.5 outline-none cursor-pointer text-center"
 					>
-						‹
-					</button>
-				</div>
-				
-				<span class="font-medium text-neutral-900 dark:text-neutral-100 text-sm">
-					{monthNames[currentMonth]} {currentYear}
-				</span>
+						{#each Array.from({ length: maxYear - minYear + 1 }, (_, i) => minYear + i) as yr}
+							<option value={yr} class="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100">{yr}</option>
+						{/each}
+					</select>
 
-				<div class="flex gap-2">
-					<button
-						type="button"
-						onclick={nextMonth}
-						class="text-neutral-500 hover:text-[#262626] dark:hover:text-neutral-100 p-0.5 cursor-pointer font-bold text-xs select-none transition-colors"
-						title="Next Month"
-					>
-						›
-					</button>
 					<button
 						type="button"
 						onclick={nextYear}
@@ -372,54 +369,134 @@
 						»
 					</button>
 				</div>
-			</div>
+				
+				<div class="grid grid-cols-3 gap-2 mb-4">
+					{#each monthNames as monthName, index}
+						<button
+							type="button"
+							onclick={() => {
+								currentMonth = index;
+								showMonthYearPanel = false;
+							}}
+							class={cn(
+								"py-2 text-center text-xs rounded-md cursor-pointer transition-all font-medium",
+								currentMonth === index 
+									? "bg-[#262626] text-white dark:bg-neutral-100 dark:text-neutral-950 font-semibold" 
+									: "hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200"
+							)}
+						>
+							{monthName.substring(0, 3)}
+						</button>
+					{/each}
+				</div>
 
-			<!-- Weekday Headers -->
-			<div class="grid grid-cols-7 gap-1 text-center text-xs font-bold mb-2">
-				{#each weekdays as day}
-					<span class="pb-1 border-b border-dotted border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200">
-						{day}
-					</span>
-				{/each}
-			</div>
-
-			<!-- Calendar Grid -->
-			<div class="grid grid-cols-7 gap-1 text-center text-sm">
-				{#each currentMonthDays as cell}
+				<div class="flex items-center justify-center border-t border-neutral-100 dark:border-neutral-800 pt-3 mt-3 text-xs">
 					<button
 						type="button"
-						disabled={cell.isDisabled}
-						onclick={() => selectDay(cell)}
-						class={cn(
-							"h-8 w-8 flex items-center justify-center rounded-md cursor-pointer transition-all select-none text-xs font-medium",
-							cell.isCurrentMonth ? "text-neutral-950 dark:text-neutral-50" : "text-neutral-400 dark:text-neutral-600",
-							cell.isToday && "border border-[#F45310] text-[#F45310] font-medium",
-							cell.isSelected ? "bg-[#262626] text-white dark:bg-neutral-100 dark:text-neutral-950 font-semibold" : "hover:bg-neutral-100 dark:hover:bg-neutral-800",
-							cell.isDisabled && "opacity-30 cursor-not-allowed pointer-events-none"
-						)}
+						onclick={() => showMonthYearPanel = false}
+						class="text-neutral-500 hover:text-[#262626] dark:hover:text-neutral-100 font-medium cursor-pointer transition-colors"
 					>
-						{cell.day}
+						Back to Calendar
 					</button>
-				{/each}
-			</div>
+				</div>
+			{:else}
+				<!-- Header Month/Year Selector -->
+				<div class="flex items-center justify-between mb-4">
+					<div class="flex gap-2">
+						<button
+							type="button"
+							onclick={prevYear}
+							class="text-neutral-500 hover:text-[#262626] dark:hover:text-neutral-100 p-0.5 cursor-pointer font-bold text-xs select-none transition-colors"
+							title="Previous Year"
+						>
+							«
+						</button>
+						<button
+							type="button"
+							onclick={prevMonth}
+							class="text-neutral-500 hover:text-[#262626] dark:hover:text-neutral-100 p-0.5 cursor-pointer font-bold text-xs select-none transition-colors"
+							title="Previous Month"
+						>
+							‹
+						</button>
+					</div>
+					
+					<button
+						type="button"
+						onclick={() => showMonthYearPanel = true}
+						class="font-medium text-neutral-900 dark:text-neutral-100 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 px-2 py-0.5 rounded transition-colors cursor-pointer select-none border-none outline-none"
+						title="Select Month and Year"
+					>
+						{monthNames[currentMonth]} {currentYear}
+					</button>
 
-			<!-- Footer Clear/Today Buttons -->
-			<div class="flex items-center justify-between border-t border-neutral-100 dark:border-neutral-800 pt-3 mt-3 text-xs">
-				<button
-					type="button"
-					onclick={clearDate}
-					class="text-[#800020] hover:text-[#800020]/80 font-medium cursor-pointer transition-colors"
-				>
-					Clear
-				</button>
-				<button
-					type="button"
-					onclick={selectToday}
-					class="text-[#262626] dark:text-neutral-200 hover:text-[#F45310] font-medium cursor-pointer transition-colors"
-				>
-					Today
-				</button>
-			</div>
+					<div class="flex gap-2">
+						<button
+							type="button"
+							onclick={nextMonth}
+							class="text-neutral-500 hover:text-[#262626] dark:hover:text-neutral-100 p-0.5 cursor-pointer font-bold text-xs select-none transition-colors"
+							title="Next Month"
+						>
+							›
+						</button>
+						<button
+							type="button"
+							onclick={nextYear}
+							class="text-neutral-500 hover:text-[#262626] dark:hover:text-neutral-100 p-0.5 cursor-pointer font-bold text-xs select-none transition-colors"
+							title="Next Year"
+						>
+							»
+						</button>
+					</div>
+				</div>
+
+				<!-- Weekday Headers -->
+				<div class="grid grid-cols-7 gap-1 text-center text-xs font-bold mb-2">
+					{#each weekdays as day}
+						<span class="pb-1 border-b border-dotted border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200">
+							{day}
+						</span>
+					{/each}
+				</div>
+
+				<!-- Calendar Grid -->
+				<div class="grid grid-cols-7 gap-1 text-center text-sm">
+					{#each currentMonthDays as cell}
+						<button
+							type="button"
+							disabled={cell.isDisabled}
+							onclick={() => selectDay(cell)}
+							class={cn(
+								"h-8 w-8 flex items-center justify-center rounded-md cursor-pointer transition-all select-none text-xs font-medium",
+								cell.isCurrentMonth ? "text-neutral-950 dark:text-neutral-50" : "text-neutral-400 dark:text-neutral-600",
+								cell.isToday && "border border-[#F45310] text-[#F45310] font-medium",
+								cell.isSelected ? "bg-[#262626] text-white dark:bg-neutral-100 dark:text-neutral-950 font-semibold" : "hover:bg-neutral-100 dark:hover:bg-neutral-800",
+								cell.isDisabled && "opacity-30 cursor-not-allowed pointer-events-none"
+							)}
+						>
+							{cell.day}
+						</button>
+					{/each}
+				</div>
+
+				<!-- Footer Clear/Today Buttons -->
+				<div class="flex items-center justify-between border-t border-neutral-100 dark:border-neutral-800 pt-3 mt-3 text-xs">
+					<button
+						type="button"
+						onclick={clearDate}
+						class="text-[#800020] hover:text-[#800020]/80 font-medium cursor-pointer transition-colors"
+					>
+						Clear
+					</button>
+					<button
+						type="button"
+						onclick={selectToday}
+						class="text-[#262626] dark:text-neutral-200 hover:text-[#F45310] font-medium cursor-pointer transition-colors"
+					>
+						Today
+					</button>
+				</div>
+			{/if}
 		</div>
 	{/if}
 </div>

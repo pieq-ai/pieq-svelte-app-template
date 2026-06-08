@@ -920,12 +920,12 @@
 
 <ConfirmModal
 	bind:isOpen={isDiscardModalOpen}
-	title="Unsaved Changes"
-	message="You have unsaved changes. Do you want to continue editing or close without saving?"
-	confirmLabel="Close Without Saving"
-	cancelLabel="Continue Editing"
+	title="Cancel Changes"
+	message="Are you sure you want to cancel? All unsaved changes will be lost."
+	confirmLabel="Keep Editing"
+	cancelLabel="Cancel"
 	variant="destructive"
-	onConfirm={confirmDiscard}
+	onCancel={confirmDiscard}
 />
 
 

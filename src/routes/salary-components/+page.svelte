@@ -777,10 +777,10 @@
 <!-- Unsaved Changes Confirmation -->
 <ConfirmDialog
   isOpen={showDiscardConfirm}
-  title="Unsaved Changes"
-  message="You have unsaved changes. Do you want to continue editing or close without saving?"
-  confirmText="Close Without Saving"
-  cancelText="Continue Editing"
-  onconfirm={handleDiscardConfirm}
-  oncancel={handleDiscardCancel}
+  title="Cancel Changes"
+  message="Are you sure you want to cancel? All unsaved changes will be lost."
+  confirmText="Keep Editing"
+  cancelText="Cancel"
+  onconfirm={handleDiscardCancel}
+  oncancel={handleDiscardConfirm}
 />

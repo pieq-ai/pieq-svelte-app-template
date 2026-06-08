@@ -1,30 +1,4 @@
 -- CreateTable
-CREATE TABLE "salary_components" (
-    "id" BIGSERIAL NOT NULL,
-    "cuid" TEXT NOT NULL,
-    "component_name" VARCHAR(150) NOT NULL,
-    "component_type" VARCHAR(20) NOT NULL,
-    "is_taxable" BOOLEAN NOT NULL DEFAULT false,
-    "is_active" BOOLEAN NOT NULL DEFAULT true,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "created_by" TEXT,
-    "updated_at" TIMESTAMPTZ NOT NULL,
-    "updated_by" TEXT,
-
-    CONSTRAINT "salary_components_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "employees" (
-    "id" SERIAL NOT NULL,
-    "uuid" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "age" INTEGER NOT NULL,
-
-    CONSTRAINT "employees_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "leave_types" (
     "id" SERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
@@ -36,6 +10,8 @@ CREATE TABLE "leave_types" (
     "status" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT,
+    "updated_by" TEXT,
 
     CONSTRAINT "leave_types_pkey" PRIMARY KEY ("id")
 );
@@ -59,6 +35,8 @@ CREATE TABLE "leave_policies" (
     "deactivated_by_leave_type" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT,
+    "updated_by" TEXT,
 
     CONSTRAINT "leave_policies_pkey" PRIMARY KEY ("id")
 );
@@ -72,6 +50,8 @@ CREATE TABLE "holiday_calendars" (
     "holiday_type" TEXT NOT NULL,
     "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT,
+    "updated_by" TEXT,
 
     CONSTRAINT "holiday_calendars_pkey" PRIMARY KEY ("id")
 );
@@ -84,6 +64,8 @@ CREATE TABLE "employment_types" (
     "status" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT,
+    "updated_by" TEXT,
 
     CONSTRAINT "employment_types_pkey" PRIMARY KEY ("id")
 );
@@ -96,18 +78,11 @@ CREATE TABLE "leave_policy_employment_types" (
     "employment_type_cuid" TEXT NOT NULL,
     "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT,
+    "updated_by" TEXT,
 
     CONSTRAINT "leave_policy_employment_types_pkey" PRIMARY KEY ("id")
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "salary_components_cuid_key" ON "salary_components"("cuid");
-
--- CreateIndex
-CREATE UNIQUE INDEX "salary_components_component_name_key" ON "salary_components"("component_name");
-
--- CreateIndex
-CREATE UNIQUE INDEX "employees_uuid_key" ON "employees"("uuid");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "leave_types_cuid_key" ON "leave_types"("cuid");
