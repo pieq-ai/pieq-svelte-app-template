@@ -33,7 +33,7 @@ vi.mock('$lib/server/dao/leave-policy.dao.js', () => {
 	};
 });
 
-const auditFields = { created_at: new Date(), updated_at: new Date(), deactivated_by_leave_type: false };
+const auditFields = { created_at: new Date(), updated_at: new Date(), deactivated_by_leave_type: false, created_by: null, updated_by: null };
 
 describe('leave policy service', () => {
 	beforeEach(() => {

@@ -13,6 +13,8 @@ export interface CreateLeavePolicyData {
 	gender_specific: boolean;
 	applicable_gender: 'Male' | 'Female' | 'Others' | null;
 	status: boolean;
+	created_by?: string | null;
+	updated_by?: string | null;
 }
 
 export async function list() {
@@ -59,7 +61,9 @@ export async function create(policyData: CreateLeavePolicyData, employmentTypeCu
 				allow_half_day: policyData.allow_half_day,
 				gender_specific: policyData.gender_specific,
 				applicable_gender: policyData.applicable_gender,
-				status: policyData.status
+				status: policyData.status,
+				created_by: policyData.created_by,
+				updated_by: policyData.updated_by
 			}
 		});
 
@@ -67,7 +71,9 @@ export async function create(policyData: CreateLeavePolicyData, employmentTypeCu
 			await tx.leavePolicyEmploymentType.createMany({
 				data: employmentTypeCuids.map((cuid) => ({
 					leave_policy_cuid: createdPolicy.cuid,
-					employment_type_cuid: cuid
+					employment_type_cuid: cuid,
+					created_by: policyData.created_by,
+					updated_by: policyData.updated_by
 				}))
 			});
 		}
@@ -99,7 +105,8 @@ export async function update(cuid: string, policyData: Partial<CreateLeavePolicy
 				gender_specific: policyData.gender_specific,
 				applicable_gender: policyData.applicable_gender,
 				status: policyData.status,
-				deactivated_by_leave_type: policyData.status !== undefined ? false : undefined
+				deactivated_by_leave_type: policyData.status !== undefined ? false : undefined,
+				updated_by: policyData.updated_by
 			}
 		});
 
@@ -114,7 +121,9 @@ export async function update(cuid: string, policyData: Partial<CreateLeavePolicy
 				await tx.leavePolicyEmploymentType.createMany({
 					data: employmentTypeCuids.map((cuid) => ({
 						leave_policy_cuid: updatedPolicy.cuid,
-						employment_type_cuid: cuid
+						employment_type_cuid: cuid,
+						created_by: policyData.updated_by,
+						updated_by: policyData.updated_by
 					}))
 				});
 			}

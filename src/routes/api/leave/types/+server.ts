@@ -23,7 +23,7 @@ export const GET: RequestHandler = async () => {
 	}
 };
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
 	let body: unknown;
 
 	try {
@@ -51,13 +51,23 @@ export const POST: RequestHandler = async ({ request }) => {
 	const { leave_name, leave_code, description, is_paid, requires_approval, status } = trimmedBody;
 
 	try {
+		let userId: string | null = null;
+		try {
+			const session = await locals.auth();
+			userId = session?.user?.id ?? null;
+		} catch (authError) {
+			console.warn('Failed to retrieve session from locals.auth():', authError);
+		}
+
 		const data = await createLeaveType({
 			leave_name,
 			leave_code,
 			description,
 			is_paid,
 			requires_approval,
-			status
+			status,
+			created_by: userId,
+			updated_by: userId
 		});
 		return createSuccessResponse('Leave type', data.cuid);
 	} catch (error) {

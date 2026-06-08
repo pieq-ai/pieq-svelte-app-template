@@ -23,7 +23,7 @@ export const GET: RequestHandler = async () => {
 	}
 };
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
 	let body: unknown;
 
 	try {
@@ -88,6 +88,14 @@ export const POST: RequestHandler = async ({ request }) => {
 	console.log('POST /api/leave/policies request payload:', trimmedBody);
 
 	try {
+		let userId: string | null = null;
+		try {
+			const session = await locals.auth();
+			userId = session?.user?.id ?? null;
+		} catch (authError) {
+			console.warn('Failed to retrieve session from locals.auth():', authError);
+		}
+
 		const data = await createLeavePolicy({
 			leave_type_cuid,
 			employment_type_cuids,
@@ -101,7 +109,9 @@ export const POST: RequestHandler = async ({ request }) => {
 			allow_half_day,
 			gender_specific,
 			applicable_gender,
-			status
+			status,
+			created_by: userId,
+			updated_by: userId
 		});
 		console.log('POST /api/leave/policies success, created policy:', data);
 		return createSuccessResponse('Leave policy', data.cuid);

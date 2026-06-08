@@ -17,12 +17,15 @@ export interface CreateHolidayInput {
 	holiday_name: unknown;
 	holiday_date: unknown;
 	holiday_type: unknown;
+	created_by?: string | null;
+	updated_by?: string | null;
 }
 
 export interface UpdateHolidayInput {
 	holiday_name?: unknown;
 	holiday_date?: unknown;
 	holiday_type?: unknown;
+	updated_by?: string | null;
 }
 
 function validateHolidayName(raw: unknown): string {
@@ -160,7 +163,7 @@ export async function createHoliday(input: CreateHolidayInput) {
 		);
 	}
 
-	return holidayDao.create({ holiday_name, holiday_date, holiday_type });
+	return holidayDao.create({ holiday_name, holiday_date, holiday_type, created_by: input.created_by, updated_by: input.updated_by });
 }
 
 export async function updateHoliday(cuid: string, input: UpdateHolidayInput) {
@@ -199,7 +202,7 @@ export async function updateHoliday(cuid: string, input: UpdateHolidayInput) {
 		);
 	}
 
-	return holidayDao.update(cuid, { holiday_name, holiday_date, holiday_type });
+	return holidayDao.update(cuid, { holiday_name, holiday_date, holiday_type, updated_by: input.updated_by });
 }
 
 export async function deleteHoliday(cuid: string) {

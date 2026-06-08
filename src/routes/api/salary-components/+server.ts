@@ -21,7 +21,7 @@ export async function GET() {
 	}
 }
 
-export async function POST({ request }) {
+export async function POST({ request, locals }) {
 	try {
 		const body = await request.json();
 
@@ -37,8 +37,20 @@ export async function POST({ request }) {
 			);
 		}
 
+		// Retrieve authenticated user ID
+		let userId: string | null = null;
+		try {
+			const session = await locals.auth();
+			userId = session?.user?.id ?? null;
+		} catch (authError) {
+			console.warn('Failed to retrieve session from locals.auth():', authError);
+		}
+
 		// Service creation step
-		const created = await service.createComponent(validatedData);
+		const created = await service.createComponent({
+			...validatedData,
+			created_by: userId
+		});
 
 		return json(
 			{
@@ -64,7 +76,7 @@ export async function POST({ request }) {
 	}
 }
 
-export async function PUT({ url, request }) {
+export async function PUT({ url, request, locals }) {
 	try {
 		const cuid = url.searchParams.get('salaryComponentCuid');
 		if (!cuid) {
@@ -86,8 +98,20 @@ export async function PUT({ url, request }) {
 			);
 		}
 
+		// Retrieve authenticated user ID
+		let userId: string | null = null;
+		try {
+			const session = await locals.auth();
+			userId = session?.user?.id ?? null;
+		} catch (authError) {
+			console.warn('Failed to retrieve session from locals.auth():', authError);
+		}
+
 		// Service update step
-		const updated = await service.updateComponent(cuid, validatedData);
+		const updated = await service.updateComponent(cuid, {
+			...validatedData,
+			updated_by: userId
+		});
 
 		return json({
 			data: {

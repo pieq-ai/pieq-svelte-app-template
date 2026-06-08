@@ -20,6 +20,8 @@ export interface CreateLeaveTypeInput {
 	is_paid?: unknown;
 	requires_approval?: unknown;
 	status?: unknown;
+	created_by?: string | null;
+	updated_by?: string | null;
 }
 
 export interface UpdateLeaveTypeInput {
@@ -29,6 +31,7 @@ export interface UpdateLeaveTypeInput {
 	is_paid?: unknown;
 	requires_approval?: unknown;
 	status?: unknown;
+	updated_by?: string | null;
 }
 
 function validateLeaveName(raw: unknown): string {
@@ -129,7 +132,9 @@ export async function createLeaveType(input: CreateLeaveTypeInput) {
 		description,
 		is_paid,
 		requires_approval,
-		status
+		status,
+		created_by: input.created_by,
+		updated_by: input.updated_by
 	});
 }
 
@@ -171,7 +176,8 @@ export async function updateLeaveType(cuid: string, input: UpdateLeaveTypeInput)
 		description,
 		is_paid,
 		requires_approval,
-		status
+		status,
+		updated_by: input.updated_by
 	});
 }
 

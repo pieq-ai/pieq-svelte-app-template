@@ -23,7 +23,7 @@ vi.mock('$lib/server/dao/holiday.dao.js', () => {
 	};
 });
 
-const auditFields = { created_at: new Date(), updated_at: new Date() };
+const auditFields = { created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null };
 
 describe('holiday service', () => {
 	beforeEach(() => {

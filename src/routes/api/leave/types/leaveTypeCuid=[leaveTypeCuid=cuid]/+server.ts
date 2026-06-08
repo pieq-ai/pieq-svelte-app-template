@@ -28,7 +28,7 @@ export const GET: RequestHandler = async ({ params }) => {
 	}
 };
 
-export const PUT: RequestHandler = async ({ params, request }) => {
+export const PUT: RequestHandler = async ({ params, request, locals }) => {
 	const { leaveTypeCuid } = params;
 	let body: unknown;
 
@@ -57,13 +57,22 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 	const { leave_name, leave_code, description, is_paid, requires_approval, status } = trimmedBody;
 
 	try {
+		let userId: string | null = null;
+		try {
+			const session = await locals.auth();
+			userId = session?.user?.id ?? null;
+		} catch (authError) {
+			console.warn('Failed to retrieve session from locals.auth():', authError);
+		}
+
 		const data = await updateLeaveType(leaveTypeCuid, {
 			leave_name,
 			leave_code,
 			description,
 			is_paid,
 			requires_approval,
-			status
+			status,
+			updated_by: userId
 		});
 		return updateSuccessResponse('Leave type', data.cuid);
 	} catch (error) {
@@ -76,7 +85,7 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 	}
 };
 
-export const DELETE: RequestHandler = async ({ params }) => {
+export const DELETE: RequestHandler = async ({ params, locals }) => {
 	const { leaveTypeCuid } = params;
 
 	try {
@@ -85,8 +94,17 @@ export const DELETE: RequestHandler = async ({ params }) => {
 			return errorResponse('Leave type not found', 404);
 		}
 
+		let userId: string | null = null;
+		try {
+			const session = await locals.auth();
+			userId = session?.user?.id ?? null;
+		} catch (authError) {
+			console.warn('Failed to retrieve session from locals.auth():', authError);
+		}
+
 		const updated = await updateLeaveType(leaveTypeCuid, {
-			status: !existing.status
+			status: !existing.status,
+			updated_by: userId
 		});
 
 		const message = updated.status ? 'Leave type reactivated successfully' : 'Leave type deactivated successfully';

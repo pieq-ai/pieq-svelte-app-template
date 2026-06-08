@@ -16,6 +16,8 @@ export interface CreateLeavePolicyInput {
 	gender_specific?: unknown;
 	applicable_gender?: unknown;
 	status?: unknown;
+	created_by?: string | null;
+	updated_by?: string | null;
 }
 
 export interface UpdateLeavePolicyInput {
@@ -32,6 +34,7 @@ export interface UpdateLeavePolicyInput {
 	gender_specific?: unknown;
 	applicable_gender?: unknown;
 	status?: unknown;
+	updated_by?: string | null;
 }
 
 async function validateAndMapPolicyInput(
@@ -215,7 +218,11 @@ export async function getLeavePolicyByCuid(cuid: string) {
 
 export async function createLeavePolicy(input: CreateLeavePolicyInput) {
 	const { policyData, employmentTypeCuids } = await validateAndMapPolicyInput(input);
-	return leavePolicyDao.create(policyData, employmentTypeCuids);
+	return leavePolicyDao.create({
+		...policyData,
+		created_by: input.created_by,
+		updated_by: input.updated_by
+	}, employmentTypeCuids);
 }
 
 export async function updateLeavePolicy(cuid: string, input: UpdateLeavePolicyInput) {
@@ -252,7 +259,10 @@ export async function updateLeavePolicy(cuid: string, input: UpdateLeavePolicyIn
 		existingPolicy.cuid
 	);
 
-	return leavePolicyDao.update(cuid, policyData, employmentTypeCuids);
+	return leavePolicyDao.update(cuid, {
+		...policyData,
+		updated_by: input.updated_by
+	}, employmentTypeCuids);
 }
 
 export async function deleteLeavePolicy(cuid: string) {

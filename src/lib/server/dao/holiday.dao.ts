@@ -4,6 +4,8 @@ export interface CreateHolidayData {
 	holiday_name: string;
 	holiday_date: Date;
 	holiday_type: string;
+	created_by?: string | null;
+	updated_by?: string | null;
 }
 
 export async function list() {
@@ -17,7 +19,9 @@ export async function create(data: CreateHolidayData) {
 		data: {
 			holiday_name: data.holiday_name,
 			holiday_date: data.holiday_date,
-			holiday_type: data.holiday_type
+			holiday_type: data.holiday_type,
+			created_by: data.created_by,
+			updated_by: data.updated_by
 		}
 	});
 }

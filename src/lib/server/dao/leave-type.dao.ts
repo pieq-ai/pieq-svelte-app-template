@@ -7,6 +7,8 @@ export interface CreateLeaveTypeData {
 	is_paid: boolean;
 	requires_approval: boolean;
 	status: boolean;
+	created_by?: string | null;
+	updated_by?: string | null;
 }
 
 export async function list() {

@@ -30,7 +30,7 @@ export const GET: RequestHandler = async ({ params }) => {
 	}
 };
 
-export const PUT: RequestHandler = async ({ params, request }) => {
+export const PUT: RequestHandler = async ({ params, request, locals }) => {
 	const { holidayCuid } = params;
 	let body: unknown;
 
@@ -54,7 +54,20 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 	const { holiday_name, holiday_date, holiday_type } = trimmedBody;
 
 	try {
-		const holiday = await updateHoliday(holidayCuid, { holiday_name, holiday_date, holiday_type });
+		let userId: string | null = null;
+		try {
+			const session = await locals.auth();
+			userId = session?.user?.id ?? null;
+		} catch (authError) {
+			console.warn('Failed to retrieve session from locals.auth():', authError);
+		}
+
+		const holiday = await updateHoliday(holidayCuid, {
+			holiday_name,
+			holiday_date,
+			holiday_type,
+			updated_by: userId
+		});
 		return updateSuccessResponse('Holiday', holiday.cuid);
 	} catch (error) {
 		if (error instanceof HolidayValidationError) {

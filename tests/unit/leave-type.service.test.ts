@@ -21,7 +21,7 @@ vi.mock('$lib/server/dao/leave-type.dao.js', () => {
 	};
 });
 
-const auditFields = { created_at: new Date(), updated_at: new Date() };
+const auditFields = { created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null };
 
 describe('leave type service', () => {
 	beforeEach(() => {

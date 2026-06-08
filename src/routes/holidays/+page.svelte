@@ -930,9 +930,9 @@
 		>
 			{#if isSubmitting}
 				<LoaderCircleIcon class="size-4 animate-spin" />
-				{editCuid ? 'Updating...' : 'Saving...'}
+				Saving...
 			{:else}
-				{editCuid ? 'Update' : 'Save'}
+				Save
 			{/if}
 		</Button>
 	</div>

@@ -29,7 +29,7 @@ export const GET: RequestHandler = async ({ params }) => {
 	}
 };
 
-export const PUT: RequestHandler = async ({ params, request }) => {
+export const PUT: RequestHandler = async ({ params, request, locals }) => {
 	const { leavePolicyCuid } = params;
 	let body: unknown;
 
@@ -95,6 +95,14 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 	console.log(`PUT /api/leave/policies/leavePolicyCuid=${leavePolicyCuid} request payload:`, trimmedBody);
 
 	try {
+		let userId: string | null = null;
+		try {
+			const session = await locals.auth();
+			userId = session?.user?.id ?? null;
+		} catch (authError) {
+			console.warn('Failed to retrieve session from locals.auth():', authError);
+		}
+
 		const data = await updateLeavePolicy(leavePolicyCuid, {
 			leave_type_cuid,
 			employment_type_cuids,
@@ -108,7 +116,8 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 			allow_half_day,
 			gender_specific,
 			applicable_gender,
-			status
+			status,
+			updated_by: userId
 		});
 		console.log(`PUT /api/leave/policies/leavePolicyCuid=${leavePolicyCuid} success, updated policy:`, data);
 		return updateSuccessResponse('Leave policy', data.cuid);
@@ -130,7 +139,7 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 	}
 };
 
-export const DELETE: RequestHandler = async ({ params }) => {
+export const DELETE: RequestHandler = async ({ params, locals }) => {
 	const { leavePolicyCuid } = params;
 
 	try {
@@ -139,8 +148,17 @@ export const DELETE: RequestHandler = async ({ params }) => {
 			return errorResponse('Leave policy not found', 404);
 		}
 
+		let userId: string | null = null;
+		try {
+			const session = await locals.auth();
+			userId = session?.user?.id ?? null;
+		} catch (authError) {
+			console.warn('Failed to retrieve session from locals.auth():', authError);
+		}
+
 		const updated = await updateLeavePolicy(leavePolicyCuid, {
-			status: !existing.status
+			status: !existing.status,
+			updated_by: userId
 		});
 
 		const message = updated.status ? 'Leave policy reactivated successfully' : 'Leave policy deactivated successfully';

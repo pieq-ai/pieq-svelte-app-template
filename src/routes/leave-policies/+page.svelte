@@ -1383,9 +1383,9 @@
 		>
 			{#if isSubmitting}
 				<LoaderCircleIcon class="size-4 animate-spin" />
-				{editUuid ? 'Updating...' : 'Saving...'}
+				Saving...
 			{:else}
-				{editUuid ? 'Update' : 'Save'}
+				Save
 			{/if}
 		</Button>
 	</div>
