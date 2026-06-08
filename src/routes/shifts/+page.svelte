@@ -515,12 +515,6 @@
 									<TableActions
 										canEdit={true}
 										onEdit={() => openEditModal(shift)}
-										customActions={[
-											{
-												label: shift.status ? 'Deactivate' : 'Activate',
-												onClick: () => shift.status ? deactivateShift(shift.cuid) : activateShift(shift.cuid)
-											}
-										]}
 									/>
 								</TableCell>
 							</TableRow>

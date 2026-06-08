@@ -875,12 +875,6 @@
                   <TableActions
                     canEdit={true}
                     onEdit={() => openEdit(loc)}
-                    customActions={[
-                      {
-                        label: loc.is_active ? 'Deactivate' : 'Activate',
-                        onClick: () => loc.is_active ? deactivateLocation(loc.cuid) : activateLocation(loc.cuid)
-                      }
-                    ]}
                   />
                 </TableCell>
               </TableRow>
