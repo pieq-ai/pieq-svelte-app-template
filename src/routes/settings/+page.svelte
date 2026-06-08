@@ -11,7 +11,6 @@
 	<div class="space-y-1 border-b border-border pb-6">
 		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Settings</h1>
 	</div>
-
 	<Card>
 		<CardHeader>
 			<CardTitle class="flex items-center gap-2">

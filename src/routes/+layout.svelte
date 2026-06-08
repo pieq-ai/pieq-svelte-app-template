@@ -16,6 +16,7 @@
 	import SettingsIcon from '@lucide/svelte/icons/settings';
 	import UserRoundIcon from '@lucide/svelte/icons/user-round';
 	import UsersRoundIcon from '@lucide/svelte/icons/users-round';
+	import WalletIcon from '@lucide/svelte/icons/wallet';
 
 	let { children, data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);
@@ -26,6 +27,7 @@
 		{ label: 'Employee', href: resolve('/employees'), icon: UsersRoundIcon },
 		{ label: 'Department', href: resolve('/departments'), icon: Building2Icon },
 		{ label: 'Designation', href: resolve('/designations'), icon: UserRoundIcon },
+		{ label: 'Salary Components', href: resolve('/salary-components'), icon: WalletIcon },
 		{ label: 'System Roles', href: resolve('/system-roles'), icon: ShieldCheckIcon },
 		{ label: 'Permissions', href: resolve('/permissions'), icon: KeyRoundIcon },
 		{ label: 'Role Permissions', href: resolve('/role-permissions'), icon: LinkIcon }
@@ -85,7 +87,7 @@
 				<MenuIcon class="size-4" />
 			</Button>
 		</div>
-
+		<!-- Main nav -->
 		<nav class="flex flex-1 flex-col gap-1 px-3 py-4">
 			{#if authenticatedUser}
 				{#each protectedNavItems as item (item.href)}
@@ -119,7 +121,6 @@
 				</Button>
 			{/if}
 		</nav>
-
 		<div class="space-y-2 border-t border-white/10 p-3">
 			{#if authenticatedUser}
 				{@const isSettingsActive = $page.url.pathname.startsWith('/settings')}
