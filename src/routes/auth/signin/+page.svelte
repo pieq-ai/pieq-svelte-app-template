@@ -10,7 +10,7 @@
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui';
+	} from '$lib/components';
 
 	let { data } = $props();
 

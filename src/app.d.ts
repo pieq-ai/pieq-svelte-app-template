@@ -9,7 +9,6 @@ declare global {
 			auth: () => Promise<Session | null>;
 			user: User | null;
 			roles: string[];
-			session?: Session | null;
 		}
 
 		interface PageData {

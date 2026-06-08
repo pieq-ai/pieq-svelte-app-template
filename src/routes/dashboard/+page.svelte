@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Badge, Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui';
+	import { Badge, Card, CardContent, CardHeader, CardTitle } from '$lib/components';
 
 	let { data } = $props();
 </script>
