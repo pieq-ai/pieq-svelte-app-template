@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client"
   output   = "../src/lib/generated/prisma"
@@ -8,87 +7,12 @@ datasource db {
   provider = "postgresql"
 }
 
+model Employee {
+  id   Int    @id @default(autoincrement())
+  uuid String @unique @default(uuid())
+  name String
+  age  Int
 
-model LeaveType {
-  id                Int      @id @default(autoincrement())
-  cuid              String   @unique @default(cuid())
-  leave_name        String   @unique @db.VarChar(100)
-  leave_code        String   @unique @db.VarChar(20)
-  description       String?  @db.Text
-  is_paid           Boolean  @default(true)
-  requires_approval Boolean  @default(true)
-  status            Boolean  @default(true)
-  created_at        DateTime @default(now()) @db.Timestamptz(3)
-  updated_at        DateTime @default(now()) @updatedAt @db.Timestamptz(3)
-
-  @@map("leave_types")
-}
-
-model LeavePolicy {
-  id                       Int                    @id @default(autoincrement())
-  cuid                     String                 @unique @default(cuid())
-
-  leave_type_cuid          String                 @db.Text
-
-  annual_limit             Decimal                @db.Decimal(5, 1)
-  max_per_month            Decimal?               @db.Decimal(4, 1)
-  carry_forward_allowed    Boolean                @default(false)
-  max_carry_forward_days   Decimal?               @db.Decimal(4, 1)
-  document_required        Boolean                @default(false)
-  document_required_after_days Int?
-  min_service_days         Int                    @default(0)
-  allow_half_day           Boolean                @default(false)
-  gender_specific          Boolean                @default(false)
-  applicable_gender        String?
-  status                   Boolean                @default(true)
-  deactivated_by_leave_type Boolean                @default(false)
-  created_at               DateTime               @default(now()) @db.Timestamptz(3)
-  updated_at               DateTime               @default(now()) @updatedAt @db.Timestamptz(3)
-
-  @@index([leave_type_cuid])
-
-  @@map("leave_policies")
-}
-
-model HolidayCalendar {
-  id             Int              @id @default(autoincrement())
-  cuid           String           @unique @default(cuid())
-  holiday_name   String           @db.VarChar(200)
-  holiday_date   DateTime         @db.Date
-  holiday_type   String
-  created_at     DateTime         @default(now()) @db.Timestamptz(3)
-  updated_at     DateTime         @default(now()) @updatedAt @db.Timestamptz(3)
-
-  @@unique([holiday_name, holiday_date])
-
-  @@map("holiday_calendars")
-}
-
-model EmploymentType {
-  id                Int      @id @default(autoincrement())
-  cuid              String   @unique @default(cuid())
-  employment_name   String   @unique @db.VarChar(50)
-  status            Boolean  @default(true)
-  created_at        DateTime @default(now()) @db.Timestamptz(3)
-  updated_at        DateTime @default(now()) @updatedAt @db.Timestamptz(3)
-
-  @@map("employment_types")
-}
-
-model LeavePolicyEmploymentType {
-  id                     Int      @id @default(autoincrement())
-  cuid                   String   @unique @default(cuid())
-
-  leave_policy_cuid      String   @db.Text
-  employment_type_cuid   String   @db.Text
-  created_at             DateTime @default(now()) @db.Timestamptz(3)
-  updated_at             DateTime @default(now()) @updatedAt @db.Timestamptz(3)
-  
-  @@unique([leave_policy_cuid, employment_type_cuid])
-
-  @@index([leave_policy_cuid])
-  @@index([employment_type_cuid])
-
-  @@map("leave_policy_employment_types")
+  @@map("employees")
 }
 
