@@ -119,29 +119,6 @@ model CompanyLocation {
   @@map("company_locations")
 }
 
-model State {
-  id Int @id @default(autoincrement())
-
-  cuid String @unique @default(cuid())
-
-  country_cuid String @db.VarChar(50)
-
-  state_name String @db.VarChar(100)
-
-  @@unique([country_cuid, state_name])
-
-  @@map("states")
-}
-
-model Country {
-  id Int @id @default(autoincrement())
-
-  cuid String @unique @default(cuid())
-
-  country_name String @unique @db.VarChar(100)
-
-  @@map("countries")
-}
 
 model Employee {
   id   Int    @id @default(autoincrement())
@@ -182,7 +159,7 @@ model Department {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("department")
+  @@map("departments")
 }
 
 model Permissions {
@@ -218,7 +195,7 @@ model RolePermission {
 
   @@unique([system_role_cuid, permission_cuid])
   @@index([cuid])
-  @@map("role_permission")
+  @@map("role_permissions")
 }
 
 model BloodGroup {
@@ -234,7 +211,7 @@ model BloodGroup {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("blood_group")
+  @@map("blood_groups")
 }
 
 model Designation {
@@ -250,7 +227,7 @@ model Designation {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("designation")
+  @@map("designations")
 }
 
 model PayGrade {
@@ -268,7 +245,7 @@ model PayGrade {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("pay_grade")
+  @@map("pay_grades")
 }
 
 model Nationality {
@@ -286,7 +263,7 @@ model Nationality {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("nationality")
+  @@map("nationalities")
 }
 
 model EmploymentType {
@@ -304,7 +281,7 @@ model EmploymentType {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("employment_type")
+  @@map("employment_types")
 }
 
 model RelationType {
@@ -322,7 +299,7 @@ model RelationType {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("relation_type")
+  @@map("relation_types")
 }
 
 model DocumentType {
@@ -340,7 +317,7 @@ model DocumentType {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("document_type")
+  @@map("document_types")
 }
 
 model State {
@@ -360,7 +337,7 @@ model State {
   @@unique([country_cuid, state_name])
   @@index([country_cuid])
   @@index([cuid])
-  @@map("state")
+  @@map("states")
 }
 
 model Country {
@@ -376,7 +353,7 @@ model Country {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("country")
+  @@map("countries")
 }
 
 model Skills {
@@ -412,7 +389,7 @@ model AttendanceSource {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("attendance_source")
+  @@map("attendance_sources")
 }
 
 model Languages {

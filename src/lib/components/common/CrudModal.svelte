@@ -82,15 +82,15 @@
 	<div class="fixed inset-0 z-60 flex items-center justify-center bg-[#262626]/70 px-4 py-6">
 		<Card class="w-full max-w-sm">
 			<CardHeader>
-				<CardTitle>Unsaved Changes</CardTitle>
-				<CardDescription>You have unsaved changes. Are you sure you want to close this form?</CardDescription>
+				<CardTitle>Cancel Changes</CardTitle>
+				<CardDescription>Are you sure you want to cancel? All unsaved changes will be lost.</CardDescription>
 			</CardHeader>
 			<div class="flex justify-end gap-2 p-6 pt-0">
-				<Button variant="outline" onclick={() => (showUnsavedConfirm = false)}>Continue Editing</Button>
-				<Button class="bg-danger text-danger-foreground hover:bg-danger/90 focus-visible:ring-danger/50 focus-visible:border-danger" onclick={() => {
+				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => {
 					showUnsavedConfirm = false;
 					onClose();
-				}}>Discard Changes</Button>
+				}}>Cancel</Button>
+				<Button variant="outline" onclick={() => (showUnsavedConfirm = false)}>Continue Editing</Button>
 			</div>
 		</Card>
 	</div>

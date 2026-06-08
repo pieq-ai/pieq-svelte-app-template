@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { Card, CardHeader, CardTitle, CardContent, Badge } from '$lib/components';
 
 	let { data } = $props();
 </script>
@@ -56,11 +57,12 @@
 		</Card>
 	</div>
 
-{#if data.showAdminSection}
-	<div class="mt-4 bg-card border border-border rounded-xl p-6 shadow-sm">
-		<h2 class="text-base font-semibold text-foreground mb-3">Admin <span class="ml-2 px-2 py-0.5 bg-[#8C3C3C]/10 text-[#8C3C3C] rounded-full text-[10px] font-bold uppercase">Restricted</span></h2>
-		<p class="text-sm text-muted-foreground m-0">
-			Visible only when the Keycloak token includes the <code class="bg-muted px-1.5 py-0.5 rounded text-xs">admin</code> role.
-		</p>
-	</div>
-{/if}
+	{#if data.showAdminSection}
+		<div class="mt-4 bg-card border border-border rounded-xl p-6 shadow-sm">
+			<h2 class="text-base font-semibold text-foreground mb-3">Admin <span class="ml-2 px-2 py-0.5 bg-[#8C3C3C]/10 text-[#8C3C3C] rounded-full text-[10px] font-bold uppercase">Restricted</span></h2>
+			<p class="text-sm text-muted-foreground m-0">
+				Visible only when the Keycloak token includes the <code class="bg-muted px-1.5 py-0.5 rounded text-xs">admin</code> role.
+			</p>
+		</div>
+	{/if}
+</div>

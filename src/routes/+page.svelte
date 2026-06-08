@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import LogInIcon from '@lucide/svelte/icons/log-in';
 	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
+	import { Button } from '$lib/components';
 
 	let { data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);

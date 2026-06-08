@@ -2,7 +2,7 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg'
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
-	import { Button } from '$lib/components';
+	import { Button, ConfirmationModal } from '$lib/components';
 	import Toaster from '$lib/components/ui/toaster.svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
@@ -18,6 +18,9 @@
 	import UserRoundIcon from '@lucide/svelte/icons/user-round';
 	import UsersRoundIcon from '@lucide/svelte/icons/users-round';
 	import WalletIcon from '@lucide/svelte/icons/wallet';
+	import UserCheckIcon from '@lucide/svelte/icons/user-check';
+	import MapPinIcon from '@lucide/svelte/icons/map-pin';
+	import ClockIcon from '@lucide/svelte/icons/clock';
 
 	let { children, data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);
@@ -28,6 +31,9 @@
 		{ label: 'Employee', href: resolve('/employees'), icon: UsersRoundIcon },
 		{ label: 'Department', href: resolve('/departments'), icon: Building2Icon },
 		{ label: 'Designation', href: resolve('/designations'), icon: UserRoundIcon },
+		{ label: 'Roles', href: resolve('/roles'), icon: UserCheckIcon },
+		{ label: 'Shifts', href: resolve('/shifts'), icon: ClockIcon },
+		{ label: 'Locations', href: resolve('/organization_locations'), icon: MapPinIcon },
 		{ label: 'Salary Components', href: resolve('/salary-components'), icon: WalletIcon },
 		{ label: 'System Roles', href: resolve('/system-roles'), icon: ShieldCheckIcon },
 		{ label: 'Permissions', href: resolve('/permissions'), icon: KeyRoundIcon },
@@ -166,5 +172,4 @@
 	</main>
 </div>
 
-<ToastContainer />
 <ConfirmationModal />

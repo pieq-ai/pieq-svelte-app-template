@@ -9,19 +9,44 @@
     updateLocation,
     deleteLocation,
     activateLocation as activateLocationApi,
+    createCountry,
+    createState,
   } from "$lib/api/locations";
   import { ApiError } from "$lib/api/local";
   import PlusIcon from "@lucide/svelte/icons/plus";
-  import Pencil2Icon from "@lucide/svelte/icons/pencil";
-  import Trash2Icon from "@lucide/svelte/icons/trash-2";
-  import MapPinIcon from "@lucide/svelte/icons/map-pin";
   import LoaderCircleIcon from "@lucide/svelte/icons/loader-circle";
+  import ArrowUpIcon from "@lucide/svelte/icons/arrow-up";
+  import ArrowDownIcon from "@lucide/svelte/icons/arrow-down";
+  import ArrowUpDownIcon from "@lucide/svelte/icons/arrow-up-down";
+  import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
   import CheckIcon from "@lucide/svelte/icons/check";
-  import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
-  import { Modal } from "$lib/components";
-  import { toast } from "$lib/toast.svelte.js";
+  import { toast } from "$lib/toast";
   import { confirmation } from "$lib/confirmation.svelte.js";
-  import { onDestroy } from "svelte";
+  import { createDirtyChecker } from "$lib/utils";
+  import { UI_CONSTANTS } from "$lib/constants";
+  import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
+  import {
+    Badge,
+    Button,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    Input,
+    Label,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+    CrudModal,
+    TableActions,
+    FilterDropdown,
+    StatusDropdown,
+    Pagination,
+    SearchInput
+  } from "$lib/components";
 
   let locations = $state<CompanyLocation[]>([]);
   let page = $state(1);
@@ -31,34 +56,6 @@
 
   // Modal state
   let showForm = $state(false);
-
-  function handleBackdropClick(e: MouseEvent) {
-    if (
-      e.target instanceof HTMLElement &&
-      e.target.classList.contains("modal-overlay")
-    ) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
-  }
-
-  function handleKeyDownGlobal(e: KeyboardEvent) {
-    if (e.key === "Enter" && showConfirmation) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  }
-
-  $effect(() => {
-    if (typeof window !== "undefined" && showForm) {
-      window.addEventListener("click", handleBackdropClick, true);
-      window.addEventListener("keydown", handleKeyDownGlobal, true);
-      return () => {
-        window.removeEventListener("click", handleBackdropClick, true);
-        window.removeEventListener("keydown", handleKeyDownGlobal, true);
-      };
-    }
-  });
 
   let editLocation = $state<CompanyLocation | null>(null);
   let formName = $state("");
@@ -73,92 +70,32 @@
   let formError = $state("");
   let formLoading = $state(false);
 
-  let showConfirmation = $state(false);
+  const dirtyChecker = createDirtyChecker<{
+    location_name: string;
+    address_line1: string;
+    address_line2: string;
+    city: string;
+    state_cuid: string;
+    country_cuid: string;
+    pin_code: string;
+    timezone: string;
+    status: boolean;
+  }>();
 
-  let originalName = "";
-  let originalAddress1 = "";
-  let originalAddress2 = "";
-  let originalCity = "";
-  let originalStateCuid = "";
-  let originalCountryCuid = "";
-  let originalPinCode = "";
-  let originalTimezone = "";
-  let originalStatus = true;
-
-  function captureOriginalState() {
-    originalName = editLocation ? editLocation.location_name : "";
-    originalAddress1 = editLocation ? editLocation.address_line1 : "";
-    originalAddress2 = editLocation ? (editLocation.address_line2 ?? "") : "";
-    originalCity = editLocation ? editLocation.city : "";
-    originalStateCuid = editLocation ? editLocation.state_cuid : "";
-    originalCountryCuid = editLocation ? editLocation.country_cuid : "";
-    originalPinCode = editLocation ? editLocation.pin_code : "";
-    originalTimezone = editLocation ? (editLocation.timezone ?? "UTC") : "UTC";
-    originalStatus = editLocation ? editLocation.is_active : true;
-  }
-
-  function resetStateTracking() {
-    originalName = "";
-    originalAddress1 = "";
-    originalAddress2 = "";
-    originalCity = "";
-    originalStateCuid = "";
-    originalCountryCuid = "";
-    originalPinCode = "";
-    originalTimezone = "";
-    originalStatus = true;
-    showConfirmation = false;
-    formError = "";
-  }
-
-  function hasUnsavedChanges(): boolean {
-    return (
-      formName.trim() !== originalName ||
-      formAddress1.trim() !== originalAddress1 ||
-      formAddress2.trim() !== originalAddress2 ||
-      formCity.trim() !== originalCity ||
-      formStateCuid !== originalStateCuid ||
-      formCountryCuid !== originalCountryCuid ||
-      formPinCode.trim() !== originalPinCode ||
-      formTimezone.trim() !== originalTimezone ||
-      formStatus !== originalStatus
-    );
-  }
-
-  function attemptCloseForm() {
-    if (showConfirmation) {
-      showConfirmation = false;
-    } else if (hasUnsavedChanges()) {
-      showConfirmation = true;
-    } else {
-      closeForm();
-    }
-  }
-
-  function discardChanges() {
-    showConfirmation = false;
-    closeForm();
-  }
-
-  function continueEditing() {
-    showConfirmation = false;
-  }
-
-  // Update validation
-  let isUpdateChanged = $derived.by(() => {
-    if (!editLocation) return false;
-    return (
-      formName.trim() !== originalName ||
-      formAddress1.trim() !== originalAddress1 ||
-      formAddress2.trim() !== originalAddress2 ||
-      formCity.trim() !== originalCity ||
-      formStateCuid !== originalStateCuid ||
-      formCountryCuid !== originalCountryCuid ||
-      formPinCode.trim() !== originalPinCode ||
-      formTimezone.trim() !== originalTimezone ||
-      formStatus !== originalStatus
-    );
-  });
+  let isDirty = $derived(
+    showForm &&
+    dirtyChecker.isDirty({
+      location_name: formName.trim(),
+      address_line1: formAddress1.trim(),
+      address_line2: formAddress2.trim(),
+      city: formCity.trim(),
+      state_cuid: formStateCuid,
+      country_cuid: formCountryCuid,
+      pin_code: formPinCode.trim(),
+      timezone: formTimezone.trim(),
+      status: formStatus
+    })
+  );
 
   // Create enablement: enabled once required fields contain any value
   let isCreateEnabled = $derived(
@@ -168,7 +105,7 @@
       formCountryCuid !== "" &&
       formStateCuid !== "" &&
       formPinCode.trim() !== "" &&
-      formTimezone.trim() !== "",
+      formTimezone.trim() !== ""
   );
 
   // Dropdown choices
@@ -176,7 +113,7 @@
   let states = $state<any[]>([]);
 
   let filteredStates = $derived(
-    states.filter((s) => s.country_cuid === formCountryCuid),
+    states.filter((s) => s.country_cuid === formCountryCuid)
   );
 
   async function fetchDropdowns() {
@@ -188,7 +125,7 @@
       toast.error(
         e instanceof ApiError
           ? e.message
-          : "Failed to load countries or states",
+          : "Failed to load countries or states"
       );
     }
   }
@@ -203,100 +140,36 @@
     return state ? state.state_name : stateCuid;
   }
 
-  function formatDate(dateVal: any): string {
-    if (!dateVal) return "N/A";
-    const d = new Date(dateVal);
-    return d.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
-
-  let activeDropdownId = $state<string | null>(null);
-
-  function toggleDropdown(cuid: string, event: MouseEvent) {
-    event.stopPropagation();
-    if (activeDropdownId === cuid) {
-      activeDropdownId = null;
-    } else {
-      activeDropdownId = cuid;
-    }
-  }
-
-  let showStatusDropdown = $state(false);
-  let showCountryDropdown = $state(false);
-  let showStateDropdown = $state(false);
-
-  let showModalCountryDropdown = $state(false);
-  let showModalStateDropdown = $state(false);
-  let showModalStatusDropdown = $state(false);
-
-  function closeDropdowns() {
-    activeDropdownId = null;
-    showStatusDropdown = false;
-    showCountryDropdown = false;
-    showStateDropdown = false;
-    showModalCountryDropdown = false;
-    showModalStateDropdown = false;
-    showModalStatusDropdown = false;
-  }
-  if (typeof window !== "undefined") {
-    window.addEventListener("click", closeDropdowns);
-  }
-  onDestroy(() => {
-    if (typeof window !== "undefined") {
-      window.removeEventListener("click", closeDropdowns);
-    }
-  });
-
   // Filter
-  let filterStatus = $state<"all" | "active" | "inactive">("all");
+  let filterStatus = $state<"all" | boolean>("all");
   let filterCountry = $state<string>("all");
   let filterState = $state<string>("all");
-
-  let selectedStatusLabel = $derived(
-    filterStatus === "all"
-      ? "All"
-      : filterStatus === "active"
-        ? "Active"
-        : "Inactive",
-  );
 
   let selectedCountryLabel = $derived(
     filterCountry === "all"
       ? "All Countries"
       : countries.find((c) => c.cuid === filterCountry)?.country_name ||
-          "All Countries",
+          "All Countries"
   );
 
   let selectedStateLabel = $derived(
     filterState === "all"
       ? "All States"
-      : states.find((s) => s.cuid === filterState)?.state_name || "All States",
+      : states.find((s) => s.cuid === filterState)?.state_name || "All States"
   );
-
-  function handleStatusSelect(val: "all" | "active" | "inactive") {
-    filterStatus = val;
-    showStatusDropdown = false;
-  }
 
   function handleCountrySelect(val: string) {
     filterCountry = val;
-    showCountryDropdown = false;
   }
 
   function handleStateSelect(val: string) {
     filterState = val;
-    showStateDropdown = false;
   }
 
   $effect(() => {
     if (filterCountry !== "all") {
       const activeStates = states.filter(
-        (s) => s.country_cuid === filterCountry,
+        (s) => s.country_cuid === filterCountry
       );
       if (
         filterState !== "all" &&
@@ -327,10 +200,41 @@
     }
   }
 
-  function resetSort() {
-    sortColumn = null;
-    sortDirection = null;
-  }
+  let filteredLocations = $derived.by(() => {
+    let list = locations;
+    if (filterStatus !== "all") {
+      list = locations.filter((loc) => loc.is_active === filterStatus);
+    }
+
+    if (filterCountry !== "all") {
+      list = list.filter((loc) => loc.country_cuid === filterCountry);
+    }
+    if (filterState !== "all") {
+      list = list.filter((loc) => loc.state_cuid === filterState);
+    }
+
+    if (searchQuery.trim() !== "") {
+      const query = searchQuery.toLowerCase().trim();
+      list = list.filter((loc) => {
+        const locName = (loc.location_name ?? "").toLowerCase();
+        const city = (loc.city ?? "").toLowerCase();
+        const stateName = getStateName(loc.state_cuid ?? "").toLowerCase();
+        const countryName = getCountryName(
+          loc.country_cuid ?? ""
+        ).toLowerCase();
+        const pinCode = (loc.pin_code ?? "").toLowerCase();
+
+        return (
+          locName.includes(query) ||
+          city.includes(query) ||
+          stateName.includes(query) ||
+          countryName.includes(query) ||
+          pinCode.includes(query)
+        );
+      });
+    }
+    return list;
+  });
 
   let sortedLocations = $derived.by(() => {
     let list = [...filteredLocations];
@@ -361,15 +265,15 @@
   });
 
   let paginatedLocations = $derived(
-    sortedLocations.slice((page - 1) * limit, page * limit),
+    sortedLocations.slice((page - 1) * limit, page * limit)
   );
 
   let totalLocations = $derived(locations.length);
   let activeLocationsCount = $derived(
-    locations.filter((loc) => loc.is_active).length,
+    locations.filter((loc) => loc.is_active).length
   );
   let inactiveLocationsCount = $derived(
-    locations.filter((loc) => !loc.is_active).length,
+    locations.filter((loc) => !loc.is_active).length
   );
 
   $effect(() => {
@@ -381,48 +285,8 @@
     }
   });
 
-  let filteredLocations = $derived.by(() => {
-    let list = locations;
-    if (filterStatus === "active")
-      list = locations.filter((loc) => loc.is_active);
-    else if (filterStatus === "inactive")
-      list = locations.filter((loc) => !loc.is_active);
-
-    if (filterCountry !== "all") {
-      list = list.filter((loc) => loc.country_cuid === filterCountry);
-    }
-    if (filterState !== "all") {
-      list = list.filter((loc) => loc.state_cuid === filterState);
-    }
-
-    if (searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase().trim();
-      list = list.filter((loc) => {
-        const locName = (loc.location_name ?? "").toLowerCase();
-        const city = (loc.city ?? "").toLowerCase();
-        const stateName = getStateName(loc.state_cuid ?? "").toLowerCase();
-        const countryName = getCountryName(
-          loc.country_cuid ?? "",
-        ).toLowerCase();
-        const pinCode = (loc.pin_code ?? "").toLowerCase();
-
-        return (
-          locName.includes(query) ||
-          city.includes(query) ||
-          stateName.includes(query) ||
-          countryName.includes(query) ||
-          pinCode.includes(query)
-        );
-      });
-    }
-    return list;
-  });
-
   let total = $derived(filteredLocations.length);
   let totalPages = $derived(Math.max(1, Math.ceil(total / limit)));
-  let pageNumbers = $derived(
-    Array.from({ length: totalPages }, (_, i) => i + 1),
-  );
 
   async function fetchLocations() {
     loading = true;
@@ -431,7 +295,7 @@
     } catch (e) {
       console.error("Failed to fetch locations", e);
       toast.error(
-        e instanceof ApiError ? e.message : "Failed to load locations",
+        e instanceof ApiError ? e.message : "Failed to load locations"
       );
     } finally {
       loading = false;
@@ -450,7 +314,17 @@
     formTimezone = "UTC";
     formStatus = true;
     formError = "";
-    captureOriginalState();
+    dirtyChecker.snapshot({
+      location_name: "",
+      address_line1: "",
+      address_line2: "",
+      city: "",
+      state_cuid: "",
+      country_cuid: "",
+      pin_code: "",
+      timezone: "UTC",
+      status: true
+    });
     showForm = true;
   }
 
@@ -466,7 +340,17 @@
     formTimezone = loc.timezone ?? "UTC";
     formStatus = loc.is_active;
     formError = "";
-    captureOriginalState();
+    dirtyChecker.snapshot({
+      location_name: loc.location_name,
+      address_line1: loc.address_line1 ?? "",
+      address_line2: loc.address_line2 ?? "",
+      city: loc.city ?? "",
+      state_cuid: loc.state_cuid ?? "",
+      country_cuid: loc.country_cuid ?? "",
+      pin_code: loc.pin_code ?? "",
+      timezone: loc.timezone ?? "UTC",
+      status: loc.is_active
+    });
     showForm = true;
   }
 
@@ -482,10 +366,10 @@
     formTimezone = "";
     formError = "";
     editLocation = null;
-    showModalCountryDropdown = false;
-    showModalStateDropdown = false;
-    showModalStatusDropdown = false;
-    resetStateTracking();
+  }
+
+  function attemptCloseForm() {
+    closeForm();
   }
 
   async function submitForm(e: Event) {
@@ -588,7 +472,7 @@
       toast.success(
         isEdit
           ? "Company Location updated successfully"
-          : "Company Location created successfully",
+          : "Company Location created successfully"
       );
     } catch (e) {
       formError = e instanceof ApiError ? e.message : "Something went wrong.";
@@ -613,7 +497,7 @@
           toast.success("Company Location deactivated successfully");
         } catch (e) {
           toast.error(
-            e instanceof ApiError ? e.message : "Failed to deactivate location",
+            e instanceof ApiError ? e.message : "Failed to deactivate location"
           );
         }
       },
@@ -634,22 +518,107 @@
           toast.success("Company Location activated successfully");
         } catch (e) {
           toast.error(
-            e instanceof ApiError ? e.message : "Failed to activate location",
+            e instanceof ApiError ? e.message : "Failed to activate location"
           );
         }
       },
     });
   }
 
-  async function prevPage() {
-    if (page > 1) {
-      page -= 1;
+  // Add Country / State Modal states
+  let showAddCountry = $state(false);
+  let showAddState = $state(false);
+  let newCountryName = $state("");
+  let newStateName = $state("");
+  let addCountryError = $state("");
+  let addStateError = $state("");
+  let addCountryLoading = $state(false);
+  let addStateLoading = $state(false);
+
+  function openAddCountryModal() {
+    newCountryName = "";
+    addCountryError = "";
+    showAddCountry = true;
+  }
+
+  function openAddStateModal() {
+    if (!formCountryCuid) {
+      toast.error("Please select a country first");
+      return;
+    }
+    newStateName = "";
+    addStateError = "";
+    showAddState = true;
+  }
+
+  async function handleAddCountrySubmit(e: Event) {
+    e.preventDefault();
+    const nameTrimmed = newCountryName.trim();
+    if (!nameTrimmed) {
+      addCountryError = "Country name is required.";
+      return;
+    }
+    if (nameTrimmed.length < 2) {
+      addCountryError = "Country name must be at least 2 characters.";
+      return;
+    }
+    if (nameTrimmed.length > 255) {
+      addCountryError = "Country name exceeds maximum length of 255 characters.";
+      return;
+    }
+
+    addCountryLoading = true;
+    addCountryError = "";
+    try {
+      const result = await createCountry(nameTrimmed);
+      await fetchDropdowns();
+      formCountryCuid = result.cuid;
+      formStateCuid = "";
+      showAddCountry = false;
+      newCountryName = "";
+      toast.success("Country created successfully");
+    } catch (e) {
+      addCountryError = e instanceof ApiError ? e.message : "Failed to create country.";
+      toast.error(addCountryError);
+    } finally {
+      addCountryLoading = false;
     }
   }
 
-  async function nextPage() {
-    if (page < totalPages) {
-      page += 1;
+  async function handleAddStateSubmit(e: Event) {
+    e.preventDefault();
+    const nameTrimmed = newStateName.trim();
+    if (!nameTrimmed) {
+      addStateError = "State name is required.";
+      return;
+    }
+    if (nameTrimmed.length < 2) {
+      addStateError = "State name must be at least 2 characters.";
+      return;
+    }
+    if (nameTrimmed.length > 255) {
+      addStateError = "State name exceeds maximum length of 255 characters.";
+      return;
+    }
+    if (!formCountryCuid) {
+      addStateError = "Please select a country first.";
+      return;
+    }
+
+    addStateLoading = true;
+    addStateError = "";
+    try {
+      const result = await createState(nameTrimmed, formCountryCuid);
+      await fetchDropdowns();
+      formStateCuid = result.cuid;
+      showAddState = false;
+      newStateName = "";
+      toast.success("State created successfully");
+    } catch (e) {
+      addStateError = e instanceof ApiError ? e.message : "Failed to create state.";
+      toast.error(addStateError);
+    } finally {
+      addStateLoading = false;
     }
   }
 
@@ -660,1364 +629,508 @@
 </script>
 
 <svelte:head>
-  <title>Locations – PieQ HRMS</title>
+  <title>Locations</title>
 </svelte:head>
 
-<!-- Page header -->
-<div
-  class="flex items-center justify-between mb-5 max-md:flex-col max-md:items-stretch max-md:gap-4"
->
-  <div>
-    <h1 class="text-3xl font-bold tracking-tight text-foreground m-0">
-      Locations
-    </h1>
+<div class="w-full space-y-6 px-1 py-0">
+  <div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
+    <div class="space-y-1">
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Locations</h1>
+    </div>
+    <Button
+      type="button"
+      class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+      onclick={openCreate}
+    >
+      <PlusIcon class="size-4" />
+      Add Location
+    </Button>
   </div>
 
-  <button
-    class="inline-flex items-center gap-1.5 bg-pieq-primary text-white text-[13px] font-semibold px-4 py-2 rounded-lg no-underline transition-[background-color,transform] duration-200 hover:bg-[#a8541f] hover:-translate-y-0.5 active:translate-y-0 cursor-pointer border-none max-md:self-start"
-    onclick={openCreate}
-    id="add-location-btn"
-  >
-    <PlusIcon size={16} />
-    Add Location
-  </button>
-</div>
-<hr class="border-t border-border mb-7" />
-
-<!-- Stats Grid -->
-<div
-  class="grid gap-4 mb-7 grid-cols-[repeat(auto-fit,minmax(180px,1fr))] max-md:grid-cols-[repeat(auto-fit,minmax(150px,1fr))] max-md:gap-3 max-md:mb-5"
->
-  <div class="bg-card border border-border rounded-xl p-6 shadow-sm">
-    <div class="text-xs font-medium text-muted-foreground tracking-wide mb-1.5">
-      Total Locations
-    </div>
-    <div
-      class="text-[36px] font-bold text-foreground leading-none tabular-nums"
-    >
-      {totalLocations}
-    </div>
-  </div>
-  <div class="bg-card border border-border rounded-xl p-6 shadow-sm">
-    <div class="text-xs font-medium text-muted-foreground tracking-wide mb-1.5">
-      Active Locations
-    </div>
-    <div
-      class="text-[36px] font-bold leading-none tabular-nums text-pieq-primary"
-    >
-      {activeLocationsCount}
-    </div>
-  </div>
-  <div class="bg-card border border-border rounded-xl p-6 shadow-sm">
-    <div class="text-xs font-medium text-muted-foreground tracking-wide mb-1.5">
-      Inactive Locations
-    </div>
-    <div
-      class="text-[36px] font-bold leading-none tabular-nums text-pieq-tertiary"
-    >
-      {inactiveLocationsCount}
-    </div>
-  </div>
-</div>
-
-<!-- Toolbar: filter and search -->
-<div
-  class="flex items-center justify-between mb-5 gap-4 w-full max-md:flex-col max-md:items-stretch max-md:gap-3"
->
-  <div class="relative flex-1 flex items-center max-md:w-full">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="lucide lucide-search absolute left-3.5 text-muted-foreground pointer-events-none"
-      ><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg
-    >
-    <input
-      type="text"
-      bind:value={searchQuery}
-      placeholder="Search location, city, pin..."
-      id="location-search-input"
-      class="w-full border border-border bg-card text-foreground text-sm py-2.25 pl-10 pr-3 rounded-xl outline-none transition-all duration-200 shadow-sm focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-      oninput={() => (formError = "")}
-    />
+  <!-- Metrics Cards -->
+  <div class="grid gap-4 sm:grid-cols-3">
+    <Card>
+      <CardHeader class="pb-2">
+        <CardDescription>Total Locations</CardDescription>
+        <CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalLocations}</CardTitle>
+      </CardHeader>
+    </Card>
+    <Card>
+      <CardHeader class="pb-2">
+        <CardDescription>Active Locations</CardDescription>
+        <CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{activeLocationsCount}</CardTitle>
+      </CardHeader>
+    </Card>
+    <Card>
+      <CardHeader class="pb-2">
+        <CardDescription>Inactive Locations</CardDescription>
+        <CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{inactiveLocationsCount}</CardTitle>
+      </CardHeader>
+    </Card>
   </div>
 
-  <div
-    class="flex items-center gap-3 max-md:w-full max-md:justify-between max-md:flex-wrap max-md:gap-2"
-  >
-    <!-- Status Filter -->
-    <div
-      class="flex items-center gap-1.5 relative max-md:w-full max-md:flex-1 max-md:min-w-[110px]"
-    >
-      <button
-        onclick={(e) => {
-          e.stopPropagation();
-          showStatusDropdown = !showStatusDropdown;
-          showCountryDropdown = false;
-          showStateDropdown = false;
-        }}
-        class="bg-card border-[1.5px] border-neutral-300 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground inline-flex items-center justify-between gap-12 min-w-[140px] cursor-pointer transition-all duration-200 outline-none shadow-sm hover:border-neutral-400 focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15 max-md:w-full max-md:min-w-full max-md:gap-3"
-        id="location-filter-select-trigger"
-      >
-        <span>{selectedStatusLabel}</span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="lucide lucide-funnel"
-          style="color:#737373"
-          ><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg
-        >
-      </button>
+  <div class="space-y-3">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <SearchInput id="search_locations" name="search_locations" bind:value={searchQuery} oninput={() => (page = 1)} placeholder="Search by location, city, pin..." />
+      <FilterDropdown value={filterStatus} onChange={(value) => { filterStatus = value; page = 1; }} />
 
-      {#if showStatusDropdown}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div
-          class="absolute top-[calc(100%+4px)] right-0 z-60 bg-white border border-neutral-200 rounded-xl shadow-lg min-w-[140px] p-1 flex flex-col gap-0.5"
-          onclick={(e) => e.stopPropagation()}
-        >
-          {#each [{ value: "all", label: "All" }, { value: "active", label: "Active" }, { value: "inactive", label: "Inactive" }] as opt}
-            <button
-              onclick={() => handleStatusSelect(opt.value as any)}
-              class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
-            >
-              <span>{opt.label}</span>
-              {#if filterStatus === opt.value}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-check"
-                  style="color:#111827"><path d="M20 6 9 17l-5-5" /></svg
-                >
-              {/if}
-            </button>
-          {/each}
-        </div>
-      {/if}
+      <!-- Country Filter using DropdownMenu -->
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger>
+          {#snippet child({ props })}
+            <Button variant="outline" class="h-9 w-[180px] justify-between border-input bg-background shadow-xs hover:bg-accent outline-none" {...props}>
+              <span class="truncate">{selectedCountryLabel}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="ml-2 size-4 opacity-50 shrink-0"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>
+            </Button>
+          {/snippet}
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content class="w-[180px] max-h-56 overflow-y-auto">
+          <DropdownMenu.Group>
+            <DropdownMenu.Item onclick={() => handleCountrySelect('all')} class="justify-between cursor-pointer {filterCountry === 'all' ? 'bg-accent font-semibold' : ''}">
+              All Countries
+            </DropdownMenu.Item>
+            {#each countries as c}
+              <DropdownMenu.Item onclick={() => handleCountrySelect(c.cuid)} class="justify-between cursor-pointer {filterCountry === c.cuid ? 'bg-accent font-semibold' : ''}">
+                {c.country_name}
+              </DropdownMenu.Item>
+            {/each}
+          </DropdownMenu.Group>
+        </DropdownMenu.Content>
+      </DropdownMenu.Root>
+
+      <!-- State Filter using DropdownMenu -->
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger>
+          {#snippet child({ props })}
+            <Button variant="outline" class="h-9 w-[180px] justify-between border-input bg-background shadow-xs hover:bg-accent outline-none" {...props}>
+              <span class="truncate">{selectedStateLabel}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="ml-2 size-4 opacity-50 shrink-0"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>
+            </Button>
+          {/snippet}
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content class="w-[180px] max-h-56 overflow-y-auto">
+          <DropdownMenu.Group>
+            <DropdownMenu.Item onclick={() => handleStateSelect('all')} class="justify-between cursor-pointer {filterState === 'all' ? 'bg-accent font-semibold' : ''}">
+              All States
+            </DropdownMenu.Item>
+            {#each filterCountry === 'all' ? states : states.filter((s) => s.country_cuid === filterCountry) as s}
+              <DropdownMenu.Item onclick={() => handleStateSelect(s.cuid)} class="justify-between cursor-pointer {filterState === s.cuid ? 'bg-accent font-semibold' : ''}">
+                {s.state_name}
+              </DropdownMenu.Item>
+            {/each}
+          </DropdownMenu.Group>
+        </DropdownMenu.Content>
+      </DropdownMenu.Root>
     </div>
 
-    <!-- Country Filter -->
-    <div
-      class="flex items-center gap-1.5 relative max-md:w-full max-md:flex-1 max-md:min-w-[110px]"
-    >
-      <button
-        onclick={(e) => {
-          e.stopPropagation();
-          showCountryDropdown = !showCountryDropdown;
-          showStatusDropdown = false;
-          showStateDropdown = false;
-        }}
-        class="bg-card border-[1.5px] border-neutral-300 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground inline-flex items-center justify-between gap-6 min-w-[175px] cursor-pointer transition-all duration-200 outline-none shadow-sm hover:border-neutral-400 focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15 max-md:w-full max-md:min-w-full max-md:gap-3"
-        id="location-country-filter-trigger"
-      >
-        <span>{selectedCountryLabel}</span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="lucide lucide-funnel"
-          style="color:#737373"
-          ><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg
-        >
-      </button>
-
-      {#if showCountryDropdown}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div
-          class="absolute top-[calc(100%+4px)] right-0 z-60 bg-white border border-neutral-200 rounded-xl shadow-lg min-w-[175px] max-h-[250px] overflow-y-auto p-1 flex flex-col gap-0.5"
-          onclick={(e) => e.stopPropagation()}
-        >
-          <button
-            onclick={() => handleCountrySelect("all")}
-            class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
-          >
-            <span>All Countries</span>
-            {#if filterCountry === "all"}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-check"
-                style="color:#111827"><path d="M20 6 9 17l-5-5" /></svg
-              >
-            {/if}
-          </button>
-          {#each countries as c}
-            <button
-              onclick={() => handleCountrySelect(c.cuid)}
-              class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
-            >
-              <span>{c.country_name}</span>
-              {#if filterCountry === c.cuid}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-check"
-                  style="color:#111827"><path d="M20 6 9 17l-5-5" /></svg
-                >
-              {/if}
-            </button>
-          {/each}
-        </div>
-      {/if}
-    </div>
-
-    <!-- State Filter -->
-    <div
-      class="flex items-center gap-1.5 relative max-md:w-full max-md:flex-1 max-md:min-w-[110px]"
-    >
-      <button
-        onclick={(e) => {
-          e.stopPropagation();
-          showStateDropdown = !showStateDropdown;
-          showStatusDropdown = false;
-          showCountryDropdown = false;
-        }}
-        class="bg-card border-[1.5px] border-neutral-300 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground inline-flex items-center justify-between gap-6 min-w-[175px] cursor-pointer transition-all duration-200 outline-none shadow-sm hover:border-neutral-400 focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15 max-md:w-full max-md:min-w-full max-md:gap-3"
-        id="location-state-filter-trigger"
-      >
-        <span>{selectedStateLabel}</span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="lucide lucide-funnel"
-          style="color:#737373"
-          ><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg
-        >
-      </button>
-
-      {#if showStateDropdown}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div
-          class="absolute top-[calc(100%+4px)] right-0 z-60 bg-white border border-neutral-200 rounded-xl shadow-lg min-w-[175px] max-h-[250px] overflow-y-auto p-1 flex flex-col gap-0.5"
-          onclick={(e) => e.stopPropagation()}
-        >
-          <button
-            onclick={() => handleStateSelect("all")}
-            class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
-          >
-            <span>All States</span>
-            {#if filterState === "all"}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-check"
-                style="color:#111827"><path d="M20 6 9 17l-5-5" /></svg
-              >
-            {/if}
-          </button>
-          {#each filterCountry === "all" ? states : states.filter((s) => s.country_cuid === filterCountry) as s}
-            <button
-              onclick={() => handleStateSelect(s.cuid)}
-              class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
-            >
-              <span>{s.state_name}</span>
-              {#if filterState === s.cuid}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-check"
-                  style="color:#111827"><path d="M20 6 9 17l-5-5" /></svg
-                >
-              {/if}
-            </button>
-          {/each}
-        </div>
-      {/if}
-    </div>
-  </div>
-</div>
-
-<!-- Table card -->
-<div
-  class="bg-card border border-border rounded-xl overflow-x-auto w-full [-webkit-overflow-scrolling:touch] shadow-sm"
->
-  {#if loading}
-    <div
-      class="py-16 text-center text-muted-foreground flex items-center justify-center gap-2.5"
-    >
-      <LoaderCircleIcon class="animate-spin" size={18} />
-      Loading locations...
-    </div>
-  {:else if filteredLocations.length === 0}
-    <div class="py-16 text-center text-muted-foreground">
-      {locations.length === 0
-        ? "No records found"
-        : "No locations match the current filter."}
-    </div>
-  {:else}
-    <table class="w-full border-collapse">
-      <thead class="bg-[#F9FAFB]">
-        <tr class="border-b border-border">
-          <th
-            class="px-4 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap"
-          >
-            <button
-              onclick={() => toggleSort("location_name")}
-              class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
-            >
-              Location Name
-              {#if sortColumn === "location_name"}
-                {#if sortDirection === "asc"}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-up ml-1.5 shrink-0"
-                    ><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg
-                  >
+    <Card class="py-0">
+      <Table>
+        <TableHeader class="bg-muted">
+          <TableRow>
+            <TableHead class="font-bold text-foreground text-[15px]">
+              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('location_name')}>
+                Location Name
+                {#if sortColumn === 'location_name' && sortDirection === 'asc'}
+                  <ArrowUpIcon class="ml-2 size-4" />
+                {:else if sortColumn === 'location_name' && sortDirection === 'desc'}
+                  <ArrowDownIcon class="ml-2 size-4" />
                 {:else}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-down ml-1.5 shrink-0"
-                    ><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></svg
-                  >
+                  <ArrowUpDownIcon class="ml-2 size-4" />
                 {/if}
-              {:else}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-arrow-up-down ml-1.5 shrink-0"
-                  ><path d="m21 16-4 4-4-4" /><path d="M17 20V4" /><path
-                    d="m3 8 4-4 4 4"
-                  /><path d="M7 4v16" /></svg
-                >
-              {/if}
-            </button>
-          </th>
-          <th
-            class="px-4 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap"
-          >
-            <button
-              onclick={() => toggleSort("address_line1")}
-              class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
-            >
-              Address
-              {#if sortColumn === "address_line1"}
-                {#if sortDirection === "asc"}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-up ml-1.5 shrink-0"
-                    ><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg
-                  >
+              </Button>
+            </TableHead>
+            <TableHead class="font-bold text-foreground text-[15px]">
+              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('address_line1')}>
+                Address
+                {#if sortColumn === 'address_line1' && sortDirection === 'asc'}
+                  <ArrowUpIcon class="ml-2 size-4" />
+                {:else if sortColumn === 'address_line1' && sortDirection === 'desc'}
+                  <ArrowDownIcon class="ml-2 size-4" />
                 {:else}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-down ml-1.5 shrink-0"
-                    ><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></svg
-                  >
+                  <ArrowUpDownIcon class="ml-2 size-4" />
                 {/if}
-              {:else}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-arrow-up-down ml-1.5 shrink-0"
-                  ><path d="m21 16-4 4-4-4" /><path d="M17 20V4" /><path
-                    d="m3 8 4-4 4 4"
-                  /><path d="M7 4v16" /></svg
-                >
-              {/if}
-            </button>
-          </th>
-          <th
-            class="px-4 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap"
-          >
-            <button
-              onclick={() => toggleSort("city")}
-              class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
-            >
-              City
-              {#if sortColumn === "city"}
-                {#if sortDirection === "asc"}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-up ml-1.5 shrink-0"
-                    ><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg
-                  >
+              </Button>
+            </TableHead>
+            <TableHead class="font-bold text-foreground text-[15px]">
+              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('city')}>
+                City
+                {#if sortColumn === 'city' && sortDirection === 'asc'}
+                  <ArrowUpIcon class="ml-2 size-4" />
+                {:else if sortColumn === 'city' && sortDirection === 'desc'}
+                  <ArrowDownIcon class="ml-2 size-4" />
                 {:else}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-down ml-1.5 shrink-0"
-                    ><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></svg
-                  >
+                  <ArrowUpDownIcon class="ml-2 size-4" />
                 {/if}
-              {:else}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-arrow-up-down ml-1.5 shrink-0"
-                  ><path d="m21 16-4 4-4-4" /><path d="M17 20V4" /><path
-                    d="m3 8 4-4 4 4"
-                  /><path d="M7 4v16" /></svg
-                >
-              {/if}
-            </button>
-          </th>
-          <th
-            class="px-4 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap"
-          >
-            <button
-              onclick={() => toggleSort("state_cuid")}
-              class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
-            >
-              State
-              {#if sortColumn === "state_cuid"}
-                {#if sortDirection === "asc"}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-up ml-1.5 shrink-0"
-                    ><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg
-                  >
+              </Button>
+            </TableHead>
+            <TableHead class="font-bold text-foreground text-[15px]">
+              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('state_cuid')}>
+                State
+                {#if sortColumn === 'state_cuid' && sortDirection === 'asc'}
+                  <ArrowUpIcon class="ml-2 size-4" />
+                {:else if sortColumn === 'state_cuid' && sortDirection === 'desc'}
+                  <ArrowDownIcon class="ml-2 size-4" />
                 {:else}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-down ml-1.5 shrink-0"
-                    ><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></svg
-                  >
+                  <ArrowUpDownIcon class="ml-2 size-4" />
                 {/if}
-              {:else}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-arrow-up-down ml-1.5 shrink-0"
-                  ><path d="m21 16-4 4-4-4" /><path d="M17 20V4" /><path
-                    d="m3 8 4-4 4 4"
-                  /><path d="M7 4v16" /></svg
-                >
-              {/if}
-            </button>
-          </th>
-          <th
-            class="px-4 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap"
-          >
-            <button
-              onclick={() => toggleSort("country_cuid")}
-              class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
-            >
-              Country
-              {#if sortColumn === "country_cuid"}
-                {#if sortDirection === "asc"}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-up ml-1.5 shrink-0"
-                    ><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg
-                  >
+              </Button>
+            </TableHead>
+            <TableHead class="font-bold text-foreground text-[15px]">
+              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('country_cuid')}>
+                Country
+                {#if sortColumn === 'country_cuid' && sortDirection === 'asc'}
+                  <ArrowUpIcon class="ml-2 size-4" />
+                {:else if sortColumn === 'country_cuid' && sortDirection === 'desc'}
+                  <ArrowDownIcon class="ml-2 size-4" />
                 {:else}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-down ml-1.5 shrink-0"
-                    ><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></svg
-                  >
+                  <ArrowUpDownIcon class="ml-2 size-4" />
                 {/if}
-              {:else}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-arrow-up-down ml-1.5 shrink-0"
-                  ><path d="m21 16-4 4-4-4" /><path d="M17 20V4" /><path
-                    d="m3 8 4-4 4 4"
-                  /><path d="M7 4v16" /></svg
-                >
-              {/if}
-            </button>
-          </th>
-          <th
-            class="px-4 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap"
-          >
-            <button
-              onclick={() => toggleSort("pin_code")}
-              class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
-            >
-              Pin Code
-              {#if sortColumn === "pin_code"}
-                {#if sortDirection === "asc"}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-up ml-1.5 shrink-0"
-                    ><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg
-                  >
+              </Button>
+            </TableHead>
+            <TableHead class="font-bold text-foreground text-[15px]">
+              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('pin_code')}>
+                Pin Code
+                {#if sortColumn === 'pin_code' && sortDirection === 'asc'}
+                  <ArrowUpIcon class="ml-2 size-4" />
+                {:else if sortColumn === 'pin_code' && sortDirection === 'desc'}
+                  <ArrowDownIcon class="ml-2 size-4" />
                 {:else}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-down ml-1.5 shrink-0"
-                    ><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></svg
-                  >
+                  <ArrowUpDownIcon class="ml-2 size-4" />
                 {/if}
-              {:else}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-arrow-up-down ml-1.5 shrink-0"
-                  ><path d="m21 16-4 4-4-4" /><path d="M17 20V4" /><path
-                    d="m3 8 4-4 4 4"
-                  /><path d="M7 4v16" /></svg
-                >
-              {/if}
-            </button>
-          </th>
-          <th
-            class="px-4 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap"
-          >
-            <button
-              onclick={() => toggleSort("timezone")}
-              class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
-            >
-              Timezone
-              {#if sortColumn === "timezone"}
-                {#if sortDirection === "asc"}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-up ml-1.5 shrink-0"
-                    ><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg
-                  >
+              </Button>
+            </TableHead>
+            <TableHead class="font-bold text-foreground text-[15px]">
+              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('timezone')}>
+                Timezone
+                {#if sortColumn === 'timezone' && sortDirection === 'asc'}
+                  <ArrowUpIcon class="ml-2 size-4" />
+                {:else if sortColumn === 'timezone' && sortDirection === 'desc'}
+                  <ArrowDownIcon class="ml-2 size-4" />
                 {:else}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-down ml-1.5 shrink-0"
-                    ><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></svg
-                  >
+                  <ArrowUpDownIcon class="ml-2 size-4" />
                 {/if}
-              {:else}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-arrow-up-down ml-1.5 shrink-0"
-                  ><path d="m21 16-4 4-4-4" /><path d="M17 20V4" /><path
-                    d="m3 8 4-4 4 4"
-                  /><path d="M7 4v16" /></svg
-                >
-              {/if}
-            </button>
-          </th>
-          <th
-            class="px-4 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap"
-          >
-            <button
-              onclick={() => toggleSort("is_active")}
-              class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
-            >
-              Status
-              {#if sortColumn === "is_active"}
-                {#if sortDirection === "asc"}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-up ml-1.5 shrink-0"
-                    ><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg
-                  >
+              </Button>
+            </TableHead>
+            <TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
+              <Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('is_active')}>
+                Status
+                {#if sortColumn === 'is_active' && sortDirection === 'asc'}
+                  <ArrowUpIcon class="ml-2 size-4" />
+                {:else if sortColumn === 'is_active' && sortDirection === 'desc'}
+                  <ArrowDownIcon class="ml-2 size-4" />
                 {:else}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-down ml-1.5 shrink-0"
-                    ><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></svg
-                  >
+                  <ArrowUpDownIcon class="ml-2 size-4" />
                 {/if}
-              {:else}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-arrow-up-down ml-1.5 shrink-0"
-                  ><path d="m21 16-4 4-4-4" /><path d="M17 20V4" /><path
-                    d="m3 8 4-4 4 4"
-                  /><path d="M7 4v16" /></svg
-                >
-              {/if}
-            </button>
-          </th>
-          <th
-            class="px-4 py-3.5 text-right text-sm font-bold text-foreground whitespace-nowrap"
-            >Actions</th
-          >
-        </tr>
-      </thead>
-      <tbody>
-        {#each paginatedLocations as loc (loc.cuid)}
-          <!-- svelte-ignore a11y_click_events_have_key_events -->
-          <!-- svelte-ignore a11y_no_static_element_interactions -->
-          <tr
-            class="border-t border-border transition-colors duration-200 hover:bg-muted cursor-pointer"
-            onclick={() => openEdit(loc)}
-          >
-            <td class="px-4 py-3.5">
-              <div class="flex items-center gap-2">
-                <span class="text-sm font-semibold">{loc.location_name}</span>
-              </div>
-            </td>
-            <td class="px-4 py-3.5 text-sm"
-              >{loc.address_line1}{loc.address_line2
-                ? ", " + loc.address_line2
-                : ""}</td
-            >
-            <td class="px-4 py-3.5 text-sm">{loc.city}</td>
-            <td class="px-4 py-3.5 text-sm">{getStateName(loc.state_cuid)}</td>
-            <td class="px-4 py-3.5 text-sm"
-              >{getCountryName(loc.country_cuid)}</td
-            >
-            <td class="px-4 py-3.5 text-sm">{loc.pin_code}</td>
-            <td class="px-4 py-3.5 text-sm">{loc.timezone}</td>
-            <td class="px-4 py-3.5">
-              {#if loc.is_active}
-                <span
-                  class="inline-flex items-center justify-center w-16 py-1 rounded-full text-[11px] font-semibold bg-[#111827] text-white"
-                  >Active</span
-                >
-              {:else}
-                <span
-                  class="inline-flex items-center justify-center w-16 py-1 rounded-full text-[11px] font-semibold bg-neutral-100 text-neutral-700"
-                  >Inactive</span
-                >
-              {/if}
-            </td>
-            <td
-              class="px-4 py-3.5 text-right relative"
-              onclick={(e) => e.stopPropagation()}
-            >
-              <div class="inline-flex items-center justify-end">
-                <button
-                  onclick={(e) => toggleDropdown(loc.cuid, e)}
-                  aria-label="Actions"
-                  title="Actions"
-                  class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-transparent cursor-pointer transition-colors duration-150 text-foreground hover:bg-muted"
-                >
-                  <MoreVerticalIcon size={15} />
-                </button>
-
-                {#if activeDropdownId === loc.cuid}
-                  <!-- svelte-ignore a11y_click_events_have_key_events -->
-                  <!-- svelte-ignore a11y_no_static_element_interactions -->
-                  <div
-                    class="absolute right-4 top-11 z-50 bg-background border border-border rounded-lg shadow-md min-w-[110px] py-1"
-                    onclick={(e) => e.stopPropagation()}
-                  >
-                    <button
-                      onclick={() => {
-                        openEdit(loc);
-                        activeDropdownId = null;
-                      }}
-                      class="w-full flex items-center gap-3 px-3 py-2 text-xs border-none bg-transparent cursor-pointer text-left text-foreground transition-colors duration-150 hover:bg-muted"
-                    >
-                      <Pencil2Icon size={13} />
-                      Edit
-                    </button>
-                  </div>
-                {/if}
-              </div>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-
-    <!-- Pagination -->
-    <div
-      class="flex items-center justify-between px-5 py-3.5 border-t border-border"
-    >
-      <p class="text-sm text-muted-foreground">
-        Showing {total === 0 ? 0 : (page - 1) * limit + 1}-{Math.min(
-          page * limit,
-          total,
-        )} of {total} records
-      </p>
-      <div class="flex items-center gap-2">
-        <button
-          disabled={page <= 1}
-          onclick={prevPage}
-          class="px-3 py-1.5 border border-border rounded-md bg-card text-xs font-medium cursor-pointer text-muted-foreground inline-flex items-center transition-colors duration-150 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
-          ><span class="mr-2">&lt;</span>Previous</button
-        >
-        {#each pageNumbers as p}
-          {#if p === page}
-            <span
-              class="bg-[#111827] text-white w-8 h-8 rounded-md font-bold inline-flex items-center justify-center text-sm"
-            >
-              {p}
-            </span>
+              </Button>
+            </TableHead>
+            <TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {#if loading}
+            <TableRow>
+              <TableCell colspan={9} class="py-8 text-center text-muted-foreground">
+                <LoaderCircleIcon class="mx-auto mb-2 size-6 animate-spin" />
+                Loading locations...
+              </TableCell>
+            </TableRow>
+          {:else if filteredLocations.length === 0}
+            <TableRow>
+              <TableCell colspan={9} class="py-8 text-center text-muted-foreground">
+                {UI_CONSTANTS.EMPTY_STATE_MESSAGE}
+              </TableCell>
+            </TableRow>
           {:else}
-            <button
-              onclick={() => (page = p)}
-              class="w-8 h-8 rounded-md border border-border bg-card text-foreground font-semibold cursor-pointer text-sm transition-all duration-150 hover:bg-muted"
-              >{p}</button
-            >
+            {#each paginatedLocations as loc (loc.cuid)}
+              <TableRow 
+                onclick={(e) => {
+                  if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
+                  openEdit(loc);
+                }} 
+                class="cursor-pointer"
+              >
+                <TableCell>
+                  <span class="font-semibold">{loc.location_name}</span>
+                </TableCell>
+                <TableCell>
+                  {loc.address_line1}{loc.address_line2 ? ", " + loc.address_line2 : ""}
+                </TableCell>
+                <TableCell>{loc.city}</TableCell>
+                <TableCell>{getStateName(loc.state_cuid)}</TableCell>
+                <TableCell>{getCountryName(loc.country_cuid)}</TableCell>
+                <TableCell>{loc.pin_code}</TableCell>
+                <TableCell>{loc.timezone}</TableCell>
+                <TableCell class="text-center">
+                  <Badge variant={loc.is_active === true ? 'default' : 'secondary'}>{loc.is_active ? 'Active' : 'Inactive'}</Badge>
+                </TableCell>
+                <TableCell class="text-right">
+                  <TableActions
+                    canEdit={true}
+                    onEdit={() => openEdit(loc)}
+                    customActions={[
+                      {
+                        label: loc.is_active ? 'Deactivate' : 'Activate',
+                        onClick: () => loc.is_active ? deactivateLocation(loc.cuid) : activateLocation(loc.cuid)
+                      }
+                    ]}
+                  />
+                </TableCell>
+              </TableRow>
+            {/each}
           {/if}
-        {/each}
-        <button
-          disabled={page >= totalPages}
-          onclick={nextPage}
-          class="px-3 py-1.5 border border-border rounded-md bg-card text-xs font-medium cursor-pointer text-muted-foreground inline-flex items-center transition-colors duration-150 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
-          >Next<span class="ml-2">&gt;</span></button
-        >
-      </div>
-    </div>
-  {/if}
+        </TableBody>
+      </Table>
+    </Card>
+    <Pagination bind:currentPage={page} pageSize={limit} totalItems={filteredLocations.length} />
+  </div>
 </div>
 
-<!-- Create / Edit Modal -->
-<Modal
-  bind:show={showForm}
-  title={editLocation ? "Edit Location" : "Create New Location"}
-  onclose={attemptCloseForm}
+<CrudModal
+  open={showForm}
+  title={editLocation ? 'Edit Location' : 'Create Location'}
+  isDirty={isDirty}
+  isSubmitting={formLoading}
+  onClose={attemptCloseForm}
 >
-  {#if showConfirmation}
-    <div
-      class="fixed inset-0 bg-black/55 backdrop-blur-sm z-300 flex items-center justify-center p-6 box-border"
-    >
-      <div
-        class="bg-white border-none rounded-3xl p-8 w-full max-w-[480px] shadow-2xl flex flex-col gap-0 text-left box-border"
-      >
-        <h3 class="text-xl font-bold text-black m-0 mb-2.5 font-sans">
-          Cancel Changes
-        </h3>
-        <p class="text-[15px] text-[#737373] m-0 mb-7 leading-normal font-sans">
-          Are you sure you want to cancel? All unsaved changes will be lost.
-        </p>
-        <div class="flex flex-row gap-3 justify-end items-center">
-          <button
-            type="button"
-            onclick={discardChanges}
-            class="px-5 py-2.5 rounded-xl bg-white border border-neutral-200 text-black text-[15px] font-semibold cursor-pointer transition-colors duration-150 hover:bg-neutral-50 font-sans"
-            >Cancel</button
-          >
-          <button
-            type="button"
-            onclick={continueEditing}
-            class="px-5 py-2.5 rounded-xl bg-pieq-tertiary border-none text-white text-[15px] font-semibold cursor-pointer transition-opacity duration-150 hover:opacity-90 font-sans"
-            >Keep Editing</button
-          >
-        </div>
-      </div>
-    </div>
-  {/if}
-
-  <form onsubmit={submitForm} class="flex flex-col gap-4">
-    <div class="flex flex-col gap-1.5">
-      <label for="location-name" class="text-[13px] font-semibold">
-        Location Name <span class="text-pieq-primary">*</span>
-      </label>
-      <input
-        id="location-name"
-        type="text"
-        bind:value={formName}
-        oninput={() => (formError = "")}
-        placeholder="e.g. Chennai - HQ"
-        class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-      />
-      {#if formError}
-        <p class="text-pieq-tertiary text-xs m-0">{formError}</p>
-      {/if}
-    </div>
-
-    <div class="flex flex-col gap-1.5">
-      <label for="location-address1" class="text-[13px] font-semibold">
-        Address Line 1 <span class="text-pieq-primary">*</span>
-      </label>
-      <input
-        id="location-address1"
-        type="text"
-        bind:value={formAddress1}
-        oninput={() => (formError = "")}
-        placeholder="e.g. 123 Enterprise Way"
-        class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-      />
-    </div>
-
-    <div class="flex flex-col gap-1.5">
-      <label for="location-address2" class="text-[13px] font-semibold">
-        Address Line 2 (Optional)
-      </label>
-      <input
-        id="location-address2"
-        type="text"
-        bind:value={formAddress2}
-        oninput={() => (formError = "")}
-        placeholder="e.g. Suite 400"
-        class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-      />
-    </div>
-
-    <div class="grid grid-cols-2 gap-3">
-      <div class="flex flex-col gap-1.5">
-        <label for="location-city" class="text-[13px] font-semibold">
-          City <span class="text-pieq-primary">*</span>
-        </label>
-        <input
-          id="location-city"
-          type="text"
-          bind:value={formCity}
-          oninput={() => (formError = "")}
-          placeholder="e.g. Chennai"
-          class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
+  {#snippet children({ cancel })}
+    <form class="space-y-4" onsubmit={submitForm}>
+      <div class="space-y-2">
+        <Label for="location_name">Location Name <span class="text-destructive">*</span></Label>
+        <Input
+          id="location_name"
+          name="location_name"
+          bind:value={formName}
+          class={formError ? 'border-destructive' : ''}
+          placeholder="e.g. Chennai - HQ"
+          oninput={() => { formError = ''; }}
         />
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label for="location-pincode" class="text-[13px] font-semibold">
-          Pin Code <span class="text-pieq-primary">*</span>
-        </label>
-        <input
-          id="location-pincode"
-          type="text"
-          bind:value={formPinCode}
-          oninput={() => (formError = "")}
-          placeholder="e.g. 600001"
-          class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-        />
-      </div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-3">
-      <div class="flex flex-col gap-1.5">
-        <span class="text-[13px] font-semibold">
-          Country <span class="text-pieq-primary">*</span>
-        </span>
-        <div class="relative w-full">
-          <button
-            type="button"
-            onclick={(e) => {
-              e.stopPropagation();
-              showModalCountryDropdown = !showModalCountryDropdown;
-              showModalStateDropdown = false;
-              showModalStatusDropdown = false;
-            }}
-            class="w-full bg-card border-[1.5px] border-neutral-300 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground inline-flex items-center justify-between cursor-pointer transition-all duration-200 outline-none shadow-sm hover:border-neutral-400 focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-            id="location-country"
-          >
-            <span
-              >{countries.find((c) => c.cuid === formCountryCuid)
-                ?.country_name || "Select Country"}</span
-            >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="lucide lucide-chevron-down"
-              style="color:#737373"><path d="m6 9 6 6 6-6" /></svg
-            >
-          </button>
-
-          {#if showModalCountryDropdown}
-            <!-- svelte-ignore a11y_click_events_have_key_events -->
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <div
-              class="absolute top-[calc(100%+4px)] left-0 z-60 bg-white border border-neutral-200 rounded-xl shadow-lg w-full max-h-[250px] overflow-y-auto p-1 flex flex-col gap-0.5"
-              onclick={(e) => e.stopPropagation()}
-            >
-              <button
-                type="button"
-                onclick={() => {
-                  formCountryCuid = "";
-                  formStateCuid = "";
-                  showModalCountryDropdown = false;
-                  formError = "";
-                }}
-                class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
-              >
-                <span>Select Country</span>
-                {#if !formCountryCuid}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-check"
-                    style="color:#111827"><path d="M20 6 9 17l-5-5" /></svg
-                  >
-                {/if}
-              </button>
-              {#each countries as country}
-                <button
-                  type="button"
-                  onclick={() => {
-                    formCountryCuid = country.cuid;
-                    formStateCuid = "";
-                    showModalCountryDropdown = false;
-                    formError = "";
-                  }}
-                  class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
-                >
-                  <span>{country.country_name}</span>
-                  {#if formCountryCuid === country.cuid}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="lucide lucide-check"
-                      style="color:#111827"><path d="M20 6 9 17l-5-5" /></svg
-                    >
-                  {/if}
-                </button>
-              {/each}
-            </div>
-          {/if}
-        </div>
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <span class="text-[13px] font-semibold">
-          State <span class="text-pieq-primary">*</span>
-        </span>
-        <div class="relative w-full">
-          <button
-            type="button"
-            onclick={(e) => {
-              e.stopPropagation();
-              showModalStateDropdown = !showModalStateDropdown;
-              showModalCountryDropdown = false;
-              showModalStatusDropdown = false;
-            }}
-            disabled={!formCountryCuid}
-            class="w-full bg-card border-[1.5px] border-neutral-300 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground inline-flex items-center justify-between cursor-pointer transition-all duration-200 outline-none shadow-sm hover:border-neutral-400 focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
-            id="location-state"
-          >
-            <span
-              >{filteredStates.find((s) => s.cuid === formStateCuid)
-                ?.state_name || "Select State"}</span
-            >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="lucide lucide-chevron-down"
-              style="color:#737373"><path d="m6 9 6 6 6-6" /></svg
-            >
-          </button>
-
-          {#if showModalStateDropdown}
-            <!-- svelte-ignore a11y_click_events_have_key_events -->
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <div
-              class="absolute top-[calc(100%+4px)] left-0 z-60 bg-white border border-neutral-200 rounded-xl shadow-lg w-full max-h-[250px] overflow-y-auto p-1 flex flex-col gap-0.5"
-              onclick={(e) => e.stopPropagation()}
-            >
-              <button
-                type="button"
-                onclick={() => {
-                  formStateCuid = "";
-                  showModalStateDropdown = false;
-                  formError = "";
-                }}
-                class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
-              >
-                <span>Select State</span>
-                {#if !formStateCuid}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-check"
-                    style="color:#111827"><path d="M20 6 9 17l-5-5" /></svg
-                  >
-                {/if}
-              </button>
-              {#each filteredStates as state}
-                <button
-                  type="button"
-                  onclick={() => {
-                    formStateCuid = state.cuid;
-                    showModalStateDropdown = false;
-                    formError = "";
-                  }}
-                  class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
-                >
-                  <span>{state.state_name}</span>
-                  {#if formStateCuid === state.cuid}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="lucide lucide-check"
-                      style="color:#111827"><path d="M20 6 9 17l-5-5" /></svg
-                    >
-                  {/if}
-                </button>
-              {/each}
-            </div>
-          {/if}
-        </div>
-      </div>
-    </div>
-
-    <div class="flex flex-col gap-1.5">
-      <label for="location-timezone" class="text-[13px] font-semibold">
-        Timezone <span class="text-pieq-primary">*</span>
-      </label>
-      <input
-        id="location-timezone"
-        type="text"
-        bind:value={formTimezone}
-        oninput={() => (formError = "")}
-        placeholder="e.g. Asia/Kolkata or UTC"
-        class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-      />
-    </div>
-
-    {#if editLocation}
-      <div class="flex flex-col gap-1.5">
-        <span class="text-[13px] font-semibold"> Status </span>
-        <div class="relative w-full">
-          <button
-            type="button"
-            onclick={(e) => {
-              e.stopPropagation();
-              showModalStatusDropdown = !showModalStatusDropdown;
-              showModalCountryDropdown = false;
-              showModalStateDropdown = false;
-            }}
-            class="w-full bg-card border-[1.5px] border-neutral-300 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground inline-flex items-center justify-between cursor-pointer transition-all duration-200 outline-none shadow-sm hover:border-neutral-400 focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-            id="location-status"
-          >
-            <span>{formStatus ? "Active" : "Inactive"}</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="lucide lucide-chevron-down"
-              style="color:#737373"><path d="m6 9 6 6 6-6" /></svg
-            >
-          </button>
-
-          {#if showModalStatusDropdown}
-            <!-- svelte-ignore a11y_click_events_have_key_events -->
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <div
-              class="absolute top-[calc(100%+4px)] left-0 z-60 bg-white border border-neutral-200 rounded-xl shadow-lg w-full p-1 flex flex-col gap-0.5"
-              onclick={(e) => e.stopPropagation()}
-            >
-              {#each [{ value: true, label: "Active" }, { value: false, label: "Inactive" }] as opt}
-                <button
-                  type="button"
-                  onclick={() => {
-                    formStatus = opt.value;
-                    showModalStatusDropdown = false;
-                    formError = "";
-                  }}
-                  class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
-                >
-                  <span>{opt.label}</span>
-                  {#if formStatus === opt.value}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="lucide lucide-check"
-                      style="color:#111827"><path d="M20 6 9 17l-5-5" /></svg
-                    >
-                  {/if}
-                </button>
-              {/each}
-            </div>
-          {/if}
-        </div>
-      </div>
-    {/if}
-
-    <div class="flex justify-end gap-2 pt-1">
-      <button
-        type="button"
-        onclick={attemptCloseForm}
-        disabled={formLoading}
-        class="px-4.5 py-2.25 rounded-lg bg-transparent border border-border text-foreground text-[13px] font-semibold inline-flex items-center gap-1.5 transition-colors duration-200 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        Cancel
-      </button>
-      <button
-        type="submit"
-        disabled={formLoading ||
-          (editLocation ? !isUpdateChanged : !isCreateEnabled)}
-        class="px-4.5 py-2.25 rounded-lg bg-pieq-primary text-white border-none text-[13px] font-semibold inline-flex items-center gap-1.5 transition-opacity duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        {#if formLoading}
-          <LoaderCircleIcon class="animate-spin" size={14} />
+        {#if formError}
+          <p class="text-xs text-destructive">{formError}</p>
         {/if}
-        {formLoading ? "Saving..." : "Save"}
-      </button>
-    </div>
-  </form>
-</Modal>
+      </div>
+
+      <div class="space-y-2">
+        <Label for="location_address1">Address Line 1 <span class="text-destructive">*</span></Label>
+        <Input
+          id="location_address1"
+          name="location_address1"
+          bind:value={formAddress1}
+          placeholder="e.g. 123 Enterprise Way"
+        />
+      </div>
+
+      <div class="space-y-2">
+        <Label for="location_address2">Address Line 2 (Optional)</Label>
+        <Input
+          id="location_address2"
+          name="location_address2"
+          bind:value={formAddress2}
+          placeholder="e.g. Suite 400"
+        />
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <Label for="location_city">City <span class="text-destructive">*</span></Label>
+          <Input
+            id="location_city"
+            name="location_city"
+            bind:value={formCity}
+            placeholder="e.g. Chennai"
+          />
+        </div>
+        <div class="space-y-2">
+          <Label for="location_pincode">Pin Code <span class="text-destructive">*</span></Label>
+          <Input
+            id="location_pincode"
+            name="location_pincode"
+            bind:value={formPinCode}
+            placeholder="e.g. 600001"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-2 flex flex-col justify-end">
+          <Label for="location_country" class="mb-2">Country <span class="text-destructive">*</span></Label>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
+              {#snippet child({ props })}
+                <Button
+                  id="location_country"
+                  variant="outline"
+                  class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none"
+                  {...props}
+                >
+                  <span class="truncate">{countries.find((c) => c.cuid === formCountryCuid)?.country_name || "Select Country"}</span>
+                  <ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
+                </Button>
+              {/snippet}
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content class="max-h-56 overflow-y-auto w-[200px]">
+              <DropdownMenu.Group>
+                <DropdownMenu.Item
+                  onclick={() => { formCountryCuid = ''; formStateCuid = ''; }}
+                  class="cursor-pointer justify-between {!formCountryCuid ? 'bg-accent font-semibold' : ''}"
+                >
+                  Select Country
+                </DropdownMenu.Item>
+                {#each countries as country}
+                  <DropdownMenu.Item
+                    onclick={() => { formCountryCuid = country.cuid; formStateCuid = ''; }}
+                    class="cursor-pointer justify-between {formCountryCuid === country.cuid ? 'bg-accent font-semibold' : ''}"
+                  >
+                    {country.country_name}
+                    {#if formCountryCuid === country.cuid}<CheckIcon class="size-4" />{/if}
+                  </DropdownMenu.Item>
+                {/each}
+              </DropdownMenu.Group>
+              <DropdownMenu.Separator />
+              <DropdownMenu.Item
+                onclick={openAddCountryModal}
+                class="cursor-pointer font-medium text-[#F45310] hover:text-[#F45310]/90 focus:text-[#F45310]"
+              >
+                <PlusIcon class="mr-2 size-4" />
+                Add Country
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+        </div>
+        <div class="space-y-2 flex flex-col justify-end">
+          <Label for="location_state" class="mb-2">State <span class="text-destructive">*</span></Label>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
+              {#snippet child({ props })}
+                <Button
+                  id="location_state"
+                  variant="outline"
+                  disabled={!formCountryCuid}
+                  class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  {...props}
+                >
+                  <span class="truncate">{filteredStates.find((s) => s.cuid === formStateCuid)?.state_name || "Select State"}</span>
+                  <ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
+                </Button>
+              {/snippet}
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content class="max-h-56 overflow-y-auto w-[200px]">
+              <DropdownMenu.Group>
+                <DropdownMenu.Item
+                  onclick={() => { formStateCuid = ''; }}
+                  class="cursor-pointer justify-between {!formStateCuid ? 'bg-accent font-semibold' : ''}"
+                >
+                  Select State
+                </DropdownMenu.Item>
+                {#each filteredStates as state}
+                  <DropdownMenu.Item
+                    onclick={() => { formStateCuid = state.cuid; }}
+                    class="cursor-pointer justify-between {formStateCuid === state.cuid ? 'bg-accent font-semibold' : ''}"
+                  >
+                    {state.state_name}
+                    {#if formStateCuid === state.cuid}<CheckIcon class="size-4" />{/if}
+                  </DropdownMenu.Item>
+                {/each}
+              </DropdownMenu.Group>
+              <DropdownMenu.Separator />
+              <DropdownMenu.Item
+                onclick={openAddStateModal}
+                disabled={!formCountryCuid}
+                class="cursor-pointer font-medium text-[#F45310] hover:text-[#F45310]/90 focus:text-[#F45310] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <PlusIcon class="mr-2 size-4" />
+                Add State
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <Label for="location_timezone">Timezone <span class="text-destructive">*</span></Label>
+        <Input
+          id="location_timezone"
+          name="location_timezone"
+          bind:value={formTimezone}
+          placeholder="e.g. Asia/Kolkata or UTC"
+        />
+      </div>
+
+      {#if editLocation}
+        <StatusDropdown id="location_status" name="location_status" value={formStatus} onChange={(val) => (formStatus = val)} />
+      {/if}
+
+      <div class="flex items-center justify-end gap-3 pt-4">
+        <Button type="button" variant="outline" onclick={cancel} disabled={formLoading}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
+        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={formLoading || (!!editLocation && !isDirty) || (!editLocation && !isCreateEnabled)}>
+          {formLoading ? UI_CONSTANTS.BUTTON_SAVING : (editLocation ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
+        </Button>
+      </div>
+    </form>
+  {/snippet}
+</CrudModal>
+
+<CrudModal
+  open={showAddCountry}
+  title="Add Country"
+  isDirty={newCountryName.trim() !== ""}
+  isSubmitting={addCountryLoading}
+  onClose={() => { showAddCountry = false; newCountryName = ""; addCountryError = ""; }}
+>
+  {#snippet children({ cancel })}
+    <form class="space-y-4" onsubmit={handleAddCountrySubmit}>
+      <div class="space-y-2">
+        <Label for="new_country_name">Country Name <span class="text-destructive">*</span></Label>
+        <Input
+          id="new_country_name"
+          name="new_country_name"
+          bind:value={newCountryName}
+          class={addCountryError ? 'border-destructive' : ''}
+          placeholder="e.g. India"
+          oninput={() => { addCountryError = ''; }}
+        />
+        {#if addCountryError}
+          <p class="text-xs text-destructive">{addCountryError}</p>
+        {/if}
+      </div>
+      <div class="flex items-center justify-end gap-3 pt-4">
+        <Button type="button" variant="outline" onclick={cancel} disabled={addCountryLoading}>Cancel</Button>
+        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={addCountryLoading || !newCountryName.trim()}>
+          {addCountryLoading ? 'Saving...' : 'Save'}
+        </Button>
+      </div>
+    </form>
+  {/snippet}
+</CrudModal>
+
+<CrudModal
+  open={showAddState}
+  title="Add State"
+  isDirty={newStateName.trim() !== ""}
+  isSubmitting={addStateLoading}
+  onClose={() => { showAddState = false; newStateName = ""; addStateError = ""; }}
+>
+  {#snippet children({ cancel })}
+    <form class="space-y-4" onsubmit={handleAddStateSubmit}>
+      <div class="space-y-2">
+        <Label for="new_state_name">State Name <span class="text-destructive">*</span></Label>
+        <Input
+          id="new_state_name"
+          name="new_state_name"
+          bind:value={newStateName}
+          class={addStateError ? 'border-destructive' : ''}
+          placeholder="e.g. Tamil Nadu"
+          oninput={() => { addStateError = ''; }}
+        />
+        {#if addStateError}
+          <p class="text-xs text-destructive">{addStateError}</p>
+        {/if}
+      </div>
+      <div class="flex items-center justify-end gap-3 pt-4">
+        <Button type="button" variant="outline" onclick={cancel} disabled={addStateLoading}>Cancel</Button>
+        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={addStateLoading || !newStateName.trim()}>
+          {addStateLoading ? 'Saving...' : 'Save'}
+        </Button>
+      </div>
+    </form>
+  {/snippet}
+</CrudModal>

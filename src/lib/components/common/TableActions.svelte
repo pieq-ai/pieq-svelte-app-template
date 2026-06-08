@@ -4,16 +4,23 @@
 	import { Button } from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
+	export interface CustomAction {
+		label: string;
+		onClick: () => void;
+	}
+
 	interface Props {
 		editLabel?: string;
 		canEdit?: boolean;
 		onEdit?: () => void;
+		customActions?: CustomAction[];
 	}
 
 	let {
 		editLabel = 'Edit',
 		canEdit = true,
-		onEdit
+		onEdit,
+		customActions = []
 	}: Props = $props();
 </script>
 
@@ -37,6 +44,13 @@
 				<PencilIcon class="mr-2 size-4" />
 				{editLabel}
 			</DropdownMenu.Item>
+		{/if}
+		{#if customActions && customActions.length > 0}
+			{#each customActions as action}
+				<DropdownMenu.Item onclick={action.onClick} class="cursor-pointer">
+					{action.label}
+				</DropdownMenu.Item>
+			{/each}
 		{/if}
 	</DropdownMenu.Content>
 </DropdownMenu.Root>

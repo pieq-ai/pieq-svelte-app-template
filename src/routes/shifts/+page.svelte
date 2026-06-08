@@ -1,1354 +1,624 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import type { Shift } from "$lib/types/shift";
-  import {
-    fetchAllShifts,
-    createShift,
-    updateShift,
-    deleteShift,
-    activateShift as activateShiftApi,
-  } from "$lib/api/shifts";
-  import { ApiError } from "$lib/api/local";
-  import PlusIcon from "@lucide/svelte/icons/plus";
-  import Pencil2Icon from "@lucide/svelte/icons/pencil";
-  import Trash2Icon from "@lucide/svelte/icons/trash-2";
-  import ClockIcon from "@lucide/svelte/icons/clock";
-  import LoaderCircleIcon from "@lucide/svelte/icons/loader-circle";
-  import CheckIcon from "@lucide/svelte/icons/check";
-  import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
-  import { Modal } from "$lib/components";
-  import { toast } from "$lib/toast.svelte.js";
-  import { confirmation } from "$lib/confirmation.svelte.js";
-  import { onDestroy } from "svelte";
+	import { onMount } from 'svelte';
+	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
+	import PlusIcon from '@lucide/svelte/icons/plus';
 
-  let shifts = $state<Shift[]>([]);
-  let page = $state(1);
-  let limit = $state(10);
-  let loading = $state(false);
-  let searchQuery = $state("");
+	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
+	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
+	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
+	import { toast } from '$lib/toast';
+	import { createDirtyChecker } from '$lib/utils';
+	import { UI_CONSTANTS } from '$lib/constants';
 
-  // Modal state
-  let showForm = $state(false);
+	import {
+		Badge,
+		Button,
+		Card,
+		CardHeader,
+		CardTitle,
+		CardDescription,
+		Input,
+		Label,
+		Table,
+		TableBody,
+		TableCell,
+		TableHead,
+		TableHeader,
+		TableRow,
+		CrudModal,
+		TableActions,
+		FilterDropdown,
+		StatusDropdown,
+		Pagination,
+		SearchInput
+	} from '$lib/components';
+	import type { Shift } from '$lib/types/shift';
+	import {
+		fetchAllShifts,
+		createShift,
+		updateShift,
+		deleteShift,
+		activateShift as activateShiftApi
+	} from '$lib/api/shifts';
+	import { ApiError } from '$lib/api/local';
+	import { confirmation } from '$lib/confirmation.svelte.js';
 
-  function handleBackdropClick(e: MouseEvent) {
-    if (
-      e.target instanceof HTMLElement &&
-      e.target.classList.contains("modal-overlay")
-    ) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
-  }
+	let shiftsList = $state<Shift[]>([]);
+	let isLoading = $state(true);
+	let loadError = $state('');
 
-  function handleKeyDownGlobal(e: KeyboardEvent) {
-    if (e.key === "Enter" && showConfirmation) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  }
+	let searchQuery = $state('');
+	let statusFilter = $state<'all' | boolean>('all');
+	let sortColumn = $state('shift_name');
+	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
-  $effect(() => {
-    if (typeof window !== "undefined" && showForm) {
-      window.addEventListener("click", handleBackdropClick, true);
-      window.addEventListener("keydown", handleKeyDownGlobal, true);
-      return () => {
-        window.removeEventListener("click", handleBackdropClick, true);
-        window.removeEventListener("keydown", handleKeyDownGlobal, true);
-      };
-    }
-  });
+	let currentPage = $state(1);
+	let pageSize = $state(10);
 
-  let editShift = $state<Shift | null>(null);
-  let formName = $state("");
-  let formStartTime = $state("09:00");
-  let formEndTime = $state("18:00");
-  let formStatus = $state(true);
-  let formError = $state("");
-  let formMinHoursError = $state("");
-  let formLoading = $state(false);
+	// Shared Form State
+	let editingShift = $state<Shift | null>(null);
+	let formName = $state('');
+	let formStartTime = $state('09:00');
+	let formEndTime = $state('18:00');
+	let formStatus = $state<boolean>(true);
+	let isSubmitting = $state(false);
+	let isModalOpen = $state(false);
+	let isNameTouched = $state(false);
+	let isMinHoursTouched = $state(false);
+	let backendError = $state('');
+	let formMinHoursError = $state('');
+	let shiftNameInput = $state<HTMLInputElement | null>(null);
 
-  let showConfirmation = $state(false);
+	let isMinHoursManuallyEdited = $state(false);
+	let formMinHours = $state(0);
 
-  let originalName = "";
-  let originalStartTime = "";
-  let originalEndTime = "";
-  let originalStatus = true;
-  let originalMinHours = 0;
-  // Whether the user has manually edited the min hours field (overrides auto-calc)
-  let isMinHoursManuallyEdited = $state(false);
-  // The editable min hours value (in decimal hours)
-  let formMinHours = $state(0);
+	const dirtyChecker = createDirtyChecker<{
+		shift_name: string;
+		start_time: string;
+		end_time: string;
+		minimum_work_hours: number;
+		status: boolean;
+	}>();
+	
+	let isDirty = $derived(
+		isModalOpen &&
+		dirtyChecker.isDirty({
+			shift_name: formName.trim(),
+			start_time: formStartTime,
+			end_time: formEndTime,
+			minimum_work_hours: formMinHours,
+			status: formStatus
+		})
+	);
 
-  function captureOriginalState() {
-    originalName = editShift ? editShift.shift_name : "";
-    originalStartTime = editShift
-      ? formatTimeForInput(editShift.start_time)
-      : "09:00";
-    originalEndTime = editShift
-      ? formatTimeForInput(editShift.end_time)
-      : "18:00";
-    originalStatus = editShift ? editShift.status : true;
-    originalMinHours = editShift ? Number(editShift.minimum_work_hours) : 0;
-  }
+	function getValidationError(name: string): string {
+		const trimmed = name.trim();
+		if (trimmed === '') {
+			return 'Shift name is required';
+		}
+		if (trimmed.length < 2) {
+			return 'Minimum 2 characters required';
+		}
+		if (trimmed.length > 255) {
+			return 'Maximum 255 characters allowed';
+		}
+		if (/\d/.test(trimmed)) {
+			return 'Shift name cannot contain numbers';
+		}
+		const regex = /^[A-Za-z\s]+$/;
+		if (!regex.test(trimmed)) {
+			return 'Only letters and spaces are allowed';
+		}
+		return '';
+	}
 
-  function resetStateTracking() {
-    originalName = "";
-    originalStartTime = "";
-    originalEndTime = "";
-    originalStatus = true;
-    originalMinHours = 0;
-    isMinHoursManuallyEdited = false;
-    formMinHoursError = "";
-    showConfirmation = false;
-    formError = "";
-  }
+	let nameValidationError = $derived(isNameTouched ? getValidationError(formName) : '');
 
-  function hasUnsavedChanges(): boolean {
-    return (
-      formName.trim() !== originalName ||
-      formStartTime !== originalStartTime ||
-      formEndTime !== originalEndTime ||
-      formStatus !== originalStatus ||
-      formMinHours !== originalMinHours
-    );
-  }
+	let calculatedMinHours = $derived.by(() => {
+		if (!formStartTime || !formEndTime) return 0;
+		const [startH, startM] = formStartTime.split(':').map(Number);
+		const [endH, endM] = formEndTime.split(':').map(Number);
+		if (isNaN(startH) || isNaN(startM) || isNaN(endH) || isNaN(endM)) return 0;
 
-  function attemptCloseForm() {
-    if (showConfirmation) {
-      showConfirmation = false;
-    } else if (hasUnsavedChanges()) {
-      showConfirmation = true;
-    } else {
-      closeForm();
-    }
-  }
+		const startTotalMinutes = startH * 60 + startM;
+		let endTotalMinutes = endH * 60 + endM;
 
-  function discardChanges() {
-    showConfirmation = false;
-    closeForm();
-  }
+		if (endTotalMinutes < startTotalMinutes) {
+			endTotalMinutes += 24 * 60;
+		}
 
-  function continueEditing() {
-    showConfirmation = false;
-  }
+		const diffMinutes = endTotalMinutes - startTotalMinutes;
+		return Math.round((diffMinutes / 60) * 100) / 100;
+	});
 
-  // Update validation
-  let isUpdateChanged = $derived.by(() => {
-    if (!editShift) return false;
-    return (
-      formName.trim() !== originalName ||
-      formStartTime !== originalStartTime ||
-      formEndTime !== originalEndTime ||
-      formStatus !== originalStatus ||
-      formMinHours !== originalMinHours
-    );
-  });
+	$effect(() => {
+		if (isModalOpen && !isMinHoursManuallyEdited) {
+			formMinHours = calculatedMinHours;
+			formMinHoursError = '';
+		}
+	});
 
-  // Create enablement: enabled once required fields contain any value
-  let isCreateEnabled = $derived(
-    formName.trim() !== "" && formStartTime !== "" && formEndTime !== "",
-  );
+	function formatHoursReadable(hours: number): string {
+		if (isNaN(hours) || hours <= 0) return '0 hrs 0 mins';
+		const totalMinutes = Math.round(hours * 60);
+		const h = Math.floor(totalMinutes / 60);
+		const m = totalMinutes % 60;
+		if (h === 0) return `${m} mins`;
+		if (m === 0) return `${h} hrs`;
+		return `${h} hrs ${m} mins`;
+	}
 
-  let activeDropdownId = $state<string | null>(null);
+	let filteredShifts = $derived.by(() => {
+		let result = [...shiftsList];
 
-  let calculatedMinHours = $derived.by(() => {
-    if (!formStartTime || !formEndTime) return 0;
-    const [startH, startM] = formStartTime.split(":").map(Number);
-    const [endH, endM] = formEndTime.split(":").map(Number);
-    if (isNaN(startH) || isNaN(startM) || isNaN(endH) || isNaN(endM)) return 0;
+		if (searchQuery.trim()) {
+			const query = searchQuery.toLowerCase().trim();
+			result = result.filter((shift) => shift.shift_name.toLowerCase().includes(query));
+		}
 
-    const startTotalMinutes = startH * 60 + startM;
-    let endTotalMinutes = endH * 60 + endM;
+		if (statusFilter !== 'all') {
+			result = result.filter((shift) => shift.status === statusFilter);
+		}
 
-    if (endTotalMinutes < startTotalMinutes) {
-      // Crosses midnight (e.g. night shift)
-      endTotalMinutes += 24 * 60;
-    }
+		if (sortDirection && sortColumn) {
+			result.sort((a, b) => {
+				const valA = a[sortColumn as keyof typeof a];
+				const valB = b[sortColumn as keyof typeof b];
 
-    const diffMinutes = endTotalMinutes - startTotalMinutes;
-    const hours = diffMinutes / 60;
-    return Math.round(hours * 100) / 100;
-  });
+				if (valA === null || valA === undefined) return sortDirection === 'asc' ? 1 : -1;
+				if (valB === null || valB === undefined) return sortDirection === 'asc' ? -1 : 1;
 
-  // When times change, auto-sync formMinHours (unless user has manually overridden)
-  $effect(() => {
-    if (!isMinHoursManuallyEdited) {
-      formMinHours = calculatedMinHours;
-      formMinHoursError = "";
-    }
-  });
+				if (typeof valA === 'string' && typeof valB === 'string') {
+					return sortDirection === 'asc'
+						? valA.localeCompare(valB)
+						: valB.localeCompare(valA);
+				}
+				if (typeof valA === 'boolean' && typeof valB === 'boolean') {
+					const numA = valA ? 1 : 0;
+					const numB = valB ? 1 : 0;
+					return sortDirection === 'asc' ? numA - numB : numB - numA;
+				}
+				if (sortColumn === 'start_time' || sortColumn === 'end_time') {
+					const dateA = new Date(valA as any).getTime();
+					const dateB = new Date(valB as any).getTime();
+					return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+				}
+				if (sortColumn === 'minimum_work_hours') {
+					const numA = Number(valA);
+					const numB = Number(valB);
+					return sortDirection === 'asc' ? numA - numB : numB - numA;
+				}
+				return 0;
+			});
+		}
 
-  /**
-   * Convert decimal hours to human-readable format: X hrs Y mins
-   */
-  function formatHoursReadable(hours: number): string {
-    if (isNaN(hours) || hours <= 0) return "0 hrs 0 mins";
-    const totalMinutes = Math.round(hours * 60);
-    const h = Math.floor(totalMinutes / 60);
-    const m = totalMinutes % 60;
-    if (h === 0) return `${m} mins`;
-    if (m === 0) return `${h} hrs`;
-    return `${h} hrs ${m} mins`;
-  }
+		return result;
+	});
 
-  function toggleDropdown(cuid: string, event: MouseEvent) {
-    event.stopPropagation();
-    if (activeDropdownId === cuid) {
-      activeDropdownId = null;
-    } else {
-      activeDropdownId = cuid;
-    }
-  }
+	let totalCount = $derived(shiftsList.length);
+	let paginatedShifts = $derived(filteredShifts.slice((currentPage - 1) * pageSize, currentPage * pageSize));
+	let activeCount = $derived(shiftsList.filter((s) => s.status === true).length);
+	let inactiveCount = $derived(shiftsList.filter((s) => s.status === false).length);
 
-  let showStatusDropdown = $state(false);
-  let showModalStatusDropdown = $state(false);
+	let avgMinWorkHours = $derived.by(() => {
+		if (shiftsList.length === 0) return 0.0;
+		const sum = shiftsList.reduce((acc, s) => {
+			const val = parseFloat(s.minimum_work_hours as any);
+			return acc + (isNaN(val) ? 0 : val);
+		}, 0);
+		return parseFloat((sum / shiftsList.length).toFixed(2));
+	});
 
-  function closeDropdowns() {
-    activeDropdownId = null;
-    showStatusDropdown = false;
-    showModalStatusDropdown = false;
-  }
-  if (typeof window !== "undefined") {
-    window.addEventListener("click", closeDropdowns);
-  }
-  onDestroy(() => {
-    if (typeof window !== "undefined") {
-      window.removeEventListener("click", closeDropdowns);
-    }
-  });
+	async function loadShifts() {
+		isLoading = true;
+		loadError = '';
+		try {
+			shiftsList = await fetchAllShifts();
+		} catch (err) {
+			loadError = err instanceof ApiError ? err.message : 'Failed to load shifts.';
+			toast.error(loadError);
+			console.error(err);
+		} finally {
+			isLoading = false;
+		}
+	}
 
-  function handleStatusSelect(val: "all" | "active" | "inactive") {
-    filterStatus = val;
-    showStatusDropdown = false;
-  }
+	onMount(() => {
+		loadShifts();
+	});
 
-  // Filter
-  let filterStatus = $state<"all" | "active" | "inactive">("all");
+	function handleSort(column: string) {
+		if (sortColumn === column) {
+			if (sortDirection === 'asc') sortDirection = 'desc';
+			else if (sortDirection === 'desc') sortDirection = null;
+			else sortDirection = 'asc';
+		} else {
+			sortColumn = column;
+			sortDirection = 'asc';
+		}
+	}
 
-  // Sorting states
-  let sortColumn = $state<string | null>(null);
-  let sortDirection = $state<"asc" | "desc" | null>(null);
+	function formatTimeForInput(timeVal: any): string {
+		if (!timeVal) return '00:00';
+		const d = new Date(timeVal);
+		if (isNaN(d.getTime())) {
+			if (typeof timeVal === 'string' && timeVal.includes(':')) {
+				return timeVal.slice(0, 5);
+			}
+			return '00:00';
+		}
+		const hours = String(d.getUTCHours()).padStart(2, '0');
+		const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+		return `${hours}:${minutes}`;
+	}
 
-  function toggleSort(col: string) {
-    if (sortColumn === col) {
-      if (sortDirection === "asc") {
-        sortDirection = "desc";
-      } else if (sortDirection === "desc") {
-        sortColumn = null;
-        sortDirection = null;
-      } else {
-        sortDirection = "asc";
-      }
-    } else {
-      sortColumn = col;
-      sortDirection = "asc";
-    }
-  }
+	function formatTimeForDisplay(timeVal: any): string {
+		if (!timeVal) return 'N/A';
+		const d = new Date(timeVal);
+		if (isNaN(d.getTime())) {
+			return String(timeVal);
+		}
+		const hours = String(d.getUTCHours()).padStart(2, '0');
+		const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+		return `${hours}:${minutes}`;
+	}
 
-  function resetSort() {
-    sortColumn = null;
-    sortDirection = null;
-  }
+	function openCreateModal() {
+		editingShift = null;
+		formName = '';
+		formStartTime = '09:00';
+		formEndTime = '18:00';
+		formStatus = true;
+		isNameTouched = false;
+		isMinHoursTouched = false;
+		backendError = '';
+		formMinHoursError = '';
+		isMinHoursManuallyEdited = false;
+		formMinHours = 9.0; // calculated for 09:00 - 18:00
+		dirtyChecker.snapshot({
+			shift_name: '',
+			start_time: '09:00',
+			end_time: '18:00',
+			minimum_work_hours: 9.0,
+			status: true
+		});
+		isModalOpen = true;
+	}
 
-  let sortedShifts = $derived.by(() => {
-    let list = [...filteredShifts];
-    if (sortColumn && sortDirection) {
-      list.sort((a, b) => {
-        let valA = a[sortColumn as keyof typeof a];
-        let valB = b[sortColumn as keyof typeof b];
+	function openEditModal(shift: Shift) {
+		editingShift = shift;
+		formName = shift.shift_name;
+		formStartTime = formatTimeForInput(shift.start_time);
+		formEndTime = formatTimeForInput(shift.end_time);
+		formStatus = shift.status;
+		isNameTouched = false;
+		isMinHoursTouched = false;
+		backendError = '';
+		formMinHoursError = '';
+		isMinHoursManuallyEdited = Number(shift.minimum_work_hours) !== calculatedMinHours;
+		formMinHours = Number(shift.minimum_work_hours);
+		dirtyChecker.snapshot({
+			shift_name: shift.shift_name,
+			start_time: formStartTime,
+			end_time: formEndTime,
+			minimum_work_hours: formMinHours,
+			status: shift.status
+		});
+		isModalOpen = true;
+	}
 
-        if (valA === null || valA === undefined)
-          return sortDirection === "asc" ? 1 : -1;
-        if (valB === null || valB === undefined)
-          return sortDirection === "asc" ? -1 : 1;
+	async function handleSaveShift(e: Event) {
+		e.preventDefault();
+		if (editingShift && !isDirty) return;
+		isNameTouched = true;
 
-        if (typeof valA === "string" && typeof valB === "string") {
-          const comp = valA.localeCompare(valB);
-          return sortDirection === "asc" ? comp : -comp;
-        }
-        if (typeof valA === "boolean" && typeof valB === "boolean") {
-          const numA = valA ? 1 : 0;
-          const numB = valB ? 1 : 0;
-          return sortDirection === "asc" ? numA - numB : numB - numA;
-        }
-        if (valA < valB) return sortDirection === "asc" ? -1 : 1;
-        if (valA > valB) return sortDirection === "asc" ? 1 : -1;
-        return 0;
-      });
-    }
-    return list;
-  });
+		const validationError = getValidationError(formName);
+		if (validationError) {
+			shiftNameInput?.focus();
+			return;
+		}
 
-  let paginatedShifts = $derived(
-    sortedShifts.slice((page - 1) * limit, page * limit),
-  );
+		if (formMinHours > calculatedMinHours) {
+			formMinHoursError = `Minimum work hours cannot exceed the total shift duration (${formatHoursReadable(calculatedMinHours)}).`;
+			return;
+		}
 
-  let totalShifts = $derived(shifts.length);
-  let activeShiftsCount = $derived(shifts.filter((s) => s.status).length);
-  let avgMinWorkHours = $derived.by(() => {
-    if (shifts.length === 0) return 0.0;
-    const sum = shifts.reduce((acc, s) => {
-      const val = parseFloat(s.minimum_work_hours as any);
-      return acc + (isNaN(val) ? 0 : val);
-    }, 0);
-    return parseFloat((sum / shifts.length).toFixed(2));
-  });
+		isSubmitting = true;
 
-  $effect(() => {
-    if (page > totalPages) {
-      page = totalPages;
-    }
-    if (page < 1) {
-      page = 1;
-    }
-  });
+		try {
+			const startTimeIso = `1970-01-01T${formStartTime}:00.000Z`;
+			const endTimeIso = `1970-01-01T${formEndTime}:00.000Z`;
 
-  let filteredShifts = $derived.by(() => {
-    let list = shifts;
-    if (filterStatus === "active") list = shifts.filter((s) => s.status);
-    else if (filterStatus === "inactive")
-      list = shifts.filter((s) => !s.status);
+			if (editingShift) {
+				await updateShift(editingShift.cuid, {
+					shift_name: formName.trim(),
+					start_time: startTimeIso,
+					end_time: endTimeIso,
+					minimum_work_hours: formMinHours,
+					status: formStatus
+				});
+			} else {
+				await createShift({
+					shift_name: formName.trim(),
+					start_time: startTimeIso,
+					end_time: endTimeIso,
+					minimum_work_hours: formMinHours
+				});
+			}
+			await loadShifts();
+			toast.success(editingShift ? 'Shift updated successfully' : 'Shift created successfully');
+			isModalOpen = false;
+		} catch (err) {
+			backendError = err instanceof ApiError ? err.message : 'Something went wrong.';
+			toast.error(backendError);
+			console.error(err);
+		} finally {
+			isSubmitting = false;
+		}
+	}
 
-    if (searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase().trim();
-      list = list.filter((s) => s.shift_name.toLowerCase().includes(query));
-    }
-    return list;
-  });
+	async function deactivateShift(cuid: string) {
+		confirmation.ask({
+			title: 'Deactivate Shift',
+			message: 'Deactivate this shift? It will remain visible but marked as inactive.',
+			confirmText: 'Deactivate',
+			cancelText: 'Cancel',
+			isDestructive: true,
+			onConfirm: async () => {
+				try {
+					await deleteShift(cuid);
+					await loadShifts();
+					toast.success('Shift deactivated successfully');
+				} catch (err) {
+					console.error(err);
+					toast.error(err instanceof ApiError ? err.message : 'Failed to deactivate shift.');
+				}
+			}
+		});
+	}
 
-  let total = $derived(filteredShifts.length);
-  let totalPages = $derived(Math.max(1, Math.ceil(total / limit)));
-  let pageNumbers = $derived(
-    Array.from({ length: totalPages }, (_, i) => i + 1),
-  );
-
-  async function fetchShifts() {
-    loading = true;
-    try {
-      shifts = await fetchAllShifts();
-    } catch (e) {
-      console.error("Failed to fetch shifts", e);
-      toast.error(e instanceof ApiError ? e.message : "Failed to load shifts");
-    } finally {
-      loading = false;
-    }
-  }
-
-  function formatTimeForInput(timeVal: any): string {
-    if (!timeVal) return "00:00";
-    const d = new Date(timeVal);
-    if (isNaN(d.getTime())) {
-      if (typeof timeVal === "string" && timeVal.includes(":")) {
-        return timeVal.slice(0, 5);
-      }
-      return "00:00";
-    }
-    const hours = String(d.getUTCHours()).padStart(2, "0");
-    const minutes = String(d.getUTCMinutes()).padStart(2, "0");
-    return `${hours}:${minutes}`;
-  }
-
-  function formatTimeForDisplay(timeVal: any): string {
-    if (!timeVal) return "N/A";
-    const d = new Date(timeVal);
-    if (isNaN(d.getTime())) {
-      return String(timeVal);
-    }
-    const hours = String(d.getUTCHours()).padStart(2, "0");
-    const minutes = String(d.getUTCMinutes()).padStart(2, "0");
-    return `${hours}:${minutes}`;
-  }
-
-  function openCreate() {
-    editShift = null;
-    formName = "";
-    formStartTime = "09:00";
-    formEndTime = "18:00";
-    formStatus = true;
-    formError = "";
-    formMinHoursError = "";
-    isMinHoursManuallyEdited = false;
-    formMinHours = calculatedMinHours;
-    captureOriginalState();
-    showForm = true;
-  }
-
-  function openEdit(shift: Shift) {
-    editShift = shift;
-    formName = shift.shift_name;
-    formStartTime = formatTimeForInput(shift.start_time);
-    formEndTime = formatTimeForInput(shift.end_time);
-    formStatus = shift.status;
-    formError = "";
-    formMinHoursError = "";
-    isMinHoursManuallyEdited = false;
-    formMinHours = Number(shift.minimum_work_hours);
-    captureOriginalState();
-    showForm = true;
-  }
-
-  function closeForm() {
-    showForm = false;
-    formName = "";
-    formError = "";
-    formMinHoursError = "";
-    isMinHoursManuallyEdited = false;
-    editShift = null;
-    resetStateTracking();
-  }
-
-  async function submitForm(e: Event) {
-    e.preventDefault();
-    const nameTrimmed = formName.trim();
-    if (!nameTrimmed) {
-      formError = "Shift name is required.";
-      return;
-    }
-    if (nameTrimmed.length < 2) {
-      formError = "Shift name must be at least 2 characters.";
-      return;
-    }
-    if (/\d/.test(nameTrimmed)) {
-      formError = "Shift name cannot contain numbers.";
-      return;
-    }
-    if (!/^[A-Za-z ]+$/.test(nameTrimmed)) {
-      formError = "Shift name cannot contain special characters.";
-      return;
-    }
-    if (nameTrimmed.length > 255) {
-      formError = "Shift name exceeds maximum length of 255 characters.";
-      return;
-    }
-
-    if (!formStartTime || !formEndTime) {
-      formError = "Start Time and End Time are required.";
-      return;
-    }
-
-    // Validate minimum work hours does not exceed shift duration
-    if (formMinHours > calculatedMinHours) {
-      formMinHoursError = `Minimum work hours cannot exceed the total shift duration (${formatHoursReadable(calculatedMinHours)}).`;
-      return;
-    }
-    formMinHoursError = "";
-
-    formLoading = true;
-    formError = "";
-    try {
-      const startTimeIso = `1970-01-01T${formStartTime}:00.000Z`;
-      const endTimeIso = `1970-01-01T${formEndTime}:00.000Z`;
-
-      if (editShift) {
-        await updateShift(editShift.cuid, {
-          shift_name: nameTrimmed,
-          start_time: startTimeIso,
-          end_time: endTimeIso,
-          minimum_work_hours: formMinHours,
-          status: formStatus,
-        });
-      } else {
-        await createShift({
-          shift_name: nameTrimmed,
-          start_time: startTimeIso,
-          end_time: endTimeIso,
-          minimum_work_hours: formMinHours,
-        });
-      }
-      const isEdit = !!editShift;
-      closeForm();
-      await fetchShifts();
-      toast.success(
-        isEdit ? "Shift updated successfully" : "Shift created successfully",
-      );
-    } catch (e) {
-      formError = e instanceof ApiError ? e.message : "Something went wrong.";
-      toast.error(formError);
-    } finally {
-      formLoading = false;
-    }
-  }
-
-  async function deactivateShift(cuid: string) {
-    confirmation.ask({
-      title: "Deactivate Shift",
-      message:
-        "Deactivate this shift? It will remain visible but marked as inactive.",
-      confirmText: "Deactivate",
-      cancelText: "Cancel",
-      isDestructive: true,
-      onConfirm: async () => {
-        try {
-          await deleteShift(cuid);
-          await fetchShifts();
-          toast.success("Shift deactivated successfully");
-        } catch (e) {
-          toast.error(
-            e instanceof ApiError ? e.message : "Failed to deactivate shift",
-          );
-        }
-      },
-    });
-  }
-
-  async function activateShift(cuid: string) {
-    confirmation.ask({
-      title: "Activate Shift",
-      message: "Activate this shift? It will be marked as active.",
-      confirmText: "Activate",
-      cancelText: "Cancel",
-      isDestructive: false,
-      onConfirm: async () => {
-        try {
-          await activateShiftApi(cuid);
-          await fetchShifts();
-          toast.success("Shift activated successfully");
-        } catch (e) {
-          toast.error(
-            e instanceof ApiError ? e.message : "Failed to activate shift",
-          );
-        }
-      },
-    });
-  }
-
-  async function prevPage() {
-    if (page > 1) {
-      page -= 1;
-    }
-  }
-
-  async function nextPage() {
-    if (page < totalPages) {
-      page += 1;
-    }
-  }
-
-  onMount(fetchShifts);
+	async function activateShift(cuid: string) {
+		confirmation.ask({
+			title: 'Activate Shift',
+			message: 'Activate this shift? It will be marked as active.',
+			confirmText: 'Activate',
+			cancelText: 'Cancel',
+			isDestructive: false,
+			onConfirm: async () => {
+				try {
+					await activateShiftApi(cuid);
+					await loadShifts();
+					toast.success('Shift activated successfully');
+				} catch (err) {
+					console.error(err);
+					toast.error(err instanceof ApiError ? err.message : 'Failed to activate shift.');
+				}
+			}
+		});
+	}
 </script>
 
 <svelte:head>
-  <title>Shifts – PieQ HRMS</title>
+	<title>Shifts</title>
 </svelte:head>
 
-<div
-  class="flex items-center justify-between mb-5 max-md:flex-col max-md:items-stretch max-md:gap-4"
->
-  <div>
-    <h1 class="text-3xl font-bold tracking-tight text-foreground m-0">
-      Shifts
-    </h1>
-  </div>
+<div class="w-full space-y-6 px-1 py-0">
+	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
+		<div class="space-y-1">
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Shifts</h1>
+		</div>
+		<Button
+			type="button"
+			class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+			onclick={openCreateModal}
+		>
+			<PlusIcon class="size-4" />
+			Add Shift
+		</Button>
+	</div>
 
-  <button
-    class="inline-flex items-center gap-1.5 bg-pieq-primary text-white text-[13px] font-semibold px-4 py-2 rounded-lg no-underline transition-[background-color,transform] duration-200 hover:bg-[#a8541f] hover:-translate-y-0.5 active:translate-y-0 cursor-pointer border-none max-md:self-start"
-    onclick={openCreate}
-    id="add-shift-btn"
-  >
-    <PlusIcon size={16} />
-    Add Shift
-  </button>
-</div>
-<hr class="border-t border-border mb-7" />
+	<!-- Metrics Cards -->
+	<div class="grid gap-4 sm:grid-cols-3">
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Total Shifts</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalCount}</CardTitle>
+			</CardHeader>
+		</Card>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Active Shifts</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{activeCount}</CardTitle>
+			</CardHeader>
+		</Card>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Avg Min Work Hours</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{formatHoursReadable(avgMinWorkHours)}</CardTitle>
+			</CardHeader>
+		</Card>
+	</div>
 
-<!-- Stats Grid -->
-<div
-  class="grid gap-4 mb-7 grid-cols-[repeat(auto-fit,minmax(180px,1fr))] max-md:grid-cols-[repeat(auto-fit,minmax(150px,1fr))] max-md:gap-3 max-md:mb-5"
->
-  <div class="bg-card border border-border rounded-xl p-6 shadow-sm">
-    <div class="text-xs font-medium text-muted-foreground tracking-wide mb-1.5">
-      Total Shifts
-    </div>
-    <div
-      class="text-[36px] font-bold text-foreground leading-none tabular-nums"
-    >
-      {totalShifts}
-    </div>
-  </div>
-  <div class="bg-card border border-border rounded-xl p-6 shadow-sm">
-    <div class="text-xs font-medium text-muted-foreground tracking-wide mb-1.5">
-      Active Shifts
-    </div>
-    <div
-      class="text-[36px] font-bold leading-none tabular-nums text-pieq-primary"
-    >
-      {activeShiftsCount}
-    </div>
-  </div>
-  <div class="bg-card border border-border rounded-xl p-6 shadow-sm">
-    <div class="text-xs font-medium text-muted-foreground tracking-wide mb-1.5">
-      Avg Min Work Hours
-    </div>
-    <div
-      class="text-[28px] font-bold leading-none tabular-nums text-pieq-tertiary"
-    >
-      {formatHoursReadable(avgMinWorkHours)}
-    </div>
-  </div>
-</div>
+	<div class="space-y-3">
+		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+			<SearchInput id="search_shifts" name="search_shifts" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by shift name..." />
+			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
+		</div>
 
-<!-- Toolbar: filter and search -->
-<div
-  class="flex items-center justify-between mb-5 gap-4 w-full max-md:flex-col max-md:items-stretch max-md:gap-3"
->
-  <div class="relative flex-1 flex items-center max-md:w-full">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="lucide lucide-search absolute left-3.5 text-muted-foreground pointer-events-none"
-      ><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg
-    >
-    <input
-      type="text"
-      bind:value={searchQuery}
-      placeholder="Search by shift name..."
-      id="shift-search-input"
-      class="w-full border border-border bg-card text-foreground text-sm py-2.25 pl-10 pr-3 rounded-xl outline-none transition-all duration-200 shadow-sm focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-      oninput={() => (formError = "")}
-    />
-  </div>
-
-  <div
-    class="flex items-center gap-3 max-md:w-full max-md:justify-between max-md:flex-wrap"
-  >
-    <div class="flex items-center gap-1.5 relative max-md:w-full">
-      <button
-        onclick={(e) => {
-          e.stopPropagation();
-          showStatusDropdown = !showStatusDropdown;
-        }}
-        class="bg-card border-[1.5px] border-neutral-300 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground inline-flex items-center justify-between gap-12 min-w-[140px] cursor-pointer transition-all duration-200 outline-none shadow-sm hover:border-neutral-400 focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15 max-md:w-full max-md:min-w-full max-md:gap-3"
-        id="shift-filter-select-trigger"
-      >
-        <span
-          >{filterStatus === "all"
-            ? "All"
-            : filterStatus === "active"
-              ? "Active"
-              : "Inactive"}</span
-        >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="lucide lucide-funnel"
-          style="color:#737373"
-          ><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg
-        >
-      </button>
-
-      {#if showStatusDropdown}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div
-          class="absolute top-[calc(100%+4px)] right-0 z-60 bg-white border border-neutral-200 rounded-xl shadow-lg min-w-[140px] p-1 flex flex-col gap-0.5"
-          onclick={(e) => e.stopPropagation()}
-        >
-          {#each [{ value: "all", label: "All" }, { value: "active", label: "Active" }, { value: "inactive", label: "Inactive" }] as opt}
-            <button
-              onclick={() => handleStatusSelect(opt.value as any)}
-              class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
-            >
-              <span>{opt.label}</span>
-              {#if filterStatus === opt.value}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-check"
-                  style="color:#111827"><path d="M20 6 9 17l-5-5" /></svg
-                >
-              {/if}
-            </button>
-          {/each}
-        </div>
-      {/if}
-    </div>
-  </div>
+		<Card class="py-0">
+			<Table>
+				<TableHeader class="bg-muted">
+					<TableRow>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('shift_name')}>
+								Shift Name
+							{#if sortColumn === 'shift_name' && sortDirection === 'asc'}
+								<ArrowUpIcon class="ml-2 size-4" />
+							{:else if sortColumn === 'shift_name' && sortDirection === 'desc'}
+								<ArrowDownIcon class="ml-2 size-4" />
+							{:else}
+								<ArrowUpDownIcon class="ml-2 size-4" />
+							{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">Start Time</TableHead>
+						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">End Time</TableHead>
+						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">Min Work Hours</TableHead>
+						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
+								Status
+							{#if sortColumn === 'status' && sortDirection === 'asc'}
+								<ArrowUpIcon class="ml-2 size-4" />
+							{:else if sortColumn === 'status' && sortDirection === 'desc'}
+								<ArrowDownIcon class="ml-2 size-4" />
+							{:else}
+								<ArrowUpDownIcon class="ml-2 size-4" />
+							{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{#if isLoading}
+						<TableRow>
+							<TableCell colspan={6} class="py-8 text-center text-muted-foreground">
+								<LoaderCircleIcon class="mx-auto mb-2 size-6 animate-spin" />
+								Loading shifts...
+							</TableCell>
+						</TableRow>
+					{:else if filteredShifts.length === 0}
+						<TableRow>
+							<TableCell colspan={6} class="py-8 text-center text-muted-foreground">
+								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
+							</TableCell>
+						</TableRow>
+					{:else}
+						{#each paginatedShifts as shift (shift.cuid)}
+							<TableRow 
+								onclick={(e) => {
+									if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
+									openEditModal(shift);
+								}} 
+								class="cursor-pointer"
+							>
+								<TableCell>
+									<span class="font-semibold">{shift.shift_name}</span>
+								</TableCell>
+								<TableCell class="text-center">{formatTimeForDisplay(shift.start_time)}</TableCell>
+								<TableCell class="text-center">{formatTimeForDisplay(shift.end_time)}</TableCell>
+								<TableCell class="text-center">{formatHoursReadable(Number(shift.minimum_work_hours))}</TableCell>
+								<TableCell class="text-center">
+									<Badge variant={shift.status === true ? 'default' : 'secondary'}>{shift.status ? 'Active' : 'Inactive'}</Badge>
+								</TableCell>
+								<TableCell class="text-right">
+									<TableActions
+										canEdit={true}
+										onEdit={() => openEditModal(shift)}
+										customActions={[
+											{
+												label: shift.status ? 'Deactivate' : 'Activate',
+												onClick: () => shift.status ? deactivateShift(shift.cuid) : activateShift(shift.cuid)
+											}
+										]}
+									/>
+								</TableCell>
+							</TableRow>
+						{/each}
+					{/if}
+				</TableBody>
+			</Table>
+		</Card>
+		<Pagination bind:currentPage={currentPage} pageSize={pageSize} totalItems={filteredShifts.length} />
+	</div>
 </div>
 
-<!-- Table card -->
-<div
-  class="bg-card border border-border rounded-xl overflow-hidden shadow-sm max-md:overflow-x-auto max-md:w-full max-md:[-webkit-overflow-scrolling:touch]"
+<CrudModal
+	open={isModalOpen}
+	title={editingShift ? 'Edit Shift' : 'Create Shift'}
+	isDirty={isDirty}
+	isSubmitting={isSubmitting}
+	onClose={() => (isModalOpen = false)}
 >
-  {#if loading}
-    <div
-      class="py-16 text-center text-muted-foreground flex items-center justify-center gap-2.5"
-    >
-      <LoaderCircleIcon class="animate-spin" size={18} />
-      Loading shifts...
-    </div>
-  {:else if filteredShifts.length === 0}
-    <div class="py-16 text-center text-muted-foreground">
-      {shifts.length === 0
-        ? "No records found"
-        : "No shifts match the current filter."}
-    </div>
-  {:else}
-    <table class="w-full border-collapse">
-      <thead class="bg-[#F9FAFB]">
-        <tr class="border-b border-border">
-          <th
-            class="px-5 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap"
-          >
-            <button
-              onclick={() => toggleSort("shift_name")}
-              class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
-            >
-              Shift Name
-              {#if sortColumn === "shift_name"}
-                {#if sortDirection === "asc"}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-up"
-                    style="margin-left: 6px; flex-shrink: 0;"
-                    ><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg
-                  >
-                {:else}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-down"
-                    style="margin-left: 6px; flex-shrink: 0;"
-                    ><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></svg
-                  >
-                {/if}
-              {:else}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-arrow-up-down"
-                  style="margin-left: 6px; flex-shrink: 0;"
-                  ><path d="m21 16-4 4-4-4" /><path d="M17 20V4" /><path
-                    d="m3 8 4-4 4 4"
-                  /><path d="M7 4v16" /></svg
-                >
-              {/if}
-            </button>
-          </th>
-          <th
-            class="px-5 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap"
-          >
-            <button
-              onclick={() => toggleSort("start_time")}
-              class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
-            >
-              Start Time
-              {#if sortColumn === "start_time"}
-                {#if sortDirection === "asc"}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-up"
-                    style="margin-left: 6px; flex-shrink: 0;"
-                    ><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg
-                  >
-                {:else}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-down"
-                    style="margin-left: 6px; flex-shrink: 0;"
-                    ><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></svg
-                  >
-                {/if}
-              {:else}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-arrow-up-down"
-                  style="margin-left: 6px; flex-shrink: 0;"
-                  ><path d="m21 16-4 4-4-4" /><path d="M17 20V4" /><path
-                    d="m3 8 4-4 4 4"
-                  /><path d="M7 4v16" /></svg
-                >
-              {/if}
-            </button>
-          </th>
-          <th
-            class="px-5 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap"
-          >
-            <button
-              onclick={() => toggleSort("end_time")}
-              class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
-            >
-              End Time
-              {#if sortColumn === "end_time"}
-                {#if sortDirection === "asc"}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-up"
-                    style="margin-left: 6px; flex-shrink: 0;"
-                    ><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg
-                  >
-                {:else}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-down"
-                    style="margin-left: 6px; flex-shrink: 0;"
-                    ><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></svg
-                  >
-                {/if}
-              {:else}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-arrow-up-down"
-                  style="margin-left: 6px; flex-shrink: 0;"
-                  ><path d="m21 16-4 4-4-4" /><path d="M17 20V4" /><path
-                    d="m3 8 4-4 4 4"
-                  /><path d="M7 4v16" /></svg
-                >
-              {/if}
-            </button>
-          </th>
-          <th
-            class="px-5 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap"
-          >
-            <button
-              onclick={() => toggleSort("minimum_work_hours")}
-              class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
-            >
-              Min Work Hours
-              {#if sortColumn === "minimum_work_hours"}
-                {#if sortDirection === "asc"}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-up"
-                    style="margin-left: 6px; flex-shrink: 0;"
-                    ><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg
-                  >
-                {:else}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-down"
-                    style="margin-left: 6px; flex-shrink: 0;"
-                    ><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></svg
-                  >
-                {/if}
-              {:else}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-arrow-up-down"
-                  style="margin-left: 6px; flex-shrink: 0;"
-                  ><path d="m21 16-4 4-4-4" /><path d="M17 20V4" /><path
-                    d="m3 8 4-4 4 4"
-                  /><path d="M7 4v16" /></svg
-                >
-              {/if}
-            </button>
-          </th>
-          <th
-            class="px-5 py-3.5 text-left text-sm font-bold text-foreground whitespace-nowrap"
-          >
-            <button
-              onclick={() => toggleSort("status")}
-              class="flex items-center gap-1.5 cursor-pointer border-none bg-transparent text-sm font-bold text-foreground p-0"
-            >
-              Status
-              {#if sortColumn === "status"}
-                {#if sortDirection === "asc"}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-up"
-                    style="margin-left: 6px; flex-shrink: 0;"
-                    ><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg
-                  >
-                {:else}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="lucide lucide-arrow-down"
-                    style="margin-left: 6px; flex-shrink: 0;"
-                    ><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></svg
-                  >
-                {/if}
-              {:else}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="lucide lucide-arrow-up-down"
-                  style="margin-left: 6px; flex-shrink: 0;"
-                  ><path d="m21 16-4 4-4-4" /><path d="M17 20V4" /><path
-                    d="m3 8 4-4 4 4"
-                  /><path d="M7 4v16" /></svg
-                >
-              {/if}
-            </button>
-          </th>
-          <th
-            class="px-5 py-3.5 text-right text-sm font-bold text-foreground whitespace-nowrap"
-            >Actions</th
-          >
-        </tr>
-      </thead>
-      <tbody>
-        {#each paginatedShifts as shift (shift.cuid)}
-          <!-- svelte-ignore a11y_click_events_have_key_events -->
-          <!-- svelte-ignore a11y_no_static_element_interactions -->
-          <tr
-            class="border-t border-border transition-colors duration-200 hover:bg-muted cursor-pointer"
-            onclick={() => openEdit(shift)}
-          >
-            <td class="px-5 py-3.5">
-              <div class="flex items-center gap-2">
-                <span class="text-sm font-semibold">{shift.shift_name}</span>
-              </div>
-            </td>
-            <td class="px-5 py-3.5 text-sm"
-              >{formatTimeForDisplay(shift.start_time)}</td
-            >
-            <td class="px-5 py-3.5 text-sm"
-              >{formatTimeForDisplay(shift.end_time)}</td
-            >
-            <td class="px-5 py-3.5 text-sm font-semibold"
-              >{formatHoursReadable(Number(shift.minimum_work_hours))}</td
-            >
-            <td class="px-5 py-3.5">
-              {#if shift.status}
-                <span
-                  class="inline-flex items-center justify-center w-16 py-1 rounded-full text-[11px] font-semibold bg-[#111827] text-white"
-                  >Active</span
-                >
-              {:else}
-                <span
-                  class="inline-flex items-center justify-center w-16 py-1 rounded-full text-[11px] font-semibold bg-neutral-100 text-neutral-700"
-                  >Inactive</span
-                >
-              {/if}
-            </td>
-            <td
-              class="px-5 py-3.5 text-right relative"
-              onclick={(e) => e.stopPropagation()}
-            >
-              <div class="inline-flex items-center justify-end">
-                <button
-                  onclick={(e) => toggleDropdown(shift.cuid, e)}
-                  aria-label="Actions"
-                  title="Actions"
-                  class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-transparent cursor-pointer transition-colors duration-150 text-foreground hover:bg-muted"
-                >
-                  <MoreVerticalIcon size={15} />
-                </button>
+	{#snippet children({ cancel })}
+		<form class="space-y-3" onsubmit={handleSaveShift}>
+			<div class="space-y-2">
+				<Label for="shift_name">Shift Name</Label>
+				<Input
+					id="shift_name"
+					name="shift_name"
+					bind:ref={shiftNameInput}
+					bind:value={formName}
+					class={nameValidationError || backendError ? 'border-destructive' : ''}
+					placeholder="e.g. Morning Shift"
+					oninput={() => { backendError = ''; }}
+				/>
+				{#if nameValidationError || backendError}
+					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
+				{/if}
+			</div>
 
-                {#if activeDropdownId === shift.cuid}
-                  <!-- svelte-ignore a11y_click_events_have_key_events -->
-                  <!-- svelte-ignore a11y_no_static_element_interactions -->
-                  <div
-                    class="absolute right-5 top-11 z-50 bg-background border border-border rounded-lg shadow-md min-w-[110px] py-1"
-                    onclick={(e) => e.stopPropagation()}
-                  >
-                    <button
-                      onclick={() => {
-                        openEdit(shift);
-                        activeDropdownId = null;
-                      }}
-                      class="w-full flex items-center gap-3 px-3 py-2 text-xs border-none bg-transparent cursor-pointer text-left text-foreground transition-colors duration-150 hover:bg-muted"
-                    >
-                      <Pencil2Icon size={13} />
-                      Edit
-                    </button>
-                  </div>
-                {/if}
-              </div>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
+			<div class="grid grid-cols-2 gap-4">
+				<div class="space-y-2">
+					<Label for="start_time">Start Time</Label>
+					<Input
+						id="start_time"
+						name="start_time"
+						type="time"
+						bind:value={formStartTime}
+					/>
+				</div>
+				<div class="space-y-2">
+					<Label for="end_time">End Time</Label>
+					<Input
+						id="end_time"
+						name="end_time"
+						type="time"
+						bind:value={formEndTime}
+					/>
+				</div>
+			</div>
 
-    <!-- Pagination -->
-    <div
-      class="flex items-center justify-between px-5 py-3.5 border-t border-border"
-    >
-      <p class="text-sm text-muted-foreground">
-        Showing {total === 0 ? 0 : (page - 1) * limit + 1}-{Math.min(
-          page * limit,
-          total,
-        )} of {total} records
-      </p>
-      <div class="flex items-center gap-2">
-        <button
-          disabled={page <= 1}
-          onclick={prevPage}
-          class="px-3 py-1.5 border border-border rounded-md bg-card text-xs font-medium cursor-pointer text-muted-foreground inline-flex items-center transition-colors duration-150 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
-          ><span style="margin-right: 8px;">&lt;</span>Previous</button
-        >
-        {#each pageNumbers as p}
-          {#if p === page}
-            <span
-              class="bg-[#111827] text-white w-8 h-8 rounded-md font-bold inline-flex items-center justify-center text-sm"
-            >
-              {p}
-            </span>
-          {:else}
-            <button
-              onclick={() => (page = p)}
-              class="w-8 h-8 rounded-md border border-border bg-card text-foreground font-semibold cursor-pointer text-sm transition-all duration-150 hover:bg-muted"
-              >{p}</button
-            >
-          {/if}
-        {/each}
-        <button
-          disabled={page >= totalPages}
-          onclick={nextPage}
-          class="px-3 py-1.5 border border-border rounded-md bg-card text-xs font-medium cursor-pointer text-muted-foreground inline-flex items-center transition-colors duration-150 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
-          >Next<span style="margin-left: 8px;">&gt;</span></button
-        >
-      </div>
-    </div>
-  {/if}
-</div>
+			<div class="space-y-2">
+				<div class="flex justify-between items-center">
+					<Label for="minimum_work_hours">Minimum Work Hours</Label>
+					{#if isMinHoursManuallyEdited}
+						<button 
+							type="button" 
+							onclick={() => { isMinHoursManuallyEdited = false; }} 
+							class="text-xs text-[#F45310] hover:underline bg-transparent border-none p-0 cursor-pointer"
+						>
+							Reset to auto
+						</button>
+					{/if}
+				</div>
+				<Input
+					id="minimum_work_hours"
+					name="minimum_work_hours"
+					type="number"
+					step="0.25"
+					bind:value={formMinHours}
+					class={formMinHoursError ? 'border-destructive' : ''}
+					oninput={() => { isMinHoursManuallyEdited = true; formMinHoursError = ''; }}
+				/>
+				{#if formMinHoursError}
+					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{formMinHoursError}</p>
+				{:else}
+					<p class="text-xs text-muted-foreground">
+						Shift duration: {formatHoursReadable(calculatedMinHours)} (auto-calculated)
+					</p>
+				{/if}
+			</div>
 
-<!-- Create / Edit Modal -->
-<Modal
-  bind:show={showForm}
-  title={editShift ? "Edit Shift" : "Create New Shift"}
-  onclose={attemptCloseForm}
->
-  {#if showConfirmation}
-    <div
-      class="fixed inset-0 bg-black/55 backdrop-blur-sm z-300 flex items-center justify-center p-6 box-border"
-    >
-      <div
-        class="bg-white border-none rounded-3xl p-8 w-full max-w-[480px] shadow-2xl flex flex-col gap-0 text-left box-border"
-      >
-        <h3 class="text-xl font-bold text-black m-0 mb-2.5 font-sans">
-          Cancel Changes
-        </h3>
-        <p class="text-[15px] text-[#737373] m-0 mb-7 leading-normal font-sans">
-          Are you sure you want to cancel? All unsaved changes will be lost.
-        </p>
-        <div class="flex flex-row gap-3 justify-end items-center">
-          <button
-            type="button"
-            onclick={discardChanges}
-            class="px-5 py-2.5 rounded-xl bg-white border border-neutral-200 text-black text-[15px] font-semibold cursor-pointer transition-colors duration-150 hover:bg-neutral-50 font-sans"
-            >Cancel</button
-          >
-          <button
-            type="button"
-            onclick={continueEditing}
-            class="px-5 py-2.5 rounded-xl bg-pieq-tertiary border-none text-white text-[15px] font-semibold cursor-pointer transition-opacity duration-150 hover:opacity-90 font-sans"
-            >Keep Editing</button
-          >
-        </div>
-      </div>
-    </div>
-  {/if}
-
-  <form onsubmit={submitForm} class="flex flex-col gap-4">
-    <div class="flex flex-col gap-1.5">
-      <label for="shift-name" class="text-[13px] font-semibold">
-        Shift Name <span class="text-pieq-primary">*</span>
-      </label>
-      <input
-        id="shift-name"
-        type="text"
-        bind:value={formName}
-        oninput={() => (formError = "")}
-        placeholder="e.g. Morning Shift"
-        class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-      />
-      {#if formError}
-        <p class="text-pieq-tertiary text-xs m-0">{formError}</p>
-      {/if}
-    </div>
-
-    <div class="grid grid-cols-2 gap-3">
-      <div class="flex flex-col gap-1.5">
-        <label for="shift-start-time" class="text-[13px] font-semibold">
-          Start Time <span class="text-pieq-primary">*</span>
-        </label>
-        <input
-          id="shift-start-time"
-          type="time"
-          bind:value={formStartTime}
-          oninput={() => (formError = "")}
-          class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-        />
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label for="shift-end-time" class="text-[13px] font-semibold">
-          End Time <span class="text-pieq-primary">*</span>
-        </label>
-        <input
-          id="shift-end-time"
-          type="time"
-          bind:value={formEndTime}
-          oninput={() => (formError = "")}
-          class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-        />
-      </div>
-    </div>
-
-    <div class="flex flex-col gap-1.5">
-      <div class="flex items-center justify-between">
-        <label for="shift-min-hours" class="text-[13px] font-semibold">
-          Minimum Work Hours
-        </label>
-        {#if isMinHoursManuallyEdited}
-          <!-- svelte-ignore a11y_click_events_have_key_events -->
-          <!-- svelte-ignore a11y_no_static_element_interactions -->
-          <span
-            class="text-[11px] text-pieq-primary cursor-pointer hover:underline"
-            onclick={() => {
-              isMinHoursManuallyEdited = false;
-              formMinHours = calculatedMinHours;
-              formMinHoursError = "";
-            }}>Reset to auto</span
-          >
-        {/if}
-      </div>
-      <input
-        id="shift-min-hours"
-        type="number"
-        min="0"
-        step="0.25"
-        bind:value={formMinHours}
-        oninput={() => {
-          isMinHoursManuallyEdited = true;
-          formMinHoursError =
-            formMinHours > calculatedMinHours
-              ? `Cannot exceed shift duration (${formatHoursReadable(calculatedMinHours)})`
-              : "";
-        }}
-        class="w-full border {formMinHoursError
-          ? 'border-red-400'
-          : 'border-border'} rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-      />
-      <p class="text-[11px] text-muted-foreground m-0">
-        Shift duration: {formatHoursReadable(calculatedMinHours)}
-        {#if !isMinHoursManuallyEdited}
-          <span class="text-pieq-tertiary">(auto-calculated)</span>
-        {/if}
-      </p>
-      {#if formMinHoursError}
-        <p class="text-red-500 text-xs m-0">{formMinHoursError}</p>
-      {/if}
-    </div>
-
-    {#if editShift}
-      <div class="flex flex-col gap-1.5">
-        <span class="text-[13px] font-semibold"> Status </span>
-        <div class="relative w-full">
-          <button
-            type="button"
-            onclick={(e) => {
-              e.stopPropagation();
-              showModalStatusDropdown = !showModalStatusDropdown;
-            }}
-            class="w-full bg-card border-[1.5px] border-neutral-300 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground inline-flex items-center justify-between cursor-pointer transition-all duration-200 outline-none shadow-sm hover:border-neutral-400 focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
-            id="shift-status"
-          >
-            <span>{formStatus ? "Active" : "Inactive"}</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="lucide lucide-chevron-down"
-              style="color:#737373"><path d="m6 9 6 6 6-6" /></svg
-            >
-          </button>
-
-          {#if showModalStatusDropdown}
-            <!-- svelte-ignore a11y_click_events_have_key_events -->
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <div
-              class="absolute top-[calc(100%+4px)] left-0 z-60 bg-white border border-neutral-200 rounded-xl shadow-lg w-full p-1 flex flex-col gap-0.5"
-              onclick={(e) => e.stopPropagation()}
-            >
-              {#each [{ value: true, label: "Active" }, { value: false, label: "Inactive" }] as opt}
-                <button
-                  type="button"
-                  onclick={() => {
-                    formStatus = opt.value;
-                    showModalStatusDropdown = false;
-                    formError = "";
-                  }}
-                  class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-medium border-none bg-transparent cursor-pointer text-left rounded-lg text-foreground transition-colors duration-150 hover:bg-neutral-100"
-                >
-                  <span>{opt.label}</span>
-                  {#if formStatus === opt.value}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="lucide lucide-check"
-                      style="color:#111827"><path d="M20 6 9 17l-5-5" /></svg
-                    >
-                  {/if}
-                </button>
-              {/each}
-            </div>
-          {/if}
-        </div>
-      </div>
-    {/if}
-
-    <div class="flex justify-end gap-2 pt-1">
-      <button
-        type="button"
-        onclick={attemptCloseForm}
-        disabled={formLoading}
-        class="px-4.5 py-2.25 rounded-lg bg-transparent border border-border text-foreground text-[13px] font-semibold inline-flex items-center gap-1.5 transition-colors duration-200 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        Cancel
-      </button>
-      <button
-        type="submit"
-        disabled={formLoading ||
-          (editShift ? !isUpdateChanged : !isCreateEnabled)}
-        class="px-4.5 py-2.25 rounded-lg bg-pieq-primary text-white border-none text-[13px] font-semibold inline-flex items-center gap-1.5 transition-opacity duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        {#if formLoading}
-          <LoaderCircleIcon class="animate-spin" size={14} />
-        {/if}
-        {formLoading ? "Saving..." : "Save"}
-      </button>
-    </div>
-  </form>
-</Modal>
+			{#if editingShift}
+				<StatusDropdown id="shift_status" name="shift_status" value={formStatus} onChange={(val) => (formStatus = val)} />
+			{/if}
+			<div class="flex items-center justify-end gap-3 pt-4">
+				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
+				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingShift && !isDirty)}>
+					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingShift ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
+				</Button>
+			</div>
+		</form>
+	{/snippet}
+</CrudModal>

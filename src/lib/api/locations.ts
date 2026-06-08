@@ -96,3 +96,22 @@ export async function activateLocation(cuid: string): Promise<CompanyLocation> {
   );
   return res.data;
 }
+
+/** Create a new country. */
+export async function createCountry(name: string): Promise<{ cuid: string }> {
+  const res = await localApi.post<{ data: { cuid: string } }>(
+    '/api/master-data/countries',
+    { name }
+  );
+  return res.data;
+}
+
+/** Create a new state. */
+export async function createState(name: string, countryCuid: string): Promise<{ cuid: string }> {
+  const res = await localApi.post<{ data: { cuid: string } }>(
+    '/api/master-data/states',
+    { name, country_cuid: countryCuid }
+  );
+  return res.data;
+}
+
