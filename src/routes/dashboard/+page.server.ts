@@ -3,9 +3,8 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
-		redirect(303, '/');
+		redirect(302, '/');
 	}
-
 	return {
 		context: {
 			user: locals.user,

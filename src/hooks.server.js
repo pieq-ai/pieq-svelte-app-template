@@ -52,13 +52,21 @@ const routeGuard = async ({ event, resolve }) => {
 		'/leave-types',
 		'/leave-policies',
 		'/holidays',
-		'/settings'
+		'/settings',
+		'/employees',
+		'/departments',
+		'/department',
+		'/designations',
+		'/designation',
+		'/system-roles',
+		'/permissions',
+		'/role-permissions',
 	];
 	const pathname = event.url.pathname;
 	const isProtected = protectedPaths.some((p) => pathname === p || pathname.startsWith(p + '/'));
 
 	if (isProtected && !event.locals.user) {
-		redirect(303, '/auth/signin');
+		throw redirect(303, '/auth/signin');
 	}
 
 	return resolve(event);

@@ -1,6 +1,7 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '$lib/generated/prisma/client.js';
 
+const SCHEMA_VERSION = 'standardized-audit-fields';
 let prisma: PrismaClient | undefined;
 
 function createClient(): PrismaClient {
@@ -15,7 +16,7 @@ function createClient(): PrismaClient {
 }
 
 function isValidClient(client: PrismaClient | undefined): client is PrismaClient {
-	return Boolean(client?.leaveType && client?.salaryComponent);
+	return Boolean(client?.employee && globalThis.__dbSchemaVersion === SCHEMA_VERSION);
 }
 
 function getDb(): PrismaClient {
@@ -30,6 +31,7 @@ function getDb(): PrismaClient {
 
 	if (process.env.NODE_ENV !== 'production') {
 		globalThis.__db = prisma;
+		globalThis.__dbSchemaVersion = SCHEMA_VERSION;
 	}
 
 	return prisma;

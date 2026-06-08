@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/salary-component.service.js';
-import { validateCreateSalaryComponent, validateUpdateSalaryComponent } from '$lib/server/validators/salary-component.validator.js';
+import { validateCreateSalaryComponent } from '$lib/server/validators/salary-component.validator.js';
 import { serializeSalaryComponent } from '$lib/server/serializers/salary-component.serializer.js';
 
 export async function GET() {

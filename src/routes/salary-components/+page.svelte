@@ -1,786 +1,499 @@
 <script lang="ts">
-  import PlusIcon from "@lucide/svelte/icons/plus";
-  import MoreVerticalIcon from "@lucide/svelte/icons/more-vertical";
-  import PencilIcon from "@lucide/svelte/icons/pencil";
-  import CheckIcon from "@lucide/svelte/icons/check";
-  import {
-    Button,
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    Input,
-    Label,
-    TableRow,
-    TableCell,
-    SearchBar,
-    Pagination,
-    MasterTable,
-    MasterFormModal,
-    ConfirmDialog,
-  } from "$lib/components";
+	import { onMount } from 'svelte';
+	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 
-  import type {
-    SalaryComponent,
-    SalaryComponentType,
-  } from "$lib/types/salary-component";
-  import { validateComponentName } from "$lib/validators/salary-component";
+	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
+	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
+	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
+	import PlusIcon from '@lucide/svelte/icons/plus';
+	import FilterIcon from '@lucide/svelte/icons/filter';
+	import CheckIcon from '@lucide/svelte/icons/check';
+	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import { toast } from '$lib/toast';
+	import { createDirtyChecker } from '$lib/utils';
+	import { UI_CONSTANTS } from '$lib/constants';
 
-  import { toast } from "$lib/toast.svelte";
-  import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
-  import { scale } from "svelte/transition";
+	import {
+		Badge,
+		Button,
+		Card,
+		CardHeader,
+		CardTitle,
+		CardDescription,
+		Input,
+		Label,
+		Table,
+		TableBody,
+		TableCell,
+		TableHead,
+		TableHeader,
+		TableRow,
+		CrudModal,
+		TableActions,
+		FilterDropdown,
+		StatusDropdown,
+		Pagination,
+		SearchInput
+	} from '$lib/components';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
-  /** Full dataset fetched once on mount — all search/sort/filter is client-side */
-  let allItems = $state<SalaryComponent[]>([]);
+	import type {
+		SalaryComponent,
+		SalaryComponentType
+	} from '$lib/types/salary-component';
+	import { validateComponentName } from '$lib/validators/salary-component';
 
-  let page = $state(1);
-  let pageSize = $state(10);
+	let componentsList = $state<SalaryComponent[]>([]);
+	let isLoading = $state(true);
+	let loadError = $state('');
 
-  /**
-   * Client-side derived list:
-   *   1. Filter by component_type and is_active dropdowns
-   *   2. Filter by search query (case-insensitive component_name match)
-   *   3. Apply 3-state sort: default (no sort) → asc → desc
-   */
-  let filteredItems = $derived.by(() => {
-    let result = allItems
-      .filter((c) => filterType === "all" || c.component_type === filterType)
-      .filter((c) => filterActive === "all" || c.is_active === (filterActive === "true"))
-      .filter((c) =>
-        searchQuery.trim() === ""
-          ? true
-          : c.component_name.toLowerCase().includes(searchQuery.trim().toLowerCase())
-      );
+	let searchQuery = $state('');
+	let statusFilter = $state<'all' | boolean>('all');
+	let typeFilter = $state<'all' | SalaryComponentType>('all');
+	let sortColumn = $state('component_name');
+	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
-    if (sortBy) {
-      result = [...result].sort((a, b) => {
-        const key = sortBy as "component_name" | "component_type" | "is_active";
-        const valA = a[key];
-        const valB = b[key];
-        const cmp =
-          typeof valA === "string" && typeof valB === "string"
-            ? valA.localeCompare(valB)
-            : typeof valA === "boolean" && typeof valB === "boolean"
-              ? Number(valB) - Number(valA) // active (true) before inactive (false)
-              : valA < valB ? -1 : valA > valB ? 1 : 0;
-        return sortOrder === "desc" ? -cmp : cmp;
-      });
-    }
+	let currentPage = $state(1);
+	let pageSize = $state(10);
 
-    return result;
-  });
+	// Shared Form State
+	let editingComp = $state<SalaryComponent | null>(null);
+	let formName = $state('');
+	let formType = $state<SalaryComponentType>('earning');
+	let formIsTaxable = $state(false);
+	let formIsActive = $state<boolean>(true);
+	let isSubmitting = $state(false);
+	let isModalOpen = $state(false);
+	let backendError = $state('');
+	let nameInput = $state<HTMLInputElement | null>(null);
 
-  let pagedItems = $derived(
-    filteredItems.slice((page - 1) * pageSize, page * pageSize)
-  );
+	const dirtyChecker = createDirtyChecker<{
+		component_name: string;
+		component_type: SalaryComponentType;
+		is_taxable: boolean;
+		is_active: boolean;
+	}>();
 
-  let totalItems = $derived(filteredItems.length);
-  let totalPages = $derived(Math.max(1, Math.ceil(filteredItems.length / pageSize)));
+	let isDirty = $derived(
+		isModalOpen && dirtyChecker.isDirty({
+			component_name: formName.trim(),
+			component_type: formType,
+			is_taxable: formIsTaxable,
+			is_active: formIsActive
+		})
+	);
 
-  /** Stats derived from the unfiltered full list (re-fetched on each loadComponents call) */
-  let earningsCount = $derived(
-    allItems.filter((c) => c.component_type === "earning" && c.is_active).length
-  );
-  let deductionsCount = $derived(
-    allItems.filter((c) => c.component_type === "deduction" && c.is_active).length
-  );
-  let totalAllComponents = $derived(allItems.length);
+	let filteredComponents = $derived.by(() => {
+		let result = [...componentsList];
 
-  let isLoading = $state(false);
+		if (searchQuery.trim()) {
+			const query = searchQuery.toLowerCase();
+			result = result.filter((comp) =>
+				comp.component_name.toLowerCase().includes(query)
+			);
+		}
 
-  let searchQuery = $state("");
-  let filterType = $state<"all" | SalaryComponentType>("all");
-  // 'all' | 'true' | 'false' maps to undefined | true | false for the API
-  let filterActive = $state<"all" | "true" | "false">("all");
+		if (statusFilter !== 'all') {
+			result = result.filter((comp) => comp.is_active === statusFilter);
+		}
 
-  /** Inline validation error for the Component Name field */
-  let formNameError = $state<string | null>(null);
+		if (typeFilter !== 'all') {
+			result = result.filter((comp) => comp.component_type === typeFilter);
+		}
 
+		if (sortDirection && sortColumn) {
+			result.sort((a, b) => {
+				const valA = a[sortColumn as keyof typeof a];
+				const valB = b[sortColumn as keyof typeof b];
 
-  let sortBy = $state("");
-  let sortOrder = $state<"asc" | "desc">("asc");
+				return sortDirection === 'asc'
+					? String(valA).localeCompare(String(valB))
+					: String(valB).localeCompare(String(valA));
+			});
+		}
 
-  let isModalOpen = $state(false);
-  let isSubmitting = $state(false);
+		return result;
+	});
 
-  let editingId = $state<string | null>(null);
+	let totalCount = $derived(componentsList.length);
+	let paginatedComponents = $derived(
+		filteredComponents.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+	);
+	let activeEarningsCount = $derived(
+		componentsList.filter((c) => c.component_type === 'earning' && c.is_active).length
+	);
+	let activeDeductionsCount = $derived(
+		componentsList.filter((c) => c.component_type === 'deduction' && c.is_active).length
+	);
 
-  let formName = $state("");
-  let formType = $state<SalaryComponentType>("earning");
-  let formIsTaxable = $state(false);
-  let formIsActive = $state(true);
+	async function loadComponents() {
+		isLoading = true;
+		loadError = '';
+		try {
+			const response = await fetch('/api/salary-components');
+			const resData = await response.json();
+			if (response.ok) {
+				componentsList = resData.data ?? [];
+			} else {
+				loadError = resData.error || resData.message || 'Failed to load salary components.';
+				toast.error(loadError);
+			}
+		} catch (err) {
+			loadError = 'An error occurred while loading salary components.';
+			toast.error(loadError);
+			console.error(err);
+		} finally {
+			isLoading = false;
+		}
+	}
 
-  // Snapshot captured when the modal opens — used for dirty detection
-  let formInitialName = $state("");
-  let formInitialType = $state<SalaryComponentType>("earning");
-  let formInitialIsTaxable = $state(false);
-  let formInitialIsActive = $state(true);
+	onMount(() => {
+		loadComponents();
+	});
 
-  /** True when any field differs from its value at modal open time */
-  let isDirty = $derived(
-    formName !== formInitialName ||
-    formType !== formInitialType ||
-    formIsTaxable !== formInitialIsTaxable ||
-    formIsActive !== formInitialIsActive
-  );
+	function handleSort(column: string) {
+		if (sortColumn === column) {
+			if (sortDirection === 'asc') sortDirection = 'desc';
+			else if (sortDirection === 'desc') sortDirection = null;
+			else sortDirection = 'asc';
+		} else {
+			sortColumn = column;
+			sortDirection = 'asc';
+		}
+	}
 
-  /** Controls the "unsaved changes" confirmation dialog */
-  let showDiscardConfirm = $state(false);
+	function openCreateModal() {
+		editingComp = null;
+		formName = '';
+		formType = 'earning';
+		formIsTaxable = false;
+		formIsActive = true;
+		backendError = '';
+		dirtyChecker.snapshot({
+			component_name: '',
+			component_type: 'earning',
+			is_taxable: false,
+			is_active: true
+		});
+		isModalOpen = true;
+	}
 
+	function openEditModal(comp: SalaryComponent) {
+		editingComp = comp;
+		formName = comp.component_name;
+		formType = comp.component_type;
+		formIsTaxable = comp.is_taxable;
+		formIsActive = comp.is_active;
+		backendError = '';
+		dirtyChecker.snapshot({
+			component_name: comp.component_name,
+			component_type: comp.component_type,
+			is_taxable: comp.is_taxable,
+			is_active: comp.is_active
+		});
+		isModalOpen = true;
+	}
 
-  const headers = [
-    {
-      key: "component_name",
-      label: "Component Name",
-      sortable: true,
-      class: "pl-5",
-    },
-    {
-      key: "component_type",
-      label: "Type",
-      sortable: true,
-    },
-    {
-      key: "is_taxable",
-      label: "Taxable",
-    },
-    {
-      key: "is_active",
-      label: "Status",
-      sortable: true,
-    },
-    {
-      key: "actions",
-      label: "Actions",
-      class: "text-center",
-    },
-  ];
+	async function handleSaveComponent(e: Event) {
+		e.preventDefault();
+		if (editingComp && !isDirty) return;
 
-  /**
-   * Fetch ALL salary components from the API — no search/sort params.
-   * Called once on mount and again after create/update/delete.
-   */
-  async function loadComponents() {
-    try {
-      isLoading = true;
+		const validationError = validateComponentName(formName);
+		if (validationError) {
+			backendError = validationError;
+			nameInput?.focus();
+			return;
+		}
 
-      const res = await fetch(`/api/salary-components`);
+		isSubmitting = true;
+		backendError = '';
 
-      if (!res.ok) {
-        const errorJson = await res.json();
-        throw new Error(
-          errorJson.message || "Failed loading salary components",
-        );
-      }
+		try {
+			const payload = {
+				component_name: formName.trim(),
+				component_type: formType,
+				is_taxable: formIsTaxable,
+				is_active: formIsActive
+			};
 
-      const json = await res.json();
-      allItems = json.data;
-    } catch (e) {
-      console.error(e);
-      toast.error(
-        e instanceof Error ? e.message : "Failed loading salary components",
-      );
-    } finally {
-      isLoading = false;
-    }
-  }
+			const response = await fetch(
+				editingComp
+					? `/api/salary-components/salaryComponentCuid=${editingComp.cuid}`
+					: '/api/salary-components',
+				{
+					method: editingComp ? 'PUT' : 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(payload)
+				}
+			);
+			const resData = await response.json();
 
-  // Load once on mount — search/sort/filter are all handled client-side
-  $effect(() => {
-    loadComponents();
-  });
-
-  // Page-reset effect: fires on client-side filter/search/sort changes (no API call)
-  let clientFiltersInitialized = false;
-  $effect(() => {
-    void searchQuery;
-    void sortBy;
-    void sortOrder;
-    void filterType;
-    void filterActive;
-    if (clientFiltersInitialized) {
-      page = 1;
-    }
-    clientFiltersInitialized = true;
-  });
-
-  function handleOpenCreate() {
-    editingId = null;
-
-    formName = "";
-    formType = "earning";
-    formIsActive = true;
-    formIsTaxable = false;
-    formNameError = null;
-
-    // Capture snapshot for dirty detection
-    formInitialName = "";
-    formInitialType = "earning";
-    formInitialIsActive = true;
-    formInitialIsTaxable = false;
-
-    isModalOpen = true;
-  }
-
-  function handleOpenEdit(component: SalaryComponent) {
-    editingId = component.cuid;
-
-    formName = component.component_name;
-    formType = component.component_type;
-    formIsActive = component.is_active;
-    formIsTaxable = component.is_taxable;
-    formNameError = null;
-
-    // Capture snapshot for dirty detection
-    formInitialName = component.component_name;
-    formInitialType = component.component_type;
-    formInitialIsActive = component.is_active;
-    formInitialIsTaxable = component.is_taxable;
-
-    isModalOpen = true;
-  }
-
-  /** Called for ALL close attempts — gates on dirty state. */
-  function handleRequestClose() {
-    if (isDirty) {
-      showDiscardConfirm = true;
-    } else {
-      isModalOpen = false;
-    }
-  }
-
-  /** User confirmed discard — close and reset form to clean defaults. */
-  function handleDiscardConfirm() {
-    showDiscardConfirm = false;
-    isModalOpen = false;
-    formName = "";
-    formType = "earning";
-    formIsActive = true;
-    formIsTaxable = false;
-  }
-
-  /** User chose Continue Editing — keep modal open, dismiss confirm dialog. */
-  function handleDiscardCancel() {
-    showDiscardConfirm = false;
-  }
-
-  async function handleFormSubmit(e: SubmitEvent) {
-    e.preventDefault();
-
-    const trimmedName = formName.trim();
-    formName = trimmedName;
-
-    // Client-side validation — show inline, not as toast
-    const nameError = validateComponentName(trimmedName);
-    if (nameError) {
-      formNameError = nameError;
-      return;
-    }
-    formNameError = null;
-
-    try {
-      isSubmitting = true;
-
-      const payload = {
-        component_name: trimmedName,
-        component_type: formType,
-        is_active: formIsActive,
-        is_taxable: formIsTaxable,
-      };
-
-      const res = await fetch(
-        editingId
-          ? `/api/salary-components?salaryComponentCuid=${editingId}`
-          : "/api/salary-components",
-        {
-          method: editingId ? "PUT" : "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        },
-      );
-
-      const json = await res.json();
-
-      if (!res.ok) {
-        // Validation/duplicate errors from the server → show inline on the name field
-        if (res.status === 400) {
-          formNameError = json.message || "Invalid input.";
-          return;
-        }
-        throw new Error(json.message || "Failed to save salary component");
-      }
-
-      await loadComponents();
-
-      toast.success(
-        editingId
-          ? "Salary Component updated successfully"
-          : "Salary Component created successfully",
-      );
-      isModalOpen = false;
-    } catch (e) {
-      toast.error(
-        e instanceof Error ? e.message : "Failed to save salary component",
-      );
-    } finally {
-      isSubmitting = false;
-    }
-  }
-
-  let activeDropdown = $state<string | null>(null);
-  /** cuid of the row whose kebab menu is currently open; null = none */
-  let openKebabCuid = $state<string | null>(null);
-  /** The trigger element for the currently open kebab — used to track live position on scroll */
-  let kebabTriggerEl = $state<HTMLElement | null>(null);
-  /** Live-computed position derived from the trigger element's bounding rect */
-  let kebabPos = $state<{ top: number; left: number } | null>(null);
-
-  /** Recomputes kebabPos from the current bounding rect of the trigger element */
-  function updateKebabPos() {
-    if (!kebabTriggerEl) return;
-    const rect = kebabTriggerEl.getBoundingClientRect();
-    kebabPos = { top: rect.bottom + 4, left: rect.left + rect.width / 2 };
-  }
-
-  /** Re-anchor on scroll while a kebab is open */
-  $effect(() => {
-    if (!kebabTriggerEl) return;
-    updateKebabPos();
-    window.addEventListener('scroll', updateKebabPos, { passive: true, capture: true });
-    return () => {
-      window.removeEventListener('scroll', updateKebabPos, { capture: true });
-    };
-  });
-
-  function toggleDropdown(name: string, e: MouseEvent) {
-    e.stopPropagation();
-    if (activeDropdown === name) {
-      activeDropdown = null;
-    } else {
-      activeDropdown = name;
-    }
-  }
-
-  function closeAllDropdowns() {
-    activeDropdown = null;
-    openKebabCuid = null;
-    kebabTriggerEl = null;
-    kebabPos = null;
-  }
-
-  function handleKeydown(e: KeyboardEvent) {
-    if (e.key === "Escape") {
-      activeDropdown = null;
-      openKebabCuid = null;
-      kebabTriggerEl = null;
-      kebabPos = null;
-    }
-  }
+			if (response.ok && resData.data) {
+				await loadComponents();
+				toast.success(editingComp ? 'Salary Component updated successfully' : 'Salary Component created successfully');
+				isModalOpen = false;
+			} else {
+				if (response.status === 400 || response.status === 409) {
+					backendError = resData.message || resData.error || 'Validation failed';
+					nameInput?.focus();
+				} else {
+					toast.error(resData.message || resData.error || 'Failed to save salary component.');
+				}
+			}
+		} catch (err) {
+			toast.error('An error occurred. Please try again.');
+			console.error(err);
+		} finally {
+			isSubmitting = false;
+		}
+	}
 </script>
 
-<svelte:window onkeydown={handleKeydown} onclick={closeAllDropdowns} />
-
 <svelte:head>
-  <title>Salary Components | PieQ HRMS</title>
+	<title>HRMS Salary Components</title>
 </svelte:head>
 
-<div class="space-y-5">
-  <!-- Page Header -->
-  <div class="flex items-center justify-between">
-    <div>
-      <h1 class="text-3xl font-bold tracking-tight">Salary Components</h1>
-    </div>
-    <Button
-      onclick={handleOpenCreate}
-      class="gap-2 bg-hrms-primary text-white hover:bg-hrms-primary-dark border-0"
-    >
-      <PlusIcon class="size-4" />
-      Add Component
-    </Button>
-  </div>
+<div class="w-full space-y-6 px-1 py-0">
+	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
+		<div class="space-y-1">
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Salary Components</h1>
+		</div>
+		<Button
+			type="button"
+			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
+			onclick={openCreateModal}
+		>
+			<PlusIcon class="size-4" />
+			Add Component
+		</Button>
+	</div>
 
-  <!-- Stats Grid -->
-  <div class="grid gap-6 md:grid-cols-3">
-    <Card>
-      <CardHeader class="pb-2">
-        <CardTitle class="text-sm font-medium text-muted-foreground"
-          >Total Components</CardTitle
-        >
-      </CardHeader>
-      <CardContent>
-        <p class="text-3xl font-bold text-black dark:text-white">{totalAllComponents}</p>
-      </CardContent>
-    </Card>
+	<!-- Metrics Cards -->
+	<div class="grid gap-4 sm:grid-cols-3">
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Total Components</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalCount}</CardTitle>
+			</CardHeader>
+		</Card>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Active Earnings</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{activeEarningsCount}</CardTitle>
+			</CardHeader>
+		</Card>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Active Deductions</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{activeDeductionsCount}</CardTitle>
+			</CardHeader>
+		</Card>
+	</div>
 
-    <Card>
-      <CardHeader class="pb-2">
-        <CardTitle class="text-sm font-medium text-muted-foreground"
-          >Active Earnings</CardTitle
-        >
-      </CardHeader>
-      <CardContent>
-        <p class="text-3xl font-bold text-hrms-primary">{earningsCount}</p>
-      </CardContent>
-    </Card>
+	<div class="space-y-3">
+		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+			<SearchInput id="search_components" name="search_components" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search component name..." />
+			
+			<DropdownMenu.Root>
+				<DropdownMenu.Trigger>
+					{#snippet child({ props })}
+						<Button variant="outline" class="h-9 w-[180px] justify-between border-input bg-background shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none" {...props}>
+							{typeFilter === 'all' ? 'All Types' : typeFilter === 'earning' ? 'Earning' : 'Deduction'}
+							<FilterIcon class="ml-2 size-4 opacity-50" />
+						</Button>
+					{/snippet}
+				</DropdownMenu.Trigger>
+				<DropdownMenu.Content class="w-[180px]">
+					<DropdownMenu.Group>
+						<DropdownMenu.Item onclick={() => { typeFilter = 'all'; currentPage = 1; }} class="justify-between cursor-pointer {typeFilter === 'all' ? 'bg-accent text-accent-foreground' : ''}">
+							All Types
+							{#if typeFilter === 'all'}<CheckIcon class="size-4" />{/if}
+						</DropdownMenu.Item>
+						<DropdownMenu.Item onclick={() => { typeFilter = 'earning'; currentPage = 1; }} class="justify-between cursor-pointer {typeFilter === 'earning' ? 'bg-accent text-accent-foreground' : ''}">
+							Earning
+							{#if typeFilter === 'earning'}<CheckIcon class="size-4" />{/if}
+						</DropdownMenu.Item>
+						<DropdownMenu.Item onclick={() => { typeFilter = 'deduction'; currentPage = 1; }} class="justify-between cursor-pointer {typeFilter === 'deduction' ? 'bg-accent text-accent-foreground' : ''}">
+							Deduction
+							{#if typeFilter === 'deduction'}<CheckIcon class="size-4" />{/if}
+						</DropdownMenu.Item>
+					</DropdownMenu.Group>
+				</DropdownMenu.Content>
+			</DropdownMenu.Root>
 
-    <Card>
-      <CardHeader class="pb-2">
-        <CardTitle class="text-sm font-medium text-muted-foreground"
-          >Active Deductions</CardTitle
-        >
-      </CardHeader>
-      <CardContent>
-        <p class="text-3xl font-bold text-hrms-destructive">{deductionsCount}</p>
-      </CardContent>
-    </Card>
-  </div>
+			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
+		</div>
 
-  <!-- Filter Toolbar -->
-  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
-    <div class="flex-1 min-w-0">
-      <SearchBar
-        bind:value={searchQuery}
-        placeholder="Search component name..."
-      />
-    </div>
-    <div class="flex flex-wrap items-center gap-2">
-      <!-- Filter Type Dropdown -->
-      <div class="relative">
-        <button
-          type="button"
-          onclick={(e) => toggleDropdown("filterType", e)}
-          class="relative h-9 w-40 rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
-        >
-          <span>
-            {filterType === "all"
-              ? "All Types"
-              : filterType === "earning"
-                ? "Earning"
-                : "Deduction"}
-          </span>
-          <span
-            class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70"
-          >
-            <ChevronDownIcon class="size-4" />
-          </span>
-        </button>
-
-        {#if activeDropdown === "filterType"}
-          <div
-            transition:scale={{ start: 0.95, duration: 100 }}
-            class="absolute left-0 mt-1.5 z-50 w-full min-w-40 rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
-          >
-            {#each [{ value: "all", label: "All Types" }, { value: "earning", label: "Earning" }, { value: "deduction", label: "Deduction" }] as opt (opt.value)}
-              <button
-                type="button"
-                onclick={() => {
-                  filterType = opt.value as "all" | SalaryComponentType;
-                  activeDropdown = null;
-                }}
-                class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300
-							{filterType === opt.value ? 'bg-slate-100 dark:bg-slate-800' : ''}"
-              >
-                <span>{opt.label}</span>
-                {#if filterType === opt.value}
-                  <CheckIcon class="size-3.5 shrink-0" />
-                {/if}
-              </button>
-            {/each}
-          </div>
-        {/if}
-      </div>
-
-      <!-- Filter Active Dropdown -->
-      <div class="relative">
-        <button
-          type="button"
-          onclick={(e) => toggleDropdown("filterActive", e)}
-          class="relative h-9 w-40 rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
-        >
-          <span>
-            {filterActive === "all"
-              ? "All Statuses"
-              : filterActive === "true"
-                ? "Active"
-                : "Inactive"}
-          </span>
-          <span
-            class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70"
-          >
-            <ChevronDownIcon class="size-4" />
-          </span>
-        </button>
-
-        {#if activeDropdown === "filterActive"}
-          <div
-            transition:scale={{ start: 0.95, duration: 100 }}
-            class="absolute left-0 mt-1.5 z-50 w-full min-w-40 rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
-          >
-            {#each [{ value: "all", label: "All Statuses" }, { value: "true", label: "Active" }, { value: "false", label: "Inactive" }] as opt (opt.value)}
-              <button
-                type="button"
-                onclick={() => {
-                  filterActive = opt.value as "all" | "true" | "false";
-                  activeDropdown = null;
-                }}
-                class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300
-							{filterActive === opt.value ? 'bg-slate-100 dark:bg-slate-800' : ''}"
-              >
-                <span>{opt.label}</span>
-                {#if filterActive === opt.value}
-                  <CheckIcon class="size-3.5 shrink-0" />
-                {/if}
-              </button>
-            {/each}
-          </div>
-        {/if}
-      </div>
-    </div>
-  </div>
-
-  <!-- Table Card -->
-  <Card class="pt-0 pb-0 gap-0">
-    <!-- Table -->
-    <MasterTable
-      {headers}
-      items={pagedItems}
-      {isLoading}
-      bind:sortBy
-      bind:sortOrder
-      emptyMessage="No records found."
-    >
-      {#snippet itemSnippet(comp: SalaryComponent)}
-        <TableRow
-          class="hover:bg-muted/50 transition-colors cursor-pointer"
-          onclick={() => handleOpenEdit(comp)}
-        >
-          <TableCell class="font-medium pl-5">{comp.component_name}</TableCell>
-          <TableCell>
-            <span class="capitalize">{comp.component_type}</span>
-          </TableCell>
-          <TableCell>
-            <span>{comp.is_taxable ? "Taxable" : "Non-taxable"}</span>
-          </TableCell>
-          <TableCell>
-            <span
-              class="inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-medium w-15
-					{comp.is_active ? 'bg-foreground text-background' : 'bg-muted text-foreground'}"
-            >
-              {comp.is_active ? "Active" : "Inactive"}
-            </span>
-          </TableCell>
-          <TableCell class="text-center">
-            <div class="relative flex justify-center">
-              <!-- Kebab trigger -->
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                class="h-8 w-8 text-muted-foreground hover:text-foreground mx-auto"
-                onclick={(e) => {
-                  e.stopPropagation();
-                  if (openKebabCuid === comp.cuid) {
-                    openKebabCuid = null;
-                    kebabTriggerEl = null;
-                    kebabPos = null;
-                  } else {
-                    kebabTriggerEl = e.currentTarget as HTMLElement;
-                    openKebabCuid = comp.cuid;
-                  }
-                }}
-                aria-label="Row actions"
-                title="Actions"
-              >
-                <MoreVerticalIcon class="size-4" />
-              </Button>
-
-            </div>
-          </TableCell>
-        </TableRow>
-      {/snippet}
-    </MasterTable>
-  </Card>
-
-  <!-- Pagination -->
-  {#if totalItems > 0}
-    <Pagination bind:page {totalPages} total={totalItems} {pageSize} />
-  {/if}
+		<Card class="py-0">
+			<Table>
+				<TableHeader class="bg-muted">
+					<TableRow>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('component_name')}>
+								Component Name
+							{#if sortColumn === 'component_name' && sortDirection === 'asc'}
+								<ArrowUpIcon class="ml-2 size-4" />
+							{:else if sortColumn === 'component_name' && sortDirection === 'desc'}
+								<ArrowDownIcon class="ml-2 size-4" />
+							{:else}
+								<ArrowUpDownIcon class="ml-2 size-4" />
+							{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('component_type')}>
+								Type
+							{#if sortColumn === 'component_type' && sortDirection === 'asc'}
+								<ArrowUpIcon class="ml-2 size-4" />
+							{:else if sortColumn === 'component_type' && sortDirection === 'desc'}
+								<ArrowDownIcon class="ml-2 size-4" />
+							{:else}
+								<ArrowUpDownIcon class="ml-2 size-4" />
+							{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="font-bold text-foreground text-[15px]">Taxable</TableHead>
+						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('is_active')}>
+								Status
+							{#if sortColumn === 'is_active' && sortDirection === 'asc'}
+								<ArrowUpIcon class="ml-2 size-4" />
+							{:else if sortColumn === 'is_active' && sortDirection === 'desc'}
+								<ArrowDownIcon class="ml-2 size-4" />
+							{:else}
+								<ArrowUpDownIcon class="ml-2 size-4" />
+							{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{#if isLoading}
+						<TableRow>
+							<TableCell colspan={5} class="py-8 text-center text-muted-foreground">
+								<LoaderCircleIcon class="mx-auto mb-2 size-6 animate-spin" />
+								Loading components...
+							</TableCell>
+						</TableRow>
+					{:else if filteredComponents.length === 0}
+						<TableRow>
+							<TableCell colspan={5} class="py-8 text-center text-muted-foreground">
+								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
+							</TableCell>
+						</TableRow>
+					{:else}
+						{#each paginatedComponents as comp (comp.cuid)}
+							<TableRow 
+								onclick={(e) => {
+									if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
+									openEditModal(comp);
+								}} 
+								class="cursor-pointer"
+							>
+								<TableCell>
+									<span class="font-semibold">{comp.component_name}</span>
+								</TableCell>
+								<TableCell>
+									<span class="capitalize">{comp.component_type}</span>
+								</TableCell>
+								<TableCell>
+									<span>{comp.is_taxable ? "Taxable" : "Non-taxable"}</span>
+								</TableCell>
+								<TableCell class="text-center">
+									<Badge variant={comp.is_active === true ? 'default' : 'secondary'}>{comp.is_active ? 'Active' : 'Inactive'}</Badge>
+								</TableCell>
+								<TableCell class="text-right">
+									<TableActions
+										canEdit={true}
+										onEdit={() => openEditModal(comp)}
+									/>
+								</TableCell>
+							</TableRow>
+						{/each}
+					{/if}
+				</TableBody>
+			</Table>
+		</Card>
+		<Pagination bind:currentPage={currentPage} pageSize={pageSize} totalItems={filteredComponents.length} />
+	</div>
 </div>
 
-<!-- Kebab action menu — position:fixed escapes table overflow clipping without needing a portal -->
-{#if openKebabCuid !== null && kebabPos !== null}
-  {@const activeCuid = openKebabCuid}
-  {@const pos = kebabPos}
-  {@const activeComp = pagedItems.find((c) => c.cuid === activeCuid)}
-  {#if activeComp}
-    <div
-      role="menu"
-      tabindex="-1"
-      transition:scale={{ start: 0.95, duration: 100 }}
-      style="position:fixed; top:{pos.top}px; left:{pos.left}px; transform:translateX(-50%); z-index:9999;"
-      class="w-28 rounded-lg border border-border bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
-      onclick={(e) => e.stopPropagation()}
-      onkeydown={(e) => e.stopPropagation()}
-    >
-      <button
-        type="button"
-        onclick={() => {
-          const comp = activeComp;
-          openKebabCuid = null;
-          kebabTriggerEl = null;
-          kebabPos = null;
-          handleOpenEdit(comp);
-        }}
-        class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-      >
-        <PencilIcon class="size-3.5" />
-        Edit
-      </button>
-    </div>
-  {/if}
-{/if}
-
-<!-- Create / Edit Modal -->
-<MasterFormModal
-  isOpen={isModalOpen}
-  title={editingId ? "Edit Salary Component" : "Create Salary Component"}
-  {isSubmitting}
-  canSave={isDirty}
-  onclose={handleRequestClose}
-  onsubmit={handleFormSubmit}
+<CrudModal
+	open={isModalOpen}
+	title={editingComp ? 'Edit Salary Component' : 'Create Salary Component'}
+	isDirty={isDirty}
+	isSubmitting={isSubmitting}
+	onClose={() => (isModalOpen = false)}
 >
-  <div class="space-y-4">
-    <div class="space-y-1.5">
-      <Label for="component_name">Component Name</Label>
-      <Input
-        id="component_name"
-        type="text"
-        bind:value={formName}
-        oninput={() => (formNameError = null)}
-        placeholder="e.g. Basic Pay, HRA, Provident Fund"
-        class={formNameError ? "border-hrms-destructive focus-visible:ring-hrms-destructive/30" : ""}
-      />
-      {#if formNameError}
-        <p class="text-xs text-hrms-destructive">{formNameError}</p>
-      {/if}
-    </div>
+	{#snippet children({ cancel })}
+		<form class="space-y-4" onsubmit={handleSaveComponent}>
+			<div class="space-y-2">
+				<Label for="component_name">Component Name</Label>
+				<Input
+					id="component_name"
+					name="component_name"
+					bind:ref={nameInput}
+					bind:value={formName}
+					class={backendError ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+					placeholder="e.g. Basic Pay, HRA"
+					oninput={() => { backendError = ''; }}
+				/>
+				{#if backendError}
+					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{backendError}</p>
+				{/if}
+			</div>
 
-    <div class="grid grid-cols-2 gap-4">
-      <!-- Component Type Custom Dropdown -->
-      <div class="space-y-2 relative">
-        <Label for="component_type">Component Type</Label>
-        <button
-          id="component_type"
-          type="button"
-          onclick={(e) => toggleDropdown("formType", e)}
-          class="relative h-9 w-full rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-[color,box-shadow] text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
-        >
-          <span>{formType === "earning" ? "Earning" : "Deduction"}</span>
-          <span
-            class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70"
-          >
-            <ChevronDownIcon class="size-4" />
-          </span>
-        </button>
+			<div class="grid grid-cols-2 gap-4">
+				<div class="space-y-2">
+					<Label for="component_type">Component Type</Label>
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger>
+							{#snippet child({ props })}
+								<Button id="component_type" name="component_type" variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none" {...props}>
+									{formType === 'earning' ? 'Earning' : 'Deduction'}
+									<ChevronDownIcon class="ml-2 size-4 opacity-50" />
+								</Button>
+							{/snippet}
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content class="w-[200px]">
+							<DropdownMenu.Group>
+								<DropdownMenu.Item onclick={() => (formType = 'earning')} class="justify-between cursor-pointer {formType === 'earning' ? 'bg-accent text-accent-foreground' : ''}">
+									Earning
+									{#if formType === 'earning'}<CheckIcon class="size-4" />{/if}
+								</DropdownMenu.Item>
+								<DropdownMenu.Item onclick={() => (formType = 'deduction')} class="justify-between cursor-pointer {formType === 'deduction' ? 'bg-accent text-accent-foreground' : ''}">
+									Deduction
+									{#if formType === 'deduction'}<CheckIcon class="size-4" />{/if}
+								</DropdownMenu.Item>
+							</DropdownMenu.Group>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
+				</div>
+				
+				<StatusDropdown id="component_status" name="component_status" value={formIsActive} onChange={(val) => (formIsActive = val)} />
+			</div>
 
-        {#if activeDropdown === "formType"}
-          <div
-            transition:scale={{ start: 0.95, duration: 100 }}
-            class="absolute left-0 top-17 z-50 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
-          >
-            {#each [{ value: "earning", label: "Earning" }, { value: "deduction", label: "Deduction" }] as opt (opt.value)}
-              <button
-                type="button"
-                onclick={() => {
-                  formType = opt.value as SalaryComponentType;
-                  activeDropdown = null;
-                }}
-                class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300
-									{formType === opt.value ? 'bg-slate-100 dark:bg-slate-800' : ''}"
-              >
-                <span>{opt.label}</span>
-                {#if formType === opt.value}
-                  <CheckIcon class="size-3.5 shrink-0" />
-                {/if}
-              </button>
-            {/each}
-          </div>
-        {/if}
-      </div>
+			<div class="flex items-center gap-3 rounded-lg border bg-muted/30 px-4 py-3">
+				<input
+					id="is_taxable"
+					name="is_taxable"
+					type="checkbox"
+					bind:checked={formIsTaxable}
+					class="size-4 rounded border-input accent-[#F45310] cursor-pointer"
+				/>
+				<div class="space-y-0.5">
+					<Label for="is_taxable" class="cursor-pointer font-medium">Taxable Component</Label>
+					<p class="text-xs text-muted-foreground">Indicates if income tax applies to this component</p>
+				</div>
+			</div>
 
-      <!-- Status Custom Dropdown -->
-      <div class="space-y-2 relative">
-        <Label for="is_active">Status</Label>
-        <button
-          id="is_active"
-          type="button"
-          onclick={(e) => toggleDropdown("formIsActive", e)}
-          class="relative h-9 w-full rounded-md border border-input bg-background pl-3 pr-8 text-sm focus:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 shadow-xs transition-all duration-200 text-left flex items-center justify-between select-none cursor-pointer dark:bg-input/30"
-        >
-          <span>{formIsActive ? "Active" : "Inactive"}</span>
-          <span
-            class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70"
-          >
-            <ChevronDownIcon class="size-4" />
-          </span>
-        </button>
-
-        {#if activeDropdown === "formIsActive"}
-          <div
-            transition:scale={{ start: 0.95, duration: 100 }}
-            class="absolute left-0 top-17 z-50 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-background/95 backdrop-blur-md p-1 shadow-lg flex flex-col gap-0.5"
-          >
-            {#each [{ value: true, label: "Active" }, { value: false, label: "Inactive" }] as opt (opt.value)}
-              <button
-                type="button"
-                onclick={() => {
-                  formIsActive = opt.value;
-                  activeDropdown = null;
-                }}
-                class="w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors font-medium flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300
-									{formIsActive === opt.value ? 'bg-slate-100 dark:bg-slate-800' : ''}"
-              >
-                <span>{opt.label}</span>
-                {#if formIsActive === opt.value}
-                  <CheckIcon class="size-3.5 shrink-0" />
-                {/if}
-              </button>
-            {/each}
-          </div>
-        {/if}
-      </div>
-    </div>
-
-    <!-- Taxable toggle -->
-    <div
-      class="flex items-center gap-3 rounded-lg border bg-muted/30 px-4 py-3"
-    >
-      <input
-        id="is_taxable"
-        type="checkbox"
-        bind:checked={formIsTaxable}
-        class="size-4 rounded border-input accent-hrms-primary cursor-pointer"
-      />
-      <div class="space-y-0.5">
-        <Label for="is_taxable" class="cursor-pointer font-medium"
-          >Taxable Component</Label
-        >
-        <p class="text-xs text-muted-foreground">
-          Indicates if income tax applies to this component
-        </p>
-      </div>
-    </div>
-  </div>
-</MasterFormModal>
-
-<!-- Unsaved Changes Confirmation -->
-<ConfirmDialog
-  isOpen={showDiscardConfirm}
-  title="Cancel Changes"
-  message="Are you sure you want to cancel? All unsaved changes will be lost."
-  confirmText="Keep Editing"
-  cancelText="Cancel"
-  onconfirm={handleDiscardCancel}
-  oncancel={handleDiscardConfirm}
-/>
+			<div class="flex items-center justify-end gap-3 pt-4">
+				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
+				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingComp && !isDirty)}>
+					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : UI_CONSTANTS.BUTTON_SAVE}
+				</Button>
+			</div>
+		</form>
+	{/snippet}
+</CrudModal>

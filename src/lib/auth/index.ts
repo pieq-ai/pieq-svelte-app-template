@@ -16,5 +16,5 @@ export function signInWithKeycloak(redirectTo = '/dashboard') {
 
 export async function signOut(options?: Parameters<typeof authSignOut>[0]) {
 	clearStoredOidcUser();
-	return authSignOut(options);
+	return authSignOut({ callbackUrl: '/', ...options });
 }
