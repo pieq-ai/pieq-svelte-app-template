@@ -1,16 +1,16 @@
-# Graph Report - pieq-svelte-app-template  (2026-06-08)
+# Graph Report - pieq-svelte-app-template  (2026-06-07)
 
 ## Corpus Check
-- 152 files · ~47,239 words
+- 126 files · ~37,082 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 699 nodes · 1154 edges · 59 communities (39 shown, 20 thin omitted)
-- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 40 edges (avg confidence: 0.8)
+- 552 nodes · 920 edges · 56 communities (32 shown, 24 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 37 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6b05c6f1`
+- Built from commit: `777f6a8b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -60,8 +60,6 @@
 - [[_COMMUNITY_Community 53|Community 53]]
 - [[_COMMUNITY_Community 54|Community 54]]
 - [[_COMMUNITY_Community 55|Community 55]]
-- [[_COMMUNITY_Community 56|Community 56]]
-- [[_COMMUNITY_Community 57|Community 57]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `errorResponse()` - 36 edges
@@ -73,35 +71,35 @@
 7. `scripts` - 15 edges
 8. `updateSuccessResponse()` - 14 edges
 9. `deleteSuccessResponse()` - 14 edges
-10. `db` - 12 edges
+10. `LeaveValidationError` - 11 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `PUT()` --calls--> `updateHoliday()`  [INFERRED]
   src/routes/api/holidays/[id]/+server.ts → src/lib/server/services/holiday.service.ts
-- `PUT()` --calls--> `validateUpdateSalaryComponent()`  [INFERRED]
-  src/routes/api/salary-components/[id]/+server.ts → src/lib/server/validators/salary-component.validator.ts
 - `Window` --references--> `AppConfig`  [EXTRACTED]
   src/app.d.ts → src/lib/types/config.ts
 - `createAuth()` --calls--> `getAuthConfig()`  [EXTRACTED]
   src/lib/server/auth.js → src/lib/server/config.js
 - `load()` --calls--> `getAppConfig()`  [EXTRACTED]
   src/routes/+layout.server.ts → src/lib/server/config.js
+- `GET()` --calls--> `formatHoliday()`  [INFERRED]
+  src/routes/api/holidays/[id]/+server.ts → src/lib/server/response.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (59 total, 20 thin omitted)
+## Communities (56 total, 24 thin omitted)
 
 ### Community 0 - "API Routes and Server Handlers"
-Cohesion: 0.09
-Nodes (61): GET(), DELETE(), GET(), PUT(), GET(), POST(), DELETE(), GET() (+53 more)
+Cohesion: 0.10
+Nodes (60): GET(), DELETE(), GET(), PUT(), GET(), POST(), DELETE(), GET() (+52 more)
 
 ### Community 1 - "Leave Policy Data Access (DAO)"
 Cohesion: 0.09
 Nodes (14): CreateLeavePolicyData, update(), CreateLeaveTypeData, update(), createClient(), db, getDb(), isValidClient() (+6 more)
 
 ### Community 2 - "Core UI Components"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (8): ../button/button.svelte, $lib/utils.js, @lucide/svelte/icons/check, @lucide/svelte/icons/chevron-down, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/chevron-right, svelte/elements, @lucide/svelte/icons/filter
 
 ### Community 3 - "Core Dependency Layer"
@@ -118,7 +116,7 @@ Nodes (31): devDependencies, bits-ui, clsx, dotenv-cli, eslint, @eslint/compat, 
 
 ### Community 6 - "Holiday Data Access (DAO)"
 Cohesion: 0.11
-Nodes (11): CreateHolidayData, createHoliday(), CreateHolidayInput, deleteHoliday(), updateHoliday(), UpdateHolidayInput, VALID_HOLIDAY_TYPES, validateHolidayDate() (+3 more)
+Nodes (12): CreateHolidayData, createHoliday(), CreateHolidayInput, deleteHoliday(), HolidayValidationError, updateHoliday(), UpdateHolidayInput, VALID_HOLIDAY_TYPES (+4 more)
 
 ### Community 7 - "Authentication & Session Loader"
 Cohesion: 0.16
@@ -133,16 +131,16 @@ Cohesion: 0.15
 Nodes (12): compilerOptions, allowJs, checkJs, esModuleInterop, forceConsistentCasingInFileNames, moduleResolution, resolveJsonModule, rewriteRelativeImportExtensions (+4 more)
 
 ### Community 12 - "Leave Policy Management UI & Navigation"
-Cohesion: 0.16
-Nodes (10): $lib/assets/favicon.svg, $lib/auth, $lib/components, $lib/components/layout, $lib/components/ui, ./layout.css, $app/navigation, $app/paths (+2 more)
+Cohesion: 0.19
+Nodes (9): $lib/assets/favicon.svg, $lib/auth, $lib/components, $lib/components/layout, $lib/components/ui, ./layout.css, $app/paths, redirectTo (+1 more)
 
 ### Community 16 - "Tailwind UI Helper Utilities"
 Cohesion: 0.33
 Nodes (4): WithElementRef, WithoutChild, WithoutChildren, WithoutChildrenOrChild
 
 ### Community 17 - "Dashboard Loader and Server Actions"
-Cohesion: 0.13
-Nodes (9): svelte/animate, @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/toast.svelte, $app/forms, @lucide/svelte/icons/loader-circle, svelte (+1 more)
+Cohesion: 0.27
+Nodes (4): $app/forms, @lucide/svelte/icons/loader-circle, svelte, svelte/transition
 
 ### Community 18 - "Leave Policy Table Rendering"
 Cohesion: 0.40
@@ -160,18 +158,6 @@ Nodes (22): Code quality, Common workflows, Database (Prisma), Development, Othe
 Cohesion: 0.10
 Nodes (20): Changes, Harden `pieq-svelte-app-template` based on initial review, High-priority fixes (in this PR), Motivation, Out of scope (tracked as follow-ups), `README.md`, Reviewer notes, Risk & rollback (+12 more)
 
-### Community 46 - "Community 46"
-Cohesion: 0.06
-Nodes (27): $lib/types/salary-component, $lib/validators/salary-component, @lucide/svelte/icons/more-vertical, @lucide/svelte/icons/pencil, @lucide/svelte/icons/plus, deductionsCount, earningsCount, formInitialIsActive (+19 more)
-
-### Community 48 - "Community 48"
-Cohesion: 0.06
-Nodes (24): POST(), PUT(), SalaryComponentDto, serializeSalaryComponent(), BusinessValidationError, ComponentNotFoundError, DuplicateComponentError, GET() (+16 more)
-
-### Community 49 - "Community 49"
-Cohesion: 0.18
-Nodes (8): ./$types, averageAge, filteredEmployees, formError, isSubmitting, maxAge, successMessage, totalEmployees
-
 ### Community 51 - "Community 51"
 Cohesion: 0.20
 Nodes (4): ./$types.js, toggleMenu(), updateMenuPosition(), svelte-sonner
@@ -182,43 +168,31 @@ Nodes (3): ./$types.js, toggleMenu(), updateMenuPosition()
 
 ### Community 53 - "Community 53"
 Cohesion: 0.20
-Nodes (6): ./$types, @lucide/svelte/icons/ellipsis-vertical, Holiday, svelte/reactivity, @lucide/svelte/icons/search, @lucide/svelte/icons/x
+Nodes (6): ./$types, @lucide/svelte/icons/ellipsis-vertical, Holiday, $app/navigation, svelte/reactivity, @lucide/svelte/icons/search
 
 ### Community 54 - "Community 54"
-Cohesion: 0.17
-Nodes (8): @lucide/svelte/icons/calendar, @lucide/svelte/icons/calendar-cog, @lucide/svelte/icons/layout-dashboard, @lucide/svelte/icons/log-out, @lucide/svelte/icons/settings, @lucide/svelte/icons/shield-check, @lucide/svelte/icons/users, @lucide/svelte/icons/wallet
-
-### Community 55 - "Community 55"
-Cohesion: 0.14
-Nodes (14): CreateEmployeeData, actions, load(), GET(), POST(), @sveltejs/kit, createEmployee(), CreateEmployeeInput (+6 more)
-
-### Community 56 - "Community 56"
-Cohesion: 0.25
-Nodes (3): load(), Toast, ToastStore
-
-### Community 57 - "Community 57"
-Cohesion: 0.40
-Nodes (4): SALARY_COMPONENT_TYPE_LABELS, SALARY_COMPONENT_TYPE_OPTIONS, SALARY_COMPONENT_TYPES, SalaryComponentType
+Cohesion: 0.22
+Nodes (7): @lucide/svelte/icons/calendar, @lucide/svelte/icons/calendar-cog, @lucide/svelte/icons/layout-dashboard, @lucide/svelte/icons/log-out, @lucide/svelte/icons/settings, @lucide/svelte/icons/shield-check, @lucide/svelte/icons/x
 
 ## Knowledge Gaps
-- **239 isolated node(s):** `css.lint.unknownAtRules`, `$schema`, `css`, `baseColor`, `components` (+234 more)
+- **194 isolated node(s):** `css.lint.unknownAtRules`, `$schema`, `css`, `baseColor`, `components` (+189 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **20 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **24 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `devDependencies` connect `Development & Build Tools` to `Dashboard Loader and Server Actions`, `Core Dependency Layer`?**
-  _High betweenness centrality (0.082) - this node is a cross-community bridge._
+  _High betweenness centrality (0.084) - this node is a cross-community bridge._
 - **Why does `svelte` connect `Dashboard Loader and Server Actions` to `Development & Build Tools`?**
-  _High betweenness centrality (0.068) - this node is a cross-community bridge._
+  _High betweenness centrality (0.055) - this node is a cross-community bridge._
 - **Why does `dependencies` connect `Core Dependency Layer` to `Community 51`?**
-  _High betweenness centrality (0.038) - this node is a cross-community bridge._
+  _High betweenness centrality (0.045) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `errorResponse()` (e.g. with `DELETE()` and `GET()`) actually correct?**
   _`errorResponse()` has 9 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 3 inferred relationships involving `successResponse()` (e.g. with `GET()` and `GET()`) actually correct?**
   _`successResponse()` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `css.lint.unknownAtRules`, `$schema`, `css` to the rest of the system?**
-  _239 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _194 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `API Routes and Server Handlers` be split into smaller, more focused modules?**
-  _Cohesion score 0.09290709290709291 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09649122807017543 - nodes in this community are weakly interconnected._
