@@ -7,17 +7,21 @@
 	interface Props {
 		value: boolean;
 		onChange: (val: boolean) => void;
+		id?: string;
+		name?: string;
 	}
 
-	let { value, onChange }: Props = $props();
+	let { value, onChange, id = 'status', name = 'status' }: Props = $props();
 </script>
 
 <div class="space-y-2">
-	<Label>Status</Label>
+	<Label for={id}>Status</Label>
 	<DropdownMenu.Root>
 		<DropdownMenu.Trigger>
 			{#snippet child({ props })}
 				<Button
+					{id}
+					{name}
 					variant="outline"
 					class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none"
 					{...props}

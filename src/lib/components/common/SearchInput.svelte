@@ -8,9 +8,11 @@
 		placeholder?: string;
 		oninput?: (e: Event) => void;
 		class?: string;
+		id?: string;
+		name?: string;
 	}
 
-	let { value = $bindable(), placeholder = 'Search...', oninput, class: className = '' }: Props = $props();
+	let { value = $bindable(), placeholder = 'Search...', oninput, class: className = '', id, name }: Props = $props();
 
 	function clearSearch() {
 		value = '';
@@ -24,6 +26,8 @@
 <div class="relative flex-1 {className}">
 	<SearchIcon class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
 	<Input 
+		{id}
+		{name}
 		bind:value 
 		oninput={oninput} 
 		class="pl-9 pr-9 w-full" 

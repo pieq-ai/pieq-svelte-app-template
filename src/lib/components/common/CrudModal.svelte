@@ -9,15 +9,17 @@
 		description?: string;
 		closeLabel?: string;
 		isDirty?: boolean;
+		isSubmitting?: boolean;
 		onClose: () => void;
 		children?: import('svelte').Snippet<[{ cancel: () => void }]>;
 	}
 
-	let { open, title, description = '', closeLabel = 'Close modal', isDirty = false, onClose, children }: Props = $props();
+	let { open, title, description = '', closeLabel = 'Close modal', isDirty = false, isSubmitting = false, onClose, children }: Props = $props();
 
 	let showUnsavedConfirm = $state(false);
 
 	function handleCloseAttempt() {
+		if (isSubmitting) return;
 		if (isDirty) {
 			showUnsavedConfirm = true;
 		} else {
@@ -65,6 +67,7 @@
 				class="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
 				aria-label={closeLabel} 
 				onclick={handleCloseAttempt}
+				disabled={isSubmitting}
 			>
 				<XIcon class="size-4" />
 			</Button>

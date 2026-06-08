@@ -291,7 +291,7 @@
 
 	<div class="space-y-3">
 		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-			<SearchInput bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by department name..." />
+			<SearchInput id="search_departments" name="search_departments" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by department name..." />
 			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
 		</div>
 
@@ -377,6 +377,7 @@
 	open={isModalOpen}
 	title={editingDept ? 'Edit Department' : 'Create Department'}
 	isDirty={isDirty}
+	isSubmitting={isSubmitting}
 	onClose={() => (isModalOpen = false)}
 >
 	{#snippet children({ cancel })}
@@ -385,6 +386,7 @@
 				<Label for="dept_name">Department Name</Label>
 				<Input
 					id="dept_name"
+					name="dept_name"
 					bind:ref={deptNameInput}
 					bind:value={formDeptName}
 					class={nameValidationError || backendError ? 'border-destructive' : ''}
@@ -396,10 +398,10 @@
 				{/if}
 			</div>
 			{#if editingDept}
-				<StatusDropdown value={formDeptStatus} onChange={(val) => (formDeptStatus = val)} />
+				<StatusDropdown id="dept_status" name="dept_status" value={formDeptStatus} onChange={(val) => (formDeptStatus = val)} />
 			{/if}
 			<div class="flex items-center justify-end gap-3 pt-4">
-				<Button type="button" variant="outline" onclick={cancel}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
+				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
 				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingDept && !isDirty)}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingDept ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>

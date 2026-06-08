@@ -272,7 +272,7 @@
 	{/if}
 
 	<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-		<SearchInput bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search permissions..." />
+		<SearchInput id="search_permissions" name="search_permissions" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search permissions..." />
 		<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
 	</div>
 
@@ -343,6 +343,7 @@
 	open={isModalOpen}
 	title={editingPermission ? 'Edit Permission' : 'Create Permission'}
 	isDirty={isDirty}
+	isSubmitting={isSubmitting}
 	onClose={() => (isModalOpen = false)}
 >
 	{#snippet children({ cancel })}
@@ -351,6 +352,7 @@
 				<Label for="permission_key">Permission Key</Label>
 				<Input
 					id="permission_key"
+					name="permission_key"
 					bind:ref={permissionKeyInput}
 					bind:value={permissionKey}
 					class={keyValidationError || backendError ? 'border-destructive' : ''}
@@ -362,10 +364,10 @@
 				{/if}
 			</div>
 			{#if editingPermission}
-				<StatusDropdown value={permissionStatus} onChange={(val) => (permissionStatus = val)} />
+				<StatusDropdown id="permission_status" name="permission_status" value={permissionStatus} onChange={(val) => (permissionStatus = val)} />
 			{/if}
 			<div class="flex items-center justify-end gap-3 pt-4">
-				<Button type="button" variant="outline" onclick={cancel}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
+				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
 				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingPermission && !isDirty)}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingPermission ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>

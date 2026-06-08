@@ -292,7 +292,7 @@
 
 	<div class="space-y-3">
 		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-			<SearchInput bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search component name..." />
+			<SearchInput id="search_components" name="search_components" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search component name..." />
 			
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger>
@@ -423,6 +423,7 @@
 	open={isModalOpen}
 	title={editingComp ? 'Edit Salary Component' : 'Create Salary Component'}
 	isDirty={isDirty}
+	isSubmitting={isSubmitting}
 	onClose={() => (isModalOpen = false)}
 >
 	{#snippet children({ cancel })}
@@ -431,6 +432,7 @@
 				<Label for="component_name">Component Name</Label>
 				<Input
 					id="component_name"
+					name="component_name"
 					bind:ref={nameInput}
 					bind:value={formName}
 					class={backendError ? 'border-destructive focus-visible:ring-destructive/30' : ''}
@@ -448,7 +450,7 @@
 					<DropdownMenu.Root>
 						<DropdownMenu.Trigger>
 							{#snippet child({ props })}
-								<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none" {...props}>
+								<Button id="component_type" name="component_type" variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none" {...props}>
 									{formType === 'earning' ? 'Earning' : 'Deduction'}
 									<ChevronDownIcon class="ml-2 size-4 opacity-50" />
 								</Button>
@@ -469,12 +471,13 @@
 					</DropdownMenu.Root>
 				</div>
 				
-				<StatusDropdown value={formIsActive} onChange={(val) => (formIsActive = val)} />
+				<StatusDropdown id="component_status" name="component_status" value={formIsActive} onChange={(val) => (formIsActive = val)} />
 			</div>
 
 			<div class="flex items-center gap-3 rounded-lg border bg-muted/30 px-4 py-3">
 				<input
 					id="is_taxable"
+					name="is_taxable"
 					type="checkbox"
 					bind:checked={formIsTaxable}
 					class="size-4 rounded border-input accent-[#F45310] cursor-pointer"
@@ -486,7 +489,7 @@
 			</div>
 
 			<div class="flex items-center justify-end gap-3 pt-4">
-				<Button type="button" variant="outline" onclick={cancel}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
+				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
 				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingComp && !isDirty)}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : UI_CONSTANTS.BUTTON_SAVE}
 				</Button>
