@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as employeeDao from './employee.dao.js';
+import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import { db } from '$lib/server/db.js';
 
 vi.mock('$lib/server/db.js', () => {

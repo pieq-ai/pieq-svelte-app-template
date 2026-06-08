@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as departmentDao from './department.dao.js';
+import * as departmentDao from '$lib/server/dao/department.dao.js';
 import { db } from '$lib/server/db.js';
 
 vi.mock('$lib/server/db.js', () => {

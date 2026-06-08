@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as systemRoleService from './system-role.service.js';
+import * as systemRoleService from '$lib/server/services/system-role.service.js';
 import * as systemRoleDao from '$lib/server/dao/system-role.dao.js';
 
 vi.mock('$lib/server/dao/system-role.dao.js', () => ({

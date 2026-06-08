@@ -65,7 +65,7 @@
 	let permissionKeyInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{ permission_key: string; status: boolean }>();
-	let isDirty = $derived(dirtyChecker.isDirty({ permission_key: permissionKey.trim(), status: permissionStatus }));
+	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ permission_key: permissionKey.trim(), status: permissionStatus }));
 
 	let itemToDelete = $state<Permission | null>(null);
 	let isDeleting = $state(false);
@@ -342,7 +342,6 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingPermission ? 'Edit Permission' : 'Create Permission'}
-	description="Permission keys should use lowercase snake_case, such as employee_view."
 	isDirty={isDirty}
 	onClose={() => (isModalOpen = false)}
 >

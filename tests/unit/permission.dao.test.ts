@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as permissionDao from './permission.dao.js';
+import * as permissionDao from '$lib/server/dao/permission.dao.js';
 import { db } from '$lib/server/db.js';
 
 vi.mock('$lib/server/db.js', () => {

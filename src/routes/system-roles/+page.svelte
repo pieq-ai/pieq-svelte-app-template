@@ -70,7 +70,7 @@
 	let roleNameInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{ system_role_name: string; status: boolean }>();
-	let isDirty = $derived(dirtyChecker.isDirty({ system_role_name: roleName.trim(), status: roleStatus }));
+	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ system_role_name: roleName.trim(), status: roleStatus }));
 
 	let itemToDelete = $state<SystemRole | null>(null);
 	let isDeleting = $state(false);
@@ -341,7 +341,6 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingRole ? 'Edit System Role' : 'Create System Role'}
-	description="Role names must be unique and contain only letters and spaces."
 	isDirty={isDirty}
 	onClose={() => (isModalOpen = false)}
 >

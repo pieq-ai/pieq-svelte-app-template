@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateDepartmentName } from './department.validator.js';
+import { validateDepartmentName } from '$lib/server/validators/department.validator.js';
 
 describe('validateDepartmentName', () => {
 	it('should return a title-cased valid string', () => {

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as rolePermissionService from './role-permission.service.js';
+import * as rolePermissionService from '$lib/server/services/role-permission.service.js';
 import * as permissionDao from '$lib/server/dao/permission.dao.js';
 import * as rolePermissionDao from '$lib/server/dao/role-permission.dao.js';
 import * as systemRoleDao from '$lib/server/dao/system-role.dao.js';

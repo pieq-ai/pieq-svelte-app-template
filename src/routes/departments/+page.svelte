@@ -63,7 +63,7 @@
 	let deptNameInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{ dept_name: string; status: boolean }>();
-	let isDirty = $derived(dirtyChecker.isDirty({ dept_name: formDeptName.trim(), status: formDeptStatus }));
+	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ dept_name: formDeptName.trim(), status: formDeptStatus }));
 
 	// Deletion State
 	let itemToDelete = $state<Department | null>(null);
@@ -376,7 +376,6 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingDept ? 'Edit Department' : 'Create Department'}
-	description="Register a new organizational unit. Names must be unique and contain at least 2 characters."
 	isDirty={isDirty}
 	onClose={() => (isModalOpen = false)}
 >

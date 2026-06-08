@@ -63,7 +63,7 @@
 	let designationNameInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{ designation_name: string; status: boolean }>();
-	let isDirty = $derived(dirtyChecker.isDirty({ designation_name: formDesignationName.trim(), status: formDesignationStatus }));
+	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ designation_name: formDesignationName.trim(), status: formDesignationStatus }));
 
 	// Deletion State
 	let itemToDelete = $state<Designation | null>(null);
@@ -372,7 +372,6 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingDesignation ? 'Edit Designation' : 'Create Designation'}
-	description="Register a job title for assignment in employee employment records."
 	isDirty={isDirty}
 	onClose={() => (isModalOpen = false)}
 >

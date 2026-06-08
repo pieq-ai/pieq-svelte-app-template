@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as designationService from './designation.service.js';
+import * as designationService from '$lib/server/services/designation.service.js';
 import * as designationDao from '$lib/server/dao/designation.dao.js';
 
 vi.mock('$lib/server/dao/designation.dao.js', () => ({

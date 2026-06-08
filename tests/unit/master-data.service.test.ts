@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as masterDataService from './master-data.service.js';
+import * as masterDataService from '$lib/server/services/master-data.service.js';
 import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 
 vi.mock('$lib/server/dao/master-data.dao.js', () => ({

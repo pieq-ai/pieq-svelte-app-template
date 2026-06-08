@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from 'vitest';
-import * as permissionGuard from './permission.guard.js';
+import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 
 describe('Permission Guard', () => {
 	const UNAUTHORIZED_MESSAGE = 'Unauthorized';
