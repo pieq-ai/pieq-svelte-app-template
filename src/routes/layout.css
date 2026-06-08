@@ -6,6 +6,15 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+	--hrms-primary: #F45310;
+	--hrms-primary-dark: #d4430a;
+	--hrms-primary-rgb: 244 83 16;
+	--hrms-secondary: #262626;
+	--hrms-tertiary: #800020;
+	--hrms-destructive: #800020;
+	--hrms-destructive-rgb: 128 0 32;
+	--hrms-neutral: #737373;
+
 	--background: #f8f9fa;
 	--foreground: oklch(0.145 0 0);
 	--card: #ffffff;
@@ -88,6 +97,17 @@
 
 @theme inline {
 	--font-sans: 'Inter Variable', sans-serif;
+	/* HRMS brand colors — available as bg-hrms-primary, text-hrms-primary, etc. */
+	--color-hrms-primary: var(--hrms-primary);
+	--color-hrms-primary-dark: var(--hrms-primary-dark);
+	--color-hrms-secondary: var(--hrms-secondary);
+	--color-hrms-tertiary: var(--hrms-tertiary);
+	--color-hrms-destructive: var(--hrms-destructive);
+	--color-hrms-neutral: var(--hrms-neutral);
+	--color-hrms-sidebar-bg: var(--hrms-sidebar-bg);
+	--color-hrms-sidebar-text: var(--hrms-sidebar-text);
+	--color-hrms-sidebar-text-muted: var(--hrms-sidebar-text-muted);
+	--color-hrms-sidebar-border: var(--hrms-sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -203,4 +223,3 @@
 [data-sonner-toast] [data-close-button]:hover {
 	opacity: 1 !important;
 }
-

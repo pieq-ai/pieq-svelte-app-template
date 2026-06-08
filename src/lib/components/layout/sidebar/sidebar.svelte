@@ -9,6 +9,8 @@
 	import SettingsIcon from '@lucide/svelte/icons/settings';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
 	import XIcon from '@lucide/svelte/icons/x';
+	import UsersIcon from '@lucide/svelte/icons/users';
+	import WalletIcon from '@lucide/svelte/icons/wallet';
 
 	let {
 		isCollapsed = $bindable(false),
@@ -25,6 +27,16 @@
 			name: 'Dashboard',
 			href: '/dashboard',
 			icon: LayoutDashboardIcon
+		},
+		{
+			name: 'Employees',
+			href: '/employees',
+			icon: UsersIcon
+		},
+		{
+			name: 'Salary Components',
+			href: '/salary-components',
+			icon: WalletIcon
 		},
 		{
 			name: 'Leave Types',

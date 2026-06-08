@@ -8,6 +8,46 @@ datasource db {
   provider = "postgresql"
 }
 
+/// Salary Component master — component_type is validated as 'earning' | 'deduction' at the application layer
+model SalaryComponent {
+  /// Auto-incrementing surrogate primary key (internal use only)
+  id             BigInt   @id @default(autoincrement())
+
+  /// Externally-exposed, non-guessable identifier — used in all API routes
+  cuid           String   @unique @default(cuid(2)) @db.Text
+
+  component_name String   @db.VarChar(150)
+
+  /// Stored as plain string: 'earning' | 'deduction' — validated at application layer
+  component_type String   @db.VarChar(20)
+
+  is_taxable     Boolean  @default(false)
+
+  is_active      Boolean  @default(true)
+
+  created_at     DateTime @default(now()) @db.Timestamptz()
+
+  /// cuid of the user who created this record
+  created_by     String?  @db.Text
+
+  updated_at     DateTime @updatedAt @db.Timestamptz()
+
+  /// cuid of the user who last updated this record
+  updated_by     String?  @db.Text
+
+  @@unique([component_name])
+
+  @@map("salary_components")
+}
+
+model Employee {
+  id   Int    @id @default(autoincrement())
+  uuid String @unique @default(uuid())
+  name String
+  age  Int
+
+  @@map("employees")
+}
 
 model LeaveType {
   id                Int      @id @default(autoincrement())
@@ -91,4 +131,3 @@ model LeavePolicyEmploymentType {
 
   @@map("leave_policy_employment_types")
 }
-

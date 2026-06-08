@@ -48,6 +48,7 @@ const injectLocals = async ({ event, resolve }) => {
 const routeGuard = async ({ event, resolve }) => {
 	const protectedPaths = [
 		'/dashboard',
+		'/salary-components',
 		'/leave-types',
 		'/leave-policies',
 		'/holidays',
