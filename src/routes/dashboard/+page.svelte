@@ -8,46 +8,53 @@
 	<title>Dashboard – PieQ HRMS</title>
 </svelte:head>
 
-<h1 class="text-[32px] font-bold text-foreground mb-1 leading-tight">Dashboard</h1>
-<p class="text-muted-foreground text-sm mb-6">Protected route demonstrating the controller → view flow.</p>
-
-<!-- Cards grid -->
-<div class="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4">
-
-	<!-- Profile card -->
-	<div class="bg-card border border-border rounded-xl p-6 shadow-sm">
-		<h2 class="text-base font-semibold text-foreground mb-4">Profile</h2>
-		<dl class="flex flex-col gap-3">
-			<div>
-				<dt class="text-sm text-muted-foreground mb-0.5">Name</dt>
-				<dd class="text-sm font-medium text-foreground m-0">{data.context.user.name ?? '—'}</dd>
-			</div>
-			<div>
-				<dt class="text-sm text-muted-foreground mb-0.5">Email</dt>
-				<dd class="text-sm font-medium text-foreground m-0">{data.context.user.email}</dd>
-			</div>
-			<div>
-				<dt class="text-sm text-muted-foreground mb-0.5">Member since</dt>
-				<dd class="text-sm font-medium text-foreground m-0">{data.context.stats.memberSince ?? '—'}</dd>
-			</div>
-		</dl>
+<div class="space-y-6">
+	<div>
+		<h1 class="text-3xl font-bold tracking-tight">Dashboard</h1>
+		<p class="mt-2 text-muted-foreground">Protected route demonstrating the controller → view flow.</p>
 	</div>
 
-	<!-- Roles card -->
-	<div class="bg-card border border-border rounded-xl p-6 shadow-sm">
-		<h2 class="text-base font-semibold text-foreground mb-4">Roles</h2>
-		{#if data.context.roles.length > 0}
-			<div class="flex flex-wrap gap-2 mb-3">
-				{#each data.context.roles as role (role)}
-					<span class="inline-flex items-center px-3 py-1 bg-muted text-foreground rounded-md text-sm font-medium">{role}</span>
-				{/each}
-			</div>
-		{:else}
-			<p class="text-sm text-muted-foreground mb-3">No realm roles assigned.</p>
-		{/if}
-		<p class="text-sm text-muted-foreground">Role count: {data.context.stats.roleCount}</p>
+	<div class="grid gap-6 md:grid-cols-2">
+		<Card>
+			<CardHeader>
+				<CardTitle>Profile</CardTitle>
+			</CardHeader>
+			<CardContent>
+				<dl class="space-y-3 text-sm">
+					<div>
+						<dt class="font-medium text-muted-foreground">Name</dt>
+						<dd class="wrap-break-word">{data.context.user?.name ?? '—'}</dd>
+					</div>
+					<div>
+						<dt class="font-medium text-muted-foreground">Email</dt>
+						<dd class="wrap-break-word">{data.context.user?.email}</dd>
+					</div>
+					<div>
+						<dt class="font-medium text-muted-foreground">Member since</dt>
+						<dd class="wrap-break-word">{data.context.stats.memberSince}</dd>
+					</div>
+				</dl>
+			</CardContent>
+		</Card>
+
+		<Card>
+			<CardHeader>
+				<CardTitle>Roles</CardTitle>
+			</CardHeader>
+			<CardContent>
+				{#if data.context.roles.length > 0}
+					<ul class="flex flex-wrap gap-2">
+						{#each data.context.roles as role (role)}
+							<li><Badge variant="secondary">{role}</Badge></li>
+						{/each}
+					</ul>
+				{:else}
+					<p class="text-sm text-muted-foreground">No realm roles assigned.</p>
+				{/if}
+				<p class="mt-4 text-sm text-muted-foreground">Role count: {data.context.stats.roleCount}</p>
+			</CardContent>
+		</Card>
 	</div>
-</div>
 
 {#if data.showAdminSection}
 	<div class="mt-4 bg-card border border-border rounded-xl p-6 shadow-sm">

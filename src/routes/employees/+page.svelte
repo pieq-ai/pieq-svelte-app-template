@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
 	import { enhance } from '$app/forms';
-	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
+
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
 	import {
@@ -23,6 +23,7 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components';
+	import { UI_CONSTANTS } from '$lib/constants';
 	import type { PageData, ActionData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -199,8 +200,8 @@
 					<TableBody>
 						{#if filteredEmployees.length === 0}
 							<TableRow>
-								<TableCell colspan={4} class="py-12 text-center text-muted-foreground">
-									No employees match the criteria.
+								<TableCell colspan={7} class="py-8 text-center text-muted-foreground">
+									{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 								</TableCell>
 							</TableRow>
 						{:else}
@@ -301,13 +302,8 @@
 						</div>
 					{/if}
 
-					<Button type="submit" class="w-full" disabled={isSubmitting}>
-						{#if isSubmitting}
-							<LoaderCircleIcon class="size-4 animate-spin" />
-							Saving Employee...
-						{:else}
-							Save Employee Record
-						{/if}
+					<Button type="submit" class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting}>
+						{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : UI_CONSTANTS.BUTTON_SAVE}
 					</Button>
 				</form>
 			</CardContent>

@@ -5,6 +5,7 @@
 	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
 
 	let { data } = $props();
+	let authenticatedUser = $derived(data.user ?? null);
 
 	function handleSignIn() {
 		signInWithKeycloak('/dashboard');
@@ -16,33 +17,18 @@
 	<meta name="description" content="PieQ HRMS — Manage roles, shifts, locations, and more in one enterprise-grade platform." />
 </svelte:head>
 
-<div class="min-h-[70vh] flex items-center justify-center">
-	<div class="text-center max-w-[520px] py-10 px-6">
-		<!-- Brand mark -->
-		<div class="w-18 h-18 bg-pieq-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[0_8px_24px_rgba(244,83,16,0.25)]">
-			<span class="text-[28px] font-extrabold text-white tracking-[-1px]">PQ</span>
-		</div>
-
-		<p class="text-[11px] font-bold uppercase tracking-[2px] text-pieq-primary mb-3">
-			Enterprise HR Suite
+<div class="space-y-4">
+	<div class="space-y-3">
+		<p class="text-sm font-medium uppercase tracking-wide text-muted-foreground">Boilerplate</p>
+		<h1 class="text-4xl font-bold tracking-tight">SvelteKit layered architecture</h1>
+		<p class="max-w-2xl text-lg text-muted-foreground">
+			DAO, service, controller, and view layers with PostgreSQL, Prisma, and Keycloak authentication.
 		</p>
+	</div>
 
-		<h1 class="text-4xl font-extrabold text-foreground leading-[1.15] mb-4 tracking-[-0.5px]">
-			PieQ HRMS
-		</h1>
-
-		<p class="text-[15px] text-muted-foreground leading-[1.6] mb-9">
-			Streamline your workforce — manage roles, shifts, locations, and permissions with a powerful, modern HR platform.
-		</p>
-
-		{#if data.user}
-			<a
-				href={resolve('/dashboard')}
-				class="inline-flex items-center gap-2 bg-pieq-primary text-white text-sm font-semibold px-7 py-3 rounded-[10px] no-underline transition-[background-color,transform] duration-200 hover:bg-[#d8470a] hover:-translate-y-0.5 shadow-[0_4px_16px_rgba(244,83,16,0.18)]"
-			>
-				<LayoutDashboardIcon size={17} />
-				Go to Dashboard
-			</a>
+	<div class="flex flex-wrap gap-3">
+		{#if authenticatedUser}
+			<Button href={resolve('/dashboard')}>Go to dashboard</Button>
 		{:else}
 			<button
 				onclick={handleSignIn}

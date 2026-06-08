@@ -1,18 +1,18 @@
-// src/lib/toast.svelte.ts
-
 export interface Toast {
 	id: string;
-	type: 'success' | 'info' | 'error' | 'warning';
 	message: string;
+	type: 'success' | 'error' | 'info' | 'warning';
 	duration?: number;
 }
 
-class ToastManager {
-	toasts = $state<Toast[]>([]);
+class ToastStore {
+	list = $state<Toast[]>([]);
 
 	add(message: string, type: Toast['type'] = 'info', duration = 3000) {
 		const id = Math.random().toString(36).substring(2, 9);
-		this.toasts.push({ id, type, message, duration });
+		const toast: Toast = { id, message, type, duration };
+		this.list = [...this.list, toast];
+
 		if (duration > 0) {
 			setTimeout(() => {
 				this.dismiss(id);
@@ -37,8 +37,8 @@ class ToastManager {
 	}
 
 	dismiss(id: string) {
-		this.toasts = this.toasts.filter((t) => t.id !== id);
+		this.list = this.list.filter((t) => t.id !== id);
 	}
 }
 
-export const toast = new ToastManager();
+export const toast = new ToastStore();

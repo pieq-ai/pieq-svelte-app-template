@@ -1,26 +1,38 @@
 <script lang="ts">
 	import './layout.css';
-	import favicon from '$lib/assets/favicon.svg';
+	import favicon from '$lib/assets/favicon.svg'
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
-	import { Sidebar, ToastContainer, ConfirmationModal } from '$lib/components';
-	import MenuIcon from '@lucide/svelte/icons/menu';
+	import { Button } from '$lib/components';
+	import Toaster from '$lib/components/ui/toaster.svelte';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
+	import Building2Icon from '@lucide/svelte/icons/building-2';
+	import MenuIcon from '@lucide/svelte/icons/menu';
+	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
+	import LogInIcon from '@lucide/svelte/icons/log-in';
+	import LogOutIcon from '@lucide/svelte/icons/log-out';
+	import KeyRoundIcon from '@lucide/svelte/icons/key-round';
+	import LinkIcon from '@lucide/svelte/icons/link';
+	import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
+	import SettingsIcon from '@lucide/svelte/icons/settings';
+	import UserRoundIcon from '@lucide/svelte/icons/user-round';
+	import UsersRoundIcon from '@lucide/svelte/icons/users-round';
+	import WalletIcon from '@lucide/svelte/icons/wallet';
 
 	let { children, data } = $props();
+	let authenticatedUser = $derived(data.user ?? null);
+	let isSidebarCollapsed = $state(false);
 
-	let sidebarCollapsed = $state(false);
-
-	const isMasterPage = $derived(
-		$page.url.pathname === '/roles' ||
-		$page.url.pathname === '/shifts' ||
-		$page.url.pathname === '/organization_locations'
-	);
-
-	$effect(() => {
-		if (typeof window !== 'undefined') {
-			sidebarCollapsed = window.innerWidth < 768;
-		}
-	});
+	const protectedNavItems = [
+		{ label: 'Dashboard', href: resolve('/dashboard'), icon: LayoutDashboardIcon },
+		{ label: 'Employee', href: resolve('/employees'), icon: UsersRoundIcon },
+		{ label: 'Department', href: resolve('/departments'), icon: Building2Icon },
+		{ label: 'Designation', href: resolve('/designations'), icon: UserRoundIcon },
+		{ label: 'Salary Components', href: resolve('/salary-components'), icon: WalletIcon },
+		{ label: 'System Roles', href: resolve('/system-roles'), icon: ShieldCheckIcon },
+		{ label: 'Permissions', href: resolve('/permissions'), icon: KeyRoundIcon },
+		{ label: 'Role Permissions', href: resolve('/role-permissions'), icon: LinkIcon }
+	];
 
 	$effect(() => {
 		if (typeof window !== 'undefined' && data.config) {
@@ -48,30 +60,110 @@
 	<title>PieQ HRMS</title>
 </svelte:head>
 
-<div class="flex min-h-screen bg-background">
-	<!-- Persistent Sidebar -->
-	<Sidebar
-		user={data.user}
-		bind:collapsed={sidebarCollapsed}
-	/>
-
-	<!-- Main content area shifts with sidebar -->
-	<div
-		class="flex-1 min-w-0 transition-[margin] duration-250 ease-in-out min-h-screen flex flex-col {sidebarCollapsed ? 'ml-sidebar-collapsed-w' : 'ml-sidebar-w'} max-md:ml-0 max-md:overflow-x-hidden max-md:w-full"
+<div class="flex min-h-screen bg-background text-foreground">
+	<Toaster />
+	<aside
+		class={`sticky top-0 h-screen z-30 flex shrink-0 flex-col border-r border-[#737373]/25 bg-[#262626] text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
+		aria-label="Primary navigation"
 	>
-		{#if data.user}
-			<div class="hidden max-md:flex items-center justify-between bg-sidebar-bg text-white px-4 py-3 border-b border-sidebar-border sticky top-0 z-30 box-border w-full">
-				<button onclick={() => sidebarCollapsed = !sidebarCollapsed} class="bg-none border-none text-white cursor-pointer p-1.5 flex items-center justify-center rounded-md transition-colors duration-200 hover:bg-white/8" aria-label="Toggle menu">
-					<MenuIcon size={20} />
-				</button>
-				<span class="text-[15px] font-bold">PieQ HRMS</span>
-				<div style="width: 32px;"></div>
-			</div>
-		{/if}
-		<div class="flex-1 w-full px-9 py-8 {isMasterPage ? 'max-w-none' : 'max-w-[1200px]'} mx-auto max-md:px-5 max-md:py-4">
-			{@render children()}
+		<div class={`flex h-16 items-center border-b border-white/10 transition-all ${isSidebarCollapsed ? 'justify-center gap-2 px-2' : 'justify-between px-6'}`}>
+			{#if !isSidebarCollapsed}
+				<a
+					href={resolve('/')}
+					class="flex min-w-0 items-center gap-3 font-semibold tracking-tight"
+					title="PieQ HRMS"
+				>
+					<span class="flex size-8 shrink-0 items-center justify-center rounded-md bg-[#F45310] text-white">
+						<Building2Icon class="size-4" />
+					</span>
+					<span class="truncate text-base">PieQ HRMS</span>
+				</a>
+			{/if}
+			<Button
+				type="button"
+				size="icon-sm"
+				variant="ghost"
+				class="shrink-0 text-white hover:bg-white/10 hover:text-white"
+				aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+				title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+				onclick={() => (isSidebarCollapsed = !isSidebarCollapsed)}
+			>
+				<MenuIcon class="size-4" />
+			</Button>
 		</div>
-	</div>
+		<!-- Main nav -->
+		<nav class="flex flex-1 flex-col gap-1 px-3 py-4 overflow-y-auto">
+			{#if authenticatedUser}
+				{#each protectedNavItems as item (item.href)}
+					{@const Icon = item.icon}
+					{@const isActive = $page.url.pathname === item.href || $page.url.pathname.startsWith(item.href + '/')}
+					<Button
+						href={item.href}
+						variant="ghost"
+						class={`h-10 justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-[#F45310]' : ''}`}
+						title={isSidebarCollapsed ? item.label : undefined}
+						aria-label={item.label}
+					>
+						<Icon class="size-4 shrink-0" />
+						{#if !isSidebarCollapsed}
+							<span>{item.label}</span>
+						{/if}
+					</Button>
+				{/each}
+			{:else}
+				<Button
+					href={resolve('/auth/signin')}
+					variant="ghost"
+					class={`h-10 justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+					title={isSidebarCollapsed ? 'Sign in' : undefined}
+					aria-label="Sign in"
+				>
+					<LogInIcon class="size-4 shrink-0" />
+					{#if !isSidebarCollapsed}
+						<span>Sign in</span>
+					{/if}
+				</Button>
+			{/if}
+		</nav>
+		<div class="space-y-2 border-t border-white/10 p-3">
+			{#if authenticatedUser}
+				{@const isSettingsActive = $page.url.pathname.startsWith('/settings')}
+				<Button
+					href={resolve('/settings')}
+					variant="ghost"
+					class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#F45310]/90 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isSettingsActive ? 'bg-[#F45310]/90' : ''}`}
+					title={isSidebarCollapsed ? 'Settings' : undefined}
+					aria-label="Settings"
+				>
+					<SettingsIcon class="size-4 shrink-0" />
+					{#if !isSidebarCollapsed}
+						<span>Settings</span>
+					{/if}
+				</Button>
+				<form method="POST" action="/auth/signout">
+					<Button
+						type="submit"
+						variant="ghost"
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-danger hover:text-danger-foreground focus-visible:ring-danger/50 focus-visible:border-danger ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						title={isSidebarCollapsed ? 'Sign out' : undefined}
+						aria-label="Sign out"
+					>
+						<LogOutIcon class="size-4 shrink-0" />
+						{#if !isSidebarCollapsed}
+							<span>Sign out</span>
+						{/if}
+					</Button>
+				</form>
+			{/if}
+			{#if authenticatedUser && !isSidebarCollapsed}
+				<p class="px-3 text-xs text-[#737373] wrap-break-word line-clamp-2" title={authenticatedUser.email}>{authenticatedUser.email}</p>
+			{/if}
+		</div>
+	</aside>
+
+	<main class="min-h-screen flex-1 min-w-0 px-6 py-6">
+		{@render children()}
+	</main>
 </div>
 
 <ToastContainer />

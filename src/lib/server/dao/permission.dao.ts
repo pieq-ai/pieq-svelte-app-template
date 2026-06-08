@@ -1,0 +1,62 @@
+import { db } from '$lib/server/db.js';
+
+export interface CreatePermissionInput {
+	permission_key: string;
+	status?: boolean;
+	created_by?: string;
+	created_at?: Date | string;
+	updated_at?: Date | string;
+}
+
+export interface UpdatePermissionInput {
+	permission_key?: string;
+	status?: boolean;
+	updated_by?: string;
+	updated_at?: Date | string;
+}
+
+export async function list() {
+	return db.permissions.findMany({
+		orderBy: {
+			permission_key: 'asc'
+		}
+	});
+}
+
+export async function findById(id: number) {
+	return db.permissions.findUnique({
+		where: {
+			id
+		}
+	});
+}
+
+export async function findByCuid2(cuid: string) {
+	return db.permissions.findUnique({
+		where: {
+			cuid
+		}
+	});
+}
+
+export async function create(data: CreatePermissionInput) {
+	return db.permissions.create({
+		data: {
+			permission_key: data.permission_key,
+			status: data.status ?? true,
+			created_by: data.created_by ?? undefined,
+			updated_by: data.created_by ?? undefined,
+			created_at: data.created_at ? new Date(data.created_at) : undefined,
+			updated_at: data.updated_at ? new Date(data.updated_at) : undefined
+		}
+	});
+}
+
+export async function update(id: number, data: UpdatePermissionInput) {
+	return db.permissions.update({
+		where: {
+			id
+		},
+		data
+	});
+}

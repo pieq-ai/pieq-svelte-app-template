@@ -24,6 +24,7 @@ declare global {
 	}
 
 	var __db: import('$lib/generated/prisma/client').PrismaClient | undefined;
+	var __dbSchemaVersion: string | undefined;
 }
 
 declare module '@auth/core/types' {
@@ -36,6 +37,12 @@ declare module '@auth/core/types' {
 		roles?: string[];
 		oidcUser?: OidcUserStorage;
 	}
+}
+
+declare module '*.svelte' {
+	import type { Component } from 'svelte';
+	const component: Component;
+	export default component;
 }
 
 export {};
