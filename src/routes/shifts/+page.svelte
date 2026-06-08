@@ -1,6 +1,14 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { Shift } from "$lib/types/shift";
+  import {
+    fetchAllShifts,
+    createShift,
+    updateShift,
+    deleteShift,
+    activateShift as activateShiftApi,
+  } from "$lib/api/shifts";
+  import { ApiError } from "$lib/api/local";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import Pencil2Icon from "@lucide/svelte/icons/pencil";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
@@ -56,6 +64,7 @@
   let formEndTime = $state("18:00");
   let formStatus = $state(true);
   let formError = $state("");
+  let formMinHoursError = $state("");
   let formLoading = $state(false);
 
   let showConfirmation = $state(false);
@@ -64,6 +73,11 @@
   let originalStartTime = "";
   let originalEndTime = "";
   let originalStatus = true;
+  let originalMinHours = 0;
+  // Whether the user has manually edited the min hours field (overrides auto-calc)
+  let isMinHoursManuallyEdited = $state(false);
+  // The editable min hours value (in decimal hours)
+  let formMinHours = $state(0);
 
   function captureOriginalState() {
     originalName = editShift ? editShift.shift_name : "";
@@ -74,6 +88,7 @@
       ? formatTimeForInput(editShift.end_time)
       : "18:00";
     originalStatus = editShift ? editShift.status : true;
+    originalMinHours = editShift ? Number(editShift.minimum_work_hours) : 0;
   }
 
   function resetStateTracking() {
@@ -81,6 +96,9 @@
     originalStartTime = "";
     originalEndTime = "";
     originalStatus = true;
+    originalMinHours = 0;
+    isMinHoursManuallyEdited = false;
+    formMinHoursError = "";
     showConfirmation = false;
     formError = "";
   }
@@ -90,7 +108,8 @@
       formName.trim() !== originalName ||
       formStartTime !== originalStartTime ||
       formEndTime !== originalEndTime ||
-      formStatus !== originalStatus
+      formStatus !== originalStatus ||
+      formMinHours !== originalMinHours
     );
   }
 
@@ -120,7 +139,8 @@
       formName.trim() !== originalName ||
       formStartTime !== originalStartTime ||
       formEndTime !== originalEndTime ||
-      formStatus !== originalStatus
+      formStatus !== originalStatus ||
+      formMinHours !== originalMinHours
     );
   });
 
@@ -149,6 +169,27 @@
     const hours = diffMinutes / 60;
     return Math.round(hours * 100) / 100;
   });
+
+  // When times change, auto-sync formMinHours (unless user has manually overridden)
+  $effect(() => {
+    if (!isMinHoursManuallyEdited) {
+      formMinHours = calculatedMinHours;
+      formMinHoursError = "";
+    }
+  });
+
+  /**
+   * Convert decimal hours to human-readable format: X hrs Y mins
+   */
+  function formatHoursReadable(hours: number): string {
+    if (isNaN(hours) || hours <= 0) return "0 hrs 0 mins";
+    const totalMinutes = Math.round(hours * 60);
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    if (h === 0) return `${m} mins`;
+    if (m === 0) return `${h} hrs`;
+    return `${h} hrs ${m} mins`;
+  }
 
   function toggleDropdown(cuid: string, event: MouseEvent) {
     event.stopPropagation();
@@ -216,6 +257,11 @@
         let valA = a[sortColumn as keyof typeof a];
         let valB = b[sortColumn as keyof typeof b];
 
+        if (valA === null || valA === undefined)
+          return sortDirection === "asc" ? 1 : -1;
+        if (valB === null || valB === undefined)
+          return sortDirection === "asc" ? -1 : 1;
+
         if (typeof valA === "string" && typeof valB === "string") {
           const comp = valA.localeCompare(valB);
           return sortDirection === "asc" ? comp : -comp;
@@ -279,13 +325,10 @@
   async function fetchShifts() {
     loading = true;
     try {
-      const res = await fetch(`/api/shifts?includeInactive=true`);
-      const json = await res.json();
-      if (res.ok) {
-        shifts = json.data ?? [];
-      }
+      shifts = await fetchAllShifts();
     } catch (e) {
       console.error("Failed to fetch shifts", e);
+      toast.error(e instanceof ApiError ? e.message : "Failed to load shifts");
     } finally {
       loading = false;
     }
@@ -323,6 +366,9 @@
     formEndTime = "18:00";
     formStatus = true;
     formError = "";
+    formMinHoursError = "";
+    isMinHoursManuallyEdited = false;
+    formMinHours = calculatedMinHours;
     captureOriginalState();
     showForm = true;
   }
@@ -334,6 +380,9 @@
     formEndTime = formatTimeForInput(shift.end_time);
     formStatus = shift.status;
     formError = "";
+    formMinHoursError = "";
+    isMinHoursManuallyEdited = false;
+    formMinHours = Number(shift.minimum_work_hours);
     captureOriginalState();
     showForm = true;
   }
@@ -342,6 +391,8 @@
     showForm = false;
     formName = "";
     formError = "";
+    formMinHoursError = "";
+    isMinHoursManuallyEdited = false;
     editShift = null;
     resetStateTracking();
   }
@@ -375,45 +426,41 @@
       return;
     }
 
+    // Validate minimum work hours does not exceed shift duration
+    if (formMinHours > calculatedMinHours) {
+      formMinHoursError = `Minimum work hours cannot exceed the total shift duration (${formatHoursReadable(calculatedMinHours)}).`;
+      return;
+    }
+    formMinHoursError = "";
+
     formLoading = true;
     formError = "";
     try {
-      const url = editShift
-        ? `/api/shifts/shiftCuid=${editShift.cuid}`
-        : "/api/shifts";
-      const method = editShift ? "PUT" : "POST";
-
       const startTimeIso = `1970-01-01T${formStartTime}:00.000Z`;
       const endTimeIso = `1970-01-01T${formEndTime}:00.000Z`;
 
-      const payload: any = {
-        shift_name: nameTrimmed,
-        start_time: startTimeIso,
-        end_time: endTimeIso,
-        minimum_work_hours: calculatedMinHours,
-      };
       if (editShift) {
-        payload.status = formStatus;
-      }
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const json = await res.json();
-      if (res.ok) {
-        const isEdit = !!editShift;
-        closeForm();
-        await fetchShifts();
-        toast.success(
-          isEdit ? "Shift updated successfully" : "Shift created successfully",
-        );
+        await updateShift(editShift.cuid, {
+          shift_name: nameTrimmed,
+          start_time: startTimeIso,
+          end_time: endTimeIso,
+          minimum_work_hours: formMinHours,
+          status: formStatus,
+        });
       } else {
-        formError = json.error || "Something went wrong.";
-        toast.error(formError);
+        await createShift({
+          shift_name: nameTrimmed,
+          start_time: startTimeIso,
+          end_time: endTimeIso,
+          minimum_work_hours: formMinHours,
+        });
       }
-    } catch {
-      formError = "Network error.";
+      const isEdit = !!editShift;
+      closeForm();
+      await fetchShifts();
+      toast.success(isEdit ? "Shift updated successfully" : "Shift created successfully");
+    } catch (e) {
+      formError = e instanceof ApiError ? e.message : "Something went wrong.";
       toast.error(formError);
     } finally {
       formLoading = false;
@@ -430,18 +477,11 @@
       isDestructive: true,
       onConfirm: async () => {
         try {
-          const res = await fetch(`/api/shifts/shiftCuid=${cuid}`, {
-            method: "DELETE",
-          });
-          const json = await res.json();
-          if (res.ok) {
-            await fetchShifts();
-            toast.success("Shift deactivated successfully");
-          } else {
-            toast.error(json.error || "Failed to deactivate shift");
-          }
-        } catch {
-          toast.error("Network error occurred while deactivating shift");
+          await deleteShift(cuid);
+          await fetchShifts();
+          toast.success("Shift deactivated successfully");
+        } catch (e) {
+          toast.error(e instanceof ApiError ? e.message : "Failed to deactivate shift");
         }
       },
     });
@@ -456,18 +496,11 @@
       isDestructive: false,
       onConfirm: async () => {
         try {
-          const res = await fetch(`/api/shifts/shiftCuid=${cuid}`, {
-            method: "PATCH",
-          });
-          const json = await res.json();
-          if (res.ok) {
-            await fetchShifts();
-            toast.success("Shift activated successfully");
-          } else {
-            toast.error(json.error || "Failed to activate shift");
-          }
-        } catch {
-          toast.error("Network error occurred while activating shift");
+          await activateShiftApi(cuid);
+          await fetchShifts();
+          toast.success("Shift activated successfully");
+        } catch (e) {
+          toast.error(e instanceof ApiError ? e.message : "Failed to activate shift");
         }
       },
     });
@@ -489,7 +522,7 @@
 </script>
 
 <svelte:head>
-  <title>Shift Master – PieQ HRMS</title>
+  <title>Shifts – PieQ HRMS</title>
 </svelte:head>
 
 <div
@@ -497,7 +530,7 @@
 >
   <div>
     <h1 class="text-3xl font-bold tracking-tight text-foreground m-0">
-      Shift Master
+      Shifts
     </h1>
   </div>
 
@@ -541,9 +574,9 @@
       Avg Min Work Hours
     </div>
     <div
-      class="text-[36px] font-bold leading-none tabular-nums text-pieq-tertiary"
+      class="text-[28px] font-bold leading-none tabular-nums text-pieq-tertiary"
     >
-      {avgMinWorkHours} hrs
+      {formatHoursReadable(avgMinWorkHours)}
     </div>
   </div>
 </div>
@@ -994,7 +1027,7 @@
               >{formatTimeForDisplay(shift.end_time)}</td
             >
             <td class="px-5 py-3.5 text-sm font-semibold"
-              >{shift.minimum_work_hours} hrs</td
+              >{formatHoursReadable(Number(shift.minimum_work_hours))}</td
             >
             <td class="px-5 py-3.5">
               {#if shift.status}
@@ -1176,16 +1209,46 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <label for="shift-min-hours" class="text-[13px] font-semibold">
-        Minimum Work Hours
-      </label>
+      <div class="flex items-center justify-between">
+        <label for="shift-min-hours" class="text-[13px] font-semibold">
+          Minimum Work Hours
+        </label>
+        {#if isMinHoursManuallyEdited}
+          <!-- svelte-ignore a11y_click_events_have_key_events -->
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <span
+            class="text-[11px] text-pieq-primary cursor-pointer hover:underline"
+            onclick={() => {
+              isMinHoursManuallyEdited = false;
+              formMinHours = calculatedMinHours;
+              formMinHoursError = "";
+            }}
+          >Reset to auto</span>
+        {/if}
+      </div>
       <input
         id="shift-min-hours"
-        type="text"
-        value="{calculatedMinHours} hours"
-        disabled
-        class="w-full border border-border rounded-lg px-3 py-2 text-sm bg-muted text-muted-foreground outline-none box-border cursor-not-allowed"
+        type="number"
+        min="0"
+        step="0.25"
+        bind:value={formMinHours}
+        oninput={() => {
+          isMinHoursManuallyEdited = true;
+          formMinHoursError = formMinHours > calculatedMinHours
+            ? `Cannot exceed shift duration (${formatHoursReadable(calculatedMinHours)})`
+            : "";
+        }}
+        class="w-full border {formMinHoursError ? 'border-red-400' : 'border-border'} rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none transition-all duration-200 box-border focus:border-neutral-400 focus:ring-4 focus:ring-neutral-500/15"
       />
+      <p class="text-[11px] text-muted-foreground m-0">
+        Shift duration: {formatHoursReadable(calculatedMinHours)}
+        {#if !isMinHoursManuallyEdited}
+          <span class="text-pieq-tertiary">(auto-calculated)</span>
+        {/if}
+      </p>
+      {#if formMinHoursError}
+        <p class="text-red-500 text-xs m-0">{formMinHoursError}</p>
+      {/if}
     </div>
 
     {#if editShift}

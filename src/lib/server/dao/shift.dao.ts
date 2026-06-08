@@ -16,7 +16,10 @@ export async function createShift(data: ShiftCreateDTO): Promise<Shift> {
     if (diffHrs < 0) {
       diffHrs += 24;
     }
-    minHours = Math.round(diffHrs * 100) / 100;
+    // Only auto-calculate if minimum_work_hours was NOT explicitly provided
+    if (data.minimum_work_hours === undefined) {
+      minHours = Math.round(diffHrs * 100) / 100;
+    }
   }
 
   return db.shift.create({
@@ -25,7 +28,9 @@ export async function createShift(data: ShiftCreateDTO): Promise<Shift> {
       start_time: startTime,
       end_time: endTime,
       minimum_work_hours: minHours,
-      status: true
+      status: true,
+      created_by: data.created_by ?? null,
+      updated_by: data.updated_by ?? null
     },
     select: {
       cuid: true,
@@ -33,7 +38,9 @@ export async function createShift(data: ShiftCreateDTO): Promise<Shift> {
       start_time: true,
       end_time: true,
       minimum_work_hours: true,
-      status: true
+      status: true,
+      created_by: true,
+      updated_by: true
     }
   }) as unknown as Promise<Shift>;
 }
@@ -51,7 +58,9 @@ export async function getShifts(): Promise<Shift[]> {
       start_time: true,
       end_time: true,
       minimum_work_hours: true,
-      status: true
+      status: true,
+      created_by: true,
+      updated_by: true
     }
   }) as unknown as Promise<Shift[]>;
 }
@@ -68,7 +77,9 @@ export async function getAllShifts(): Promise<Shift[]> {
       start_time: true,
       end_time: true,
       minimum_work_hours: true,
-      status: true
+      status: true,
+      created_by: true,
+      updated_by: true
     }
   }) as unknown as Promise<Shift[]>;
 }
@@ -99,13 +110,17 @@ export async function getShiftByCuid(cuid: string): Promise<Shift | null> {
       start_time: true,
       end_time: true,
       minimum_work_hours: true,
-      status: true
+      status: true,
+      created_by: true,
+      updated_by: true
     }
   }) as unknown as Promise<Shift | null>;
 }
 
 /**
  * Update an existing shift.
+ * If minimum_work_hours is explicitly provided, use it directly.
+ * Otherwise, auto-calculate from start/end times when they change.
  */
 export async function updateShift(cuid: string, data: ShiftUpdateDTO): Promise<Shift> {
   const updateData: any = {};
@@ -121,8 +136,16 @@ export async function updateShift(cuid: string, data: ShiftUpdateDTO): Promise<S
   if (data.status !== undefined) {
     updateData.status = data.status;
   }
+  if (data.updated_by !== undefined) {
+    updateData.updated_by = data.updated_by;
+  }
 
-  if (data.start_time !== undefined || data.end_time !== undefined) {
+  // minimum_work_hours resolution:
+  // 1. If explicitly provided by caller, use that value directly.
+  // 2. If times changed but no explicit minimum provided, auto-recalculate.
+  if (data.minimum_work_hours !== undefined) {
+    updateData.minimum_work_hours = data.minimum_work_hours;
+  } else if (data.start_time !== undefined || data.end_time !== undefined) {
     let startTime = data.start_time !== undefined ? new Date(data.start_time) : undefined;
     let endTime = data.end_time !== undefined ? new Date(data.end_time) : undefined;
 
@@ -146,8 +169,6 @@ export async function updateShift(cuid: string, data: ShiftUpdateDTO): Promise<S
       }
       updateData.minimum_work_hours = Math.round(diffHrs * 100) / 100;
     }
-  } else if (data.minimum_work_hours !== undefined) {
-    updateData.minimum_work_hours = data.minimum_work_hours;
   }
 
   return db.shift.update({
@@ -159,7 +180,9 @@ export async function updateShift(cuid: string, data: ShiftUpdateDTO): Promise<S
       start_time: true,
       end_time: true,
       minimum_work_hours: true,
-      status: true
+      status: true,
+      created_by: true,
+      updated_by: true
     }
   }) as unknown as Promise<Shift>;
 }
@@ -177,7 +200,9 @@ export async function deactivateShift(cuid: string): Promise<Shift> {
       start_time: true,
       end_time: true,
       minimum_work_hours: true,
-      status: true
+      status: true,
+      created_by: true,
+      updated_by: true
     }
   }) as unknown as Promise<Shift>;
 }
@@ -195,7 +220,9 @@ export async function activateShift(cuid: string): Promise<Shift> {
       start_time: true,
       end_time: true,
       minimum_work_hours: true,
-      status: true
+      status: true,
+      created_by: true,
+      updated_by: true
     }
   }) as unknown as Promise<Shift>;
 }

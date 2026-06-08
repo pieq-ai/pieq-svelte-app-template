@@ -61,7 +61,9 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
     'state_cuid',
     'country_cuid',
     'pin_code',
-    'timezone'
+    'timezone',
+    'created_by',
+    'updated_by'
   ];
   rejectUnknownKeys(raw, allowedKeys);
 
@@ -142,7 +144,9 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
     state_cuid: typeof raw.state_cuid === 'string' ? raw.state_cuid : undefined,
     country_cuid: typeof raw.country_cuid === 'string' ? raw.country_cuid : undefined,
     pin_code: typeof raw.pin_code === 'string' ? raw.pin_code : undefined,
-    timezone: typeof raw.timezone === 'string' ? raw.timezone : undefined
+    timezone: typeof raw.timezone === 'string' ? raw.timezone : undefined,
+    created_by: raw.created_by !== undefined ? (raw.created_by as string | null) : undefined,
+    updated_by: raw.updated_by !== undefined ? (raw.updated_by as string | null) : undefined
   };
 }
 
@@ -166,7 +170,9 @@ export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDT
     'country_cuid',
     'pin_code',
     'timezone',
-    'is_active'
+    'is_active',
+    'created_by',
+    'updated_by'
   ];
   rejectUnknownKeys(raw, allowedKeys);
 
@@ -281,6 +287,13 @@ export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDT
       throw err;
     }
     result.is_active = raw.is_active;
+  }
+
+  if (raw.created_by !== undefined) {
+    result.created_by = raw.created_by as string | null;
+  }
+  if (raw.updated_by !== undefined) {
+    result.updated_by = raw.updated_by as string | null;
   }
 
   if (Object.keys(result).length === 0) {

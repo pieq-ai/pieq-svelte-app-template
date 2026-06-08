@@ -6,6 +6,8 @@ export interface Shift {
   end_time: Date | string;
   minimum_work_hours: number;
   status: boolean;
+  created_by?: string | null;
+  updated_by?: string | null;
 }
 
 export interface ShiftCreateDTO {
@@ -13,6 +15,8 @@ export interface ShiftCreateDTO {
   start_time?: Date | string;
   end_time?: Date | string;
   minimum_work_hours?: number;
+  created_by?: string | null;
+  updated_by?: string | null;
 }
 
 export interface ShiftUpdateDTO {
@@ -21,4 +25,6 @@ export interface ShiftUpdateDTO {
   end_time?: Date | string;
   minimum_work_hours?: number;
   status?: boolean;
+  created_by?: string | null;
+  updated_by?: string | null;
 }

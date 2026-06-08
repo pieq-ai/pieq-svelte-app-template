@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { Role } from "$lib/types/role";
+  import { fetchAllRoles, createRole, updateRole, deleteRole } from "$lib/api/roles";
+  import { ApiError } from "$lib/api/local";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import Pencil2Icon from "@lucide/svelte/icons/pencil";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
@@ -172,6 +174,11 @@
         let valA = a[sortColumn as keyof typeof a];
         let valB = b[sortColumn as keyof typeof b];
 
+        if (valA === null || valA === undefined)
+          return sortDirection === "asc" ? 1 : -1;
+        if (valB === null || valB === undefined)
+          return sortDirection === "asc" ? -1 : 1;
+
         if (typeof valA === "string" && typeof valB === "string") {
           const comp = valA.localeCompare(valB);
           return sortDirection === "asc" ? comp : -comp;
@@ -227,14 +234,10 @@
   async function fetchRoles() {
     loading = true;
     try {
-      // Fetch all (active + inactive) by not filtering on backend
-      const res = await fetch(`/api/roles?includeInactive=true`);
-      const json = await res.json();
-      if (res.ok) {
-        roles = json.data ?? [];
-      }
+      roles = await fetchAllRoles();
     } catch (e) {
       console.error("Failed to fetch roles", e);
+      toast.error(e instanceof ApiError ? e.message : "Failed to load roles");
     } finally {
       loading = false;
     }
@@ -290,33 +293,17 @@
     formLoading = true;
     formError = "";
     try {
-      const url = editRole
-        ? `/api/roles/roleCuid=${editRole.cuid}`
-        : "/api/roles";
-      const method = editRole ? "PUT" : "POST";
-      const payload: any = { name: nameTrimmed };
       if (editRole) {
-        payload.status = formStatus;
-      }
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const json = await res.json();
-      if (res.ok) {
-        const isEdit = !!editRole;
-        closeForm();
-        await fetchRoles();
-        toast.success(
-          isEdit ? "Role updated successfully" : "Role created successfully",
-        );
+        await updateRole(editRole.cuid, { name: nameTrimmed, status: formStatus });
       } else {
-        formError = json.error || "Something went wrong.";
-        toast.error(formError);
+        await createRole(nameTrimmed);
       }
-    } catch {
-      formError = "Network error.";
+      const isEdit = !!editRole;
+      closeForm();
+      await fetchRoles();
+      toast.success(isEdit ? "Role updated successfully" : "Role created successfully");
+    } catch (e) {
+      formError = e instanceof ApiError ? e.message : "Something went wrong.";
       toast.error(formError);
     } finally {
       formLoading = false;
@@ -333,18 +320,11 @@
       isDestructive: true,
       onConfirm: async () => {
         try {
-          const res = await fetch(`/api/roles/roleCuid=${cuid}`, {
-            method: "DELETE",
-          });
-          const json = await res.json();
-          if (res.ok) {
-            await fetchRoles();
-            toast.success("Role deactivated successfully");
-          } else {
-            toast.error(json.error || "Failed to deactivate role");
-          }
-        } catch {
-          toast.error("Network error occurred while deactivating role");
+          await deleteRole(cuid);
+          await fetchRoles();
+          toast.success("Role deactivated successfully");
+        } catch (e) {
+          toast.error(e instanceof ApiError ? e.message : "Failed to deactivate role");
         }
       },
     });
@@ -366,7 +346,7 @@
 </script>
 
 <svelte:head>
-  <title>Role Master – PieQ HRMS</title>
+  <title>Roles – PieQ HRMS</title>
 </svelte:head>
 
 <div
@@ -374,7 +354,7 @@
 >
   <div>
     <h1 class="text-3xl font-bold tracking-tight text-foreground m-0">
-      Role Master
+      Roles
     </h1>
   </div>
 

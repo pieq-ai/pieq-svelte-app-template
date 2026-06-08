@@ -9,12 +9,16 @@ export async function createRole(data: RoleCreateDTO): Promise<Role> {
   return db.role.create({
     data: {
       name: data.name.trim(),
-      status: true
+      status: true,
+      created_by: data.created_by ?? null,
+      updated_by: data.updated_by ?? null
     },
     select: {
       cuid: true,
       name: true,
-      status: true
+      status: true,
+      created_by: true,
+      updated_by: true
     }
   });
 }
@@ -29,7 +33,9 @@ export async function getRoles(): Promise<Role[]> {
     select: {
       cuid: true,
       name: true,
-      status: true
+      status: true,
+      created_by: true,
+      updated_by: true
     }
   });
 }
@@ -44,7 +50,9 @@ export async function getAllRoles(): Promise<Role[]> {
     select: {
       cuid: true,
       name: true,
-      status: true
+      status: true,
+      created_by: true,
+      updated_by: true
     }
   });
 }
@@ -72,7 +80,9 @@ export async function getRoleByCuid(cuid: string): Promise<Role | null> {
     select: {
       cuid: true,
       name: true,
-      status: true
+      status: true,
+      created_by: true,
+      updated_by: true
     }
   });
 }
@@ -84,6 +94,7 @@ export async function updateRole(cuid: string, data: RoleUpdateDTO): Promise<Rol
   const updateData: any = {};
   if (data.name !== undefined) updateData.name = data.name.trim();
   if (data.status !== undefined) updateData.status = data.status;
+  if (data.updated_by !== undefined) updateData.updated_by = data.updated_by;
 
   return db.role.update({
     where: { cuid },
@@ -91,7 +102,9 @@ export async function updateRole(cuid: string, data: RoleUpdateDTO): Promise<Rol
     select: {
       cuid: true,
       name: true,
-      status: true
+      status: true,
+      created_by: true,
+      updated_by: true
     }
   });
 }
@@ -106,7 +119,9 @@ export async function deactivateRole(cuid: string): Promise<Role> {
     select: {
       cuid: true,
       name: true,
-      status: true
+      status: true,
+      created_by: true,
+      updated_by: true
     }
   });
 }

@@ -62,7 +62,7 @@ export function validateCreatePayload(payload: unknown): RoleCreateDTO {
   }
 
   const raw = payload as Record<string, unknown>;
-  rejectUnknownKeys(raw, ['name']);
+  rejectUnknownKeys(raw, ['name', 'created_by', 'updated_by']);
 
   const name = sanitizeString(raw.name);
   if (!name) {
@@ -85,7 +85,7 @@ export function validateCreatePayload(payload: unknown): RoleCreateDTO {
     throw err;
   }
 
-  return { name };
+  return { name, created_by: raw.created_by as string | null | undefined, updated_by: raw.updated_by as string | null | undefined };
 }
 
 /**
@@ -99,7 +99,7 @@ export function validateUpdatePayload(payload: unknown): RoleUpdateDTO {
   }
 
   const raw = payload as Record<string, unknown>;
-  rejectUnknownKeys(raw, ['name', 'status']);
+  rejectUnknownKeys(raw, ['name', 'status', 'created_by', 'updated_by']);
 
   const result: RoleUpdateDTO = {};
 
@@ -131,6 +131,13 @@ export function validateUpdatePayload(payload: unknown): RoleUpdateDTO {
       throw err;
     }
     result.status = raw.status;
+  }
+
+  if (raw.created_by !== undefined) {
+    result.created_by = raw.created_by as string | null;
+  }
+  if (raw.updated_by !== undefined) {
+    result.updated_by = raw.updated_by as string | null;
   }
 
   if (Object.keys(result).length === 0) {

@@ -71,6 +71,22 @@ export async function createShift(payload: unknown): Promise<Shift> {
     err.status = 409;
     throw err;
   }
+
+  // Validate minimum_work_hours does not exceed the calculated shift duration
+  if (valid.minimum_work_hours !== undefined && valid.start_time !== undefined && valid.end_time !== undefined) {
+    const startTime = new Date(valid.start_time);
+    const endTime = new Date(valid.end_time);
+    let diffHrs = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
+    if (diffHrs < 0) diffHrs += 24;
+    const maxHrs = Math.round(diffHrs * 100) / 100;
+    if (valid.minimum_work_hours > maxHrs) {
+      const err: any = new Error(
+        `Minimum work hours (${valid.minimum_work_hours}) cannot exceed the total shift duration (${maxHrs} hrs)`
+      );
+      err.status = 422;
+      throw err;
+    }
+  }
   
   return shiftDao.createShift(valid);
 }
@@ -114,6 +130,24 @@ export async function updateShift(cuid: string, payload: unknown): Promise<Shift
     })) {
       const err: any = new Error('Shift timing range already exists');
       err.status = 409;
+      throw err;
+    }
+  }
+
+  // Validate minimum_work_hours does not exceed the calculated shift duration
+  if (valid.minimum_work_hours !== undefined) {
+    const targetStart = valid.start_time !== undefined ? valid.start_time : shift.start_time;
+    const targetEnd = valid.end_time !== undefined ? valid.end_time : shift.end_time;
+    const startTime = new Date(targetStart);
+    const endTime = new Date(targetEnd);
+    let diffHrs = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
+    if (diffHrs < 0) diffHrs += 24;
+    const maxHrs = Math.round(diffHrs * 100) / 100;
+    if (valid.minimum_work_hours > maxHrs) {
+      const err: any = new Error(
+        `Minimum work hours (${valid.minimum_work_hours}) cannot exceed the total shift duration (${maxHrs} hrs)`
+      );
+      err.status = 422;
       throw err;
     }
   }

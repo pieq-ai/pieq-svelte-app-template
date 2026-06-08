@@ -1,6 +1,16 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { CompanyLocation } from "$lib/types/organization_location";
+  import {
+    fetchAllLocations,
+    fetchCountries,
+    fetchStates,
+    createLocation,
+    updateLocation,
+    deleteLocation,
+    activateLocation as activateLocationApi,
+  } from "$lib/api/locations";
+  import { ApiError } from "$lib/api/local";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import Pencil2Icon from "@lucide/svelte/icons/pencil";
   import Trash2Icon from "@lucide/svelte/icons/trash-2";
@@ -171,18 +181,11 @@
 
   async function fetchDropdowns() {
     try {
-      const resCountries = await fetch("/api/countries");
-      const jsonCountries = await resCountries.json();
-      if (resCountries.ok) {
-        countries = jsonCountries.data ?? [];
-      }
-      const resStates = await fetch("/api/states");
-      const jsonStates = await resStates.json();
-      if (resStates.ok) {
-        states = jsonStates.data ?? [];
-      }
+      countries = await fetchCountries();
+      states = await fetchStates();
     } catch (e) {
       console.error("Failed to fetch dropdown choices", e);
+      toast.error(e instanceof ApiError ? e.message : "Failed to load countries or states");
     }
   }
 
@@ -420,15 +423,10 @@
   async function fetchLocations() {
     loading = true;
     try {
-      const res = await fetch(
-        `/api/organization_location?includeInactive=true`,
-      );
-      const json = await res.json();
-      if (res.ok) {
-        locations = json.data ?? [];
-      }
+      locations = await fetchAllLocations();
     } catch (e) {
       console.error("Failed to fetch locations", e);
+      toast.error(e instanceof ApiError ? e.message : "Failed to load locations");
     } finally {
       loading = false;
     }
@@ -559,11 +557,9 @@
       return;
     }
 
+    formLoading = true;
+    formError = "";
     try {
-      const url = editLocation
-        ? `/api/organization_location/locationCuid=${editLocation.cuid}`
-        : "/api/organization_location";
-      const method = editLocation ? "PUT" : "POST";
       const payload: any = {
         location_name: nameTrimmed,
         address_line1: address1Trimmed,
@@ -576,28 +572,20 @@
       };
       if (editLocation) {
         payload.is_active = formStatus;
-      }
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const json = await res.json();
-      if (res.ok) {
-        const isEdit = !!editLocation;
-        closeForm();
-        await fetchLocations();
-        toast.success(
-          isEdit
-            ? "Company Location updated successfully"
-            : "Company Location created successfully",
-        );
+        await updateLocation(editLocation.cuid, payload);
       } else {
-        formError = json.error || "Something went wrong.";
-        toast.error(formError);
+        await createLocation(payload);
       }
-    } catch {
-      formError = "Network error.";
+      const isEdit = !!editLocation;
+      closeForm();
+      await fetchLocations();
+      toast.success(
+        isEdit
+          ? "Company Location updated successfully"
+          : "Company Location created successfully",
+      );
+    } catch (e) {
+      formError = e instanceof ApiError ? e.message : "Something went wrong.";
       toast.error(formError);
     } finally {
       formLoading = false;
@@ -614,19 +602,11 @@
       isDestructive: true,
       onConfirm: async () => {
         try {
-          const res = await fetch(
-            `/api/organization_location/locationCuid=${cuid}`,
-            { method: "DELETE" },
-          );
-          const json = await res.json();
-          if (res.ok) {
-            await fetchLocations();
-            toast.success("Company Location deactivated successfully");
-          } else {
-            toast.error(json.error || "Failed to deactivate location");
-          }
-        } catch {
-          toast.error("Network error occurred while deactivating location");
+          await deleteLocation(cuid);
+          await fetchLocations();
+          toast.success("Company Location deactivated successfully");
+        } catch (e) {
+          toast.error(e instanceof ApiError ? e.message : "Failed to deactivate location");
         }
       },
     });
@@ -641,19 +621,11 @@
       isDestructive: false,
       onConfirm: async () => {
         try {
-          const res = await fetch(
-            `/api/organization_location/locationCuid=${cuid}`,
-            { method: "PATCH" },
-          );
-          const json = await res.json();
-          if (res.ok) {
-            await fetchLocations();
-            toast.success("Company Location activated successfully");
-          } else {
-            toast.error(json.error || "Failed to activate location");
-          }
-        } catch {
-          toast.error("Network error occurred while activating location");
+          await activateLocationApi(cuid);
+          await fetchLocations();
+          toast.success("Company Location activated successfully");
+        } catch (e) {
+          toast.error(e instanceof ApiError ? e.message : "Failed to activate location");
         }
       },
     });
@@ -678,7 +650,7 @@
 </script>
 
 <svelte:head>
-  <title>Company Location Master – PieQ HRMS</title>
+  <title>Locations – PieQ HRMS</title>
 </svelte:head>
 
 <!-- Page header -->
@@ -687,7 +659,7 @@
 >
   <div>
     <h1 class="text-3xl font-bold tracking-tight text-foreground m-0">
-      Company Location Master
+      Locations
     </h1>
   </div>
 

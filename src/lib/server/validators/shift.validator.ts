@@ -53,7 +53,7 @@ export function validateCreatePayload(payload: unknown): ShiftCreateDTO {
   }
 
   const raw = payload as Record<string, unknown>;
-  rejectUnknownKeys(raw, ['shift_name', 'start_time', 'end_time', 'minimum_work_hours']);
+  rejectUnknownKeys(raw, ['shift_name', 'start_time', 'end_time', 'minimum_work_hours', 'created_by', 'updated_by']);
 
   if (raw.shift_name === undefined || raw.shift_name === null) {
     const err: any = new Error('Shift name is required');
@@ -103,7 +103,9 @@ export function validateCreatePayload(payload: unknown): ShiftCreateDTO {
     shift_name: shiftName,
     start_time: raw.start_time as string | undefined,
     end_time: raw.end_time as string | undefined,
-    minimum_work_hours: raw.minimum_work_hours !== undefined ? Number(raw.minimum_work_hours) : undefined
+    minimum_work_hours: raw.minimum_work_hours !== undefined ? Number(raw.minimum_work_hours) : undefined,
+    created_by: raw.created_by !== undefined ? (raw.created_by as string | null) : undefined,
+    updated_by: raw.updated_by !== undefined ? (raw.updated_by as string | null) : undefined
   };
 }
 
@@ -118,7 +120,7 @@ export function validateUpdatePayload(payload: unknown): ShiftUpdateDTO {
   }
 
   const raw = payload as Record<string, unknown>;
-  rejectUnknownKeys(raw, ['shift_name', 'start_time', 'end_time', 'minimum_work_hours', 'status']);
+  rejectUnknownKeys(raw, ['shift_name', 'start_time', 'end_time', 'minimum_work_hours', 'status', 'created_by', 'updated_by']);
 
   const result: ShiftUpdateDTO = {};
 
@@ -186,6 +188,13 @@ export function validateUpdatePayload(payload: unknown): ShiftUpdateDTO {
       throw err;
     }
     result.status = raw.status;
+  }
+
+  if (raw.created_by !== undefined) {
+    result.created_by = raw.created_by as string | null;
+  }
+  if (raw.updated_by !== undefined) {
+    result.updated_by = raw.updated_by as string | null;
   }
 
   if (Object.keys(result).length === 0) {

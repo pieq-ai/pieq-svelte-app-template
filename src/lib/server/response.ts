@@ -41,7 +41,9 @@ export function mapRole(role: any) {
   return {
     cuid: role.cuid,
     name: role.name,
-    status: role.status
+    status: role.status,
+    created_by: role.created_by ?? null,
+    updated_by: role.updated_by ?? null
   };
 }
 
@@ -52,7 +54,9 @@ export function mapShift(shift: any) {
     start_time: shift.start_time,
     end_time: shift.end_time,
     minimum_work_hours: Number(shift.minimum_work_hours),
-    status: shift.status
+    status: shift.status,
+    created_by: shift.created_by ?? null,
+    updated_by: shift.updated_by ?? null
   };
 }
 
@@ -67,7 +71,9 @@ export function mapLocation(loc: any) {
     country_cuid: loc.country_cuid,
     pin_code: loc.pin_code,
     timezone: loc.timezone,
-    is_active: loc.is_active
+    is_active: loc.is_active,
+    created_by: loc.created_by ?? null,
+    updated_by: loc.updated_by ?? null
   };
 }
 
