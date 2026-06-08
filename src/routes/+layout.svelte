@@ -153,7 +153,7 @@
 				</form>
 			{/if}
 			{#if authenticatedUser && !isSidebarCollapsed}
-				<p class="px-3 text-xs text-[#737373] break-words line-clamp-2" title={authenticatedUser.email}>{authenticatedUser.email}</p>
+				<p class="px-3 text-xs text-[#737373] wrap-break-word line-clamp-2" title={authenticatedUser.email}>{authenticatedUser.email}</p>
 			{/if}
 		</div>
 	</aside>

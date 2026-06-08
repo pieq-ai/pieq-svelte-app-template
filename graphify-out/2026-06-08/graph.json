@@ -1009,7 +1009,7 @@
       "source_file": "src/lib/components/common/FilterDropdown.svelte",
       "source_location": "L1",
       "id": "common_filterdropdown",
-      "community": 2,
+      "community": 3,
       "norm_label": "filterdropdown.svelte"
     },
     {
@@ -1018,7 +1018,7 @@
       "source_file": "src/lib/components/ui/dropdown-menu/index.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_components_ui_dropdown_menu_index_js",
-      "community": 2,
+      "community": 3,
       "norm_label": "$lib/components/ui/dropdown-menu/index.js"
     },
     {
@@ -1027,7 +1027,7 @@
       "source_file": "@lucide/svelte/icons/filter",
       "confidence": "EXTRACTED",
       "id": "filter",
-      "community": 2,
+      "community": 3,
       "norm_label": "@lucide/svelte/icons/filter"
     },
     {
@@ -1045,7 +1045,7 @@
       "source_file": "src/lib/components/index.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_components_index_js",
-      "community": 2,
+      "community": 3,
       "norm_label": "$lib/components/index.js"
     },
     {
@@ -1056,6 +1056,15 @@
       "id": "common_masterdatadropdown",
       "community": 2,
       "norm_label": "masterdatadropdown.svelte"
+    },
+    {
+      "label": "$lib/constants",
+      "file_type": "code",
+      "source_file": "src/lib/constants",
+      "confidence": "EXTRACTED",
+      "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
+      "community": 2,
+      "norm_label": "$lib/constants"
     },
     {
       "label": "$lib/master-data/master-config",
@@ -1091,7 +1100,7 @@
       "source_file": "src/lib/components/common/Pagination.svelte",
       "source_location": "L1",
       "id": "common_pagination",
-      "community": 2,
+      "community": 3,
       "norm_label": "pagination.svelte"
     },
     {
@@ -1100,7 +1109,7 @@
       "source_file": "@lucide/svelte/icons/chevron-left",
       "confidence": "EXTRACTED",
       "id": "chevron_left",
-      "community": 2,
+      "community": 3,
       "norm_label": "@lucide/svelte/icons/chevron-left"
     },
     {
@@ -1109,7 +1118,7 @@
       "source_file": "@lucide/svelte/icons/chevron-right",
       "confidence": "EXTRACTED",
       "id": "chevron_right",
-      "community": 2,
+      "community": 3,
       "norm_label": "@lucide/svelte/icons/chevron-right"
     },
     {
@@ -1118,7 +1127,7 @@
       "source_file": "src/lib/components/common/PermissionMatrixCell.svelte",
       "source_location": "L1",
       "id": "common_permissionmatrixcell",
-      "community": 2,
+      "community": 3,
       "norm_label": "permissionmatrixcell.svelte"
     },
     {
@@ -1172,7 +1181,7 @@
       "source_file": "src/lib/components/common/StatusDropdown.svelte",
       "source_location": "L1",
       "id": "common_statusdropdown",
-      "community": 2,
+      "community": 3,
       "norm_label": "statusdropdown.svelte"
     },
     {
@@ -1181,7 +1190,7 @@
       "source_file": "@lucide/svelte/icons/chevron-down",
       "confidence": "EXTRACTED",
       "id": "chevron_down",
-      "community": 2,
+      "community": 3,
       "norm_label": "@lucide/svelte/icons/chevron-down"
     },
     {
@@ -1208,7 +1217,7 @@
       "source_file": "src/lib/components/index.ts",
       "source_location": "L1",
       "id": "components_index",
-      "community": 2,
+      "community": 3,
       "norm_label": "index.ts"
     },
     {
@@ -1298,7 +1307,7 @@
       "source_file": "src/lib/components/ui/badge/index.ts",
       "source_location": "L1",
       "id": "badge_index",
-      "community": 2,
+      "community": 3,
       "norm_label": "index.ts"
     },
     {
@@ -1316,7 +1325,7 @@
       "source_file": "src/lib/components/ui/button/index.ts",
       "source_location": "L1",
       "id": "button_index",
-      "community": 2,
+      "community": 3,
       "norm_label": "index.ts"
     },
     {
@@ -1578,7 +1587,7 @@
       "source_file": "src/lib/components/ui/input/index.ts",
       "source_location": "L1",
       "id": "input_index",
-      "community": 2,
+      "community": 3,
       "norm_label": "index.ts"
     },
     {
@@ -1596,7 +1605,7 @@
       "source_file": "src/lib/components/ui/label/index.ts",
       "source_location": "L1",
       "id": "label_index",
-      "community": 2,
+      "community": 3,
       "norm_label": "index.ts"
     },
     {
@@ -1889,12 +1898,21 @@
       "norm_label": "buildauthcallbackurl()"
     },
     {
+      "label": "UI_CONSTANTS",
+      "file_type": "code",
+      "source_file": "src/lib/constants.ts",
+      "source_location": "L11",
+      "id": "lib_constants_ui_constants",
+      "community": 18,
+      "norm_label": "ui_constants"
+    },
+    {
       "label": "index.ts",
       "file_type": "code",
       "source_file": "src/lib/index.ts",
       "source_location": "L1",
       "id": "lib_index",
-      "community": 2,
+      "community": 3,
       "norm_label": "index.ts"
     },
     {
@@ -2281,7 +2299,7 @@
       "source_file": "src/lib/server/dao/employee.dao.ts",
       "source_location": "L1",
       "id": "dao_employee_dao",
-      "community": 1,
+      "community": 34,
       "norm_label": "employee.dao.ts"
     },
     {
@@ -2290,7 +2308,7 @@
       "source_file": "src/lib/server/dao/employee.dao.ts",
       "source_location": "L3",
       "id": "dao_employee_dao_createemployeedata",
-      "community": 1,
+      "community": 34,
       "norm_label": "createemployeedata"
     },
     {
@@ -2299,7 +2317,7 @@
       "source_file": "src/lib/server/dao/employee.dao.ts",
       "source_location": "L8",
       "id": "dao_employee_dao_list",
-      "community": 1,
+      "community": 34,
       "norm_label": "list()"
     },
     {
@@ -2308,7 +2326,7 @@
       "source_file": "src/lib/server/dao/employee.dao.ts",
       "source_location": "L14",
       "id": "dao_employee_dao_create",
-      "community": 1,
+      "community": 34,
       "norm_label": "create()"
     },
     {
@@ -2416,7 +2434,7 @@
       "source_file": "src/lib/server/dao/permission.dao.test.ts",
       "source_location": "L1",
       "id": "dao_permission_dao_test",
-      "community": 37,
+      "community": 1,
       "norm_label": "permission.dao.test.ts"
     },
     {
@@ -2578,7 +2596,7 @@
       "source_file": "src/lib/server/dao/system-role.dao.test.ts",
       "source_location": "L1",
       "id": "dao_system_role_dao_test",
-      "community": 38,
+      "community": 1,
       "norm_label": "system-role.dao.test.ts"
     },
     {
@@ -2765,7 +2783,7 @@
       "label": "CreateDepartmentDto",
       "file_type": "code",
       "source_file": "src/lib/server/services/department.service.ts",
-      "source_location": "L4",
+      "source_location": "L5",
       "id": "services_department_service_createdepartmentdto",
       "community": 9,
       "norm_label": "createdepartmentdto"
@@ -2774,7 +2792,7 @@
       "label": "UpdateDepartmentDto",
       "file_type": "code",
       "source_file": "src/lib/server/services/department.service.ts",
-      "source_location": "L12",
+      "source_location": "L13",
       "id": "services_department_service_updatedepartmentdto",
       "community": 9,
       "norm_label": "updatedepartmentdto"
@@ -2783,7 +2801,7 @@
       "label": "toPublicDepartment()",
       "file_type": "code",
       "source_file": "src/lib/server/services/department.service.ts",
-      "source_location": "L19",
+      "source_location": "L20",
       "id": "services_department_service_topublicdepartment",
       "community": 9,
       "norm_label": "topublicdepartment()"
@@ -2792,7 +2810,7 @@
       "label": "getDepartments()",
       "file_type": "code",
       "source_file": "src/lib/server/services/department.service.ts",
-      "source_location": "L35",
+      "source_location": "L36",
       "id": "services_department_service_getdepartments",
       "community": 9,
       "norm_label": "getdepartments()"
@@ -2801,7 +2819,7 @@
       "label": "getDepartmentByCuid2()",
       "file_type": "code",
       "source_file": "src/lib/server/services/department.service.ts",
-      "source_location": "L42",
+      "source_location": "L43",
       "id": "services_department_service_getdepartmentbycuid2",
       "community": 9,
       "norm_label": "getdepartmentbycuid2()"
@@ -2810,7 +2828,7 @@
       "label": "createDepartment()",
       "file_type": "code",
       "source_file": "src/lib/server/services/department.service.ts",
-      "source_location": "L57",
+      "source_location": "L58",
       "id": "services_department_service_createdepartment",
       "community": 9,
       "norm_label": "createdepartment()"
@@ -2819,7 +2837,7 @@
       "label": "updateDepartment()",
       "file_type": "code",
       "source_file": "src/lib/server/services/department.service.ts",
-      "source_location": "L79",
+      "source_location": "L80",
       "id": "services_department_service_updatedepartment",
       "community": 9,
       "norm_label": "updatedepartment()"
@@ -2828,7 +2846,7 @@
       "label": "deleteDepartment()",
       "file_type": "code",
       "source_file": "src/lib/server/services/department.service.ts",
-      "source_location": "L125",
+      "source_location": "L126",
       "id": "services_department_service_deletedepartment",
       "community": 9,
       "norm_label": "deletedepartment()"
@@ -2855,7 +2873,7 @@
       "label": "CreateDesignationDto",
       "file_type": "code",
       "source_file": "src/lib/server/services/designation.service.ts",
-      "source_location": "L3",
+      "source_location": "L4",
       "id": "services_designation_service_createdesignationdto",
       "community": 10,
       "norm_label": "createdesignationdto"
@@ -2864,7 +2882,7 @@
       "label": "UpdateDesignationDto",
       "file_type": "code",
       "source_file": "src/lib/server/services/designation.service.ts",
-      "source_location": "L11",
+      "source_location": "L12",
       "id": "services_designation_service_updatedesignationdto",
       "community": 10,
       "norm_label": "updatedesignationdto"
@@ -2873,7 +2891,7 @@
       "label": "toPublicDesignation()",
       "file_type": "code",
       "source_file": "src/lib/server/services/designation.service.ts",
-      "source_location": "L18",
+      "source_location": "L19",
       "id": "services_designation_service_topublicdesignation",
       "community": 10,
       "norm_label": "topublicdesignation()"
@@ -2882,7 +2900,7 @@
       "label": "validateDesignationName()",
       "file_type": "code",
       "source_file": "src/lib/server/services/designation.service.ts",
-      "source_location": "L35",
+      "source_location": "L36",
       "id": "services_designation_service_validatedesignationname",
       "community": 10,
       "norm_label": "validatedesignationname()"
@@ -2891,7 +2909,7 @@
       "label": "ensureDesignationNameIsUnique()",
       "file_type": "code",
       "source_file": "src/lib/server/services/designation.service.ts",
-      "source_location": "L52",
+      "source_location": "L53",
       "id": "services_designation_service_ensuredesignationnameisunique",
       "community": 10,
       "norm_label": "ensuredesignationnameisunique()"
@@ -2900,7 +2918,7 @@
       "label": "getDesignations()",
       "file_type": "code",
       "source_file": "src/lib/server/services/designation.service.ts",
-      "source_location": "L66",
+      "source_location": "L67",
       "id": "services_designation_service_getdesignations",
       "community": 10,
       "norm_label": "getdesignations()"
@@ -2909,7 +2927,7 @@
       "label": "getDesignationById()",
       "file_type": "code",
       "source_file": "src/lib/server/services/designation.service.ts",
-      "source_location": "L70",
+      "source_location": "L71",
       "id": "services_designation_service_getdesignationbyid",
       "community": 10,
       "norm_label": "getdesignationbyid()"
@@ -2918,7 +2936,7 @@
       "label": "getDesignationByCuid2()",
       "file_type": "code",
       "source_file": "src/lib/server/services/designation.service.ts",
-      "source_location": "L83",
+      "source_location": "L84",
       "id": "services_designation_service_getdesignationbycuid2",
       "community": 10,
       "norm_label": "getdesignationbycuid2()"
@@ -2927,7 +2945,7 @@
       "label": "createDesignation()",
       "file_type": "code",
       "source_file": "src/lib/server/services/designation.service.ts",
-      "source_location": "L96",
+      "source_location": "L97",
       "id": "services_designation_service_createdesignation",
       "community": 10,
       "norm_label": "createdesignation()"
@@ -2936,7 +2954,7 @@
       "label": "updateDesignation()",
       "file_type": "code",
       "source_file": "src/lib/server/services/designation.service.ts",
-      "source_location": "L110",
+      "source_location": "L111",
       "id": "services_designation_service_updatedesignation",
       "community": 10,
       "norm_label": "updatedesignation()"
@@ -2945,7 +2963,7 @@
       "label": "deleteDesignation()",
       "file_type": "code",
       "source_file": "src/lib/server/services/designation.service.ts",
-      "source_location": "L140",
+      "source_location": "L141",
       "id": "services_designation_service_deletedesignation",
       "community": 10,
       "norm_label": "deletedesignation()"
@@ -3044,7 +3062,7 @@
       "label": "MasterDataDto",
       "file_type": "code",
       "source_file": "src/lib/server/services/master-data.service.ts",
-      "source_location": "L4",
+      "source_location": "L5",
       "id": "services_master_data_service_masterdatadto",
       "community": 5,
       "norm_label": "masterdatadto"
@@ -3053,7 +3071,7 @@
       "label": "MasterDataOption",
       "file_type": "code",
       "source_file": "src/lib/server/services/master-data.service.ts",
-      "source_location": "L11",
+      "source_location": "L12",
       "id": "services_master_data_service_masterdataoption",
       "community": 5,
       "norm_label": "masterdataoption"
@@ -3062,7 +3080,7 @@
       "label": "resolveMaster()",
       "file_type": "code",
       "source_file": "src/lib/server/services/master-data.service.ts",
-      "source_location": "L22",
+      "source_location": "L23",
       "id": "services_master_data_service_resolvemaster",
       "community": 5,
       "norm_label": "resolvemaster()"
@@ -3071,7 +3089,7 @@
       "label": "normalizeName()",
       "file_type": "code",
       "source_file": "src/lib/server/services/master-data.service.ts",
-      "source_location": "L29",
+      "source_location": "L30",
       "id": "services_master_data_service_normalizename",
       "community": 5,
       "norm_label": "normalizename()"
@@ -3080,7 +3098,7 @@
       "label": "readId()",
       "file_type": "code",
       "source_file": "src/lib/server/services/master-data.service.ts",
-      "source_location": "L65",
+      "source_location": "L66",
       "id": "services_master_data_service_readid",
       "community": 5,
       "norm_label": "readid()"
@@ -3089,7 +3107,7 @@
       "label": "readCuid2()",
       "file_type": "code",
       "source_file": "src/lib/server/services/master-data.service.ts",
-      "source_location": "L69",
+      "source_location": "L70",
       "id": "services_master_data_service_readcuid2",
       "community": 5,
       "norm_label": "readcuid2()"
@@ -3098,7 +3116,7 @@
       "label": "readName()",
       "file_type": "code",
       "source_file": "src/lib/server/services/master-data.service.ts",
-      "source_location": "L73",
+      "source_location": "L74",
       "id": "services_master_data_service_readname",
       "community": 5,
       "norm_label": "readname()"
@@ -3107,7 +3125,7 @@
       "label": "toOption()",
       "file_type": "code",
       "source_file": "src/lib/server/services/master-data.service.ts",
-      "source_location": "L77",
+      "source_location": "L78",
       "id": "services_master_data_service_tooption",
       "community": 5,
       "norm_label": "tooption()"
@@ -3116,7 +3134,7 @@
       "label": "ensureUnique()",
       "file_type": "code",
       "source_file": "src/lib/server/services/master-data.service.ts",
-      "source_location": "L94",
+      "source_location": "L95",
       "id": "services_master_data_service_ensureunique",
       "community": 5,
       "norm_label": "ensureunique()"
@@ -3125,7 +3143,7 @@
       "label": "getMasterData()",
       "file_type": "code",
       "source_file": "src/lib/server/services/master-data.service.ts",
-      "source_location": "L109",
+      "source_location": "L110",
       "id": "services_master_data_service_getmasterdata",
       "community": 5,
       "norm_label": "getmasterdata()"
@@ -3134,7 +3152,7 @@
       "label": "createMasterData()",
       "file_type": "code",
       "source_file": "src/lib/server/services/master-data.service.ts",
-      "source_location": "L134",
+      "source_location": "L135",
       "id": "services_master_data_service_createmasterdata",
       "community": 5,
       "norm_label": "createmasterdata()"
@@ -3143,7 +3161,7 @@
       "label": "updateMasterData()",
       "file_type": "code",
       "source_file": "src/lib/server/services/master-data.service.ts",
-      "source_location": "L159",
+      "source_location": "L160",
       "id": "services_master_data_service_updatemasterdata",
       "community": 5,
       "norm_label": "updatemasterdata()"
@@ -3170,7 +3188,7 @@
       "label": "CreatePermissionDto",
       "file_type": "code",
       "source_file": "src/lib/server/services/permission.service.ts",
-      "source_location": "L3",
+      "source_location": "L4",
       "id": "services_permission_service_createpermissiondto",
       "community": 13,
       "norm_label": "createpermissiondto"
@@ -3179,7 +3197,7 @@
       "label": "UpdatePermissionDto",
       "file_type": "code",
       "source_file": "src/lib/server/services/permission.service.ts",
-      "source_location": "L11",
+      "source_location": "L12",
       "id": "services_permission_service_updatepermissiondto",
       "community": 13,
       "norm_label": "updatepermissiondto"
@@ -3188,7 +3206,7 @@
       "label": "toPublicPermission()",
       "file_type": "code",
       "source_file": "src/lib/server/services/permission.service.ts",
-      "source_location": "L18",
+      "source_location": "L19",
       "id": "services_permission_service_topublicpermission",
       "community": 13,
       "norm_label": "topublicpermission()"
@@ -3197,7 +3215,7 @@
       "label": "validateStatus()",
       "file_type": "code",
       "source_file": "src/lib/server/services/permission.service.ts",
-      "source_location": "L35",
+      "source_location": "L36",
       "id": "services_permission_service_validatestatus",
       "community": 13,
       "norm_label": "validatestatus()"
@@ -3206,7 +3224,7 @@
       "label": "validatePermissionKey()",
       "file_type": "code",
       "source_file": "src/lib/server/services/permission.service.ts",
-      "source_location": "L41",
+      "source_location": "L42",
       "id": "services_permission_service_validatepermissionkey",
       "community": 13,
       "norm_label": "validatepermissionkey()"
@@ -3215,7 +3233,7 @@
       "label": "ensurePermissionKeyIsUnique()",
       "file_type": "code",
       "source_file": "src/lib/server/services/permission.service.ts",
-      "source_location": "L63",
+      "source_location": "L64",
       "id": "services_permission_service_ensurepermissionkeyisunique",
       "community": 13,
       "norm_label": "ensurepermissionkeyisunique()"
@@ -3224,7 +3242,7 @@
       "label": "getPermissions()",
       "file_type": "code",
       "source_file": "src/lib/server/services/permission.service.ts",
-      "source_location": "L77",
+      "source_location": "L78",
       "id": "services_permission_service_getpermissions",
       "community": 13,
       "norm_label": "getpermissions()"
@@ -3233,7 +3251,7 @@
       "label": "getPermissionById()",
       "file_type": "code",
       "source_file": "src/lib/server/services/permission.service.ts",
-      "source_location": "L81",
+      "source_location": "L82",
       "id": "services_permission_service_getpermissionbyid",
       "community": 13,
       "norm_label": "getpermissionbyid()"
@@ -3242,7 +3260,7 @@
       "label": "getPermissionByCuid2()",
       "file_type": "code",
       "source_file": "src/lib/server/services/permission.service.ts",
-      "source_location": "L94",
+      "source_location": "L95",
       "id": "services_permission_service_getpermissionbycuid2",
       "community": 13,
       "norm_label": "getpermissionbycuid2()"
@@ -3251,7 +3269,7 @@
       "label": "createPermission()",
       "file_type": "code",
       "source_file": "src/lib/server/services/permission.service.ts",
-      "source_location": "L107",
+      "source_location": "L108",
       "id": "services_permission_service_createpermission",
       "community": 13,
       "norm_label": "createpermission()"
@@ -3260,7 +3278,7 @@
       "label": "updatePermission()",
       "file_type": "code",
       "source_file": "src/lib/server/services/permission.service.ts",
-      "source_location": "L121",
+      "source_location": "L122",
       "id": "services_permission_service_updatepermission",
       "community": 13,
       "norm_label": "updatepermission()"
@@ -3269,7 +3287,7 @@
       "label": "deletePermission()",
       "file_type": "code",
       "source_file": "src/lib/server/services/permission.service.ts",
-      "source_location": "L150",
+      "source_location": "L151",
       "id": "services_permission_service_deletepermission",
       "community": 13,
       "norm_label": "deletepermission()"
@@ -3377,7 +3395,7 @@
       "label": "CreateSystemRoleDto",
       "file_type": "code",
       "source_file": "src/lib/server/services/system-role.service.ts",
-      "source_location": "L3",
+      "source_location": "L4",
       "id": "services_system_role_service_createsystemroledto",
       "community": 14,
       "norm_label": "createsystemroledto"
@@ -3386,7 +3404,7 @@
       "label": "UpdateSystemRoleDto",
       "file_type": "code",
       "source_file": "src/lib/server/services/system-role.service.ts",
-      "source_location": "L11",
+      "source_location": "L12",
       "id": "services_system_role_service_updatesystemroledto",
       "community": 14,
       "norm_label": "updatesystemroledto"
@@ -3395,7 +3413,7 @@
       "label": "toPublicSystemRole()",
       "file_type": "code",
       "source_file": "src/lib/server/services/system-role.service.ts",
-      "source_location": "L18",
+      "source_location": "L19",
       "id": "services_system_role_service_topublicsystemrole",
       "community": 14,
       "norm_label": "topublicsystemrole()"
@@ -3404,7 +3422,7 @@
       "label": "validateStatus()",
       "file_type": "code",
       "source_file": "src/lib/server/services/system-role.service.ts",
-      "source_location": "L35",
+      "source_location": "L36",
       "id": "services_system_role_service_validatestatus",
       "community": 14,
       "norm_label": "validatestatus()"
@@ -3413,7 +3431,7 @@
       "label": "validateRoleName()",
       "file_type": "code",
       "source_file": "src/lib/server/services/system-role.service.ts",
-      "source_location": "L41",
+      "source_location": "L42",
       "id": "services_system_role_service_validaterolename",
       "community": 14,
       "norm_label": "validaterolename()"
@@ -3422,7 +3440,7 @@
       "label": "ensureRoleNameIsUnique()",
       "file_type": "code",
       "source_file": "src/lib/server/services/system-role.service.ts",
-      "source_location": "L63",
+      "source_location": "L64",
       "id": "services_system_role_service_ensurerolenameisunique",
       "community": 14,
       "norm_label": "ensurerolenameisunique()"
@@ -3431,7 +3449,7 @@
       "label": "getSystemRoles()",
       "file_type": "code",
       "source_file": "src/lib/server/services/system-role.service.ts",
-      "source_location": "L77",
+      "source_location": "L78",
       "id": "services_system_role_service_getsystemroles",
       "community": 14,
       "norm_label": "getsystemroles()"
@@ -3440,7 +3458,7 @@
       "label": "getSystemRoleById()",
       "file_type": "code",
       "source_file": "src/lib/server/services/system-role.service.ts",
-      "source_location": "L81",
+      "source_location": "L82",
       "id": "services_system_role_service_getsystemrolebyid",
       "community": 14,
       "norm_label": "getsystemrolebyid()"
@@ -3449,7 +3467,7 @@
       "label": "getSystemRoleByCuid2()",
       "file_type": "code",
       "source_file": "src/lib/server/services/system-role.service.ts",
-      "source_location": "L94",
+      "source_location": "L95",
       "id": "services_system_role_service_getsystemrolebycuid2",
       "community": 14,
       "norm_label": "getsystemrolebycuid2()"
@@ -3458,7 +3476,7 @@
       "label": "createSystemRole()",
       "file_type": "code",
       "source_file": "src/lib/server/services/system-role.service.ts",
-      "source_location": "L107",
+      "source_location": "L108",
       "id": "services_system_role_service_createsystemrole",
       "community": 14,
       "norm_label": "createsystemrole()"
@@ -3467,7 +3485,7 @@
       "label": "updateSystemRole()",
       "file_type": "code",
       "source_file": "src/lib/server/services/system-role.service.ts",
-      "source_location": "L121",
+      "source_location": "L122",
       "id": "services_system_role_service_updatesystemrole",
       "community": 14,
       "norm_label": "updatesystemrole()"
@@ -3476,10 +3494,37 @@
       "label": "deleteSystemRole()",
       "file_type": "code",
       "source_file": "src/lib/server/services/system-role.service.ts",
-      "source_location": "L150",
+      "source_location": "L151",
       "id": "services_system_role_service_deletesystemrole",
       "community": 14,
       "norm_label": "deletesystemrole()"
+    },
+    {
+      "label": "errors.ts",
+      "file_type": "code",
+      "source_file": "src/lib/server/utils/errors.ts",
+      "source_location": "L1",
+      "id": "utils_errors",
+      "community": 0,
+      "norm_label": "errors.ts"
+    },
+    {
+      "label": "ValidationError",
+      "file_type": "code",
+      "source_file": "src/lib/server/utils/errors.ts",
+      "source_location": "L1",
+      "id": "utils_errors_validationerror",
+      "community": 0,
+      "norm_label": "validationerror"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "src/lib/server/utils/errors.ts",
+      "source_location": "L2",
+      "id": "utils_errors_validationerror_constructor",
+      "community": 0,
+      "norm_label": ".constructor()"
     },
     {
       "label": "mapping.ts",
@@ -3532,7 +3577,7 @@
       "source_file": "src/lib/server/utils/mapping.ts",
       "source_location": "L52",
       "id": "utils_mapping_toemployeedto",
-      "community": 0,
+      "community": 34,
       "norm_label": "toemployeedto()"
     },
     {
@@ -3980,7 +4025,7 @@
       "label": "GET()",
       "file_type": "code",
       "source_file": "src/routes/api/departments/+server.ts",
-      "source_location": "L11",
+      "source_location": "L12",
       "id": "departments_server_get",
       "community": 0,
       "norm_label": "get()"
@@ -3989,7 +4034,7 @@
       "label": "POST()",
       "file_type": "code",
       "source_file": "src/routes/api/departments/+server.ts",
-      "source_location": "L28",
+      "source_location": "L29",
       "id": "departments_server_post",
       "community": 0,
       "norm_label": "post()"
@@ -4007,7 +4052,7 @@
       "label": "GET()",
       "file_type": "code",
       "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "id": "departmentcuid_cuid_server_get",
       "community": 0,
       "norm_label": "get()"
@@ -4016,7 +4061,7 @@
       "label": "PUT()",
       "file_type": "code",
       "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
-      "source_location": "L22",
+      "source_location": "L23",
       "id": "departmentcuid_cuid_server_put",
       "community": 0,
       "norm_label": "put()"
@@ -4025,7 +4070,7 @@
       "label": "DELETE()",
       "file_type": "code",
       "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
-      "source_location": "L42",
+      "source_location": "L46",
       "id": "departmentcuid_cuid_server_delete",
       "community": 0,
       "norm_label": "delete()"
@@ -4043,7 +4088,7 @@
       "label": "GET()",
       "file_type": "code",
       "source_file": "src/routes/api/designations/+server.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "id": "designations_server_get",
       "community": 0,
       "norm_label": "get()"
@@ -4052,7 +4097,7 @@
       "label": "POST()",
       "file_type": "code",
       "source_file": "src/routes/api/designations/+server.ts",
-      "source_location": "L19",
+      "source_location": "L23",
       "id": "designations_server_post",
       "community": 0,
       "norm_label": "post()"
@@ -4070,7 +4115,7 @@
       "label": "GET()",
       "file_type": "code",
       "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "id": "designationcuid_cuid_server_get",
       "community": 0,
       "norm_label": "get()"
@@ -4079,7 +4124,7 @@
       "label": "PUT()",
       "file_type": "code",
       "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
-      "source_location": "L22",
+      "source_location": "L26",
       "id": "designationcuid_cuid_server_put",
       "community": 0,
       "norm_label": "put()"
@@ -4088,7 +4133,7 @@
       "label": "DELETE()",
       "file_type": "code",
       "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
-      "source_location": "L42",
+      "source_location": "L49",
       "id": "designationcuid_cuid_server_delete",
       "community": 0,
       "norm_label": "delete()"
@@ -4099,7 +4144,7 @@
       "source_file": "src/routes/api/employees/+server.ts",
       "source_location": "L1",
       "id": "employees_server",
-      "community": 0,
+      "community": 34,
       "norm_label": "+server.ts"
     },
     {
@@ -4108,7 +4153,7 @@
       "source_file": "src/routes/api/employees/+server.ts",
       "source_location": "L9",
       "id": "employees_server_get",
-      "community": 0,
+      "community": 34,
       "norm_label": "get()"
     },
     {
@@ -4117,7 +4162,7 @@
       "source_file": "src/routes/api/employees/+server.ts",
       "source_location": "L19",
       "id": "employees_server_post",
-      "community": 0,
+      "community": 34,
       "norm_label": "post()"
     },
     {
@@ -4133,7 +4178,7 @@
       "label": "getStatus()",
       "file_type": "code",
       "source_file": "src/routes/api/master-data/[master]/+server.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "id": "master_server_getstatus",
       "community": 0,
       "norm_label": "getstatus()"
@@ -4142,7 +4187,7 @@
       "label": "getMaster()",
       "file_type": "code",
       "source_file": "src/routes/api/master-data/[master]/+server.ts",
-      "source_location": "L14",
+      "source_location": "L15",
       "id": "master_server_getmaster",
       "community": 0,
       "norm_label": "getmaster()"
@@ -4151,7 +4196,7 @@
       "label": "GET()",
       "file_type": "code",
       "source_file": "src/routes/api/master-data/[master]/+server.ts",
-      "source_location": "L18",
+      "source_location": "L19",
       "id": "master_server_get",
       "community": 0,
       "norm_label": "get()"
@@ -4160,7 +4205,7 @@
       "label": "POST()",
       "file_type": "code",
       "source_file": "src/routes/api/master-data/[master]/+server.ts",
-      "source_location": "L34",
+      "source_location": "L38",
       "id": "master_server_post",
       "community": 0,
       "norm_label": "post()"
@@ -4178,7 +4223,7 @@
       "label": "getStatus()",
       "file_type": "code",
       "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "id": "mastercuid_cuid_server_getstatus",
       "community": 0,
       "norm_label": "getstatus()"
@@ -4187,7 +4232,7 @@
       "label": "getMaster()",
       "file_type": "code",
       "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
-      "source_location": "L14",
+      "source_location": "L15",
       "id": "mastercuid_cuid_server_getmaster",
       "community": 0,
       "norm_label": "getmaster()"
@@ -4196,7 +4241,7 @@
       "label": "PUT()",
       "file_type": "code",
       "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
-      "source_location": "L18",
+      "source_location": "L19",
       "id": "mastercuid_cuid_server_put",
       "community": 0,
       "norm_label": "put()"
@@ -4214,7 +4259,7 @@
       "label": "getStatus()",
       "file_type": "code",
       "source_file": "src/routes/api/permissions/+server.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "id": "permissions_server_getstatus",
       "community": 0,
       "norm_label": "getstatus()"
@@ -4223,7 +4268,7 @@
       "label": "GET()",
       "file_type": "code",
       "source_file": "src/routes/api/permissions/+server.ts",
-      "source_location": "L13",
+      "source_location": "L14",
       "id": "permissions_server_get",
       "community": 0,
       "norm_label": "get()"
@@ -4232,7 +4277,7 @@
       "label": "POST()",
       "file_type": "code",
       "source_file": "src/routes/api/permissions/+server.ts",
-      "source_location": "L24",
+      "source_location": "L28",
       "id": "permissions_server_post",
       "community": 0,
       "norm_label": "post()"
@@ -4250,7 +4295,7 @@
       "label": "getStatus()",
       "file_type": "code",
       "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "id": "permissioncuid_cuid_server_getstatus",
       "community": 0,
       "norm_label": "getstatus()"
@@ -4259,7 +4304,7 @@
       "label": "GET()",
       "file_type": "code",
       "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
-      "source_location": "L13",
+      "source_location": "L14",
       "id": "permissioncuid_cuid_server_get",
       "community": 0,
       "norm_label": "get()"
@@ -4268,7 +4313,7 @@
       "label": "PUT()",
       "file_type": "code",
       "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
-      "source_location": "L25",
+      "source_location": "L29",
       "id": "permissioncuid_cuid_server_put",
       "community": 0,
       "norm_label": "put()"
@@ -4277,7 +4322,7 @@
       "label": "DELETE()",
       "file_type": "code",
       "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
-      "source_location": "L41",
+      "source_location": "L48",
       "id": "permissioncuid_cuid_server_delete",
       "community": 0,
       "norm_label": "delete()"
@@ -4324,7 +4369,7 @@
       "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L1",
       "id": "permissioncuid_permissioncuid_server",
-      "community": 35,
+      "community": 43,
       "norm_label": "+server.ts"
     },
     {
@@ -4333,7 +4378,7 @@
       "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L6",
       "id": "permissioncuid_permissioncuid_server_getstatus",
-      "community": 35,
+      "community": 43,
       "norm_label": "getstatus()"
     },
     {
@@ -4342,7 +4387,7 @@
       "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L12",
       "id": "permissioncuid_permissioncuid_server_delete",
-      "community": 35,
+      "community": 43,
       "norm_label": "delete()"
     },
     {
@@ -4358,7 +4403,7 @@
       "label": "getStatus()",
       "file_type": "code",
       "source_file": "src/routes/api/system-roles/+server.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "id": "system_roles_server_getstatus",
       "community": 0,
       "norm_label": "getstatus()"
@@ -4367,7 +4412,7 @@
       "label": "GET()",
       "file_type": "code",
       "source_file": "src/routes/api/system-roles/+server.ts",
-      "source_location": "L13",
+      "source_location": "L14",
       "id": "system_roles_server_get",
       "community": 0,
       "norm_label": "get()"
@@ -4376,7 +4421,7 @@
       "label": "POST()",
       "file_type": "code",
       "source_file": "src/routes/api/system-roles/+server.ts",
-      "source_location": "L24",
+      "source_location": "L28",
       "id": "system_roles_server_post",
       "community": 0,
       "norm_label": "post()"
@@ -4394,7 +4439,7 @@
       "label": "getStatus()",
       "file_type": "code",
       "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "id": "systemrolecuid_cuid_server_getstatus",
       "community": 0,
       "norm_label": "getstatus()"
@@ -4403,7 +4448,7 @@
       "label": "GET()",
       "file_type": "code",
       "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
-      "source_location": "L13",
+      "source_location": "L14",
       "id": "systemrolecuid_cuid_server_get",
       "community": 0,
       "norm_label": "get()"
@@ -4412,7 +4457,7 @@
       "label": "PUT()",
       "file_type": "code",
       "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
-      "source_location": "L25",
+      "source_location": "L29",
       "id": "systemrolecuid_cuid_server_put",
       "community": 0,
       "norm_label": "put()"
@@ -4421,7 +4466,7 @@
       "label": "DELETE()",
       "file_type": "code",
       "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
-      "source_location": "L41",
+      "source_location": "L48",
       "id": "systemrolecuid_cuid_server_delete",
       "community": 0,
       "norm_label": "delete()"
@@ -4619,7 +4664,7 @@
       "label": "isSubmitting",
       "file_type": "code",
       "source_file": "src/routes/employees/+page.svelte",
-      "source_location": "L45",
+      "source_location": "L46",
       "id": "employees_page_issubmitting",
       "community": 2,
       "norm_label": "issubmitting"
@@ -4628,7 +4673,7 @@
       "label": "successMessage",
       "file_type": "code",
       "source_file": "src/routes/employees/+page.svelte",
-      "source_location": "L46",
+      "source_location": "L47",
       "id": "employees_page_successmessage",
       "community": 2,
       "norm_label": "successmessage"
@@ -4637,7 +4682,7 @@
       "label": "formError",
       "file_type": "code",
       "source_file": "src/routes/employees/+page.svelte",
-      "source_location": "L48",
+      "source_location": "L49",
       "id": "employees_page_formerror",
       "community": 2,
       "norm_label": "formerror"
@@ -4646,7 +4691,7 @@
       "label": "filteredEmployees",
       "file_type": "code",
       "source_file": "src/routes/employees/+page.svelte",
-      "source_location": "L50",
+      "source_location": "L51",
       "id": "employees_page_filteredemployees",
       "community": 2,
       "norm_label": "filteredemployees"
@@ -4655,7 +4700,7 @@
       "label": "totalEmployees",
       "file_type": "code",
       "source_file": "src/routes/employees/+page.svelte",
-      "source_location": "L79",
+      "source_location": "L80",
       "id": "employees_page_totalemployees",
       "community": 2,
       "norm_label": "totalemployees"
@@ -4664,7 +4709,7 @@
       "label": "averageAge",
       "file_type": "code",
       "source_file": "src/routes/employees/+page.svelte",
-      "source_location": "L80",
+      "source_location": "L81",
       "id": "employees_page_averageage",
       "community": 2,
       "norm_label": "averageage"
@@ -4673,7 +4718,7 @@
       "label": "maxAge",
       "file_type": "code",
       "source_file": "src/routes/employees/+page.svelte",
-      "source_location": "L85",
+      "source_location": "L86",
       "id": "employees_page_maxage",
       "community": 2,
       "norm_label": "maxage"
@@ -4682,7 +4727,7 @@
       "label": "handleSort()",
       "file_type": "code",
       "source_file": "src/routes/employees/+page.svelte",
-      "source_location": "L89",
+      "source_location": "L90",
       "id": "employees_page_handlesort",
       "community": 2,
       "norm_label": "handlesort()"
@@ -4691,7 +4736,7 @@
       "label": "sortIndicator()",
       "file_type": "code",
       "source_file": "src/routes/employees/+page.svelte",
-      "source_location": "L98",
+      "source_location": "L99",
       "id": "employees_page_sortindicator",
       "community": 2,
       "norm_label": "sortindicator()"
@@ -5835,7 +5880,7 @@
       "file_type": "code",
       "source_file": "src/routes/api/employees/+server.ts",
       "source_location": "L7",
-      "community": 0,
+      "community": 34,
       "norm_label": "geterrorstatus()",
       "id": "employees_server_geterrorstatus"
     },
@@ -7501,6 +7546,14 @@
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/components/common/MasterDataDropdown.svelte",
+      "source": "common_masterdatadropdown",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/MasterDataDropdown.svelte",
       "confidence_score": 1.0,
       "source": "common_masterdatadropdown",
       "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_master_data_master_config"
@@ -7531,6 +7584,62 @@
       "confidence_score": 1.0,
       "source": "components_index",
       "target": "common_masterdatadropdown"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/SearchableDropdown.svelte",
+      "source": "common_searchabledropdown",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/departments/+page.svelte",
+      "source": "departments_page",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/designations/+page.svelte",
+      "source": "designations_page",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/employees/+page.svelte",
+      "source": "employees_page",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/permissions/+page.svelte",
+      "source": "permissions_page",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/role-permissions/+page.svelte",
+      "source": "role_permissions_page",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/system-roles/+page.svelte",
+      "source": "system_roles_page",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -9226,6 +9335,16 @@
       "confidence_score": 1.0,
       "source": "lib_constants",
       "target": "lib_constants_getoidcuserstoragekey"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/constants.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "lib_constants",
+      "target": "lib_constants_ui_constants",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -11252,6 +11371,28 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/server/services/department.service.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "services_department_service",
+      "target": "utils_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/department.service.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "services_department_service",
+      "target": "utils_errors_validationerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L2",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -11477,6 +11618,28 @@
       "confidence_score": 1.0,
       "source": "services_designation_service",
       "target": "services_designation_service_validatedesignationname"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/designation.service.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "services_designation_service",
+      "target": "utils_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/designation.service.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "services_designation_service",
+      "target": "utils_errors_validationerror",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -12010,6 +12173,28 @@
       "target": "services_master_data_service_updatemasterdata"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/master-data.service.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "services_master_data_service",
+      "target": "utils_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/master-data.service.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "services_master_data_service",
+      "target": "utils_errors_validationerror",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -12293,6 +12478,28 @@
       "confidence_score": 1.0,
       "source": "services_permission_service",
       "target": "services_permission_service_validatestatus"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/permission.service.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "services_permission_service",
+      "target": "utils_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/permission.service.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "services_permission_service",
+      "target": "utils_errors_validationerror",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -12675,6 +12882,28 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/system-role.service.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "services_system_role_service",
+      "target": "utils_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/system-role.service.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "services_system_role_service",
+      "target": "utils_errors_validationerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
@@ -12813,6 +13042,246 @@
       "confidence_score": 1.0,
       "source": "services_system_role_service_updatesystemrole",
       "target": "services_system_role_service_ensurerolenameisunique"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "utils_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "departments_server",
+      "target": "utils_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "designationcuid_cuid_server",
+      "target": "utils_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "designations_server",
+      "target": "utils_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/master-data/[master]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "master_server",
+      "target": "utils_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "utils_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "utils_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "permissions_server",
+      "target": "utils_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "system_roles_server",
+      "target": "utils_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "systemrolecuid_cuid_server",
+      "target": "utils_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/utils/errors.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "utils_errors",
+      "target": "utils_errors_validationerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "utils_errors_validationerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "departments_server",
+      "target": "utils_errors_validationerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "designationcuid_cuid_server",
+      "target": "utils_errors_validationerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "designations_server",
+      "target": "utils_errors_validationerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/master-data/[master]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "master_server",
+      "target": "utils_errors_validationerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "utils_errors_validationerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "utils_errors_validationerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "permissions_server",
+      "target": "utils_errors_validationerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "system_roles_server",
+      "target": "utils_errors_validationerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "systemrolecuid_cuid_server",
+      "target": "utils_errors_validationerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/utils/errors.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "utils_errors_validationerror",
+      "target": "utils_errors_validationerror_constructor",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -15912,5 +16381,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "f841b7586ae0f7e3639cf02a0b2effb771d5574d"
+  "built_at_commit": "529942b581c73c9b7e088d422b31350bbbef69b1"
 }

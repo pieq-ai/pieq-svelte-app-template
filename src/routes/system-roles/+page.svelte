@@ -234,7 +234,7 @@
 <div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl break-words">System Roles</h1>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">System Roles</h1>
 		</div>
 		{#if permissions.canCreate}
 			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={openCreateModal}>

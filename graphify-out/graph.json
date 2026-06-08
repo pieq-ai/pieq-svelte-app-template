@@ -853,7 +853,7 @@
       "label": "customAuthHandle()",
       "file_type": "code",
       "source_file": "src/hooks.server.js",
-      "source_location": "L54",
+      "source_location": "L56",
       "id": "src_hooks_server_customauthhandle",
       "community": 11,
       "norm_label": "customauthhandle()"
@@ -862,7 +862,7 @@
       "label": "handle",
       "file_type": "code",
       "source_file": "src/hooks.server.js",
-      "source_location": "L74",
+      "source_location": "L76",
       "id": "src_hooks_server_handle",
       "community": 11,
       "norm_label": "handle"
@@ -977,15 +977,6 @@
       "norm_label": "crudmodal.svelte"
     },
     {
-      "label": "if()",
-      "file_type": "code",
-      "source_file": "src/lib/components/common/CrudModal.svelte",
-      "source_location": "L30",
-      "id": "common_crudmodal_if",
-      "community": 2,
-      "norm_label": "if()"
-    },
-    {
       "label": "svelte",
       "file_type": "code",
       "source_file": "svelte",
@@ -1009,7 +1000,7 @@
       "source_file": "src/lib/components/common/FilterDropdown.svelte",
       "source_location": "L1",
       "id": "common_filterdropdown",
-      "community": 3,
+      "community": 2,
       "norm_label": "filterdropdown.svelte"
     },
     {
@@ -1018,7 +1009,7 @@
       "source_file": "src/lib/components/ui/dropdown-menu/index.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_components_ui_dropdown_menu_index_js",
-      "community": 3,
+      "community": 2,
       "norm_label": "$lib/components/ui/dropdown-menu/index.js"
     },
     {
@@ -1027,7 +1018,7 @@
       "source_file": "@lucide/svelte/icons/filter",
       "confidence": "EXTRACTED",
       "id": "filter",
-      "community": 3,
+      "community": 2,
       "norm_label": "@lucide/svelte/icons/filter"
     },
     {
@@ -1036,7 +1027,7 @@
       "source_file": "@lucide/svelte/icons/check",
       "confidence": "EXTRACTED",
       "id": "check",
-      "community": 3,
+      "community": 2,
       "norm_label": "@lucide/svelte/icons/check"
     },
     {
@@ -1045,7 +1036,7 @@
       "source_file": "src/lib/components/index.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_components_index_js",
-      "community": 3,
+      "community": 2,
       "norm_label": "$lib/components/index.js"
     },
     {
@@ -1100,7 +1091,7 @@
       "source_file": "src/lib/components/common/Pagination.svelte",
       "source_location": "L1",
       "id": "common_pagination",
-      "community": 3,
+      "community": 2,
       "norm_label": "pagination.svelte"
     },
     {
@@ -1109,7 +1100,7 @@
       "source_file": "@lucide/svelte/icons/chevron-left",
       "confidence": "EXTRACTED",
       "id": "chevron_left",
-      "community": 3,
+      "community": 2,
       "norm_label": "@lucide/svelte/icons/chevron-left"
     },
     {
@@ -1127,7 +1118,7 @@
       "source_file": "src/lib/components/common/PermissionMatrixCell.svelte",
       "source_location": "L1",
       "id": "common_permissionmatrixcell",
-      "community": 3,
+      "community": 2,
       "norm_label": "permissionmatrixcell.svelte"
     },
     {
@@ -1181,7 +1172,7 @@
       "source_file": "src/lib/components/common/StatusDropdown.svelte",
       "source_location": "L1",
       "id": "common_statusdropdown",
-      "community": 3,
+      "community": 2,
       "norm_label": "statusdropdown.svelte"
     },
     {
@@ -1190,7 +1181,7 @@
       "source_file": "@lucide/svelte/icons/chevron-down",
       "confidence": "EXTRACTED",
       "id": "chevron_down",
-      "community": 3,
+      "community": 2,
       "norm_label": "@lucide/svelte/icons/chevron-down"
     },
     {
@@ -1217,7 +1208,7 @@
       "source_file": "src/lib/components/index.ts",
       "source_location": "L1",
       "id": "components_index",
-      "community": 3,
+      "community": 2,
       "norm_label": "index.ts"
     },
     {
@@ -1424,7 +1415,7 @@
       "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte",
       "source_location": "L1",
       "id": "dropdown_menu_dropdown_menu_checkbox_item",
-      "community": 3,
+      "community": 2,
       "norm_label": "dropdown-menu-checkbox-item.svelte"
     },
     {
@@ -1433,7 +1424,7 @@
       "source_file": "@lucide/svelte/icons/minus",
       "confidence": "EXTRACTED",
       "id": "minus",
-      "community": 3,
+      "community": 2,
       "norm_label": "@lucide/svelte/icons/minus"
     },
     {
@@ -1907,12 +1898,57 @@
       "norm_label": "ui_constants"
     },
     {
+      "label": "salary-component-type.ts",
+      "file_type": "code",
+      "source_file": "src/lib/constants/salary-component-type.ts",
+      "source_location": "L1",
+      "id": "constants_salary_component_type",
+      "community": 43,
+      "norm_label": "salary-component-type.ts"
+    },
+    {
+      "label": "SALARY_COMPONENT_TYPES",
+      "file_type": "code",
+      "source_file": "src/lib/constants/salary-component-type.ts",
+      "source_location": "L6",
+      "id": "constants_salary_component_type_salary_component_types",
+      "community": 43,
+      "norm_label": "salary_component_types"
+    },
+    {
+      "label": "SalaryComponentType",
+      "file_type": "code",
+      "source_file": "src/lib/constants/salary-component-type.ts",
+      "source_location": "L8",
+      "id": "constants_salary_component_type_salarycomponenttype",
+      "community": 43,
+      "norm_label": "salarycomponenttype"
+    },
+    {
+      "label": "SALARY_COMPONENT_TYPE_LABELS",
+      "file_type": "code",
+      "source_file": "src/lib/constants/salary-component-type.ts",
+      "source_location": "L10",
+      "id": "constants_salary_component_type_salary_component_type_labels",
+      "community": 43,
+      "norm_label": "salary_component_type_labels"
+    },
+    {
+      "label": "SALARY_COMPONENT_TYPE_OPTIONS",
+      "file_type": "code",
+      "source_file": "src/lib/constants/salary-component-type.ts",
+      "source_location": "L18",
+      "id": "constants_salary_component_type_salary_component_type_options",
+      "community": 43,
+      "norm_label": "salary_component_type_options"
+    },
+    {
       "label": "index.ts",
       "file_type": "code",
       "source_file": "src/lib/index.ts",
       "source_location": "L1",
       "id": "lib_index",
-      "community": 3,
+      "community": 2,
       "norm_label": "index.ts"
     },
     {
@@ -2123,15 +2159,6 @@
       "norm_label": "clearconfigcache()"
     },
     {
-      "label": "department.dao.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/server/dao/department.dao.test.ts",
-      "source_location": "L1",
-      "id": "dao_department_dao_test",
-      "community": 39,
-      "norm_label": "department.dao.test.ts"
-    },
-    {
       "label": "department.dao.ts",
       "file_type": "code",
       "source_file": "src/lib/server/dao/department.dao.ts",
@@ -2202,15 +2229,6 @@
       "id": "dao_department_dao_update",
       "community": 39,
       "norm_label": "update()"
-    },
-    {
-      "label": "designation.dao.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/server/dao/designation.dao.test.ts",
-      "source_location": "L1",
-      "id": "dao_designation_dao_test",
-      "community": 36,
-      "norm_label": "designation.dao.test.ts"
     },
     {
       "label": "designation.dao.ts",
@@ -2285,21 +2303,12 @@
       "norm_label": "update()"
     },
     {
-      "label": "employee.dao.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/server/dao/employee.dao.test.ts",
-      "source_location": "L1",
-      "id": "dao_employee_dao_test",
-      "community": 1,
-      "norm_label": "employee.dao.test.ts"
-    },
-    {
       "label": "employee.dao.ts",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employee.dao.ts",
       "source_location": "L1",
       "id": "dao_employee_dao",
-      "community": 34,
+      "community": 1,
       "norm_label": "employee.dao.ts"
     },
     {
@@ -2308,7 +2317,7 @@
       "source_file": "src/lib/server/dao/employee.dao.ts",
       "source_location": "L3",
       "id": "dao_employee_dao_createemployeedata",
-      "community": 34,
+      "community": 1,
       "norm_label": "createemployeedata"
     },
     {
@@ -2317,7 +2326,7 @@
       "source_file": "src/lib/server/dao/employee.dao.ts",
       "source_location": "L8",
       "id": "dao_employee_dao_list",
-      "community": 34,
+      "community": 1,
       "norm_label": "list()"
     },
     {
@@ -2326,35 +2335,8 @@
       "source_file": "src/lib/server/dao/employee.dao.ts",
       "source_location": "L14",
       "id": "dao_employee_dao_create",
-      "community": 34,
+      "community": 1,
       "norm_label": "create()"
-    },
-    {
-      "label": "master-data.dao.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/server/dao/master-data.dao.test.ts",
-      "source_location": "L1",
-      "id": "dao_master_data_dao_test",
-      "community": 5,
-      "norm_label": "master-data.dao.test.ts"
-    },
-    {
-      "label": "{ mockDbMethods }",
-      "file_type": "code",
-      "source_file": "src/lib/server/dao/master-data.dao.test.ts",
-      "source_location": "L5",
-      "id": "dao_master_data_dao_test_mockdbmethods",
-      "community": 5,
-      "norm_label": "{ mockdbmethods }"
-    },
-    {
-      "label": "masterKeys",
-      "file_type": "code",
-      "source_file": "src/lib/server/dao/master-data.dao.test.ts",
-      "source_location": "L30",
-      "id": "dao_master_data_dao_test_masterkeys",
-      "community": 5,
-      "norm_label": "masterkeys"
     },
     {
       "label": "master-data.dao.ts",
@@ -2429,15 +2411,6 @@
       "norm_label": "update()"
     },
     {
-      "label": "permission.dao.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/server/dao/permission.dao.test.ts",
-      "source_location": "L1",
-      "id": "dao_permission_dao_test",
-      "community": 1,
-      "norm_label": "permission.dao.test.ts"
-    },
-    {
       "label": "permission.dao.ts",
       "file_type": "code",
       "source_file": "src/lib/server/dao/permission.dao.ts",
@@ -2508,15 +2481,6 @@
       "id": "dao_permission_dao_update",
       "community": 37,
       "norm_label": "update()"
-    },
-    {
-      "label": "role-permission.dao.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/server/dao/role-permission.dao.test.ts",
-      "source_location": "L1",
-      "id": "dao_role_permission_dao_test",
-      "community": 40,
-      "norm_label": "role-permission.dao.test.ts"
     },
     {
       "label": "role-permission.dao.ts",
@@ -2591,13 +2555,67 @@
       "norm_label": "removebyroleandpermission()"
     },
     {
-      "label": "system-role.dao.test.ts",
+      "label": "salary-component.dao.ts",
       "file_type": "code",
-      "source_file": "src/lib/server/dao/system-role.dao.test.ts",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
       "source_location": "L1",
-      "id": "dao_system_role_dao_test",
-      "community": 1,
-      "norm_label": "system-role.dao.test.ts"
+      "id": "dao_salary_component_dao",
+      "community": 9,
+      "norm_label": "salary-component.dao.ts"
+    },
+    {
+      "label": "create()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L8",
+      "id": "dao_salary_component_dao_create",
+      "community": 9,
+      "norm_label": "create()"
+    },
+    {
+      "label": "update()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L21",
+      "id": "dao_salary_component_dao_update",
+      "community": 9,
+      "norm_label": "update()"
+    },
+    {
+      "label": "findByCuid()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L29",
+      "id": "dao_salary_component_dao_findbycuid",
+      "community": 9,
+      "norm_label": "findbycuid()"
+    },
+    {
+      "label": "findByName()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L35",
+      "id": "dao_salary_component_dao_findbyname",
+      "community": 9,
+      "norm_label": "findbyname()"
+    },
+    {
+      "label": "findMany()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L46",
+      "id": "dao_salary_component_dao_findmany",
+      "community": 9,
+      "norm_label": "findmany()"
+    },
+    {
+      "label": "getStats()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L68",
+      "id": "dao_salary_component_dao_getstats",
+      "community": 9,
+      "norm_label": "getstats()"
     },
     {
       "label": "system-role.dao.ts",
@@ -2717,15 +2735,6 @@
       "norm_label": "db"
     },
     {
-      "label": "permission.guard.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/server/guards/permission.guard.test.ts",
-      "source_location": "L1",
-      "id": "guards_permission_guard_test",
-      "community": 0,
-      "norm_label": "permission.guard.test.ts"
-    },
-    {
       "label": "permission.guard.ts",
       "file_type": "code",
       "source_file": "src/lib/server/guards/permission.guard.ts",
@@ -2762,13 +2771,40 @@
       "norm_label": "requirepermission()"
     },
     {
-      "label": "department.service.test.ts",
+      "label": "salary-component.serializer.ts",
       "file_type": "code",
-      "source_file": "src/lib/server/services/department.service.test.ts",
+      "source_file": "src/lib/server/serializers/salary-component.serializer.ts",
       "source_location": "L1",
-      "id": "services_department_service_test",
+      "id": "serializers_salary_component_serializer",
       "community": 9,
-      "norm_label": "department.service.test.ts"
+      "norm_label": "salary-component.serializer.ts"
+    },
+    {
+      "label": "SalaryComponentDto",
+      "file_type": "code",
+      "source_file": "src/lib/server/serializers/salary-component.serializer.ts",
+      "source_location": "L8",
+      "id": "serializers_salary_component_serializer_salarycomponentdto",
+      "community": 9,
+      "norm_label": "salarycomponentdto"
+    },
+    {
+      "label": "serializeSalaryComponent()",
+      "file_type": "code",
+      "source_file": "src/lib/server/serializers/salary-component.serializer.ts",
+      "source_location": "L17",
+      "id": "serializers_salary_component_serializer_serializesalarycomponent",
+      "community": 9,
+      "norm_label": "serializesalarycomponent()"
+    },
+    {
+      "label": "serializeSalaryComponentList()",
+      "file_type": "code",
+      "source_file": "src/lib/server/serializers/salary-component.serializer.ts",
+      "source_location": "L26",
+      "id": "serializers_salary_component_serializer_serializesalarycomponentlist",
+      "community": 9,
+      "norm_label": "serializesalarycomponentlist()"
     },
     {
       "label": "department.service.ts",
@@ -2776,7 +2812,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L1",
       "id": "services_department_service",
-      "community": 9,
+      "community": 0,
       "norm_label": "department.service.ts"
     },
     {
@@ -2785,7 +2821,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L5",
       "id": "services_department_service_createdepartmentdto",
-      "community": 9,
+      "community": 0,
       "norm_label": "createdepartmentdto"
     },
     {
@@ -2794,7 +2830,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L13",
       "id": "services_department_service_updatedepartmentdto",
-      "community": 9,
+      "community": 0,
       "norm_label": "updatedepartmentdto"
     },
     {
@@ -2803,7 +2839,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L20",
       "id": "services_department_service_topublicdepartment",
-      "community": 9,
+      "community": 0,
       "norm_label": "topublicdepartment()"
     },
     {
@@ -2812,7 +2848,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L36",
       "id": "services_department_service_getdepartments",
-      "community": 9,
+      "community": 0,
       "norm_label": "getdepartments()"
     },
     {
@@ -2821,7 +2857,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L43",
       "id": "services_department_service_getdepartmentbycuid2",
-      "community": 9,
+      "community": 0,
       "norm_label": "getdepartmentbycuid2()"
     },
     {
@@ -2830,7 +2866,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L58",
       "id": "services_department_service_createdepartment",
-      "community": 9,
+      "community": 0,
       "norm_label": "createdepartment()"
     },
     {
@@ -2839,7 +2875,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L80",
       "id": "services_department_service_updatedepartment",
-      "community": 9,
+      "community": 0,
       "norm_label": "updatedepartment()"
     },
     {
@@ -2848,17 +2884,8 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L126",
       "id": "services_department_service_deletedepartment",
-      "community": 9,
+      "community": 0,
       "norm_label": "deletedepartment()"
-    },
-    {
-      "label": "designation.service.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/server/services/designation.service.test.ts",
-      "source_location": "L1",
-      "id": "services_designation_service_test",
-      "community": 36,
-      "norm_label": "designation.service.test.ts"
     },
     {
       "label": "designation.service.ts",
@@ -3041,15 +3068,6 @@
       "norm_label": "createemployee()"
     },
     {
-      "label": "master-data.service.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/server/services/master-data.service.test.ts",
-      "source_location": "L1",
-      "id": "services_master_data_service_test",
-      "community": 5,
-      "norm_label": "master-data.service.test.ts"
-    },
-    {
       "label": "master-data.service.ts",
       "file_type": "code",
       "source_file": "src/lib/server/services/master-data.service.ts",
@@ -3165,15 +3183,6 @@
       "id": "services_master_data_service_updatemasterdata",
       "community": 5,
       "norm_label": "updatemasterdata()"
-    },
-    {
-      "label": "permission.service.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/server/services/permission.service.test.ts",
-      "source_location": "L1",
-      "id": "services_permission_service_test",
-      "community": 37,
-      "norm_label": "permission.service.test.ts"
     },
     {
       "label": "permission.service.ts",
@@ -3293,15 +3302,6 @@
       "norm_label": "deletepermission()"
     },
     {
-      "label": "role-permission.service.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/server/services/role-permission.service.test.ts",
-      "source_location": "L1",
-      "id": "services_role_permission_service_test",
-      "community": 35,
-      "norm_label": "role-permission.service.test.ts"
-    },
-    {
       "label": "role-permission.service.ts",
       "file_type": "code",
       "source_file": "src/lib/server/services/role-permission.service.ts",
@@ -3374,13 +3374,121 @@
       "norm_label": "removepermissionfromrolebycuid2()"
     },
     {
-      "label": "system-role.service.test.ts",
+      "label": "salary-component.service.ts",
       "file_type": "code",
-      "source_file": "src/lib/server/services/system-role.service.test.ts",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
       "source_location": "L1",
-      "id": "services_system_role_service_test",
-      "community": 38,
-      "norm_label": "system-role.service.test.ts"
+      "id": "services_salary_component_service",
+      "community": 9,
+      "norm_label": "salary-component.service.ts"
+    },
+    {
+      "label": "BusinessValidationError",
+      "file_type": "code",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L7",
+      "id": "services_salary_component_service_businessvalidationerror",
+      "community": 9,
+      "norm_label": "businessvalidationerror"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L8",
+      "id": "services_salary_component_service_businessvalidationerror_constructor",
+      "community": 9,
+      "norm_label": ".constructor()"
+    },
+    {
+      "label": "DuplicateComponentError",
+      "file_type": "code",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L14",
+      "id": "services_salary_component_service_duplicatecomponenterror",
+      "community": 9,
+      "norm_label": "duplicatecomponenterror"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L15",
+      "id": "services_salary_component_service_duplicatecomponenterror_constructor",
+      "community": 9,
+      "norm_label": ".constructor()"
+    },
+    {
+      "label": "ComponentNotFoundError",
+      "file_type": "code",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L21",
+      "id": "services_salary_component_service_componentnotfounderror",
+      "community": 9,
+      "norm_label": "componentnotfounderror"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L22",
+      "id": "services_salary_component_service_componentnotfounderror_constructor",
+      "community": 9,
+      "norm_label": ".constructor()"
+    },
+    {
+      "label": "createComponent()",
+      "file_type": "code",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L32",
+      "id": "services_salary_component_service_createcomponent",
+      "community": 9,
+      "norm_label": "createcomponent()"
+    },
+    {
+      "label": "updateComponent()",
+      "file_type": "code",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L52",
+      "id": "services_salary_component_service_updatecomponent",
+      "community": 9,
+      "norm_label": "updatecomponent()"
+    },
+    {
+      "label": "getComponentByCuid()",
+      "file_type": "code",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L79",
+      "id": "services_salary_component_service_getcomponentbycuid",
+      "community": 9,
+      "norm_label": "getcomponentbycuid()"
+    },
+    {
+      "label": "getComponents()",
+      "file_type": "code",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L90",
+      "id": "services_salary_component_service_getcomponents",
+      "community": 9,
+      "norm_label": "getcomponents()"
+    },
+    {
+      "label": "toggleComponentStatus()",
+      "file_type": "code",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L98",
+      "id": "services_salary_component_service_togglecomponentstatus",
+      "community": 9,
+      "norm_label": "togglecomponentstatus()"
+    },
+    {
+      "label": "getStats()",
+      "file_type": "code",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L115",
+      "id": "services_salary_component_service_getstats",
+      "community": 9,
+      "norm_label": "getstats()"
     },
     {
       "label": "system-role.service.ts",
@@ -3617,21 +3725,12 @@
       "norm_label": "tomasterdatadto()"
     },
     {
-      "label": "department.validator.test.ts",
-      "file_type": "code",
-      "source_file": "src/lib/server/validators/department.validator.test.ts",
-      "source_location": "L1",
-      "id": "validators_department_validator_test",
-      "community": 9,
-      "norm_label": "department.validator.test.ts"
-    },
-    {
       "label": "department.validator.ts",
       "file_type": "code",
       "source_file": "src/lib/server/validators/department.validator.ts",
       "source_location": "L1",
       "id": "validators_department_validator",
-      "community": 9,
+      "community": 0,
       "norm_label": "department.validator.ts"
     },
     {
@@ -3640,8 +3739,152 @@
       "source_file": "src/lib/server/validators/department.validator.ts",
       "source_location": "L10",
       "id": "validators_department_validator_validatedepartmentname",
-      "community": 9,
+      "community": 0,
       "norm_label": "validatedepartmentname()"
+    },
+    {
+      "label": "salary-component.validator.ts",
+      "file_type": "code",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L1",
+      "id": "validators_salary_component_validator",
+      "community": 9,
+      "norm_label": "salary-component.validator.ts"
+    },
+    {
+      "label": "ValidationError",
+      "file_type": "code",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L4",
+      "id": "validators_salary_component_validator_validationerror",
+      "community": 9,
+      "norm_label": "validationerror"
+    },
+    {
+      "label": "CREATE_ALLOWED_KEYS",
+      "file_type": "code",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L10",
+      "id": "validators_salary_component_validator_create_allowed_keys",
+      "community": 9,
+      "norm_label": "create_allowed_keys"
+    },
+    {
+      "label": "UPDATE_ALLOWED_KEYS",
+      "file_type": "code",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L18",
+      "id": "validators_salary_component_validator_update_allowed_keys",
+      "community": 9,
+      "norm_label": "update_allowed_keys"
+    },
+    {
+      "label": "findUnknownKeys()",
+      "file_type": "code",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L26",
+      "id": "validators_salary_component_validator_findunknownkeys",
+      "community": 9,
+      "norm_label": "findunknownkeys()"
+    },
+    {
+      "label": "validateCreateSalaryComponent()",
+      "file_type": "code",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L33",
+      "id": "validators_salary_component_validator_validatecreatesalarycomponent",
+      "community": 9,
+      "norm_label": "validatecreatesalarycomponent()"
+    },
+    {
+      "label": "validateUpdateSalaryComponent()",
+      "file_type": "code",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L112",
+      "id": "validators_salary_component_validator_validateupdatesalarycomponent",
+      "community": 9,
+      "norm_label": "validateupdatesalarycomponent()"
+    },
+    {
+      "label": "toast.svelte.ts",
+      "file_type": "code",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L1",
+      "id": "lib_toast_svelte",
+      "community": 22,
+      "norm_label": "toast.svelte.ts"
+    },
+    {
+      "label": "Toast",
+      "file_type": "code",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L1",
+      "id": "lib_toast_svelte_toast",
+      "community": 22,
+      "norm_label": "toast"
+    },
+    {
+      "label": "ToastStore",
+      "file_type": "code",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L8",
+      "id": "lib_toast_svelte_toaststore",
+      "community": 22,
+      "norm_label": "toaststore"
+    },
+    {
+      "label": ".add()",
+      "file_type": "code",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L11",
+      "id": "lib_toast_svelte_toaststore_add",
+      "community": 22,
+      "norm_label": ".add()"
+    },
+    {
+      "label": ".success()",
+      "file_type": "code",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L23",
+      "id": "lib_toast_svelte_toaststore_success",
+      "community": 22,
+      "norm_label": ".success()"
+    },
+    {
+      "label": ".error()",
+      "file_type": "code",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L27",
+      "id": "lib_toast_svelte_toaststore_error",
+      "community": 22,
+      "norm_label": ".error()"
+    },
+    {
+      "label": ".info()",
+      "file_type": "code",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L31",
+      "id": "lib_toast_svelte_toaststore_info",
+      "community": 22,
+      "norm_label": ".info()"
+    },
+    {
+      "label": ".warning()",
+      "file_type": "code",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L35",
+      "id": "lib_toast_svelte_toaststore_warning",
+      "community": 22,
+      "norm_label": ".warning()"
+    },
+    {
+      "label": ".dismiss()",
+      "file_type": "code",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L39",
+      "id": "lib_toast_svelte_toaststore_dismiss",
+      "community": 22,
+      "norm_label": ".dismiss()"
     },
     {
       "label": "toast.ts",
@@ -3714,6 +3957,87 @@
       "id": "types_oidc_oidcuserstorage",
       "community": 6,
       "norm_label": "oidcuserstorage"
+    },
+    {
+      "label": "salary-component.ts",
+      "file_type": "code",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L1",
+      "id": "types_salary_component",
+      "community": 9,
+      "norm_label": "salary-component.ts"
+    },
+    {
+      "label": "SalaryComponentType",
+      "file_type": "code",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L4",
+      "id": "types_salary_component_salarycomponenttype",
+      "community": 9,
+      "norm_label": "salarycomponenttype"
+    },
+    {
+      "label": "SalaryComponent",
+      "file_type": "code",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L6",
+      "id": "types_salary_component_salarycomponent",
+      "community": 9,
+      "norm_label": "salarycomponent"
+    },
+    {
+      "label": "CreateSalaryComponentDto",
+      "file_type": "code",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L28",
+      "id": "types_salary_component_createsalarycomponentdto",
+      "community": 9,
+      "norm_label": "createsalarycomponentdto"
+    },
+    {
+      "label": "UpdateSalaryComponentDto",
+      "file_type": "code",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L37",
+      "id": "types_salary_component_updatesalarycomponentdto",
+      "community": 9,
+      "norm_label": "updatesalarycomponentdto"
+    },
+    {
+      "label": "SalaryComponentFilters",
+      "file_type": "code",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L46",
+      "id": "types_salary_component_salarycomponentfilters",
+      "community": 9,
+      "norm_label": "salarycomponentfilters"
+    },
+    {
+      "label": "ListSalaryComponentResponse",
+      "file_type": "code",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L54",
+      "id": "types_salary_component_listsalarycomponentresponse",
+      "community": 9,
+      "norm_label": "listsalarycomponentresponse"
+    },
+    {
+      "label": "MutationSalaryComponentResponse",
+      "file_type": "code",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L58",
+      "id": "types_salary_component_mutationsalarycomponentresponse",
+      "community": 9,
+      "norm_label": "mutationsalarycomponentresponse"
+    },
+    {
+      "label": "DeleteSalaryComponentResponse",
+      "file_type": "code",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L62",
+      "id": "types_salary_component_deletesalarycomponentresponse",
+      "community": 9,
+      "norm_label": "deletesalarycomponentresponse"
     },
     {
       "label": "user.ts",
@@ -3824,6 +4148,24 @@
       "norm_label": "createdirtychecker()"
     },
     {
+      "label": "salary-component.ts",
+      "file_type": "code",
+      "source_file": "src/lib/validators/salary-component.ts",
+      "source_location": "L1",
+      "id": "validators_salary_component",
+      "community": 9,
+      "norm_label": "salary-component.ts"
+    },
+    {
+      "label": "validateComponentName()",
+      "file_type": "code",
+      "source_file": "src/lib/validators/salary-component.ts",
+      "source_location": "L1",
+      "id": "validators_salary_component_validatecomponentname",
+      "community": 9,
+      "norm_label": "validatecomponentname()"
+    },
+    {
       "label": "cuid.ts",
       "file_type": "code",
       "source_file": "src/params/cuid.ts",
@@ -3876,6 +4218,15 @@
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_routes_layout_css",
       "community": 8,
       "norm_label": "./layout.css"
+    },
+    {
+      "label": "$lib/assets/favicon.svg",
+      "file_type": "code",
+      "source_file": "src/lib/assets/favicon.svg",
+      "confidence": "EXTRACTED",
+      "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_assets_favicon_svg",
+      "community": 8,
+      "norm_label": "$lib/assets/favicon.svg"
     },
     {
       "label": "$lib/auth",
@@ -4002,6 +4353,15 @@
       "id": "users_round",
       "community": 8,
       "norm_label": "@lucide/svelte/icons/users-round"
+    },
+    {
+      "label": "@lucide/svelte/icons/wallet",
+      "file_type": "code",
+      "source_file": "@lucide/svelte/icons/wallet",
+      "confidence": "EXTRACTED",
+      "id": "wallet",
+      "community": 8,
+      "norm_label": "@lucide/svelte/icons/wallet"
     },
     {
       "label": "+page.svelte",
@@ -4369,7 +4729,7 @@
       "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L1",
       "id": "permissioncuid_permissioncuid_server",
-      "community": 43,
+      "community": 35,
       "norm_label": "+server.ts"
     },
     {
@@ -4378,7 +4738,7 @@
       "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L6",
       "id": "permissioncuid_permissioncuid_server_getstatus",
-      "community": 43,
+      "community": 35,
       "norm_label": "getstatus()"
     },
     {
@@ -4387,7 +4747,70 @@
       "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L12",
       "id": "permissioncuid_permissioncuid_server_delete",
-      "community": 43,
+      "community": 35,
+      "norm_label": "delete()"
+    },
+    {
+      "label": "+server.ts",
+      "file_type": "code",
+      "source_file": "src/routes/api/salary-components/+server.ts",
+      "source_location": "L1",
+      "id": "salary_components_server",
+      "community": 9,
+      "norm_label": "+server.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "src/routes/api/salary-components/+server.ts",
+      "source_location": "L6",
+      "id": "salary_components_server_get",
+      "community": 9,
+      "norm_label": "get()"
+    },
+    {
+      "label": "POST()",
+      "file_type": "code",
+      "source_file": "src/routes/api/salary-components/+server.ts",
+      "source_location": "L24",
+      "id": "salary_components_server_post",
+      "community": 9,
+      "norm_label": "post()"
+    },
+    {
+      "label": "+server.ts",
+      "file_type": "code",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L1",
+      "id": "salarycomponentcuid_cuid_server",
+      "community": 9,
+      "norm_label": "+server.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L6",
+      "id": "salarycomponentcuid_cuid_server_get",
+      "community": 9,
+      "norm_label": "get()"
+    },
+    {
+      "label": "PUT()",
+      "file_type": "code",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L34",
+      "id": "salarycomponentcuid_cuid_server_put",
+      "community": 9,
+      "norm_label": "put()"
+    },
+    {
+      "label": "DELETE()",
+      "file_type": "code",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L85",
+      "id": "salarycomponentcuid_cuid_server_delete",
+      "community": 9,
       "norm_label": "delete()"
     },
     {
@@ -4789,6 +5212,33 @@
     {
       "label": "+page.svelte",
       "file_type": "code",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source_location": "L1",
+      "id": "salary_components_page",
+      "community": 2,
+      "norm_label": "+page.svelte"
+    },
+    {
+      "label": "$lib/types/salary-component",
+      "file_type": "code",
+      "source_file": "src/lib/types/salary-component",
+      "confidence": "EXTRACTED",
+      "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_types_salary_component",
+      "community": 2,
+      "norm_label": "$lib/types/salary-component"
+    },
+    {
+      "label": "$lib/validators/salary-component",
+      "file_type": "code",
+      "source_file": "src/lib/validators/salary-component",
+      "confidence": "EXTRACTED",
+      "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_validators_salary_component",
+      "community": 2,
+      "norm_label": "$lib/validators/salary-component"
+    },
+    {
+      "label": "+page.svelte",
+      "file_type": "code",
       "source_file": "src/routes/settings/+page.svelte",
       "source_location": "L1",
       "id": "settings_page",
@@ -4886,6 +5336,60 @@
       "norm_label": "constants.test.ts"
     },
     {
+      "label": "department.dao.test.ts",
+      "file_type": "code",
+      "source_file": "tests/unit/department.dao.test.ts",
+      "source_location": "L1",
+      "id": "unit_department_dao_test",
+      "community": 39,
+      "norm_label": "department.dao.test.ts"
+    },
+    {
+      "label": "department.service.test.ts",
+      "file_type": "code",
+      "source_file": "tests/unit/department.service.test.ts",
+      "source_location": "L1",
+      "id": "unit_department_service_test",
+      "community": 0,
+      "norm_label": "department.service.test.ts"
+    },
+    {
+      "label": "department.validator.test.ts",
+      "file_type": "code",
+      "source_file": "tests/unit/department.validator.test.ts",
+      "source_location": "L1",
+      "id": "unit_department_validator_test",
+      "community": 0,
+      "norm_label": "department.validator.test.ts"
+    },
+    {
+      "label": "designation.dao.test.ts",
+      "file_type": "code",
+      "source_file": "tests/unit/designation.dao.test.ts",
+      "source_location": "L1",
+      "id": "unit_designation_dao_test",
+      "community": 36,
+      "norm_label": "designation.dao.test.ts"
+    },
+    {
+      "label": "designation.service.test.ts",
+      "file_type": "code",
+      "source_file": "tests/unit/designation.service.test.ts",
+      "source_location": "L1",
+      "id": "unit_designation_service_test",
+      "community": 36,
+      "norm_label": "designation.service.test.ts"
+    },
+    {
+      "label": "employee.dao.test.ts",
+      "file_type": "code",
+      "source_file": "tests/unit/employee.dao.test.ts",
+      "source_location": "L1",
+      "id": "unit_employee_dao_test",
+      "community": 1,
+      "norm_label": "employee.dao.test.ts"
+    },
+    {
       "label": "employee.service.test.ts",
       "file_type": "code",
       "source_file": "tests/unit/employee.service.test.ts",
@@ -4911,6 +5415,114 @@
       "id": "unit_employee_service_test_sampleemployee",
       "community": 34,
       "norm_label": "sampleemployee"
+    },
+    {
+      "label": "master-data.dao.test.ts",
+      "file_type": "code",
+      "source_file": "tests/unit/master-data.dao.test.ts",
+      "source_location": "L1",
+      "id": "unit_master_data_dao_test",
+      "community": 5,
+      "norm_label": "master-data.dao.test.ts"
+    },
+    {
+      "label": "{ mockDbMethods }",
+      "file_type": "code",
+      "source_file": "tests/unit/master-data.dao.test.ts",
+      "source_location": "L5",
+      "id": "unit_master_data_dao_test_mockdbmethods",
+      "community": 5,
+      "norm_label": "{ mockdbmethods }"
+    },
+    {
+      "label": "masterKeys",
+      "file_type": "code",
+      "source_file": "tests/unit/master-data.dao.test.ts",
+      "source_location": "L30",
+      "id": "unit_master_data_dao_test_masterkeys",
+      "community": 5,
+      "norm_label": "masterkeys"
+    },
+    {
+      "label": "master-data.service.test.ts",
+      "file_type": "code",
+      "source_file": "tests/unit/master-data.service.test.ts",
+      "source_location": "L1",
+      "id": "unit_master_data_service_test",
+      "community": 5,
+      "norm_label": "master-data.service.test.ts"
+    },
+    {
+      "label": "permission.dao.test.ts",
+      "file_type": "code",
+      "source_file": "tests/unit/permission.dao.test.ts",
+      "source_location": "L1",
+      "id": "unit_permission_dao_test",
+      "community": 37,
+      "norm_label": "permission.dao.test.ts"
+    },
+    {
+      "label": "permission.guard.test.ts",
+      "file_type": "code",
+      "source_file": "tests/unit/permission.guard.test.ts",
+      "source_location": "L1",
+      "id": "unit_permission_guard_test",
+      "community": 0,
+      "norm_label": "permission.guard.test.ts"
+    },
+    {
+      "label": "permission.service.test.ts",
+      "file_type": "code",
+      "source_file": "tests/unit/permission.service.test.ts",
+      "source_location": "L1",
+      "id": "unit_permission_service_test",
+      "community": 37,
+      "norm_label": "permission.service.test.ts"
+    },
+    {
+      "label": "role-permission.dao.test.ts",
+      "file_type": "code",
+      "source_file": "tests/unit/role-permission.dao.test.ts",
+      "source_location": "L1",
+      "id": "unit_role_permission_dao_test",
+      "community": 40,
+      "norm_label": "role-permission.dao.test.ts"
+    },
+    {
+      "label": "role-permission.service.test.ts",
+      "file_type": "code",
+      "source_file": "tests/unit/role-permission.service.test.ts",
+      "source_location": "L1",
+      "id": "unit_role_permission_service_test",
+      "community": 35,
+      "norm_label": "role-permission.service.test.ts"
+    },
+    {
+      "label": "salary-component.validator.test.ts",
+      "file_type": "code",
+      "source_file": "tests/unit/salary-component.validator.test.ts",
+      "source_location": "L1",
+      "id": "unit_salary_component_validator_test",
+      "community": 9,
+      "norm_label": "salary-component.validator.test.ts"
+    },
+    {
+      "label": "system-role.dao.test.ts",
+      "file_type": "code",
+      "source_file": "tests/unit/system-role.dao.test.ts",
+      "source_location": "L1",
+      "id": "unit_system_role_dao_test",
+      "community": 38,
+      "norm_label": "system-role.dao.test.ts"
+    },
+    {
+      "label": "system-role.service.test.ts",
+      "file_type": "code",
+      "source_file": "tests/unit/system-role.service.test.ts",
+      "source_location": "L1",
+      "id": "unit_system_role_service_test",
+      "community": 38,
+      "norm_label": "system-role.service.test.ts"
     },
     {
       "label": "tsconfig.json",
@@ -5874,6 +6486,15 @@
       "id": "readme_6_architecture_notes",
       "community": 31,
       "norm_label": "6. architecture notes"
+    },
+    {
+      "label": "if()",
+      "file_type": "code",
+      "source_file": "src/lib/components/common/CrudModal.svelte",
+      "source_location": "L30",
+      "community": 2,
+      "norm_label": "if()",
+      "id": "common_crudmodal_if"
     },
     {
       "label": "getErrorStatus()",
@@ -7289,6 +7910,14 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source": "salary_components_page",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_components",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/settings/+page.svelte",
       "confidence_score": 1.0,
       "source": "settings_page",
@@ -7422,6 +8051,14 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source": "salary_components_page",
+      "target": "svelte",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/system-roles/+page.svelte",
       "confidence_score": 1.0,
       "source": "system_roles_page",
@@ -7513,6 +8150,22 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source": "salary_components_page",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_components_ui_dropdown_menu_index_js",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source": "salary_components_page",
+      "target": "filter",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
       "source_file": "src/lib/components/common/PermissionMatrixCell.svelte",
       "confidence_score": 1.0,
       "source": "common_permissionmatrixcell",
@@ -7545,10 +8198,18 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/components/common/MasterDataDropdown.svelte",
-      "source": "common_masterdatadropdown",
-      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source": "salary_components_page",
+      "target": "check",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/common/MasterDataDropdown.svelte",
+      "confidence_score": 1.0,
+      "source": "common_masterdatadropdown",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants"
     },
     {
       "relation": "imports_from",
@@ -7589,47 +8250,55 @@
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/components/common/SearchableDropdown.svelte",
+      "confidence_score": 1.0,
       "source": "common_searchabledropdown",
-      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
-      "confidence_score": 1.0
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants"
     },
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/departments/+page.svelte",
+      "confidence_score": 1.0,
       "source": "departments_page",
-      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
-      "confidence_score": 1.0
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants"
     },
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/designations/+page.svelte",
+      "confidence_score": 1.0,
       "source": "designations_page",
-      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
-      "confidence_score": 1.0
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants"
     },
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/employees/+page.svelte",
+      "confidence_score": 1.0,
       "source": "employees_page",
-      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
-      "confidence_score": 1.0
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants"
     },
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/permissions/+page.svelte",
+      "confidence_score": 1.0,
       "source": "permissions_page",
-      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
-      "confidence_score": 1.0
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants"
     },
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/role-permissions/+page.svelte",
+      "confidence_score": 1.0,
       "source": "role_permissions_page",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source": "salary_components_page",
       "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
       "confidence_score": 1.0
     },
@@ -7637,9 +8306,9 @@
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/system-roles/+page.svelte",
+      "confidence_score": 1.0,
       "source": "system_roles_page",
-      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants",
-      "confidence_score": 1.0
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants"
     },
     {
       "relation": "imports_from",
@@ -7797,6 +8466,14 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source": "salary_components_page",
+      "target": "loader_circle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/system-roles/+page.svelte",
       "confidence_score": 1.0,
       "source": "system_roles_page",
@@ -7872,6 +8549,14 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source": "salary_components_page",
+      "target": "plus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/system-roles/+page.svelte",
       "confidence_score": 1.0,
       "source": "system_roles_page",
@@ -7895,6 +8580,14 @@
       "confidence_score": 1.0,
       "source": "components_index",
       "target": "common_statusdropdown"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source": "salary_components_page",
+      "target": "chevron_down",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -9342,9 +10035,9 @@
       "source_file": "src/lib/constants.ts",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_constants",
-      "target": "lib_constants_ui_constants",
-      "confidence_score": 1.0
+      "target": "lib_constants_ui_constants"
     },
     {
       "relation": "imports_from",
@@ -9369,6 +10062,46 @@
       "target": "lib_constants_buildauthcallbackurl"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/constants/salary-component-type.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "constants_salary_component_type",
+      "target": "constants_salary_component_type_salary_component_type_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/constants/salary-component-type.ts",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "constants_salary_component_type",
+      "target": "constants_salary_component_type_salary_component_type_options",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/constants/salary-component-type.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "constants_salary_component_type",
+      "target": "constants_salary_component_type_salary_component_types",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/constants/salary-component-type.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "constants_salary_component_type",
+      "target": "constants_salary_component_type_salarycomponenttype",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -9377,17 +10110,6 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "dao_master_data_dao",
-      "target": "master_data_master_config"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/master-data.dao.test.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_master_data_dao_test",
       "target": "master_data_master_config"
     },
     {
@@ -9462,6 +10184,17 @@
       "target": "master_data_master_config"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/master-data.dao.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "unit_master_data_dao_test",
+      "target": "master_data_master_config",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -9470,17 +10203,6 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "dao_master_data_dao",
-      "target": "master_data_master_config_masterkey"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/master-data.dao.test.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_master_data_dao_test",
       "target": "master_data_master_config_masterkey"
     },
     {
@@ -9504,6 +10226,17 @@
       "confidence_score": 1.0,
       "source": "services_master_data_service_masterdataoption",
       "target": "master_data_master_config_masterkey"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/master-data.dao.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "unit_master_data_dao_test",
+      "target": "master_data_master_config_masterkey",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -9911,39 +10644,6 @@
       "target": "server_config_clearconfigcache"
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/department.dao.test.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_department_dao_test",
-      "target": "dao_department_dao"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/department.dao.test.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_department_dao_test",
-      "target": "server_db"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/department.dao.test.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_department_dao_test",
-      "target": "server_db_db"
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/server/dao/department.dao.ts",
@@ -10050,45 +10750,23 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/services/department.service.test.ts",
-      "source_location": "L4",
+      "source_file": "tests/unit/department.dao.test.ts",
+      "source_location": "L2",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_department_service_test",
-      "target": "dao_department_dao"
+      "source": "unit_department_dao_test",
+      "target": "dao_department_dao",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/designation.dao.test.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_designation_dao_test",
-      "target": "dao_designation_dao"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/designation.dao.test.ts",
+      "source_file": "tests/unit/department.service.test.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_designation_dao_test",
-      "target": "server_db"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/designation.dao.test.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_designation_dao_test",
-      "target": "server_db_db"
+      "source": "unit_department_service_test",
+      "target": "dao_department_dao",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -10197,45 +10875,23 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/services/designation.service.test.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_designation_service_test",
-      "target": "dao_designation_dao"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/employee.dao.test.ts",
+      "source_file": "tests/unit/designation.dao.test.ts",
       "source_location": "L3",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_employee_dao_test",
-      "target": "dao_employee_dao"
+      "source": "unit_designation_dao_test",
+      "target": "dao_designation_dao",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/employee.dao.test.ts",
+      "source_file": "tests/unit/designation.service.test.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_employee_dao_test",
-      "target": "server_db"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/employee.dao.test.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_employee_dao_test",
-      "target": "server_db_db"
+      "source": "unit_designation_service_test",
+      "target": "dao_designation_dao",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -10315,43 +10971,23 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "tests/unit/employee.dao.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "unit_employee_dao_test",
+      "target": "dao_employee_dao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "tests/unit/employee.service.test.ts",
       "source_location": "L8",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "unit_employee_service_test",
       "target": "dao_employee_dao"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/master-data.dao.test.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_master_data_dao_test",
-      "target": "dao_master_data_dao"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/master-data.dao.test.ts",
-      "source_location": "L30",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_master_data_dao_test",
-      "target": "dao_master_data_dao_test_masterkeys"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/master-data.dao.test.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_master_data_dao_test",
-      "target": "dao_master_data_dao_test_mockdbmethods"
     },
     {
       "relation": "contains",
@@ -10460,45 +11096,23 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/services/master-data.service.test.ts",
-      "source_location": "L4",
+      "source_file": "tests/unit/master-data.dao.test.ts",
+      "source_location": "L2",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_master_data_service_test",
-      "target": "dao_master_data_dao"
+      "source": "unit_master_data_dao_test",
+      "target": "dao_master_data_dao",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/permission.dao.test.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_permission_dao_test",
-      "target": "dao_permission_dao"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/permission.dao.test.ts",
+      "source_file": "tests/unit/master-data.service.test.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_permission_dao_test",
-      "target": "server_db"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/permission.dao.test.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_permission_dao_test",
-      "target": "server_db_db"
+      "source": "unit_master_data_service_test",
+      "target": "dao_master_data_dao",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -10607,17 +11221,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/services/permission.service.test.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_permission_service_test",
-      "target": "dao_permission_dao"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/lib/server/services/role-permission.service.ts",
       "source_location": "L1",
       "weight": 1.0,
@@ -10629,45 +11232,34 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/services/role-permission.service.test.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_role_permission_service_test",
-      "target": "dao_permission_dao"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/role-permission.dao.test.ts",
+      "source_file": "tests/unit/permission.dao.test.ts",
       "source_location": "L3",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_role_permission_dao_test",
-      "target": "dao_role_permission_dao"
+      "source": "unit_permission_dao_test",
+      "target": "dao_permission_dao",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/role-permission.dao.test.ts",
+      "source_file": "tests/unit/permission.service.test.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_role_permission_dao_test",
-      "target": "server_db"
+      "source": "unit_permission_service_test",
+      "target": "dao_permission_dao",
+      "confidence_score": 1.0
     },
     {
-      "relation": "imports",
+      "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/role-permission.dao.test.ts",
+      "source_file": "tests/unit/role-permission.service.test.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_role_permission_dao_test",
-      "target": "server_db_db"
+      "source": "unit_role_permission_service_test",
+      "target": "dao_permission_dao",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -10776,45 +11368,149 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/services/role-permission.service.test.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_role_permission_service_test",
-      "target": "dao_role_permission_dao"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/system-role.dao.test.ts",
+      "source_file": "tests/unit/role-permission.dao.test.ts",
       "source_location": "L3",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_system_role_dao_test",
-      "target": "dao_system_role_dao"
+      "source": "unit_role_permission_dao_test",
+      "target": "dao_role_permission_dao",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/system-role.dao.test.ts",
-      "source_location": "L4",
+      "source_file": "tests/unit/role-permission.service.test.ts",
+      "source_location": "L5",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_system_role_dao_test",
-      "target": "server_db"
+      "source": "unit_role_permission_service_test",
+      "target": "dao_role_permission_dao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "dao_salary_component_dao",
+      "target": "dao_salary_component_dao_create",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "dao_salary_component_dao",
+      "target": "dao_salary_component_dao_findbycuid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "dao_salary_component_dao",
+      "target": "dao_salary_component_dao_findbyname",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L46",
+      "weight": 1.0,
+      "source": "dao_salary_component_dao",
+      "target": "dao_salary_component_dao_findmany",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L68",
+      "weight": 1.0,
+      "source": "dao_salary_component_dao",
+      "target": "dao_salary_component_dao_getstats",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "dao_salary_component_dao",
+      "target": "dao_salary_component_dao_update",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "dao_salary_component_dao",
+      "target": "server_db",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/dao/system-role.dao.test.ts",
-      "source_location": "L4",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L1",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dao_system_role_dao_test",
-      "target": "server_db_db"
+      "source": "dao_salary_component_dao",
+      "target": "server_db_db",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "dao_salary_component_dao",
+      "target": "types_salary_component",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "dao_salary_component_dao",
+      "target": "types_salary_component_createsalarycomponentdto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/salary-component.dao.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "dao_salary_component_dao",
+      "target": "types_salary_component_updatesalarycomponentdto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "services_salary_component_service",
+      "target": "dao_salary_component_dao",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -10923,17 +11619,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/services/role-permission.service.test.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_role_permission_service_test",
-      "target": "dao_system_role_dao"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/lib/server/services/system-role.service.ts",
       "source_location": "L1",
       "weight": 1.0,
@@ -10945,12 +11630,34 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/services/system-role.service.test.ts",
+      "source_file": "tests/unit/role-permission.service.test.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "unit_role_permission_service_test",
+      "target": "dao_system_role_dao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/system-role.dao.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "unit_system_role_dao_test",
+      "target": "dao_system_role_dao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/system-role.service.test.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_system_role_service_test",
-      "target": "dao_system_role_dao"
+      "source": "unit_system_role_service_test",
+      "target": "dao_system_role_dao",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -10993,6 +11700,72 @@
       "target": "server_db_isvalidclient"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/department.dao.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "unit_department_dao_test",
+      "target": "server_db",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/designation.dao.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "unit_designation_dao_test",
+      "target": "server_db",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/employee.dao.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "unit_employee_dao_test",
+      "target": "server_db",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/permission.dao.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "unit_permission_dao_test",
+      "target": "server_db",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/role-permission.dao.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "unit_role_permission_dao_test",
+      "target": "server_db",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/system-role.dao.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "unit_system_role_dao_test",
+      "target": "server_db",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -11015,15 +11788,70 @@
       "target": "server_db_isvalidclient"
     },
     {
-      "relation": "imports_from",
+      "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/guards/permission.guard.test.ts",
+      "source_file": "tests/unit/department.dao.test.ts",
       "source_location": "L3",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "guards_permission_guard_test",
-      "target": "guards_permission_guard"
+      "source": "unit_department_dao_test",
+      "target": "server_db_db",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/designation.dao.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "unit_designation_dao_test",
+      "target": "server_db_db",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/employee.dao.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "unit_employee_dao_test",
+      "target": "server_db_db",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/permission.dao.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "unit_permission_dao_test",
+      "target": "server_db_db",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/role-permission.dao.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "unit_role_permission_dao_test",
+      "target": "server_db_db",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/system-role.dao.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "unit_system_role_dao_test",
+      "target": "server_db_db",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -11221,6 +12049,17 @@
       "target": "guards_permission_guard"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/permission.guard.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "unit_permission_guard_test",
+      "target": "guards_permission_guard",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -11246,23 +12085,119 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/services/department.service.test.ts",
-      "source_location": "L3",
+      "source_file": "src/routes/api/salary-components/+server.ts",
+      "source_location": "L4",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_department_service_test",
-      "target": "services_department_service"
+      "source": "salary_components_server",
+      "target": "serializers_salary_component_serializer",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/services/department.service.test.ts",
-      "source_location": "L5",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L4",
       "weight": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "serializers_salary_component_serializer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/serializers/salary-component.serializer.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "serializers_salary_component_serializer",
+      "target": "serializers_salary_component_serializer_salarycomponentdto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/serializers/salary-component.serializer.ts",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "serializers_salary_component_serializer",
+      "target": "serializers_salary_component_serializer_serializesalarycomponent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/serializers/salary-component.serializer.ts",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "serializers_salary_component_serializer",
+      "target": "serializers_salary_component_serializer_serializesalarycomponentlist",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "types_salary_component",
+      "target": "serializers_salary_component_serializer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "types_salary_component",
+      "target": "serializers_salary_component_serializer_salarycomponentdto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "types_salary_component_listsalarycomponentresponse",
+      "target": "serializers_salary_component_serializer_salarycomponentdto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/salary-components/+server.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "salary_components_server",
+      "target": "serializers_salary_component_serializer_serializesalarycomponent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "serializers_salary_component_serializer_serializesalarycomponent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source": "services_department_service_test",
-      "target": "validators_department_validator"
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "salarycomponentcuid_cuid_server_get",
+      "target": "serializers_salary_component_serializer_serializesalarycomponent"
     },
     {
       "relation": "imports_from",
@@ -11373,9 +12308,9 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_department_service",
-      "target": "utils_errors",
-      "confidence_score": 1.0
+      "target": "utils_errors"
     },
     {
       "relation": "imports",
@@ -11384,9 +12319,9 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_department_service",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
+      "target": "utils_errors_validationerror"
     },
     {
       "relation": "imports_from",
@@ -11409,6 +12344,17 @@
       "confidence_score": 1.0,
       "source": "services_department_service",
       "target": "validators_department_validator_validatedepartmentname"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/department.service.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "unit_department_service_test",
+      "target": "services_department_service",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11475,17 +12421,6 @@
       "weight": 1.0,
       "source": "services_department_service_updatedepartment",
       "target": "validators_department_validator_validatedepartmentname"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/services/designation.service.test.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_designation_service_test",
-      "target": "services_designation_service"
     },
     {
       "relation": "imports_from",
@@ -11626,9 +12561,9 @@
       "source_file": "src/lib/server/services/designation.service.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_designation_service",
-      "target": "utils_errors",
-      "confidence_score": 1.0
+      "target": "utils_errors"
     },
     {
       "relation": "imports",
@@ -11637,8 +12572,19 @@
       "source_file": "src/lib/server/services/designation.service.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_designation_service",
-      "target": "utils_errors_validationerror",
+      "target": "utils_errors_validationerror"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/designation.service.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "unit_designation_service_test",
+      "target": "services_designation_service",
       "confidence_score": 1.0
     },
     {
@@ -12023,17 +12969,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/services/master-data.service.test.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_master_data_service_test",
-      "target": "services_master_data_service"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/master-data/[master]/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
@@ -12179,9 +13114,9 @@
       "source_file": "src/lib/server/services/master-data.service.ts",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_master_data_service",
-      "target": "utils_errors",
-      "confidence_score": 1.0
+      "target": "utils_errors"
     },
     {
       "relation": "imports",
@@ -12190,8 +13125,19 @@
       "source_file": "src/lib/server/services/master-data.service.ts",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_master_data_service",
-      "target": "utils_errors_validationerror",
+      "target": "utils_errors_validationerror"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/master-data.service.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "unit_master_data_service_test",
+      "target": "services_master_data_service",
       "confidence_score": 1.0
     },
     {
@@ -12325,17 +13271,6 @@
       "confidence_score": 1.0,
       "source": "services_master_data_service_updatemasterdata",
       "target": "services_master_data_service_ensureunique"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/services/permission.service.test.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_permission_service_test",
-      "target": "services_permission_service"
     },
     {
       "relation": "imports_from",
@@ -12486,9 +13421,9 @@
       "source_file": "src/lib/server/services/permission.service.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_permission_service",
-      "target": "utils_errors",
-      "confidence_score": 1.0
+      "target": "utils_errors"
     },
     {
       "relation": "imports",
@@ -12497,8 +13432,19 @@
       "source_file": "src/lib/server/services/permission.service.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_permission_service",
-      "target": "utils_errors_validationerror",
+      "target": "utils_errors_validationerror"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/permission.service.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "unit_permission_service_test",
+      "target": "services_permission_service",
       "confidence_score": 1.0
     },
     {
@@ -12626,17 +13572,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/services/role-permission.service.test.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_role_permission_service_test",
-      "target": "services_role_permission_service"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
@@ -12726,6 +13661,17 @@
       "target": "services_role_permission_service_validatecuid2"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/role-permission.service.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "unit_role_permission_service_test",
+      "target": "services_role_permission_service",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -12751,12 +13697,187 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/services/system-role.service.test.ts",
-      "source_location": "L3",
+      "source_file": "src/routes/api/salary-components/+server.ts",
+      "source_location": "L2",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_system_role_service_test",
-      "target": "services_system_role_service"
+      "source": "salary_components_server",
+      "target": "services_salary_component_service",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "services_salary_component_service",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "services_salary_component_service",
+      "target": "services_salary_component_service_businessvalidationerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "services_salary_component_service",
+      "target": "services_salary_component_service_componentnotfounderror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "services_salary_component_service",
+      "target": "services_salary_component_service_createcomponent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "services_salary_component_service",
+      "target": "services_salary_component_service_duplicatecomponenterror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L79",
+      "weight": 1.0,
+      "source": "services_salary_component_service",
+      "target": "services_salary_component_service_getcomponentbycuid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L90",
+      "weight": 1.0,
+      "source": "services_salary_component_service",
+      "target": "services_salary_component_service_getcomponents",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L115",
+      "weight": 1.0,
+      "source": "services_salary_component_service",
+      "target": "services_salary_component_service_getstats",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L98",
+      "weight": 1.0,
+      "source": "services_salary_component_service",
+      "target": "services_salary_component_service_togglecomponentstatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L52",
+      "weight": 1.0,
+      "source": "services_salary_component_service",
+      "target": "services_salary_component_service_updatecomponent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "services_salary_component_service",
+      "target": "types_salary_component",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "services_salary_component_service",
+      "target": "types_salary_component_createsalarycomponentdto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "services_salary_component_service",
+      "target": "types_salary_component_updatesalarycomponentdto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "services_salary_component_service_businessvalidationerror",
+      "target": "services_salary_component_service_businessvalidationerror_constructor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "context": "type",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "services_salary_component_service_duplicatecomponenterror",
+      "target": "services_salary_component_service_businessvalidationerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "services_salary_component_service_duplicatecomponenterror",
+      "target": "services_salary_component_service_duplicatecomponenterror_constructor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/salary-component.service.ts",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "services_salary_component_service_componentnotfounderror",
+      "target": "services_salary_component_service_componentnotfounderror_constructor",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -12885,9 +14006,9 @@
       "source_file": "src/lib/server/services/system-role.service.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_system_role_service",
-      "target": "utils_errors",
-      "confidence_score": 1.0
+      "target": "utils_errors"
     },
     {
       "relation": "imports",
@@ -12896,9 +14017,9 @@
       "source_file": "src/lib/server/services/system-role.service.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_system_role_service",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
+      "target": "utils_errors_validationerror"
     },
     {
       "relation": "imports_from",
@@ -12921,6 +14042,17 @@
       "confidence_score": 1.0,
       "source": "systemrolecuid_cuid_server",
       "target": "services_system_role_service"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/system-role.service.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "unit_system_role_service_test",
+      "target": "services_system_role_service",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -13050,9 +14182,9 @@
       "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "departmentcuid_cuid_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
+      "target": "utils_errors"
     },
     {
       "relation": "imports_from",
@@ -13061,9 +14193,9 @@
       "source_file": "src/routes/api/departments/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "departments_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
+      "target": "utils_errors"
     },
     {
       "relation": "imports_from",
@@ -13072,9 +14204,9 @@
       "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "designationcuid_cuid_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
+      "target": "utils_errors"
     },
     {
       "relation": "imports_from",
@@ -13083,9 +14215,9 @@
       "source_file": "src/routes/api/designations/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "designations_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
+      "target": "utils_errors"
     },
     {
       "relation": "imports_from",
@@ -13094,9 +14226,9 @@
       "source_file": "src/routes/api/master-data/[master]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "master_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
+      "target": "utils_errors"
     },
     {
       "relation": "imports_from",
@@ -13105,9 +14237,9 @@
       "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "mastercuid_cuid_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
+      "target": "utils_errors"
     },
     {
       "relation": "imports_from",
@@ -13116,9 +14248,9 @@
       "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "permissioncuid_cuid_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
+      "target": "utils_errors"
     },
     {
       "relation": "imports_from",
@@ -13127,9 +14259,9 @@
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "permissions_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
+      "target": "utils_errors"
     },
     {
       "relation": "imports_from",
@@ -13138,9 +14270,9 @@
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "system_roles_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
+      "target": "utils_errors"
     },
     {
       "relation": "imports_from",
@@ -13149,9 +14281,9 @@
       "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "systemrolecuid_cuid_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
+      "target": "utils_errors"
     },
     {
       "relation": "contains",
@@ -13159,9 +14291,9 @@
       "source_file": "src/lib/server/utils/errors.ts",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "utils_errors",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
+      "target": "utils_errors_validationerror"
     },
     {
       "relation": "imports",
@@ -13170,9 +14302,9 @@
       "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "departmentcuid_cuid_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
+      "target": "utils_errors_validationerror"
     },
     {
       "relation": "imports",
@@ -13181,9 +14313,9 @@
       "source_file": "src/routes/api/departments/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "departments_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
+      "target": "utils_errors_validationerror"
     },
     {
       "relation": "imports",
@@ -13192,9 +14324,9 @@
       "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "designationcuid_cuid_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
+      "target": "utils_errors_validationerror"
     },
     {
       "relation": "imports",
@@ -13203,9 +14335,9 @@
       "source_file": "src/routes/api/designations/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "designations_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
+      "target": "utils_errors_validationerror"
     },
     {
       "relation": "imports",
@@ -13214,9 +14346,9 @@
       "source_file": "src/routes/api/master-data/[master]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "master_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
+      "target": "utils_errors_validationerror"
     },
     {
       "relation": "imports",
@@ -13225,9 +14357,9 @@
       "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "mastercuid_cuid_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
+      "target": "utils_errors_validationerror"
     },
     {
       "relation": "imports",
@@ -13236,9 +14368,9 @@
       "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "permissioncuid_cuid_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
+      "target": "utils_errors_validationerror"
     },
     {
       "relation": "imports",
@@ -13247,9 +14379,9 @@
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "permissions_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
+      "target": "utils_errors_validationerror"
     },
     {
       "relation": "imports",
@@ -13258,9 +14390,9 @@
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "system_roles_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
+      "target": "utils_errors_validationerror"
     },
     {
       "relation": "imports",
@@ -13269,9 +14401,9 @@
       "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "systemrolecuid_cuid_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
+      "target": "utils_errors_validationerror"
     },
     {
       "relation": "method",
@@ -13279,9 +14411,9 @@
       "source_file": "src/lib/server/utils/errors.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "utils_errors_validationerror",
-      "target": "utils_errors_validationerror_constructor",
-      "confidence_score": 1.0
+      "target": "utils_errors_validationerror_constructor"
     },
     {
       "relation": "imports_from",
@@ -13938,23 +15070,23 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/validators/department.validator.test.ts",
-      "source_location": "L2",
+      "source_file": "tests/unit/department.service.test.ts",
+      "source_location": "L5",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "validators_department_validator_test",
-      "target": "validators_department_validator"
+      "source": "unit_department_service_test",
+      "target": "validators_department_validator",
+      "confidence_score": 1.0
     },
     {
-      "relation": "imports",
+      "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/lib/server/validators/department.validator.test.ts",
+      "source_file": "tests/unit/department.validator.test.ts",
       "source_location": "L2",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "validators_department_validator_test",
-      "target": "validators_department_validator_validatedepartmentname"
+      "source": "unit_department_validator_test",
+      "target": "validators_department_validator",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -13965,6 +15097,410 @@
       "confidence_score": 1.0,
       "source": "validators_department_validator",
       "target": "validators_department_validator_validatedepartmentname"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/department.validator.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "unit_department_validator_test",
+      "target": "validators_department_validator_validatedepartmentname",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/salary-components/+server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "salary_components_server",
+      "target": "validators_salary_component_validator",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "validators_salary_component_validator",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/salary-component.validator.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "unit_salary_component_validator_test",
+      "target": "validators_salary_component_validator",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "validators_salary_component_validator",
+      "target": "types_salary_component",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "validators_salary_component_validator",
+      "target": "types_salary_component_createsalarycomponentdto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "validators_salary_component_validator",
+      "target": "types_salary_component_updatesalarycomponentdto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "validators_salary_component_validator",
+      "target": "validators_salary_component",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "validators_salary_component_validator",
+      "target": "validators_salary_component_validatecomponentname",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "validators_salary_component_validator",
+      "target": "validators_salary_component_validator_create_allowed_keys",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "validators_salary_component_validator",
+      "target": "validators_salary_component_validator_findunknownkeys",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "validators_salary_component_validator",
+      "target": "validators_salary_component_validator_update_allowed_keys",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L33",
+      "weight": 1.0,
+      "source": "validators_salary_component_validator",
+      "target": "validators_salary_component_validator_validatecreatesalarycomponent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L112",
+      "weight": 1.0,
+      "source": "validators_salary_component_validator",
+      "target": "validators_salary_component_validator_validateupdatesalarycomponent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "validators_salary_component_validator",
+      "target": "validators_salary_component_validator_validationerror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L46",
+      "weight": 1.0,
+      "source": "validators_salary_component_validator_validatecreatesalarycomponent",
+      "target": "validators_salary_component_validator_findunknownkeys",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L125",
+      "weight": 1.0,
+      "source": "validators_salary_component_validator_validateupdatesalarycomponent",
+      "target": "validators_salary_component_validator_findunknownkeys",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/salary-components/+server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "salary_components_server",
+      "target": "validators_salary_component_validator_validatecreatesalarycomponent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/salary-components/+server.ts",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "salary_components_server_post",
+      "target": "validators_salary_component_validator_validatecreatesalarycomponent"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/salary-component.validator.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "unit_salary_component_validator_test",
+      "target": "validators_salary_component_validator_validatecreatesalarycomponent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L59",
+      "weight": 1.0,
+      "source": "validators_salary_component_validator_validatecreatesalarycomponent",
+      "target": "validators_salary_component_validatecomponentname"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "validators_salary_component_validator_validateupdatesalarycomponent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "salarycomponentcuid_cuid_server_put",
+      "target": "validators_salary_component_validator_validateupdatesalarycomponent"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/salary-component.validator.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "unit_salary_component_validator_test",
+      "target": "validators_salary_component_validator_validateupdatesalarycomponent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/server/validators/salary-component.validator.ts",
+      "source_location": "L148",
+      "weight": 1.0,
+      "source": "validators_salary_component_validator_validateupdatesalarycomponent",
+      "target": "validators_salary_component_validatecomponentname"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L44",
+      "weight": 1.0,
+      "source": "lib_toast_svelte",
+      "target": "lib_toast_svelte_toast",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "lib_toast_svelte",
+      "target": "lib_toast_svelte_toaststore",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "lib_toast_svelte_toaststore",
+      "target": "lib_toast_svelte_toaststore_add",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "lib_toast_svelte_toaststore",
+      "target": "lib_toast_svelte_toaststore_dismiss",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "lib_toast_svelte_toaststore",
+      "target": "lib_toast_svelte_toaststore_error",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "lib_toast_svelte_toaststore",
+      "target": "lib_toast_svelte_toaststore_info",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "lib_toast_svelte_toaststore",
+      "target": "lib_toast_svelte_toaststore_success",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "lib_toast_svelte_toaststore",
+      "target": "lib_toast_svelte_toaststore_warning",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "lib_toast_svelte_toaststore_error",
+      "target": "lib_toast_svelte_toaststore_add",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "lib_toast_svelte_toaststore_info",
+      "target": "lib_toast_svelte_toaststore_add",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "lib_toast_svelte_toaststore_success",
+      "target": "lib_toast_svelte_toaststore_add",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/toast.svelte.ts",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "lib_toast_svelte_toaststore_warning",
+      "target": "lib_toast_svelte_toaststore_add",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/routes/dashboard/[cuid=cuid]/+page.server.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "cuid_cuid_page_server_load",
+      "target": "lib_toast_svelte_toaststore_error"
     },
     {
       "relation": "contains",
@@ -14015,6 +15551,86 @@
       "confidence_score": 1.0,
       "source": "types_oidc",
       "target": "types_oidc_oidcuserstorage"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "types_salary_component",
+      "target": "types_salary_component_createsalarycomponentdto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L62",
+      "weight": 1.0,
+      "source": "types_salary_component",
+      "target": "types_salary_component_deletesalarycomponentresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L54",
+      "weight": 1.0,
+      "source": "types_salary_component",
+      "target": "types_salary_component_listsalarycomponentresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L58",
+      "weight": 1.0,
+      "source": "types_salary_component",
+      "target": "types_salary_component_mutationsalarycomponentresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "types_salary_component",
+      "target": "types_salary_component_salarycomponent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L46",
+      "weight": 1.0,
+      "source": "types_salary_component",
+      "target": "types_salary_component_salarycomponentfilters",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "types_salary_component",
+      "target": "types_salary_component_salarycomponenttype",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/types/salary-component.ts",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "types_salary_component",
+      "target": "types_salary_component_updatesalarycomponentdto",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -14119,6 +15735,16 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "src/lib/validators/salary-component.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "validators_salary_component",
+      "target": "validators_salary_component_validatecomponentname",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "src/params/cuid.ts",
       "source_location": "L1",
       "weight": 1.0,
@@ -14143,6 +15769,14 @@
       "confidence_score": 1.0,
       "source": "routes_layout",
       "target": "building_2"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/+layout.svelte",
+      "source": "routes_layout",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_assets_favicon_svg",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -14255,6 +15889,14 @@
       "confidence_score": 1.0,
       "source": "routes_layout",
       "target": "users_round"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/+layout.svelte",
+      "source": "routes_layout",
+      "target": "wallet",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -14787,6 +16429,56 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/salary-components/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "salary_components_server",
+      "target": "salary_components_server_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/salary-components/+server.ts",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "salary_components_server",
+      "target": "salary_components_server_post",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L85",
+      "weight": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "salarycomponentcuid_cuid_server_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "salarycomponentcuid_cuid_server_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "salarycomponentcuid_cuid_server_put",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L13",
       "weight": 1.0,
@@ -15016,6 +16708,14 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source": "salary_components_page",
+      "target": "arrow_up",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/system-roles/+page.svelte",
       "confidence_score": 1.0,
       "source": "system_roles_page",
@@ -15040,6 +16740,14 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source": "salary_components_page",
+      "target": "arrow_down",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/system-roles/+page.svelte",
       "confidence_score": 1.0,
       "source": "system_roles_page",
@@ -15060,6 +16768,14 @@
       "confidence_score": 1.0,
       "source": "permissions_page",
       "target": "arrow_up_down"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source": "salary_components_page",
+      "target": "arrow_up_down",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -15096,6 +16812,14 @@
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source": "salary_components_page",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_toast",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/system-roles/+page.svelte",
       "confidence_score": 1.0,
       "source": "system_roles_page",
@@ -15124,6 +16848,14 @@
       "confidence_score": 1.0,
       "source": "permissions_page",
       "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_utils"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source": "salary_components_page",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_utils",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -15299,6 +17031,22 @@
       "target": "transition"
     },
     {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source": "salary_components_page",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_types_salary_component",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/salary-components/+page.svelte",
+      "source": "salary_components_page",
+      "target": "c_users_user_desktop_pieq_svelte_app_template_src_lib_validators_salary_component",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/service-worker.js",
@@ -15357,6 +17105,26 @@
       "confidence_score": 1.0,
       "source": "unit_employee_service_test",
       "target": "unit_employee_service_test_sampleemployee"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/master-data.dao.test.ts",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "unit_master_data_dao_test",
+      "target": "unit_master_data_dao_test_masterkeys",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/master-data.dao.test.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "unit_master_data_dao_test",
+      "target": "unit_master_data_dao_test_mockdbmethods",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -16381,5 +18149,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "529942b581c73c9b7e088d422b31350bbbef69b1"
+  "built_at_commit": "3f62484fffee19565aee414fb1bba3c70baef137"
 }
