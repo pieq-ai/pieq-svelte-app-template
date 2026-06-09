@@ -28,9 +28,9 @@
 
 	const protectedNavItems = [
 		{ label: 'Dashboard', href: resolve('/dashboard'), icon: LayoutDashboardIcon },
-		{ label: 'Employee', href: resolve('/employees'), icon: UsersRoundIcon },
-		{ label: 'Department', href: resolve('/departments'), icon: Building2Icon },
-		{ label: 'Designation', href: resolve('/designations'), icon: UserRoundIcon },
+		{ label: 'Employees', href: resolve('/employees'), icon: UsersRoundIcon },
+		{ label: 'Departments', href: resolve('/departments'), icon: Building2Icon },
+		{ label: 'Designations', href: resolve('/designations'), icon: UserRoundIcon },
 		{ label: 'Roles', href: resolve('/roles'), icon: UserCheckIcon },
 		{ label: 'Shifts', href: resolve('/shifts'), icon: ClockIcon },
 		{ label: 'Locations', href: resolve('/organization_locations'), icon: MapPinIcon },

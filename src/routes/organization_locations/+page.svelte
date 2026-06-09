@@ -68,6 +68,13 @@
   let formTimezone = $state("");
   let formStatus = $state(true);
   let formError = $state("");
+  let nameError = $state("");
+  let address1Error = $state("");
+  let cityError = $state("");
+  let countryError = $state("");
+  let stateError = $state("");
+  let pinCodeError = $state("");
+  let timezoneError = $state("");
   let formLoading = $state(false);
 
   const dirtyChecker = createDirtyChecker<{
@@ -314,6 +321,13 @@
     formTimezone = "UTC";
     formStatus = true;
     formError = "";
+    nameError = "";
+    address1Error = "";
+    cityError = "";
+    countryError = "";
+    stateError = "";
+    pinCodeError = "";
+    timezoneError = "";
     dirtyChecker.snapshot({
       location_name: "",
       address_line1: "",
@@ -340,6 +354,13 @@
     formTimezone = loc.timezone ?? "UTC";
     formStatus = loc.is_active;
     formError = "";
+    nameError = "";
+    address1Error = "";
+    cityError = "";
+    countryError = "";
+    stateError = "";
+    pinCodeError = "";
+    timezoneError = "";
     dirtyChecker.snapshot({
       location_name: loc.location_name,
       address_line1: loc.address_line1 ?? "",
@@ -365,6 +386,13 @@
     formPinCode = "";
     formTimezone = "";
     formError = "";
+    nameError = "";
+    address1Error = "";
+    cityError = "";
+    countryError = "";
+    stateError = "";
+    pinCodeError = "";
+    timezoneError = "";
     editLocation = null;
   }
 
@@ -374,17 +402,26 @@
 
   async function submitForm(e: Event) {
     e.preventDefault();
+    formError = "";
+    nameError = "";
+    address1Error = "";
+    cityError = "";
+    countryError = "";
+    stateError = "";
+    pinCodeError = "";
+    timezoneError = "";
+
     const nameTrimmed = formName.trim();
     if (!nameTrimmed) {
-      formError = "Company Location name is required.";
+      nameError = "Company Location name is required.";
       return;
     }
     if (nameTrimmed.length < 2) {
-      formError = "Company Location name must be at least 2 characters.";
+      nameError = "Company Location name must be at least 2 characters.";
       return;
     }
     if (nameTrimmed.length > 255) {
-      formError =
+      nameError =
         "Company Location name exceeds maximum length of 255 characters.";
       return;
     }
@@ -395,31 +432,31 @@
     const tzTrimmed = formTimezone.trim();
 
     if (!address1Trimmed) {
-      formError = "Address Line 1 is required.";
+      address1Error = "Address Line 1 is required.";
       return;
     }
     if (!cityTrimmed) {
-      formError = "City is required.";
+      cityError = "City is required.";
       return;
     }
     if (!formCountryCuid) {
-      formError = "Country is required.";
+      countryError = "Country is required.";
       return;
     }
     if (!formStateCuid) {
-      formError = "State is required.";
+      stateError = "State is required.";
       return;
     }
     if (!pinTrimmed) {
-      formError = "Pin Code is required.";
+      pinCodeError = "Pin Code is required.";
       return;
     }
     if (!/^\d+$/.test(pinTrimmed)) {
-      formError = "Pin Code must contain numeric values only.";
+      pinCodeError = "Pin Code must contain numeric values only.";
       return;
     }
     if (!tzTrimmed) {
-      formError = "Timezone is required.";
+      timezoneError = "Timezone is required.";
       return;
     }
 
@@ -432,22 +469,22 @@
       lower.includes("--") ||
       lower.includes("/*")
     ) {
-      formError = "Company Location name contains potential security threat.";
+      nameError = "Company Location name contains potential security threat.";
       return;
     }
 
     if (/^\d+$/.test(nameTrimmed)) {
-      formError = "Company Location name cannot contain only numbers.";
+      nameError = "Company Location name cannot contain only numbers.";
       return;
     }
 
     if (!/[A-Za-z]/.test(nameTrimmed)) {
-      formError = "Company Location name must contain at least one alphabet.";
+      nameError = "Company Location name must contain at least one alphabet.";
       return;
     }
 
     if (/[A-Za-z]\d|\d[A-Za-z]/.test(nameTrimmed)) {
-      formError = "Company Location name cannot contain numbers.";
+      nameError = "Company Location name cannot contain numbers.";
       return;
     }
 
@@ -906,12 +943,12 @@
           id="location_name"
           name="location_name"
           bind:value={formName}
-          class={formError ? 'border-destructive' : ''}
+          class={formError || nameError ? 'border-destructive' : ''}
           placeholder="e.g. Chennai - HQ"
-          oninput={() => { formError = ''; }}
+          oninput={() => { formError = ''; nameError = ''; }}
         />
-        {#if formError}
-          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{formError}</p>
+        {#if nameError || formError}
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameError || formError}</p>
         {/if}
       </div>
 
@@ -921,8 +958,13 @@
           id="location_address1"
           name="location_address1"
           bind:value={formAddress1}
+          class={address1Error ? 'border-destructive' : ''}
           placeholder="e.g. 123 Enterprise Way"
+          oninput={() => { address1Error = ''; }}
         />
+        {#if address1Error}
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{address1Error}</p>
+        {/if}
       </div>
 
       <div class="space-y-2">
@@ -942,8 +984,13 @@
             id="location_city"
             name="location_city"
             bind:value={formCity}
+            class={cityError ? 'border-destructive' : ''}
             placeholder="e.g. Chennai"
+            oninput={() => { cityError = ''; }}
           />
+          {#if cityError}
+            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{cityError}</p>
+          {/if}
         </div>
         <div class="space-y-2">
           <Label for="location_pincode">Pin Code <span class="text-destructive">*</span></Label>
@@ -951,8 +998,13 @@
             id="location_pincode"
             name="location_pincode"
             bind:value={formPinCode}
+            class={pinCodeError ? 'border-destructive' : ''}
             placeholder="e.g. 600001"
+            oninput={() => { pinCodeError = ''; }}
           />
+          {#if pinCodeError}
+            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{pinCodeError}</p>
+          {/if}
         </div>
       </div>
 
@@ -965,7 +1017,7 @@
                 <Button
                   id="location_country"
                   variant="outline"
-                  class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none"
+                  class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none {countryError ? 'border-destructive' : ''}"
                   {...props}
                 >
                   <span class="truncate">{countries.find((c) => c.cuid === formCountryCuid)?.country_name || "Select Country"}</span>
@@ -976,14 +1028,14 @@
             <DropdownMenu.Content class="max-h-56 overflow-y-auto w-[200px]">
               <DropdownMenu.Group>
                 <DropdownMenu.Item
-                  onclick={() => { formCountryCuid = ''; formStateCuid = ''; }}
+                  onclick={() => { formCountryCuid = ''; formStateCuid = ''; countryError = ''; }}
                   class="cursor-pointer justify-between {!formCountryCuid ? 'bg-accent font-semibold' : ''}"
                 >
                   Select Country
                 </DropdownMenu.Item>
                 {#each countries as country}
                   <DropdownMenu.Item
-                    onclick={() => { formCountryCuid = country.cuid; formStateCuid = ''; }}
+                    onclick={() => { formCountryCuid = country.cuid; formStateCuid = ''; countryError = ''; }}
                     class="cursor-pointer justify-between {formCountryCuid === country.cuid ? 'bg-accent font-semibold' : ''}"
                   >
                     {country.country_name}
@@ -1001,6 +1053,9 @@
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
+          {#if countryError}
+            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{countryError}</p>
+          {/if}
         </div>
         <div class="space-y-2 flex flex-col justify-end">
           <Label for="location_state" class="mb-2">State <span class="text-destructive">*</span></Label>
@@ -1011,7 +1066,7 @@
                   id="location_state"
                   variant="outline"
                   disabled={!formCountryCuid}
-                  class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none disabled:opacity-50 disabled:cursor-not-allowed {stateError ? 'border-destructive' : ''}"
                   {...props}
                 >
                   <span class="truncate">{filteredStates.find((s) => s.cuid === formStateCuid)?.state_name || "Select State"}</span>
@@ -1022,14 +1077,14 @@
             <DropdownMenu.Content class="max-h-56 overflow-y-auto w-[200px]">
               <DropdownMenu.Group>
                 <DropdownMenu.Item
-                  onclick={() => { formStateCuid = ''; }}
+                  onclick={() => { formStateCuid = ''; stateError = ''; }}
                   class="cursor-pointer justify-between {!formStateCuid ? 'bg-accent font-semibold' : ''}"
                 >
                   Select State
                 </DropdownMenu.Item>
                 {#each filteredStates as state}
                   <DropdownMenu.Item
-                    onclick={() => { formStateCuid = state.cuid; }}
+                    onclick={() => { formStateCuid = state.cuid; stateError = ''; }}
                     class="cursor-pointer justify-between {formStateCuid === state.cuid ? 'bg-accent font-semibold' : ''}"
                   >
                     {state.state_name}
@@ -1048,6 +1103,9 @@
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
+          {#if stateError}
+            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{stateError}</p>
+          {/if}
         </div>
       </div>
 
@@ -1057,8 +1115,13 @@
           id="location_timezone"
           name="location_timezone"
           bind:value={formTimezone}
+          class={timezoneError ? 'border-destructive' : ''}
           placeholder="e.g. Asia/Kolkata or UTC"
+          oninput={() => { timezoneError = ''; }}
         />
+        {#if timezoneError}
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{timezoneError}</p>
+        {/if}
       </div>
 
       {#if editLocation}

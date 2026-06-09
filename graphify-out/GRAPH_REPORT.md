@@ -1,16 +1,16 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-09)
 
 ## Corpus Check
-- 217 files · ~67,013 words
+- 217 files · ~67,336 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1032 nodes · 1694 edges · 54 communities (41 shown, 13 thin omitted)
+- 1033 nodes · 1697 edges · 57 communities (44 shown, 13 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `06107be1`
+- Built from commit: `14a9cc9e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -61,6 +61,7 @@
 - [[_COMMUNITY_Community 51|Community 51]]
 - [[_COMMUNITY_Community 52|Community 52]]
 - [[_COMMUNITY_Community 53|Community 53]]
+- [[_COMMUNITY_Community 54|Community 54]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `$lib/utils.js` - 33 edges
@@ -89,15 +90,15 @@
 ## Import Cycles
 - None detected.
 
-## Communities (54 total, 13 thin omitted)
+## Communities (57 total, 13 thin omitted)
 
 ### Community 0 - "API Endpoints"
-Cohesion: 0.08
-Nodes (41): GET(), PUT(), POST(), GET(), PUT(), POST(), requireAdmin(), requireAuth() (+33 more)
+Cohesion: 0.06
+Nodes (51): GET(), PUT(), POST(), GET(), PUT(), POST(), requireAdmin(), requireAuth() (+43 more)
 
 ### Community 1 - "Data Access Tests"
-Cohesion: 0.19
-Nodes (4): createClient(), db, getDb(), isValidClient()
+Cohesion: 0.22
+Nodes (5): CreateEmployeeData, createClient(), db, getDb(), isValidClient()
 
 ### Community 2 - "UI Components Index"
 Cohesion: 0.07
@@ -131,10 +132,6 @@ Nodes (25): @lucide/svelte/icons/building-2, $lib/assets/favicon.svg, $lib/auth,
 Cohesion: 0.06
 Nodes (23): POST(), GET(), PUT(), SalaryComponentDto, serializeSalaryComponent(), BusinessValidationError, ComponentNotFoundError, DuplicateComponentError (+15 more)
 
-### Community 10 - "Designation Service DAO"
-Cohesion: 0.15
-Nodes (12): CreateDesignationInput, UpdateDesignationInput, createDesignation(), CreateDesignationDto, deleteDesignation(), ensureDesignationNameIsUnique(), getDesignationByCuid2(), getDesignationById() (+4 more)
-
 ### Community 11 - "Server Authentication"
 Cohesion: 0.16
 Nodes (12): load(), auth, createAuth(), appUrlFromEnv, buildIssuer(), clearConfigCache(), getAppConfig(), getAuthConfig() (+4 more)
@@ -144,7 +141,7 @@ Cohesion: 0.12
 Nodes (16): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+8 more)
 
 ### Community 13 - "Permission Service"
-Cohesion: 0.26
+Cohesion: 0.29
 Nodes (11): createPermission(), CreatePermissionDto, deletePermission(), ensurePermissionKeyIsUnique(), getPermissionByCuid2(), getPermissionById(), toPublicPermission(), updatePermission() (+3 more)
 
 ### Community 14 - "System Role Service"
@@ -180,23 +177,27 @@ Cohesion: 0.17
 Nodes (16): ./$types, ./$types, actions, load(), GET(), getErrorStatus(), POST(), createEmployee() (+8 more)
 
 ### Community 35 - "Community 35"
-Cohesion: 0.24
+Cohesion: 0.21
 Nodes (6): DELETE(), getStatus(), assignPermissionsToRole(), AssignRolePermissionsDto, removePermissionFromRoleByCuid2(), validateCuid2()
+
+### Community 36 - "Community 36"
+Cohesion: 0.17
+Nodes (5): CompanyLocationCreateDTO, CompanyLocationUpdateDTO, rejectUnknownKeys(), validateCreatePayload(), validateUpdatePayload()
 
 ### Community 43 - "Community 43"
 Cohesion: 0.40
 Nodes (4): SALARY_COMPONENT_TYPE_LABELS, SALARY_COMPONENT_TYPE_OPTIONS, SALARY_COMPONENT_TYPES, SalaryComponentType
 
 ### Community 44 - "Community 44"
-Cohesion: 0.06
-Nodes (11): Country, LocationCreatePayload, LocationListResponse, LocationUpdatePayload, State, CompanyLocation, CompanyLocationCreateDTO, CompanyLocationUpdateDTO (+3 more)
+Cohesion: 0.11
+Nodes (6): Country, LocationCreatePayload, LocationListResponse, LocationUpdatePayload, State, CompanyLocation
 
 ### Community 45 - "Community 45"
 Cohesion: 0.04
 Nodes (44): 1. Clone and install dependencies, 1. Project Overview, 2. Configure environment, 2. Implemented Modules, 3. Set up the database, 3. UI & Design System, 4. Start the dev server, 4. Tech Stack (+36 more)
 
 ### Community 46 - "Community 46"
-Cohesion: 0.11
+Cohesion: 0.12
 Nodes (28): GET(), DELETE(), parseCuid(), PATCH(), PUT(), GET(), POST(), DELETE() (+20 more)
 
 ### Community 47 - "Community 47"
@@ -204,8 +205,8 @@ Cohesion: 0.09
 Nodes (19): ShiftCreatePayload, ShiftListResponse, ShiftUpdatePayload, createShift(), getShiftByCuid(), parseTimeToDate(), updateShift(), activateShift() (+11 more)
 
 ### Community 48 - "Community 48"
-Cohesion: 0.09
-Nodes (13): ApiError, extractErrorMessage(), localApi, localRequest(), RoleListResponse, Role, RoleCreateDTO, RoleUpdateDTO (+5 more)
+Cohesion: 0.25
+Nodes (7): RoleCreateDTO, RoleUpdateDTO, rejectUnknownKeys(), sanitizeString(), validateCreatePayload(), validatePaginationParams(), validateUpdatePayload()
 
 ### Community 49 - "Community 49"
 Cohesion: 0.09
@@ -223,6 +224,10 @@ Nodes (16): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent 
 Cohesion: 0.27
 Nodes (8): createDepartment(), CreateDepartmentDto, deleteDepartment(), getDepartmentByCuid2(), toPublicDepartment(), updateDepartment(), UpdateDepartmentDto, validateDepartmentName()
 
+### Community 54 - "Community 54"
+Cohesion: 0.19
+Nodes (6): ApiError, extractErrorMessage(), localApi, localRequest(), RoleListResponse, Role
+
 ## Knowledge Gaps
 - **317 isolated node(s):** `$schema`, `css`, `baseColor`, `components`, `utils` (+312 more)
   These have ≤1 connection - possible missing edges or undocumented components.
@@ -231,17 +236,17 @@ Nodes (8): createDepartment(), CreateDepartmentDto, deleteDepartment(), getDepar
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `db` connect `Data Access Tests` to `Community 36`, `Master Data DAO`, `Community 37`, `Community 39`, `Community 40`, `Department Service DAO`, `Designation Service DAO`, `Community 38`, `Community 44`, `Community 46`, `Community 47`, `Community 48`?**
+- **Why does `db` connect `Data Access Tests` to `Community 36`, `Master Data DAO`, `Community 37`, `Community 39`, `Community 40`, `Department Service DAO`, `Designation Service DAO`, `Community 38`, `Community 46`, `Community 47`, `Community 55`, `Community 56`?**
   _High betweenness centrality (0.118) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `Dependencies & Icons` to `Package Dependencies`?**
-  _High betweenness centrality (0.107) - this node is a cross-community bridge._
+  _High betweenness centrality (0.104) - this node is a cross-community bridge._
 - **Why does `svelte` connect `Dependencies & Icons` to `UI Components Index`?**
-  _High betweenness centrality (0.089) - this node is a cross-community bridge._
+  _High betweenness centrality (0.086) - this node is a cross-community bridge._
 - **What connects `$schema`, `css`, `baseColor` to the rest of the system?**
   _317 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `API Endpoints` be split into smaller, more focused modules?**
-  _Cohesion score 0.07826546800634585 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06442058496853018 - nodes in this community are weakly interconnected._
 - **Should `UI Components Index` be split into smaller, more focused modules?**
-  _Cohesion score 0.06905671466353218 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06935057302380253 - nodes in this community are weakly interconnected._
 - **Should `UI Components Core` be split into smaller, more focused modules?**
   _Cohesion score 0.08315863032844165 - nodes in this community are weakly interconnected._
