@@ -36,7 +36,8 @@ export function toDepartmentDTO(department: any) {
 	return {
 		cuid: department.cuid,
 		dept_name: department.dept_name,
-		status: department.status
+		status: department.status,
+		updated_at: department.updated_at
 	};
 }
 
@@ -45,7 +46,8 @@ export function toDesignationDTO(designation: any) {
 	return {
 		cuid: designation.cuid,
 		designation_name: designation.designation_name,
-		status: designation.status
+		status: designation.status,
+		updated_at: designation.updated_at
 	};
 }
 
@@ -63,7 +65,8 @@ export function toPermissionDTO(permission: any) {
 	return {
 		cuid: permission.cuid,
 		permission_key: permission.permission_key,
-		status: permission.status
+		status: permission.status,
+		updated_at: permission.updated_at
 	};
 }
 
@@ -72,7 +75,8 @@ export function toSystemRoleDTO(systemRole: any) {
 	return {
 		cuid: systemRole.cuid,
 		system_role_name: systemRole.system_role_name,
-		status: systemRole.status
+		status: systemRole.status,
+		updated_at: systemRole.updated_at
 	};
 }
 
@@ -81,7 +85,8 @@ export function toRolePermissionDTO(mapping: any) {
 	return {
 		cuid: mapping.cuid,
 		system_role_cuid: mapping.system_role_cuid,
-		permission_cuid: mapping.permission_cuid
+		permission_cuid: mapping.permission_cuid,
+		updated_at: mapping.updated_at
 	};
 }
 
@@ -91,6 +96,7 @@ export function toMasterDataDTO(masterData: any) {
 		id: masterData.id,
 		label: masterData.label,
 		master: masterData.master,
-		meta: masterData.meta
+		meta: masterData.meta,
+		updated_at: masterData.updated_at
 	};
 }

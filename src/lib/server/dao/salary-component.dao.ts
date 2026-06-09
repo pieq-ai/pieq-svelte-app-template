@@ -47,7 +47,7 @@ export async function findMany() {
 	// Search and sorting are fully client-side; always fetch all records with a stable order.
 	const [items, total] = await Promise.all([
 		db.salaryComponent.findMany({
-			orderBy: { component_name: 'asc' }
+			orderBy: { updated_at: 'desc' }
 		}),
 		db.salaryComponent.count()
 	]);

@@ -18,7 +18,7 @@ export interface UpdatePermissionInput {
 export async function list() {
 	return db.permissions.findMany({
 		orderBy: {
-			permission_key: 'asc'
+			updated_at: 'desc'
 		}
 	});
 }

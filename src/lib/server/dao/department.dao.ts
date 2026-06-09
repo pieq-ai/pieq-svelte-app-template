@@ -21,7 +21,7 @@ export interface UpdateDepartmentInput {
 export async function list() {
 	return db.department.findMany({
 		orderBy: {
-			dept_name: 'asc'
+			updated_at: 'desc'
 		}
 	});
 }

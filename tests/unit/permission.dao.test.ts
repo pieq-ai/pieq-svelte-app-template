@@ -29,7 +29,7 @@ describe('Permission DAO', () => {
 			const result = await permissionDao.list();
 
 			expect(db.permissions.findMany).toHaveBeenCalledWith({
-				orderBy: { permission_key: 'asc' }
+				orderBy: { updated_at: 'desc' }
 			});
 			expect(result).toBe(mockData);
 		});

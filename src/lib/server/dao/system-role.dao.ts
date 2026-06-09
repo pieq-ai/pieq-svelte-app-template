@@ -18,7 +18,7 @@ export interface UpdateSystemRoleInput {
 export async function list() {
 	return db.systemRoles.findMany({
 		orderBy: {
-			system_role_name: 'asc'
+			updated_at: 'desc'
 		}
 	});
 }

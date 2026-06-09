@@ -29,7 +29,7 @@ describe('System Role DAO', () => {
 			const result = await systemRoleDao.list();
 
 			expect(db.systemRoles.findMany).toHaveBeenCalledWith({
-				orderBy: { system_role_name: 'asc' }
+				orderBy: { updated_at: 'desc' }
 			});
 			expect(result).toBe(mockData);
 		});

@@ -42,6 +42,7 @@
 		cuid: string;
 		system_role_name: string;
 		status: boolean;
+		updated_at: string;
 	}
 
 	const permissions = getMasterPermissions();
@@ -155,6 +156,8 @@
 					? String(valA).localeCompare(String(valB))
 					: String(valB).localeCompare(String(valA));
 			});
+		} else {
+			result.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
 		}
 
 		return result;

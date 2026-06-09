@@ -18,7 +18,7 @@ export interface UpdateDesignationInput {
 export async function list() {
 	return db.designation.findMany({
 		orderBy: {
-			designation_name: 'asc'
+			updated_at: 'desc'
 		}
 	});
 }

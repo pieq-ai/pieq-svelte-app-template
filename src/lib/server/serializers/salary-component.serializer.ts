@@ -8,7 +8,10 @@ import type { SalaryComponent as PrismaSalaryComponent } from '$lib/generated/pr
 export type SalaryComponentDto = Omit<
 	PrismaSalaryComponent,
 	'id' | 'created_at' | 'created_by' | 'updated_at' | 'updated_by'
->;
+> & {
+	created_at: string;
+	updated_at: string;
+};
 
 /**
  * Strip the internal BigInt `id` and audit metadata from a Prisma SalaryComponent
@@ -16,8 +19,12 @@ export type SalaryComponentDto = Omit<
  */
 export function serializeSalaryComponent(record: PrismaSalaryComponent): SalaryComponentDto {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const { id: _id, created_at: _ca, created_by: _cb, updated_at: _ua, updated_by: _ub, ...rest } = record;
-	return rest;
+	const { id: _id, created_by: _cb, updated_by: _ub, created_at, updated_at, ...rest } = record;
+	return {
+		...rest,
+		created_at: created_at.toISOString(),
+		updated_at: updated_at.toISOString()
+	};
 }
 
 /**

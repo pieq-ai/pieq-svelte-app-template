@@ -29,7 +29,7 @@ describe('Department DAO', () => {
 			const result = await departmentDao.list();
 
 			expect(db.department.findMany).toHaveBeenCalledWith({
-				orderBy: { dept_name: 'asc' }
+				orderBy: { updated_at: 'desc' }
 			});
 			expect(result).toBe(mockData);
 		});
