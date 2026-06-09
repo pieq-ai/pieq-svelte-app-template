@@ -7,7 +7,14 @@
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
-	import EllipsisVerticalIcon from '@lucide/svelte/icons/ellipsis-vertical';
+	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
+	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
+	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
+	import PlusIcon from '@lucide/svelte/icons/plus';
+	import FilterIcon from '@lucide/svelte/icons/filter';
+	import CheckIcon from '@lucide/svelte/icons/check';
+	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import {
 		Alert,
 		AlertDescription,
@@ -26,12 +33,9 @@
 		TableHeader,
 		TableRow,
 		toast,
-		ConfirmModal,
-		FormModal,
-		Pagination,
-		Dropdown,
 		DatePicker
 	} from '$lib/components/ui';
+	import { ConfirmModal, CrudModal, Pagination, TableActions } from '$lib/components';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -66,91 +70,6 @@
 	let confirmTitle = $state('');
 	let confirmMessage = $state('');
 	let activeDeleteCuid = $state<string | null>(null);
-
-	let activeMenuCuid = $state<string | null>(null);
-	let menuPosition = $state({ top: 0, left: 0 });
-	let activeTriggerEl = $state<HTMLElement | null>(null);
-
-	function toggleMenu(cuid: string, event: MouseEvent) {
-		event.stopPropagation();
-		if (activeMenuCuid === cuid) {
-			activeMenuCuid = null;
-			activeTriggerEl = null;
-		} else {
-			activeMenuCuid = cuid;
-			activeTriggerEl = event.currentTarget as HTMLElement;
-			updateMenuPosition();
-		}
-	}
-
-	function updateMenuPosition() {
-		if (activeTriggerEl) {
-			const rect = activeTriggerEl.getBoundingClientRect();
-			const menuEl = document.querySelector('.kebab-dropdown-menu') as HTMLElement;
-			const menuHeight = menuEl ? menuEl.getBoundingClientRect().height : 80;
-			const menuWidth = 112; // w-28 is 112px
-
-			const spaceBelow = window.innerHeight - rect.bottom;
-			const spaceAbove = rect.top;
-
-			let topPos = rect.bottom + 4; // default downward
-			if (spaceBelow < menuHeight + 10 && spaceAbove > spaceBelow) {
-				topPos = rect.top - menuHeight - 4; // open upward
-			}
-
-			let leftPos = rect.right - menuWidth;
-			// Horizontal boundaries check
-			if (leftPos < 4) {
-				leftPos = 4;
-			} else if (leftPos + menuWidth > window.innerWidth - 4) {
-				leftPos = window.innerWidth - menuWidth - 4;
-			}
-
-			menuPosition = {
-				top: topPos,
-				left: leftPos
-			};
-		}
-	}
-
-	// Dynamic position tracking when menu is open
-	$effect(() => {
-		if (!activeMenuCuid || !activeTriggerEl) return;
-
-		window.addEventListener('scroll', updateMenuPosition, { capture: true, passive: true });
-		window.addEventListener('resize', updateMenuPosition, { passive: true });
-
-		let frameId: number;
-		const loop = () => {
-			updateMenuPosition();
-			frameId = requestAnimationFrame(loop);
-		};
-		frameId = requestAnimationFrame(loop);
-
-		return () => {
-			window.removeEventListener('scroll', updateMenuPosition, { capture: true });
-			window.removeEventListener('resize', updateMenuPosition);
-			cancelAnimationFrame(frameId);
-		};
-	});
-
-	// Close kebab menu on click outside
-	$effect(() => {
-		const handleDismiss = (e: MouseEvent) => {
-			if (activeMenuCuid && activeTriggerEl) {
-				const target = e.target as HTMLElement;
-				const isDropdownClick = target.closest('.kebab-dropdown-menu');
-				if (!activeTriggerEl.contains(target) && !isDropdownClick) {
-					activeMenuCuid = null;
-					activeTriggerEl = null;
-				}
-			}
-		};
-		document.addEventListener('click', handleDismiss, { capture: true });
-		return () => {
-			document.removeEventListener('click', handleDismiss, { capture: true });
-		};
-	});
 
 	function openAddModal() {
 		holidayName = '';
@@ -293,20 +212,7 @@
 	});
 
 	let errors = $state<Record<string, string>>({});
-	let touched = $state<Record<string, boolean>>({});
 	let submissionAttempted = $state(false);
-
-	function getFieldError(
-		value: string,
-		getErr: (val: string) => string,
-		isTouched: boolean,
-		submitAttempted: boolean,
-		backendErr?: string
-	): string {
-		if (backendErr) return backendErr;
-		if (!submitAttempted) return '';
-		return getErr(value);
-	}
 
 	function getHolidayNameError(name: string): string {
 		if (!name || name.trim() === '') {
@@ -343,9 +249,6 @@
 		}
 		return '';
 	}
-
-	let holidayNameError = $derived(getFieldError(holidayName, getHolidayNameError, touched.holiday_name, submissionAttempted, errors.holiday_name));
-	let clientDateError = $derived(getFieldError(holidayDate, getClientDateError, touched.holiday_date, submissionAttempted, errors.holiday_date));
 
 	let isSubmitDisabled = $derived.by(() => {
 		if (isSubmitting) return true;
@@ -426,7 +329,6 @@
 		if (isFormModalOpen) {
 			hasSynchronized = false;
 			errors = {};
-			touched = {};
 			submissionAttempted = false;
 		}
 	});
@@ -469,7 +371,6 @@
 			holidayDate = '';
 			holidayType = 'National';
 			errors = {};
-			touched = {};
 			submissionAttempted = false;
 			hasSynchronized = false;
 			isDiscardModalOpen = false;
@@ -619,36 +520,41 @@
 </script>
 
 <svelte:head>
-	<title>Holiday Calendar | HRMS</title>
+	<title>Holiday Calendar </title>
 </svelte:head>
 
-<div class="w-full space-y-8 px-1 py-4">
+<div class="w-full space-y-6 px-1 py-0">
 	<!-- Header -->
-	<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-border pb-6">
+	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Holiday Calendar</h1>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Holiday Calendar</h1>
 		</div>
-		<div class="shrink-0">
-			<Button onclick={openAddModal}>+ Add Holiday</Button>
-		</div>
+		<Button
+			type="button"
+			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
+			onclick={openAddModal}
+		>
+			<PlusIcon class="size-4" />
+			Add Holiday
+		</Button>
 	</div>
 
 	<!-- KPI Metrics -->
 	<div class="grid gap-4 sm:grid-cols-3">
 		<Card>
-			<CardHeader>
+			<CardHeader class="pb-2">
 				<CardDescription class="text-black dark:text-white">Total Holidays</CardDescription>
 				<CardTitle class="text-4xl tabular-nums font-bold text-[#262626] dark:text-neutral-200">{totalHolidays}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
-			<CardHeader>
+			<CardHeader class="pb-2">
 				<CardDescription class="text-black dark:text-white">Upcoming Holidays</CardDescription>
 				<CardTitle class="text-4xl tabular-nums font-bold text-[#F45310]">{upcomingHolidaysCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
-			<CardHeader>
+			<CardHeader class="pb-2">
 				<CardDescription class="text-black dark:text-white">Next Scheduled Holiday</CardDescription>
 				{#if nextHoliday}
 					<CardTitle class="text-xl font-bold line-clamp-1 text-[#800020] dark:text-[#b83d58]">{nextHoliday.holiday_name}</CardTitle>
@@ -662,7 +568,7 @@
 		</Card>
 	</div>
 
-	<div class="space-y-4">
+	<div class="space-y-3">
 		<!-- Search & Filter controls -->
 		<div class="flex flex-col gap-4 lg:flex-row lg:items-center">
 			<div class="relative flex-1 min-w-0">
@@ -702,11 +608,26 @@
 					/>
 				</div>
 				<div class="w-full sm:w-48">
-					<Dropdown
-						bind:value={filterType}
-						options={filterTypeOptions}
-						isFilter={true}
-					/>
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger>
+							{#snippet child({ props })}
+								<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none" {...props}>
+									{filterTypeOptions.find(o => o.value === filterType)?.label || 'All Holiday Types'}
+									<FilterIcon class="ml-2 size-4 opacity-50 shrink-0" />
+								</Button>
+							{/snippet}
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content class="w-[180px]">
+							<DropdownMenu.Group>
+								{#each filterTypeOptions as opt}
+									<DropdownMenu.Item onclick={() => { filterType = opt.value; currentPage = 1; }} class="justify-between cursor-pointer {filterType === opt.value ? 'bg-accent text-accent-foreground' : ''}">
+										{opt.label}
+										{#if filterType === opt.value}<CheckIcon class="size-4" />{/if}
+									</DropdownMenu.Item>
+								{/each}
+							</DropdownMenu.Group>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
 				</div>
 			</div>
 		</div>
@@ -717,45 +638,42 @@
 				<TableHeader>
 					<TableRow>
 						<TableHead class="w-32">
-							<!-- svelte-ignore a11y_click_events_have_key_events -->
-							<!-- svelte-ignore a11y_no_static_element_interactions -->
-							<div
-								onclick={() => handleSort('holiday_date')}
-								class="flex items-center gap-1.5 cursor-pointer select-none group"
-							>
-								<span>Date</span>
-								<span class="text-sm transition-colors {sortKey === 'holiday_date' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
-									{sortKey === 'holiday_date' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
-								</span>
-							</div>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => handleSort('holiday_date')}>
+								Date
+							{#if sortKey === 'holiday_date' && sortDirection === 'asc'}
+								<ArrowUpIcon class="ml-2 size-4" />
+							{:else if sortKey === 'holiday_date' && sortDirection === 'desc'}
+								<ArrowDownIcon class="ml-2 size-4" />
+							{:else}
+								<ArrowUpDownIcon class="ml-2 size-4" />
+							{/if}
+							</Button>
 						</TableHead>
 						<TableHead>
-							<!-- svelte-ignore a11y_click_events_have_key_events -->
-							<!-- svelte-ignore a11y_no_static_element_interactions -->
-							<div
-								onclick={() => handleSort('holiday_name')}
-								class="flex items-center gap-1.5 cursor-pointer select-none group"
-							>
-								<span>Holiday Name</span>
-								<span class="text-sm transition-colors {sortKey === 'holiday_name' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
-									{sortKey === 'holiday_name' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
-								</span>
-							</div>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => handleSort('holiday_name')}>
+								Holiday Name
+							{#if sortKey === 'holiday_name' && sortDirection === 'asc'}
+								<ArrowUpIcon class="ml-2 size-4" />
+							{:else if sortKey === 'holiday_name' && sortDirection === 'desc'}
+								<ArrowDownIcon class="ml-2 size-4" />
+							{:else}
+								<ArrowUpDownIcon class="ml-2 size-4" />
+							{/if}
+							</Button>
 						</TableHead>
 						<TableHead class="w-32">
-							<!-- svelte-ignore a11y_click_events_have_key_events -->
-							<!-- svelte-ignore a11y_no_static_element_interactions -->
-							<div
-								onclick={() => handleSort('holiday_type')}
-								class="flex items-center gap-1.5 cursor-pointer select-none group"
-							>
-								<span>Category</span>
-								<span class="text-sm transition-colors {sortKey === 'holiday_type' ? 'text-black dark:text-white font-bold' : 'text-neutral-400 dark:text-neutral-500 font-normal group-hover:text-black dark:group-hover:text-white'}">
-									{sortKey === 'holiday_type' ? (sortDirection === 'asc' ? '↑' : '↓') : '↑↓'}
-								</span>
-							</div>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => handleSort('holiday_type')}>
+								Category
+							{#if sortKey === 'holiday_type' && sortDirection === 'asc'}
+								<ArrowUpIcon class="ml-2 size-4" />
+							{:else if sortKey === 'holiday_type' && sortDirection === 'desc'}
+								<ArrowDownIcon class="ml-2 size-4" />
+							{:else}
+								<ArrowUpDownIcon class="ml-2 size-4" />
+							{/if}
+							</Button>
 						</TableHead>
-						<TableHead class="w-24 text-center">Actions</TableHead>
+						<TableHead class="text-right">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -777,45 +695,17 @@
 								<TableCell>
 									{holiday.holiday_type}
 								</TableCell>
-								<TableCell class="text-center relative">
-									<Button
-										variant="ghost"
-										size="icon-sm"
-										class="h-8 w-8"
-										onclick={(e) => toggleMenu(holiday.cuid, e)}
-									>
-										<EllipsisVerticalIcon class="size-4" />
-									</Button>
-									{#if activeMenuCuid === holiday.cuid}
-										<div
-											style="position: fixed; top: {menuPosition.top}px; left: {menuPosition.left}px;"
-											class="kebab-dropdown-menu z-100 w-28 rounded-md border bg-popover text-popover-foreground shadow-md outline-none text-left"
-										>
-											<div class="py-1">
-												<a
-													href={resolve(('/holidays?edit=' + holiday.cuid) as '/holidays')}
-													class="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-foreground transition-colors"
-													onclick={() => activeMenuCuid = null}
-												>
-													Edit
-												</a>
-												<button
-													type="button"
-													class="w-full text-left block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
-													disabled={isSubmitting}
-													onclick={() => {
-														activeMenuCuid = null;
-														activeDeleteCuid = holiday.cuid;
-														confirmTitle = 'Delete Holiday';
-														confirmMessage = 'Are you sure you want to delete this holiday?';
-														isConfirmOpen = true;
-													}}
-												>
-													Delete
-												</button>
-											</div>
-										</div>
-									{/if}
+								<TableCell class="text-right">
+									<TableActions
+										onEdit={() => goto(resolve(('/holidays?edit=' + holiday.cuid) as '/holidays'))}
+										canDelete={true}
+										onDelete={() => {
+											activeDeleteCuid = holiday.cuid;
+											confirmTitle = 'Delete Holiday';
+											confirmMessage = 'Are you sure you want to delete this holiday?';
+											isConfirmOpen = true;
+										}}
+									/>
 								</TableCell>
 							</TableRow>
 						{/each}
@@ -824,141 +714,153 @@
 			</Table>
 		</Card>
 
-		<Pagination totalItems={filteredHolidays.length} bind:currentPage={currentPage} />
+		<Pagination totalItems={filteredHolidays.length} bind:currentPage={currentPage} pageSize={10} />
 	</div>
 </div>
 
-<FormModal
-	bind:isOpen={isFormModalOpen}
+<CrudModal
+	open={isFormModalOpen}
 	title={editCuid ? 'Edit Holiday' : 'Add Holiday'}
-	onsubmit={handleSubmit}
-	onCloseRequest={handleCloseRequest}
-	disableEscape={isDiscardModalOpen}
+	isDirty={hasUnsavedChanges}
+	onClose={confirmDiscard}
 >
-	{#if editCuid}
-		<input type="hidden" name="cuid" value={editCuid} />
-	{/if}
-
-	<div class="space-y-2">
-		<Label for="modal_holiday_name" class={(form && 'field' in form && form.field === 'holiday_name') || holidayNameError ? 'text-destructive' : ''}>Holiday Name <span class="text-destructive">*</span></Label>
-		<Input
-			id="modal_holiday_name"
-			name="holiday_name"
-			bind:value={holidayName}
-			oninput={() => {
-				if (form && form.field === 'holiday_name') form = null;
-				errors.holiday_name = '';
-				touched.holiday_name = true;
-			}}
-			onblur={() => touched.holiday_name = true}
-			placeholder="e.g. Independence Day"
-			required
-			minlength={6}
-			pattern="^[a-zA-Z\s]+$"
-			class={(form && 'field' in form && form.field === 'holiday_name') || holidayNameError ? 'border-destructive focus-visible:ring-destructive' : ''}
-		/>
-		{#if holidayNameError}
-			<p class="text-xs font-medium text-destructive mt-1">{holidayNameError}</p>
-		{:else if form && 'field' in form && form.field === 'holiday_name'}
-			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
-		{/if}
-	</div>
-
-	<div class="space-y-2">
-		<Label for="modal_holiday_date" class={(form && 'field' in form && form.field === 'holiday_date') || clientDateError ? 'text-destructive' : ''}>Holiday Date <span class="text-destructive">*</span></Label>
-		<DatePicker
-			id="modal_holiday_date"
-			name="holiday_date"
-			bind:value={holidayDate}
-			onchange={() => {
-				if (form && form.field === 'holiday_date') form = null;
-				errors.holiday_date = '';
-				touched.holiday_date = true;
-			}}
-			required={true}
-			max="2099-12-31"
-			hasError={!!clientDateError || !!(form && 'field' in form && form.field === 'holiday_date')}
-		/>
-		{#if clientDateError}
-			<p class="text-xs font-medium text-destructive mt-1">{clientDateError}</p>
-		{:else if form && 'field' in form && form.field === 'holiday_date'}
-			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
-		{/if}
-	</div>
-
-	<div class="space-y-2">
-		<Label for="modal_holiday_type" class={form && 'field' in form && form.field === 'holiday_type' ? 'text-destructive' : ''}>Category <span class="text-destructive">*</span></Label>
-		<Dropdown
-			id="modal_holiday_type"
-			name="holiday_type"
-			bind:value={holidayType}
-			options={holidayTypeOptions}
-			required={true}
-			onchange={() => {
-				if (form && form.field === 'holiday_type') form = null;
-				errors.holiday_type = '';
-				touched.holiday_type = true;
-			}}
-		/>
-		{#if form && 'field' in form && form.field === 'holiday_type'}
-			<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
-		{/if}
-	</div>
-
-	{#if formError && (!form || !('field' in form) || !form.field)}
-		<div transition:slide>
-			<Alert variant="destructive">
-				<AlertDescription>{formError}</AlertDescription>
-			</Alert>
-		</div>
-	{/if}
-
-	<div class="flex items-center justify-end gap-3 pt-4 mt-6">
-		<Button
-			type="button"
-			variant="outline"
-			class="flex-1 sm:flex-initial sm:min-w-28 font-medium"
-			onclick={handleCloseRequest}
-			disabled={isSubmitting}
-		>
-			Cancel
-		</Button>
-		<Button
-			type="submit"
-			class="flex-1 sm:flex-initial sm:min-w-28 font-medium"
-			disabled={isSubmitDisabled}
-		>
-			{#if isSubmitting}
-				<LoaderCircleIcon class="size-4 animate-spin" />
-				Saving...
-			{:else}
-				Save
+	{#snippet children({ cancel })}
+		<form method="POST" action="" onsubmit={handleSubmit} class="flex flex-col min-h-0 flex-1 overflow-hidden" novalidate>
+			{#if editCuid}
+				<input type="hidden" name="cuid" value={editCuid} />
 			{/if}
-		</Button>
-	</div>
-</FormModal>
+
+			<div class="flex-1 overflow-y-auto pr-1 space-y-4 modal-scroll-area">
+
+			<div class="space-y-2">
+				<Label for="modal_holiday_name" class={errors.holiday_name ? 'text-danger' : ''}>Holiday Name <span class="text-destructive">*</span></Label>
+				<Input
+					id="modal_holiday_name"
+					name="holiday_name"
+					bind:value={holidayName}
+					oninput={() => {
+						if (form && form.field === 'holiday_name') form = null;
+						errors.holiday_name = '';
+					}}
+					placeholder="e.g. Independence Day"
+					required
+					minlength={6}
+					pattern="^[a-zA-Z\s]+$"
+					class={errors.holiday_name ? 'border-danger focus-visible:ring-danger/30' : ''}
+				/>
+				{#if errors.holiday_name}
+					<p class="text-xs font-medium text-danger mt-1">{errors.holiday_name}</p>
+				{/if}
+			</div>
+
+			<div class="space-y-2">
+				<Label for="modal_holiday_date" class={errors.holiday_date ? 'text-danger' : ''}>Holiday Date <span class="text-destructive">*</span></Label>
+				<DatePicker
+					id="modal_holiday_date"
+					name="holiday_date"
+					bind:value={holidayDate}
+					onchange={() => {
+						if (form && form.field === 'holiday_date') form = null;
+						errors.holiday_date = '';
+					}}
+					required={true}
+					max="2099-12-31"
+					hasError={!!errors.holiday_date}
+				/>
+				{#if errors.holiday_date}
+					<p class="text-xs font-medium text-danger mt-1">{errors.holiday_date}</p>
+				{/if}
+			</div>
+
+			<div class="space-y-2">
+				<Label for="modal_holiday_type" class={errors.holiday_type ? 'text-danger' : ''}>Category <span class="text-destructive">*</span></Label>
+				<input type="hidden" id="modal_holiday_type" name="holiday_type" value={holidayType} />
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger>
+						{#snippet child({ props })}
+							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {errors.holiday_type ? 'border-danger focus:border-danger focus:ring-danger/30 focus-visible:ring-danger/30 data-[state=open]:border-danger data-[state=open]:ring-danger/30' : ''}" {...props}>
+								{holidayTypeOptions.find(o => o.value === holidayType)?.label || 'Select Category'}
+								<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
+							</Button>
+						{/snippet}
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content class="w-[220px]">
+						<DropdownMenu.Group>
+							{#each holidayTypeOptions as opt}
+								<DropdownMenu.Item onclick={() => {
+									holidayType = opt.value as 'National' | 'Regional' | 'Restricted';
+									if (form && form.field === 'holiday_type') form = null;
+									errors.holiday_type = '';
+								}} class="justify-between cursor-pointer {holidayType === opt.value ? 'bg-accent text-accent-foreground' : ''}">
+									{opt.label}
+									{#if holidayType === opt.value}<CheckIcon class="size-4" />{/if}
+								</DropdownMenu.Item>
+							{/each}
+						</DropdownMenu.Group>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
+				{#if errors.holiday_type}
+					<p class="text-xs font-medium text-danger mt-1">{errors.holiday_type}</p>
+				{/if}
+			</div>
+
+			{#if formError && (!form || !('field' in form) || !form.field)}
+				<div transition:slide>
+					<Alert variant="destructive">
+						<AlertDescription>{formError}</AlertDescription>
+					</Alert>
+				</div>
+			{/if}
+
+			</div>
+
+			<div class="flex items-center justify-end gap-3 pt-6 flex-shrink-0">
+				<Button
+					type="button"
+					variant="outline"
+					class="flex-1 sm:flex-initial sm:min-w-28 font-medium"
+					onclick={cancel}
+					disabled={isSubmitting}
+				>
+					Cancel
+				</Button>
+				<Button
+					type="submit"
+					class="flex-1 sm:flex-initial sm:min-w-28 font-medium"
+					disabled={isSubmitDisabled}
+				>
+					{#if isSubmitting}
+						<LoaderCircleIcon class="size-4 animate-spin" />
+						Saving...
+					{:else}
+						Save
+					{/if}
+				</Button>
+			</div>
+		</form>
+	{/snippet}
+</CrudModal>
 
 <ConfirmModal
-	bind:isOpen={isConfirmOpen}
+	open={isConfirmOpen}
 	title={confirmTitle}
-	message={confirmMessage}
+	description={confirmMessage}
 	confirmLabel="Delete"
-	cancelLabel="Cancel"
-	variant="destructive"
-	isConfirming={isSubmitting}
+	isSubmitting={isSubmitting}
+	onCancel={() => (isConfirmOpen = false)}
 	onConfirm={async () => {
 		if (activeDeleteCuid) {
 			await handleDelete(activeDeleteCuid);
 		}
+		isConfirmOpen = false;
 	}}
 />
 
 <ConfirmModal
-	bind:isOpen={isDiscardModalOpen}
+	open={isDiscardModalOpen}
 	title="Cancel Changes"
-	message="Are you sure you want to cancel? All unsaved changes will be lost."
+	description="Are you sure you want to cancel? All unsaved changes will be lost."
 	confirmLabel="Keep Editing"
-	cancelLabel="Cancel"
-	variant="destructive"
 	onCancel={confirmDiscard}
+	onConfirm={() => (isDiscardModalOpen = false)}
 />

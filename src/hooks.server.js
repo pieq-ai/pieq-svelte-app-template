@@ -16,11 +16,10 @@ const customAuthHandle = async ({ event, resolve }) => {
 const injectLocals = async ({ event, resolve }) => {
 	const pathname = event.url.pathname;
 	
-	// Skip fetching session for API routes, auth endpoints, or static files
-	const isApi = pathname.startsWith('/api/');
+	// Skip fetching session for auth endpoints, or static files
 	const isAuth = pathname.startsWith('/auth/');
 	
-	if (!isApi && !isAuth) {
+	if (!isAuth) {
 		const session = await event.locals.auth?.();
 		event.locals.session = session;
 

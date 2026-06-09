@@ -42,7 +42,7 @@ export const load: PageLoad = async ({ fetch }) => {
 	const [policiesRes, typesRes, empTypesRes] = await Promise.all([
 		fetch('/api/leave/policies'),
 		fetch('/api/leave/types'),
-		fetch('/api/employment-types')
+		fetch('/api/master-data/employment-types')
 	]);
 
 	let policies: LeavePolicy[] = [];
@@ -66,7 +66,11 @@ export const load: PageLoad = async ({ fetch }) => {
 
 	if (empTypesRes.ok) {
 		const json = await empTypesRes.json();
-		employmentTypes = (json.data || []) as EmploymentType[];
+		employmentTypes = (json.data || []).map((et: any) => ({
+			cuid: et.id,
+			employment_name: et.label,
+			status: true
+		})) as EmploymentType[];
 	} else {
 		error = 'Failed to fetch employment types';
 	}

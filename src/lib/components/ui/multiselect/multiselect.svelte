@@ -2,6 +2,7 @@
 	import { slide } from 'svelte/transition';
 	import { cn } from '$lib/utils.js';
 	import CheckIcon from '@lucide/svelte/icons/check';
+	import PlusIcon from '@lucide/svelte/icons/plus';
 
 	interface Option {
 		id: string | number;
@@ -12,15 +13,19 @@
 		options = [],
 		selectedIds = $bindable([]),
 		placeholder = 'Select options...',
-		name = 'selected_ids'
+		name = 'selected_ids',
+		searchQuery = $bindable(''),
+		onAdd,
+		addLabel = 'Add option'
 	}: {
 		options: Option[];
 		selectedIds: (string | number)[];
 		placeholder?: string;
 		name?: string;
+		searchQuery?: string;
+		onAdd?: () => void;
+		addLabel?: string;
 	} = $props();
-
-	let searchQuery = $state('');
 	let isOpen = $state(false);
 	let container: HTMLDivElement | null = $state(null);
 
@@ -59,6 +64,27 @@
 	let selectedOptions = $derived(
 		options.filter((opt) => selectedIds.includes(opt.id))
 	);
+
+	let isAllSelected = $derived(
+		filteredOptions.length > 0 &&
+		filteredOptions.every((opt) => selectedIds.includes(opt.id))
+	);
+
+	function selectAll(e: MouseEvent) {
+		e.stopPropagation();
+		const newSelectedIds = [...selectedIds];
+		for (const opt of filteredOptions) {
+			if (!newSelectedIds.includes(opt.id)) {
+				newSelectedIds.push(opt.id);
+			}
+		}
+		selectedIds = newSelectedIds;
+	}
+
+	function deselectAll(e: MouseEvent) {
+		e.stopPropagation();
+		selectedIds = [];
+	}
 </script>
 
 <div class="relative w-full" bind:this={container}>
@@ -68,46 +94,49 @@
 	{/each}
 
 	<!-- Input Trigger Box -->
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div
+	<button
+		type="button"
 		onclick={() => (isOpen = !isOpen)}
+		onkeydown={(e) => {
+			if (e.key === 'Escape') {
+				isOpen = false;
+			}
+		}}
 		class={cn(
-			"flex items-center justify-between w-full min-h-9 rounded-md border border-input bg-card px-3 py-1.5 text-sm shadow-xs transition-colors hover:bg-accent/30 focus-within:ring-4 focus-within:ring-input-focus-ring focus-within:border-input-focus cursor-pointer flex-wrap gap-1.5 select-none",
+			"flex items-center justify-between w-full h-9 rounded-md border border-input bg-card px-3 text-sm shadow-xs transition-colors hover:bg-accent/30 focus:outline-hidden focus:ring-4 focus:ring-input-focus-ring focus:border-input-focus cursor-pointer select-none text-left",
 			isOpen && "ring-4 ring-input-focus-ring border-input-focus"
 		)}
 	>
-		{#if selectedOptions.length === 0}
-			<span class="text-muted-foreground select-none">{placeholder}</span>
-		{:else}
-			<div class="flex flex-wrap gap-1">
-				{#each selectedOptions as opt (opt.id)}
-					<span class="inline-flex items-center gap-1 bg-secondary text-secondary-foreground text-xs font-medium px-2 py-0.5 rounded-sm">
-						{opt.label}
-						<button
-							type="button"
-							onclick={(e) => removeOption(opt.id, e)}
-							class="text-muted-foreground hover:text-foreground hover:bg-muted/80 rounded-full p-0.5 transition-colors cursor-pointer"
-							title="Remove selection"
-							aria-label="Remove selection"
-						>
-							<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="size-3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-						</button>
-					</span>
-				{/each}
-			</div>
-		{/if}
+		<div class="flex items-center gap-1.5 overflow-hidden flex-1 min-w-0 pr-2">
+			{#if selectedOptions.length === 0}
+				<span class="text-muted-foreground truncate select-none">{placeholder}</span>
+			{:else}
+				<div class="flex items-center gap-1.5 overflow-hidden min-w-0">
+					{#if selectedOptions.length <= 2}
+						{#each selectedOptions as opt (opt.id)}
+							<span class="inline-flex items-center bg-secondary text-secondary-foreground text-xs font-medium px-2 py-0.5 rounded-sm border border-border/20 truncate max-w-[140px] select-none h-6">
+								{opt.label}
+							</span>
+						{/each}
+					{:else}
+						<span class="inline-flex items-center bg-secondary text-secondary-foreground text-xs font-semibold px-2 py-0.5 rounded-sm border border-border/20 select-none h-6">
+							{selectedOptions.length} selected
+						</span>
+					{/if}
+				</div>
+			{/if}
+		</div>
 
-		<div class="flex items-center gap-1">
+		<div class="flex items-center gap-1 shrink-0">
 			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 text-muted-foreground transition-transform duration-200 {isOpen ? 'rotate-180' : ''}"><path d="m6 9 6 6 6-6"/></svg>
 		</div>
-	</div>
+	</button>
 
 	<!-- Dropdown Panel -->
 	{#if isOpen}
 		<div
 			transition:slide={{ duration: 150 }}
-			class="absolute left-0 z-50 mt-1 w-full min-w-[120px] origin-top-right rounded-md border border-border bg-popover text-popover-foreground shadow-md outline-hidden py-1 max-h-60 overflow-y-auto"
+			class="absolute left-0 z-50 mt-1 w-full min-w-[120px] origin-top-right rounded-md border border-border bg-popover text-popover-foreground shadow-md outline-hidden flex flex-col overflow-hidden py-1"
 		>
 			<!-- Search bar inside dropdown -->
 			<div class="flex items-center border-b border-border px-3 py-2 bg-transparent">
@@ -131,8 +160,28 @@
 				{/if}
 			</div>
 
+			<!-- Select / Deselect All Actions -->
+			<div class="flex items-center gap-2 border-b border-border px-3 py-2 bg-muted/5 text-xs select-none">
+				<button
+					type="button"
+					class="px-2.5 py-1 text-xs font-semibold rounded-md border border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground transition-all cursor-pointer select-none disabled:opacity-50 disabled:pointer-events-none"
+					onclick={selectAll}
+					disabled={filteredOptions.length === 0 || isAllSelected}
+				>
+					Select All
+				</button>
+				<button
+					type="button"
+					class="px-2.5 py-1 text-xs font-semibold rounded-md border border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground transition-all cursor-pointer select-none disabled:opacity-50 disabled:pointer-events-none"
+					onclick={deselectAll}
+					disabled={selectedIds.length === 0}
+				>
+					Deselect All
+				</button>
+			</div>
+
 			<!-- Options -->
-			<div class="overflow-y-auto max-h-48 py-1">
+			<div class="overflow-y-auto max-h-52 px-1 py-1">
 				{#if filteredOptions.length === 0}
 					<div class="px-2 py-1.5 text-xs text-muted-foreground text-center">
 						No results found.
@@ -140,24 +189,38 @@
 				{:else}
 					{#each filteredOptions as opt (opt.id)}
 						{@const isSelected = selectedIds.includes(opt.id)}
-						<!-- svelte-ignore a11y_click_events_have_key_events -->
-						<!-- svelte-ignore a11y_no_static_element_interactions -->
 						<button
 							type="button"
 							onclick={() => toggleOption(opt.id)}
 							class={cn(
-								"flex items-center justify-between w-full px-3 py-2 text-left text-sm hover:bg-[#F4F4F4] transition-colors cursor-pointer select-none",
-								isSelected && "bg-[#F4F4F4]/50 font-medium"
+								"flex items-center justify-between w-full px-3 py-1.5 text-left text-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer select-none rounded-md",
+								isSelected && "bg-accent/50 text-accent-foreground font-medium"
 							)}
 						>
 							<span class="truncate">{opt.label}</span>
 							{#if isSelected}
-								<CheckIcon class="size-4 shrink-0 text-foreground ml-2" />
+								<CheckIcon class="size-4 shrink-0 text-[#F45310] dark:text-[#F45310] ml-2" />
 							{/if}
 						</button>
 					{/each}
 				{/if}
 			</div>
+
+			{#if onAdd}
+				<div class="border-t border-border p-1 bg-muted/20 mt-1">
+					<button
+						type="button"
+						class="flex items-center justify-center gap-1.5 w-full rounded-sm px-2 py-1.5 text-xs font-medium border border-input bg-card text-foreground hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer select-none"
+						onclick={(e) => {
+							e.stopPropagation();
+							onAdd();
+						}}
+					>
+						<PlusIcon class="size-3.5" />
+						{addLabel}
+					</button>
+				</div>
+			{/if}
 		</div>
 	{/if}
 </div>

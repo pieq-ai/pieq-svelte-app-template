@@ -13,11 +13,7 @@
 		<CardTitle>User detail</CardTitle>
 	</CardHeader>
 	<CardContent>
-<<<<<<<< HEAD:src/routes/dashboard/[id=cuid]/+page.svelte
 		<p class="text-sm text-muted-foreground">Route param validated with the <code>cuid</code> matcher.</p>
-========
-		<p class="text-sm text-muted-foreground">Route param validated before loading the detail view.</p>
->>>>>>>> main:src/routes/dashboard/[cuid=cuid]/+page.svelte
 		<dl class="mt-4 space-y-3 text-sm">
 			<div>
 				<dt class="font-medium text-muted-foreground">ID</dt>

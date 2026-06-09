@@ -11,7 +11,7 @@
 
 	let { value, onChange }: Props = $props();
 
-	let displayValue = $derived(value === 'all' ? 'All' : value === true ? 'Active' : 'Inactive');
+	let displayValue = $derived(value === 'all' ? 'All Status' : value === true ? 'Active' : 'Inactive');
 </script>
 
 <DropdownMenu.Root>
@@ -26,7 +26,7 @@
 	<DropdownMenu.Content class="w-[180px]">
 		<DropdownMenu.Group>
 			<DropdownMenu.Item onclick={() => onChange('all')} class="justify-between cursor-pointer {value === 'all' ? 'bg-accent text-accent-foreground' : ''}">
-				All
+				All Status
 				{#if value === 'all'}<CheckIcon class="size-4" />{/if}
 			</DropdownMenu.Item>
 			<DropdownMenu.Item onclick={() => onChange(true)} class="justify-between cursor-pointer {value === true ? 'bg-accent text-accent-foreground' : ''}">

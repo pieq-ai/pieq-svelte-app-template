@@ -34,8 +34,7 @@
 	let isSubmitting = $state(false);
 	let editingOption = $state<DropdownOption | null>(null);
 	let masterValue = $state('');
-	let isValueTouched = $state(false);
-	let backendError = $state('');
+	let errors = $state<Record<string, string>>({});
 	let masterInput = $state<HTMLInputElement | null>(null);
 
 	function getValidationError(input: string) {
@@ -56,7 +55,17 @@
 		return '';
 	}
 
-	let validationError = $derived(isValueTouched ? getValidationError(masterValue) : '');
+
+	let isDirty = $derived(editingOption ? masterValue.trim() !== editingOption.label.trim() : masterValue.trim() !== '');
+
+	let isSubmitDisabled = $derived.by(() => {
+		if (isSubmitting) return true;
+		if (!masterValue.trim()) return true;
+		if (editingOption) {
+			return !isDirty;
+		}
+		return false;
+	});
 
 	async function loadOptions() {
 		isLoading = true;
@@ -87,8 +96,7 @@
 		editingOption = null;
 		masterValue = '';
 		errorMessage = '';
-		backendError = '';
-		isValueTouched = false;
+		errors = {};
 		isModalOpen = true;
 	}
 
@@ -98,22 +106,22 @@
 		editingOption = option;
 		masterValue = option.label;
 		errorMessage = '';
-		backendError = '';
-		isValueTouched = false;
+		errors = {};
 		isModalOpen = true;
 	}
 
 	async function saveMasterValue(event: Event) {
 		event.preventDefault();
-		isValueTouched = true;
 		const currentError = getValidationError(masterValue);
 		if (currentError) {
+			errors.master_value = currentError;
 			masterInput?.focus();
 			return;
 		}
 
 		isSubmitting = true;
 		errorMessage = '';
+		errors = {};
 		try {
 			const response = await fetch(
 				editingOption
@@ -133,7 +141,7 @@
 				}
 				isModalOpen = false;
 			} else if (response.status === 409 && body.field === 'name') {
-				backendError = body.error;
+				errors.master_value = body.error;
 				masterInput?.focus();
 			} else {
 				errorMessage = body.error || `Unable to save ${config.label.toLowerCase()}.`;
@@ -167,27 +175,31 @@
 	open={isModalOpen}
 	title={editingOption ? `Edit ${config.label}` : `Add ${config.label}`}
 	description="Master values are validated on the frontend and again in the service layer."
+	isDirty={isDirty}
 	onClose={() => (isModalOpen = false)}
 >
 	{#snippet children({ cancel })}
-		<form class="space-y-4" onsubmit={saveMasterValue}>
+		<form class="flex flex-col min-h-0 flex-1 overflow-hidden" onsubmit={saveMasterValue}>
+			<div class="flex-1 overflow-y-auto pr-1 space-y-4 modal-scroll-area">
 			<div class="space-y-2">
-				<Label for={`${master}_value`}>{config.label}</Label>
+				<Label for={`${master}_value`} class={errors.master_value ? 'text-danger' : ''}>{config.label} <span class="text-destructive">*</span></Label>
 				<Input
 					id={`${master}_value`}
 					bind:ref={masterInput}
 					bind:value={masterValue}
-					class={validationError || backendError ? 'border-destructive' : ''}
-					oninput={() => { backendError = ''; }}
+					class={errors.master_value ? 'border-danger focus-visible:ring-danger/30' : ''}
+					oninput={() => { errors.master_value = ''; }}
 				/>
-				{#if validationError || backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{validationError || backendError}</p>
+				{#if errors.master_value}
+					<p class="text-xs font-medium text-danger mt-1">{errors.master_value}</p>
 				{/if}
 			</div>
 
-			<div class="flex items-center justify-end gap-3 pt-4">
+			</div>
+
+			<div class="flex items-center justify-end gap-3 pt-6 flex-shrink-0">
 				<Button type="button" variant="outline" onclick={cancel}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting}>
+				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitDisabled}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingOption ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>
 			</div>

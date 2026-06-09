@@ -484,7 +484,7 @@
 					<button
 						type="button"
 						onclick={clearDate}
-						class="text-[#800020] hover:text-[#800020]/80 font-medium cursor-pointer transition-colors"
+						class="text-danger hover:text-danger/80 font-medium cursor-pointer transition-colors"
 					>
 						Clear
 					</button>

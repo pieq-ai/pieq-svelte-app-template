@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { beforeNavigate, goto } from '$app/navigation';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
@@ -31,7 +32,8 @@
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
-		SearchInput
+		SearchInput,
+		StatusBadge
 	} from '$lib/components';
 
 	interface Designation {
@@ -58,16 +60,62 @@
 	let formDesignationStatus = $state<boolean>(true);
 	let isSubmitting = $state(false);
 	let isModalOpen = $state(false);
-	let isNameTouched = $state(false);
-	let backendError = $state('');
+	let errors = $state<Record<string, string>>({});
 	let designationNameInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{ designation_name: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ designation_name: formDesignationName.trim(), status: formDesignationStatus }));
 
-	// Deletion State
-	let itemToDelete = $state<Designation | null>(null);
-	let isDeleting = $state(false);
+	let isSubmitDisabled = $derived.by(() => {
+		if (isSubmitting) return true;
+		if (!formDesignationName.trim()) return true;
+		if (editingDesignation) {
+			return !isDirty;
+		}
+		return false;
+	});
+
+	let isDiscardModalOpen = $state(false);
+	let isNavigatingProgrammatically = $state(false);
+	let pendingNavigation = $state<any>(null);
+
+	function handleCloseRequest() {
+		if (isDirty) {
+			isDiscardModalOpen = true;
+		} else {
+			isModalOpen = false;
+		}
+	}
+
+	function confirmDiscard() {
+		isDiscardModalOpen = false;
+		isModalOpen = false;
+		formDesignationName = '';
+		formDesignationStatus = true;
+		errors = {};
+		if (pendingNavigation) {
+			isNavigatingProgrammatically = true;
+			const target = pendingNavigation.to?.url;
+			pendingNavigation = null;
+			if (target) {
+				goto(target.pathname + target.search);
+			}
+		}
+	}
+
+	beforeNavigate((navigation) => {
+		if (!isModalOpen || !isDirty) {
+			return;
+		}
+
+		if (isNavigatingProgrammatically) {
+			return;
+		}
+
+		navigation.cancel();
+		pendingNavigation = navigation;
+		isDiscardModalOpen = true;
+	});
 
 	function getValidationError(name: string): string {
 		const trimmed = name.trim();
@@ -81,7 +129,7 @@
 		return '';
 	}
 
-	let nameValidationError = $derived(isNameTouched ? getValidationError(formDesignationName) : '');
+
 
 	let filteredDesignations = $derived.by(() => {
 		let result = [...designationsList];
@@ -161,8 +209,7 @@
 		editingDesignation = null;
 		formDesignationName = '';
 		formDesignationStatus = true;
-		isNameTouched = false;
-		backendError = '';
+		errors = {};
 		dirtyChecker.snapshot({ designation_name: '', status: true });
 		isModalOpen = true;
 	}
@@ -171,8 +218,7 @@
 		editingDesignation = designation;
 		formDesignationName = designation.designation_name;
 		formDesignationStatus = designation.status;
-		isNameTouched = false;
-		backendError = '';
+		errors = {};
 		dirtyChecker.snapshot({ designation_name: designation.designation_name, status: designation.status });
 		isModalOpen = true;
 	}
@@ -180,15 +226,16 @@
 	async function handleSaveDesignation(e: Event) {
 		e.preventDefault();
 		if (editingDesignation && !isDirty) return;
-		isNameTouched = true;
 
 		const validationError = getValidationError(formDesignationName);
 		if (validationError) {
+			errors.designation_name = validationError;
 			designationNameInput?.focus();
 			return;
 		}
 
 		isSubmitting = true;
+		errors = {};
 
 		try {
 			const response = await fetch(
@@ -206,7 +253,7 @@
 				toast.success(editingDesignation ? 'Designation updated successfully' : 'Designation created successfully');
 				isModalOpen = false;
 			} else if (response.status === 409 && resData.field === 'designation_name') {
-				backendError = resData.error;
+				errors.designation_name = resData.error;
 				designationNameInput?.focus();
 			} else {
 				toast.error(resData.error || 'Failed to save designation.');
@@ -218,41 +265,16 @@
 			isSubmitting = false;
 		}
 	}
-
-	async function confirmDelete() {
-		if (!itemToDelete) return;
-		isDeleting = true;
-
-		try {
-			const response = await fetch(`/api/designations/designationCuid=${itemToDelete.cuid}`, {
-				method: 'DELETE'
-			});
-			const resData = await response.json();
-
-			if (response.ok && resData.data) {
-				await loadDesignations();
-				toast.success('Designation deactivated successfully');
-				itemToDelete = null;
-			} else {
-				toast.error(resData.error || 'Failed to deactivate designation.');
-			}
-		} catch (err) {
-			console.error(err);
-			toast.error('An error occurred while deactivating the designation.');
-		} finally {
-			isDeleting = false;
-		}
-	}
 </script>
 
 <svelte:head>
-	<title>HRMS Designation Directory</title>
+	<title>Designation </title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Designation Directory</h1>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Designation </h1>
 		</div>
 		<Button
 			type="button"
@@ -293,10 +315,10 @@
 
 		<Card class="py-0">
 			<Table>
-				<TableHeader class="bg-muted">
+				<TableHeader>
 					<TableRow>
-						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('designation_name')}>
+						<TableHead>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => handleSort('designation_name')}>
 								Designation Name
 							{#if sortColumn === 'designation_name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -307,8 +329,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
-							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
+						<TableHead class="text-center">
+							<Button variant="ghost" size="sm" class="h-8" onclick={() => handleSort('status')}>
 								Status
 							{#if sortColumn === 'status' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -319,7 +341,7 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
+						<TableHead class="text-right">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -351,7 +373,7 @@
 									</div>
 								</TableCell>
 								<TableCell class="text-center">
-									<Badge variant={designation.status === true ? 'default' : 'secondary'}>{designation.status ? 'Active' : 'Inactive'}</Badge>
+									<StatusBadge status={designation.status} />
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
@@ -374,31 +396,34 @@
 	title={editingDesignation ? 'Edit Designation' : 'Create Designation'}
 	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => (isModalOpen = false)}
+	onClose={confirmDiscard}
 >
 	{#snippet children({ cancel })}
-		<form class="space-y-3" onsubmit={handleSaveDesignation}>
+		<form class="flex flex-col min-h-0 flex-1 overflow-hidden" onsubmit={handleSaveDesignation}>
+			<div class="flex-1 overflow-y-auto pr-1 space-y-4 modal-scroll-area">
 			<div class="space-y-2">
-				<Label for="designation_name">Designation Name</Label>
+				<Label for="designation_name" class={errors.designation_name ? 'text-danger' : ''}>Designation Name <span class="text-destructive">*</span></Label>
 				<Input
 					id="designation_name"
 					name="designation_name"
 					bind:ref={designationNameInput}
 					bind:value={formDesignationName}
-					class={nameValidationError || backendError ? 'border-destructive' : ''}
+					class={errors.designation_name ? 'border-danger focus-visible:ring-danger/30' : ''}
 					placeholder="e.g. Senior HR Manager"
-					oninput={() => { backendError = ''; }}
+					oninput={() => { errors.designation_name = ''; }}
 				/>
-				{#if nameValidationError || backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
+				{#if errors.designation_name}
+					<p class="text-xs font-medium text-danger mt-1">{errors.designation_name}</p>
 				{/if}
 			</div>
 			{#if editingDesignation}
 				<StatusDropdown id="designation_status" name="designation_status" value={formDesignationStatus} onChange={(val) => (formDesignationStatus = val)} />
 			{/if}
-			<div class="flex items-center justify-end gap-3 pt-4">
+			</div>
+
+			<div class="flex items-center justify-end gap-3 pt-6 flex-shrink-0">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingDesignation && !isDirty)}>
+				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitDisabled}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingDesignation ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>
 			</div>
@@ -407,11 +432,11 @@
 </CrudModal>
 
 <ConfirmModal
-	open={!!itemToDelete}
-	title="Deactivate Designation"
-	description={`Are you sure you want to deactivate ${itemToDelete?.designation_name}?`}
-	confirmLabel="Deactivate"
-	isSubmitting={isDeleting}
-	onCancel={() => (itemToDelete = null)}
-	onConfirm={confirmDelete}
+	open={isDiscardModalOpen}
+	title="Cancel Changes"
+	description="Are you sure you want to cancel? All unsaved changes will be lost."
+	confirmLabel="Keep Editing"
+	onCancel={confirmDiscard}
+	onConfirm={() => (isDiscardModalOpen = false)}
 />
+

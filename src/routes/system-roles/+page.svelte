@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { beforeNavigate, goto } from '$app/navigation';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 
@@ -32,7 +33,8 @@
 		TableRow,
 		StatusDropdown,
 		Pagination,
-		SearchInput
+		SearchInput,
+		StatusBadge
 	} from '$lib/components';
 	import { getMasterPermissions } from '$lib/permissions/mock-permissions';
 
@@ -65,12 +67,62 @@
 	let editingRole = $state<SystemRole | null>(null);
 	let roleName = $state('');
 	let roleStatus = $state<boolean>(true);
-	let isNameTouched = $state(false);
-	let backendError = $state('');
+	let errors = $state<Record<string, string>>({});
 	let roleNameInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{ system_role_name: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ system_role_name: roleName.trim(), status: roleStatus }));
+
+	let isSubmitDisabled = $derived.by(() => {
+		if (isSubmitting) return true;
+		if (!roleName.trim()) return true;
+		if (editingRole) {
+			return !isDirty;
+		}
+		return false;
+	});
+
+	let isDiscardModalOpen = $state(false);
+	let isNavigatingProgrammatically = $state(false);
+	let pendingNavigation = $state<any>(null);
+
+	function handleCloseRequest() {
+		if (isDirty) {
+			isDiscardModalOpen = true;
+		} else {
+			isModalOpen = false;
+		}
+	}
+
+	function confirmDiscard() {
+		isDiscardModalOpen = false;
+		isModalOpen = false;
+		roleName = '';
+		roleStatus = true;
+		errors = {};
+		if (pendingNavigation) {
+			isNavigatingProgrammatically = true;
+			const target = pendingNavigation.to?.url;
+			pendingNavigation = null;
+			if (target) {
+				goto(target.pathname + target.search);
+			}
+		}
+	}
+
+	beforeNavigate((navigation) => {
+		if (!isModalOpen || !isDirty) {
+			return;
+		}
+
+		if (isNavigatingProgrammatically) {
+			return;
+		}
+
+		navigation.cancel();
+		pendingNavigation = navigation;
+		isDiscardModalOpen = true;
+	});
 
 	let itemToDelete = $state<SystemRole | null>(null);
 	let isDeleting = $state(false);
@@ -83,7 +135,7 @@
 		return '';
 	}
 
-	let nameValidationError = $derived(isNameTouched ? getValidationError(roleName) : '');
+
 	let filteredRoles = $derived.by(() => {
 		let result = [...roles];
 		if (searchQuery.trim()) {
@@ -150,8 +202,7 @@
 		editingRole = null;
 		roleName = '';
 		roleStatus = true;
-		isNameTouched = false;
-		backendError = '';
+		errors = {};
 		dirtyChecker.snapshot({ system_role_name: '', status: true });
 		isModalOpen = true;
 	}
@@ -160,8 +211,7 @@
 		editingRole = role;
 		roleName = role.system_role_name;
 		roleStatus = role.status;
-		isNameTouched = false;
-		backendError = '';
+		errors = {};
 		dirtyChecker.snapshot({ system_role_name: role.system_role_name, status: role.status });
 		isModalOpen = true;
 	}
@@ -169,14 +219,16 @@
 	async function saveRole(event: Event) {
 		event.preventDefault();
 		if (editingRole && !isDirty) return;
-		isNameTouched = true;
+		
 		const validationError = getValidationError(roleName);
 		if (validationError) {
+			errors.system_role_name = validationError;
 			roleNameInput?.focus();
 			return;
 		}
 
 		isSubmitting = true;
+		errors = {};
 		try {
 			const response = await fetch(
 				editingRole ? `/api/system-roles/systemRoleCuid=${editingRole.cuid}` : '/api/system-roles',
@@ -192,7 +244,7 @@
 				toast.success(editingRole ? 'System role updated successfully.' : 'System role created successfully.');
 				isModalOpen = false;
 			} else if (response.status === 409 && body.field === 'system_role_name') {
-				backendError = body.error;
+				errors.system_role_name = body.error;
 				roleNameInput?.focus();
 			} else {
 				toast.error(body.error || 'Unable to save system role.');
@@ -239,7 +291,7 @@
 		{#if permissions.canCreate}
 			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={openCreateModal}>
 				<PlusIcon class="size-4" />
-				Add Role
+				Add System Role
 			</Button>
 		{/if}
 	</div>
@@ -277,10 +329,10 @@
 
 	<Card class="py-0">
 			<Table>
-			<TableHeader class="bg-muted">
+			<TableHeader>
 				<TableRow>
-					<TableHead class="font-bold text-foreground text-[15px]">
-						<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('system_role_name')}>
+					<TableHead>
+						<Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => handleSort('system_role_name')}>
 							Role Name
 							{#if sortColumn === 'system_role_name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -291,8 +343,8 @@
 							{/if}
 						</Button>
 					</TableHead>
-					<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
-						<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
+					<TableHead class="text-center">
+						<Button variant="ghost" size="sm" class="h-8" onclick={() => handleSort('status')}>
 							Status
 							{#if sortColumn === 'status' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -303,7 +355,7 @@
 							{/if}
 						</Button>
 					</TableHead>
-					<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
+					<TableHead class="text-right">Actions</TableHead>
 				</TableRow>
 			</TableHeader>
 			<TableBody>
@@ -321,7 +373,7 @@
 							class="cursor-pointer"
 						>
 							<TableCell class="font-semibold">{role.system_role_name}</TableCell>
-							<TableCell class="text-center"><Badge variant={role.status === true ? 'default' : 'secondary'}>{role.status ? 'Active' : 'Inactive'}</Badge></TableCell>
+							<TableCell class="text-center"><StatusBadge status={role.status} /></TableCell>
 							<TableCell class="text-right">
 								<TableActions
 									canEdit={permissions.canEdit}
@@ -343,31 +395,34 @@
 	title={editingRole ? 'Edit System Role' : 'Create System Role'}
 	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => (isModalOpen = false)}
+	onClose={confirmDiscard}
 >
 	{#snippet children({ cancel })}
-		<form class="space-y-3" onsubmit={saveRole}>
+		<form class="flex flex-col min-h-0 flex-1 overflow-hidden" onsubmit={saveRole}>
+			<div class="flex-1 overflow-y-auto pr-1 space-y-4 modal-scroll-area">
 			<div class="space-y-2">
-				<Label for="role_name">Role Name</Label>
+				<Label for="role_name" class={errors.system_role_name ? 'text-danger' : ''}>Role Name <span class="text-destructive">*</span></Label>
 				<Input
 					id="role_name"
 					name="role_name"
 					bind:ref={roleNameInput}
 					bind:value={roleName}
-					class={nameValidationError || backendError ? 'border-destructive' : ''}
+					class={errors.system_role_name ? 'border-danger focus-visible:ring-danger/30' : ''}
 					placeholder="e.g. HR Manager"
-					oninput={() => { backendError = ''; }}
+					oninput={() => { errors.system_role_name = ''; }}
 				/>
-				{#if nameValidationError || backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
+				{#if errors.system_role_name}
+					<p class="text-xs font-medium text-danger mt-1">{errors.system_role_name}</p>
 				{/if}
 			</div>
 			{#if editingRole}
 				<StatusDropdown id="role_status" name="role_status" value={roleStatus} onChange={(val) => (roleStatus = val)} />
 			{/if}
-			<div class="flex items-center justify-end gap-3 pt-4">
+			</div>
+
+			<div class="flex items-center justify-end gap-3 pt-6 flex-shrink-0">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingRole && !isDirty)}>
+				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitDisabled}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingRole ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>
 			</div>
@@ -383,4 +438,13 @@
 	isSubmitting={isDeleting}
 	onCancel={() => (itemToDelete = null)}
 	onConfirm={confirmDelete}
+/>
+
+<ConfirmModal
+	open={isDiscardModalOpen}
+	title="Cancel Changes"
+	description="Are you sure you want to cancel? All unsaved changes will be lost."
+	confirmLabel="Keep Editing"
+	onCancel={confirmDiscard}
+	onConfirm={() => (isDiscardModalOpen = false)}
 />

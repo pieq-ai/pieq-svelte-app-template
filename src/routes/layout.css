@@ -31,8 +31,8 @@
 	--neutral-foreground: #ffffff;
 	--muted: oklch(0.97 0 0);
 	--muted-foreground: oklch(0.556 0 0);
-	--accent: #fcf8f5;
-	--accent-foreground: #F45310;
+	--accent: #f4f4f5;
+	--accent-foreground: oklch(0.145 0 0);
 	--destructive: oklch(0.577 0.245 27.325);
 	--border: oklch(0.922 0 0);
 	--input: oklch(0.922 0 0);
@@ -53,7 +53,7 @@
 	--sidebar-accent-foreground: oklch(0.205 0 0);
 	--sidebar-border: oklch(0.922 0 0);
 	--sidebar-ring: oklch(0.708 0 0);
-	--danger: #800020;
+	--danger: var(--destructive);
 	--danger-foreground: #ffffff;
 }
 
@@ -75,7 +75,7 @@
 	--muted: oklch(0.269 0 0);
 	--muted-foreground: oklch(0.708 0 0);
 	--accent: #262626;
-	--accent-foreground: #F45310;
+	--accent-foreground: oklch(0.985 0 0);
 	--destructive: oklch(0.704 0.191 22.216);
 	--border: oklch(1 0 0 / 10%);
 	--input: oklch(1 0 0 / 15%);
@@ -95,7 +95,7 @@
 	--sidebar-accent-foreground: #ffffff;
 	--sidebar-border: oklch(1 0 0 / 10%);
 	--sidebar-ring: oklch(0.556 0 0);
-	--danger: #9e1a35;
+	--danger: var(--destructive);
 	--danger-foreground: #ffffff;
 }
 
@@ -505,4 +505,26 @@
 .sidebar-nav::-webkit-scrollbar-thumb {
 	background: rgba(255,255,255,0.1);
 	border-radius: 2px;
+}
+
+/* Table headers button inheritance for consistent font weight & size */
+th button, th [role="button"] {
+	font-weight: inherit !important;
+	font-size: inherit !important;
+	color: inherit !important;
+}
+
+/* Scrollbar inside CRUD Modals scrollable inputs area */
+.modal-scroll-area::-webkit-scrollbar {
+	width: 6px;
+}
+.modal-scroll-area::-webkit-scrollbar-track {
+	background: transparent;
+}
+.modal-scroll-area::-webkit-scrollbar-thumb {
+	background: rgba(115, 115, 115, 0.3);
+	border-radius: 3px;
+}
+.modal-scroll-area::-webkit-scrollbar-thumb:hover {
+	background: rgba(115, 115, 115, 0.5);
 }

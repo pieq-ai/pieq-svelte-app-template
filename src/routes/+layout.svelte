@@ -18,6 +18,8 @@
 	import UserRoundIcon from '@lucide/svelte/icons/user-round';
 	import UsersRoundIcon from '@lucide/svelte/icons/users-round';
 	import WalletIcon from '@lucide/svelte/icons/wallet';
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
+	import CalendarCogIcon from '@lucide/svelte/icons/calendar-cog';
 
 	let { children, data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);
@@ -29,6 +31,9 @@
 		{ label: 'Department', href: resolve('/departments'), icon: Building2Icon },
 		{ label: 'Designation', href: resolve('/designations'), icon: UserRoundIcon },
 		{ label: 'Salary Components', href: resolve('/salary-components'), icon: WalletIcon },
+		{ label: 'Leave Type', href: resolve('/leave-types'), icon: CalendarCogIcon },
+		{ label: 'Leave Policy', href: resolve('/leave-policies'), icon: ShieldCheckIcon },
+		{ label: 'Holiday Master', href: resolve('/holidays'), icon: CalendarIcon },
 		{ label: 'System Roles', href: resolve('/system-roles'), icon: ShieldCheckIcon },
 		{ label: 'Permissions', href: resolve('/permissions'), icon: KeyRoundIcon },
 		{ label: 'Role Permissions', href: resolve('/role-permissions'), icon: LinkIcon }
@@ -62,6 +67,7 @@
 	<aside
 		class={`sticky top-0 h-screen z-30 flex shrink-0 flex-col border-r border-[#737373]/25 bg-[#262626] text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
 		aria-label="Primary navigation"
+		data-sveltekit-preload-data="tap"
 	>
 		<div class={`flex h-16 items-center border-b border-white/10 transition-all ${isSidebarCollapsed ? 'justify-center gap-2 px-2' : 'justify-between px-6'}`}>
 			{#if !isSidebarCollapsed}

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { beforeNavigate, goto } from '$app/navigation';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 
@@ -32,7 +33,8 @@
 		TableRow,
 		StatusDropdown,
 		Pagination,
-		SearchInput
+		SearchInput,
+		StatusBadge
 	} from '$lib/components';
 	import { getMasterPermissions } from '$lib/permissions/mock-permissions';
 
@@ -60,12 +62,62 @@
 	let editingPermission = $state<Permission | null>(null);
 	let permissionKey = $state('');
 	let permissionStatus = $state<boolean>(true);
-	let isKeyTouched = $state(false);
-	let backendError = $state('');
+	let errors = $state<Record<string, string>>({});
 	let permissionKeyInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{ permission_key: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ permission_key: permissionKey.trim(), status: permissionStatus }));
+
+	let isSubmitDisabled = $derived.by(() => {
+		if (isSubmitting) return true;
+		if (!permissionKey.trim()) return true;
+		if (editingPermission) {
+			return !isDirty;
+		}
+		return false;
+	});
+
+	let isDiscardModalOpen = $state(false);
+	let isNavigatingProgrammatically = $state(false);
+	let pendingNavigation = $state<any>(null);
+
+	function handleCloseRequest() {
+		if (isDirty) {
+			isDiscardModalOpen = true;
+		} else {
+			isModalOpen = false;
+		}
+	}
+
+	function confirmDiscard() {
+		isDiscardModalOpen = false;
+		isModalOpen = false;
+		permissionKey = '';
+		permissionStatus = true;
+		errors = {};
+		if (pendingNavigation) {
+			isNavigatingProgrammatically = true;
+			const target = pendingNavigation.to?.url;
+			pendingNavigation = null;
+			if (target) {
+				goto(target.pathname + target.search);
+			}
+		}
+	}
+
+	beforeNavigate((navigation) => {
+		if (!isModalOpen || !isDirty) {
+			return;
+		}
+
+		if (isNavigatingProgrammatically) {
+			return;
+		}
+
+		navigation.cancel();
+		pendingNavigation = navigation;
+		isDiscardModalOpen = true;
+	});
 
 	let itemToDelete = $state<Permission | null>(null);
 	let isDeleting = $state(false);
@@ -78,7 +130,7 @@
 		return '';
 	}
 
-	let keyValidationError = $derived(isKeyTouched ? getValidationError(permissionKey) : '');
+
 	let filteredPermissions = $derived.by(() => {
 		let result = [...permissions];
 		if (searchQuery.trim()) {
@@ -149,8 +201,7 @@
 		editingPermission = null;
 		permissionKey = '';
 		permissionStatus = true;
-		isKeyTouched = false;
-		backendError = '';
+		errors = {};
 		dirtyChecker.snapshot({ permission_key: '', status: true });
 		isModalOpen = true;
 	}
@@ -159,8 +210,7 @@
 		editingPermission = permission;
 		permissionKey = permission.permission_key;
 		permissionStatus = permission.status;
-		isKeyTouched = false;
-		backendError = '';
+		errors = {};
 		dirtyChecker.snapshot({ permission_key: permission.permission_key, status: permission.status });
 		isModalOpen = true;
 	}
@@ -168,14 +218,16 @@
 	async function savePermission(event: Event) {
 		event.preventDefault();
 		if (editingPermission && !isDirty) return;
-		isKeyTouched = true;
+		
 		const validationError = getValidationError(permissionKey);
 		if (validationError) {
+			errors.permission_key = validationError;
 			permissionKeyInput?.focus();
 			return;
 		}
 
 		isSubmitting = true;
+		errors = {};
 		try {
 			const response = await fetch(
 				editingPermission
@@ -193,7 +245,7 @@
 				toast.success(editingPermission ? 'Permission updated successfully.' : 'Permission created successfully.');
 				isModalOpen = false;
 			} else if (response.status === 409 && body.field === 'permission_key') {
-				backendError = body.error;
+				errors.permission_key = body.error;
 				permissionKeyInput?.focus();
 			} else {
 				toast.error(body.error || 'Unable to save permission.');
@@ -278,10 +330,10 @@
 
 	<Card class="py-0">
 			<Table>
-			<TableHeader class="bg-muted">
+			<TableHeader>
 				<TableRow>
-					<TableHead class="font-bold text-foreground text-[15px]">
-						<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('permission_key')}>
+					<TableHead>
+						<Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => handleSort('permission_key')}>
 							Permission Key
 							{#if sortColumn === 'permission_key' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -292,8 +344,8 @@
 							{/if}
 						</Button>
 					</TableHead>
-					<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
-						<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
+					<TableHead class="text-center">
+						<Button variant="ghost" size="sm" class="h-8" onclick={() => handleSort('status')}>
 							Status
 							{#if sortColumn === 'status' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -304,7 +356,7 @@
 							{/if}
 						</Button>
 					</TableHead>
-					<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
+					<TableHead class="text-right">Actions</TableHead>
 				</TableRow>
 			</TableHeader>
 			<TableBody>
@@ -322,7 +374,7 @@
 							class="cursor-pointer"
 						>
 							<TableCell class="font-mono text-sm font-semibold">{permission.permission_key}</TableCell>
-							<TableCell class="text-center"><Badge variant={permission.status === true ? 'default' : 'secondary'}>{permission.status ? 'Active' : 'Inactive'}</Badge></TableCell>
+							<TableCell class="text-center"><StatusBadge status={permission.status} /></TableCell>
 							<TableCell class="text-right">
 								<TableActions
 									canEdit={masterPermissions.canEdit}
@@ -344,31 +396,34 @@
 	title={editingPermission ? 'Edit Permission' : 'Create Permission'}
 	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => (isModalOpen = false)}
+	onClose={confirmDiscard}
 >
 	{#snippet children({ cancel })}
-		<form class="space-y-3" onsubmit={savePermission}>
+		<form class="flex flex-col min-h-0 flex-1 overflow-hidden" onsubmit={savePermission}>
+			<div class="flex-1 overflow-y-auto pr-1 space-y-4 modal-scroll-area">
 			<div class="space-y-2">
-				<Label for="permission_key">Permission Key</Label>
+				<Label for="permission_key" class={errors.permission_key ? 'text-danger' : ''}>Permission Key <span class="text-destructive">*</span></Label>
 				<Input
 					id="permission_key"
 					name="permission_key"
 					bind:ref={permissionKeyInput}
 					bind:value={permissionKey}
-					class={keyValidationError || backendError ? 'border-destructive' : ''}
+					class={errors.permission_key ? 'border-danger focus-visible:ring-danger/30' : ''}
 					placeholder="employee_view"
-					oninput={() => { backendError = ''; }}
+					oninput={() => { errors.permission_key = ''; }}
 				/>
-				{#if keyValidationError || backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{keyValidationError || backendError}</p>
+				{#if errors.permission_key}
+					<p class="text-xs font-medium text-danger mt-1">{errors.permission_key}</p>
 				{/if}
 			</div>
 			{#if editingPermission}
 				<StatusDropdown id="permission_status" name="permission_status" value={permissionStatus} onChange={(val) => (permissionStatus = val)} />
 			{/if}
-			<div class="flex items-center justify-end gap-3 pt-4">
+			</div>
+
+			<div class="flex items-center justify-end gap-3 pt-6 flex-shrink-0">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingPermission && !isDirty)}>
+				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitDisabled}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingPermission ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>
 			</div>
@@ -384,4 +439,13 @@
 	isSubmitting={isDeleting}
 	onCancel={() => (itemToDelete = null)}
 	onConfirm={confirmDelete}
+/>
+
+<ConfirmModal
+	open={isDiscardModalOpen}
+	title="Cancel Changes"
+	description="Are you sure you want to cancel? All unsaved changes will be lost."
+	confirmLabel="Keep Editing"
+	onCancel={confirmDiscard}
+	onConfirm={() => (isDiscardModalOpen = false)}
 />

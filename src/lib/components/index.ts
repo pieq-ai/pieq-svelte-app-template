@@ -1,5 +1,4 @@
 export * from './ui/index.js';
-export * from './layout/index.js';
 
 export { default as CrudModal } from './common/CrudModal.svelte';
 export { default as ConfirmModal } from './common/ConfirmModal.svelte';
@@ -11,3 +10,4 @@ export { default as TableActions } from './common/TableActions.svelte';
 export { default as StatusDropdown } from './common/StatusDropdown.svelte';
 export { default as Pagination } from './common/Pagination.svelte';
 export { default as SearchInput } from './common/SearchInput.svelte';
+export { default as StatusBadge } from './common/StatusBadge.svelte';

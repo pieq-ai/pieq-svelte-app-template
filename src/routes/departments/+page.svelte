@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { beforeNavigate, goto } from '$app/navigation';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
@@ -31,7 +32,8 @@
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
-		SearchInput
+		SearchInput,
+		StatusBadge
 	} from '$lib/components';
 
 	interface Department {
@@ -58,16 +60,62 @@
 	let formDeptStatus = $state<boolean>(true);
 	let isSubmitting = $state(false);
 	let isModalOpen = $state(false);
-	let isNameTouched = $state(false);
-	let backendError = $state('');
+	let errors = $state<Record<string, string>>({});
 	let deptNameInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{ dept_name: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ dept_name: formDeptName.trim(), status: formDeptStatus }));
 
-	// Deletion State
-	let itemToDelete = $state<Department | null>(null);
-	let isDeleting = $state(false);
+	let isSubmitDisabled = $derived.by(() => {
+		if (isSubmitting) return true;
+		if (!formDeptName.trim()) return true;
+		if (editingDept) {
+			return !isDirty;
+		}
+		return false;
+	});
+
+	let isDiscardModalOpen = $state(false);
+	let isNavigatingProgrammatically = $state(false);
+	let pendingNavigation = $state<any>(null);
+
+	function handleCloseRequest() {
+		if (isDirty) {
+			isDiscardModalOpen = true;
+		} else {
+			isModalOpen = false;
+		}
+	}
+
+	function confirmDiscard() {
+		isDiscardModalOpen = false;
+		isModalOpen = false;
+		formDeptName = '';
+		formDeptStatus = true;
+		errors = {};
+		if (pendingNavigation) {
+			isNavigatingProgrammatically = true;
+			const target = pendingNavigation.to?.url;
+			pendingNavigation = null;
+			if (target) {
+				goto(target.pathname + target.search);
+			}
+		}
+	}
+
+	beforeNavigate((navigation) => {
+		if (!isModalOpen || !isDirty) {
+			return;
+		}
+
+		if (isNavigatingProgrammatically) {
+			return;
+		}
+
+		navigation.cancel();
+		pendingNavigation = navigation;
+		isDiscardModalOpen = true;
+	});
 
 	function getValidationError(name: string): string {
 		const trimmed = name.trim();
@@ -87,7 +135,7 @@
 		return '';
 	}
 
-	let nameValidationError = $derived(isNameTouched ? getValidationError(formDeptName) : '');
+
 
 	let filteredDepartments = $derived.by(() => {
 		let result = [...departmentsList];
@@ -165,8 +213,7 @@
 		editingDept = null;
 		formDeptName = '';
 		formDeptStatus = true;
-		isNameTouched = false;
-		backendError = '';
+		errors = {};
 		dirtyChecker.snapshot({ dept_name: '', status: true });
 		isModalOpen = true;
 	}
@@ -175,8 +222,7 @@
 		editingDept = dept;
 		formDeptName = dept.dept_name;
 		formDeptStatus = dept.status;
-		isNameTouched = false;
-		backendError = '';
+		errors = {};
 		dirtyChecker.snapshot({ dept_name: dept.dept_name, status: dept.status });
 		isModalOpen = true;
 	}
@@ -184,15 +230,16 @@
 	async function handleSaveDepartment(e: Event) {
 		e.preventDefault();
 		if (editingDept && !isDirty) return;
-		isNameTouched = true;
 
 		const validationError = getValidationError(formDeptName);
 		if (validationError) {
+			errors.dept_name = validationError;
 			deptNameInput?.focus();
 			return;
 		}
 
 		isSubmitting = true;
+		errors = {};
 
 		try {
 			const response = await fetch(
@@ -210,7 +257,7 @@
 				toast.success(editingDept ? 'Department updated successfully' : 'Department created successfully');
 				isModalOpen = false;
 			} else if (response.status === 409 && resData.field === 'dept_name') {
-				backendError = resData.error;
+				errors.dept_name = resData.error;
 				deptNameInput?.focus();
 			} else {
 				toast.error(resData.error || 'Failed to save department.');
@@ -222,40 +269,16 @@
 			isSubmitting = false;
 		}
 	}
-
-	async function confirmDelete() {
-		if (!itemToDelete) return;
-		isDeleting = true;
-		try {
-			const response = await fetch(`/api/departments/departmentCuid=${itemToDelete.cuid}`, {
-				method: 'DELETE'
-			});
-			const resData = await response.json();
-
-			if (response.ok && resData.data) {
-				await loadDepartments();
-				toast.success('Department deactivated successfully');
-				itemToDelete = null;
-			} else {
-				toast.error(resData.error || 'Failed to deactivate department.');
-			}
-		} catch (err) {
-			console.error(err);
-			toast.error('An error occurred while deleting the department.');
-		} finally {
-			isDeleting = false;
-		}
-	}
 </script>
 
 <svelte:head>
-	<title>HRMS Department Directory</title>
+	<title>Department </title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Department Directory</h1>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Department</h1>
 		</div>
 		<Button
 			type="button"
@@ -297,10 +320,10 @@
 
 		<Card class="py-0">
 			<Table>
-				<TableHeader class="bg-muted">
+				<TableHeader>
 					<TableRow>
-						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('dept_name')}>
+						<TableHead>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => handleSort('dept_name')}>
 								Department Name
 							{#if sortColumn === 'dept_name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -311,8 +334,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
-							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
+						<TableHead class="text-center">
+							<Button variant="ghost" size="sm" class="h-8" onclick={() => handleSort('status')}>
 								Status
 							{#if sortColumn === 'status' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -323,7 +346,7 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
+						<TableHead class="text-right">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -355,7 +378,7 @@
 									</div>
 								</TableCell>
 								<TableCell class="text-center">
-									<Badge variant={dept.status === true ? 'default' : 'secondary'}>{dept.status ? 'Active' : 'Inactive'}</Badge>
+									<StatusBadge status={dept.status} />
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
@@ -378,31 +401,34 @@
 	title={editingDept ? 'Edit Department' : 'Create Department'}
 	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => (isModalOpen = false)}
+	onClose={confirmDiscard}
 >
 	{#snippet children({ cancel })}
-		<form class="space-y-3" onsubmit={handleSaveDepartment}>
+		<form class="flex flex-col min-h-0 flex-1 overflow-hidden" onsubmit={handleSaveDepartment}>
+			<div class="flex-1 overflow-y-auto pr-1 space-y-4 modal-scroll-area">
 			<div class="space-y-2">
-				<Label for="dept_name">Department Name</Label>
+				<Label for="dept_name" class={errors.dept_name ? 'text-danger' : ''}>Department Name <span class="text-destructive">*</span></Label>
 				<Input
 					id="dept_name"
 					name="dept_name"
 					bind:ref={deptNameInput}
 					bind:value={formDeptName}
-					class={nameValidationError || backendError ? 'border-destructive' : ''}
+					class={errors.dept_name ? 'border-danger focus-visible:ring-danger/30' : ''}
 					placeholder="e.g. Finance"
-					oninput={() => { backendError = ''; }}
+					oninput={() => { errors.dept_name = ''; }}
 				/>
-				{#if nameValidationError || backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
+				{#if errors.dept_name}
+					<p class="text-xs font-medium text-danger mt-1">{errors.dept_name}</p>
 				{/if}
 			</div>
 			{#if editingDept}
 				<StatusDropdown id="dept_status" name="dept_status" value={formDeptStatus} onChange={(val) => (formDeptStatus = val)} />
 			{/if}
-			<div class="flex items-center justify-end gap-3 pt-4">
+			</div>
+
+			<div class="flex items-center justify-end gap-3 pt-6 flex-shrink-0">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingDept && !isDirty)}>
+				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitDisabled}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingDept ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>
 			</div>
@@ -411,11 +437,11 @@
 </CrudModal>
 
 <ConfirmModal
-	open={!!itemToDelete}
-	title="Deactivate Department"
-	description={`Are you sure you want to deactivate ${itemToDelete?.dept_name}?`}
-	confirmLabel="Deactivate"
-	isSubmitting={isDeleting}
-	onCancel={() => (itemToDelete = null)}
-	onConfirm={confirmDelete}
+	open={isDiscardModalOpen}
+	title="Cancel Changes"
+	description="Are you sure you want to cancel? All unsaved changes will be lost."
+	confirmLabel="Keep Editing"
+	onCancel={confirmDiscard}
+	onConfirm={() => (isDiscardModalOpen = false)}
 />
+

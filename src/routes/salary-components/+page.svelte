@@ -33,7 +33,8 @@
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
-		SearchInput
+		SearchInput,
+		StatusBadge
 	} from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
@@ -64,7 +65,7 @@
 	let formIsActive = $state<boolean>(true);
 	let isSubmitting = $state(false);
 	let isModalOpen = $state(false);
-	let backendError = $state('');
+	let errors = $state<Record<string, string>>({});
 	let nameInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{
@@ -82,6 +83,15 @@
 			is_active: formIsActive
 		})
 	);
+
+	let isSubmitDisabled = $derived.by(() => {
+		if (isSubmitting) return true;
+		if (!formName.trim()) return true;
+		if (editingComp) {
+			return !isDirty;
+		}
+		return false;
+	});
 
 	let filteredComponents = $derived.by(() => {
 		let result = [...componentsList];
@@ -105,6 +115,12 @@
 			result.sort((a, b) => {
 				const valA = a[sortColumn as keyof typeof a];
 				const valB = b[sortColumn as keyof typeof b];
+
+				if (typeof valA === 'boolean' && typeof valB === 'boolean') {
+					return sortDirection === 'asc'
+						? (valA ? 1 : 0) - (valB ? 1 : 0)
+						: (valB ? 1 : 0) - (valA ? 1 : 0);
+				}
 
 				return sortDirection === 'asc'
 					? String(valA).localeCompare(String(valB))
@@ -168,7 +184,7 @@
 		formType = 'earning';
 		formIsTaxable = false;
 		formIsActive = true;
-		backendError = '';
+		errors = {};
 		dirtyChecker.snapshot({
 			component_name: '',
 			component_type: 'earning',
@@ -184,7 +200,7 @@
 		formType = comp.component_type;
 		formIsTaxable = comp.is_taxable;
 		formIsActive = comp.is_active;
-		backendError = '';
+		errors = {};
 		dirtyChecker.snapshot({
 			component_name: comp.component_name,
 			component_type: comp.component_type,
@@ -200,13 +216,13 @@
 
 		const validationError = validateComponentName(formName);
 		if (validationError) {
-			backendError = validationError;
+			errors.component_name = validationError;
 			nameInput?.focus();
 			return;
 		}
 
 		isSubmitting = true;
-		backendError = '';
+		errors = {};
 
 		try {
 			const payload = {
@@ -234,7 +250,7 @@
 				isModalOpen = false;
 			} else {
 				if (response.status === 400 || response.status === 409) {
-					backendError = resData.message || resData.error || 'Validation failed';
+					errors.component_name = resData.message || resData.error || 'Validation failed';
 					nameInput?.focus();
 				} else {
 					toast.error(resData.message || resData.error || 'Failed to save salary component.');
@@ -326,10 +342,10 @@
 
 		<Card class="py-0">
 			<Table>
-				<TableHeader class="bg-muted">
+				<TableHeader>
 					<TableRow>
-						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('component_name')}>
+						<TableHead>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => handleSort('component_name')}>
 								Component Name
 							{#if sortColumn === 'component_name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -340,8 +356,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('component_type')}>
+						<TableHead>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => handleSort('component_type')}>
 								Type
 							{#if sortColumn === 'component_type' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -352,9 +368,20 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="font-bold text-foreground text-[15px]">Taxable</TableHead>
-						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
-							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('is_active')}>
+						<TableHead>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => handleSort('is_taxable')}>
+								Taxable
+							{#if sortColumn === 'is_taxable' && sortDirection === 'asc'}
+								<ArrowUpIcon class="ml-2 size-4" />
+							{:else if sortColumn === 'is_taxable' && sortDirection === 'desc'}
+								<ArrowDownIcon class="ml-2 size-4" />
+							{:else}
+								<ArrowUpDownIcon class="ml-2 size-4" />
+							{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="text-center">
+							<Button variant="ghost" size="sm" class="h-8" onclick={() => handleSort('is_active')}>
 								Status
 							{#if sortColumn === 'is_active' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -365,7 +392,7 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
+						<TableHead class="text-right">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -401,7 +428,7 @@
 									<span>{comp.is_taxable ? "Taxable" : "Non-taxable"}</span>
 								</TableCell>
 								<TableCell class="text-center">
-									<Badge variant={comp.is_active === true ? 'default' : 'secondary'}>{comp.is_active ? 'Active' : 'Inactive'}</Badge>
+									<StatusBadge status={comp.is_active} />
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
@@ -427,20 +454,21 @@
 	onClose={() => (isModalOpen = false)}
 >
 	{#snippet children({ cancel })}
-		<form class="space-y-4" onsubmit={handleSaveComponent}>
+		<form class="flex flex-col min-h-0 flex-1 overflow-hidden" onsubmit={handleSaveComponent}>
+			<div class="flex-1 overflow-y-auto pr-1 space-y-4 modal-scroll-area">
 			<div class="space-y-2">
-				<Label for="component_name">Component Name</Label>
+				<Label for="component_name" class={errors.component_name ? 'text-danger' : ''}>Component Name <span class="text-destructive">*</span></Label>
 				<Input
 					id="component_name"
 					name="component_name"
 					bind:ref={nameInput}
 					bind:value={formName}
-					class={backendError ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+					class={errors.component_name ? 'border-danger focus-visible:ring-danger/30' : ''}
 					placeholder="e.g. Basic Pay, HRA"
-					oninput={() => { backendError = ''; }}
+					oninput={() => { errors.component_name = ''; }}
 				/>
-				{#if backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{backendError}</p>
+				{#if errors.component_name}
+					<p class="text-xs font-medium text-danger mt-1">{errors.component_name}</p>
 				{/if}
 			</div>
 
@@ -488,9 +516,11 @@
 				</div>
 			</div>
 
-			<div class="flex items-center justify-end gap-3 pt-4">
+			</div>
+
+			<div class="flex items-center justify-end gap-3 pt-6 flex-shrink-0">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingComp && !isDirty)}>
+				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitDisabled}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : UI_CONSTANTS.BUTTON_SAVE}
 				</Button>
 			</div>

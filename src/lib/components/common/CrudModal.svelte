@@ -10,11 +10,12 @@
 		closeLabel?: string;
 		isDirty?: boolean;
 		isSubmitting?: boolean;
+		isConfirmation?: boolean;
 		onClose: () => void;
 		children?: import('svelte').Snippet<[{ cancel: () => void }]>;
 	}
 
-	let { open, title, description = '', closeLabel = 'Close modal', isDirty = false, isSubmitting = false, onClose, children }: Props = $props();
+	let { open, title, description = '', closeLabel = 'Close modal', isDirty = false, isSubmitting = false, isConfirmation = false, onClose, children }: Props = $props();
 
 	let showUnsavedConfirm = $state(false);
 
@@ -28,19 +29,43 @@
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'Escape' && open) {
-			if (showUnsavedConfirm) {
-				showUnsavedConfirm = false;
-			} else {
-				handleCloseAttempt();
+		if (!open) return;
+
+		// Disable ESC and Enter completely inside confirmation modals
+		if (isConfirmation) {
+			if (e.key === 'Escape' || e.key === 'Enter') {
+				e.preventDefault();
+				e.stopPropagation();
+			}
+			return;
+		}
+
+		// Disable ESC and Enter completely when the internal warning dialog is active
+		if (showUnsavedConfirm) {
+			if (e.key === 'Escape' || e.key === 'Enter') {
+				e.preventDefault();
+				e.stopPropagation();
+			}
+			return;
+		}
+
+		// Normal ESC closes modal (subject to dirty warning)
+		if (e.key === 'Escape') {
+			handleCloseAttempt();
+		}
+
+		// Normal Enter key logic (prevents unintended form submissions)
+		if (e.key === 'Enter') {
+			const target = e.target as HTMLElement;
+			if (target && target.tagName !== 'TEXTAREA' && target.tagName !== 'BUTTON' && target.tagName !== 'A') {
+				e.preventDefault();
+				e.stopPropagation();
 			}
 		}
 	}
 
 	function handleBackdropClick(e: MouseEvent) {
-		if (e.target === e.currentTarget) {
-			handleCloseAttempt();
-		}
+		// Backdrop click-to-close is disabled globally
 	}
 </script>
 
@@ -53,8 +78,8 @@
 		class="fixed inset-0 z-50 flex items-center justify-center bg-[#262626]/70 px-4 py-6"
 		onclick={handleBackdropClick}
 	>
-		<Card class="relative max-h-[90vh] w-full max-w-lg overflow-y-auto" onclick={(e) => e.stopPropagation()}>
-			<CardHeader class="flex-col items-start gap-1 pr-12">
+		<Card class="relative max-h-[90vh] w-full max-w-lg overflow-hidden flex flex-col py-0" onclick={(e) => e.stopPropagation()}>
+			<CardHeader class="flex-col items-start gap-1 pl-6 pt-6 pr-12 flex-shrink-0">
 				<CardTitle>{title}</CardTitle>
 				{#if description}
 					<CardDescription>{description}</CardDescription>
@@ -64,14 +89,14 @@
 				type="button" 
 				variant="ghost" 
 				size="icon-sm" 
-				class="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
+				class="absolute right-4 top-4 text-muted-foreground hover:text-foreground z-10"
 				aria-label={closeLabel} 
 				onclick={handleCloseAttempt}
 				disabled={isSubmitting}
 			>
 				<XIcon class="size-4" />
 			</Button>
-			<CardContent>
+			<CardContent class="flex-1 overflow-hidden flex flex-col p-6 pt-0 min-h-0">
 				{@render children?.({ cancel: handleCloseAttempt })}
 			</CardContent>
 		</Card>
@@ -80,14 +105,14 @@
 
 {#if showUnsavedConfirm}
 	<div class="fixed inset-0 z-60 flex items-center justify-center bg-[#262626]/70 px-4 py-6">
-		<Card class="w-full max-w-sm">
-			<CardHeader>
-				<CardTitle>Unsaved Changes</CardTitle>
-				<CardDescription>You have unsaved changes. Are you sure you want to close this form?</CardDescription>
+		<Card class="w-full max-w-sm animate-in fade-in zoom-in-95 duration-150 py-0">
+			<CardHeader class="pt-6 pl-6 pr-6">
+				<CardTitle>Cancel Changes</CardTitle>
+				<CardDescription>Are you sure you want to cancel? All unsaved changes will be lost.</CardDescription>
 			</CardHeader>
 			<div class="flex justify-end gap-2 p-6 pt-0">
-				<Button variant="outline" onclick={() => (showUnsavedConfirm = false)}>Continue Editing</Button>
-				<Button class="bg-danger text-danger-foreground hover:bg-danger/90 focus-visible:ring-danger/50 focus-visible:border-danger" onclick={() => {
+				<Button variant="outline" onclick={() => (showUnsavedConfirm = false)}>Keep Editing</Button>
+				<Button class="bg-[#800020] dark:bg-[#9e1a35] text-white hover:bg-[#800020]/90 dark:hover:bg-[#9e1a35]/90 focus-visible:ring-[#800020]/50 dark:focus-visible:ring-[#9e1a35]/50 focus-visible:border-[#800020] dark:focus-visible:border-[#9e1a35]" onclick={() => {
 					showUnsavedConfirm = false;
 					onClose();
 				}}>Discard Changes</Button>

@@ -4,6 +4,9 @@
 
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
+	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
+	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
+	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import {
 		Alert,
 		AlertDescription,
@@ -95,18 +98,13 @@
 			sortDirection = 'asc';
 		}
 	}
-
-	function sortIndicator(column: SortColumn) {
-		if (sortColumn !== column) return '';
-		return sortDirection === 'asc' ? '↑' : '↓';
-	}
 </script>
 
 <svelte:head>
-	<title>System Employees Directory</title>
+	<title>Employees</title>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl space-y-8 px-1 py-4">
+<div class="w-full space-y-8 px-1 py-4">
 	<div class="space-y-1 border-b border-border pb-6">
 		<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
 		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">System Employees</h1>
@@ -168,30 +166,51 @@
 								<Button
 									variant="ghost"
 									size="sm"
-									class="-ml-2 h-8"
+									class="-ml-2.5 h-8"
 									onclick={() => handleSort('id')}
 								>
-									ID {sortIndicator('id')}
+									ID
+									{#if sortColumn === 'id' && sortDirection === 'asc'}
+										<ArrowUpIcon class="ml-2 size-4" />
+									{:else if sortColumn === 'id' && sortDirection === 'desc'}
+										<ArrowDownIcon class="ml-2 size-4" />
+									{:else}
+										<ArrowUpDownIcon class="ml-2 size-4" />
+									{/if}
 								</Button>
 							</TableHead>
 							<TableHead>
 								<Button
 									variant="ghost"
 									size="sm"
-									class="-ml-2 h-8"
+									class="-ml-2.5 h-8"
 									onclick={() => handleSort('name')}
 								>
-									Name {sortIndicator('name')}
+									Name
+									{#if sortColumn === 'name' && sortDirection === 'asc'}
+										<ArrowUpIcon class="ml-2 size-4" />
+									{:else if sortColumn === 'name' && sortDirection === 'desc'}
+										<ArrowDownIcon class="ml-2 size-4" />
+									{:else}
+										<ArrowUpDownIcon class="ml-2 size-4" />
+									{/if}
 								</Button>
 							</TableHead>
 							<TableHead>
 								<Button
 									variant="ghost"
 									size="sm"
-									class="-ml-2 h-8"
+									class="-ml-2.5 h-8"
 									onclick={() => handleSort('age')}
 								>
-									Age {sortIndicator('age')}
+									Age
+									{#if sortColumn === 'age' && sortDirection === 'asc'}
+										<ArrowUpIcon class="ml-2 size-4" />
+									{:else if sortColumn === 'age' && sortDirection === 'desc'}
+										<ArrowDownIcon class="ml-2 size-4" />
+									{:else}
+										<ArrowUpDownIcon class="ml-2 size-4" />
+									{/if}
 								</Button>
 							</TableHead>
 							<TableHead>UUID</TableHead>
