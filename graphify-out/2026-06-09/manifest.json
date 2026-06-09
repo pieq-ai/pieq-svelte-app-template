@@ -930,13 +930,13 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\serializers\\salary-structure.serializer.ts": {
-    "mtime": 1781012467.3107417,
-    "ast_hash": "980d4e39047783bdc19a0633f055f9cd",
+    "mtime": 1781003754.629402,
+    "ast_hash": "8b023c1b18d413b31ac88f5968d9031f",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\services\\salary-structure.service.ts": {
-    "mtime": 1781011876.2851326,
-    "ast_hash": "4626f60100009f37072aec0705708d6c",
+    "mtime": 1781011124.7868927,
+    "ast_hash": "73d04ac91720b0bf1f521d3106e8d3fc",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\validators\\salary-structure.validator.ts": {
@@ -945,8 +945,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\types\\salary-structure.ts": {
-    "mtime": 1781012463.0356767,
-    "ast_hash": "cde9f4fbc0c43128b25b2edd4a5c2bba",
+    "mtime": 1781011059.3490677,
+    "ast_hash": "fa9944a1e4c49b651e955c7a4fb424cb",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\validators\\salary-structure.ts": {
@@ -975,8 +975,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\salary-structures\\+page.svelte": {
-    "mtime": 1781012507.636184,
-    "ast_hash": "5b4ebd316c3488547bd6d7c3dd41e831",
+    "mtime": 1781011194.6506004,
+    "ast_hash": "77fe5bd38c97db7b9049301acfb039b7",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\salary-structure.dao.test.ts": {
@@ -985,8 +985,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\salary-structure.service.test.ts": {
-    "mtime": 1781012502.1126406,
-    "ast_hash": "c64455e1c5c78e8f2979a9410bafbf64",
+    "mtime": 1781011278.8056016,
+    "ast_hash": "3a0b9ab89da56b3d6af89b874ba2cd76",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\salary-structure.validator.test.ts": {
