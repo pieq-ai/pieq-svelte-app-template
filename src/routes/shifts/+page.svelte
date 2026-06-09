@@ -326,22 +326,33 @@
 		isSubmitting = true;
 
 		try {
-			const startTimeIso = `1970-01-01T${formStartTime}:00.000Z`;
-			const endTimeIso = `1970-01-01T${formEndTime}:00.000Z`;
+			const formatTimeOnly = (timeStr: string) => {
+				if (!timeStr) return '00:00:00';
+				const parts = timeStr.split(':');
+				if (parts.length === 2) {
+					return `${timeStr}:00`;
+				}
+				if (parts.length === 1) {
+					return `${parts[0].padStart(2, '0')}:00:00`;
+				}
+				return timeStr;
+			};
+			const startTimeOnly = formatTimeOnly(formStartTime);
+			const endTimeOnly = formatTimeOnly(formEndTime);
 
 			if (editingShift) {
 				await updateShift(editingShift.cuid, {
 					shift_name: formName.trim(),
-					start_time: startTimeIso,
-					end_time: endTimeIso,
+					start_time: startTimeOnly,
+					end_time: endTimeOnly,
 					minimum_work_hours: formMinHours,
 					status: formStatus
 				});
 			} else {
 				await createShift({
 					shift_name: formName.trim(),
-					start_time: startTimeIso,
-					end_time: endTimeIso,
+					start_time: startTimeOnly,
+					end_time: endTimeOnly,
 					minimum_work_hours: formMinHours
 				});
 			}

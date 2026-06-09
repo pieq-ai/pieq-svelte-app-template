@@ -104,5 +104,22 @@ describe('Validation Unit Tests', () => {
       expect(valid.is_active).toBe(false);
       expect(valid.state_cuid).toBe('new-state-cuid');
     });
+
+    it('should reject non-numeric pincode in create payload', () => {
+      const payload = {
+        location_name: 'Bangalore Office',
+        address_line1: '456 Tech Park',
+        city: 'Bangalore',
+        state_cuid: 'state-cuid',
+        country_cuid: 'country-cuid',
+        pin_code: '560abc',
+        timezone: 'Asia/Kolkata'
+      };
+      expect(() => locationValidator.validateCreatePayload(payload)).toThrow('Pin Code must contain numeric values only');
+    });
+
+    it('should reject non-numeric pincode in update payload', () => {
+      expect(() => locationValidator.validateUpdatePayload({ pin_code: '123-456' })).toThrow('Pin Code must contain numeric values only');
+    });
   });
 });

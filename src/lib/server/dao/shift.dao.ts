@@ -2,12 +2,31 @@
 import { db } from '$lib/server/db.js';
 import type { Shift, ShiftCreateDTO, ShiftUpdateDTO } from '$lib/types/shift';
 
+function parseTimeToDate(timeVal: Date | string | undefined, defaultTimeIso: string): Date {
+  if (!timeVal) return new Date(defaultTimeIso);
+  if (timeVal instanceof Date) return timeVal;
+  if (typeof timeVal === 'string') {
+    if (timeVal.includes('T') || timeVal.includes('-')) {
+      const d = new Date(timeVal);
+      if (!isNaN(d.getTime())) return d;
+    }
+    const parts = timeVal.split(':');
+    if (parts.length >= 2) {
+      const hours = parts[0].padStart(2, '0');
+      const minutes = parts[1].padStart(2, '0');
+      const seconds = parts.length > 2 ? parts[2].substring(0, 2).padStart(2, '0') : '00';
+      return new Date(`1970-01-01T${hours}:${minutes}:${seconds}.000Z`);
+    }
+  }
+  return new Date(timeVal);
+}
+
 /**
  * Create a new shift.
  */
 export async function createShift(data: ShiftCreateDTO): Promise<Shift> {
-  const startTime = data.start_time ? new Date(data.start_time) : new Date('1970-01-01T09:00:00Z');
-  const endTime = data.end_time ? new Date(data.end_time) : new Date('1970-01-01T18:00:00Z');
+  const startTime = parseTimeToDate(data.start_time, '1970-01-01T09:00:00.000Z');
+  const endTime = parseTimeToDate(data.end_time, '1970-01-01T18:00:00.000Z');
   
   let minHours = data.minimum_work_hours !== undefined ? data.minimum_work_hours : 8.0;
   if (data.start_time !== undefined && data.end_time !== undefined) {
@@ -128,10 +147,10 @@ export async function updateShift(cuid: string, data: ShiftUpdateDTO): Promise<S
     updateData.shift_name = data.shift_name.trim();
   }
   if (data.start_time !== undefined) {
-    updateData.start_time = new Date(data.start_time);
+    updateData.start_time = parseTimeToDate(data.start_time, '1970-01-01T09:00:00.000Z');
   }
   if (data.end_time !== undefined) {
-    updateData.end_time = new Date(data.end_time);
+    updateData.end_time = parseTimeToDate(data.end_time, '1970-01-01T18:00:00.000Z');
   }
   if (data.status !== undefined) {
     updateData.status = data.status;
@@ -146,17 +165,17 @@ export async function updateShift(cuid: string, data: ShiftUpdateDTO): Promise<S
   if (data.minimum_work_hours !== undefined) {
     updateData.minimum_work_hours = data.minimum_work_hours;
   } else if (data.start_time !== undefined || data.end_time !== undefined) {
-    let startTime = data.start_time !== undefined ? new Date(data.start_time) : undefined;
-    let endTime = data.end_time !== undefined ? new Date(data.end_time) : undefined;
+    let startTime = data.start_time !== undefined ? parseTimeToDate(data.start_time, '1970-01-01T09:00:00.000Z') : undefined;
+    let endTime = data.end_time !== undefined ? parseTimeToDate(data.end_time, '1970-01-01T18:00:00.000Z') : undefined;
 
     if (startTime === undefined || endTime === undefined) {
       const existing = await getShiftByCuid(cuid);
       if (existing) {
         if (startTime === undefined) {
-          startTime = new Date(existing.start_time);
+          startTime = parseTimeToDate(existing.start_time, '1970-01-01T09:00:00.000Z');
         }
         if (endTime === undefined) {
-          endTime = new Date(existing.end_time);
+          endTime = parseTimeToDate(existing.end_time, '1970-01-01T18:00:00.000Z');
         }
       }
     }

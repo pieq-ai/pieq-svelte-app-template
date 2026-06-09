@@ -1,16 +1,16 @@
-# Graph Report - pieq-svelte-app-template  (2026-06-09)
+# Graph Report - pieq-svelte-app-template  (2026-06-08)
 
 ## Corpus Check
-- 217 files · ~67,013 words
+- 217 files · ~66,633 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1032 nodes · 1694 edges · 54 communities (41 shown, 13 thin omitted)
+- 1030 nodes · 1688 edges · 54 communities (41 shown, 13 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `06107be1`
+- Built from commit: `5dc028f2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -96,20 +96,20 @@ Cohesion: 0.08
 Nodes (41): GET(), PUT(), POST(), GET(), PUT(), POST(), requireAdmin(), requireAuth() (+33 more)
 
 ### Community 1 - "Data Access Tests"
-Cohesion: 0.19
-Nodes (4): createClient(), db, getDb(), isValidClient()
+Cohesion: 0.21
+Nodes (5): CreateEmployeeData, createClient(), db, getDb(), isValidClient()
 
 ### Community 2 - "UI Components Index"
 Cohesion: 0.07
-Nodes (51): @lucide/svelte/icons/alert-triangle, @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/components, $lib/constants, $lib/master-data/master-config, $lib/permissions/mock-permissions (+43 more)
+Nodes (52): @lucide/svelte/icons/alert-triangle, @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/components, $lib/constants, $lib/master-data/master-config, $lib/permissions/mock-permissions (+44 more)
 
 ### Community 3 - "UI Components Core"
 Cohesion: 0.08
-Nodes (4): $lib/utils.js, @lucide/svelte/icons/chevron-right, svelte/elements, @lucide/svelte/icons/minus
+Nodes (4): $lib/utils.js, @lucide/svelte/icons/chevron-right, svelte/elements, bits-ui
 
 ### Community 4 - "Dependencies & Icons"
-Cohesion: 0.04
-Nodes (41): @lucide/svelte/icons/circle-check, $app/environment, @lucide/svelte/icons/info, toast, @lucide/svelte/icons/loader-2, @lucide/svelte/icons/octagon-x, devDependencies, bits-ui (+33 more)
+Cohesion: 0.05
+Nodes (40): @lucide/svelte/icons/circle-check, $app/environment, @lucide/svelte/icons/info, toast, @lucide/svelte/icons/loader-2, @lucide/svelte/icons/octagon-x, devDependencies, clsx (+32 more)
 
 ### Community 5 - "Master Data DAO"
 Cohesion: 0.12
@@ -132,8 +132,8 @@ Cohesion: 0.06
 Nodes (23): POST(), GET(), PUT(), SalaryComponentDto, serializeSalaryComponent(), BusinessValidationError, ComponentNotFoundError, DuplicateComponentError (+15 more)
 
 ### Community 10 - "Designation Service DAO"
-Cohesion: 0.15
-Nodes (12): CreateDesignationInput, UpdateDesignationInput, createDesignation(), CreateDesignationDto, deleteDesignation(), ensureDesignationNameIsUnique(), getDesignationByCuid2(), getDesignationById() (+4 more)
+Cohesion: 0.33
+Nodes (10): createDesignation(), CreateDesignationDto, deleteDesignation(), ensureDesignationNameIsUnique(), getDesignationByCuid2(), getDesignationById(), toPublicDesignation(), updateDesignation() (+2 more)
 
 ### Community 11 - "Server Authentication"
 Cohesion: 0.16
@@ -144,7 +144,7 @@ Cohesion: 0.12
 Nodes (16): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+8 more)
 
 ### Community 13 - "Permission Service"
-Cohesion: 0.26
+Cohesion: 0.29
 Nodes (11): createPermission(), CreatePermissionDto, deletePermission(), ensurePermissionKeyIsUnique(), getPermissionByCuid2(), getPermissionById(), toPublicPermission(), updatePermission() (+3 more)
 
 ### Community 14 - "System Role Service"
@@ -188,24 +188,24 @@ Cohesion: 0.40
 Nodes (4): SALARY_COMPONENT_TYPE_LABELS, SALARY_COMPONENT_TYPE_OPTIONS, SALARY_COMPONENT_TYPES, SalaryComponentType
 
 ### Community 44 - "Community 44"
-Cohesion: 0.06
-Nodes (11): Country, LocationCreatePayload, LocationListResponse, LocationUpdatePayload, State, CompanyLocation, CompanyLocationCreateDTO, CompanyLocationUpdateDTO (+3 more)
+Cohesion: 0.05
+Nodes (15): ApiError, extractErrorMessage(), localApi, localRequest(), Country, LocationCreatePayload, LocationListResponse, LocationUpdatePayload (+7 more)
 
 ### Community 45 - "Community 45"
 Cohesion: 0.04
 Nodes (44): 1. Clone and install dependencies, 1. Project Overview, 2. Configure environment, 2. Implemented Modules, 3. Set up the database, 3. UI & Design System, 4. Start the dev server, 4. Tech Stack (+36 more)
 
 ### Community 46 - "Community 46"
-Cohesion: 0.11
+Cohesion: 0.12
 Nodes (28): GET(), DELETE(), parseCuid(), PATCH(), PUT(), GET(), POST(), DELETE() (+20 more)
 
 ### Community 47 - "Community 47"
 Cohesion: 0.09
-Nodes (19): ShiftCreatePayload, ShiftListResponse, ShiftUpdatePayload, createShift(), getShiftByCuid(), parseTimeToDate(), updateShift(), activateShift() (+11 more)
+Nodes (16): ShiftCreatePayload, ShiftListResponse, ShiftUpdatePayload, getShiftByCuid(), updateShift(), activateShift(), createShift(), formatTimeToHHMMSS() (+8 more)
 
 ### Community 48 - "Community 48"
-Cohesion: 0.09
-Nodes (13): ApiError, extractErrorMessage(), localApi, localRequest(), RoleListResponse, Role, RoleCreateDTO, RoleUpdateDTO (+5 more)
+Cohesion: 0.10
+Nodes (9): RoleListResponse, Role, RoleCreateDTO, RoleUpdateDTO, rejectUnknownKeys(), sanitizeString(), validateCreatePayload(), validatePaginationParams() (+1 more)
 
 ### Community 49 - "Community 49"
 Cohesion: 0.09
@@ -231,17 +231,17 @@ Nodes (8): createDepartment(), CreateDepartmentDto, deleteDepartment(), getDepar
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `db` connect `Data Access Tests` to `Community 36`, `Master Data DAO`, `Community 37`, `Community 39`, `Community 40`, `Department Service DAO`, `Designation Service DAO`, `Community 38`, `Community 44`, `Community 46`, `Community 47`, `Community 48`?**
-  _High betweenness centrality (0.118) - this node is a cross-community bridge._
-- **Why does `devDependencies` connect `Dependencies & Icons` to `Package Dependencies`?**
-  _High betweenness centrality (0.107) - this node is a cross-community bridge._
+- **Why does `db` connect `Data Access Tests` to `Community 36`, `Master Data DAO`, `Community 37`, `Community 39`, `Community 40`, `Department Service DAO`, `Community 38`, `Community 44`, `Community 46`, `Community 47`, `Community 48`?**
+  _High betweenness centrality (0.113) - this node is a cross-community bridge._
+- **Why does `devDependencies` connect `Dependencies & Icons` to `UI Components Core`, `Package Dependencies`?**
+  _High betweenness centrality (0.099) - this node is a cross-community bridge._
 - **Why does `svelte` connect `Dependencies & Icons` to `UI Components Index`?**
-  _High betweenness centrality (0.089) - this node is a cross-community bridge._
+  _High betweenness centrality (0.083) - this node is a cross-community bridge._
 - **What connects `$schema`, `css`, `baseColor` to the rest of the system?**
   _317 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `API Endpoints` be split into smaller, more focused modules?**
   _Cohesion score 0.07826546800634585 - nodes in this community are weakly interconnected._
 - **Should `UI Components Index` be split into smaller, more focused modules?**
-  _Cohesion score 0.06905671466353218 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06666666666666667 - nodes in this community are weakly interconnected._
 - **Should `UI Components Core` be split into smaller, more focused modules?**
-  _Cohesion score 0.08315863032844165 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0841799709724238 - nodes in this community are weakly interconnected._

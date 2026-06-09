@@ -414,6 +414,10 @@
       formError = "Pin Code is required.";
       return;
     }
+    if (!/^\d+$/.test(pinTrimmed)) {
+      formError = "Pin Code must contain numeric values only.";
+      return;
+    }
     if (!tzTrimmed) {
       formError = "Timezone is required.";
       return;
@@ -907,7 +911,7 @@
           oninput={() => { formError = ''; }}
         />
         {#if formError}
-          <p class="text-xs text-destructive">{formError}</p>
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{formError}</p>
         {/if}
       </div>
 
@@ -1091,7 +1095,7 @@
           oninput={() => { addCountryError = ''; }}
         />
         {#if addCountryError}
-          <p class="text-xs text-destructive">{addCountryError}</p>
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{addCountryError}</p>
         {/if}
       </div>
       <div class="flex items-center justify-end gap-3 pt-4">
@@ -1124,7 +1128,7 @@
           oninput={() => { addStateError = ''; }}
         />
         {#if addStateError}
-          <p class="text-xs text-destructive">{addStateError}</p>
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{addStateError}</p>
         {/if}
       </div>
       <div class="flex items-center justify-end gap-3 pt-4">

@@ -3,6 +3,25 @@ import type { ShiftCreateDTO, ShiftUpdateDTO, Shift } from '$lib/types/shift';
 import * as shiftDao from '$lib/server/dao/shift.dao.js';
 import { validateCreatePayload, validateUpdatePayload, validatePaginationParams } from '$lib/server/validators/shift.validator.js';
 
+export function parseTimeToDate(timeVal: Date | string | undefined, defaultTimeIso: string): Date {
+  if (!timeVal) return new Date(defaultTimeIso);
+  if (timeVal instanceof Date) return timeVal;
+  if (typeof timeVal === 'string') {
+    if (timeVal.includes('T') || timeVal.includes('-')) {
+      const d = new Date(timeVal);
+      if (!isNaN(d.getTime())) return d;
+    }
+    const parts = timeVal.split(':');
+    if (parts.length >= 2) {
+      const hours = parts[0].padStart(2, '0');
+      const minutes = parts[1].padStart(2, '0');
+      const seconds = parts.length > 2 ? parts[2].substring(0, 2).padStart(2, '0') : '00';
+      return new Date(`1970-01-01T${hours}:${minutes}:${seconds}.000Z`);
+    }
+  }
+  return new Date(timeVal);
+}
+
 function formatTimeToHHMMSS(timeVal: Date | string | undefined, defaultTime: string): string {
   if (!timeVal) return defaultTime;
   
@@ -74,8 +93,8 @@ export async function createShift(payload: unknown): Promise<Shift> {
 
   // Validate minimum_work_hours does not exceed the calculated shift duration
   if (valid.minimum_work_hours !== undefined && valid.start_time !== undefined && valid.end_time !== undefined) {
-    const startTime = new Date(valid.start_time);
-    const endTime = new Date(valid.end_time);
+    const startTime = parseTimeToDate(valid.start_time, '1970-01-01T09:00:00.000Z');
+    const endTime = parseTimeToDate(valid.end_time, '1970-01-01T18:00:00.000Z');
     let diffHrs = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
     if (diffHrs < 0) diffHrs += 24;
     const maxHrs = Math.round(diffHrs * 100) / 100;
@@ -138,8 +157,8 @@ export async function updateShift(cuid: string, payload: unknown): Promise<Shift
   if (valid.minimum_work_hours !== undefined) {
     const targetStart = valid.start_time !== undefined ? valid.start_time : shift.start_time;
     const targetEnd = valid.end_time !== undefined ? valid.end_time : shift.end_time;
-    const startTime = new Date(targetStart);
-    const endTime = new Date(targetEnd);
+    const startTime = parseTimeToDate(targetStart, '1970-01-01T09:00:00.000Z');
+    const endTime = parseTimeToDate(targetEnd, '1970-01-01T18:00:00.000Z');
     let diffHrs = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
     if (diffHrs < 0) diffHrs += 24;
     const maxHrs = Math.round(diffHrs * 100) / 100;

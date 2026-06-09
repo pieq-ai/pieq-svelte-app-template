@@ -136,6 +136,22 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
     throw err;
   }
 
+  let pinCode: string | undefined = undefined;
+  if (raw.pin_code !== undefined && raw.pin_code !== null) {
+    if (typeof raw.pin_code !== 'string') {
+      const err: any = new Error('Pin Code must be a string');
+      err.status = 400;
+      throw err;
+    }
+    const trimmedPin = raw.pin_code.trim();
+    if (!/^\d+$/.test(trimmedPin)) {
+      const err: any = new Error('Pin Code must contain numeric values only');
+      err.status = 400;
+      throw err;
+    }
+    pinCode = trimmedPin;
+  }
+
   return {
     location_name: name,
     address_line1: typeof raw.address_line1 === 'string' ? raw.address_line1 : undefined,
@@ -143,7 +159,7 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
     city: typeof raw.city === 'string' ? raw.city : undefined,
     state_cuid: typeof raw.state_cuid === 'string' ? raw.state_cuid : undefined,
     country_cuid: typeof raw.country_cuid === 'string' ? raw.country_cuid : undefined,
-    pin_code: typeof raw.pin_code === 'string' ? raw.pin_code : undefined,
+    pin_code: pinCode,
     timezone: typeof raw.timezone === 'string' ? raw.timezone : undefined,
     created_by: raw.created_by !== undefined ? (raw.created_by as string | null) : undefined,
     updated_by: raw.updated_by !== undefined ? (raw.updated_by as string | null) : undefined
@@ -272,8 +288,18 @@ export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDT
     result.country_cuid = raw.country_cuid;
   }
   if (raw.pin_code !== undefined) {
-    if (typeof raw.pin_code !== 'string') throw new Error('pin_code must be a string');
-    result.pin_code = raw.pin_code;
+    if (raw.pin_code === null || typeof raw.pin_code !== 'string') {
+      const err: any = new Error('Pin Code must be a string');
+      err.status = 400;
+      throw err;
+    }
+    const trimmedPin = raw.pin_code.trim();
+    if (!/^\d+$/.test(trimmedPin)) {
+      const err: any = new Error('Pin Code must contain numeric values only');
+      err.status = 400;
+      throw err;
+    }
+    result.pin_code = trimmedPin;
   }
   if (raw.timezone !== undefined) {
     if (typeof raw.timezone !== 'string') throw new Error('timezone must be a string');
