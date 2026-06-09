@@ -868,10 +868,19 @@
       "norm_label": "customauthhandle()"
     },
     {
+      "label": "errorHandler()",
+      "file_type": "code",
+      "source_file": "src/hooks.server.js",
+      "source_location": "L81",
+      "id": "src_hooks_server_errorhandler",
+      "community": 11,
+      "norm_label": "errorhandler()"
+    },
+    {
       "label": "handle",
       "file_type": "code",
       "source_file": "src/hooks.server.js",
-      "source_location": "L80",
+      "source_location": "L146",
       "id": "src_hooks_server_handle",
       "community": 11,
       "norm_label": "handle"
@@ -936,7 +945,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L1",
       "id": "api_local",
-      "community": 54,
+      "community": 44,
       "norm_label": "local.ts"
     },
     {
@@ -945,7 +954,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L8",
       "id": "api_local_apierror",
-      "community": 54,
+      "community": 44,
       "norm_label": "apierror"
     },
     {
@@ -954,7 +963,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L9",
       "id": "api_local_apierror_constructor",
-      "community": 54,
+      "community": 44,
       "norm_label": ".constructor()"
     },
     {
@@ -963,7 +972,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L19",
       "id": "api_local_extracterrormessage",
-      "community": 54,
+      "community": 44,
       "norm_label": "extracterrormessage()"
     },
     {
@@ -972,7 +981,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L28",
       "id": "api_local_localrequest",
-      "community": 54,
+      "community": 44,
       "norm_label": "localrequest()"
     },
     {
@@ -981,7 +990,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L52",
       "id": "api_local_localapi",
-      "community": 54,
+      "community": 44,
       "norm_label": "localapi"
     },
     {
@@ -1125,7 +1134,7 @@
       "source_file": "src/lib/api/roles.ts",
       "source_location": "L1",
       "id": "api_roles",
-      "community": 54,
+      "community": 48,
       "norm_label": "roles.ts"
     },
     {
@@ -1134,7 +1143,7 @@
       "source_file": "src/lib/api/roles.ts",
       "source_location": "L10",
       "id": "api_roles_rolelistresponse",
-      "community": 54,
+      "community": 48,
       "norm_label": "rolelistresponse"
     },
     {
@@ -1143,7 +1152,7 @@
       "source_file": "src/lib/api/roles.ts",
       "source_location": "L18",
       "id": "api_roles_fetchallroles",
-      "community": 54,
+      "community": 48,
       "norm_label": "fetchallroles()"
     },
     {
@@ -1152,7 +1161,7 @@
       "source_file": "src/lib/api/roles.ts",
       "source_location": "L24",
       "id": "api_roles_createrole",
-      "community": 54,
+      "community": 48,
       "norm_label": "createrole()"
     },
     {
@@ -1161,7 +1170,7 @@
       "source_file": "src/lib/api/roles.ts",
       "source_location": "L30",
       "id": "api_roles_updaterole",
-      "community": 54,
+      "community": 48,
       "norm_label": "updaterole()"
     },
     {
@@ -1170,7 +1179,7 @@
       "source_file": "src/lib/api/roles.ts",
       "source_location": "L39",
       "id": "api_roles_deleterole",
-      "community": 54,
+      "community": 48,
       "norm_label": "deleterole()"
     },
     {
@@ -2721,7 +2730,7 @@
       "source_file": "src/lib/server/dao/employee.dao.ts",
       "source_location": "L1",
       "id": "dao_employee_dao",
-      "community": 1,
+      "community": 34,
       "norm_label": "employee.dao.ts"
     },
     {
@@ -2730,7 +2739,7 @@
       "source_file": "src/lib/server/dao/employee.dao.ts",
       "source_location": "L3",
       "id": "dao_employee_dao_createemployeedata",
-      "community": 1,
+      "community": 34,
       "norm_label": "createemployeedata"
     },
     {
@@ -2739,7 +2748,7 @@
       "source_file": "src/lib/server/dao/employee.dao.ts",
       "source_location": "L8",
       "id": "dao_employee_dao_list",
-      "community": 1,
+      "community": 34,
       "norm_label": "list()"
     },
     {
@@ -2748,7 +2757,7 @@
       "source_file": "src/lib/server/dao/employee.dao.ts",
       "source_location": "L14",
       "id": "dao_employee_dao_create",
-      "community": 1,
+      "community": 34,
       "norm_label": "create()"
     },
     {
@@ -2829,7 +2838,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L1",
       "id": "dao_organization_location_dao",
-      "community": 55,
+      "community": 44,
       "norm_label": "organization_location.dao.ts"
     },
     {
@@ -2838,7 +2847,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L9",
       "id": "dao_organization_location_dao_createlocation",
-      "community": 55,
+      "community": 44,
       "norm_label": "createlocation()"
     },
     {
@@ -2847,7 +2856,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L46",
       "id": "dao_organization_location_dao_getlocations",
-      "community": 55,
+      "community": 44,
       "norm_label": "getlocations()"
     },
     {
@@ -2856,7 +2865,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L72",
       "id": "dao_organization_location_dao_getalllocations",
-      "community": 55,
+      "community": 44,
       "norm_label": "getalllocations()"
     },
     {
@@ -2865,7 +2874,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L97",
       "id": "dao_organization_location_dao_countalllocations",
-      "community": 55,
+      "community": 44,
       "norm_label": "countalllocations()"
     },
     {
@@ -2874,7 +2883,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L104",
       "id": "dao_organization_location_dao_countlocations",
-      "community": 55,
+      "community": 44,
       "norm_label": "countlocations()"
     },
     {
@@ -2883,7 +2892,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L111",
       "id": "dao_organization_location_dao_getlocationbycuid",
-      "community": 55,
+      "community": 44,
       "norm_label": "getlocationbycuid()"
     },
     {
@@ -2892,7 +2901,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L136",
       "id": "dao_organization_location_dao_updatelocation",
-      "community": 55,
+      "community": 44,
       "norm_label": "updatelocation()"
     },
     {
@@ -2901,7 +2910,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L194",
       "id": "dao_organization_location_dao_deactivatelocation",
-      "community": 55,
+      "community": 44,
       "norm_label": "deactivatelocation()"
     },
     {
@@ -2910,7 +2919,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L220",
       "id": "dao_organization_location_dao_activatelocation",
-      "community": 55,
+      "community": 44,
       "norm_label": "activatelocation()"
     },
     {
@@ -3063,7 +3072,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L1",
       "id": "dao_role_dao",
-      "community": 56,
+      "community": 48,
       "norm_label": "role.dao.ts"
     },
     {
@@ -3072,7 +3081,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L8",
       "id": "dao_role_dao_createrole",
-      "community": 56,
+      "community": 48,
       "norm_label": "createrole()"
     },
     {
@@ -3081,7 +3090,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L29",
       "id": "dao_role_dao_getroles",
-      "community": 56,
+      "community": 48,
       "norm_label": "getroles()"
     },
     {
@@ -3090,7 +3099,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L47",
       "id": "dao_role_dao_getallroles",
-      "community": 56,
+      "community": 48,
       "norm_label": "getallroles()"
     },
     {
@@ -3099,7 +3108,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L63",
       "id": "dao_role_dao_countallroles",
-      "community": 56,
+      "community": 48,
       "norm_label": "countallroles()"
     },
     {
@@ -3108,7 +3117,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L70",
       "id": "dao_role_dao_countroles",
-      "community": 56,
+      "community": 48,
       "norm_label": "countroles()"
     },
     {
@@ -3117,7 +3126,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L77",
       "id": "dao_role_dao_getrolebycuid",
-      "community": 56,
+      "community": 48,
       "norm_label": "getrolebycuid()"
     },
     {
@@ -3126,7 +3135,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L93",
       "id": "dao_role_dao_updaterole",
-      "community": 56,
+      "community": 48,
       "norm_label": "updaterole()"
     },
     {
@@ -3135,7 +3144,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L115",
       "id": "dao_role_dao_deactivaterole",
-      "community": 56,
+      "community": 48,
       "norm_label": "deactivaterole()"
     },
     {
@@ -3675,7 +3684,7 @@
       "source_file": "src/lib/server/services/designation.service.ts",
       "source_location": "L1",
       "id": "services_designation_service",
-      "community": 0,
+      "community": 10,
       "norm_label": "designation.service.ts"
     },
     {
@@ -3684,7 +3693,7 @@
       "source_file": "src/lib/server/services/designation.service.ts",
       "source_location": "L4",
       "id": "services_designation_service_createdesignationdto",
-      "community": 0,
+      "community": 10,
       "norm_label": "createdesignationdto"
     },
     {
@@ -3693,7 +3702,7 @@
       "source_file": "src/lib/server/services/designation.service.ts",
       "source_location": "L12",
       "id": "services_designation_service_updatedesignationdto",
-      "community": 0,
+      "community": 10,
       "norm_label": "updatedesignationdto"
     },
     {
@@ -3702,7 +3711,7 @@
       "source_file": "src/lib/server/services/designation.service.ts",
       "source_location": "L19",
       "id": "services_designation_service_topublicdesignation",
-      "community": 0,
+      "community": 10,
       "norm_label": "topublicdesignation()"
     },
     {
@@ -3711,7 +3720,7 @@
       "source_file": "src/lib/server/services/designation.service.ts",
       "source_location": "L36",
       "id": "services_designation_service_validatedesignationname",
-      "community": 0,
+      "community": 10,
       "norm_label": "validatedesignationname()"
     },
     {
@@ -3720,7 +3729,7 @@
       "source_file": "src/lib/server/services/designation.service.ts",
       "source_location": "L53",
       "id": "services_designation_service_ensuredesignationnameisunique",
-      "community": 0,
+      "community": 10,
       "norm_label": "ensuredesignationnameisunique()"
     },
     {
@@ -3729,7 +3738,7 @@
       "source_file": "src/lib/server/services/designation.service.ts",
       "source_location": "L67",
       "id": "services_designation_service_getdesignations",
-      "community": 0,
+      "community": 10,
       "norm_label": "getdesignations()"
     },
     {
@@ -3738,7 +3747,7 @@
       "source_file": "src/lib/server/services/designation.service.ts",
       "source_location": "L71",
       "id": "services_designation_service_getdesignationbyid",
-      "community": 0,
+      "community": 10,
       "norm_label": "getdesignationbyid()"
     },
     {
@@ -3747,7 +3756,7 @@
       "source_file": "src/lib/server/services/designation.service.ts",
       "source_location": "L84",
       "id": "services_designation_service_getdesignationbycuid2",
-      "community": 0,
+      "community": 10,
       "norm_label": "getdesignationbycuid2()"
     },
     {
@@ -3756,7 +3765,7 @@
       "source_file": "src/lib/server/services/designation.service.ts",
       "source_location": "L97",
       "id": "services_designation_service_createdesignation",
-      "community": 0,
+      "community": 10,
       "norm_label": "createdesignation()"
     },
     {
@@ -3765,7 +3774,7 @@
       "source_file": "src/lib/server/services/designation.service.ts",
       "source_location": "L111",
       "id": "services_designation_service_updatedesignation",
-      "community": 0,
+      "community": 10,
       "norm_label": "updatedesignation()"
     },
     {
@@ -3774,7 +3783,7 @@
       "source_file": "src/lib/server/services/designation.service.ts",
       "source_location": "L141",
       "id": "services_designation_service_deletedesignation",
-      "community": 0,
+      "community": 10,
       "norm_label": "deletedesignation()"
     },
     {
@@ -3972,7 +3981,7 @@
       "source_file": "src/lib/server/services/organization_location.service.ts",
       "source_location": "L1",
       "id": "services_organization_location_service",
-      "community": 36,
+      "community": 44,
       "norm_label": "organization_location.service.ts"
     },
     {
@@ -3981,7 +3990,7 @@
       "source_file": "src/lib/server/services/organization_location.service.ts",
       "source_location": "L7",
       "id": "services_organization_location_service_listlocations",
-      "community": 36,
+      "community": 44,
       "norm_label": "listlocations()"
     },
     {
@@ -3990,7 +3999,7 @@
       "source_file": "src/lib/server/services/organization_location.service.ts",
       "source_location": "L13",
       "id": "services_organization_location_service_listalllocations",
-      "community": 36,
+      "community": 44,
       "norm_label": "listalllocations()"
     },
     {
@@ -3999,7 +4008,7 @@
       "source_file": "src/lib/server/services/organization_location.service.ts",
       "source_location": "L19",
       "id": "services_organization_location_service_createlocation",
-      "community": 36,
+      "community": 44,
       "norm_label": "createlocation()"
     },
     {
@@ -4008,7 +4017,7 @@
       "source_file": "src/lib/server/services/organization_location.service.ts",
       "source_location": "L34",
       "id": "services_organization_location_service_updatelocation",
-      "community": 36,
+      "community": 44,
       "norm_label": "updatelocation()"
     },
     {
@@ -4017,7 +4026,7 @@
       "source_file": "src/lib/server/services/organization_location.service.ts",
       "source_location": "L59",
       "id": "services_organization_location_service_deletelocation",
-      "community": 36,
+      "community": 44,
       "norm_label": "deletelocation()"
     },
     {
@@ -4026,7 +4035,7 @@
       "source_file": "src/lib/server/services/organization_location.service.ts",
       "source_location": "L71",
       "id": "services_organization_location_service_activatelocation",
-      "community": 36,
+      "community": 44,
       "norm_label": "activatelocation()"
     },
     {
@@ -4665,7 +4674,7 @@
       "source_file": "src/lib/server/utils/mapping.ts",
       "source_location": "L52",
       "id": "utils_mapping_toemployeedto",
-      "community": 34,
+      "community": 0,
       "norm_label": "toemployeedto()"
     },
     {
@@ -4728,7 +4737,7 @@
       "source_file": "src/lib/server/validators/organization_location.validator.ts",
       "source_location": "L1",
       "id": "validators_organization_location_validator",
-      "community": 36,
+      "community": 44,
       "norm_label": "organization_location.validator.ts"
     },
     {
@@ -4737,7 +4746,7 @@
       "source_file": "src/lib/server/validators/organization_location.validator.ts",
       "source_location": "L7",
       "id": "validators_organization_location_validator_rejectunknownkeys",
-      "community": 36,
+      "community": 44,
       "norm_label": "rejectunknownkeys()"
     },
     {
@@ -4746,7 +4755,7 @@
       "source_file": "src/lib/server/validators/organization_location.validator.ts",
       "source_location": "L20",
       "id": "validators_organization_location_validator_validatepaginationparams",
-      "community": 36,
+      "community": 44,
       "norm_label": "validatepaginationparams()"
     },
     {
@@ -4755,16 +4764,16 @@
       "source_file": "src/lib/server/validators/organization_location.validator.ts",
       "source_location": "L48",
       "id": "validators_organization_location_validator_validatecreatepayload",
-      "community": 36,
+      "community": 44,
       "norm_label": "validatecreatepayload()"
     },
     {
       "label": "validateUpdatePayload()",
       "file_type": "code",
       "source_file": "src/lib/server/validators/organization_location.validator.ts",
-      "source_location": "L172",
+      "source_location": "L321",
       "id": "validators_organization_location_validator_validateupdatepayload",
-      "community": 36,
+      "community": 44,
       "norm_label": "validateupdatepayload()"
     },
     {
@@ -5088,7 +5097,7 @@
       "source_file": "src/lib/types/organization_location.ts",
       "source_location": "L1",
       "id": "types_organization_location",
-      "community": 36,
+      "community": 44,
       "norm_label": "organization_location.ts"
     },
     {
@@ -5106,7 +5115,7 @@
       "source_file": "src/lib/types/organization_location.ts",
       "source_location": "L19",
       "id": "types_organization_location_companylocationcreatedto",
-      "community": 36,
+      "community": 44,
       "norm_label": "companylocationcreatedto"
     },
     {
@@ -5115,7 +5124,7 @@
       "source_file": "src/lib/types/organization_location.ts",
       "source_location": "L32",
       "id": "types_organization_location_companylocationupdatedto",
-      "community": 36,
+      "community": 44,
       "norm_label": "companylocationupdatedto"
     },
     {
@@ -5133,7 +5142,7 @@
       "source_file": "src/lib/types/role.ts",
       "source_location": "L2",
       "id": "types_role_role",
-      "community": 54,
+      "community": 48,
       "norm_label": "role"
     },
     {
@@ -6078,7 +6087,7 @@
       "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L1",
       "id": "permissioncuid_permissioncuid_server",
-      "community": 35,
+      "community": 36,
       "norm_label": "+server.ts"
     },
     {
@@ -6087,7 +6096,7 @@
       "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L6",
       "id": "permissioncuid_permissioncuid_server_getstatus",
-      "community": 35,
+      "community": 36,
       "norm_label": "getstatus()"
     },
     {
@@ -6096,7 +6105,7 @@
       "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L12",
       "id": "permissioncuid_permissioncuid_server_delete",
-      "community": 35,
+      "community": 36,
       "norm_label": "delete()"
     },
     {
@@ -6715,7 +6724,7 @@
       "label": "if()",
       "file_type": "code",
       "source_file": "src/routes/organization_locations/+page.svelte",
-      "source_location": "L196",
+      "source_location": "L197",
       "id": "organization_locations_page_if",
       "community": 2,
       "norm_label": "if()"
@@ -6951,7 +6960,7 @@
       "source_file": "tests/unit/crud.test.ts",
       "source_location": "L1",
       "id": "unit_crud_test",
-      "community": 56,
+      "community": 1,
       "norm_label": "crud.test.ts"
     },
     {
@@ -6960,7 +6969,7 @@
       "source_file": "tests/unit/department.dao.test.ts",
       "source_location": "L1",
       "id": "unit_department_dao_test",
-      "community": 39,
+      "community": 1,
       "norm_label": "department.dao.test.ts"
     },
     {
@@ -6987,7 +6996,7 @@
       "source_file": "tests/unit/designation.dao.test.ts",
       "source_location": "L1",
       "id": "unit_designation_dao_test",
-      "community": 10,
+      "community": 1,
       "norm_label": "designation.dao.test.ts"
     },
     {
@@ -7041,7 +7050,7 @@
       "source_file": "tests/unit/endpoints.test.ts",
       "source_location": "L1",
       "id": "unit_endpoints_test",
-      "community": 46,
+      "community": 1,
       "norm_label": "endpoints.test.ts"
     },
     {
@@ -7113,7 +7122,7 @@
       "source_file": "tests/unit/permission.dao.test.ts",
       "source_location": "L1",
       "id": "unit_permission_dao_test",
-      "community": 37,
+      "community": 1,
       "norm_label": "permission.dao.test.ts"
     },
     {
@@ -7140,7 +7149,7 @@
       "source_file": "tests/unit/role-permission.dao.test.ts",
       "source_location": "L1",
       "id": "unit_role_permission_dao_test",
-      "community": 40,
+      "community": 1,
       "norm_label": "role-permission.dao.test.ts"
     },
     {
@@ -7167,7 +7176,7 @@
       "source_file": "tests/unit/services.test.ts",
       "source_location": "L1",
       "id": "unit_services_test",
-      "community": 36,
+      "community": 1,
       "norm_label": "services.test.ts"
     },
     {
@@ -7176,7 +7185,7 @@
       "source_file": "tests/unit/shifts_duplicate.test.ts",
       "source_location": "L1",
       "id": "unit_shifts_duplicate_test",
-      "community": 47,
+      "community": 1,
       "norm_label": "shifts_duplicate.test.ts"
     },
     {
@@ -7185,7 +7194,7 @@
       "source_file": "tests/unit/system-role.dao.test.ts",
       "source_location": "L1",
       "id": "unit_system_role_dao_test",
-      "community": 38,
+      "community": 1,
       "norm_label": "system-role.dao.test.ts"
     },
     {
@@ -7203,7 +7212,7 @@
       "source_file": "tests/unit/validation.test.ts",
       "source_location": "L1",
       "id": "unit_validation_test",
-      "community": 36,
+      "community": 44,
       "norm_label": "validation.test.ts"
     },
     {
@@ -10389,6 +10398,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/hooks.server.js",
+      "source_location": "L81",
+      "weight": 1.0,
+      "source": "src_hooks_server",
+      "target": "src_hooks_server_errorhandler",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/hooks.server.js",
       "source_location": "L74",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -11052,17 +11071,17 @@
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/components/ConfirmationModal.svelte",
+      "confidence_score": 1.0,
       "source": "components_confirmationmodal",
-      "target": "alert_triangle",
-      "confidence_score": 1.0
+      "target": "alert_triangle"
     },
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/components/ConfirmationModal.svelte",
+      "confidence_score": 1.0,
       "source": "components_confirmationmodal",
-      "target": "c_users_user_pieq_svelte_app_template_src_lib_confirmation_svelte_js",
-      "confidence_score": 1.0
+      "target": "c_users_user_pieq_svelte_app_template_src_lib_confirmation_svelte_js"
     },
     {
       "relation": "contains",
@@ -11070,33 +11089,33 @@
       "source_file": "src/lib/components/ConfirmationModal.svelte",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_confirmationmodal",
-      "target": "components_confirmationmodal_if",
-      "confidence_score": 1.0
+      "target": "components_confirmationmodal_if"
     },
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/components/ConfirmationModal.svelte",
+      "confidence_score": 1.0,
       "source": "components_confirmationmodal",
-      "target": "loader_circle",
-      "confidence_score": 1.0
+      "target": "loader_circle"
     },
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/components/ConfirmationModal.svelte",
+      "confidence_score": 1.0,
       "source": "components_confirmationmodal",
-      "target": "transition",
-      "confidence_score": 1.0
+      "target": "transition"
     },
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/components/ConfirmationModal.svelte",
+      "confidence_score": 1.0,
       "source": "components_confirmationmodal",
-      "target": "x",
-      "confidence_score": 1.0
+      "target": "x"
     },
     {
       "relation": "re_exports",
@@ -11105,9 +11124,9 @@
       "source_file": "src/lib/components/index.ts",
       "source_location": "L39",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_index",
-      "target": "components_confirmationmodal",
-      "confidence_score": 1.0
+      "target": "components_confirmationmodal"
     },
     {
       "relation": "imports_from",
@@ -26197,5 +26216,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "14a9cc9e7938aaa58c94db3c2a167b29902fa91e"
+  "built_at_commit": "24f24161112c4fa46834a3d882ceb14b9566cd75"
 }

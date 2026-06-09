@@ -19,7 +19,7 @@ export class ApiError extends Error {
 async function extractErrorMessage(response: Response): Promise<string> {
   try {
     const json = await response.json();
-    return json?.error ?? json?.message ?? `Request failed (${response.status})`;
+    return json?.data?.error ?? json?.error ?? json?.message ?? `Request failed (${response.status})`;
   } catch {
     return `Request failed (${response.status})`;
   }

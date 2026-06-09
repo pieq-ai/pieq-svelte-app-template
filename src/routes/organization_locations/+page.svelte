@@ -70,6 +70,7 @@
   let formError = $state("");
   let nameError = $state("");
   let address1Error = $state("");
+  let address2Error = $state("");
   let cityError = $state("");
   let countryError = $state("");
   let stateError = $state("");
@@ -328,6 +329,7 @@
     stateError = "";
     pinCodeError = "";
     timezoneError = "";
+    address2Error = "";
     dirtyChecker.snapshot({
       location_name: "",
       address_line1: "",
@@ -361,6 +363,7 @@
     stateError = "";
     pinCodeError = "";
     timezoneError = "";
+    address2Error = "";
     dirtyChecker.snapshot({
       location_name: loc.location_name,
       address_line1: loc.address_line1 ?? "",
@@ -393,6 +396,7 @@
     stateError = "";
     pinCodeError = "";
     timezoneError = "";
+    address2Error = "";
     editLocation = null;
   }
 
@@ -405,6 +409,7 @@
     formError = "";
     nameError = "";
     address1Error = "";
+    address2Error = "";
     cityError = "";
     countryError = "";
     stateError = "";
@@ -420,9 +425,9 @@
       nameError = "Company Location name must be at least 2 characters.";
       return;
     }
-    if (nameTrimmed.length > 255) {
+    if (nameTrimmed.length > 150) {
       nameError =
-        "Company Location name exceeds maximum length of 255 characters.";
+        "Company Location name cannot exceed 150 characters.";
       return;
     }
 
@@ -435,10 +440,34 @@
       address1Error = "Address Line 1 is required.";
       return;
     }
+    if (address1Trimmed.length > 255) {
+      address1Error = "Address Line 1 cannot exceed 255 characters.";
+      return;
+    }
+
+    const address2Trimmed = formAddress2 ? formAddress2.trim() : "";
+    if (address2Trimmed.length > 255) {
+      address2Error = "Address Line 2 cannot exceed 255 characters.";
+      return;
+    }
+
     if (!cityTrimmed) {
       cityError = "City is required.";
       return;
     }
+    if (cityTrimmed.length < 2) {
+      cityError = "City must be at least 2 characters.";
+      return;
+    }
+    if (cityTrimmed.length > 100) {
+      cityError = "City cannot exceed 100 characters.";
+      return;
+    }
+    if (!/^[a-zA-Z\s.-]+$/.test(cityTrimmed)) {
+      cityError = "City can contain only letters, spaces, hyphens, and periods.";
+      return;
+    }
+
     if (!formCountryCuid) {
       countryError = "Country is required.";
       return;
@@ -453,6 +482,10 @@
     }
     if (!/^\d+$/.test(pinTrimmed)) {
       pinCodeError = "Pin Code must contain numeric values only.";
+      return;
+    }
+    if (pinTrimmed.length > 10) {
+      pinCodeError = "Pin Code cannot exceed 10 characters.";
       return;
     }
     if (!tzTrimmed) {
@@ -973,8 +1006,13 @@
           id="location_address2"
           name="location_address2"
           bind:value={formAddress2}
+          class={address2Error ? 'border-destructive' : ''}
           placeholder="e.g. Suite 400"
+          oninput={() => { address2Error = ''; }}
         />
+        {#if address2Error}
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{address2Error}</p>
+        {/if}
       </div>
 
       <div class="grid grid-cols-2 gap-4">

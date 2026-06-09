@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as permissionService from '$lib/server/services/permission.service.js';
 import * as permissionDao from '$lib/server/dao/permission.dao.js';
