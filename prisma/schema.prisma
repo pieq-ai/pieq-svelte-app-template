@@ -41,7 +41,7 @@ model SalaryComponent {
 }
 
 model Employee {
-  id   Int    @id @default(autoincrement())
+  id   BigInt    @id @default(autoincrement())
   uuid String @unique @default(uuid())
   name String
   age  Int
@@ -50,7 +50,7 @@ model Employee {
 }
 
 model SystemRoles {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -68,7 +68,7 @@ model SystemRoles {
 }
 
 model Department {
-  id        Int    @id @default(autoincrement())
+  id        BigInt    @id @default(autoincrement())
   cuid     String @unique @default(cuid())
   dept_name String @unique @db.VarChar(150)
 
@@ -84,7 +84,7 @@ model Department {
 }
 
 model Permissions {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -102,7 +102,7 @@ model Permissions {
 }
 
 model RolePermission {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -120,7 +120,7 @@ model RolePermission {
 }
 
 model BloodGroup {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -136,7 +136,7 @@ model BloodGroup {
 }
 
 model Designation {
-  id               Int    @id @default(autoincrement())
+  id               BigInt    @id @default(autoincrement())
   cuid            String @unique @default(cuid())
   designation_name String @unique @db.VarChar(150)
 
@@ -152,7 +152,7 @@ model Designation {
 }
 
 model PayGrade {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -170,7 +170,7 @@ model PayGrade {
 }
 
 model Nationality {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -188,7 +188,7 @@ model Nationality {
 }
 
 model EmploymentType {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -206,7 +206,7 @@ model EmploymentType {
 }
 
 model RelationType {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -224,7 +224,7 @@ model RelationType {
 }
 
 model DocumentType {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -242,7 +242,7 @@ model DocumentType {
 }
 
 model State {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -262,7 +262,7 @@ model State {
 }
 
 model Country {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -278,7 +278,7 @@ model Country {
 }
 
 model Skills {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -296,7 +296,7 @@ model Skills {
 }
 
 model AttendanceSource {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -314,7 +314,7 @@ model AttendanceSource {
 }
 
 model Languages {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -332,7 +332,7 @@ model Languages {
 }
 
 model LeaveType {
-  id                Int      @id @default(autoincrement())
+  id                BigInt   @id @default(autoincrement())
   cuid              String   @unique @default(cuid())
   leave_name        String   @unique @db.VarChar(100)
   leave_code        String   @unique @db.VarChar(20)
@@ -349,7 +349,7 @@ model LeaveType {
 }
 
 model LeavePolicy {
-  id                       Int                    @id @default(autoincrement())
+  id                       BigInt                 @id @default(autoincrement())
   cuid                     String                 @unique @default(cuid())
 
   leave_type_cuid          String                 @db.Text
@@ -377,7 +377,7 @@ model LeavePolicy {
 }
 
 model HolidayCalendar {
-  id             Int              @id @default(autoincrement())
+  id             BigInt           @id @default(autoincrement())
   cuid           String           @unique @default(cuid())
   holiday_name   String           @db.VarChar(200)
   holiday_date   DateTime         @db.Date
@@ -395,7 +395,7 @@ model HolidayCalendar {
 
 
 model LeavePolicyEmploymentType {
-  id                     Int      @id @default(autoincrement())
+  id                     BigInt   @id @default(autoincrement())
   cuid                   String   @unique @default(cuid())
 
   leave_policy_cuid      String   @db.Text

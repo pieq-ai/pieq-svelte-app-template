@@ -48,7 +48,7 @@ describe('Master Data DAO', () => {
 
 	describe('list', () => {
 		it.each(masterKeys)('should call findMany with correct order for %s', async (master) => {
-			const mockData = [{ id: 1 }];
+			const mockData = [{ id: 1n }];
 			mockDbMethods.findMany.mockResolvedValueOnce(mockData);
 
 			const result = await masterDataDao.list(master);
@@ -72,20 +72,20 @@ describe('Master Data DAO', () => {
 
 	describe('findById', () => {
 		it.each(masterKeys)('should call findUnique with correct id for %s', async (master) => {
-			const mockData = { id: 10 };
+			const mockData = { id: 10n };
 			mockDbMethods.findUnique.mockResolvedValueOnce(mockData);
 
-			const result = await masterDataDao.findById(master, 10);
+			const result = await masterDataDao.findById(master, 10n);
 
 			expect(mockDbMethods.findUnique).toHaveBeenCalledTimes(1);
-			expect(mockDbMethods.findUnique).toHaveBeenCalledWith({ where: { id: 10 } });
+			expect(mockDbMethods.findUnique).toHaveBeenCalledWith({ where: { id: 10n } });
 			expect(result).toBe(mockData);
 		});
 	});
 
 	describe('findByCuid2', () => {
 		it.each(masterKeys)('should call findUnique with correct cuid for %s', async (master) => {
-			const mockData = { id: 10, cuid: 'abc' };
+			const mockData = { id: 10n, cuid: 'abc' };
 			mockDbMethods.findUnique.mockResolvedValueOnce(mockData);
 
 			const result = await masterDataDao.findByCuid2(master, 'abc');
@@ -98,7 +98,7 @@ describe('Master Data DAO', () => {
 
 	describe('create', () => {
 		it.each(masterKeys)('should call create with correct mapped fields for %s', async (master) => {
-			const mockData = { id: 1, name: 'TestValue' };
+			const mockData = { id: 1n, name: 'TestValue' };
 			mockDbMethods.create.mockResolvedValueOnce(mockData);
 
 			const data = { name: 'New Entry', country_cuid: 'cntry123' };
@@ -129,17 +129,17 @@ describe('Master Data DAO', () => {
 
 	describe('update', () => {
 		it.each(masterKeys)('should call update with correct mapped fields for %s', async (master) => {
-			const mockData = { id: 5, name: 'UpdatedValue' };
+			const mockData = { id: 5n, name: 'UpdatedValue' };
 			mockDbMethods.update.mockResolvedValueOnce(mockData);
 
-			const data = { id: 5, name: 'Updated Entry', country_cuid: 'cntry123' };
+			const data = { id: 5n, name: 'Updated Entry', country_cuid: 'cntry123' };
 			const result = await masterDataDao.update(master, data);
 
 			expect(mockDbMethods.update).toHaveBeenCalledTimes(1);
 			expect(result).toBe(mockData);
 
 			const callArgs = mockDbMethods.update.mock.calls[0][0];
-			expect(callArgs.where.id).toBe(5);
+			expect(callArgs.where.id).toBe(5n);
 
 			if (master === 'states') {
 				expect(callArgs.data.state_name).toBe('Updated Entry');
@@ -152,9 +152,9 @@ describe('Master Data DAO', () => {
 
 		it('should fallback to empty string for country_cuid when updating states without it', async () => {
 			mockDbMethods.update.mockResolvedValueOnce({});
-			await masterDataDao.update('states', { id: 2, name: 'State B' });
+			await masterDataDao.update('states', { id: 2n, name: 'State B' });
 			expect(mockDbMethods.update).toHaveBeenCalledWith({
-				where: { id: 2 },
+				where: { id: 2n },
 				data: { state_name: 'State B', country_cuid: '', updated_by: undefined }
 			});
 		});

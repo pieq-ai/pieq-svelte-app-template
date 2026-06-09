@@ -178,7 +178,7 @@ describe('holiday service', () => {
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(holidayDao.findByNameAndYear).mockResolvedValue(null);
 			vi.mocked(holidayDao.create).mockResolvedValue({
-				id: 99,
+				id: 99n,
 				cuid: 'today-cuid',
 				holiday_name: 'Today Holiday',
 				holiday_date: new Date(Date.UTC(2026, 4, 29)),
@@ -213,7 +213,7 @@ describe('holiday service', () => {
 		// Duplicate checks
 		it('should reject creation if holiday on date already exists', async () => {
 			vi.mocked(holidayDao.findByDate).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'cuid-1',
 				holiday_name: 'Existing Holiday',
 				holiday_date: new Date(Date.UTC(2026, 5, 1)),
@@ -238,7 +238,7 @@ describe('holiday service', () => {
 		it('should reject creation if holiday name already exists in the same year', async () => {
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(holidayDao.findByNameAndYear).mockResolvedValue({
-				id: 2,
+				id: 2n,
 				cuid: 'cuid-2',
 				holiday_name: 'New Year Day',
 				holiday_date: new Date(Date.UTC(2026, 0, 1)),
@@ -264,7 +264,7 @@ describe('holiday service', () => {
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(holidayDao.findByNameAndYear).mockResolvedValue(null);
 			const expectedHoliday = {
-				id: 3,
+				id: 3n,
 				cuid: 'new-cuid',
 				holiday_name: 'New Year Day',
 				holiday_date: new Date(Date.UTC(2026, 5, 1)),
@@ -305,7 +305,7 @@ describe('holiday service', () => {
 
 		it('should reject update if the date conflicts with another holiday', async () => {
 			vi.mocked(holidayDao.findByCuid).mockResolvedValue({
-				id: 4,
+				id: 4n,
 				cuid: targetCuid,
 				holiday_name: 'Old Name',
 				holiday_date: new Date(Date.UTC(2026, 5, 1)),
@@ -313,7 +313,7 @@ describe('holiday service', () => {
 				...auditFields
 			});
 			vi.mocked(holidayDao.findByDateExcludingCuid).mockResolvedValue({
-				id: 5,
+				id: 5n,
 				cuid: 'another-cuid',
 				holiday_name: 'Conflicting Holiday',
 				holiday_date: new Date(Date.UTC(2026, 5, 2)),
@@ -337,7 +337,7 @@ describe('holiday service', () => {
 
 		it('should reject update if the name conflicts with another holiday in same year', async () => {
 			vi.mocked(holidayDao.findByCuid).mockResolvedValue({
-				id: 4,
+				id: 4n,
 				cuid: targetCuid,
 				holiday_name: 'Old Name',
 				holiday_date: new Date(Date.UTC(2026, 5, 1)),
@@ -346,7 +346,7 @@ describe('holiday service', () => {
 			});
 			vi.mocked(holidayDao.findByDateExcludingCuid).mockResolvedValue(null);
 			vi.mocked(holidayDao.findByNameAndYearExcludingCuid).mockResolvedValue({
-				id: 5,
+				id: 5n,
 				cuid: 'another-cuid',
 				holiday_name: 'Conflicting Name',
 				holiday_date: new Date(Date.UTC(2026, 8, 1)),
@@ -370,7 +370,7 @@ describe('holiday service', () => {
 
 		it('should successfully update a holiday when validations pass', async () => {
 			const existing = {
-				id: 4,
+				id: 4n,
 				cuid: targetCuid,
 				holiday_name: 'Old Name',
 				holiday_date: new Date(Date.UTC(2026, 5, 1)),
@@ -415,7 +415,7 @@ describe('holiday service', () => {
 
 		it('should successfully delete a holiday when it exists', async () => {
 			const existing = {
-				id: 6,
+				id: 6n,
 				cuid: targetCuid,
 				holiday_name: 'New Year Day',
 				holiday_date: new Date(Date.UTC(2026, 5, 1)),

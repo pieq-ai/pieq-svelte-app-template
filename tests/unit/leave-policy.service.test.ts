@@ -76,7 +76,7 @@ describe('leave policy service', () => {
 
 		it('should reject when leave type is inactive', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'leave-type-1',
 				leave_name: 'Annual Leave',
 				leave_code: 'ANN',
@@ -95,7 +95,7 @@ describe('leave policy service', () => {
 		// 2. Employment Type Validations
 		it('should reject missing or empty employment_type_cuids', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'leave-type-1',
 				leave_name: 'Annual',
 				leave_code: 'ANN',
@@ -127,7 +127,7 @@ describe('leave policy service', () => {
 
 		it('should reject when an employment type does not exist', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'leave-type-1',
 				leave_name: 'Annual',
 				leave_code: 'ANN',
@@ -146,7 +146,7 @@ describe('leave policy service', () => {
 
 		it('should reject when an employment type is inactive', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'leave-type-1',
 				leave_name: 'Annual',
 				leave_code: 'ANN',
@@ -157,7 +157,7 @@ describe('leave policy service', () => {
 				...auditFields
 			} as unknown as LeaveType);
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'emp-type-1',
 				employment_name: 'Part Time',
 				status: false, // inactive
@@ -175,7 +175,7 @@ describe('leave policy service', () => {
 		// 3. Quota Validations
 		it('should reject missing or invalid annual_limit', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'leave-type-1',
 				leave_name: 'Annual',
 				leave_code: 'ANN',
@@ -186,7 +186,7 @@ describe('leave policy service', () => {
 				...auditFields
 			} as unknown as LeaveType);
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'emp-type-1',
 				employment_name: 'Part Time',
 				status: true,
@@ -222,7 +222,7 @@ describe('leave policy service', () => {
 		// 4. Max Per Month Validations
 		it('should reject negative max_per_month or exceeding annual limit', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'leave-type-1',
 				leave_name: 'Annual',
 				leave_code: 'ANN',
@@ -233,7 +233,7 @@ describe('leave policy service', () => {
 				...auditFields
 			} as unknown as LeaveType);
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'emp-type-1',
 				employment_name: 'Part Time',
 				status: true,
@@ -262,7 +262,7 @@ describe('leave policy service', () => {
 		// 5. Carry Forward Validations
 		it('should reject missing or invalid max_carry_forward_days when carry forward is allowed', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'leave-type-1',
 				leave_name: 'Annual',
 				leave_code: 'ANN',
@@ -273,7 +273,7 @@ describe('leave policy service', () => {
 				...auditFields
 			} as unknown as LeaveType);
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'emp-type-1',
 				employment_name: 'Part Time',
 				status: true,
@@ -335,7 +335,7 @@ describe('leave policy service', () => {
 
 		it('should allow max_carry_forward_days to exceed annual quota when carry forward is allowed', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'leave-type-1',
 				leave_name: 'Annual',
 				leave_code: 'ANN',
@@ -346,7 +346,7 @@ describe('leave policy service', () => {
 				...auditFields
 			} as unknown as LeaveType);
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'emp-type-1',
 				employment_name: 'Part Time',
 				status: true,
@@ -355,7 +355,7 @@ describe('leave policy service', () => {
 			vi.mocked(leavePolicyDao.findActivePolicyForEmploymentType).mockResolvedValue(null);
 
 			const expectedOutput = {
-				id: 1,
+				id: 1n,
 				cuid: 'policy-cuid',
 				leave_type_cuid: 'leave-type-1',
 				annual_limit: 15,
@@ -387,7 +387,7 @@ describe('leave policy service', () => {
 		// 6. Min Service Days Validations
 		it('should reject non-integer or negative min_service_days', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'leave-type-1',
 				leave_name: 'Annual',
 				leave_code: 'ANN',
@@ -398,7 +398,7 @@ describe('leave policy service', () => {
 				...auditFields
 			} as unknown as LeaveType);
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'emp-type-1',
 				employment_name: 'Part Time',
 				status: true,
@@ -427,7 +427,7 @@ describe('leave policy service', () => {
 		// 6.5. Document Required After Days Validations
 		it('should reject document_required_after_days when document_required is false', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'leave-type-1',
 				leave_name: 'Annual',
 				leave_code: 'ANN',
@@ -438,7 +438,7 @@ describe('leave policy service', () => {
 				...auditFields
 			} as unknown as LeaveType);
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'emp-type-1',
 				employment_name: 'Part Time',
 				status: true,
@@ -458,7 +458,7 @@ describe('leave policy service', () => {
 
 		it('should reject invalid document_required_after_days when document_required is true', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'leave-type-1',
 				leave_name: 'Annual',
 				leave_code: 'ANN',
@@ -469,7 +469,7 @@ describe('leave policy service', () => {
 				...auditFields
 			} as unknown as LeaveType);
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'emp-type-1',
 				employment_name: 'Part Time',
 				status: true,
@@ -500,7 +500,7 @@ describe('leave policy service', () => {
 		// 7. Gender Specific Validations
 		it('should reject missing or invalid applicable_gender when gender specific is enabled', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'leave-type-1',
 				leave_name: 'Annual',
 				leave_code: 'ANN',
@@ -511,7 +511,7 @@ describe('leave policy service', () => {
 				...auditFields
 			} as unknown as LeaveType);
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'emp-type-1',
 				employment_name: 'Part Time',
 				status: true,
@@ -548,7 +548,7 @@ describe('leave policy service', () => {
 		// 8. Active Policy Check Validations
 		it('should reject when a policy already exists for the selected active employment type', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'leave-type-1',
 				leave_name: 'Annual',
 				leave_code: 'ANN',
@@ -559,14 +559,14 @@ describe('leave policy service', () => {
 				...auditFields
 			} as unknown as LeaveType);
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'emp-type-1',
 				employment_name: 'Part Time',
 				status: true,
 				...auditFields
 			} as unknown as EmploymentType);
 			vi.mocked(leavePolicyDao.findActivePolicyForEmploymentType).mockResolvedValue({
-				id: 10,
+				id: 10n,
 				cuid: 'existing-policy-cuid',
 				leave_type_cuid: 'leave-type-1',
 				annual_limit: 15,
@@ -593,7 +593,7 @@ describe('leave policy service', () => {
 		// 9. Successful creation
 		it('should successfully create policy when validation passes', async () => {
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'leave-type-1',
 				leave_name: 'Annual',
 				leave_code: 'ANN',
@@ -604,7 +604,7 @@ describe('leave policy service', () => {
 				...auditFields
 			} as unknown as LeaveType);
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'emp-type-1',
 				employment_name: 'Part Time',
 				status: true,
@@ -613,7 +613,7 @@ describe('leave policy service', () => {
 			vi.mocked(leavePolicyDao.findActivePolicyForEmploymentType).mockResolvedValue(null);
 
 			const expectedOutput = {
-				id: 1,
+				id: 1n,
 				cuid: 'policy-cuid',
 				leave_type_cuid: 'leave-type-1',
 				annual_limit: 15,
@@ -671,7 +671,7 @@ describe('leave policy service', () => {
 
 		it('should successfully update policy and map changes', async () => {
 			const existingPolicy = {
-				id: 1,
+				id: 1n,
 				cuid: targetCuid,
 				leave_type_cuid: 'leave-type-1',
 				annual_limit: 15,
@@ -691,7 +691,7 @@ describe('leave policy service', () => {
 
 			vi.mocked(leavePolicyDao.findByCuid).mockResolvedValue(existingPolicy);
 			vi.mocked(db.leaveType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'leave-type-1',
 				leave_name: 'Annual',
 				leave_code: 'ANN',
@@ -702,7 +702,7 @@ describe('leave policy service', () => {
 				...auditFields
 			} as unknown as LeaveType);
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'emp-type-1',
 				employment_name: 'Part Time',
 				status: true,
@@ -753,7 +753,7 @@ describe('leave policy service', () => {
 
 		it('should successfully delete a policy when it exists', async () => {
 			const existing = {
-				id: 1,
+				id: 1n,
 				cuid: targetCuid,
 				leave_type_cuid: 'leave-type-1',
 				annual_limit: 10,

@@ -37,21 +37,21 @@ describe('Designation Service', () => {
 
 	describe('getDesignationById', () => {
 		it('should throw if id is not a positive integer', async () => {
-			await expect(designationService.getDesignationById(0)).rejects.toThrow('Designation ID must be a positive integer');
-			await expect(designationService.getDesignationById(1.5)).rejects.toThrow('Designation ID must be a positive integer');
-			await expect(designationService.getDesignationById(-5)).rejects.toThrow('Designation ID must be a positive integer');
+			await expect(designationService.getDesignationById(0 as any)).rejects.toThrow('Designation ID must be a positive integer');
+			await expect(designationService.getDesignationById(1.5 as any)).rejects.toThrow('Designation ID must be a positive integer');
+			await expect(designationService.getDesignationById(-5 as any)).rejects.toThrow('Designation ID must be a positive integer');
 		});
 
 		it('should throw if designation not found', async () => {
 			vi.mocked(designationDao.findById).mockResolvedValue(null);
-			await expect(designationService.getDesignationById(999)).rejects.toThrow('Designation with ID "999" not found');
+			await expect(designationService.getDesignationById(999n)).rejects.toThrow('Designation with ID "999" not found');
 		});
 
 		it('should return mapped designation if found', async () => {
-			const mockData = { id: 1, cuid: 'abc', designation_name: 'Manager', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null };
+			const mockData = { id: 1n, cuid: 'abc', designation_name: 'Manager', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null };
 			vi.mocked(designationDao.findById).mockResolvedValue(mockData as any);
 
-			const result = await designationService.getDesignationById(1);
+			const result = await designationService.getDesignationById(1n);
 			expect(result).toEqual({ cuid: 'abc', designation_name: 'Manager', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
 		});
 	});

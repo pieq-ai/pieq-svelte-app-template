@@ -9,7 +9,11 @@ import {
 export const GET: RequestHandler = async () => {
 	try {
 		const employees = await listEmployees();
-		return json({ data: employees });
+		const serialized = employees.map(emp => ({
+			...emp,
+			id: emp.id.toString()
+		}));
+		return json({ data: serialized });
 	} catch (error) {
 		console.error('GET /api/employees failed', error);
 		return json({ error: 'Failed to list employees' }, { status: 500 });
@@ -29,7 +33,11 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	try {
 		const employee = await createEmployee({ name, age });
-		return json({ data: employee }, { status: 201 });
+		const serialized = {
+			...employee,
+			id: employee.id.toString()
+		};
+		return json({ data: serialized }, { status: 201 });
 	} catch (error) {
 		if (error instanceof EmployeeValidationError) {
 			return json({ error: error.message, field: error.field }, { status: 400 });

@@ -139,7 +139,7 @@ export function formatLeavePolicy(policy: LeavePolicyInput): LeavePolicyDTO {
 }
 
 export interface EmploymentTypeInput {
-	id: number;
+	id: bigint;
 	cuid: string;
 	employment_name: string;
 	status: boolean;
@@ -148,7 +148,7 @@ export interface EmploymentTypeInput {
 }
 
 export interface EmploymentTypeDTO {
-	id: number;
+	id: bigint;
 	cuid: string;
 	employment_name: string;
 	status: boolean;

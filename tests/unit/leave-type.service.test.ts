@@ -138,7 +138,7 @@ describe('leave type service', () => {
 		// Duplicate checks
 		it('should reject creation if name already exists', async () => {
 			vi.mocked(leaveTypeDao.findByName).mockResolvedValue({
-				id: 1,
+				id: 1n,
 				cuid: 'cuid-1',
 				leave_name: 'Annual Leave',
 				leave_code: 'ANN',
@@ -160,7 +160,7 @@ describe('leave type service', () => {
 		it('should reject creation if code already exists', async () => {
 			vi.mocked(leaveTypeDao.findByName).mockResolvedValue(null);
 			vi.mocked(leaveTypeDao.findByCode).mockResolvedValue({
-				id: 2,
+				id: 2n,
 				cuid: 'cuid-1',
 				leave_name: 'Other Leave',
 				leave_code: 'ANNUAL',
@@ -183,7 +183,7 @@ describe('leave type service', () => {
 			vi.mocked(leaveTypeDao.findByName).mockResolvedValue(null);
 			vi.mocked(leaveTypeDao.findByCode).mockResolvedValue(null);
 			const expectedResult = {
-				id: 3,
+				id: 3n,
 				cuid: 'new-cuid',
 				leave_name: 'Annual Leave',
 				leave_code: 'ANNUAL',
@@ -215,7 +215,7 @@ describe('leave type service', () => {
 			vi.mocked(leaveTypeDao.findByName).mockResolvedValue(null);
 			vi.mocked(leaveTypeDao.findByCode).mockResolvedValue(null);
 			const expectedResult = {
-				id: 4,
+				id: 4n,
 				cuid: 'new-cuid',
 				leave_name: 'Sick Leave',
 				leave_code: 'SICK_LEAVE',
@@ -263,7 +263,7 @@ describe('leave type service', () => {
 
 		it('should reject update if the updated name conflicts with another leave type', async () => {
 			vi.mocked(leaveTypeDao.findByCuid).mockResolvedValue({
-				id: 5,
+				id: 5n,
 				cuid: targetCuid,
 				leave_name: 'Old Name',
 				leave_code: 'OLD_CODE',
@@ -274,7 +274,7 @@ describe('leave type service', () => {
 				...auditFields
 			});
 			vi.mocked(leaveTypeDao.findDuplicateName).mockResolvedValue({
-				id: 6,
+				id: 6n,
 				cuid: 'another-cuid',
 				leave_name: 'Conflicting Name',
 				leave_code: 'CONF',
@@ -294,7 +294,7 @@ describe('leave type service', () => {
 
 		it('should reject update if the updated code conflicts with another leave type', async () => {
 			vi.mocked(leaveTypeDao.findByCuid).mockResolvedValue({
-				id: 5,
+				id: 5n,
 				cuid: targetCuid,
 				leave_name: 'Old Name',
 				leave_code: 'OLD_CODE',
@@ -306,7 +306,7 @@ describe('leave type service', () => {
 			});
 			vi.mocked(leaveTypeDao.findDuplicateName).mockResolvedValue(null);
 			vi.mocked(leaveTypeDao.findDuplicateCode).mockResolvedValue({
-				id: 7,
+				id: 7n,
 				cuid: 'another-cuid',
 				leave_name: 'Conflicting Code Type',
 				leave_code: 'NEW_CODE',
@@ -326,7 +326,7 @@ describe('leave type service', () => {
 
 		it('should successfully update leave type', async () => {
 			const existing = {
-				id: 5,
+				id: 5n,
 				cuid: targetCuid,
 				leave_name: 'Old Name',
 				leave_code: 'OLD_CODE',
@@ -341,7 +341,7 @@ describe('leave type service', () => {
 			vi.mocked(leaveTypeDao.findDuplicateCode).mockResolvedValue(null);
 
 			const expectedUpdated = {
-				id: 5,
+				id: 5n,
 				cuid: targetCuid,
 				leave_name: 'New Name',
 				leave_code: 'NEW_CODE',
@@ -385,7 +385,7 @@ describe('leave type service', () => {
 
 		it('should successfully delete a leave type when it exists', async () => {
 			const existing = {
-				id: 8,
+				id: 8n,
 				cuid: targetCuid,
 				leave_name: 'Annual Leave',
 				leave_code: 'ANNUAL',
