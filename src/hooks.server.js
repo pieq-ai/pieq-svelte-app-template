@@ -2,6 +2,11 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { redirect } from '@sveltejs/kit';
 import { handle as authHandle } from '$lib/server/auth.js';
 
+// Add global BigInt JSON serialization support
+BigInt.prototype.toJSON = function () {
+	return this.toString();
+};
+
 /** @type {import('@sveltejs/kit').Handle} */
 const injectLocals = async ({ event, resolve }) => {
 	const session = await event.locals.auth?.();

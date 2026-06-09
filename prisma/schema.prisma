@@ -40,7 +40,7 @@ model SalaryComponent {
 }
 
 model Role {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -60,7 +60,7 @@ model Role {
 }
 
 model Shift {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -86,7 +86,7 @@ model Shift {
 }
 
 model CompanyLocation {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -121,7 +121,7 @@ model CompanyLocation {
 
 
 model Employee {
-  id   Int    @id @default(autoincrement())
+  id   BigInt    @id @default(autoincrement())
   uuid String @unique @default(uuid())
   name String
   age  Int
@@ -129,7 +129,7 @@ model Employee {
   @@map("employees")
 }
 model SystemRoles {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -147,7 +147,7 @@ model SystemRoles {
 }
 
 model Department {
-  id        Int    @id @default(autoincrement())
+  id        BigInt    @id @default(autoincrement())
   cuid     String @unique @default(cuid())
   dept_name String @unique @db.VarChar(150)
 
@@ -163,7 +163,7 @@ model Department {
 }
 
 model Permissions {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -181,7 +181,7 @@ model Permissions {
 }
 
 model RolePermission {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -199,7 +199,7 @@ model RolePermission {
 }
 
 model BloodGroup {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -215,7 +215,7 @@ model BloodGroup {
 }
 
 model Designation {
-  id               Int    @id @default(autoincrement())
+  id               BigInt    @id @default(autoincrement())
   cuid            String @unique @default(cuid())
   designation_name String @unique @db.VarChar(150)
 
@@ -231,7 +231,7 @@ model Designation {
 }
 
 model PayGrade {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -249,7 +249,7 @@ model PayGrade {
 }
 
 model Nationality {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -267,7 +267,7 @@ model Nationality {
 }
 
 model EmploymentType {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -285,7 +285,7 @@ model EmploymentType {
 }
 
 model RelationType {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -303,7 +303,7 @@ model RelationType {
 }
 
 model DocumentType {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -321,7 +321,7 @@ model DocumentType {
 }
 
 model State {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -341,7 +341,7 @@ model State {
 }
 
 model Country {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -357,7 +357,7 @@ model Country {
 }
 
 model Skills {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -375,7 +375,7 @@ model Skills {
 }
 
 model AttendanceSource {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -393,7 +393,7 @@ model AttendanceSource {
 }
 
 model Languages {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 

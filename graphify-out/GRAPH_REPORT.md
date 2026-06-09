@@ -1,7 +1,7 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-09)
 
 ## Corpus Check
-- 217 files · ~68,643 words
+- 218 files · ~69,676 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `24f24161`
+- Built from commit: `9e9b6d29`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
