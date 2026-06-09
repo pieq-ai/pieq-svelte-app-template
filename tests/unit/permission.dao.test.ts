@@ -40,7 +40,7 @@ describe('Permission DAO', () => {
 			const mockData = { id: 1, permission_key: 'admin.read' };
 			vi.mocked(db.permissions.findUnique).mockResolvedValue(mockData as any);
 
-			const result = await permissionDao.findById(1);
+			const result = await permissionDao.findById(1n);
 
 			expect(db.permissions.findUnique).toHaveBeenCalledWith({
 				where: { id: 1 }
@@ -101,7 +101,7 @@ describe('Permission DAO', () => {
 			const mockResult = { id: 1, ...data };
 			vi.mocked(db.permissions.update).mockResolvedValue(mockResult as any);
 
-			const result = await permissionDao.update(1, data);
+			const result = await permissionDao.update(1n, data);
 
 			expect(db.permissions.update).toHaveBeenCalledWith({
 				where: { id: 1 },

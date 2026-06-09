@@ -40,7 +40,7 @@ describe('System Role DAO', () => {
 			const mockData = { id: 1, system_role_name: 'Admin' };
 			vi.mocked(db.systemRoles.findUnique).mockResolvedValue(mockData as any);
 
-			const result = await systemRoleDao.findById(1);
+			const result = await systemRoleDao.findById(1n);
 
 			expect(db.systemRoles.findUnique).toHaveBeenCalledWith({
 				where: { id: 1 }
@@ -101,7 +101,7 @@ describe('System Role DAO', () => {
 			const mockResult = { id: 1, ...data };
 			vi.mocked(db.systemRoles.update).mockResolvedValue(mockResult as any);
 
-			const result = await systemRoleDao.update(1, data);
+			const result = await systemRoleDao.update(1n, data);
 
 			expect(db.systemRoles.update).toHaveBeenCalledWith({
 				where: { id: 1 },

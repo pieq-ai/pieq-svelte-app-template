@@ -45,7 +45,7 @@ describe('Designation DAO', () => {
 			const mockData = { id: 1, designation_name: 'Manager' };
 			vi.mocked(db.designation.findUnique).mockResolvedValue(mockData as any);
 
-			const result = await designationDao.findById(1);
+			const result = await designationDao.findById(1n);
 
 			expect(db.designation.findUnique).toHaveBeenCalledWith({
 				where: { id: 1 }
@@ -55,7 +55,7 @@ describe('Designation DAO', () => {
 
 		it('should return null if not found', async () => {
 			vi.mocked(db.designation.findUnique).mockResolvedValue(null);
-			const result = await designationDao.findById(999);
+			const result = await designationDao.findById(999n);
 			expect(result).toBeNull();
 		});
 	});

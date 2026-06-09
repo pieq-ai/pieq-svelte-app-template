@@ -40,7 +40,7 @@ describe('Role Permission DAO', () => {
 			const mockData = { id: 1 };
 			vi.mocked(db.rolePermission.findUnique).mockResolvedValue(mockData as any);
 
-			const result = await rolePermissionDao.findById(1);
+			const result = await rolePermissionDao.findById(1n);
 
 			expect(db.rolePermission.findUnique).toHaveBeenCalledWith({
 				where: { id: 1 }
@@ -88,7 +88,7 @@ describe('Role Permission DAO', () => {
 			const mockResult = { id: 1 };
 			vi.mocked(db.rolePermission.delete).mockResolvedValue(mockResult as any);
 
-			const result = await rolePermissionDao.remove(1);
+			const result = await rolePermissionDao.remove(1n);
 
 			expect(db.rolePermission.delete).toHaveBeenCalledWith({
 				where: { id: 1 }
