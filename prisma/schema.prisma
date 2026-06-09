@@ -329,3 +329,72 @@ model Languages {
   @@index([cuid])
   @@map("languages")
 }
+
+/// Salary Structure — links an employee to a set of salary components with monetary amounts
+/// References are stored as plain CUID strings; no DB foreign key constraints.
+model SalaryStructure {
+  /// Auto-incrementing surrogate primary key (internal use only)
+  id BigInt @id @default(autoincrement())
+
+  /// Externally-exposed, non-guessable identifier — used in all API routes
+  cuid String @unique @default(cuid(2)) @db.Text
+
+  /// CUID of the employee this structure belongs to (no FK constraint — resolved at application layer)
+  employee_cuid String @db.Text
+
+  /// The date from which this salary structure is effective
+  effective_from DateTime @db.Date
+
+  /// Optional end date; null means the structure is open-ended
+  effective_to DateTime? @db.Date
+
+  is_active Boolean @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  /// cuid of the user who created this record
+  created_by String? @db.Text
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+
+  /// cuid of the user who last updated this record
+  updated_by String? @db.Text
+
+  @@index([employee_cuid])
+  @@index([cuid])
+  @@map("salary_structures")
+}
+
+/// Individual salary component line items within a Salary Structure
+/// References salary_structure_cuid and salary_component_cuid as plain CUID strings (no FK constraints).
+model SalaryStructureItem {
+  /// Auto-incrementing surrogate primary key (internal use only)
+  id BigInt @id @default(autoincrement())
+
+  /// Externally-exposed, non-guessable identifier — used in all API routes
+  cuid String @unique @default(cuid(2)) @db.Text
+
+  /// CUID of the parent salary structure (no FK constraint)
+  salary_structure_cuid String @db.Text
+
+  /// CUID of the salary component (no FK constraint — resolved at application layer)
+  salary_component_cuid String @db.Text
+
+  /// Monetary amount for this component in the structure
+  amount Decimal @db.Decimal(15, 2)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  /// cuid of the user who created this record
+  created_by String? @db.Text
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+
+  /// cuid of the user who last updated this record
+  updated_by String? @db.Text
+
+  @@unique([salary_structure_cuid, salary_component_cuid])
+  @@index([salary_structure_cuid])
+  @@index([cuid])
+  @@map("salary_structure_items")
+}
