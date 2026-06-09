@@ -61,7 +61,7 @@ function validateRoleName(name: string | null | undefined) {
 	return trimmed;
 }
 
-async function ensureRoleNameIsUnique(system_role_name: string, currentId?: number) {
+async function ensureRoleNameIsUnique(system_role_name: string, currentId?: bigint) {
 	const normalizedName = system_role_name.trim().toLowerCase();
 	const roles = await systemRoleDao.list();
 	const duplicate = roles.find(
@@ -79,8 +79,8 @@ export async function getSystemRoles() {
 	return (await systemRoleDao.list()).map(toPublicSystemRole);
 }
 
-export async function getSystemRoleById(id: number) {
-	if (!Number.isInteger(id) || id <= 0) {
+export async function getSystemRoleById(id: bigint) {
+	if (typeof id !== 'bigint' || id <= 0n) {
 		throw new Error('System role ID must be a positive integer');
 	}
 

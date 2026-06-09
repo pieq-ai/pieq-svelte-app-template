@@ -2,6 +2,14 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { redirect } from '@sveltejs/kit';
 import { handle as authHandle } from '$lib/server/auth.js';
 
+// Polyfill for BigInt JSON serialization to prevent runtime errors
+if (typeof BigInt !== 'undefined') {
+	// @ts-expect-error - BigInt.prototype.toJSON is not defined in standard TS libs
+	BigInt.prototype.toJSON = function () {
+		return this.toString();
+	};
+}
+
 /** @type {import('@sveltejs/kit').Handle} */
 const injectLocals = async ({ event, resolve }) => {
 	const session = await event.locals.auth?.();

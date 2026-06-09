@@ -1,11 +1,11 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-09)
 
 ## Corpus Check
-- 181 files · ~47,388 words
+- 181 files · ~46,642 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 724 nodes · 1165 edges · 44 communities (32 shown, 12 thin omitted)
+- 730 nodes · 1169 edges · 47 communities (33 shown, 14 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -51,6 +51,9 @@
 - [[_COMMUNITY_Community 41|Community 41]]
 - [[_COMMUNITY_Community 42|Community 42]]
 - [[_COMMUNITY_Community 43|Community 43]]
+- [[_COMMUNITY_Community 44|Community 44]]
+- [[_COMMUNITY_Community 45|Community 45]]
+- [[_COMMUNITY_Community 46|Community 46]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `$lib/utils.js` - 33 edges
@@ -79,23 +82,23 @@
 ## Import Cycles
 - None detected.
 
-## Communities (44 total, 12 thin omitted)
+## Communities (47 total, 14 thin omitted)
 
 ### Community 0 - "API Endpoints"
-Cohesion: 0.06
-Nodes (49): GET(), PUT(), POST(), GET(), PUT(), POST(), requireAdmin(), requireAuth() (+41 more)
+Cohesion: 0.08
+Nodes (41): GET(), PUT(), POST(), GET(), PUT(), POST(), requireAdmin(), requireAuth() (+33 more)
 
 ### Community 1 - "Data Access Tests"
 Cohesion: 0.26
 Nodes (5): CreateEmployeeData, createClient(), db, getDb(), isValidClient()
 
 ### Community 2 - "UI Components Index"
-Cohesion: 0.08
-Nodes (35): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/components, $lib/components/index.js, $lib/components/ui/dropdown-menu/index.js, $lib/constants, $lib/master-data/master-config (+27 more)
+Cohesion: 0.07
+Nodes (34): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/components, $lib/components/index.js, $lib/components/ui/dropdown-menu/index.js, $lib/constants, $lib/master-data/master-config (+26 more)
 
 ### Community 3 - "UI Components Core"
 Cohesion: 0.09
-Nodes (3): $lib/utils.js, @lucide/svelte/icons/chevron-right, svelte/elements
+Nodes (4): $lib/utils.js, @lucide/svelte/icons/check, svelte/elements, @lucide/svelte/icons/minus
 
 ### Community 4 - "Dependencies & Icons"
 Cohesion: 0.05
@@ -177,25 +180,29 @@ Nodes (6): DELETE(), getStatus(), assignPermissionsToRole(), AssignRolePermissio
 Cohesion: 0.40
 Nodes (4): SALARY_COMPONENT_TYPE_LABELS, SALARY_COMPONENT_TYPE_OPTIONS, SALARY_COMPONENT_TYPES, SalaryComponentType
 
+### Community 44 - "Community 44"
+Cohesion: 0.27
+Nodes (8): createDepartment(), CreateDepartmentDto, deleteDepartment(), getDepartmentByCuid2(), toPublicDepartment(), updateDepartment(), UpdateDepartmentDto, validateDepartmentName()
+
 ## Knowledge Gaps
-- **225 isolated node(s):** `css.lint.unknownAtRules`, `$schema`, `css`, `baseColor`, `components` (+220 more)
+- **227 isolated node(s):** `css.lint.unknownAtRules`, `$schema`, `css`, `baseColor`, `components` (+222 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **14 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `devDependencies` connect `Dependencies & Icons` to `Package Dependencies`?**
-  _High betweenness centrality (0.107) - this node is a cross-community bridge._
+  _High betweenness centrality (0.106) - this node is a cross-community bridge._
 - **Why does `User` connect `API Client Configuration` to `API Endpoints`?**
-  _High betweenness centrality (0.104) - this node is a cross-community bridge._
+  _High betweenness centrality (0.102) - this node is a cross-community bridge._
 - **Why does `svelte` connect `Dependencies & Icons` to `UI Components Index`?**
-  _High betweenness centrality (0.089) - this node is a cross-community bridge._
+  _High betweenness centrality (0.088) - this node is a cross-community bridge._
 - **What connects `css.lint.unknownAtRules`, `$schema`, `css` to the rest of the system?**
-  _225 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _227 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `API Endpoints` be split into smaller, more focused modules?**
-  _Cohesion score 0.062342342342342344 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07826546800634585 - nodes in this community are weakly interconnected._
 - **Should `UI Components Index` be split into smaller, more focused modules?**
-  _Cohesion score 0.07540983606557378 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06963645673323093 - nodes in this community are weakly interconnected._
 - **Should `UI Components Core` be split into smaller, more focused modules?**
-  _Cohesion score 0.08672699849170437 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0946938775510204 - nodes in this community are weakly interconnected._

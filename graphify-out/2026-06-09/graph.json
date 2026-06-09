@@ -835,7 +835,7 @@
       "label": "injectLocals()",
       "file_type": "code",
       "source_file": "src/hooks.server.js",
-      "source_location": "L14",
+      "source_location": "L6",
       "id": "src_hooks_server_injectlocals",
       "community": 11,
       "norm_label": "injectlocals()"
@@ -844,7 +844,7 @@
       "label": "routeGuard()",
       "file_type": "code",
       "source_file": "src/hooks.server.js",
-      "source_location": "L33",
+      "source_location": "L25",
       "id": "src_hooks_server_routeguard",
       "community": 11,
       "norm_label": "routeguard()"
@@ -853,7 +853,7 @@
       "label": "customAuthHandle()",
       "file_type": "code",
       "source_file": "src/hooks.server.js",
-      "source_location": "L64",
+      "source_location": "L56",
       "id": "src_hooks_server_customauthhandle",
       "community": 11,
       "norm_label": "customauthhandle()"
@@ -862,7 +862,7 @@
       "label": "handle",
       "file_type": "code",
       "source_file": "src/hooks.server.js",
-      "source_location": "L84",
+      "source_location": "L76",
       "id": "src_hooks_server_handle",
       "community": 11,
       "norm_label": "handle"
@@ -1027,7 +1027,7 @@
       "source_file": "@lucide/svelte/icons/check",
       "confidence": "EXTRACTED",
       "id": "check",
-      "community": 2,
+      "community": 3,
       "norm_label": "@lucide/svelte/icons/check"
     },
     {
@@ -1109,7 +1109,7 @@
       "source_file": "@lucide/svelte/icons/chevron-right",
       "confidence": "EXTRACTED",
       "id": "chevron_right",
-      "community": 3,
+      "community": 2,
       "norm_label": "@lucide/svelte/icons/chevron-right"
     },
     {
@@ -1298,7 +1298,7 @@
       "source_file": "src/lib/components/ui/badge/index.ts",
       "source_location": "L1",
       "id": "badge_index",
-      "community": 3,
+      "community": 2,
       "norm_label": "index.ts"
     },
     {
@@ -1316,7 +1316,7 @@
       "source_file": "src/lib/components/ui/button/index.ts",
       "source_location": "L1",
       "id": "button_index",
-      "community": 3,
+      "community": 2,
       "norm_label": "index.ts"
     },
     {
@@ -1415,7 +1415,7 @@
       "source_file": "src/lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte",
       "source_location": "L1",
       "id": "dropdown_menu_dropdown_menu_checkbox_item",
-      "community": 2,
+      "community": 3,
       "norm_label": "dropdown-menu-checkbox-item.svelte"
     },
     {
@@ -1424,7 +1424,7 @@
       "source_file": "@lucide/svelte/icons/minus",
       "confidence": "EXTRACTED",
       "id": "minus",
-      "community": 2,
+      "community": 3,
       "norm_label": "@lucide/svelte/icons/minus"
     },
     {
@@ -1578,7 +1578,7 @@
       "source_file": "src/lib/components/ui/input/index.ts",
       "source_location": "L1",
       "id": "input_index",
-      "community": 3,
+      "community": 2,
       "norm_label": "index.ts"
     },
     {
@@ -1596,7 +1596,7 @@
       "source_file": "src/lib/components/ui/label/index.ts",
       "source_location": "L1",
       "id": "label_index",
-      "community": 3,
+      "community": 2,
       "norm_label": "index.ts"
     },
     {
@@ -2812,7 +2812,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L1",
       "id": "services_department_service",
-      "community": 0,
+      "community": 44,
       "norm_label": "department.service.ts"
     },
     {
@@ -2821,7 +2821,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L5",
       "id": "services_department_service_createdepartmentdto",
-      "community": 0,
+      "community": 44,
       "norm_label": "createdepartmentdto"
     },
     {
@@ -2830,7 +2830,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L13",
       "id": "services_department_service_updatedepartmentdto",
-      "community": 0,
+      "community": 44,
       "norm_label": "updatedepartmentdto"
     },
     {
@@ -2839,7 +2839,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L20",
       "id": "services_department_service_topublicdepartment",
-      "community": 0,
+      "community": 44,
       "norm_label": "topublicdepartment()"
     },
     {
@@ -2848,7 +2848,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L36",
       "id": "services_department_service_getdepartments",
-      "community": 0,
+      "community": 44,
       "norm_label": "getdepartments()"
     },
     {
@@ -2857,7 +2857,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L43",
       "id": "services_department_service_getdepartmentbycuid2",
-      "community": 0,
+      "community": 44,
       "norm_label": "getdepartmentbycuid2()"
     },
     {
@@ -2866,7 +2866,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L58",
       "id": "services_department_service_createdepartment",
-      "community": 0,
+      "community": 44,
       "norm_label": "createdepartment()"
     },
     {
@@ -2875,7 +2875,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L80",
       "id": "services_department_service_updatedepartment",
-      "community": 0,
+      "community": 44,
       "norm_label": "updatedepartment()"
     },
     {
@@ -2884,7 +2884,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L126",
       "id": "services_department_service_deletedepartment",
-      "community": 0,
+      "community": 44,
       "norm_label": "deletedepartment()"
     },
     {
@@ -3730,7 +3730,7 @@
       "source_file": "src/lib/server/validators/department.validator.ts",
       "source_location": "L1",
       "id": "validators_department_validator",
-      "community": 0,
+      "community": 44,
       "norm_label": "department.validator.ts"
     },
     {
@@ -3739,7 +3739,7 @@
       "source_file": "src/lib/server/validators/department.validator.ts",
       "source_location": "L10",
       "id": "validators_department_validator_validatedepartmentname",
-      "community": 0,
+      "community": 44,
       "norm_label": "validatedepartmentname()"
     },
     {
@@ -5350,7 +5350,7 @@
       "source_file": "tests/unit/department.service.test.ts",
       "source_location": "L1",
       "id": "unit_department_service_test",
-      "community": 0,
+      "community": 44,
       "norm_label": "department.service.test.ts"
     },
     {
@@ -5359,7 +5359,7 @@
       "source_file": "tests/unit/department.validator.test.ts",
       "source_location": "L1",
       "id": "unit_department_validator_test",
-      "community": 0,
+      "community": 44,
       "norm_label": "department.validator.test.ts"
     },
     {
@@ -5523,6 +5523,60 @@
       "id": "unit_system_role_service_test",
       "community": 38,
       "norm_label": "system-role.service.test.ts"
+    },
+    {
+      "label": "truncate-tables-pg.js",
+      "file_type": "code",
+      "source_file": "truncate-tables-pg.js",
+      "source_location": "L1",
+      "id": "truncate_tables_pg",
+      "community": 46,
+      "norm_label": "truncate-tables-pg.js"
+    },
+    {
+      "label": "client",
+      "file_type": "code",
+      "source_file": "truncate-tables-pg.js",
+      "source_location": "L4",
+      "id": "truncate_tables_pg_client",
+      "community": 46,
+      "norm_label": "client"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "truncate-tables-pg.js",
+      "source_location": "L8",
+      "id": "truncate_tables_pg_main",
+      "community": 46,
+      "norm_label": "main()"
+    },
+    {
+      "label": "truncate-tables.js",
+      "file_type": "code",
+      "source_file": "truncate-tables.js",
+      "source_location": "L1",
+      "id": "truncate_tables",
+      "community": 45,
+      "norm_label": "truncate-tables.js"
+    },
+    {
+      "label": "prisma",
+      "file_type": "code",
+      "source_file": "truncate-tables.js",
+      "source_location": "L3",
+      "id": "truncate_tables_prisma",
+      "community": 45,
+      "norm_label": "prisma"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "truncate-tables.js",
+      "source_location": "L5",
+      "id": "truncate_tables_main",
+      "community": 45,
+      "norm_label": "main()"
     },
     {
       "label": "tsconfig.json",
@@ -17125,6 +17179,46 @@
       "confidence_score": 1.0,
       "source": "unit_master_data_dao_test",
       "target": "unit_master_data_dao_test_mockdbmethods"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "truncate-tables-pg.js",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "truncate_tables_pg",
+      "target": "truncate_tables_pg_client",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "truncate-tables-pg.js",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "truncate_tables_pg",
+      "target": "truncate_tables_pg_main",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "truncate-tables.js",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "truncate_tables",
+      "target": "truncate_tables_main",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "truncate-tables.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "truncate_tables",
+      "target": "truncate_tables_prisma",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",

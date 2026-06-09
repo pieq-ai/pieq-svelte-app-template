@@ -37,21 +37,21 @@ describe('System Role Service', () => {
 
 	describe('getSystemRoleById', () => {
 		it('should throw if id is not a positive integer', async () => {
-			await expect(systemRoleService.getSystemRoleById(0)).rejects.toThrow('System role ID must be a positive integer');
-			await expect(systemRoleService.getSystemRoleById(1.5)).rejects.toThrow('System role ID must be a positive integer');
-			await expect(systemRoleService.getSystemRoleById(-5)).rejects.toThrow('System role ID must be a positive integer');
+			await expect(systemRoleService.getSystemRoleById(0n)).rejects.toThrow('System role ID must be a positive integer');
+			await expect(systemRoleService.getSystemRoleById(1.5 as unknown as bigint)).rejects.toThrow('System role ID must be a positive integer');
+			await expect(systemRoleService.getSystemRoleById(-5n)).rejects.toThrow('System role ID must be a positive integer');
 		});
 
 		it('should throw if system role not found', async () => {
 			vi.mocked(systemRoleDao.findById).mockResolvedValue(null);
-			await expect(systemRoleService.getSystemRoleById(999)).rejects.toThrow('System role with ID "999" not found');
+			await expect(systemRoleService.getSystemRoleById(999n)).rejects.toThrow('System role with ID "999" not found');
 		});
 
 		it('should return mapped system role if found', async () => {
 			const mockData = { id: 1, cuid: 'abc', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null };
 			vi.mocked(systemRoleDao.findById).mockResolvedValue(mockData as any);
 
-			const result = await systemRoleService.getSystemRoleById(1);
+			const result = await systemRoleService.getSystemRoleById(1n);
 			expect(result).toEqual({ cuid: 'abc', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
 		});
 	});

@@ -37,21 +37,21 @@ describe('Permission Service', () => {
 
 	describe('getPermissionById', () => {
 		it('should throw if id is not a positive integer', async () => {
-			await expect(permissionService.getPermissionById(0)).rejects.toThrow('Permission ID must be a positive integer');
-			await expect(permissionService.getPermissionById(1.5)).rejects.toThrow('Permission ID must be a positive integer');
-			await expect(permissionService.getPermissionById(-5)).rejects.toThrow('Permission ID must be a positive integer');
+			await expect(permissionService.getPermissionById(0n)).rejects.toThrow('Permission ID must be a positive integer');
+			await expect(permissionService.getPermissionById(1.5 as unknown as bigint)).rejects.toThrow('Permission ID must be a positive integer');
+			await expect(permissionService.getPermissionById(-5n)).rejects.toThrow('Permission ID must be a positive integer');
 		});
 
 		it('should throw if permission not found', async () => {
 			vi.mocked(permissionDao.findById).mockResolvedValue(null);
-			await expect(permissionService.getPermissionById(999)).rejects.toThrow('Permission with ID "999" not found');
+			await expect(permissionService.getPermissionById(999n)).rejects.toThrow('Permission with ID "999" not found');
 		});
 
 		it('should return mapped permission if found', async () => {
 			const mockData = { id: 1, cuid: 'abc', permission_key: 'admin_read', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null };
 			vi.mocked(permissionDao.findById).mockResolvedValue(mockData as any);
 
-			const result = await permissionService.getPermissionById(1);
+			const result = await permissionService.getPermissionById(1n);
 			expect(result).toEqual({ cuid: 'abc', permission_key: 'admin_read', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
 		});
 	});

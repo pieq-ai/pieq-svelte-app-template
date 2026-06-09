@@ -23,7 +23,7 @@ export async function list() {
 	});
 }
 
-export async function findById(id: number) {
+export async function findById(id: bigint) {
 	return db.designation.findUnique({
 		where: {
 			id

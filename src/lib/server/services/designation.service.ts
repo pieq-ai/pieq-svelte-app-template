@@ -68,8 +68,8 @@ export async function getDesignations() {
 	return (await designationDao.list()).map(toPublicDesignation);
 }
 
-export async function getDesignationById(designation_id: number) {
-	if (!Number.isInteger(designation_id) || designation_id <= 0) {
+export async function getDesignationById(designation_id: bigint) {
+	if (typeof designation_id !== 'bigint' || designation_id <= 0n) {
 		throw new Error('Designation ID must be a positive integer');
 	}
 

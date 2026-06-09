@@ -40,7 +40,7 @@ model SalaryComponent {
 }
 
 model Employee {
-  id   Int    @id @default(autoincrement())
+  id   BigInt    @id @default(autoincrement())
   uuid String @unique @default(uuid())
   name String
   age  Int
@@ -49,7 +49,7 @@ model Employee {
 }
 
 model SystemRoles {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -67,7 +67,7 @@ model SystemRoles {
 }
 
 model Department {
-  id        Int    @id @default(autoincrement())
+  id        BigInt    @id @default(autoincrement())
   cuid     String @unique @default(cuid())
   dept_name String @unique @db.VarChar(150)
 
@@ -79,11 +79,11 @@ model Department {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("department")
+  @@map("departments")
 }
 
 model Permissions {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -101,7 +101,7 @@ model Permissions {
 }
 
 model RolePermission {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -115,11 +115,11 @@ model RolePermission {
 
   @@unique([system_role_cuid, permission_cuid])
   @@index([cuid])
-  @@map("role_permission")
+  @@map("role_permissions")
 }
 
 model BloodGroup {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -131,11 +131,11 @@ model BloodGroup {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("blood_group")
+  @@map("blood_groups")
 }
 
 model Designation {
-  id               Int    @id @default(autoincrement())
+  id               BigInt    @id @default(autoincrement())
   cuid            String @unique @default(cuid())
   designation_name String @unique @db.VarChar(150)
 
@@ -147,11 +147,11 @@ model Designation {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("designation")
+  @@map("designations")
 }
 
 model PayGrade {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -165,11 +165,11 @@ model PayGrade {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("pay_grade")
+  @@map("pay_grades")
 }
 
 model Nationality {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -183,11 +183,11 @@ model Nationality {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("nationality")
+  @@map("nationalities")
 }
 
 model EmploymentType {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -201,11 +201,11 @@ model EmploymentType {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("employment_type")
+  @@map("employment_types")
 }
 
 model RelationType {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -219,11 +219,11 @@ model RelationType {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("relation_type")
+  @@map("relation_types")
 }
 
 model DocumentType {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -237,11 +237,11 @@ model DocumentType {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("document_type")
+  @@map("document_types")
 }
 
 model State {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -257,11 +257,11 @@ model State {
   @@unique([country_cuid, state_name])
   @@index([country_cuid])
   @@index([cuid])
-  @@map("state")
+  @@map("states")
 }
 
 model Country {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -273,11 +273,11 @@ model Country {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("country")
+  @@map("countries")
 }
 
 model Skills {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -295,7 +295,7 @@ model Skills {
 }
 
 model AttendanceSource {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
@@ -309,11 +309,11 @@ model AttendanceSource {
   updated_by String?  @db.VarChar(100)
 
   @@index([cuid])
-  @@map("attendance_source")
+  @@map("attendance_sources")
 }
 
 model Languages {
-  id Int @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   cuid String @unique @default(cuid())
 
