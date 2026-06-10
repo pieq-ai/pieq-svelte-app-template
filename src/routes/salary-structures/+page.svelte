@@ -100,7 +100,7 @@
 		employee_cuid: string;
 		effective_from: string | null;
 		effective_to: string | null;
-		is_active: boolean;
+		status: boolean;
 		components: string; // JSON snapshot of components
 	}
 
@@ -112,7 +112,7 @@
 				employee_cuid: formEmployeeCuid,
 				effective_from: formEffectiveFrom,
 				effective_to: formEffectiveTo,
-				is_active: formIsActive,
+				status: formIsActive,
 				components: JSON.stringify(
 					formItems.map((i) => ({
 						salary_component_cuid: i.salary_component_cuid,
@@ -144,7 +144,7 @@
 		}
 
 		if (statusFilter !== 'all') {
-			result = result.filter((s) => s.is_active === statusFilter);
+			result = result.filter((s) => s.status === statusFilter);
 		}
 
 		if (sortDirection && sortColumn) {
@@ -158,9 +158,9 @@
 				} else if (sortColumn === 'effective_from') {
 					valA = a.effective_from;
 					valB = b.effective_from;
-				} else if (sortColumn === 'is_active') {
-					valA = String(a.is_active);
-					valB = String(b.is_active);
+				} else if (sortColumn === 'status') {
+					valA = String(a.status);
+					valB = String(b.status);
 				} else {
 					valA = String(a[sortColumn as keyof typeof a] ?? '');
 					valB = String(b[sortColumn as keyof typeof b] ?? '');
@@ -176,8 +176,8 @@
 	});
 
 	let totalCount = $derived(structuresList.length);
-	let activeCount = $derived(structuresList.filter((s) => s.is_active).length);
-	let inactiveCount = $derived(structuresList.filter((s) => !s.is_active).length);
+	let activeCount = $derived(structuresList.filter((s) => s.status).length);
+	let inactiveCount = $derived(structuresList.filter((s) => !s.status).length);
 	let paginatedStructures = $derived(
 		filteredStructures.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 	);
@@ -286,7 +286,7 @@
 			employee_cuid: '',
 			effective_from: '',
 			effective_to: '',
-			is_active: true,
+			status: true,
 			components: buildSnapshotItems()
 		});
 		modalMode = 'create';
@@ -297,7 +297,7 @@
 		formEmployeeCuid = s.employee_cuid;
 		formEffectiveFrom = s.effective_from;
 		formEffectiveTo = s.effective_to ?? '';
-		formIsActive = s.is_active;
+		formIsActive = s.status;
 		formItems = s.components.map((item) => ({
 			id: nextItemId++,
 			salary_component_cuid: item.salary_component_cuid,
@@ -309,7 +309,7 @@
 			employee_cuid: s.employee_cuid,
 			effective_from: s.effective_from,
 			effective_to: s.effective_to ?? '',
-			is_active: s.is_active,
+			status: s.status,
 			components: JSON.stringify(
 				s.components.map((i) => ({
 					salary_component_cuid: i.salary_component_cuid,
@@ -416,7 +416,7 @@
 			employee_cuid: formEmployeeCuid,
 			effective_from: formEffectiveFrom,
 			effective_to: formEffectiveTo || null,
-			is_active: formIsActive,
+			status: formIsActive,
 			components: formItems.map((item) => ({
 				salary_component_cuid: item.salary_component_cuid,
 				amount: parseFloat(item.amount)
@@ -426,7 +426,7 @@
 		try {
 			const response = await fetch(
 				modalMode === 'edit' && editingStructure
-					? `/api/salary-structures/salaryStructureCuid=${editingStructure.cuid}`
+					? `/api/salary-structures/${editingStructure.cuid}`
 					: '/api/salary-structures',
 				{
 					method: modalMode === 'edit' ? 'PUT' : 'POST',
@@ -560,10 +560,10 @@
 						<TableHead class="font-bold text-foreground text-[15px]">Effective To</TableHead>
 						<TableHead class="font-bold text-foreground text-[15px]">Components</TableHead>
 						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
-							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('is_active')}>
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
 								Status
-								{#if sortIcon('is_active') === 'asc'}<ArrowUpIcon class="ml-2 size-4" />
-								{:else if sortIcon('is_active') === 'desc'}<ArrowDownIcon class="ml-2 size-4" />
+								{#if sortIcon('status') === 'asc'}<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortIcon('status') === 'desc'}<ArrowDownIcon class="ml-2 size-4" />
 								{:else}<ArrowUpDownIcon class="ml-2 size-4" />{/if}
 							</Button>
 						</TableHead>
@@ -603,8 +603,8 @@
 									<span class="text-sm text-muted-foreground">{s.components.length} component{s.components.length === 1 ? '' : 's'}</span>
 								</TableCell>
 								<TableCell class="text-center">
-									<Badge variant={s.is_active ? 'default' : 'secondary'}>
-										{s.is_active ? 'Active' : 'Inactive'}
+									<Badge variant={s.status ? 'default' : 'secondary'}>
+										{s.status ? 'Active' : 'Inactive'}
 									</Badge>
 								</TableCell>
 								<TableCell class="text-right">
@@ -875,8 +875,8 @@
 					</div>
 					<div>
 						<p class="text-muted-foreground text-xs uppercase tracking-wide mb-1">Status</p>
-						<Badge variant={editingStructure.is_active ? 'default' : 'secondary'}>
-							{editingStructure.is_active ? 'Active' : 'Inactive'}
+						<Badge variant={editingStructure.status ? 'default' : 'secondary'}>
+							{editingStructure.status ? 'Active' : 'Inactive'}
 						</Badge>
 					</div>
 					<div>

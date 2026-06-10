@@ -73,7 +73,7 @@ async function assertComponentsValid(
 		seen.add(cuid);
 
 		const component = await salaryComponentDao.findByCuid(cuid);
-		if (!component || !component.is_active) {
+		if (!component || !component.status) {
 			throw new InvalidSalaryComponentError(cuid);
 		}
 	}
@@ -206,7 +206,7 @@ export async function getStructures() {
 }
 
 /**
- * Deactivate a Salary Structure (soft delete — sets is_active to false).
+ * Deactivate a Salary Structure (soft delete — sets status to false).
  */
 export async function deactivateStructure(cuid: string, updated_by?: string | null) {
 	const current = await dao.findByCuid(cuid);
@@ -214,7 +214,7 @@ export async function deactivateStructure(cuid: string, updated_by?: string | nu
 		throw new SalaryStructureNotFoundError(cuid);
 	}
 
-	const updated = await dao.update(cuid, { is_active: false, updated_by });
+	const updated = await dao.update(cuid, { status: false, updated_by });
 	const items = await dao.findItemsByStructureCuid(cuid);
 	return serializeSalaryStructure(updated, items);
 }

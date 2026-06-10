@@ -34,7 +34,7 @@ export function serializeSalaryStructure(
 		effective_to: record.effective_to
 			? record.effective_to.toISOString().split('T')[0]
 			: null,
-		is_active: record.is_active,
+		status: record.status,
 		components: items.map(serializeSalaryStructureItem)
 	};
 }

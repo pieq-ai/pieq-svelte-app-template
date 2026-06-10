@@ -49,7 +49,7 @@ function mockStructureRecord(overrides = {}) {
 		employee_cuid: 'EMP001',
 		effective_from: new Date('2024-01-01'),
 		effective_to: null,
-		is_active: true,
+		status: true,
 		created_at: new Date(),
 		created_by: null,
 		updated_at: new Date(),
@@ -74,7 +74,7 @@ function mockItemRecord(overrides = {}) {
 }
 
 function mockComponentRecord(overrides = {}) {
-	return { id: 1n, cuid: 'comp_abc', component_name: 'Basic', is_active: true, ...overrides };
+	return { id: 1n, cuid: 'comp_abc', component_name: 'Basic', status: true, ...overrides };
 }
 
 describe('Salary Structure Service', () => {
@@ -95,7 +95,7 @@ describe('Salary Structure Service', () => {
 				employee_cuid: 'EMP001',
 				effective_from: '2024-01-01',
 				effective_to: null,
-				is_active: true,
+				status: true,
 				components: [{ salary_component_cuid: 'comp_abc', amount: 5000 }]
 			});
 
@@ -112,7 +112,7 @@ describe('Salary Structure Service', () => {
 					employee_cuid: 'BAD_EMP',
 					effective_from: '2024-01-01',
 					effective_to: null,
-					is_active: true,
+					status: true,
 					components: [{ salary_component_cuid: 'comp_abc', amount: 100 }]
 				})
 			).rejects.toThrow(InvalidEmployeeError);
@@ -127,7 +127,7 @@ describe('Salary Structure Service', () => {
 					employee_cuid: 'EMP001',
 					effective_from: '2024-01-01',
 					effective_to: null,
-					is_active: true,
+					status: true,
 					components: [{ salary_component_cuid: 'bad_comp', amount: 100 }]
 				})
 			).rejects.toThrow(InvalidSalaryComponentError);
@@ -135,14 +135,14 @@ describe('Salary Structure Service', () => {
 
 		it('should throw InvalidSalaryComponentError when component is inactive', async () => {
 			vi.mocked(findEmployeeByCuid).mockReturnValue({ cuid: 'EMP001', employee_id: 'EMP001', name: 'John' });
-			vi.mocked(componentDao.findByCuid).mockResolvedValue(mockComponentRecord({ is_active: false }) as never);
+			vi.mocked(componentDao.findByCuid).mockResolvedValue(mockComponentRecord({ status: false }) as never);
 
 			await expect(
 				createStructure({
 					employee_cuid: 'EMP001',
 					effective_from: '2024-01-01',
 					effective_to: null,
-					is_active: true,
+					status: true,
 					components: [{ salary_component_cuid: 'comp_abc', amount: 100 }]
 				})
 			).rejects.toThrow(InvalidSalaryComponentError);
@@ -157,7 +157,7 @@ describe('Salary Structure Service', () => {
 					employee_cuid: 'EMP001',
 					effective_from: '2024-01-01',
 					effective_to: null,
-					is_active: true,
+					status: true,
 					components: [
 						{ salary_component_cuid: 'comp_abc', amount: 100 },
 						{ salary_component_cuid: 'comp_abc', amount: 200 }
@@ -175,7 +175,7 @@ describe('Salary Structure Service', () => {
 					employee_cuid: 'EMP001',
 					effective_from: '2024-01-01',
 					effective_to: null,
-					is_active: true,
+					status: true,
 					components: [{ salary_component_cuid: 'comp_abc', amount: 100 }]
 				})
 			).rejects.toThrow(DuplicateEmployeeStructureError);
@@ -233,13 +233,13 @@ describe('Salary Structure Service', () => {
 	describe('updateStructure', () => {
 		it('should update structure fields without touching items', async () => {
 			vi.mocked(structureDao.findByCuid).mockResolvedValue(mockStructureRecord() as never);
-			vi.mocked(structureDao.update).mockResolvedValue(mockStructureRecord({ is_active: false }) as never);
+			vi.mocked(structureDao.update).mockResolvedValue(mockStructureRecord({ status: false }) as never);
 			vi.mocked(structureDao.findItemsByStructureCuid).mockResolvedValue([mockItemRecord()] as never);
 
-			const result = await updateStructure('struct_1', { is_active: false });
+			const result = await updateStructure('struct_1', { status: false });
 
-			expect(structureDao.update).toHaveBeenCalledWith('struct_1', expect.objectContaining({ is_active: false }));
-			expect(result.is_active).toBe(false);
+			expect(structureDao.update).toHaveBeenCalledWith('struct_1', expect.objectContaining({ status: false }));
+			expect(result.status).toBe(false);
 		});
 
 		it('should replace items when items array is provided', async () => {
@@ -260,7 +260,7 @@ describe('Salary Structure Service', () => {
 		it('should throw SalaryStructureNotFoundError when not found', async () => {
 			vi.mocked(structureDao.findByCuid).mockResolvedValue(null);
 
-			await expect(updateStructure('bad_cuid', { is_active: false })).rejects.toThrow(
+			await expect(updateStructure('bad_cuid', { status: false })).rejects.toThrow(
 				SalaryStructureNotFoundError
 			);
 		});
@@ -289,18 +289,18 @@ describe('Salary Structure Service', () => {
 	// ─── deactivateStructure ──────────────────────────────────────────────────
 
 	describe('deactivateStructure', () => {
-		it('should set is_active to false', async () => {
+		it('should set status to false', async () => {
 			vi.mocked(structureDao.findByCuid).mockResolvedValue(mockStructureRecord() as never);
-			vi.mocked(structureDao.update).mockResolvedValue(mockStructureRecord({ is_active: false }) as never);
+			vi.mocked(structureDao.update).mockResolvedValue(mockStructureRecord({ status: false }) as never);
 			vi.mocked(structureDao.findItemsByStructureCuid).mockResolvedValue([] as never);
 
 			const result = await deactivateStructure('struct_1');
 
 			expect(structureDao.update).toHaveBeenCalledWith(
 				'struct_1',
-				expect.objectContaining({ is_active: false })
+				expect.objectContaining({ status: false })
 			);
-			expect(result.is_active).toBe(false);
+			expect(result.status).toBe(false);
 		});
 
 		it('should throw SalaryStructureNotFoundError when not found', async () => {

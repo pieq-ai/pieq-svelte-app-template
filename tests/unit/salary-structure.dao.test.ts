@@ -35,13 +35,13 @@ describe('Salary Structure DAO', () => {
 				employee_cuid: 'EMP001',
 				effective_from: '2024-01-01',
 				effective_to: null,
-				is_active: true
+				status: true
 			});
 
 			expect(db.salaryStructure.create).toHaveBeenCalledWith({
 				data: expect.objectContaining({
 					employee_cuid: 'EMP001',
-					is_active: true
+					status: true
 				})
 			});
 			expect(result).toBe(mockResult);
@@ -49,7 +49,7 @@ describe('Salary Structure DAO', () => {
 
 		it('should handle effective_to as null', async () => {
 			vi.mocked(db.salaryStructure.create).mockResolvedValue({ id: 1n } as never);
-			await dao.create({ employee_cuid: 'EMP001', effective_from: '2024-01-01', effective_to: null, is_active: true });
+			await dao.create({ employee_cuid: 'EMP001', effective_from: '2024-01-01', effective_to: null, status: true });
 			const callArg = vi.mocked(db.salaryStructure.create).mock.calls[0][0];
 			expect(callArg.data.effective_to).toBeNull();
 		});
@@ -59,14 +59,14 @@ describe('Salary Structure DAO', () => {
 
 	describe('update', () => {
 		it('should call db.salaryStructure.update with where cuid', async () => {
-			const mockResult = { id: 1n, cuid: 'struct_1', is_active: false };
+			const mockResult = { id: 1n, cuid: 'struct_1', status: false };
 			vi.mocked(db.salaryStructure.update).mockResolvedValue(mockResult as never);
 
-			const result = await dao.update('struct_1', { is_active: false, updated_by: null });
+			const result = await dao.update('struct_1', { status: false, updated_by: null });
 
 			expect(db.salaryStructure.update).toHaveBeenCalledWith({
 				where: { cuid: 'struct_1' },
-				data: expect.objectContaining({ is_active: false })
+				data: expect.objectContaining({ status: false })
 			});
 			expect(result).toBe(mockResult);
 		});

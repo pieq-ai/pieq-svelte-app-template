@@ -22,7 +22,7 @@ export interface SalaryStructure {
 	effective_from: string;
 	/** ISO date string or null */
 	effective_to: string | null;
-	is_active: boolean;
+	status: boolean;
 	components: SalaryStructureItem[];
 }
 
@@ -38,7 +38,7 @@ export interface CreateSalaryStructureDto {
 	employee_cuid: string;
 	effective_from: string;
 	effective_to?: string | null;
-	is_active?: boolean;
+	status?: boolean;
 	/** Renamed from `items` — the external API payload key is `components` */
 	components: CreateSalaryStructureItemDto[];
 	created_by?: string | null;
@@ -53,7 +53,7 @@ export interface UpdateSalaryStructureDto {
 	employee_cuid?: string;
 	effective_from?: string;
 	effective_to?: string | null;
-	is_active?: boolean;
+	status?: boolean;
 	/** Renamed from `items` — the external API payload key is `components` */
 	components?: UpdateSalaryStructureItemDto[];
 	updated_by?: string | null;

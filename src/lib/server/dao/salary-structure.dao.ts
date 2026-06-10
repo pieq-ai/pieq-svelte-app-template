@@ -13,7 +13,7 @@ export async function create(data: Omit<CreateSalaryStructureDto, 'components'>)
 			employee_cuid: data.employee_cuid,
 			effective_from: new Date(data.effective_from),
 			effective_to: data.effective_to ? new Date(data.effective_to) : null,
-			is_active: data.is_active ?? true,
+			status: data.status ?? true,
 			created_by: data.created_by ?? null
 		}
 	});
@@ -29,7 +29,7 @@ export async function update(cuid: string, data: Omit<UpdateSalaryStructureDto, 
 			...('effective_to' in data && {
 				effective_to: data.effective_to ? new Date(data.effective_to) : null
 			}),
-			...(data.is_active !== undefined && { is_active: data.is_active }),
+			...(data.status !== undefined && { status: data.status }),
 			updated_by: data.updated_by ?? null
 		}
 	});

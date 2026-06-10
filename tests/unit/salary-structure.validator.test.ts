@@ -32,9 +32,9 @@ describe('validateCreateSalaryStructure', () => {
 		expect(validatedData?.components[0].amount).toBe(5000);
 	});
 
-	it('should set is_active to true by default when not provided', () => {
+	it('should set status to true by default when not provided', () => {
 		const { validatedData } = validateCreateSalaryStructure(validCreateBody());
-		expect(validatedData?.is_active).toBe(true);
+		expect(validatedData?.status).toBe(true);
 	});
 
 	it('should accept an explicit effective_to date after effective_from', () => {
@@ -218,10 +218,10 @@ describe('validateUpdateSalaryStructure', () => {
 		expect(errors.some((e) => e.field === 'effective_to' && e.message.includes('after'))).toBe(true);
 	});
 
-	it('should reject is_active as null', () => {
-		const body = { is_active: null };
+	it('should reject status as null', () => {
+		const body = { status: null };
 		const { errors } = validateUpdateSalaryStructure(body);
-		expect(errors.some((e) => e.field === 'is_active')).toBe(true);
+		expect(errors.some((e) => e.field === 'status')).toBe(true);
 	});
 
 	it('should accept setting effective_to to null', () => {

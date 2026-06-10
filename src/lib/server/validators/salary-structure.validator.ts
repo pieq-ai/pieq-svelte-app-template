@@ -20,7 +20,7 @@ const CREATE_ALLOWED_KEYS = new Set<string>([
 	'employee_cuid',
 	'effective_from',
 	'effective_to',
-	'is_active',
+	'status',
 	'components'
 ]);
 
@@ -29,7 +29,7 @@ const UPDATE_ALLOWED_KEYS = new Set<string>([
 	'employee_cuid',
 	'effective_from',
 	'effective_to',
-	'is_active',
+	'status',
 	'components'
 ]);
 
@@ -173,12 +173,12 @@ export function validateCreateSalaryStructure(data: unknown): {
 		}
 	}
 
-	// Validate is_active (optional, defaults to true)
-	let is_active = body.is_active;
-	if (is_active === undefined || is_active === null) {
-		is_active = true;
-	} else if (typeof is_active !== 'boolean') {
-		errors.push({ field: 'is_active', message: 'is_active must be a boolean' });
+	// Validate status (optional, defaults to true)
+	let status = body.status;
+	if (status === undefined || status === null) {
+		status = true;
+	} else if (typeof status !== 'boolean') {
+		errors.push({ field: 'status', message: 'status must be a boolean' });
 	}
 
 	// Validate components
@@ -203,7 +203,7 @@ export function validateCreateSalaryStructure(data: unknown): {
 				body.effective_to && body.effective_to !== ''
 					? (body.effective_to as string)
 					: null,
-			is_active: is_active as boolean,
+			status: status as boolean,
 			components: rawComponents.map((item) => ({
 				salary_component_cuid: (item.salary_component_cuid as string).trim(),
 				amount: item.amount as number
@@ -299,14 +299,14 @@ export function validateUpdateSalaryStructure(data: unknown): {
 		}
 	}
 
-	// Validate is_active if provided
-	if (body.is_active !== undefined) {
-		if (body.is_active === null) {
-			errors.push({ field: 'is_active', message: 'is_active cannot be null' });
-		} else if (typeof body.is_active !== 'boolean') {
-			errors.push({ field: 'is_active', message: 'is_active must be a boolean' });
+	// Validate status if provided
+	if (body.status !== undefined) {
+		if (body.status === null) {
+			errors.push({ field: 'status', message: 'status cannot be null' });
+		} else if (typeof body.status !== 'boolean') {
+			errors.push({ field: 'status', message: 'status must be a boolean' });
 		} else {
-			validatedData.is_active = body.is_active;
+			validatedData.status = body.status;
 		}
 	}
 

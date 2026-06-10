@@ -12,7 +12,7 @@ export async function GET({ params }) {
 		const structure = await service.getStructureByCuid(cuid);
 		return json({ data: structure });
 	} catch (error) {
-		console.error(`Error in GET /api/salary-structures/salaryStructureCuid=${params.cuid}:`, error);
+		console.error(`Error in GET /api/salary-structures/${params.cuid}:`, error);
 		const isNotFound = (error as Error).name === 'SalaryStructureNotFoundError';
 		return json(
 			{ success: false, message: (error as Error).message || 'Failed to retrieve salary structure' },
@@ -39,7 +39,7 @@ export async function PUT({ params, request }) {
 		const updated = await service.updateStructure(cuid, validatedData);
 		return json({ data: { cuid: updated.cuid, message: 'success' } });
 	} catch (error) {
-		console.error(`Error in PUT /api/salary-structures/salaryStructureCuid=${params.cuid}:`, error);
+		console.error(`Error in PUT /api/salary-structures/${params.cuid}:`, error);
 		const isNotFound = (error as Error).name === 'SalaryStructureNotFoundError';
 		const isValidationError =
 			(error as Error).name === 'InvalidEmployeeError' ||
@@ -65,7 +65,7 @@ export async function DELETE({ params }) {
 		await service.deactivateStructure(cuid);
 		return json({ data: { message: 'success' } });
 	} catch (error) {
-		console.error(`Error in DELETE /api/salary-structures/salaryStructureCuid=${params.cuid}:`, error);
+		console.error(`Error in DELETE /api/salary-structures/${params.cuid}:`, error);
 		const isNotFound = (error as Error).name === 'SalaryStructureNotFoundError';
 		return json(
 			{ success: false, message: (error as Error).message || 'Failed to deactivate salary structure' },

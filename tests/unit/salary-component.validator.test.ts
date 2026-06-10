@@ -11,14 +11,14 @@ describe('salary-component.validator', () => {
 				component_name: 'Basic Pay',
 				component_type: 'earning',
 				is_taxable: true,
-				is_active: true
+				status: true
 			});
 			expect(res.errors).toHaveLength(0);
 			expect(res.validatedData).toEqual({
 				component_name: 'Basic Pay',
 				component_type: 'earning',
 				is_taxable: true,
-				is_active: true
+				status: true
 			});
 		});
 
@@ -32,7 +32,7 @@ describe('salary-component.validator', () => {
 				component_name: 'HRA',
 				component_type: 'earning',
 				is_taxable: false,
-				is_active: true
+				status: true
 			});
 		});
 
@@ -129,15 +129,15 @@ describe('salary-component.validator', () => {
 			});
 		});
 
-		it('should fail on invalid is_active', () => {
+		it('should fail on invalid status', () => {
 			const res = validateCreateSalaryComponent({
 				component_name: 'Basic Pay',
 				component_type: 'earning',
-				is_active: 'deleted'
+				status: 'deleted'
 			});
 			expect(res.errors).toContainEqual({
-				field: 'is_active',
-				message: 'is_active must be a boolean'
+				field: 'status',
+				message: 'status must be a boolean'
 			});
 		});
 
@@ -200,23 +200,23 @@ describe('salary-component.validator', () => {
 			});
 		});
 
-		it('should validate is_active update', () => {
+		it('should validate status update', () => {
 			const res = validateUpdateSalaryComponent({
-				is_active: false
+				status: false
 			});
 			expect(res.errors).toHaveLength(0);
 			expect(res.validatedData).toEqual({
-				is_active: false
+				status: false
 			});
 		});
 
-		it('should fail on invalid is_active in update', () => {
+		it('should fail on invalid status in update', () => {
 			const res = validateUpdateSalaryComponent({
-				is_active: 'archived'
+				status: 'archived'
 			});
 			expect(res.errors).toContainEqual({
-				field: 'is_active',
-				message: 'is_active must be a boolean'
+				field: 'status',
+				message: 'status must be a boolean'
 			});
 		});
 
@@ -245,7 +245,7 @@ describe('salary-component.validator', () => {
 
 		it('should reject multiple unknown fields in update body', () => {
 			const res = validateUpdateSalaryComponent({
-				is_active: true,
+				status: true,
 				salary: 50000,
 				deleted: false
 			});
@@ -263,7 +263,7 @@ describe('salary-component.validator', () => {
 		});
 
 		it('should reject arrays as the update body', () => {
-			const res = validateUpdateSalaryComponent([{ is_active: false }]);
+			const res = validateUpdateSalaryComponent([{ status: false }]);
 			expect(res.errors).toHaveLength(1);
 			expect(res.errors[0].field).toBe('body');
 		});

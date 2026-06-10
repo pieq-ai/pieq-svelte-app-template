@@ -9,7 +9,7 @@ import { serializeSalaryComponent } from '$lib/server/serializers/salary-compone
 export async function GET() {
 	try {
 		const result = await salaryComponentDao.findMany();
-		const active = result.items.filter((c) => c.is_active);
+		const active = result.items.filter((c) => c.status);
 		return json({ data: active.map(serializeSalaryComponent) });
 	} catch (error) {
 		console.error('Error in GET /api/salary-structures/components:', error);

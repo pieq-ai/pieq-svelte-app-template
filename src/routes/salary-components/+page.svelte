@@ -71,7 +71,7 @@
 		component_name: string;
 		component_type: SalaryComponentType;
 		is_taxable: boolean;
-		is_active: boolean;
+		status: boolean;
 	}>();
 
 	let isDirty = $derived(
@@ -79,7 +79,7 @@
 			component_name: formName.trim(),
 			component_type: formType,
 			is_taxable: formIsTaxable,
-			is_active: formIsActive
+			status: formIsActive
 		})
 	);
 
@@ -94,7 +94,7 @@
 		}
 
 		if (statusFilter !== 'all') {
-			result = result.filter((comp) => comp.is_active === statusFilter);
+			result = result.filter((comp) => comp.status === statusFilter);
 		}
 
 		if (typeFilter !== 'all') {
@@ -120,10 +120,10 @@
 		filteredComponents.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 	);
 	let activeEarningsCount = $derived(
-		componentsList.filter((c) => c.component_type === 'earning' && c.is_active).length
+		componentsList.filter((c) => c.component_type === 'earning' && c.status).length
 	);
 	let activeDeductionsCount = $derived(
-		componentsList.filter((c) => c.component_type === 'deduction' && c.is_active).length
+		componentsList.filter((c) => c.component_type === 'deduction' && c.status).length
 	);
 
 	async function loadComponents() {
@@ -173,7 +173,7 @@
 			component_name: '',
 			component_type: 'earning',
 			is_taxable: false,
-			is_active: true
+			status: true
 		});
 		isModalOpen = true;
 	}
@@ -183,13 +183,13 @@
 		formName = comp.component_name;
 		formType = comp.component_type;
 		formIsTaxable = comp.is_taxable;
-		formIsActive = comp.is_active;
+		formIsActive = comp.status;
 		backendError = '';
 		dirtyChecker.snapshot({
 			component_name: comp.component_name,
 			component_type: comp.component_type,
 			is_taxable: comp.is_taxable,
-			is_active: comp.is_active
+			status: comp.status
 		});
 		isModalOpen = true;
 	}
@@ -213,12 +213,12 @@
 				component_name: formName.trim(),
 				component_type: formType,
 				is_taxable: formIsTaxable,
-				is_active: formIsActive
+				status: formIsActive
 			};
 
 			const response = await fetch(
 				editingComp
-					? `/api/salary-components/salaryComponentCuid=${editingComp.cuid}`
+					? `/api/salary-components/${editingComp.cuid}`
 					: '/api/salary-components',
 				{
 					method: editingComp ? 'PUT' : 'POST',
@@ -354,11 +354,11 @@
 						</TableHead>
 						<TableHead class="font-bold text-foreground text-[15px]">Taxable</TableHead>
 						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
-							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('is_active')}>
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
 								Status
-							{#if sortColumn === 'is_active' && sortDirection === 'asc'}
+							{#if sortColumn === 'status' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortColumn === 'is_active' && sortDirection === 'desc'}
+							{:else if sortColumn === 'status' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
@@ -401,7 +401,7 @@
 									<span>{comp.is_taxable ? "Taxable" : "Non-taxable"}</span>
 								</TableCell>
 								<TableCell class="text-center">
-									<Badge variant={comp.is_active === true ? 'default' : 'secondary'}>{comp.is_active ? 'Active' : 'Inactive'}</Badge>
+									<Badge variant={comp.status === true ? 'default' : 'secondary'}>{comp.status ? 'Active' : 'Inactive'}</Badge>
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions

@@ -14,7 +14,7 @@ export interface SalaryComponent {
 	component_type: SalaryComponentType;
 
 	is_taxable: boolean;
-	is_active: boolean;
+	status: boolean;
 
 	created_at: Date;
 	/** cuid of the user who created this record */
@@ -29,7 +29,7 @@ export interface CreateSalaryComponentDto {
 	component_name: string;
 	component_type: SalaryComponentType;
 	is_taxable?: boolean;
-	is_active?: boolean;
+	status?: boolean;
 	/** cuid of the authenticated user performing the action */
 	created_by?: string | null;
 }
@@ -38,7 +38,7 @@ export interface UpdateSalaryComponentDto {
 	component_name?: string;
 	component_type?: SalaryComponentType;
 	is_taxable?: boolean;
-	is_active?: boolean;
+	status?: boolean;
 	/** cuid of the authenticated user performing the action */
 	updated_by?: string | null;
 }
@@ -47,7 +47,7 @@ export interface SalaryComponentFilters {
 	search?: string;
 	page?: number;
 	pageSize?: number;
-	sortBy?: 'component_name' | 'component_type' | 'is_active';
+	sortBy?: 'component_name' | 'component_type' | 'status';
 	sortOrder?: 'asc' | 'desc';
 }
 

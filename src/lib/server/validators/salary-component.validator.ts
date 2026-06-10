@@ -11,7 +11,7 @@ const CREATE_ALLOWED_KEYS = new Set<string>([
 	'component_name',
 	'component_type',
 	'is_taxable',
-	'is_active'
+	'status'
 ]);
 
 // Keys that are allowed in the PUT (update) body — no others may be present.
@@ -19,7 +19,7 @@ const UPDATE_ALLOWED_KEYS = new Set<string>([
 	'component_name',
 	'component_type',
 	'is_taxable',
-	'is_active'
+	'status'
 ]);
 
 /** Return the unknown keys present in `body` that are not in `allowed`. */
@@ -86,12 +86,12 @@ export function validateCreateSalaryComponent(data: unknown): {
 		errors.push({ field: 'is_taxable', message: 'is_taxable must be a boolean' });
 	}
 
-	// Validate is_active — must be boolean if present; defaults to true if absent
-	let is_active = body.is_active;
-	if (is_active === undefined || is_active === null) {
-		is_active = true;
-	} else if (typeof is_active !== 'boolean') {
-		errors.push({ field: 'is_active', message: 'is_active must be a boolean' });
+	// Validate status — must be boolean if present; defaults to true if absent
+	let status = body.status;
+	if (status === undefined || status === null) {
+		status = true;
+	} else if (typeof status !== 'boolean') {
+		errors.push({ field: 'status', message: 'status must be a boolean' });
 	}
 
 	if (errors.length > 0) {
@@ -104,7 +104,7 @@ export function validateCreateSalaryComponent(data: unknown): {
 			component_name: (body.component_name as string).trim(),
 			component_type: component_type as 'earning' | 'deduction',
 			is_taxable: is_taxable as boolean,
-			is_active: is_active as boolean
+			status: status as boolean
 		}
 	};
 }
@@ -183,15 +183,15 @@ export function validateUpdateSalaryComponent(data: unknown): {
 		}
 	}
 
-	// Validate is_active if provided
-	if (body.is_active !== undefined) {
-		const rawActive = body.is_active;
-		if (rawActive === null) {
-			errors.push({ field: 'is_active', message: 'is_active cannot be null' });
-		} else if (typeof rawActive !== 'boolean') {
-			errors.push({ field: 'is_active', message: 'is_active must be a boolean' });
+	// Validate status if provided
+	if (body.status !== undefined) {
+		const rawStatus = body.status;
+		if (rawStatus === null) {
+			errors.push({ field: 'status', message: 'status cannot be null' });
+		} else if (typeof rawStatus !== 'boolean') {
+			errors.push({ field: 'status', message: 'status must be a boolean' });
 		} else {
-			validatedData.is_active = rawActive;
+			validatedData.status = rawStatus;
 		}
 	}
 
