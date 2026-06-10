@@ -51,11 +51,8 @@ export function toDesignationDTO(designation: any) {
 
 export function toEmployeeDTO(employee: any) {
 	if (!employee) return employee;
-	return {
-		cuid: employee.cuid,
-		name: employee.name,
-		age: employee.age
-	};
+	const { id, ...rest } = employee;
+	return rest;
 }
 
 export function toPermissionDTO(permission: any) {

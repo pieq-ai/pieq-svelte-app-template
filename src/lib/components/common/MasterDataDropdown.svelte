@@ -9,7 +9,8 @@
 	interface Props {
 		master: MasterKey;
 		label?: string;
-		value: string;
+		value: string | string[];
+		multiple?: boolean;
 		countryCuid?: string;
 		placeholder?: string;
 		permissions?: Partial<MasterPermissionConfig>;
@@ -20,8 +21,9 @@
 		master,
 		label,
 		value,
+		multiple = false,
 		countryCuid,
-		placeholder = 'Search or select...',
+		placeholder,
 		permissions = getMasterPermissions(),
 		onSelect
 	}: Props = $props();
@@ -149,6 +151,7 @@
 		label={label ?? config.label}
 		{options}
 		{value}
+		{multiple}
 		{placeholder}
 		{permissions}
 		{onSelect}
