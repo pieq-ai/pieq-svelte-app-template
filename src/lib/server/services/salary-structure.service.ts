@@ -44,6 +44,13 @@ export class DuplicateComponentInStructureError extends BusinessValidationError 
 	}
 }
 
+export class DuplicateEmployeeStructureError extends BusinessValidationError {
+	constructor(employee_cuid: string) {
+		super(`Employee with ID "${employee_cuid}" is already assigned to a salary structure.`);
+		this.name = 'DuplicateEmployeeStructureError';
+	}
+}
+
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
 /** Validate that an employee exists in the provider. */
@@ -82,6 +89,12 @@ export async function createStructure(dto: CreateSalaryStructureDto) {
 	// Validate employee
 	assertEmployeeExists(dto.employee_cuid);
 
+	// Validate duplicate employee
+	const existing = await dao.findByEmployeeCuid(dto.employee_cuid);
+	if (existing) {
+		throw new DuplicateEmployeeStructureError(dto.employee_cuid);
+	}
+
 	// Validate all components
 	await assertComponentsValid(dto.components);
 
@@ -115,6 +128,12 @@ export async function updateStructure(cuid: string, dto: UpdateSalaryStructureDt
 	// Validate employee if changing
 	if (dto.employee_cuid !== undefined) {
 		assertEmployeeExists(dto.employee_cuid);
+		if (dto.employee_cuid !== current.employee_cuid) {
+			const existing = await dao.findByEmployeeCuid(dto.employee_cuid);
+			if (existing) {
+				throw new DuplicateEmployeeStructureError(dto.employee_cuid);
+			}
+		}
 	}
 
 	// Validate components if items are being updated

@@ -8,7 +8,8 @@ import {
 	SalaryStructureNotFoundError,
 	InvalidEmployeeError,
 	InvalidSalaryComponentError,
-	DuplicateComponentInStructureError
+	DuplicateComponentInStructureError,
+	DuplicateEmployeeStructureError
 } from '$lib/server/services/salary-structure.service.js';
 
 // ─── Mock DAO ─────────────────────────────────────────────────────────────────
@@ -17,6 +18,7 @@ vi.mock('$lib/server/dao/salary-structure.dao.js', () => ({
 	create: vi.fn(),
 	update: vi.fn(),
 	findByCuid: vi.fn(),
+	findByEmployeeCuid: vi.fn(),
 	findMany: vi.fn(),
 	createItems: vi.fn(),
 	deleteItemsByStructureCuid: vi.fn(),
@@ -163,6 +165,21 @@ describe('Salary Structure Service', () => {
 				})
 			).rejects.toThrow(DuplicateComponentInStructureError);
 		});
+
+		it('should throw DuplicateEmployeeStructureError when employee already has a structure', async () => {
+			vi.mocked(findEmployeeByCuid).mockReturnValue({ cuid: 'EMP001', employee_id: 'EMP001', name: 'John Doe' });
+			vi.mocked(structureDao.findByEmployeeCuid).mockResolvedValue(mockStructureRecord() as never);
+
+			await expect(
+				createStructure({
+					employee_cuid: 'EMP001',
+					effective_from: '2024-01-01',
+					effective_to: null,
+					is_active: true,
+					components: [{ salary_component_cuid: 'comp_abc', amount: 100 }]
+				})
+			).rejects.toThrow(DuplicateEmployeeStructureError);
+		});
 	});
 
 	// ─── getStructures ────────────────────────────────────────────────────────
@@ -255,6 +272,17 @@ describe('Salary Structure Service', () => {
 			await expect(updateStructure('struct_1', { employee_cuid: 'BAD' })).rejects.toThrow(
 				InvalidEmployeeError
 			);
+		});
+
+		it('should throw DuplicateEmployeeStructureError when changing employee to one who already has a structure', async () => {
+			const original = mockStructureRecord({ employee_cuid: 'EMP001' });
+			vi.mocked(structureDao.findByCuid).mockResolvedValue(original as never);
+			vi.mocked(findEmployeeByCuid).mockReturnValue({ cuid: 'EMP002', employee_id: 'EMP002', name: 'Jane' });
+			vi.mocked(structureDao.findByEmployeeCuid).mockResolvedValue(mockStructureRecord({ cuid: 'struct_2', employee_cuid: 'EMP002' }) as never);
+
+			await expect(
+				updateStructure('struct_1', { employee_cuid: 'EMP002' })
+			).rejects.toThrow(DuplicateEmployeeStructureError);
 		});
 	});
 

@@ -34,6 +34,7 @@ export async function POST({ request }) {
 			(error as Error).name === 'InvalidEmployeeError' ||
 			(error as Error).name === 'InvalidSalaryComponentError' ||
 			(error as Error).name === 'DuplicateComponentInStructureError' ||
+			(error as Error).name === 'DuplicateEmployeeStructureError' ||
 			(error as Error).name === 'BusinessValidationError';
 
 		return json(

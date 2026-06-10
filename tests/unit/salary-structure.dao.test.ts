@@ -7,6 +7,7 @@ vi.mock('$lib/server/db.js', () => ({
 		salaryStructure: {
 			findMany: vi.fn(),
 			findUnique: vi.fn(),
+			findFirst: vi.fn(),
 			create: vi.fn(),
 			update: vi.fn()
 		},
@@ -87,6 +88,26 @@ describe('Salary Structure DAO', () => {
 		it('should return null when not found', async () => {
 			vi.mocked(db.salaryStructure.findUnique).mockResolvedValue(null);
 			const result = await dao.findByCuid('nonexistent');
+			expect(result).toBeNull();
+		});
+	});
+
+	// ─── findByEmployeeCuid ────────────────────────────────────────────────────
+
+	describe('findByEmployeeCuid', () => {
+		it('should return a structure when found', async () => {
+			const mockData = { id: 1n, cuid: 'struct_1', employee_cuid: 'EMP001' };
+			vi.mocked(db.salaryStructure.findFirst).mockResolvedValue(mockData as never);
+
+			const result = await dao.findByEmployeeCuid('EMP001');
+
+			expect(db.salaryStructure.findFirst).toHaveBeenCalledWith({ where: { employee_cuid: 'EMP001' } });
+			expect(result).toBe(mockData);
+		});
+
+		it('should return null when not found', async () => {
+			vi.mocked(db.salaryStructure.findFirst).mockResolvedValue(null);
+			const result = await dao.findByEmployeeCuid('nonexistent');
 			expect(result).toBeNull();
 		});
 	});

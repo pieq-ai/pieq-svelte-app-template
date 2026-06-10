@@ -40,6 +40,13 @@ export async function findByCuid(cuid: string) {
 	return db.salaryStructure.findUnique({ where: { cuid } });
 }
 
+/** Find a salary structure by employee cuid. */
+export async function findByEmployeeCuid(employee_cuid: string) {
+	return db.salaryStructure.findFirst({
+		where: { employee_cuid }
+	});
+}
+
 /** Fetch all salary structures with stable ordering. */
 export async function findMany() {
 	return db.salaryStructure.findMany({

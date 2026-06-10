@@ -7,7 +7,6 @@
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
-	import EyeIcon from '@lucide/svelte/icons/eye';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import CheckIcon from '@lucide/svelte/icons/check';
 
@@ -63,7 +62,7 @@
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
 	let sortColumn = $state('effective_from');
-	let sortDirection = $state<'asc' | 'desc' | null>('desc');
+	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
 	let pageSize = $state(10);
@@ -107,7 +106,7 @@
 	const dirtyChecker = createDirtyChecker<DirtySnapshot>();
 
 	let isDirty = $derived(
-		modalMode === 'edit' &&
+		(modalMode === 'edit' || modalMode === 'create') &&
 			dirtyChecker.isDirty({
 				employee_cuid: formEmployeeCuid,
 				effective_from: formEffectiveFrom,
@@ -355,6 +354,14 @@
 
 		if (!formEmployeeCuid) {
 			errors['employee_cuid'] = 'Employee is required';
+		} else {
+			const duplicateExists = structuresList.some((s) => 
+				s.employee_cuid === formEmployeeCuid && 
+				(modalMode === 'create' || !editingStructure || s.cuid !== editingStructure.cuid)
+			);
+			if (duplicateExists) {
+				errors['employee_cuid'] = 'Employee is already assigned to a salary structure';
+			}
 		}
 
 		const efError = validateEffectiveFrom(formEffectiveFrom);
@@ -452,29 +459,7 @@
 		}
 	}
 
-	// ─── Deactivate handler ───────────────────────────────────────────────────────
 
-	async function handleDeactivate(s: SalaryStructure) {
-		if (!confirm(`Deactivate salary structure for ${getEmployeeName(s.employee_cuid)}?`)) return;
-
-		try {
-			const response = await fetch(
-				`/api/salary-structures/salaryStructureCuid=${s.cuid}`,
-				{ method: 'DELETE' }
-			);
-			const resData = await response.json();
-
-			if (response.ok) {
-				await loadStructures();
-				toast.success('Salary Structure deactivated successfully');
-			} else {
-				toast.error(resData.message || 'Failed to deactivate salary structure.');
-			}
-		} catch (err) {
-			toast.error('An error occurred. Please try again.');
-			console.error(err);
-		}
-	}
 
 	// ─── Sort icon helper ─────────────────────────────────────────────────────────
 
@@ -614,15 +599,6 @@
 								</TableCell>
 								<TableCell class="text-right">
 									<div class="flex items-center justify-end gap-1">
-										<Button
-											variant="ghost"
-											size="icon-sm"
-											class="h-7 w-7 text-muted-foreground hover:text-foreground"
-											aria-label="View"
-											onclick={() => openViewModal(s)}
-										>
-											<EyeIcon class="size-4" />
-										</Button>
 										<TableActions
 											canEdit={true}
 											onEdit={() => openEditModal(s)}
@@ -675,7 +651,18 @@
 						<DropdownMenu.Group>
 							{#each employeesList as emp (emp.cuid)}
 								<DropdownMenu.Item
-									onclick={() => { formEmployeeCuid = emp.cuid; delete fieldErrors['employee_cuid']; fieldErrors = { ...fieldErrors }; }}
+									onclick={() => {
+										formEmployeeCuid = emp.cuid;
+										delete fieldErrors['employee_cuid'];
+										const duplicateExists = structuresList.some((s) => 
+											s.employee_cuid === emp.cuid && 
+											(modalMode === 'create' || !editingStructure || s.cuid !== editingStructure.cuid)
+										);
+										if (duplicateExists) {
+											fieldErrors['employee_cuid'] = 'Employee is already assigned to a salary structure';
+										}
+										fieldErrors = { ...fieldErrors };
+									}}
 									class="justify-between cursor-pointer {formEmployeeCuid === emp.cuid ? 'bg-accent text-accent-foreground' : ''}"
 								>
 									<span>{emp.name} <span class="text-xs text-muted-foreground">({emp.employee_id})</span></span>
@@ -935,15 +922,6 @@
 					>
 						Edit
 					</Button>
-					{#if editingStructure.is_active}
-						<Button
-							type="button"
-							class="bg-[#800020] text-white hover:bg-[#800020]/90"
-							onclick={() => { handleDeactivate(editingStructure!); closeModal(); }}
-						>
-							Deactivate
-						</Button>
-					{/if}
 				</div>
 			</CardContent>
 		</Card>

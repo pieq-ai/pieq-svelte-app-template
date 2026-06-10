@@ -18,7 +18,8 @@ export interface MockEmployee {
 export const MOCK_EMPLOYEES: MockEmployee[] = [
 	{ cuid: 'EMP001', employee_id: 'EMP001', name: 'John Doe' },
 	{ cuid: 'EMP002', employee_id: 'EMP002', name: 'Alice Smith' },
-	{ cuid: 'EMP003', employee_id: 'EMP003', name: 'Bob Wilson' }
+	{ cuid: 'EMP003', employee_id: 'EMP003', name: 'Bob Wilson' },
+	{ cuid: 'EMP004', employee_id: 'EMP004', name: 'Sara Smith' }
 ];
 
 /** Find a mock employee by their cuid. Returns null if not found. */

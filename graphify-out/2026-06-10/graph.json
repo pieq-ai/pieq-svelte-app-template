@@ -5915,7 +5915,7 @@
       "label": "formEmployeeCuid()",
       "file_type": "code",
       "source_file": "src/routes/salary-structures/+page.svelte",
-      "source_location": "L643",
+      "source_location": "L665",
       "id": "salary_structures_page_formemployeecuid",
       "community": 2,
       "norm_label": "formemployeecuid()"
@@ -14389,9 +14389,9 @@
       "source_file": "src/lib/server/dao/salary-structure.dao.ts",
       "source_location": "L44",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "dao_salary_structure_dao",
-      "target": "dao_salary_structure_dao_findbyemployeecuid"
+      "target": "dao_salary_structure_dao_findbyemployeecuid",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -17333,9 +17333,9 @@
       "source_file": "src/lib/server/services/salary-structure.service.ts",
       "source_location": "L47",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "services_salary_structure_service",
-      "target": "services_salary_structure_service_duplicateemployeestructureerror"
+      "target": "services_salary_structure_service_duplicateemployeestructureerror",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -17469,9 +17469,9 @@
       "source_file": "src/lib/server/services/salary-structure.service.ts",
       "source_location": "L47",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "services_salary_structure_service_duplicateemployeestructureerror",
-      "target": "services_salary_structure_service_businessvalidationerror"
+      "target": "services_salary_structure_service_businessvalidationerror",
+      "confidence_score": 1.0
     },
     {
       "relation": "inherits",
@@ -17585,9 +17585,9 @@
       "source_file": "src/lib/server/services/salary-structure.service.ts",
       "source_location": "L48",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "services_salary_structure_service_duplicateemployeestructureerror",
-      "target": "services_salary_structure_service_duplicateemployeestructureerror_constructor"
+      "target": "services_salary_structure_service_duplicateemployeestructureerror_constructor",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -17596,9 +17596,9 @@
       "source_file": "tests/unit/salary-structure.service.test.ts",
       "source_location": "L2",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "unit_salary_structure_service_test",
-      "target": "services_salary_structure_service_duplicateemployeestructureerror"
+      "target": "services_salary_structure_service_duplicateemployeestructureerror",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
