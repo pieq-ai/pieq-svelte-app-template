@@ -1,16 +1,16 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-10)
 
 ## Corpus Check
-- 219 files · ~71,943 words
+- 220 files · ~72,040 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1063 nodes · 1774 edges · 78 communities (56 shown, 22 thin omitted)
+- 1068 nodes · 1779 edges · 79 communities (56 shown, 23 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 49 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `fa97457d`
+- Built from commit: `5733681e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -81,6 +81,7 @@
 - [[_COMMUNITY_Community 75|Community 75]]
 - [[_COMMUNITY_Community 76|Community 76]]
 - [[_COMMUNITY_Community 77|Community 77]]
+- [[_COMMUNITY_Community 78|Community 78]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `$lib/utils.js` - 36 edges
@@ -109,7 +110,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (78 total, 22 thin omitted)
+## Communities (79 total, 23 thin omitted)
 
 ### Community 0 - "API Routes and Server Handlers"
 Cohesion: 0.07
@@ -117,7 +118,7 @@ Nodes (66): GET(), POST(), GET(), POST(), createSuccessResponse(), deleteSuccess
 
 ### Community 2 - "Core UI Components"
 Cohesion: 0.08
-Nodes (5): $lib/utils.js, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/chevron-right, svelte/elements, @lucide/svelte/icons/minus
+Nodes (4): $lib/utils.js, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/chevron-right, svelte/elements
 
 ### Community 3 - "Core Dependency Layer"
 Cohesion: 0.07
@@ -220,8 +221,8 @@ Cohesion: 0.26
 Nodes (5): CreateEmployeeData, createClient(), db, getDb(), isValidClient()
 
 ### Community 51 - "Community 51"
-Cohesion: 0.09
-Nodes (14): $lib/components/index.js, $lib/components/ui/dropdown-menu/index.js, $lib/validators/employment-type.js, ./$types, ./$types.js, @lucide/svelte/icons/check, @lucide/svelte/icons/chevron-down, @lucide/svelte/icons/ellipsis-vertical (+6 more)
+Cohesion: 0.08
+Nodes (15): $lib/components/index.js, $lib/components/ui/dropdown-menu/index.js, $lib/validators/employment-type.js, ./$types, ./$types.js, @lucide/svelte/icons/check, @lucide/svelte/icons/chevron-down, @lucide/svelte/icons/ellipsis-vertical (+7 more)
 
 ### Community 52 - "Community 52"
 Cohesion: 0.19
@@ -290,22 +291,22 @@ Nodes (3): API reference — Employees, GET — list employees, POST — create 
 ## Knowledge Gaps
 - **375 isolated node(s):** `css.lint.unknownAtRules`, `$schema`, `css`, `baseColor`, `components` (+370 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **22 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **23 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `devDependencies` connect `Holiday Calendar UI & Navigation` to `Community 43`?**
   _High betweenness centrality (0.066) - this node is a cross-community bridge._
+- **Why does `$lib/utils.js` connect `Core UI Components` to `Community 51`?**
+  _High betweenness centrality (0.053) - this node is a cross-community bridge._
 - **Why does `svelte-sonner` connect `Holiday Calendar UI & Navigation` to `Community 54`?**
-  _High betweenness centrality (0.046) - this node is a cross-community bridge._
-- **Why does `db` connect `Community 50` to `API Routes and Server Handlers`, `Leave Policy Data Access (DAO)`, `Holiday Data Access (DAO)`, `Community 77`, `Sidebar Navigation & Icons`, `Community 48`, `Community 53`, `Community 60`, `Community 61`, `Community 62`, `Community 63`?**
-  _High betweenness centrality (0.043) - this node is a cross-community bridge._
+  _High betweenness centrality (0.045) - this node is a cross-community bridge._
 - **What connects `css.lint.unknownAtRules`, `$schema`, `css` to the rest of the system?**
   _375 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `API Routes and Server Handlers` be split into smaller, more focused modules?**
   _Cohesion score 0.0699942627653471 - nodes in this community are weakly interconnected._
 - **Should `Core UI Components` be split into smaller, more focused modules?**
-  _Cohesion score 0.07562136435748282 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07853107344632769 - nodes in this community are weakly interconnected._
 - **Should `Core Dependency Layer` be split into smaller, more focused modules?**
   _Cohesion score 0.07142857142857142 - nodes in this community are weakly interconnected._

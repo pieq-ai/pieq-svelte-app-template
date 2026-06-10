@@ -1,6 +1,7 @@
 <script lang="ts">
 	import XIcon from '@lucide/svelte/icons/x';
 	import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components';
+	import { modalRegistry } from './modalRegistry.js';
 
 
 	interface Props {
@@ -17,7 +18,19 @@
 
 	let { open, title, description = '', closeLabel = 'Close modal', isDirty = false, isSubmitting = false, isConfirmation = false, onClose, children }: Props = $props();
 
+	const instanceId = Math.random().toString(36).substring(2, 9);
 	let showUnsavedConfirm = $state(false);
+
+	$effect(() => {
+		if (open) {
+			modalRegistry.push(instanceId);
+		} else {
+			modalRegistry.remove(instanceId);
+		}
+		return () => {
+			modalRegistry.remove(instanceId);
+		};
+	});
 
 	function handleCloseAttempt() {
 		if (isSubmitting) return;
@@ -30,6 +43,14 @@
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (!open) return;
+
+		// Only the topmost/active modal should process ESC events
+		if (e.key === 'Escape') {
+			if (!modalRegistry.isTop(instanceId)) {
+				e.stopPropagation();
+				return;
+			}
+		}
 
 		// Disable ESC and Enter completely inside confirmation modals
 		if (isConfirmation) {
