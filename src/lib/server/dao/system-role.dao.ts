@@ -23,7 +23,7 @@ export async function list() {
 	});
 }
 
-export async function findById(id: number) {
+export async function findById(id: bigint) {
 	return db.systemRoles.findUnique({
 		where: {
 			id
@@ -52,7 +52,7 @@ export async function create(data: CreateSystemRoleInput) {
 	});
 }
 
-export async function update(id: number, data: UpdateSystemRoleInput) {
+export async function update(id: bigint, data: UpdateSystemRoleInput) {
 	return db.systemRoles.update({
 		where: {
 			id

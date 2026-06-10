@@ -63,8 +63,8 @@ function normalizeName(name: string | null | undefined, master: MasterKey) {
 	return trimmed;
 }
 
-function readId(record: Record<string, unknown>, master: MasterKey) {
-	return Number(record[getMasterConfig(master).idField]);
+function readId(record: Record<string, unknown>, master: MasterKey): bigint {
+	return BigInt(record[getMasterConfig(master).idField] as any);
 }
 
 function readCuid2(record: Record<string, unknown>) {

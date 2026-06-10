@@ -10,7 +10,7 @@ export interface MasterCreateInput {
 }
 
 export interface MasterUpdateInput {
-	id: number;
+	id: bigint;
 	name: string;
 	country_cuid?: string;
 	updated_by?: string;
@@ -44,7 +44,7 @@ export async function list(master: MasterKey) {
 	}
 }
 
-export async function findById(master: MasterKey, id: number) {
+export async function findById(master: MasterKey, id: bigint) {
 	switch (master) {
 		case 'blood-groups':
 			return db.bloodGroup.findUnique({ where: { id } });

@@ -16,7 +16,7 @@ export async function list() {
 	});
 }
 
-export async function findById(id: number) {
+export async function findById(id: bigint) {
 	return db.rolePermission.findUnique({
 		where: {
 			id
@@ -40,7 +40,7 @@ export async function create(data: CreateRolePermissionInput) {
 	});
 }
 
-export async function remove(id: number) {
+export async function remove(id: bigint) {
 	return db.rolePermission.delete({
 		where: {
 			id

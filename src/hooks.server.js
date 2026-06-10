@@ -2,6 +2,11 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { redirect } from '@sveltejs/kit';
 import { handle as authHandle } from '$lib/server/auth.js';
 
+// Add global BigInt JSON serialization support
+BigInt.prototype.toJSON = function () {
+	return this.toString();
+};
+
 /** @type {import('@sveltejs/kit').Handle} */
 const injectLocals = async ({ event, resolve }) => {
 	const session = await event.locals.auth?.();
@@ -34,6 +39,10 @@ const routeGuard = async ({ event, resolve }) => {
 		'/role-permissions',
 		'/dashboard',
 		'/salary-components',
+		'/roles',
+		'/shifts',
+		'/organization_locations',
+		'/organization_location',
 		'/settings'
 	];
 	const isProtectedRoute = protectedRoutes.some(
@@ -73,4 +82,70 @@ const customAuthHandle = async ({ event, resolve }) => {
 	return authHandle({ event, resolve });
 };
 
-export const handle = sequence(customAuthHandle, injectLocals, routeGuard);
+/** @type {import('@sveltejs/kit').Handle} */
+const errorHandler = async ({ event, resolve }) => {
+	const response = await resolve(event);
+
+	if (event.url.pathname.startsWith('/api/') && response.status >= 400) {
+		try {
+			const cloned = response.clone();
+			const json = await cloned.json();
+			const rawError = json.error || json.message || '';
+			const field = json.field;
+
+			const isDatabaseError = typeof rawError === 'string' && (
+				rawError.toLowerCase().includes('prisma') ||
+				rawError.toLowerCase().includes('sql') ||
+				rawError.toLowerCase().includes('database') ||
+				rawError.toLowerCase().includes('constraint') ||
+				rawError.toLowerCase().includes('invocation') ||
+				rawError.toLowerCase().includes('column') ||
+				rawError.toLowerCase().includes('relation') ||
+				rawError.toLowerCase().includes('table')
+			);
+
+			let sanitizedMessage = rawError;
+			let status = response.status;
+			let actualField = field;
+
+			if (isDatabaseError) {
+				// Log detailed technical error only on server side
+				console.error('Detailed Server Database Error:', rawError);
+
+				if (rawError.toLowerCase().includes('unique constraint') || rawError.includes('P2002')) {
+					sanitizedMessage = 'A record with this unique value already exists.';
+					status = 409;
+				} else if (rawError.toLowerCase().includes('too long') || rawError.toLowerCase().includes('value too long') || rawError.includes('P2000')) {
+					sanitizedMessage = 'The provided value exceeds the maximum length allowed.';
+					status = 400;
+				} else {
+					sanitizedMessage = 'An internal database error occurred.';
+					status = 500;
+				}
+			}
+
+			return new Response(
+				JSON.stringify({
+					data: {
+						error: sanitizedMessage,
+						field: actualField
+					},
+					error: sanitizedMessage,
+					field: actualField
+				}),
+				{
+					status,
+					headers: {
+						'content-type': 'application/json'
+					}
+				}
+			);
+		} catch (e) {
+			return response;
+		}
+	}
+
+	return response;
+};
+
+export const handle = sequence(customAuthHandle, injectLocals, routeGuard, errorHandler);
