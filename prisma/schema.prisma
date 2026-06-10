@@ -53,8 +53,6 @@ model SystemRoles {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
-
-  @@index([cuid])
   @@map("system_roles")
 }
 
@@ -69,8 +67,6 @@ model Department {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
-
-  @@index([cuid])
   @@map("departments")
 }
 
@@ -87,8 +83,6 @@ model Permissions {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
-
-  @@index([cuid])
   @@map("permissions")
 }
 
@@ -106,7 +100,6 @@ model RolePermission {
   updated_by String?  @db.VarChar(100)
 
   @@unique([system_role_cuid, permission_cuid])
-  @@index([cuid])
   @@map("role_permissions")
 }
 
@@ -121,8 +114,6 @@ model BloodGroup {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
-
-  @@index([cuid])
   @@map("blood_groups")
 }
 
@@ -137,8 +128,6 @@ model Designation {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
-
-  @@index([cuid])
   @@map("designations")
 }
 
@@ -155,8 +144,6 @@ model PayGrade {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
-
-  @@index([cuid])
   @@map("pay_grades")
 }
 
@@ -173,8 +160,6 @@ model Nationality {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
-
-  @@index([cuid])
   @@map("nationalities")
 }
 
@@ -191,8 +176,6 @@ model EmploymentType {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
-
-  @@index([cuid])
   @@map("employment_types")
 }
 
@@ -209,8 +192,6 @@ model RelationType {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
-
-  @@index([cuid])
   @@map("relation_types")
 }
 
@@ -227,8 +208,6 @@ model DocumentType {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
-
-  @@index([cuid])
   @@map("document_types")
 }
 
@@ -248,7 +227,6 @@ model State {
 
   @@unique([country_cuid, state_name])
   @@index([country_cuid])
-  @@index([cuid])
   @@map("states")
 }
 
@@ -263,8 +241,6 @@ model Country {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
-
-  @@index([cuid])
   @@map("countries")
 }
 
@@ -281,8 +257,6 @@ model Skills {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
-
-  @@index([cuid])
   @@map("skills")
 }
 
@@ -299,8 +273,6 @@ model AttendanceSource {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
-
-  @@index([cuid])
   @@map("attendance_sources")
 }
 
@@ -317,8 +289,6 @@ model Languages {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
-
-  @@index([cuid])
   @@map("languages")
 }
 
@@ -381,8 +351,6 @@ model Employee {
   updated_at DateTime @updatedAt @db.Timestamptz()
 
   updated_by String? @db.VarChar(100)
-
-  @@index([cuid])
 
   @@map("employees")
 }
