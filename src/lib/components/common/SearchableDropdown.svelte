@@ -119,7 +119,7 @@
 					</Button>
 				{/snippet}
 			</Popover.Trigger>
-			<Popover.Content style="width: {triggerWidth}px" class="p-0 border border-border rounded-md shadow-md bg-popover text-popover-foreground" align="start" sideOffset={4}>
+			<Popover.Content style="min-width: {triggerWidth}px; max-width: 90vw;" class="p-0 border border-border rounded-md shadow-md bg-popover text-popover-foreground w-auto" align="start" sideOffset={4}>
 				<div class="flex items-center border-b px-3">
 					<SearchIcon class="mr-2 size-4 shrink-0 opacity-50" />
 					<Input

@@ -11,9 +11,10 @@
 		value?: string;
 		placeholder?: string;
 		class?: string;
+		isError?: boolean;
 	}
 
-	let { value = $bindable(''), placeholder = "DD/MM/YYYY", class: className = "" }: Props = $props();
+	let { value = $bindable(''), placeholder = "DD/MM/YYYY", class: className = "", isError = $bindable(false) }: Props = $props();
 
 	let open = $state(false);
 	let prevValue = $state(value);
@@ -35,7 +36,7 @@
 
 	let textValue = $state(formatDate(value));
 	let calendarValue = $state<DateValue | undefined>(value && value !== 'Invalid Date' ? parseDate(value.split('T')[0]) : undefined);
-	let isError = $state(false);
+
 
 	const currentYear = new Date().getFullYear();
 	const yearsForDropdown = Array.from({ length: currentYear - 1900 + 50 }, (_, i) => 1900 + i);
@@ -103,22 +104,26 @@
 	}
 
 	function autoFormatDate(val: string, oldVal: string) {
-		// Only format if we are appending (not deleting)
 		if (val.length < oldVal.length) return val;
 
 		let cleaned = val.replace(/[^\d/]/g, '');
 
-		// Handle exact 2 digits without slash
+		// Split by slash and pad any completed parts
+		const parts = cleaned.split('/');
+		if (parts.length > 1 && parts[0].length === 1) {
+			parts[0] = '0' + parts[0];
+		}
+		if (parts.length > 2 && parts[1].length === 1) {
+			parts[1] = '0' + parts[1];
+		}
+		cleaned = parts.join('/');
+
 		if (/^\d{2}$/.test(cleaned)) {
 			return cleaned + '/';
 		}
-		
-		// Handle exact DD/MM without trailing slash
 		if (/^\d{2}\/\d{2}$/.test(cleaned)) {
 			return cleaned + '/';
 		}
-
-		// Handle 8 consecutive digits (e.g. pasted 12052000)
 		if (/^\d{8}$/.test(cleaned)) {
 			return `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4)}`;
 		}

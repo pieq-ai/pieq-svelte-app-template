@@ -20,6 +20,7 @@
 	import DesignationDropdown from '$lib/components/common/DesignationDropdown.svelte';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import PlusIcon from '@lucide/svelte/icons/plus';
+	import { toast } from 'svelte-sonner';
 	import TrashIcon from '@lucide/svelte/icons/trash';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import type { PageData } from './$types';
@@ -145,6 +146,13 @@
 		rel: validateRelieving(employment.date_of_joining, employment.relieving_date)
 	});
 
+	let dateErrors = $state({
+		dob: false,
+		doj: false,
+		conf: false,
+		rel: false
+	});
+
 	function inputErrorClass(val: string | undefined | null) {
 		return isTouched && !val ? 'border-destructive focus-visible:ring-destructive/50' : '';
 	}
@@ -154,6 +162,10 @@
 		!!errors.doj || 
 		!!errors.conf || 
 		!!errors.rel ||
+		dateErrors.dob ||
+		dateErrors.doj ||
+		dateErrors.conf ||
+		dateErrors.rel ||
 		experiences.some(e => validateExperienceDates(e.from_date, e.to_date) || validatePastDate(e.to_date)) || 
 		educations.some(e => validatePastDate(e.completed_at))
 	);
@@ -161,7 +173,7 @@
 	async function save(shouldExit: boolean) {
 		isTouched = true;
 		if (hasErrors) {
-			alert('Please correct the validation errors before saving.');
+			toast.error('Please correct the validation errors before saving.');
 			return;
 		}
 
@@ -201,10 +213,10 @@
 				// eslint-disable-next-line
 				await goto('/employees');
 			} else {
-				alert('Saved successfully!');
+				toast.success('Saved successfully!');
 			}
 		} catch (e: any) {
-			alert(e.message);
+			toast.error(e.message);
 		} finally {
 			isSubmitting = false;
 		}
@@ -255,9 +267,11 @@
 					</div>
 					<div class="space-y-2">
 						<Label>Date of Birth</Label>
-						<DatePicker bind:value={emp.dob} class={isTouched && errors.dob ? 'border-destructive' : ''} />
+						<DatePicker bind:value={emp.dob} bind:isError={dateErrors.dob} class={(isTouched && errors.dob) || dateErrors.dob ? 'border-destructive' : ''} />
 						{#if isTouched && errors.dob}
 							<p class="text-xs text-destructive">{errors.dob}</p>
+						{:else if isTouched && dateErrors.dob}
+							<p class="text-xs text-destructive">Invalid date format.</p>
 						{/if}
 					</div>
 					<SearchableDropdown 
@@ -410,23 +424,29 @@
 					/>
 					<div class="space-y-2">
 						<Label>Date of Joining</Label>
-						<DatePicker bind:value={employment.date_of_joining} class={isTouched && errors.doj ? 'border-destructive' : ''} />
+						<DatePicker bind:value={employment.date_of_joining} bind:isError={dateErrors.doj} class={(isTouched && errors.doj) || dateErrors.doj ? 'border-destructive' : ''} />
 						{#if isTouched && errors.doj}
 							<p class="text-xs text-destructive">{errors.doj}</p>
+						{:else if isTouched && dateErrors.doj}
+							<p class="text-xs text-destructive">Invalid date format.</p>
 						{/if}
 					</div>
 					<div class="space-y-2">
 						<Label>Confirmation Date</Label>
-						<DatePicker bind:value={employment.confirmation_date} class={isTouched && errors.conf ? 'border-destructive' : ''} />
+						<DatePicker bind:value={employment.confirmation_date} bind:isError={dateErrors.conf} class={(isTouched && errors.conf) || dateErrors.conf ? 'border-destructive' : ''} />
 						{#if isTouched && errors.conf}
 							<p class="text-xs text-destructive">{errors.conf}</p>
+						{:else if isTouched && dateErrors.conf}
+							<p class="text-xs text-destructive">Invalid date format.</p>
 						{/if}
 					</div>
 					<div class="space-y-2">
 						<Label>Relieving Date</Label>
-						<DatePicker bind:value={employment.relieving_date} class={isTouched && errors.rel ? 'border-destructive' : ''} />
+						<DatePicker bind:value={employment.relieving_date} bind:isError={dateErrors.rel} class={(isTouched && errors.rel) || dateErrors.rel ? 'border-destructive' : ''} />
 						{#if isTouched && errors.rel}
 							<p class="text-xs text-destructive">{errors.rel}</p>
+						{:else if isTouched && dateErrors.rel}
+							<p class="text-xs text-destructive">Invalid date format.</p>
 						{/if}
 					</div>
 					<div class="space-y-2">
