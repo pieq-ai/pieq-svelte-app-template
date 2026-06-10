@@ -24,8 +24,8 @@ export function validateEffectiveFrom(value: unknown): string | null {
  * Returns an error message or null.
  */
 export function validateEffectiveDateRange(
-	effectiveFrom: string,
-	effectiveTo: string
+	effectiveFrom: string | null | undefined,
+	effectiveTo: string | null | undefined
 ): string | null {
 	if (!effectiveFrom || !effectiveTo) return null; // individual field validators handle empty cases
 	const from = new Date(effectiveFrom);

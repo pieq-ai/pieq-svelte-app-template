@@ -36,7 +36,8 @@
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
-		SearchInput
+		SearchInput,
+		DatePicker
 	} from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
@@ -84,8 +85,8 @@
 	}
 
 	let formEmployeeCuid = $state('');
-	let formEffectiveFrom = $state('');
-	let formEffectiveTo = $state('');
+	let formEffectiveFrom = $state<string | null>('');
+	let formEffectiveTo = $state<string | null>('');
 	let formIsActive = $state(true);
 	let formItems = $state<FormItem[]>([]);
 	let nextItemId = $state(0);
@@ -97,8 +98,8 @@
 
 	interface DirtySnapshot {
 		employee_cuid: string;
-		effective_from: string;
-		effective_to: string;
+		effective_from: string | null;
+		effective_to: string | null;
 		is_active: boolean;
 		components: string; // JSON snapshot of components
 	}
@@ -467,6 +468,15 @@
 		if (sortColumn !== col) return 'none';
 		return sortDirection === 'asc' ? 'asc' : sortDirection === 'desc' ? 'desc' : 'none';
 	}
+
+	function formatDateString(dateStr: string | null | undefined): string {
+		if (!dateStr) return '';
+		const parts = dateStr.split('-');
+		if (parts.length === 3) {
+			return `${parts[2]}/${parts[1]}/${parts[0]}`;
+		}
+		return dateStr;
+	}
 </script>
 
 <svelte:head>
@@ -587,8 +597,8 @@
 									<span class="font-semibold">{getEmployeeName(s.employee_cuid)}</span>
 									<span class="block text-xs text-muted-foreground">{s.employee_cuid}</span>
 								</TableCell>
-								<TableCell>{s.effective_from}</TableCell>
-								<TableCell>{s.effective_to ?? '—'}</TableCell>
+								<TableCell>{formatDateString(s.effective_from)}</TableCell>
+								<TableCell>{s.effective_to ? formatDateString(s.effective_to) : 'Ongoing'}</TableCell>
 								<TableCell>
 									<span class="text-sm text-muted-foreground">{s.components.length} component{s.components.length === 1 ? '' : 's'}</span>
 								</TableCell>
@@ -681,13 +691,12 @@
 			<div class="grid grid-cols-2 gap-4">
 				<div class="space-y-2">
 					<Label for="effective_from">Effective From</Label>
-					<Input
+					<DatePicker
 						id="effective_from"
 						name="effective_from"
-						type="date"
 						bind:value={formEffectiveFrom}
-						class={fieldErrors['effective_from'] ? 'border-destructive focus-visible:ring-destructive/30' : ''}
-						oninput={() => { delete fieldErrors['effective_from']; fieldErrors = { ...fieldErrors }; }}
+						class={fieldErrors['effective_from'] ? 'border-destructive' : ''}
+						onChange={() => { delete fieldErrors['effective_from']; fieldErrors = { ...fieldErrors }; }}
 					/>
 					{#if fieldErrors['effective_from']}
 						<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{fieldErrors['effective_from']}</p>
@@ -695,13 +704,12 @@
 				</div>
 				<div class="space-y-2">
 					<Label for="effective_to">Effective To <span class="text-muted-foreground text-xs">(optional)</span></Label>
-					<Input
+					<DatePicker
 						id="effective_to"
 						name="effective_to"
-						type="date"
 						bind:value={formEffectiveTo}
-						class={fieldErrors['effective_to'] ? 'border-destructive focus-visible:ring-destructive/30' : ''}
-						oninput={() => { delete fieldErrors['effective_to']; fieldErrors = { ...fieldErrors }; }}
+						class={fieldErrors['effective_to'] ? 'border-destructive' : ''}
+						onChange={() => { delete fieldErrors['effective_to']; fieldErrors = { ...fieldErrors }; }}
 					/>
 					{#if fieldErrors['effective_to']}
 						<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{fieldErrors['effective_to']}</p>
@@ -846,13 +854,7 @@
 	>
 		<Card class="relative w-full max-w-lg max-h-[90vh] overflow-y-auto" onclick={(e) => e.stopPropagation()}>
 			<CardHeader class="flex-col items-start gap-1 pr-12">
-				<div class="flex items-center gap-2">
-					<CardTitle>Salary Structure</CardTitle>
-					<Badge variant={editingStructure.is_active ? 'default' : 'secondary'}>
-						{editingStructure.is_active ? 'Active' : 'Inactive'}
-					</Badge>
-				</div>
-				<CardDescription>{getEmployeeName(editingStructure.employee_cuid)}</CardDescription>
+				<CardTitle>Salary Structure</CardTitle>
 			</CardHeader>
 			<Button
 				type="button"
@@ -879,11 +881,11 @@
 					</div>
 					<div>
 						<p class="text-muted-foreground text-xs uppercase tracking-wide mb-1">Effective From</p>
-						<p class="font-medium">{editingStructure.effective_from}</p>
+						<p class="font-medium">{formatDateString(editingStructure.effective_from)}</p>
 					</div>
 					<div>
 						<p class="text-muted-foreground text-xs uppercase tracking-wide mb-1">Effective To</p>
-						<p class="font-medium">{editingStructure.effective_to ?? '—'}</p>
+						<p class="font-medium">{editingStructure.effective_to ? formatDateString(editingStructure.effective_to) : 'Ongoing'}</p>
 					</div>
 				</div>
 
