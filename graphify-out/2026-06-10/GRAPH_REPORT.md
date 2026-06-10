@@ -1,16 +1,16 @@
-# Graph Report - pieq-svelte-app-template  (2026-06-09)
+# Graph Report - pieq-svelte-app-template  (2026-06-10)
 
 ## Corpus Check
 - 181 files · ~47,388 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 724 nodes · 1165 edges · 44 communities (32 shown, 12 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.8)
+- 724 nodes · 1165 edges · 45 communities (33 shown, 12 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 11 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `db7d80bc`
+- Built from commit: `2d6bb791`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -51,6 +51,7 @@
 - [[_COMMUNITY_Community 41|Community 41]]
 - [[_COMMUNITY_Community 42|Community 42]]
 - [[_COMMUNITY_Community 43|Community 43]]
+- [[_COMMUNITY_Community 44|Community 44]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `$lib/utils.js` - 33 edges
@@ -65,25 +66,25 @@
 10. `Harden `pieq-svelte-app-template` based on initial review` - 8 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `PUT()` --calls--> `mapToDb()`  [INFERRED]
+  src/routes/api/departments/[cuid]/+server.ts → src/lib/server/utils/mapping.ts
+- `PUT()` --calls--> `mapToDb()`  [INFERRED]
+  src/routes/api/designations/[cuid]/+server.ts → src/lib/server/utils/mapping.ts
+- `PUT()` --calls--> `validateUpdateSalaryComponent()`  [INFERRED]
+  src/routes/api/salary-components/[cuid]/+server.ts → src/lib/server/validators/salary-component.validator.ts
 - `Locals` --references--> `User`  [EXTRACTED]
   src/app.d.ts → src/lib/types/user.ts
 - `Window` --references--> `AppConfig`  [EXTRACTED]
   src/app.d.ts → src/lib/types/config.ts
-- `MasterDataOption` --references--> `MasterKey`  [EXTRACTED]
-  src/lib/server/services/master-data.service.ts → src/lib/master-data/master-config.ts
-- `createAuth()` --calls--> `getAuthConfig()`  [EXTRACTED]
-  src/lib/server/auth.js → src/lib/server/config.js
-- `load()` --calls--> `getAppConfig()`  [EXTRACTED]
-  src/routes/+layout.server.ts → src/lib/server/config.js
 
 ## Import Cycles
 - None detected.
 
-## Communities (44 total, 12 thin omitted)
+## Communities (45 total, 12 thin omitted)
 
 ### Community 0 - "API Endpoints"
-Cohesion: 0.06
-Nodes (49): GET(), PUT(), POST(), GET(), PUT(), POST(), requireAdmin(), requireAuth() (+41 more)
+Cohesion: 0.08
+Nodes (41): POST(), POST(), requireAdmin(), requireAuth(), requirePermission(), GET(), getMaster(), getStatus() (+33 more)
 
 ### Community 1 - "Data Access Tests"
 Cohesion: 0.26
@@ -91,11 +92,11 @@ Nodes (5): CreateEmployeeData, createClient(), db, getDb(), isValidClient()
 
 ### Community 2 - "UI Components Index"
 Cohesion: 0.08
-Nodes (35): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/components, $lib/components/index.js, $lib/components/ui/dropdown-menu/index.js, $lib/constants, $lib/master-data/master-config (+27 more)
+Nodes (33): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/components, $lib/components/index.js, $lib/components/ui/dropdown-menu/index.js, $lib/constants, $lib/master-data/master-config (+25 more)
 
 ### Community 3 - "UI Components Core"
-Cohesion: 0.09
-Nodes (3): $lib/utils.js, @lucide/svelte/icons/chevron-right, svelte/elements
+Cohesion: 0.08
+Nodes (5): $lib/utils.js, @lucide/svelte/icons/check, @lucide/svelte/icons/chevron-right, svelte/elements, @lucide/svelte/icons/minus
 
 ### Community 4 - "Dependencies & Icons"
 Cohesion: 0.05
@@ -119,7 +120,7 @@ Nodes (22): @lucide/svelte/icons/building-2, $lib/assets/favicon.svg, $lib/auth,
 
 ### Community 9 - "Department Service DAO"
 Cohesion: 0.06
-Nodes (23): POST(), GET(), PUT(), SalaryComponentDto, serializeSalaryComponent(), BusinessValidationError, ComponentNotFoundError, DuplicateComponentError (+15 more)
+Nodes (23): POST(), SalaryComponentDto, serializeSalaryComponent(), BusinessValidationError, ComponentNotFoundError, DuplicateComponentError, GET(), PUT() (+15 more)
 
 ### Community 10 - "Designation Service DAO"
 Cohesion: 0.33
@@ -177,6 +178,10 @@ Nodes (6): DELETE(), getStatus(), assignPermissionsToRole(), AssignRolePermissio
 Cohesion: 0.40
 Nodes (4): SALARY_COMPONENT_TYPE_LABELS, SALARY_COMPONENT_TYPE_OPTIONS, SALARY_COMPONENT_TYPES, SalaryComponentType
 
+### Community 44 - "Community 44"
+Cohesion: 0.27
+Nodes (8): createDepartment(), CreateDepartmentDto, deleteDepartment(), getDepartmentByCuid2(), toPublicDepartment(), updateDepartment(), UpdateDepartmentDto, validateDepartmentName()
+
 ## Knowledge Gaps
 - **225 isolated node(s):** `css.lint.unknownAtRules`, `$schema`, `css`, `baseColor`, `components` (+220 more)
   These have ≤1 connection - possible missing edges or undocumented components.
@@ -191,11 +196,11 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.104) - this node is a cross-community bridge._
 - **Why does `svelte` connect `Dependencies & Icons` to `UI Components Index`?**
   _High betweenness centrality (0.089) - this node is a cross-community bridge._
+- **Are the 4 inferred relationships involving `mapToDb()` (e.g. with `PUT()` and `PUT()`) actually correct?**
+  _`mapToDb()` has 4 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `css.lint.unknownAtRules`, `$schema`, `css` to the rest of the system?**
   _225 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `API Endpoints` be split into smaller, more focused modules?**
-  _Cohesion score 0.062342342342342344 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07826546800634585 - nodes in this community are weakly interconnected._
 - **Should `UI Components Index` be split into smaller, more focused modules?**
-  _Cohesion score 0.07540983606557378 - nodes in this community are weakly interconnected._
-- **Should `UI Components Core` be split into smaller, more focused modules?**
-  _Cohesion score 0.08672699849170437 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08013468013468013 - nodes in this community are weakly interconnected._

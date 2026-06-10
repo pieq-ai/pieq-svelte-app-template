@@ -19,8 +19,8 @@ describe('Designation Service', () => {
 	describe('getDesignations', () => {
 		it('should return mapped public designations', async () => {
 			const mockData = [
-				{ id: 1, cuid: 'abc', designation_name: 'Manager', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
-				{ id: 2, cuid: 'xyz', designation_name: 'Director', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
+				{ id: 1n, cuid: 'abc', designation_name: 'Manager', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
+				{ id: 2n, cuid: 'xyz', designation_name: 'Director', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
 			];
 			vi.mocked(designationDao.list).mockResolvedValue(mockData as any);
 
@@ -48,7 +48,7 @@ describe('Designation Service', () => {
 		});
 
 		it('should return mapped designation if found', async () => {
-			const mockData = { id: 1, cuid: 'abc', designation_name: 'Manager', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null };
+			const mockData = { id: 1n, cuid: 'abc', designation_name: 'Manager', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null };
 			vi.mocked(designationDao.findById).mockResolvedValue(mockData as any);
 
 			const result = await designationService.getDesignationById(1n);
@@ -68,7 +68,7 @@ describe('Designation Service', () => {
 		});
 
 		it('should return the mapped designation if found', async () => {
-			const mockData = { id: 1, cuid: 'abc', designation_name: 'Manager', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null };
+			const mockData = { id: 1n, cuid: 'abc', designation_name: 'Manager', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null };
 			vi.mocked(designationDao.findByCuid2).mockResolvedValue(mockData as any);
 
 			const result = await designationService.getDesignationByCuid2('abc');
@@ -91,7 +91,7 @@ describe('Designation Service', () => {
 
 		it('should create and return the new designation', async () => {
 			vi.mocked(designationDao.list).mockResolvedValue([]);
-			const mockCreated = { id: 2, cuid: 'new123', designation_name: 'Engineer', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null };
+			const mockCreated = { id: 2n, cuid: 'new123', designation_name: 'Engineer', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null };
 			vi.mocked(designationDao.create).mockResolvedValue(mockCreated as any);
 
 			const result = await designationService.createDesignation({ designation_name: 'Engineer', status: true });
@@ -102,7 +102,7 @@ describe('Designation Service', () => {
 
 		it('should default status to true if not provided', async () => {
 			vi.mocked(designationDao.list).mockResolvedValue([]);
-			vi.mocked(designationDao.create).mockResolvedValue({ id: 2, cuid: 'new123', designation_name: 'Engineer', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
+			vi.mocked(designationDao.create).mockResolvedValue({ id: 2n, cuid: 'new123', designation_name: 'Engineer', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
 
 			await designationService.createDesignation({ designation_name: 'Engineer' });
 
@@ -121,16 +121,16 @@ describe('Designation Service', () => {
 		});
 
 		it('should throw error if new designation name already exists', async () => {
-			vi.mocked(designationDao.findByCuid2).mockResolvedValue({ id: 1, cuid: 'abc', designation_name: 'OldName' } as any);
-			vi.mocked(designationDao.list).mockResolvedValue([{ id: 2, cuid: 'xyz', designation_name: 'NewName' } as any]);
+			vi.mocked(designationDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'abc', designation_name: 'OldName' } as any);
+			vi.mocked(designationDao.list).mockResolvedValue([{ id: 2n, cuid: 'xyz', designation_name: 'NewName' } as any]);
 
 			await expect(designationService.updateDesignation('abc', { designation_name: 'NewName' })).rejects.toThrow('Designation already exists');
 		});
 
 		it('should bypass uniqueness check if name is the same as existing (case insensitive)', async () => {
-			vi.mocked(designationDao.findByCuid2).mockResolvedValue({ id: 1, designation_name: 'SameName', cuid: 'abc' } as any);
-			vi.mocked(designationDao.list).mockResolvedValue([{ id: 1, designation_name: 'SameName', cuid: 'abc' } as any]);
-			vi.mocked(designationDao.update).mockResolvedValue({ id: 1, designation_name: 'Samename', cuid: 'abc', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
+			vi.mocked(designationDao.findByCuid2).mockResolvedValue({ id: 1n, designation_name: 'SameName', cuid: 'abc' } as any);
+			vi.mocked(designationDao.list).mockResolvedValue([{ id: 1n, designation_name: 'SameName', cuid: 'abc' } as any]);
+			vi.mocked(designationDao.update).mockResolvedValue({ id: 1n, designation_name: 'Samename', cuid: 'abc', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
 
 			await designationService.updateDesignation('abc', { designation_name: 'Samename' });
 
@@ -138,14 +138,14 @@ describe('Designation Service', () => {
 		});
 
 		it('should throw error if status is not a boolean', async () => {
-			vi.mocked(designationDao.findByCuid2).mockResolvedValue({ id: 1, cuid: 'abc', designation_name: 'Manager' } as any);
+			vi.mocked(designationDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'abc', designation_name: 'Manager' } as any);
 			await expect(designationService.updateDesignation('abc', { status: 'active' as any })).rejects.toThrow('Status must be a boolean');
 		});
 
 		it('should update designation fields correctly', async () => {
-			vi.mocked(designationDao.findByCuid2).mockResolvedValue({ id: 1, cuid: 'abc', designation_name: 'Manager' } as any);
+			vi.mocked(designationDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'abc', designation_name: 'Manager' } as any);
 			vi.mocked(designationDao.list).mockResolvedValue([]);
-			vi.mocked(designationDao.update).mockResolvedValue({ id: 1, cuid: 'abc', designation_name: 'Senior Manager', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
+			vi.mocked(designationDao.update).mockResolvedValue({ id: 1n, cuid: 'abc', designation_name: 'Senior Manager', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
 
 			const result = await designationService.updateDesignation('abc', { designation_name: 'Senior Manager', status: false });
 
@@ -154,8 +154,8 @@ describe('Designation Service', () => {
 		});
 
 		it('should update only provided fields', async () => {
-			vi.mocked(designationDao.findByCuid2).mockResolvedValue({ id: 1, cuid: 'abc', designation_name: 'Manager' } as any);
-			vi.mocked(designationDao.update).mockResolvedValue({ id: 1, cuid: 'abc', designation_name: 'Manager', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
+			vi.mocked(designationDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'abc', designation_name: 'Manager' } as any);
+			vi.mocked(designationDao.update).mockResolvedValue({ id: 1n, cuid: 'abc', designation_name: 'Manager', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
 
 			await designationService.updateDesignation('abc', { status: false });
 
@@ -174,8 +174,8 @@ describe('Designation Service', () => {
 		});
 
 		it('should perform a soft delete by setting status to false', async () => {
-			vi.mocked(designationDao.findByCuid2).mockResolvedValue({ id: 1, cuid: 'abc', designation_name: 'Manager' } as any);
-			vi.mocked(designationDao.update).mockResolvedValue({ id: 1, cuid: 'abc', designation_name: 'Manager', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
+			vi.mocked(designationDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'abc', designation_name: 'Manager' } as any);
+			vi.mocked(designationDao.update).mockResolvedValue({ id: 1n, cuid: 'abc', designation_name: 'Manager', status: false, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
 
 			const result = await designationService.deleteDesignation('abc');
 

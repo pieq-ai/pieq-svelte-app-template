@@ -23,13 +23,13 @@ describe('Employee DAO', () => {
 		it('should fetch employees correctly', async () => {
 			const mockEmployees = [
 				{
-					id: 1,
+					id: 1n,
 					uuid: 'emp123',
 					name: 'John Doe',
 					age: 25
 				},
 				{
-					id: 2,
+					id: 2n,
 					uuid: 'emp456',
 					name: 'Jane Smith',
 					age: 30
@@ -52,7 +52,7 @@ describe('Employee DAO', () => {
 		it('should create an employee correctly', async () => {
 			const input = { name: 'Alice Wonderland', age: 30 };
 			const mockCreated = {
-				id: 3,
+				id: 3n,
 				uuid: 'newemp1',
 				name: 'Alice Wonderland',
 				age: 30

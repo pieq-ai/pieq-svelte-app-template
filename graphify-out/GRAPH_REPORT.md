@@ -1,16 +1,16 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-10)
 
 ## Corpus Check
-- 181 files · ~47,388 words
+- 177 files · ~46,553 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
 - 724 nodes · 1165 edges · 45 communities (33 shown, 12 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 11 edges (avg confidence: 0.8)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 12 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2d6bb791`
+- Built from commit: `8309d296`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -84,7 +84,7 @@
 
 ### Community 0 - "API Endpoints"
 Cohesion: 0.08
-Nodes (41): POST(), POST(), requireAdmin(), requireAuth(), requirePermission(), GET(), getMaster(), getStatus() (+33 more)
+Nodes (41): getMaster(), POST(), POST(), requireAdmin(), requireAuth(), requirePermission(), GET(), getMaster() (+33 more)
 
 ### Community 1 - "Data Access Tests"
 Cohesion: 0.26
@@ -196,8 +196,8 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.104) - this node is a cross-community bridge._
 - **Why does `svelte` connect `Dependencies & Icons` to `UI Components Index`?**
   _High betweenness centrality (0.089) - this node is a cross-community bridge._
-- **Are the 4 inferred relationships involving `mapToDb()` (e.g. with `PUT()` and `PUT()`) actually correct?**
-  _`mapToDb()` has 4 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 5 inferred relationships involving `mapToDb()` (e.g. with `PUT()` and `PUT()`) actually correct?**
+  _`mapToDb()` has 5 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `css.lint.unknownAtRules`, `$schema`, `css` to the rest of the system?**
   _225 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `API Endpoints` be split into smaller, more focused modules?**
