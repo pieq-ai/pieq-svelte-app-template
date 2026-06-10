@@ -246,7 +246,7 @@
 
 		try {
 			const response = await fetch(
-				editingDept ? `/api/departments/departmentCuid=${editingDept.cuid}` : '/api/departments',
+				editingDept ? `/api/departments/${editingDept.cuid}` : '/api/departments',
 				{
 					method: editingDept ? 'PUT' : 'POST',
 					headers: { 'Content-Type': 'application/json' },

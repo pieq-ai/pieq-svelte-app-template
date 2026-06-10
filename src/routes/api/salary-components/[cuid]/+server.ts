@@ -14,7 +14,7 @@ export async function GET(event: RequestEvent) {
 		const component = await service.getComponentByCuid(cuid);
 		return json({ data: serializeSalaryComponent(component) });
 	} catch (error) {
-		console.error(`Error in GET /api/salary-components/salaryComponentCuid=${event.params.cuid}:`, error);
+		console.error(`Error in GET /api/salary-components/${event.params.cuid}:`, error);
 		const isNotFound = (error as Error).name === 'ComponentNotFoundError';
 		return json(
 			{ message: (error as Error).message || 'Failed to retrieve salary component' },
@@ -64,7 +64,7 @@ export async function PUT(event: RequestEvent) {
 			}
 		});
 	} catch (error) {
-		console.error(`Error in PUT /api/salary-components/salaryComponentCuid=${event.params.cuid}:`, error);
+		console.error(`Error in PUT /api/salary-components/${event.params.cuid}:`, error);
 		const isNotFound = (error as Error).name === 'ComponentNotFoundError';
 		const isValidationError =
 			(error as Error).name === 'DuplicateComponentError' ||
@@ -103,7 +103,7 @@ export async function DELETE(event: RequestEvent) {
 			}
 		});
 	} catch (error) {
-		console.error(`Error in DELETE /api/salary-components/salaryComponentCuid=${event.params.cuid}:`, error);
+		console.error(`Error in DELETE /api/salary-components/${event.params.cuid}:`, error);
 		const isNotFound = (error as Error).name === 'ComponentNotFoundError';
 		return json(
 			{ message: (error as Error).message || 'Failed to disable salary component' },

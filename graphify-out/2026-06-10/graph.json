@@ -549,7 +549,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/package.json",
       "source_location": "L41",
       "id": "pieq_svelte_app_template_package_devdependencies_mode_watcher",
-      "community": 15,
+      "community": 5,
       "norm_label": "mode-watcher"
     },
     {
@@ -1704,7 +1704,7 @@
       "source_file": "src/lib/components/ui/sonner/index.ts",
       "source_location": "L1",
       "id": "sonner_index",
-      "community": 15,
+      "community": 5,
       "norm_label": "index.ts"
     },
     {
@@ -1713,7 +1713,7 @@
       "source_file": "src/lib/components/ui/sonner/sonner.svelte",
       "source_location": "L1",
       "id": "sonner_sonner",
-      "community": 15,
+      "community": 5,
       "norm_label": "sonner.svelte"
     },
     {
@@ -1731,7 +1731,7 @@
       "source_file": "mode-watcher",
       "confidence": "EXTRACTED",
       "id": "mode_watcher",
-      "community": 15,
+      "community": 5,
       "norm_label": "mode-watcher"
     },
     {
@@ -1740,7 +1740,7 @@
       "source_file": "@lucide/svelte/icons/loader-2",
       "confidence": "EXTRACTED",
       "id": "loader_2",
-      "community": 15,
+      "community": 5,
       "norm_label": "@lucide/svelte/icons/loader-2"
     },
     {
@@ -1749,7 +1749,7 @@
       "source_file": "@lucide/svelte/icons/circle-check",
       "confidence": "EXTRACTED",
       "id": "circle_check",
-      "community": 15,
+      "community": 5,
       "norm_label": "@lucide/svelte/icons/circle-check"
     },
     {
@@ -1758,7 +1758,7 @@
       "source_file": "@lucide/svelte/icons/octagon-x",
       "confidence": "EXTRACTED",
       "id": "octagon_x",
-      "community": 15,
+      "community": 5,
       "norm_label": "@lucide/svelte/icons/octagon-x"
     },
     {
@@ -1767,7 +1767,7 @@
       "source_file": "@lucide/svelte/icons/info",
       "confidence": "EXTRACTED",
       "id": "info",
-      "community": 15,
+      "community": 5,
       "norm_label": "@lucide/svelte/icons/info"
     },
     {
@@ -1776,7 +1776,7 @@
       "source_file": "@lucide/svelte/icons/triangle-alert",
       "confidence": "EXTRACTED",
       "id": "triangle_alert",
-      "community": 15,
+      "community": 5,
       "norm_label": "@lucide/svelte/icons/triangle-alert"
     },
     {
@@ -2317,7 +2317,7 @@
       "source_file": "src/lib/server/dao/department.dao.ts",
       "source_location": "L1",
       "id": "dao_department_dao",
-      "community": 77,
+      "community": 45,
       "norm_label": "department.dao.ts"
     },
     {
@@ -2326,7 +2326,7 @@
       "source_file": "src/lib/server/dao/department.dao.ts",
       "source_location": "L3",
       "id": "dao_department_dao_createdepartmentinput",
-      "community": 77,
+      "community": 45,
       "norm_label": "createdepartmentinput"
     },
     {
@@ -2335,7 +2335,7 @@
       "source_file": "src/lib/server/dao/department.dao.ts",
       "source_location": "L11",
       "id": "dao_department_dao_updatedepartmentinput",
-      "community": 77,
+      "community": 45,
       "norm_label": "updatedepartmentinput"
     },
     {
@@ -2344,7 +2344,7 @@
       "source_file": "src/lib/server/dao/department.dao.ts",
       "source_location": "L21",
       "id": "dao_department_dao_list",
-      "community": 77,
+      "community": 45,
       "norm_label": "list()"
     },
     {
@@ -2353,7 +2353,7 @@
       "source_file": "src/lib/server/dao/department.dao.ts",
       "source_location": "L32",
       "id": "dao_department_dao_findbycuid2",
-      "community": 77,
+      "community": 45,
       "norm_label": "findbycuid2()"
     },
     {
@@ -2362,7 +2362,7 @@
       "source_file": "src/lib/server/dao/department.dao.ts",
       "source_location": "L43",
       "id": "dao_department_dao_findbyname",
-      "community": 77,
+      "community": 45,
       "norm_label": "findbyname()"
     },
     {
@@ -2371,7 +2371,7 @@
       "source_file": "src/lib/server/dao/department.dao.ts",
       "source_location": "L57",
       "id": "dao_department_dao_create",
-      "community": 77,
+      "community": 45,
       "norm_label": "create()"
     },
     {
@@ -2380,7 +2380,7 @@
       "source_file": "src/lib/server/dao/department.dao.ts",
       "source_location": "L73",
       "id": "dao_department_dao_update",
-      "community": 77,
+      "community": 45,
       "norm_label": "update()"
     },
     {
@@ -2389,7 +2389,7 @@
       "source_file": "src/lib/server/dao/designation.dao.ts",
       "source_location": "L1",
       "id": "dao_designation_dao",
-      "community": 53,
+      "community": 47,
       "norm_label": "designation.dao.ts"
     },
     {
@@ -2398,7 +2398,7 @@
       "source_file": "src/lib/server/dao/designation.dao.ts",
       "source_location": "L3",
       "id": "dao_designation_dao_createdesignationinput",
-      "community": 53,
+      "community": 47,
       "norm_label": "createdesignationinput"
     },
     {
@@ -2407,7 +2407,7 @@
       "source_file": "src/lib/server/dao/designation.dao.ts",
       "source_location": "L11",
       "id": "dao_designation_dao_updatedesignationinput",
-      "community": 53,
+      "community": 47,
       "norm_label": "updatedesignationinput"
     },
     {
@@ -2416,7 +2416,7 @@
       "source_file": "src/lib/server/dao/designation.dao.ts",
       "source_location": "L18",
       "id": "dao_designation_dao_list",
-      "community": 53,
+      "community": 47,
       "norm_label": "list()"
     },
     {
@@ -2425,7 +2425,7 @@
       "source_file": "src/lib/server/dao/designation.dao.ts",
       "source_location": "L26",
       "id": "dao_designation_dao_findbyid",
-      "community": 53,
+      "community": 47,
       "norm_label": "findbyid()"
     },
     {
@@ -2434,7 +2434,7 @@
       "source_file": "src/lib/server/dao/designation.dao.ts",
       "source_location": "L34",
       "id": "dao_designation_dao_findbycuid2",
-      "community": 53,
+      "community": 47,
       "norm_label": "findbycuid2()"
     },
     {
@@ -2443,7 +2443,7 @@
       "source_file": "src/lib/server/dao/designation.dao.ts",
       "source_location": "L42",
       "id": "dao_designation_dao_create",
-      "community": 53,
+      "community": 47,
       "norm_label": "create()"
     },
     {
@@ -2452,7 +2452,7 @@
       "source_file": "src/lib/server/dao/designation.dao.ts",
       "source_location": "L55",
       "id": "dao_designation_dao_update",
-      "community": 53,
+      "community": 47,
       "norm_label": "update()"
     },
     {
@@ -5392,36 +5392,36 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_departments_cuid_server_ts_cuid_server",
+      "id": "departmentcuid_cuid_server",
       "community": 11,
       "norm_label": "+server.ts"
     },
     {
       "label": "GET()",
       "file_type": "code",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
       "source_location": "L8",
-      "id": "src_routes_api_departments_cuid_server_ts_cuid_server_get",
+      "id": "departmentcuid_cuid_server_get",
       "community": 11,
       "norm_label": "get()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
       "source_location": "L23",
-      "id": "src_routes_api_departments_cuid_server_ts_cuid_server_put",
+      "id": "departmentcuid_cuid_server_put",
       "community": 11,
       "norm_label": "put()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
       "source_location": "L46",
-      "id": "src_routes_api_departments_cuid_server_ts_cuid_server_delete",
+      "id": "departmentcuid_cuid_server_delete",
       "community": 11,
       "norm_label": "delete()"
     },
@@ -5455,36 +5455,36 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_designations_cuid_server_ts_cuid_server",
+      "id": "designationcuid_cuid_server",
       "community": 11,
       "norm_label": "+server.ts"
     },
     {
       "label": "GET()",
       "file_type": "code",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
       "source_location": "L8",
-      "id": "src_routes_api_designations_cuid_server_ts_cuid_server_get",
+      "id": "designationcuid_cuid_server_get",
       "community": 11,
       "norm_label": "get()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
       "source_location": "L26",
-      "id": "src_routes_api_designations_cuid_server_ts_cuid_server_put",
+      "id": "designationcuid_cuid_server_put",
       "community": 11,
       "norm_label": "put()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
       "source_location": "L49",
-      "id": "src_routes_api_designations_cuid_server_ts_cuid_server_delete",
+      "id": "designationcuid_cuid_server_delete",
       "community": 11,
       "norm_label": "delete()"
     },
@@ -5545,36 +5545,36 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_holidays_cuid_server_ts_cuid_server",
+      "id": "holidaycuid_holidaycuid_cuid_server",
       "community": 0,
       "norm_label": "+server.ts"
     },
     {
       "label": "GET()",
       "file_type": "code",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
       "source_location": "L17",
-      "id": "src_routes_api_holidays_cuid_server_ts_cuid_server_get",
+      "id": "holidaycuid_holidaycuid_cuid_server_get",
       "community": 0,
       "norm_label": "get()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
       "source_location": "L33",
-      "id": "src_routes_api_holidays_cuid_server_ts_cuid_server_put",
+      "id": "holidaycuid_holidaycuid_cuid_server_put",
       "community": 0,
       "norm_label": "put()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
       "source_location": "L82",
-      "id": "src_routes_api_holidays_cuid_server_ts_cuid_server_delete",
+      "id": "holidaycuid_holidaycuid_cuid_server_delete",
       "community": 0,
       "norm_label": "delete()"
     },
@@ -5608,36 +5608,36 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
+      "id": "leavepolicycuid_leavepolicycuid_cuid_server",
       "community": 0,
       "norm_label": "+server.ts"
     },
     {
       "label": "GET()",
       "file_type": "code",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
       "source_location": "L16",
-      "id": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_get",
+      "id": "leavepolicycuid_leavepolicycuid_cuid_server_get",
       "community": 0,
       "norm_label": "get()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
       "source_location": "L32",
-      "id": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_put",
+      "id": "leavepolicycuid_leavepolicycuid_cuid_server_put",
       "community": 0,
       "norm_label": "put()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
       "source_location": "L142",
-      "id": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_delete",
+      "id": "leavepolicycuid_leavepolicycuid_cuid_server_delete",
       "community": 0,
       "norm_label": "delete()"
     },
@@ -5671,36 +5671,36 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
+      "id": "leavetypecuid_leavetypecuid_cuid_server",
       "community": 0,
       "norm_label": "+server.ts"
     },
     {
       "label": "GET()",
       "file_type": "code",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
       "source_location": "L16",
-      "id": "src_routes_api_leave_types_cuid_server_ts_cuid_server_get",
+      "id": "leavetypecuid_leavetypecuid_cuid_server_get",
       "community": 0,
       "norm_label": "get()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
       "source_location": "L31",
-      "id": "src_routes_api_leave_types_cuid_server_ts_cuid_server_put",
+      "id": "leavetypecuid_leavetypecuid_cuid_server_put",
       "community": 0,
       "norm_label": "put()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
       "source_location": "L88",
-      "id": "src_routes_api_leave_types_cuid_server_ts_cuid_server_delete",
+      "id": "leavetypecuid_leavetypecuid_cuid_server_delete",
       "community": 0,
       "norm_label": "delete()"
     },
@@ -5752,36 +5752,36 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
+      "id": "mastercuid_cuid_server",
       "community": 11,
       "norm_label": "+server.ts"
     },
     {
       "label": "getStatus()",
       "file_type": "code",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
       "source_location": "L8",
-      "id": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_getstatus",
+      "id": "mastercuid_cuid_server_getstatus",
       "community": 11,
       "norm_label": "getstatus()"
     },
     {
       "label": "getMaster()",
       "file_type": "code",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
       "source_location": "L15",
-      "id": "cuid_server_getmaster",
+      "id": "mastercuid_cuid_server_getmaster",
       "community": 11,
       "norm_label": "getmaster()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
       "source_location": "L19",
-      "id": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_put",
+      "id": "mastercuid_cuid_server_put",
       "community": 11,
       "norm_label": "put()"
     },
@@ -5824,45 +5824,45 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_permissions_cuid_server_ts_cuid_server",
+      "id": "permissioncuid_cuid_server",
       "community": 11,
       "norm_label": "+server.ts"
     },
     {
       "label": "getStatus()",
       "file_type": "code",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L8",
-      "id": "src_routes_api_permissions_cuid_server_ts_cuid_server_getstatus",
+      "id": "permissioncuid_cuid_server_getstatus",
       "community": 11,
       "norm_label": "getstatus()"
     },
     {
       "label": "GET()",
       "file_type": "code",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L14",
-      "id": "src_routes_api_permissions_cuid_server_ts_cuid_server_get",
+      "id": "permissioncuid_cuid_server_get",
       "community": 11,
       "norm_label": "get()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L29",
-      "id": "src_routes_api_permissions_cuid_server_ts_cuid_server_put",
+      "id": "permissioncuid_cuid_server_put",
       "community": 11,
       "norm_label": "put()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L48",
-      "id": "src_routes_api_permissions_cuid_server_ts_cuid_server_delete",
+      "id": "permissioncuid_cuid_server_delete",
       "community": 11,
       "norm_label": "delete()"
     },
@@ -5905,27 +5905,27 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L1",
-      "id": "permissioncuid_server",
+      "id": "permissioncuid_permissioncuid_server",
       "community": 11,
       "norm_label": "+server.ts"
     },
     {
       "label": "getStatus()",
       "file_type": "code",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L6",
-      "id": "permissioncuid_server_getstatus",
+      "id": "permissioncuid_permissioncuid_server_getstatus",
       "community": 11,
       "norm_label": "getstatus()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L12",
-      "id": "permissioncuid_server_delete",
+      "id": "permissioncuid_permissioncuid_server_delete",
       "community": 11,
       "norm_label": "delete()"
     },
@@ -5959,36 +5959,36 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
+      "id": "salarycomponentcuid_cuid_server",
       "community": 48,
       "norm_label": "+server.ts"
     },
     {
       "label": "GET()",
       "file_type": "code",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L7",
-      "id": "src_routes_api_salary_components_cuid_server_ts_cuid_server_get",
+      "id": "salarycomponentcuid_cuid_server_get",
       "community": 48,
       "norm_label": "get()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L26",
-      "id": "src_routes_api_salary_components_cuid_server_ts_cuid_server_put",
+      "id": "salarycomponentcuid_cuid_server_put",
       "community": 48,
       "norm_label": "put()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L80",
-      "id": "src_routes_api_salary_components_cuid_server_ts_cuid_server_delete",
+      "id": "salarycomponentcuid_cuid_server_delete",
       "community": 48,
       "norm_label": "delete()"
     },
@@ -6031,45 +6031,45 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
+      "id": "systemrolecuid_cuid_server",
       "community": 11,
       "norm_label": "+server.ts"
     },
     {
       "label": "getStatus()",
       "file_type": "code",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L8",
-      "id": "src_routes_api_system_roles_cuid_server_ts_cuid_server_getstatus",
+      "id": "systemrolecuid_cuid_server_getstatus",
       "community": 11,
       "norm_label": "getstatus()"
     },
     {
       "label": "GET()",
       "file_type": "code",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L14",
-      "id": "src_routes_api_system_roles_cuid_server_ts_cuid_server_get",
+      "id": "systemrolecuid_cuid_server_get",
       "community": 11,
       "norm_label": "get()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L29",
-      "id": "src_routes_api_system_roles_cuid_server_ts_cuid_server_put",
+      "id": "systemrolecuid_cuid_server_put",
       "community": 11,
       "norm_label": "put()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L48",
-      "id": "src_routes_api_system_roles_cuid_server_ts_cuid_server_delete",
+      "id": "systemrolecuid_cuid_server_delete",
       "community": 11,
       "norm_label": "delete()"
     },
@@ -6331,7 +6331,7 @@
       "source_file": "src/routes/holidays/$types",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_routes_holidays_types",
-      "community": 51,
+      "community": 53,
       "norm_label": "./$types"
     },
     {
@@ -6340,7 +6340,7 @@
       "source_file": "src/routes/holidays/+page.ts",
       "source_location": "L1",
       "id": "src_routes_holidays_page_ts_holidays_page",
-      "community": 51,
+      "community": 53,
       "norm_label": "+page.ts"
     },
     {
@@ -6349,7 +6349,7 @@
       "source_file": "src/routes/holidays/+page.ts",
       "source_location": "L3",
       "id": "holidays_page_holiday",
-      "community": 51,
+      "community": 53,
       "norm_label": "holiday"
     },
     {
@@ -6358,7 +6358,7 @@
       "source_file": "src/routes/holidays/+page.ts",
       "source_location": "L11",
       "id": "holidays_page_load",
-      "community": 51,
+      "community": 53,
       "norm_label": "load()"
     },
     {
@@ -6709,7 +6709,7 @@
       "source_file": "tests/unit/department.dao.test.ts",
       "source_location": "L1",
       "id": "unit_department_dao_test",
-      "community": 77,
+      "community": 50,
       "norm_label": "department.dao.test.ts"
     },
     {
@@ -6736,7 +6736,7 @@
       "source_file": "tests/unit/designation.dao.test.ts",
       "source_location": "L1",
       "id": "unit_designation_dao_test",
-      "community": 53,
+      "community": 50,
       "norm_label": "designation.dao.test.ts"
     },
     {
@@ -6745,7 +6745,7 @@
       "source_file": "tests/unit/designation.service.test.ts",
       "source_location": "L1",
       "id": "unit_designation_service_test",
-      "community": 53,
+      "community": 47,
       "norm_label": "designation.service.test.ts"
     },
     {
@@ -6916,7 +6916,7 @@
       "source_file": "tests/unit/permission.service.test.ts",
       "source_location": "L1",
       "id": "unit_permission_service_test",
-      "community": 62,
+      "community": 58,
       "norm_label": "permission.service.test.ts"
     },
     {
@@ -8292,7 +8292,7 @@
       "file_type": "code",
       "source_file": "package.json",
       "source_location": "L41",
-      "community": 15,
+      "community": 5,
       "norm_label": "mode-watcher",
       "id": "package_devdependencies_mode_watcher"
     },
@@ -16073,11 +16073,33 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "guards_permission_guard"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/departments/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "departments_server",
+      "target": "guards_permission_guard"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
       "target": "guards_permission_guard"
     },
     {
@@ -16158,12 +16180,34 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "guards_permission_guard"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "guards_permission_guard"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
-      "source": "permissioncuid_server",
-      "target": "guards_permission_guard",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_permissioncuid_server",
+      "target": "guards_permission_guard"
     },
     {
       "relation": "imports_from",
@@ -16191,66 +16235,22 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "guards_permission_guard",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "guards_permission_guard",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "guards_permission_guard",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "guards_permission_guard",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "guards_permission_guard",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "system_roles_server",
+      "target": "guards_permission_guard"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
       "target": "guards_permission_guard"
     },
     {
@@ -16290,11 +16290,44 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "server_response"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/holidays/+server.ts",
       "source_location": "L8",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "holidays_server",
+      "target": "server_response"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
+      "target": "server_response"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server",
       "target": "server_response"
     },
     {
@@ -16493,45 +16526,34 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "server_response",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "server_response",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "target": "server_response",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/leave/types/+server.ts",
       "source_location": "L8",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "types_server",
       "target": "server_response"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "server_response_formatholiday"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server_get",
+      "target": "server_response_formatholiday"
     },
     {
       "relation": "imports",
@@ -16548,44 +16570,22 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "server_response_formatholiday",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L25",
-      "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server_get",
-      "target": "server_response_formatholiday"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
       "source_location": "L8",
       "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "target": "server_response_formatleavetype",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server",
+      "target": "server_response_formatleavetype"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
       "source_location": "L24",
       "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server_get",
+      "source": "leavetypecuid_leavetypecuid_cuid_server_get",
       "target": "server_response_formatleavetype"
     },
     {
@@ -16603,6 +16603,28 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
+      "target": "server_response_formatleavepolicy"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server_get",
+      "target": "server_response_formatleavepolicy"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/leave/policies/+server.ts",
       "source_location": "L8",
       "weight": 1.0,
@@ -16614,23 +16636,23 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L8",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L9",
       "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "server_response_formatleavepolicy",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "server_response_successresponse"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L25",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L26",
       "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_get",
-      "target": "server_response_formatleavepolicy"
+      "source": "holidaycuid_holidaycuid_cuid_server_get",
+      "target": "server_response_successresponse"
     },
     {
       "relation": "imports",
@@ -16652,6 +16674,50 @@
       "source_location": "L19",
       "weight": 1.0,
       "source": "holidays_server_get",
+      "target": "server_response_successresponse"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
+      "target": "server_response_successresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server_get",
+      "target": "server_response_successresponse"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server",
+      "target": "server_response_successresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server_get",
       "target": "server_response_successresponse"
     },
     {
@@ -16713,72 +16779,6 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "server_response_successresponse",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L26",
-      "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server_get",
-      "target": "server_response_successresponse"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "server_response_successresponse",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L25",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_get",
-      "target": "server_response_successresponse"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "target": "server_response_successresponse",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L24",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server_get",
-      "target": "server_response_successresponse"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/leave/types/+server.ts",
       "source_location": "L8",
       "weight": 1.0,
@@ -16796,6 +16796,50 @@
       "weight": 1.0,
       "source": "types_server_get",
       "target": "server_response_successresponse"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "server_response_errorresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L77",
+      "weight": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server_delete",
+      "target": "server_response_errorresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server_get",
+      "target": "server_response_errorresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server_put",
+      "target": "server_response_errorresponse"
     },
     {
       "relation": "imports",
@@ -16834,6 +16878,94 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
+      "target": "server_response_errorresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L139",
+      "weight": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server_delete",
+      "target": "server_response_errorresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server_get",
+      "target": "server_response_errorresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server_put",
+      "target": "server_response_errorresponse"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server",
+      "target": "server_response_errorresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L85",
+      "weight": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server_delete",
+      "target": "server_response_errorresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server_get",
+      "target": "server_response_errorresponse"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server_put",
+      "target": "server_response_errorresponse"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/leave/policies/+server.ts",
       "source_location": "L8",
       "weight": 1.0,
@@ -16861,138 +16993,6 @@
       "source_location": "L32",
       "weight": 1.0,
       "source": "policies_server_post",
-      "target": "server_response_errorresponse"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "server_response_errorresponse",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L90",
-      "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server_delete",
-      "target": "server_response_errorresponse"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L23",
-      "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server_get",
-      "target": "server_response_errorresponse"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L40",
-      "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server_put",
-      "target": "server_response_errorresponse"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "server_response_errorresponse",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L148",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_delete",
-      "target": "server_response_errorresponse"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L22",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_get",
-      "target": "server_response_errorresponse"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L39",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_put",
-      "target": "server_response_errorresponse"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "target": "server_response_errorresponse",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L94",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server_delete",
-      "target": "server_response_errorresponse"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L22",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server_get",
-      "target": "server_response_errorresponse"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L38",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server_put",
       "target": "server_response_errorresponse"
     },
     {
@@ -17098,132 +17098,132 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
       "source_location": "L9",
       "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "server_response_updatesuccessresponse",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "server_response_updatesuccessresponse"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L71",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L58",
       "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server_put",
+      "source": "holidaycuid_holidaycuid_cuid_server_put",
       "target": "server_response_updatesuccessresponse"
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
       "source_location": "L8",
       "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "server_response_updatesuccessresponse",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
+      "target": "server_response_updatesuccessresponse"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L123",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L114",
       "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_put",
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server_put",
       "target": "server_response_updatesuccessresponse"
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
       "source_location": "L8",
       "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "target": "server_response_updatesuccessresponse",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server",
+      "target": "server_response_updatesuccessresponse"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L77",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L68",
       "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server_put",
+      "source": "leavetypecuid_leavetypecuid_cuid_server_put",
       "target": "server_response_updatesuccessresponse"
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
       "source_location": "L9",
       "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "server_response_deletesuccessresponse",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "server_response_deletesuccessresponse"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L87",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L74",
       "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server_delete",
+      "source": "holidaycuid_holidaycuid_cuid_server_delete",
       "target": "server_response_deletesuccessresponse"
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
       "source_location": "L8",
       "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "server_response_deletesuccessresponse",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
+      "target": "server_response_deletesuccessresponse"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L165",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L147",
       "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_delete",
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server_delete",
       "target": "server_response_deletesuccessresponse"
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
       "source_location": "L8",
       "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "target": "server_response_deletesuccessresponse",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server",
+      "target": "server_response_deletesuccessresponse"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L111",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L93",
       "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server_delete",
+      "source": "leavetypecuid_leavetypecuid_cuid_server_delete",
       "target": "server_response_deletesuccessresponse"
     },
     {
@@ -17235,6 +17235,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "salary_components_server",
+      "target": "serializers_salary_component_serializer"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
       "target": "serializers_salary_component_serializer"
     },
     {
@@ -17266,17 +17277,6 @@
       "confidence_score": 1.0,
       "source": "serializers_salary_component_serializer",
       "target": "serializers_salary_component_serializer_serializesalarycomponentlist"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "serializers_salary_component_serializer",
-      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -17326,23 +17326,34 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "serializers_salary_component_serializer_serializesalarycomponent",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "serializers_salary_component_serializer_serializesalarycomponent"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L15",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server_get",
+      "source": "salarycomponentcuid_cuid_server_get",
       "target": "serializers_salary_component_serializer_serializesalarycomponent"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "services_department_service"
     },
     {
       "relation": "imports_from",
@@ -17483,17 +17494,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "services_department_service",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "tests/unit/department.service.test.ts",
       "source_location": "L3",
       "weight": 1.0,
@@ -17566,6 +17566,17 @@
       "weight": 1.0,
       "source": "services_department_service_updatedepartment",
       "target": "validators_department_validator_validatedepartmentname"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
+      "target": "services_designation_service"
     },
     {
       "relation": "imports_from",
@@ -17709,17 +17720,6 @@
       "confidence_score": 1.0,
       "source": "services_designation_service",
       "target": "utils_errors_validationerror"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "services_designation_service",
-      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -18114,6 +18114,17 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "services_holiday_service"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/holidays/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
@@ -18245,23 +18256,23 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "services_holiday_service",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "tests/unit/holiday.service.test.ts",
       "source_location": "L3",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "unit_holiday_service_test",
       "target": "services_holiday_service"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "services_holiday_service_holidayvalidationerror"
     },
     {
       "relation": "imports",
@@ -18283,17 +18294,6 @@
       "confidence_score": 1.0,
       "source": "services_holiday_service_holidayvalidationerror",
       "target": "services_holiday_service_holidayvalidationerror_constructor"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "services_holiday_service_holidayvalidationerror",
-      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -18398,22 +18398,22 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "services_holiday_service_getholidaybycuid",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "services_holiday_service_getholidaybycuid"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
       "source_location": "L21",
       "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server_get",
+      "source": "holidaycuid_holidaycuid_cuid_server_get",
       "target": "services_holiday_service_getholidaybycuid"
     },
     {
@@ -18453,22 +18453,22 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "services_holiday_service_updateholiday",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "services_holiday_service_updateholiday"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L65",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L57",
       "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server_put",
+      "source": "holidaycuid_holidaycuid_cuid_server_put",
       "target": "services_holiday_service_updateholiday"
     },
     {
@@ -18486,12 +18486,12 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "services_holiday_service_deleteholiday",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "services_holiday_service_deleteholiday"
     },
     {
       "relation": "imports",
@@ -18503,6 +18503,17 @@
       "confidence_score": 1.0,
       "source": "unit_holiday_service_test",
       "target": "services_holiday_service_deleteholiday"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
+      "target": "services_leave_policy_service"
     },
     {
       "relation": "imports_from",
@@ -18621,17 +18632,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "services_leave_policy_service",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "tests/unit/leave-policy.service.test.ts",
       "source_location": "L4",
       "weight": 1.0,
@@ -18687,33 +18687,33 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "services_leave_policy_service_getleavepolicybycuid",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L146",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_delete",
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
       "target": "services_leave_policy_service_getleavepolicybycuid"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L137",
+      "weight": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server_delete",
+      "target": "services_leave_policy_service_getleavepolicybycuid"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
       "source_location": "L20",
       "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_get",
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server_get",
       "target": "services_leave_policy_service_getleavepolicybycuid"
     },
     {
@@ -18753,33 +18753,33 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "services_leave_policy_service_updateleavepolicy",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L159",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_delete",
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
       "target": "services_leave_policy_service_updateleavepolicy"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L106",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L142",
       "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_put",
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server_delete",
+      "target": "services_leave_policy_service_updateleavepolicy"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L98",
+      "weight": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server_put",
       "target": "services_leave_policy_service_updateleavepolicy"
     },
     {
@@ -18803,6 +18803,28 @@
       "confidence_score": 1.0,
       "source": "unit_leave_policy_service_test",
       "target": "services_leave_policy_service_deleteleavepolicy"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
+      "target": "services_leave_type_service"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server",
+      "target": "services_leave_type_service"
     },
     {
       "relation": "imports_from",
@@ -18919,28 +18941,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "services_leave_type_service",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "target": "services_leave_type_service",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/leave/types/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
@@ -18974,6 +18974,28 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
+      "target": "services_leave_type_service_leavevalidationerror"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server",
+      "target": "services_leave_type_service_leavevalidationerror"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/leave/policies/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
@@ -18990,28 +19012,6 @@
       "confidence_score": 1.0,
       "source": "services_leave_type_service_leavevalidationerror",
       "target": "services_leave_type_service_leavevalidationerror_constructor"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "services_leave_type_service_leavevalidationerror",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "target": "services_leave_type_service_leavevalidationerror",
-      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -19116,33 +19116,33 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "target": "services_leave_type_service_getleavetypebycuid",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L92",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server_delete",
+      "confidence_score": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server",
       "target": "services_leave_type_service_getleavetypebycuid"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L83",
+      "weight": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server_delete",
+      "target": "services_leave_type_service_getleavetypebycuid"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
       "source_location": "L20",
       "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server_get",
+      "source": "leavetypecuid_leavetypecuid_cuid_server_get",
       "target": "services_leave_type_service_getleavetypebycuid"
     },
     {
@@ -19182,33 +19182,33 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "target": "services_leave_type_service_updateleavetype",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L105",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server_delete",
+      "confidence_score": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server",
       "target": "services_leave_type_service_updateleavetype"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L68",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L88",
       "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server_put",
+      "source": "leavetypecuid_leavetypecuid_cuid_server_delete",
+      "target": "services_leave_type_service_updateleavetype"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L60",
+      "weight": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server_put",
       "target": "services_leave_type_service_updateleavetype"
     },
     {
@@ -19242,6 +19242,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "master_server",
+      "target": "services_master_data_service"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
       "target": "services_master_data_service"
     },
     {
@@ -19390,17 +19401,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "services_master_data_service",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "tests/unit/master-data.service.test.ts",
       "source_location": "L3",
       "weight": 1.0,
@@ -19539,6 +19539,17 @@
       "confidence_score": 1.0,
       "source": "services_master_data_service_updatemasterdata",
       "target": "services_master_data_service_ensureunique"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "services_permission_service"
     },
     {
       "relation": "imports_from",
@@ -19697,17 +19708,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "services_permission_service",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "tests/unit/permission.service.test.ts",
       "source_location": "L3",
       "weight": 1.0,
@@ -19840,12 +19840,12 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "source": "permissioncuid_server",
-      "target": "services_role_permission_service",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_permissioncuid_server",
+      "target": "services_role_permission_service"
     },
     {
       "relation": "imports_from",
@@ -19973,6 +19973,17 @@
       "target": "services_salary_component_service"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "services_salary_component_service"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/server/services/salary-component.service.ts",
@@ -20094,17 +20105,6 @@
       "confidence_score": 1.0,
       "source": "services_salary_component_service",
       "target": "types_salary_component_updatesalarycomponentdto"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "services_salary_component_service",
-      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -20293,22 +20293,22 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "services_system_role_service",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "system_roles_server",
+      "target": "services_system_role_service"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
       "target": "services_system_role_service"
     },
     {
@@ -20447,11 +20447,33 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "utils_errors"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/departments/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "departments_server",
+      "target": "utils_errors"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
       "target": "utils_errors"
     },
     {
@@ -20480,6 +20502,28 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "utils_errors"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "utils_errors"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
@@ -20491,66 +20535,22 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "system_roles_server",
+      "target": "utils_errors"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
       "target": "utils_errors"
     },
     {
@@ -20567,11 +20567,33 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "utils_errors_validationerror"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/departments/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "departments_server",
+      "target": "utils_errors_validationerror"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
       "target": "utils_errors_validationerror"
     },
     {
@@ -20594,6 +20616,28 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "master_server",
+      "target": "utils_errors_validationerror"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "utils_errors_validationerror"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
       "target": "utils_errors_validationerror"
     },
     {
@@ -20611,66 +20655,22 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "system_roles_server",
+      "target": "utils_errors_validationerror"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
       "target": "utils_errors_validationerror"
     },
     {
@@ -20687,11 +20687,33 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "utils_mapping"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/departments/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "departments_server",
+      "target": "utils_mapping"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
       "target": "utils_mapping"
     },
     {
@@ -20714,6 +20736,28 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "master_server",
+      "target": "utils_mapping"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "utils_mapping"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
       "target": "utils_mapping"
     },
     {
@@ -20742,66 +20786,22 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "utils_mapping",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "utils_mapping",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "utils_mapping",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "utils_mapping",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "utils_mapping",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "system_roles_server",
+      "target": "utils_mapping"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
       "target": "utils_mapping"
     },
     {
@@ -20898,6 +20898,28 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "departmentcuid_cuid_server_put",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/departments/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
@@ -20914,6 +20936,28 @@
       "source_location": "L35",
       "weight": 1.0,
       "source": "departments_server_post",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "designationcuid_cuid_server_put",
       "target": "utils_mapping_maptodb"
     },
     {
@@ -20964,6 +21008,50 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "mastercuid_cuid_server_put",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "permissioncuid_cuid_server_put",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
@@ -21008,116 +21096,6 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_maptodb",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L32",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server_put",
-      "target": "utils_mapping_maptodb"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_maptodb",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L35",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server_put",
-      "target": "utils_mapping_maptodb"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_maptodb",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L26",
-      "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_put",
-      "target": "utils_mapping_maptodb"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_maptodb",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L35",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server_put",
-      "target": "utils_mapping_maptodb"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_maptodb",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L35",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server_put",
-      "target": "utils_mapping_maptodb"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
@@ -21140,6 +21118,50 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "systemrolecuid_cuid_server_put",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "utils_mapping_todepartmentdto"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "departmentcuid_cuid_server_get",
+      "target": "utils_mapping_todepartmentdto"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/departments/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
@@ -21151,23 +21173,23 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L5",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L6",
       "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_todepartmentdto",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
+      "target": "utils_mapping_todesignationdto"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
       "source_location": "L15",
       "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server_get",
-      "target": "utils_mapping_todepartmentdto"
+      "source": "designationcuid_cuid_server_get",
+      "target": "utils_mapping_todesignationdto"
     },
     {
       "relation": "imports",
@@ -21184,23 +21206,23 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_todesignationdto",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "utils_mapping_topermissiondto"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L15",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L19",
       "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server_get",
-      "target": "utils_mapping_todesignationdto"
+      "source": "permissioncuid_cuid_server_get",
+      "target": "utils_mapping_topermissiondto"
     },
     {
       "relation": "imports",
@@ -21228,28 +21250,6 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_topermissiondto",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L19",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server_get",
-      "target": "utils_mapping_topermissiondto"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/role-permissions/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
@@ -21261,33 +21261,33 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_tosystemroledto",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L19",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server_get",
+      "confidence_score": 1.0,
+      "source": "system_roles_server",
       "target": "utils_mapping_tosystemroledto"
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "system_roles_server",
+      "source": "systemrolecuid_cuid_server",
+      "target": "utils_mapping_tosystemroledto"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "systemrolecuid_cuid_server_get",
       "target": "utils_mapping_tosystemroledto"
     },
     {
@@ -21316,11 +21316,44 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "server_validation"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/holidays/+server.ts",
       "source_location": "L7",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "holidays_server",
+      "target": "server_validation"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
+      "target": "server_validation"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server",
       "target": "server_validation"
     },
     {
@@ -21358,39 +21391,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "server_validation",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "server_validation",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "target": "server_validation",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/leave/types/+server.ts",
       "source_location": "L7",
       "weight": 1.0,
@@ -21408,6 +21408,28 @@
       "confidence_score": 1.0,
       "source": "unit_validation_test",
       "target": "server_validation"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "server_validation_trimstringfields"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L48",
+      "weight": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server_put",
+      "target": "server_validation_trimstringfields"
     },
     {
       "relation": "imports",
@@ -21435,6 +21457,50 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
+      "target": "server_validation_trimstringfields"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L63",
+      "weight": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server_put",
+      "target": "server_validation_trimstringfields"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server",
+      "target": "server_validation_trimstringfields"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L48",
+      "weight": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server_put",
+      "target": "server_validation_trimstringfields"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/leave/policies/+server.ts",
       "source_location": "L7",
       "weight": 1.0,
@@ -21451,72 +21517,6 @@
       "source_location": "L56",
       "weight": 1.0,
       "source": "policies_server_post",
-      "target": "server_validation_trimstringfields"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "server_validation_trimstringfields",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L48",
-      "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server_put",
-      "target": "server_validation_trimstringfields"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "server_validation_trimstringfields",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L63",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_put",
-      "target": "server_validation_trimstringfields"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "target": "server_validation_trimstringfields",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L48",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server_put",
       "target": "server_validation_trimstringfields"
     },
     {
@@ -21556,6 +21556,28 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "server_validation_validatepayloadkeys"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server_put",
+      "target": "server_validation_validatepayloadkeys"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/holidays/+server.ts",
       "source_location": "L7",
       "weight": 1.0,
@@ -21578,6 +21600,50 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
+      "target": "server_validation_validatepayloadkeys"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L58",
+      "weight": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server_put",
+      "target": "server_validation_validatepayloadkeys"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server",
+      "target": "server_validation_validatepayloadkeys"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server_put",
+      "target": "server_validation_validatepayloadkeys"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/leave/policies/+server.ts",
       "source_location": "L7",
       "weight": 1.0,
@@ -21594,72 +21660,6 @@
       "source_location": "L51",
       "weight": 1.0,
       "source": "policies_server_post",
-      "target": "server_validation_validatepayloadkeys"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "server_validation_validatepayloadkeys",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L43",
-      "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server_put",
-      "target": "server_validation_validatepayloadkeys"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "server_validation_validatepayloadkeys",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L58",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_put",
-      "target": "server_validation_validatepayloadkeys"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "target": "server_validation_validatepayloadkeys",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L43",
-      "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server_put",
       "target": "server_validation_validatepayloadkeys"
     },
     {
@@ -21753,12 +21753,12 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "validators_salary_component_validator",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "validators_salary_component_validator"
     },
     {
       "relation": "imports_from",
@@ -21978,22 +21978,22 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "validators_salary_component_validator_validateupdatesalarycomponent",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "validators_salary_component_validator_validateupdatesalarycomponent"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L36",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server_put",
+      "source": "salarycomponentcuid_cuid_server_put",
       "target": "validators_salary_component_validator_validateupdatesalarycomponent"
     },
     {
@@ -22751,45 +22751,45 @@
       "target": "kit"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L46",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "departmentcuid_cuid_server_delete"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "departmentcuid_cuid_server_get"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L23",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "departmentcuid_cuid_server_put"
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "kit",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L46",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_departments_cuid_server_ts_cuid_server_delete",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_departments_cuid_server_ts_cuid_server_get",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L23",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_departments_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "kit"
     },
     {
       "relation": "contains",
@@ -22823,45 +22823,45 @@
       "target": "kit"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L49",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
+      "target": "designationcuid_cuid_server_delete"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
+      "target": "designationcuid_cuid_server_get"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L26",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
+      "target": "designationcuid_cuid_server_put"
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "kit",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L49",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_designations_cuid_server_ts_cuid_server_delete",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_designations_cuid_server_ts_cuid_server_get",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L26",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_designations_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
+      "target": "kit"
     },
     {
       "relation": "contains",
@@ -22917,32 +22917,32 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
-      "source_location": "L82",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
+      "source_location": "L69",
       "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_holidays_cuid_server_ts_cuid_server_delete",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "holidaycuid_holidaycuid_cuid_server_delete"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
       "source_location": "L17",
       "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_holidays_cuid_server_ts_cuid_server_get",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "holidaycuid_holidaycuid_cuid_server_get"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
+      "source_file": "src/routes/api/holidays/holidayCuid=[holidayCuid=cuid]/+server.ts",
       "source_location": "L33",
       "weight": 1.0,
-      "source": "src_routes_api_holidays_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_holidays_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "holidaycuid_holidaycuid_cuid_server",
+      "target": "holidaycuid_holidaycuid_cuid_server_put"
     },
     {
       "relation": "contains",
@@ -22967,32 +22967,32 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
-      "source_location": "L142",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
+      "source_location": "L133",
       "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_delete",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
+      "target": "leavepolicycuid_leavepolicycuid_cuid_server_delete"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
       "source_location": "L16",
       "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_get",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
+      "target": "leavepolicycuid_leavepolicycuid_cuid_server_get"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/policies/leavePolicyCuid=[leavePolicyCuid=cuid]/+server.ts",
       "source_location": "L32",
       "weight": 1.0,
-      "source": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "leavepolicycuid_leavepolicycuid_cuid_server",
+      "target": "leavepolicycuid_leavepolicycuid_cuid_server_put"
     },
     {
       "relation": "contains",
@@ -23017,32 +23017,32 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
-      "source_location": "L88",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
+      "source_location": "L79",
       "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_leave_types_cuid_server_ts_cuid_server_delete",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server",
+      "target": "leavetypecuid_leavetypecuid_cuid_server_delete"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
       "source_location": "L16",
       "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_leave_types_cuid_server_ts_cuid_server_get",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server",
+      "target": "leavetypecuid_leavetypecuid_cuid_server_get"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
+      "source_file": "src/routes/api/leave/types/leaveTypeCuid=[leaveTypeCuid=cuid]/+server.ts",
       "source_location": "L31",
       "weight": 1.0,
-      "source": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_leave_types_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "leavetypecuid_leavetypecuid_cuid_server",
+      "target": "leavetypecuid_leavetypecuid_cuid_server_put"
     },
     {
       "relation": "imports_from",
@@ -23140,67 +23140,67 @@
       "target": "master_server_getmaster"
     },
     {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L15",
-      "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "cuid_server_getmaster",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "kit",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "kit"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L15",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "mastercuid_cuid_server_getmaster"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
       "source_location": "L8",
       "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "mastercuid_cuid_server_getstatus"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
       "source_location": "L19",
       "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "mastercuid_cuid_server_put"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
       "source_location": "L38",
       "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_put",
-      "target": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server_put",
+      "target": "mastercuid_cuid_server_getstatus"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
       "source_location": "L29",
       "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_put",
-      "target": "cuid_server_getmaster",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server_put",
+      "target": "mastercuid_cuid_server_getmaster"
     },
     {
       "relation": "imports_from",
@@ -23269,85 +23269,85 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "kit",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "kit"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L48",
       "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_permissions_cuid_server_ts_cuid_server_delete",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "permissioncuid_cuid_server_delete"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L14",
       "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_permissions_cuid_server_ts_cuid_server_get",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "permissioncuid_cuid_server_get"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L8",
       "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_permissions_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "permissioncuid_cuid_server_getstatus"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L29",
       "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_permissions_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "permissioncuid_cuid_server_put"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L60",
       "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server_delete",
-      "target": "src_routes_api_permissions_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server_delete",
+      "target": "permissioncuid_cuid_server_getstatus"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L25",
       "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server_get",
-      "target": "src_routes_api_permissions_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server_get",
+      "target": "permissioncuid_cuid_server_getstatus"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L44",
       "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server_put",
-      "target": "src_routes_api_permissions_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server_put",
+      "target": "permissioncuid_cuid_server_getstatus"
     },
     {
       "relation": "imports_from",
@@ -23416,43 +23416,43 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
-      "source": "permissioncuid_server",
-      "target": "kit",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_permissioncuid_server",
+      "target": "kit"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L12",
       "weight": 1.0,
-      "source": "permissioncuid_server",
-      "target": "permissioncuid_server_delete",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_permissioncuid_server",
+      "target": "permissioncuid_permissioncuid_server_delete"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
-      "source": "permissioncuid_server",
-      "target": "permissioncuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_permissioncuid_server",
+      "target": "permissioncuid_permissioncuid_server_getstatus"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L25",
       "weight": 1.0,
-      "source": "permissioncuid_server_delete",
-      "target": "permissioncuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_permissioncuid_server_delete",
+      "target": "permissioncuid_permissioncuid_server_getstatus"
     },
     {
       "relation": "imports_from",
@@ -23499,42 +23499,42 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "kit",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "kit"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L80",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_salary_components_cuid_server_ts_cuid_server_delete",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "salarycomponentcuid_cuid_server_delete"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L7",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_salary_components_cuid_server_ts_cuid_server_get",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "salarycomponentcuid_cuid_server_get"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L26",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_salary_components_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "salarycomponentcuid_cuid_server_put"
     },
     {
       "relation": "imports_from",
@@ -23603,85 +23603,85 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "kit",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
+      "target": "kit"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L48",
       "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_system_roles_cuid_server_ts_cuid_server_delete",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
+      "target": "systemrolecuid_cuid_server_delete"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L14",
       "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_system_roles_cuid_server_ts_cuid_server_get",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
+      "target": "systemrolecuid_cuid_server_get"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L8",
       "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_system_roles_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
+      "target": "systemrolecuid_cuid_server_getstatus"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L29",
       "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_system_roles_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
+      "target": "systemrolecuid_cuid_server_put"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L60",
       "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server_delete",
-      "target": "src_routes_api_system_roles_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server_delete",
+      "target": "systemrolecuid_cuid_server_getstatus"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L25",
       "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server_get",
-      "target": "src_routes_api_system_roles_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server_get",
+      "target": "systemrolecuid_cuid_server_getstatus"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L44",
       "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server_put",
-      "target": "src_routes_api_system_roles_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server_put",
+      "target": "systemrolecuid_cuid_server_getstatus"
     },
     {
       "relation": "contains",
@@ -27358,5 +27358,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "fa97457d8b0f18617c40c893fd7f998772ee88c1"
+  "built_at_commit": "68168a6cee36b00fc0e0ceb4a8cd357247311f54"
 }

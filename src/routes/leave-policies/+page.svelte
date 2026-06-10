@@ -161,7 +161,7 @@
 		};
 
 		try {
-			const url = editUuid ? `/api/leave/policies/leavePolicyCuid=${editUuid}` : '/api/leave/policies';
+			const url = editUuid ? `/api/leave/policies/${editUuid}` : '/api/leave/policies';
 			const res = await fetch(url, {
 				method: editUuid ? 'PUT' : 'POST',
 				headers: { 'Content-Type': 'application/json' },

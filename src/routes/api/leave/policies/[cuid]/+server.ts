@@ -14,23 +14,23 @@ import {
 } from '$lib/server/response.js';
 
 export const GET: RequestHandler = async ({ params }) => {
-	const { leavePolicyCuid } = params;
+	const { cuid } = params;
 
 	try {
-		const policy = await getLeavePolicyByCuid(leavePolicyCuid);
+		const policy = await getLeavePolicyByCuid(cuid);
 		if (!policy) {
 			return errorResponse('Leave policy not found', 404);
 		}
 
 		return successResponse(formatLeavePolicy(policy));
 	} catch (error) {
-		console.error(`GET /api/leave/policies/leavePolicyCuid=${leavePolicyCuid} failed`, error);
+		console.error(`GET /api/leave/policies/${cuid} failed`, error);
 		return errorResponse('Failed to retrieve leave policy', 500);
 	}
 };
 
 export const PUT: RequestHandler = async ({ params, request, locals }) => {
-	const { leavePolicyCuid } = params;
+	const { cuid } = params;
 	let body: unknown;
 
 	try {
@@ -92,7 +92,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 		status
 	} = trimmedBody;
 
-	console.log(`PUT /api/leave/policies/leavePolicyCuid=${leavePolicyCuid} request payload:`, trimmedBody);
+	console.log(`PUT /api/leave/policies/${cuid} request payload:`, trimmedBody);
 
 	try {
 		let userId: string | null = null;
@@ -103,7 +103,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 			console.warn('Failed to retrieve session from locals.auth():', authError);
 		}
 
-		const data = await updateLeavePolicy(leavePolicyCuid, {
+		const data = await updateLeavePolicy(cuid, {
 			leave_type_cuid,
 			employment_type_cuids,
 			annual_limit,
@@ -119,10 +119,10 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 			status,
 			updated_by: userId
 		});
-		console.log(`PUT /api/leave/policies/leavePolicyCuid=${leavePolicyCuid} success, updated policy:`, data);
+		console.log(`PUT /api/leave/policies/${cuid} success, updated policy:`, data);
 		return updateSuccessResponse('Leave policy', data.cuid);
 	} catch (error) {
-		console.error(`PUT /api/leave/policies/leavePolicyCuid=${leavePolicyCuid} failed. Full error stack:`, error);
+		console.error(`PUT /api/leave/policies/${cuid} failed. Full error stack:`, error);
 
 		const isValidationError =
 			error instanceof LeaveValidationError ||
@@ -140,10 +140,10 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 };
 
 export const DELETE: RequestHandler = async ({ params, locals }) => {
-	const { leavePolicyCuid } = params;
+	const { cuid } = params;
 
 	try {
-		const existing = await getLeavePolicyByCuid(leavePolicyCuid);
+		const existing = await getLeavePolicyByCuid(cuid);
 		if (!existing) {
 			return errorResponse('Leave policy not found', 404);
 		}
@@ -156,7 +156,7 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 			console.warn('Failed to retrieve session from locals.auth():', authError);
 		}
 
-		const updated = await updateLeavePolicy(leavePolicyCuid, {
+		const updated = await updateLeavePolicy(cuid, {
 			status: !existing.status,
 			updated_by: userId
 		});
@@ -164,7 +164,7 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 		const message = updated.status ? 'Leave policy reactivated successfully' : 'Leave policy deactivated successfully';
 		return deleteSuccessResponse('Leave policy', updated.cuid, message);
 	} catch (error) {
-		console.error(`DELETE /api/leave/policies/leavePolicyCuid=${leavePolicyCuid} failed`, error);
+		console.error(`DELETE /api/leave/policies/${cuid} failed`, error);
 		return errorResponse('Failed to delete leave policy', 500);
 	}
 };

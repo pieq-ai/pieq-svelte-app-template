@@ -236,7 +236,7 @@
 
 			const response = await fetch(
 				editingComp
-					? `/api/salary-components/salaryComponentCuid=${editingComp.cuid}`
+					? `/api/salary-components/${editingComp.cuid}`
 					: '/api/salary-components',
 				{
 					method: editingComp ? 'PUT' : 'POST',

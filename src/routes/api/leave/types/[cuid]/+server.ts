@@ -14,22 +14,22 @@ import {
 } from '$lib/server/response.js';
 
 export const GET: RequestHandler = async ({ params }) => {
-	const { leaveTypeCuid } = params;
+	const { cuid } = params;
 
 	try {
-		const type = await getLeaveTypeByCuid(leaveTypeCuid);
+		const type = await getLeaveTypeByCuid(cuid);
 		if (!type) {
 			return errorResponse('Leave type not found', 404);
 		}
 		return successResponse(formatLeaveType(type));
 	} catch (error) {
-		console.error(`GET /api/leave/types/leaveTypeCuid=${leaveTypeCuid} failed`, error);
+		console.error(`GET /api/leave/types/${cuid} failed`, error);
 		return errorResponse('Failed to retrieve leave type', 500);
 	}
 };
 
 export const PUT: RequestHandler = async ({ params, request, locals }) => {
-	const { leaveTypeCuid } = params;
+	const { cuid } = params;
 	let body: unknown;
 
 	try {
@@ -65,7 +65,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 			console.warn('Failed to retrieve session from locals.auth():', authError);
 		}
 
-		const data = await updateLeaveType(leaveTypeCuid, {
+		const data = await updateLeaveType(cuid, {
 			leave_name,
 			leave_code,
 			description,
@@ -80,16 +80,16 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 			return errorResponse(error.message, 400, error.field);
 		}
 
-		console.error(`PUT /api/leave/types/leaveTypeCuid=${leaveTypeCuid} failed`, error);
+		console.error(`PUT /api/leave/types/${cuid} failed`, error);
 		return errorResponse('Failed to update leave type', 500);
 	}
 };
 
 export const DELETE: RequestHandler = async ({ params, locals }) => {
-	const { leaveTypeCuid } = params;
+	const { cuid } = params;
 
 	try {
-		const existing = await getLeaveTypeByCuid(leaveTypeCuid);
+		const existing = await getLeaveTypeByCuid(cuid);
 		if (!existing) {
 			return errorResponse('Leave type not found', 404);
 		}
@@ -102,7 +102,7 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 			console.warn('Failed to retrieve session from locals.auth():', authError);
 		}
 
-		const updated = await updateLeaveType(leaveTypeCuid, {
+		const updated = await updateLeaveType(cuid, {
 			status: !existing.status,
 			updated_by: userId
 		});
@@ -110,7 +110,7 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 		const message = updated.status ? 'Leave type reactivated successfully' : 'Leave type deactivated successfully';
 		return deleteSuccessResponse('Leave type', updated.cuid, message);
 	} catch (error) {
-		console.error(`DELETE /api/leave/types/leaveTypeCuid=${leaveTypeCuid} failed`, error);
+		console.error(`DELETE /api/leave/types/${cuid} failed`, error);
 		return errorResponse('Failed to delete leave type', 500);
 	}
 };

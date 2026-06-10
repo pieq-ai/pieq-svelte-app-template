@@ -15,23 +15,23 @@ import {
 } from '$lib/server/response.js';
 
 export const GET: RequestHandler = async ({ params }) => {
-	const { holidayCuid } = params;
+	const { cuid } = params;
 
 	try {
-		const holiday = await getHolidayByCuid(holidayCuid);
+		const holiday = await getHolidayByCuid(cuid);
 		if (!holiday) {
 			return errorResponse('Holiday not found', 404);
 		}
 		const formattedHoliday = formatHoliday(holiday);
 		return successResponse(formattedHoliday);
 	} catch (error) {
-		console.error(`GET /api/holidays/holidayCuid=${holidayCuid} failed`, error);
+		console.error(`GET /api/holidays/${cuid} failed`, error);
 		return errorResponse('Failed to retrieve holiday', 500);
 	}
 };
 
 export const PUT: RequestHandler = async ({ params, request, locals }) => {
-	const { holidayCuid } = params;
+	const { cuid } = params;
 	let body: unknown;
 
 	try {
@@ -62,7 +62,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 			console.warn('Failed to retrieve session from locals.auth():', authError);
 		}
 
-		const holiday = await updateHoliday(holidayCuid, {
+		const holiday = await updateHoliday(cuid, {
 			holiday_name,
 			holiday_date,
 			holiday_type,
@@ -74,19 +74,19 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 			return errorResponse(error.message, 400, error.field);
 		}
 
-		console.error(`PUT /api/holidays/holidayCuid=${holidayCuid} failed`, error);
+		console.error(`PUT /api/holidays/${cuid} failed`, error);
 		return errorResponse('Failed to update holiday', 500);
 	}
 };
 
 export const DELETE: RequestHandler = async ({ params }) => {
-	const { holidayCuid } = params;
+	const { cuid } = params;
 
 	try {
-		const holiday = await deleteHoliday(holidayCuid);
+		const holiday = await deleteHoliday(cuid);
 		return deleteSuccessResponse('Holiday', holiday.cuid);
 	} catch (error) {
-		console.error(`DELETE /api/holidays/holidayCuid=${holidayCuid} failed`, error);
+		console.error(`DELETE /api/holidays/${cuid} failed`, error);
 		return errorResponse('Failed to delete holiday', 500);
 	}
 };
