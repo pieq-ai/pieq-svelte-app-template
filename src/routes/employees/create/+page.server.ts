@@ -3,7 +3,7 @@ import type { PageServerLoad } from './$types';
 import { getMasterData } from '$lib/server/services/master-data.service.js';
 import { getDepartments } from '$lib/server/services/department.service.js';
 import { getDesignations } from '$lib/server/services/designation.service.js';
-import { getSystemRoles } from '$lib/server/services/system-role.service.js';
+
 // Need CompanyLocation service? Wait, do we have one?
 import { db } from '$lib/server/db.js';
 
@@ -28,7 +28,7 @@ export const load: PageServerLoad = async () => {
 		] = await Promise.all([
 			getDepartments(),
 			getDesignations(),
-			getSystemRoles(),
+			db.role.findMany({ where: { status: true } }),
 			getMasterData('blood-groups'),
 			getMasterData('nationalities'),
 			getMasterData('employment-types'),

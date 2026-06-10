@@ -97,15 +97,6 @@
 		}
 		return value === id;
 	}
-
-	let searchInputRef = $state<HTMLInputElement | null>(null);
-	$effect(() => {
-		if (open && searchInputRef) {
-			setTimeout(() => {
-				searchInputRef?.focus();
-			}, 10);
-		}
-	});
 </script>
 
 <div class="space-y-2 flex flex-col">
@@ -119,7 +110,7 @@
 						class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {displayValue === activePlaceholder ? 'text-muted-foreground' : ''}"
 						{...props}
 					>
-						<span class="truncate block text-left">{displayValue}</span>
+						<span class="truncate block text-left flex-1">{displayValue}</span>
 						{#if open}
 							<ChevronUpIcon class="ml-2 size-4 shrink-0 opacity-50" />
 						{:else}
@@ -128,11 +119,10 @@
 					</Button>
 				{/snippet}
 			</Popover.Trigger>
-			<Popover.Content style="width: {triggerWidth}px" class="p-0" align="start" sideOffset={4}>
+			<Popover.Content style="width: {triggerWidth}px" class="p-0 border border-border rounded-md shadow-md bg-popover text-popover-foreground" align="start" sideOffset={4}>
 				<div class="flex items-center border-b px-3">
 					<SearchIcon class="mr-2 size-4 shrink-0 opacity-50" />
 					<Input
-						bind:ref={searchInputRef}
 						class="flex h-10 w-full border-0 bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50"
 						placeholder="Search..."
 						bind:value={query}
@@ -140,8 +130,8 @@
 				</div>
 				{#if multiple}
 					<div class="flex items-center gap-2 p-2 px-3 border-b border-border">
-						<Button variant="outline" size="sm" class="h-8 text-xs rounded-md px-3 font-medium bg-background text-foreground" onclick={selectAll}>Select All</Button>
-						<Button variant="outline" size="sm" class="h-8 text-xs rounded-md px-3 font-medium bg-background text-foreground" onclick={deselectAll}>Deselect All</Button>
+						<Button variant="outline" size="sm" class="h-8 text-xs rounded-md px-3 font-medium bg-background text-foreground focus-visible:ring-ring/50 focus-visible:ring-3 focus-visible:border-ring" onclick={selectAll}>Select All</Button>
+						<Button variant="outline" size="sm" class="h-8 text-xs rounded-md px-3 font-medium bg-background text-foreground focus-visible:ring-ring/50 focus-visible:ring-3 focus-visible:border-ring" onclick={deselectAll}>Deselect All</Button>
 					</div>
 				{/if}
 				<ScrollArea class="max-h-60 overflow-y-auto">
@@ -179,7 +169,7 @@
 				</ScrollArea>
 				{#if permissions.canCreate && onAdd}
 					<div class="p-2 border-t border-border">
-						<Button type="button" variant="outline" class="w-full justify-center text-sm font-medium text-foreground bg-background hover:bg-accent" onclick={() => { open = false; onAdd!(); }}>
+						<Button type="button" variant="outline" class="w-full justify-center text-sm font-medium text-foreground bg-background hover:bg-accent focus-visible:ring-ring/50 focus-visible:ring-3 focus-visible:border-ring" onclick={() => { open = false; onAdd!(); }}>
 							<PlusIcon class="mr-2 size-4 shrink-0" />
 							Add {label.replace(/[*]/g, '').trim()}
 						</Button>

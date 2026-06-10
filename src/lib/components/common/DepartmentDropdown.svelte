@@ -108,9 +108,8 @@
 		{value}
 		{multiple}
 		{placeholder}
-		permissions={{ canCreate: true, canEdit: false, canDelete: false }}
+		permissions={{ canCreate: false, canEdit: false, canDelete: false }}
 		{onSelect}
-		onAdd={openCreateModal}
 	/>
 	{#if isLoading}
 		<p class="text-xs text-muted-foreground">Loading options...</p>
