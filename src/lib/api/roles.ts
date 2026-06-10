@@ -31,12 +31,12 @@ export async function updateRole(
   cuid: string,
   payload: { name?: string; status?: boolean }
 ): Promise<Role> {
-  const res = await localApi.put<{ data: Role }>(`/api/roles/roleCuid=${cuid}`, payload);
+  const res = await localApi.put<{ data: Role }>(`/api/roles/${cuid}`, payload);
   return res.data;
 }
 
 /** Soft-delete (deactivate) a role. */
 export async function deleteRole(cuid: string): Promise<Role> {
-  const res = await localApi.delete<{ data: Role }>(`/api/roles/roleCuid=${cuid}`);
+  const res = await localApi.delete<{ data: Role }>(`/api/roles/${cuid}`);
   return res.data;
 }

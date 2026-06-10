@@ -214,7 +214,7 @@
     try {
       const response = await fetch(
         editingDept
-          ? `/api/departments/departmentCuid=${editingDept.cuid}`
+          ? `/api/departments/${editingDept.cuid}`
           : "/api/departments",
         {
           method: editingDept ? "PUT" : "POST",
@@ -254,7 +254,7 @@
     isDeleting = true;
     try {
       const response = await fetch(
-        `/api/departments/departmentCuid=${itemToDelete.cuid}`,
+        `/api/departments/${itemToDelete.cuid}`,
         {
           method: "DELETE",
         },

@@ -2658,7 +2658,7 @@
       "source_file": "src/lib/server/dao/designation.dao.ts",
       "source_location": "L1",
       "id": "dao_designation_dao",
-      "community": 36,
+      "community": 10,
       "norm_label": "designation.dao.ts"
     },
     {
@@ -2667,7 +2667,7 @@
       "source_file": "src/lib/server/dao/designation.dao.ts",
       "source_location": "L3",
       "id": "dao_designation_dao_createdesignationinput",
-      "community": 36,
+      "community": 10,
       "norm_label": "createdesignationinput"
     },
     {
@@ -2676,7 +2676,7 @@
       "source_file": "src/lib/server/dao/designation.dao.ts",
       "source_location": "L11",
       "id": "dao_designation_dao_updatedesignationinput",
-      "community": 36,
+      "community": 10,
       "norm_label": "updatedesignationinput"
     },
     {
@@ -2685,7 +2685,7 @@
       "source_file": "src/lib/server/dao/designation.dao.ts",
       "source_location": "L18",
       "id": "dao_designation_dao_list",
-      "community": 36,
+      "community": 10,
       "norm_label": "list()"
     },
     {
@@ -2694,7 +2694,7 @@
       "source_file": "src/lib/server/dao/designation.dao.ts",
       "source_location": "L26",
       "id": "dao_designation_dao_findbyid",
-      "community": 36,
+      "community": 10,
       "norm_label": "findbyid()"
     },
     {
@@ -2703,7 +2703,7 @@
       "source_file": "src/lib/server/dao/designation.dao.ts",
       "source_location": "L34",
       "id": "dao_designation_dao_findbycuid2",
-      "community": 36,
+      "community": 10,
       "norm_label": "findbycuid2()"
     },
     {
@@ -2712,7 +2712,7 @@
       "source_file": "src/lib/server/dao/designation.dao.ts",
       "source_location": "L42",
       "id": "dao_designation_dao_create",
-      "community": 36,
+      "community": 10,
       "norm_label": "create()"
     },
     {
@@ -2721,7 +2721,7 @@
       "source_file": "src/lib/server/dao/designation.dao.ts",
       "source_location": "L55",
       "id": "dao_designation_dao_update",
-      "community": 36,
+      "community": 10,
       "norm_label": "update()"
     },
     {
@@ -3000,7 +3000,7 @@
       "source_file": "src/lib/server/dao/role-permission.dao.ts",
       "source_location": "L1",
       "id": "dao_role_permission_dao",
-      "community": 35,
+      "community": 40,
       "norm_label": "role-permission.dao.ts"
     },
     {
@@ -3009,7 +3009,7 @@
       "source_file": "src/lib/server/dao/role-permission.dao.ts",
       "source_location": "L3",
       "id": "dao_role_permission_dao_createrolepermissioninput",
-      "community": 35,
+      "community": 40,
       "norm_label": "createrolepermissioninput"
     },
     {
@@ -3018,7 +3018,7 @@
       "source_file": "src/lib/server/dao/role-permission.dao.ts",
       "source_location": "L11",
       "id": "dao_role_permission_dao_list",
-      "community": 35,
+      "community": 40,
       "norm_label": "list()"
     },
     {
@@ -3027,7 +3027,7 @@
       "source_file": "src/lib/server/dao/role-permission.dao.ts",
       "source_location": "L19",
       "id": "dao_role_permission_dao_findbyid",
-      "community": 35,
+      "community": 40,
       "norm_label": "findbyid()"
     },
     {
@@ -3036,7 +3036,7 @@
       "source_file": "src/lib/server/dao/role-permission.dao.ts",
       "source_location": "L27",
       "id": "dao_role_permission_dao_findbyroleandpermission",
-      "community": 35,
+      "community": 40,
       "norm_label": "findbyroleandpermission()"
     },
     {
@@ -3045,7 +3045,7 @@
       "source_file": "src/lib/server/dao/role-permission.dao.ts",
       "source_location": "L37",
       "id": "dao_role_permission_dao_create",
-      "community": 35,
+      "community": 40,
       "norm_label": "create()"
     },
     {
@@ -3054,7 +3054,7 @@
       "source_file": "src/lib/server/dao/role-permission.dao.ts",
       "source_location": "L43",
       "id": "dao_role_permission_dao_remove",
-      "community": 35,
+      "community": 40,
       "norm_label": "remove()"
     },
     {
@@ -3063,7 +3063,7 @@
       "source_file": "src/lib/server/dao/role-permission.dao.ts",
       "source_location": "L51",
       "id": "dao_role_permission_dao_removebyroleandpermission",
-      "community": 35,
+      "community": 40,
       "norm_label": "removebyroleandpermission()"
     },
     {
@@ -3603,7 +3603,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L1",
       "id": "services_department_service",
-      "community": 0,
+      "community": 52,
       "norm_label": "department.service.ts"
     },
     {
@@ -3612,7 +3612,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L5",
       "id": "services_department_service_createdepartmentdto",
-      "community": 0,
+      "community": 52,
       "norm_label": "createdepartmentdto"
     },
     {
@@ -3621,7 +3621,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L13",
       "id": "services_department_service_updatedepartmentdto",
-      "community": 0,
+      "community": 52,
       "norm_label": "updatedepartmentdto"
     },
     {
@@ -3630,7 +3630,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L20",
       "id": "services_department_service_topublicdepartment",
-      "community": 0,
+      "community": 52,
       "norm_label": "topublicdepartment()"
     },
     {
@@ -3639,7 +3639,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L36",
       "id": "services_department_service_getdepartments",
-      "community": 0,
+      "community": 52,
       "norm_label": "getdepartments()"
     },
     {
@@ -3648,7 +3648,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L43",
       "id": "services_department_service_getdepartmentbycuid2",
-      "community": 0,
+      "community": 52,
       "norm_label": "getdepartmentbycuid2()"
     },
     {
@@ -3657,7 +3657,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L58",
       "id": "services_department_service_createdepartment",
-      "community": 0,
+      "community": 52,
       "norm_label": "createdepartment()"
     },
     {
@@ -3666,7 +3666,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L80",
       "id": "services_department_service_updatedepartment",
-      "community": 0,
+      "community": 52,
       "norm_label": "updatedepartment()"
     },
     {
@@ -3675,7 +3675,7 @@
       "source_file": "src/lib/server/services/department.service.ts",
       "source_location": "L126",
       "id": "services_department_service_deletedepartment",
-      "community": 0,
+      "community": 52,
       "norm_label": "deletedepartment()"
     },
     {
@@ -4674,7 +4674,7 @@
       "source_file": "src/lib/server/utils/mapping.ts",
       "source_location": "L52",
       "id": "utils_mapping_toemployeedto",
-      "community": 34,
+      "community": 0,
       "norm_label": "toemployeedto()"
     },
     {
@@ -4719,7 +4719,7 @@
       "source_file": "src/lib/server/validators/department.validator.ts",
       "source_location": "L1",
       "id": "validators_department_validator",
-      "community": 0,
+      "community": 52,
       "norm_label": "department.validator.ts"
     },
     {
@@ -4728,7 +4728,7 @@
       "source_file": "src/lib/server/validators/department.validator.ts",
       "source_location": "L10",
       "id": "validators_department_validator_validatedepartmentname",
-      "community": 0,
+      "community": 52,
       "norm_label": "validatedepartmentname()"
     },
     {
@@ -5688,36 +5688,36 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_departments_cuid_server_ts_cuid_server",
+      "id": "departmentcuid_cuid_server",
       "community": 0,
       "norm_label": "+server.ts"
     },
     {
       "label": "GET()",
       "file_type": "code",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
       "source_location": "L8",
-      "id": "src_routes_api_departments_cuid_server_ts_cuid_server_get",
+      "id": "departmentcuid_cuid_server_get",
       "community": 0,
       "norm_label": "get()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
       "source_location": "L23",
-      "id": "src_routes_api_departments_cuid_server_ts_cuid_server_put",
+      "id": "departmentcuid_cuid_server_put",
       "community": 0,
       "norm_label": "put()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
       "source_location": "L46",
-      "id": "src_routes_api_departments_cuid_server_ts_cuid_server_delete",
+      "id": "departmentcuid_cuid_server_delete",
       "community": 0,
       "norm_label": "delete()"
     },
@@ -5751,36 +5751,36 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_designations_cuid_server_ts_cuid_server",
+      "id": "designationcuid_cuid_server",
       "community": 0,
       "norm_label": "+server.ts"
     },
     {
       "label": "GET()",
       "file_type": "code",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
       "source_location": "L8",
-      "id": "src_routes_api_designations_cuid_server_ts_cuid_server_get",
+      "id": "designationcuid_cuid_server_get",
       "community": 0,
       "norm_label": "get()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
       "source_location": "L26",
-      "id": "src_routes_api_designations_cuid_server_ts_cuid_server_put",
+      "id": "designationcuid_cuid_server_put",
       "community": 0,
       "norm_label": "put()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
       "source_location": "L49",
-      "id": "src_routes_api_designations_cuid_server_ts_cuid_server_delete",
+      "id": "designationcuid_cuid_server_delete",
       "community": 0,
       "norm_label": "delete()"
     },
@@ -5859,36 +5859,36 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
+      "id": "mastercuid_cuid_server",
       "community": 0,
       "norm_label": "+server.ts"
     },
     {
       "label": "getStatus()",
       "file_type": "code",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
       "source_location": "L8",
-      "id": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_getstatus",
+      "id": "mastercuid_cuid_server_getstatus",
       "community": 0,
       "norm_label": "getstatus()"
     },
     {
       "label": "getMaster()",
       "file_type": "code",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
       "source_location": "L15",
-      "id": "cuid_server_getmaster",
+      "id": "mastercuid_cuid_server_getmaster",
       "community": 0,
       "norm_label": "getmaster()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
       "source_location": "L19",
-      "id": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_put",
+      "id": "mastercuid_cuid_server_put",
       "community": 0,
       "norm_label": "put()"
     },
@@ -5922,45 +5922,45 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_organization_location_cuid_server_ts_cuid_server",
+      "id": "locationcuid_locationcuid_server",
       "community": 46,
       "norm_label": "+server.ts"
     },
     {
       "label": "parseCuid()",
       "file_type": "code",
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
       "source_location": "L9",
-      "id": "src_routes_api_organization_location_cuid_server_ts_cuid_server_parsecuid",
+      "id": "locationcuid_locationcuid_server_parsecuid",
       "community": 46,
       "norm_label": "parsecuid()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
       "source_location": "L27",
-      "id": "src_routes_api_organization_location_cuid_server_ts_cuid_server_put",
+      "id": "locationcuid_locationcuid_server_put",
       "community": 46,
       "norm_label": "put()"
     },
     {
       "label": "PATCH()",
       "file_type": "code",
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
       "source_location": "L54",
-      "id": "src_routes_api_organization_location_cuid_server_ts_cuid_server_patch",
+      "id": "locationcuid_locationcuid_server_patch",
       "community": 46,
       "norm_label": "patch()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
       "source_location": "L69",
-      "id": "src_routes_api_organization_location_cuid_server_ts_cuid_server_delete",
+      "id": "locationcuid_locationcuid_server_delete",
       "community": 46,
       "norm_label": "delete()"
     },
@@ -6003,45 +6003,45 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_permissions_cuid_server_ts_cuid_server",
+      "id": "permissioncuid_cuid_server",
       "community": 0,
       "norm_label": "+server.ts"
     },
     {
       "label": "getStatus()",
       "file_type": "code",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L8",
-      "id": "src_routes_api_permissions_cuid_server_ts_cuid_server_getstatus",
+      "id": "permissioncuid_cuid_server_getstatus",
       "community": 0,
       "norm_label": "getstatus()"
     },
     {
       "label": "GET()",
       "file_type": "code",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L14",
-      "id": "src_routes_api_permissions_cuid_server_ts_cuid_server_get",
+      "id": "permissioncuid_cuid_server_get",
       "community": 0,
       "norm_label": "get()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L29",
-      "id": "src_routes_api_permissions_cuid_server_ts_cuid_server_put",
+      "id": "permissioncuid_cuid_server_put",
       "community": 0,
       "norm_label": "put()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L48",
-      "id": "src_routes_api_permissions_cuid_server_ts_cuid_server_delete",
+      "id": "permissioncuid_cuid_server_delete",
       "community": 0,
       "norm_label": "delete()"
     },
@@ -6084,28 +6084,28 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L1",
-      "id": "permissioncuid_server",
-      "community": 40,
+      "id": "permissioncuid_permissioncuid_server",
+      "community": 36,
       "norm_label": "+server.ts"
     },
     {
       "label": "getStatus()",
       "file_type": "code",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L6",
-      "id": "permissioncuid_server_getstatus",
-      "community": 40,
+      "id": "permissioncuid_permissioncuid_server_getstatus",
+      "community": 36,
       "norm_label": "getstatus()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L12",
-      "id": "permissioncuid_server_delete",
-      "community": 40,
+      "id": "permissioncuid_permissioncuid_server_delete",
+      "community": 36,
       "norm_label": "delete()"
     },
     {
@@ -6138,36 +6138,36 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/roles/roleCuid=[roleCuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_roles_cuid_server_ts_cuid_server",
+      "id": "rolecuid_rolecuid_server",
       "community": 46,
       "norm_label": "+server.ts"
     },
     {
       "label": "parseCuid()",
       "file_type": "code",
-      "source_file": "src/routes/api/roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/roles/roleCuid=[roleCuid]/+server.ts",
       "source_location": "L9",
-      "id": "src_routes_api_roles_cuid_server_ts_cuid_server_parsecuid",
+      "id": "rolecuid_rolecuid_server_parsecuid",
       "community": 46,
       "norm_label": "parsecuid()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/roles/roleCuid=[roleCuid]/+server.ts",
       "source_location": "L27",
-      "id": "src_routes_api_roles_cuid_server_ts_cuid_server_put",
+      "id": "rolecuid_rolecuid_server_put",
       "community": 46,
       "norm_label": "put()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/roles/roleCuid=[roleCuid]/+server.ts",
       "source_location": "L46",
-      "id": "src_routes_api_roles_cuid_server_ts_cuid_server_delete",
+      "id": "rolecuid_rolecuid_server_delete",
       "community": 46,
       "norm_label": "delete()"
     },
@@ -6201,36 +6201,36 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
+      "id": "salarycomponentcuid_cuid_server",
       "community": 9,
       "norm_label": "+server.ts"
     },
     {
       "label": "GET()",
       "file_type": "code",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L6",
-      "id": "src_routes_api_salary_components_cuid_server_ts_cuid_server_get",
+      "id": "salarycomponentcuid_cuid_server_get",
       "community": 9,
       "norm_label": "get()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L34",
-      "id": "src_routes_api_salary_components_cuid_server_ts_cuid_server_put",
+      "id": "salarycomponentcuid_cuid_server_put",
       "community": 9,
       "norm_label": "put()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L85",
-      "id": "src_routes_api_salary_components_cuid_server_ts_cuid_server_delete",
+      "id": "salarycomponentcuid_cuid_server_delete",
       "community": 9,
       "norm_label": "delete()"
     },
@@ -6264,45 +6264,45 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_shifts_cuid_server_ts_cuid_server",
+      "id": "shiftcuid_shiftcuid_server",
       "community": 46,
       "norm_label": "+server.ts"
     },
     {
       "label": "parseCuid()",
       "file_type": "code",
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L9",
-      "id": "src_routes_api_shifts_cuid_server_ts_cuid_server_parsecuid",
+      "id": "shiftcuid_shiftcuid_server_parsecuid",
       "community": 46,
       "norm_label": "parsecuid()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L27",
-      "id": "src_routes_api_shifts_cuid_server_ts_cuid_server_put",
+      "id": "shiftcuid_shiftcuid_server_put",
       "community": 46,
       "norm_label": "put()"
     },
     {
       "label": "PATCH()",
       "file_type": "code",
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L54",
-      "id": "src_routes_api_shifts_cuid_server_ts_cuid_server_patch",
+      "id": "shiftcuid_shiftcuid_server_patch",
       "community": 46,
       "norm_label": "patch()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L69",
-      "id": "src_routes_api_shifts_cuid_server_ts_cuid_server_delete",
+      "id": "shiftcuid_shiftcuid_server_delete",
       "community": 46,
       "norm_label": "delete()"
     },
@@ -6363,45 +6363,45 @@
     {
       "label": "+server.ts",
       "file_type": "code",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L1",
-      "id": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
+      "id": "systemrolecuid_cuid_server",
       "community": 0,
       "norm_label": "+server.ts"
     },
     {
       "label": "getStatus()",
       "file_type": "code",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L8",
-      "id": "src_routes_api_system_roles_cuid_server_ts_cuid_server_getstatus",
+      "id": "systemrolecuid_cuid_server_getstatus",
       "community": 0,
       "norm_label": "getstatus()"
     },
     {
       "label": "GET()",
       "file_type": "code",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L14",
-      "id": "src_routes_api_system_roles_cuid_server_ts_cuid_server_get",
+      "id": "systemrolecuid_cuid_server_get",
       "community": 0,
       "norm_label": "get()"
     },
     {
       "label": "PUT()",
       "file_type": "code",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L29",
-      "id": "src_routes_api_system_roles_cuid_server_ts_cuid_server_put",
+      "id": "systemrolecuid_cuid_server_put",
       "community": 0,
       "norm_label": "put()"
     },
     {
       "label": "DELETE()",
       "file_type": "code",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L48",
-      "id": "src_routes_api_system_roles_cuid_server_ts_cuid_server_delete",
+      "id": "systemrolecuid_cuid_server_delete",
       "community": 0,
       "norm_label": "delete()"
     },
@@ -6978,7 +6978,7 @@
       "source_file": "tests/unit/department.service.test.ts",
       "source_location": "L1",
       "id": "unit_department_service_test",
-      "community": 0,
+      "community": 52,
       "norm_label": "department.service.test.ts"
     },
     {
@@ -6987,7 +6987,7 @@
       "source_file": "tests/unit/department.validator.test.ts",
       "source_location": "L1",
       "id": "unit_department_validator_test",
-      "community": 0,
+      "community": 52,
       "norm_label": "department.validator.test.ts"
     },
     {
@@ -7005,7 +7005,7 @@
       "source_file": "tests/unit/designation.service.test.ts",
       "source_location": "L1",
       "id": "unit_designation_service_test",
-      "community": 36,
+      "community": 10,
       "norm_label": "designation.service.test.ts"
     },
     {
@@ -16288,11 +16288,33 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "guards_permission_guard"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/departments/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "departments_server",
+      "target": "guards_permission_guard"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
       "target": "guards_permission_guard"
     },
     {
@@ -16384,12 +16406,34 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
-      "source": "permissioncuid_server",
-      "target": "guards_permission_guard",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "guards_permission_guard"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "guards_permission_guard"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "permissioncuid_permissioncuid_server",
+      "target": "guards_permission_guard"
     },
     {
       "relation": "imports_from",
@@ -16417,66 +16461,22 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "guards_permission_guard",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "guards_permission_guard",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "guards_permission_guard",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "guards_permission_guard",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "guards_permission_guard",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "system_roles_server",
+      "target": "guards_permission_guard"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
       "target": "guards_permission_guard"
     },
     {
@@ -16527,11 +16527,33 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "locationcuid_locationcuid_server",
+      "target": "server_response"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/organization_location/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "organization_location_server",
+      "target": "server_response"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/roles/roleCuid=[roleCuid]/+server.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "rolecuid_rolecuid_server",
       "target": "server_response"
     },
     {
@@ -16649,45 +16671,23 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/shifts/+server.ts",
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "shifts_server",
+      "source": "shiftcuid_shiftcuid_server",
       "target": "server_response"
     },
     {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "source_file": "src/routes/api/shifts/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "source": "src_routes_api_organization_location_cuid_server_ts_cuid_server",
-      "target": "server_response",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/roles/[cuid]/+server.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "src_routes_api_roles_cuid_server_ts_cuid_server",
-      "target": "server_response",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "src_routes_api_shifts_cuid_server_ts_cuid_server",
-      "target": "server_response",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "shifts_server",
+      "target": "server_response"
     },
     {
       "relation": "imports_from",
@@ -16880,154 +16880,154 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "source": "src_routes_api_organization_location_cuid_server_ts_cuid_server",
-      "target": "server_response_sendupdated",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
-      "source_location": "L58",
-      "weight": 1.0,
-      "source": "src_routes_api_organization_location_cuid_server_ts_cuid_server_patch",
+      "confidence_score": 1.0,
+      "source": "locationcuid_locationcuid_server",
       "target": "server_response_sendupdated"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
+      "source_location": "L58",
+      "weight": 1.0,
+      "source": "locationcuid_locationcuid_server_patch",
+      "target": "server_response_sendupdated"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
       "source_location": "L43",
       "weight": 1.0,
-      "source": "src_routes_api_organization_location_cuid_server_ts_cuid_server_put",
+      "source": "locationcuid_locationcuid_server_put",
       "target": "server_response_sendupdated"
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/roles/roleCuid=[roleCuid]/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "source": "src_routes_api_roles_cuid_server_ts_cuid_server",
-      "target": "server_response_sendupdated",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "rolecuid_rolecuid_server",
+      "target": "server_response_sendupdated"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/roles/[cuid]/+server.ts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/roles/roleCuid=[roleCuid]/+server.ts",
       "source_location": "L35",
       "weight": 1.0,
-      "source": "src_routes_api_roles_cuid_server_ts_cuid_server_put",
+      "source": "rolecuid_rolecuid_server_put",
       "target": "server_response_sendupdated"
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "source": "src_routes_api_shifts_cuid_server_ts_cuid_server",
-      "target": "server_response_sendupdated",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "shiftcuid_shiftcuid_server",
+      "target": "server_response_sendupdated"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L58",
       "weight": 1.0,
-      "source": "src_routes_api_shifts_cuid_server_ts_cuid_server_patch",
+      "source": "shiftcuid_shiftcuid_server_patch",
       "target": "server_response_sendupdated"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L43",
       "weight": 1.0,
-      "source": "src_routes_api_shifts_cuid_server_ts_cuid_server_put",
+      "source": "shiftcuid_shiftcuid_server_put",
       "target": "server_response_sendupdated"
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "source": "src_routes_api_organization_location_cuid_server_ts_cuid_server",
-      "target": "server_response_senddeleted",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "locationcuid_locationcuid_server",
+      "target": "server_response_senddeleted"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
       "source_location": "L73",
       "weight": 1.0,
-      "source": "src_routes_api_organization_location_cuid_server_ts_cuid_server_delete",
+      "source": "locationcuid_locationcuid_server_delete",
       "target": "server_response_senddeleted"
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/roles/roleCuid=[roleCuid]/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "source": "src_routes_api_roles_cuid_server_ts_cuid_server",
-      "target": "server_response_senddeleted",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "rolecuid_rolecuid_server",
+      "target": "server_response_senddeleted"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/roles/[cuid]/+server.ts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/roles/roleCuid=[roleCuid]/+server.ts",
       "source_location": "L50",
       "weight": 1.0,
-      "source": "src_routes_api_roles_cuid_server_ts_cuid_server_delete",
+      "source": "rolecuid_rolecuid_server_delete",
       "target": "server_response_senddeleted"
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "source": "src_routes_api_shifts_cuid_server_ts_cuid_server",
-      "target": "server_response_senddeleted",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "shiftcuid_shiftcuid_server",
+      "target": "server_response_senddeleted"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L73",
       "weight": 1.0,
-      "source": "src_routes_api_shifts_cuid_server_ts_cuid_server_delete",
+      "source": "shiftcuid_shiftcuid_server_delete",
       "target": "server_response_senddeleted"
     },
     {
@@ -17097,6 +17097,17 @@
       "target": "serializers_salary_component_serializer"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "serializers_salary_component_serializer"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/server/serializers/salary-component.serializer.ts",
@@ -17125,17 +17136,6 @@
       "confidence_score": 1.0,
       "source": "serializers_salary_component_serializer",
       "target": "serializers_salary_component_serializer_serializesalarycomponentlist"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "serializers_salary_component_serializer",
-      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -17185,23 +17185,34 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "serializers_salary_component_serializer_serializesalarycomponent",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "serializers_salary_component_serializer_serializesalarycomponent"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L20",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server_get",
+      "source": "salarycomponentcuid_cuid_server_get",
       "target": "serializers_salary_component_serializer_serializesalarycomponent"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "services_department_service"
     },
     {
       "relation": "imports_from",
@@ -17342,17 +17353,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "services_department_service",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "tests/unit/department.service.test.ts",
       "source_location": "L3",
       "weight": 1.0,
@@ -17425,6 +17425,17 @@
       "weight": 1.0,
       "source": "services_department_service_updatedepartment",
       "target": "validators_department_validator_validatedepartmentname"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
+      "target": "services_designation_service"
     },
     {
       "relation": "imports_from",
@@ -17568,17 +17579,6 @@
       "confidence_score": 1.0,
       "source": "services_designation_service",
       "target": "utils_errors_validationerror"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "services_designation_service",
-      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -17981,6 +17981,17 @@
       "target": "services_master_data_service"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "services_master_data_service"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/server/services/master-data.service.ts",
@@ -18121,17 +18132,6 @@
       "confidence_score": 1.0,
       "source": "services_master_data_service",
       "target": "utils_errors_validationerror"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "services_master_data_service",
-      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -18280,6 +18280,17 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "locationcuid_locationcuid_server",
+      "target": "services_organization_location_service"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/organization_location/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
@@ -18406,23 +18417,23 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "src_routes_api_organization_location_cuid_server_ts_cuid_server",
-      "target": "services_organization_location_service",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "tests/unit/services.test.ts",
       "source_location": "L4",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "unit_services_test",
       "target": "services_organization_location_service"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "services_permission_service"
     },
     {
       "relation": "imports_from",
@@ -18581,17 +18592,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "services_permission_service",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "tests/unit/permission.service.test.ts",
       "source_location": "L3",
       "weight": 1.0,
@@ -18724,12 +18724,12 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
-      "source": "permissioncuid_server",
-      "target": "services_role_permission_service",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_permissioncuid_server",
+      "target": "services_role_permission_service"
     },
     {
       "relation": "imports_from",
@@ -18844,6 +18844,17 @@
       "confidence_score": 1.0,
       "source": "services_role_permission_service_removepermissionfromrolebycuid2",
       "target": "services_role_permission_service_validatecuid2"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/roles/roleCuid=[roleCuid]/+server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "rolecuid_rolecuid_server",
+      "target": "services_role_service"
     },
     {
       "relation": "imports_from",
@@ -18998,17 +19009,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/roles/[cuid]/+server.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "src_routes_api_roles_cuid_server_ts_cuid_server",
-      "target": "services_role_service",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "tests/unit/services.test.ts",
       "source_location": "L2",
       "weight": 1.0,
@@ -19025,6 +19025,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "salary_components_server",
+      "target": "services_salary_component_service"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
       "target": "services_salary_component_service"
     },
     {
@@ -19149,17 +19160,6 @@
       "confidence_score": 1.0,
       "source": "services_salary_component_service",
       "target": "types_salary_component_updatesalarycomponentdto"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "services_salary_component_service",
-      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -19374,23 +19374,23 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/shifts/+server.ts",
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "shifts_server",
+      "source": "shiftcuid_shiftcuid_server",
       "target": "services_shift_service"
     },
     {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "source_file": "src/routes/api/shifts/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
-      "source": "src_routes_api_shifts_cuid_server_ts_cuid_server",
-      "target": "services_shift_service",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "shifts_server",
+      "target": "services_shift_service"
     },
     {
       "relation": "imports_from",
@@ -19615,22 +19615,22 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "services_system_role_service",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "system_roles_server",
+      "target": "services_system_role_service"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
       "target": "services_system_role_service"
     },
     {
@@ -19769,11 +19769,33 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "utils_errors"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/departments/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "departments_server",
+      "target": "utils_errors"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
       "target": "utils_errors"
     },
     {
@@ -19802,6 +19824,28 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "utils_errors"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "utils_errors"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
@@ -19813,66 +19857,22 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "utils_errors",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "system_roles_server",
+      "target": "utils_errors"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
       "target": "utils_errors"
     },
     {
@@ -19889,11 +19889,33 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "utils_errors_validationerror"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/departments/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "departments_server",
+      "target": "utils_errors_validationerror"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
       "target": "utils_errors_validationerror"
     },
     {
@@ -19922,6 +19944,28 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "utils_errors_validationerror"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "utils_errors_validationerror"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
@@ -19933,66 +19977,22 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "utils_errors_validationerror",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L2",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "system_roles_server",
+      "target": "utils_errors_validationerror"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
       "target": "utils_errors_validationerror"
     },
     {
@@ -20009,11 +20009,33 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "utils_mapping"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/departments/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "departments_server",
+      "target": "utils_mapping"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
       "target": "utils_mapping"
     },
     {
@@ -20053,6 +20075,28 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "utils_mapping"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "utils_mapping"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
@@ -20075,66 +20119,22 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "utils_mapping",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "utils_mapping",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "utils_mapping",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "utils_mapping",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "utils_mapping",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "system_roles_server",
+      "target": "utils_mapping"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
       "target": "utils_mapping"
     },
     {
@@ -20231,6 +20231,28 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "departmentcuid_cuid_server_put",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/departments/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
@@ -20247,6 +20269,28 @@
       "source_location": "L34",
       "weight": 1.0,
       "source": "departments_server_post",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "designationcuid_cuid_server_put",
       "target": "utils_mapping_maptodb"
     },
     {
@@ -20297,6 +20341,50 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "mastercuid_cuid_server_put",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "permissioncuid_cuid_server_put",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
@@ -20341,116 +20429,6 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_maptodb",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L32",
-      "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server_put",
-      "target": "utils_mapping_maptodb"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_maptodb",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L35",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server_put",
-      "target": "utils_mapping_maptodb"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_maptodb",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L26",
-      "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_put",
-      "target": "utils_mapping_maptodb"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_maptodb",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L35",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server_put",
-      "target": "utils_mapping_maptodb"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_maptodb",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L35",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server_put",
-      "target": "utils_mapping_maptodb"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
@@ -20473,6 +20451,50 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "systemrolecuid_cuid_server_put",
+      "target": "utils_mapping_maptodb"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "utils_mapping_todepartmentdto"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "departmentcuid_cuid_server_get",
+      "target": "utils_mapping_todepartmentdto"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/departments/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
@@ -20484,23 +20506,23 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_todepartmentdto",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
+      "target": "utils_mapping_todesignationdto"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L15",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L14",
       "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server_get",
-      "target": "utils_mapping_todepartmentdto"
+      "source": "designationcuid_cuid_server_get",
+      "target": "utils_mapping_todesignationdto"
     },
     {
       "relation": "imports",
@@ -20517,34 +20539,34 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_todesignationdto",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L15",
-      "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server_get",
-      "target": "utils_mapping_todesignationdto"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/employees/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "employees_server",
       "target": "utils_mapping_toemployeedto"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "utils_mapping_topermissiondto"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "permissioncuid_cuid_server_get",
+      "target": "utils_mapping_topermissiondto"
     },
     {
       "relation": "imports",
@@ -20572,28 +20594,6 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_topermissiondto",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L19",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server_get",
-      "target": "utils_mapping_topermissiondto"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/role-permissions/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
@@ -20605,33 +20605,33 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L6",
+      "source_file": "src/routes/api/system-roles/+server.ts",
+      "source_location": "L5",
       "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "utils_mapping_tosystemroledto",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L19",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server_get",
+      "confidence_score": 1.0,
+      "source": "system_roles_server",
       "target": "utils_mapping_tosystemroledto"
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L5",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "system_roles_server",
+      "source": "systemrolecuid_cuid_server",
+      "target": "utils_mapping_tosystemroledto"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "systemrolecuid_cuid_server_get",
       "target": "utils_mapping_tosystemroledto"
     },
     {
@@ -20958,12 +20958,12 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "validators_salary_component_validator",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "validators_salary_component_validator"
     },
     {
       "relation": "imports_from",
@@ -21161,22 +21161,22 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "validators_salary_component_validator_validateupdatesalarycomponent",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "validators_salary_component_validator_validateupdatesalarycomponent"
     },
     {
       "relation": "calls",
       "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L49",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server_put",
+      "source": "salarycomponentcuid_cuid_server_put",
       "target": "validators_salary_component_validator_validateupdatesalarycomponent"
     },
     {
@@ -22121,32 +22121,32 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L46",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L42",
       "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_departments_cuid_server_ts_cuid_server_delete",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "departmentcuid_cuid_server_delete"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L8",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L7",
       "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_departments_cuid_server_ts_cuid_server_get",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "departmentcuid_cuid_server_get"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/departments/[cuid]/+server.ts",
-      "source_location": "L23",
+      "source_file": "src/routes/api/departments/departmentCuid=[cuid]/+server.ts",
+      "source_location": "L22",
       "weight": 1.0,
-      "source": "src_routes_api_departments_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_departments_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "departmentcuid_cuid_server",
+      "target": "departmentcuid_cuid_server_put"
     },
     {
       "relation": "contains",
@@ -22171,32 +22171,32 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L49",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L42",
       "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_designations_cuid_server_ts_cuid_server_delete",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
+      "target": "designationcuid_cuid_server_delete"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L8",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L7",
       "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_designations_cuid_server_ts_cuid_server_get",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
+      "target": "designationcuid_cuid_server_get"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/designations/[cuid]/+server.ts",
-      "source_location": "L26",
+      "source_file": "src/routes/api/designations/designationCuid=[cuid]/+server.ts",
+      "source_location": "L22",
       "weight": 1.0,
-      "source": "src_routes_api_designations_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_designations_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "designationcuid_cuid_server",
+      "target": "designationcuid_cuid_server_put"
     },
     {
       "relation": "contains",
@@ -22337,54 +22337,54 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L15",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L14",
       "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "cuid_server_getmaster",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "mastercuid_cuid_server_getmaster"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L8",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L7",
       "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "mastercuid_cuid_server_getstatus"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L19",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L18",
       "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server",
+      "target": "mastercuid_cuid_server_put"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L38",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L34",
       "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_put",
-      "target": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server_put",
+      "target": "mastercuid_cuid_server_getstatus"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
-      "source_location": "L29",
+      "source_file": "src/routes/api/master-data/[master]/masterCuid=[cuid]/+server.ts",
+      "source_location": "L28",
       "weight": 1.0,
-      "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_put",
-      "target": "cuid_server_getmaster",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "mastercuid_cuid_server_put",
+      "target": "mastercuid_cuid_server_getmaster"
     },
     {
       "relation": "contains",
@@ -22420,75 +22420,86 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
       "source_location": "L69",
       "weight": 1.0,
-      "source": "src_routes_api_organization_location_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_organization_location_cuid_server_ts_cuid_server_delete",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "locationcuid_locationcuid_server",
+      "target": "locationcuid_locationcuid_server_delete"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
       "source_location": "L9",
       "weight": 1.0,
-      "source": "src_routes_api_organization_location_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_organization_location_cuid_server_ts_cuid_server_parsecuid",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "locationcuid_locationcuid_server",
+      "target": "locationcuid_locationcuid_server_parsecuid"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
       "source_location": "L54",
       "weight": 1.0,
-      "source": "src_routes_api_organization_location_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_organization_location_cuid_server_ts_cuid_server_patch",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "locationcuid_locationcuid_server",
+      "target": "locationcuid_locationcuid_server_patch"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
       "source_location": "L27",
       "weight": 1.0,
-      "source": "src_routes_api_organization_location_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_organization_location_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "locationcuid_locationcuid_server",
+      "target": "locationcuid_locationcuid_server_put"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/endpoints.test.ts",
+      "source_location": "L14",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "unit_endpoints_test",
+      "target": "locationcuid_locationcuid_server"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
       "source_location": "L71",
       "weight": 1.0,
-      "source": "src_routes_api_organization_location_cuid_server_ts_cuid_server_delete",
-      "target": "src_routes_api_organization_location_cuid_server_ts_cuid_server_parsecuid",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "locationcuid_locationcuid_server_delete",
+      "target": "locationcuid_locationcuid_server_parsecuid"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
       "source_location": "L56",
       "weight": 1.0,
-      "source": "src_routes_api_organization_location_cuid_server_ts_cuid_server_patch",
-      "target": "src_routes_api_organization_location_cuid_server_ts_cuid_server_parsecuid",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "locationcuid_locationcuid_server_patch",
+      "target": "locationcuid_locationcuid_server_parsecuid"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/organization_location/[cuid]/+server.ts",
+      "source_file": "src/routes/api/organization_location/locationCuid=[locationCuid]/+server.ts",
       "source_location": "L29",
       "weight": 1.0,
-      "source": "src_routes_api_organization_location_cuid_server_ts_cuid_server_put",
-      "target": "src_routes_api_organization_location_cuid_server_ts_cuid_server_parsecuid",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "locationcuid_locationcuid_server_put",
+      "target": "locationcuid_locationcuid_server_parsecuid"
     },
     {
       "relation": "contains",
@@ -22545,75 +22556,75 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L48",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L41",
       "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_permissions_cuid_server_ts_cuid_server_delete",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "permissioncuid_cuid_server_delete"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L14",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L13",
       "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_permissions_cuid_server_ts_cuid_server_get",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "permissioncuid_cuid_server_get"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L8",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L7",
       "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_permissions_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "permissioncuid_cuid_server_getstatus"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L29",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_permissions_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L60",
-      "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server_delete",
-      "target": "src_routes_api_permissions_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
       "source_location": "L25",
       "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server_get",
-      "target": "src_routes_api_permissions_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server",
+      "target": "permissioncuid_cuid_server_put"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
-      "source_location": "L44",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L50",
       "weight": 1.0,
-      "source": "src_routes_api_permissions_cuid_server_ts_cuid_server_put",
-      "target": "src_routes_api_permissions_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server_delete",
+      "target": "permissioncuid_cuid_server_getstatus"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L21",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server_get",
+      "target": "permissioncuid_cuid_server_getstatus"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/permissions/permissionCuid=[cuid]/+server.ts",
+      "source_location": "L37",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "permissioncuid_cuid_server_put",
+      "target": "permissioncuid_cuid_server_getstatus"
     },
     {
       "relation": "contains",
@@ -22670,33 +22681,33 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L12",
       "weight": 1.0,
-      "source": "permissioncuid_server",
-      "target": "permissioncuid_server_delete",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_permissioncuid_server",
+      "target": "permissioncuid_permissioncuid_server_delete"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
-      "source": "permissioncuid_server",
-      "target": "permissioncuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_permissioncuid_server",
+      "target": "permissioncuid_permissioncuid_server_getstatus"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/role-permissions/[roleCuid]/[permissionCuid]/+server.ts",
+      "source_file": "src/routes/api/role-permissions/roleCuid=[roleCuid]/permissionCuid=[permissionCuid]/+server.ts",
       "source_location": "L25",
       "weight": 1.0,
-      "source": "permissioncuid_server_delete",
-      "target": "permissioncuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "permissioncuid_permissioncuid_server_delete",
+      "target": "permissioncuid_permissioncuid_server_getstatus"
     },
     {
       "relation": "contains",
@@ -22732,54 +22743,65 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/roles/roleCuid=[roleCuid]/+server.ts",
       "source_location": "L46",
       "weight": 1.0,
-      "source": "src_routes_api_roles_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_roles_cuid_server_ts_cuid_server_delete",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "rolecuid_rolecuid_server",
+      "target": "rolecuid_rolecuid_server_delete"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/roles/roleCuid=[roleCuid]/+server.ts",
       "source_location": "L9",
       "weight": 1.0,
-      "source": "src_routes_api_roles_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_roles_cuid_server_ts_cuid_server_parsecuid",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "rolecuid_rolecuid_server",
+      "target": "rolecuid_rolecuid_server_parsecuid"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/roles/roleCuid=[roleCuid]/+server.ts",
       "source_location": "L27",
       "weight": 1.0,
-      "source": "src_routes_api_roles_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_roles_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "rolecuid_rolecuid_server",
+      "target": "rolecuid_rolecuid_server_put"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/endpoints.test.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "unit_endpoints_test",
+      "target": "rolecuid_rolecuid_server"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/roles/roleCuid=[roleCuid]/+server.ts",
       "source_location": "L48",
       "weight": 1.0,
-      "source": "src_routes_api_roles_cuid_server_ts_cuid_server_delete",
-      "target": "src_routes_api_roles_cuid_server_ts_cuid_server_parsecuid",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "rolecuid_rolecuid_server_delete",
+      "target": "rolecuid_rolecuid_server_parsecuid"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/roles/roleCuid=[roleCuid]/+server.ts",
       "source_location": "L29",
       "weight": 1.0,
-      "source": "src_routes_api_roles_cuid_server_ts_cuid_server_put",
-      "target": "src_routes_api_roles_cuid_server_ts_cuid_server_parsecuid",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "rolecuid_rolecuid_server_put",
+      "target": "rolecuid_rolecuid_server_parsecuid"
     },
     {
       "relation": "contains",
@@ -22804,32 +22826,32 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L85",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_salary_components_cuid_server_ts_cuid_server_delete",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "salarycomponentcuid_cuid_server_delete"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L6",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_salary_components_cuid_server_ts_cuid_server_get",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "salarycomponentcuid_cuid_server_get"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/salary-components/[cuid]/+server.ts",
+      "source_file": "src/routes/api/salary-components/salaryComponentCuid=[cuid]/+server.ts",
       "source_location": "L34",
       "weight": 1.0,
-      "source": "src_routes_api_salary_components_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_salary_components_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "salarycomponentcuid_cuid_server",
+      "target": "salarycomponentcuid_cuid_server_put"
     },
     {
       "relation": "contains",
@@ -22865,75 +22887,86 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L69",
       "weight": 1.0,
-      "source": "src_routes_api_shifts_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_shifts_cuid_server_ts_cuid_server_delete",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "shiftcuid_shiftcuid_server",
+      "target": "shiftcuid_shiftcuid_server_delete"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L9",
       "weight": 1.0,
-      "source": "src_routes_api_shifts_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_shifts_cuid_server_ts_cuid_server_parsecuid",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "shiftcuid_shiftcuid_server",
+      "target": "shiftcuid_shiftcuid_server_parsecuid"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L54",
       "weight": 1.0,
-      "source": "src_routes_api_shifts_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_shifts_cuid_server_ts_cuid_server_patch",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "shiftcuid_shiftcuid_server",
+      "target": "shiftcuid_shiftcuid_server_patch"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L27",
       "weight": 1.0,
-      "source": "src_routes_api_shifts_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_shifts_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "shiftcuid_shiftcuid_server",
+      "target": "shiftcuid_shiftcuid_server_put"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/endpoints.test.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "unit_endpoints_test",
+      "target": "shiftcuid_shiftcuid_server"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L71",
       "weight": 1.0,
-      "source": "src_routes_api_shifts_cuid_server_ts_cuid_server_delete",
-      "target": "src_routes_api_shifts_cuid_server_ts_cuid_server_parsecuid",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "shiftcuid_shiftcuid_server_delete",
+      "target": "shiftcuid_shiftcuid_server_parsecuid"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L56",
       "weight": 1.0,
-      "source": "src_routes_api_shifts_cuid_server_ts_cuid_server_patch",
-      "target": "src_routes_api_shifts_cuid_server_ts_cuid_server_parsecuid",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "shiftcuid_shiftcuid_server_patch",
+      "target": "shiftcuid_shiftcuid_server_parsecuid"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/shifts/[cuid]/+server.ts",
+      "source_file": "src/routes/api/shifts/shiftCuid=[shiftCuid]/+server.ts",
       "source_location": "L29",
       "weight": 1.0,
-      "source": "src_routes_api_shifts_cuid_server_ts_cuid_server_put",
-      "target": "src_routes_api_shifts_cuid_server_ts_cuid_server_parsecuid",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "shiftcuid_shiftcuid_server_put",
+      "target": "shiftcuid_shiftcuid_server_parsecuid"
     },
     {
       "relation": "contains",
@@ -23000,75 +23033,75 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L48",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L41",
       "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_system_roles_cuid_server_ts_cuid_server_delete",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
+      "target": "systemrolecuid_cuid_server_delete"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L14",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L13",
       "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_system_roles_cuid_server_ts_cuid_server_get",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
+      "target": "systemrolecuid_cuid_server_get"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L8",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L7",
       "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_system_roles_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
+      "target": "systemrolecuid_cuid_server_getstatus"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L29",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "target": "src_routes_api_system_roles_cuid_server_ts_cuid_server_put",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L60",
-      "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server_delete",
-      "target": "src_routes_api_system_roles_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
       "source_location": "L25",
       "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server_get",
-      "target": "src_routes_api_system_roles_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server",
+      "target": "systemrolecuid_cuid_server_put"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
-      "source_location": "L44",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L50",
       "weight": 1.0,
-      "source": "src_routes_api_system_roles_cuid_server_ts_cuid_server_put",
-      "target": "src_routes_api_system_roles_cuid_server_ts_cuid_server_getstatus",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server_delete",
+      "target": "systemrolecuid_cuid_server_getstatus"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L21",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server_get",
+      "target": "systemrolecuid_cuid_server_getstatus"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/system-roles/systemRoleCuid=[cuid]/+server.ts",
+      "source_location": "L37",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "systemrolecuid_cuid_server_put",
+      "target": "systemrolecuid_cuid_server_getstatus"
     },
     {
       "relation": "contains",
@@ -26183,5 +26216,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "aadc00c43e6bc0a1abb991e408ad478a94384e0d"
+  "built_at_commit": "9e9b6d291548234c6271b0ab153ffe7f3473d52c"
 }

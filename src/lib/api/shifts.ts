@@ -46,18 +46,18 @@ export async function updateShift(
   cuid: string,
   payload: ShiftUpdatePayload
 ): Promise<Shift> {
-  const res = await localApi.put<{ data: Shift }>(`/api/shifts/shiftCuid=${cuid}`, payload);
+  const res = await localApi.put<{ data: Shift }>(`/api/shifts/${cuid}`, payload);
   return res.data;
 }
 
 /** Soft-delete (deactivate) a shift. */
 export async function deleteShift(cuid: string): Promise<Shift> {
-  const res = await localApi.delete<{ data: Shift }>(`/api/shifts/shiftCuid=${cuid}`);
+  const res = await localApi.delete<{ data: Shift }>(`/api/shifts/${cuid}`);
   return res.data;
 }
 
 /** Activate a previously deactivated shift. */
 export async function activateShift(cuid: string): Promise<Shift> {
-  const res = await localApi.patch<{ data: Shift }>(`/api/shifts/shiftCuid=${cuid}`);
+  const res = await localApi.patch<{ data: Shift }>(`/api/shifts/${cuid}`);
   return res.data;
 }

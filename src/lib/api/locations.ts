@@ -75,7 +75,7 @@ export async function updateLocation(
   payload: LocationUpdatePayload
 ): Promise<CompanyLocation> {
   const res = await localApi.put<{ data: CompanyLocation }>(
-    `/api/organization_location/locationCuid=${cuid}`,
+    `/api/organization_location/${cuid}`,
     payload
   );
   return res.data;
@@ -84,7 +84,7 @@ export async function updateLocation(
 /** Soft-delete (deactivate) a location. */
 export async function deleteLocation(cuid: string): Promise<CompanyLocation> {
   const res = await localApi.delete<{ data: CompanyLocation }>(
-    `/api/organization_location/locationCuid=${cuid}`
+    `/api/organization_location/${cuid}`
   );
   return res.data;
 }
@@ -92,7 +92,7 @@ export async function deleteLocation(cuid: string): Promise<CompanyLocation> {
 /** Activate a previously deactivated location. */
 export async function activateLocation(cuid: string): Promise<CompanyLocation> {
   const res = await localApi.patch<{ data: CompanyLocation }>(
-    `/api/organization_location/locationCuid=${cuid}`
+    `/api/organization_location/${cuid}`
   );
   return res.data;
 }

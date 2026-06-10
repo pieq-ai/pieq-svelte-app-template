@@ -215,7 +215,7 @@
     try {
       const response = await fetch(
         editingDesignation
-          ? `/api/designations/designationCuid=${editingDesignation.cuid}`
+          ? `/api/designations/${editingDesignation.cuid}`
           : "/api/designations",
         {
           method: editingDesignation ? "PUT" : "POST",
@@ -259,7 +259,7 @@
 
     try {
       const response = await fetch(
-        `/api/designations/designationCuid=${itemToDelete.cuid}`,
+        `/api/designations/${itemToDelete.cuid}`,
         {
           method: "DELETE",
         },

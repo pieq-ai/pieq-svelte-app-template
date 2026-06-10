@@ -179,7 +179,7 @@
 		try {
 			const response = await fetch(
 				editingPermission
-					? `/api/permissions/permissionCuid=${editingPermission.cuid}`
+					? `/api/permissions/${editingPermission.cuid}`
 					: '/api/permissions',
 				{
 					method: editingPermission ? 'PUT' : 'POST',
@@ -210,7 +210,7 @@
 		if (!itemToDelete) return;
 		isDeleting = true;
 		try {
-			const response = await fetch(`/api/permissions/permissionCuid=${itemToDelete.cuid}`, { method: 'DELETE' });
+			const response = await fetch(`/api/permissions/${itemToDelete.cuid}`, { method: 'DELETE' });
 			const body = await response.json();
 			if (response.ok) {
 				await loadPermissions();
