@@ -6,7 +6,7 @@ import { db } from '../../src/lib/server/db.js';
 
 describe('Role, Shift, and Location CRUD Integration Tests', () => {
   beforeAll(async () => {
-    await db.role.deleteMany({ where: { name: { in: ['Test Integration Role', 'Test Integration Role Updated'] } } });
+    await db.role.deleteMany({ where: { role_name: { in: ['Test Integration Role', 'Test Integration Role Updated'] } } });
     await db.shift.deleteMany({ where: { shift_name: { in: ['Test Integration Shift', 'Test Integration Shift Updated'] } } });
     await db.companyLocation.deleteMany({ where: { location_name: { in: ['Test Integration Location', 'Test Integration Location Updated'] } } });
   });
@@ -14,22 +14,22 @@ describe('Role, Shift, and Location CRUD Integration Tests', () => {
   it('should successfully perform CRUD on Role', async () => {
     // 1. Create Role
     const roleName = 'Test Integration Role';
-    const newRole = await roleDao.createRole({ name: roleName });
+    const newRole = await roleDao.createRole({ role_name: roleName });
     expect(newRole).toBeDefined();
-    expect(newRole.name).toBe(roleName);
+    expect(newRole.role_name).toBe(roleName);
     expect(newRole.status).toBe(true);
     expect(newRole.cuid).toBeDefined();
 
     // 2. Read Role
     const fetchedRole = await roleDao.getRoleByCuid(newRole.cuid);
     expect(fetchedRole).not.toBeNull();
-    expect(fetchedRole!.name).toBe(roleName);
+    expect(fetchedRole!.role_name).toBe(roleName);
     expect(fetchedRole!.status).toBe(true);
 
     // 3. Update Role
     const updatedName = 'Test Integration Role Updated';
-    const updatedRole = await roleDao.updateRole(newRole.cuid, { name: updatedName });
-    expect(updatedRole.name).toBe(updatedName);
+    const updatedRole = await roleDao.updateRole(newRole.cuid, { role_name: updatedName });
+    expect(updatedRole.role_name).toBe(updatedName);
 
     // 4. Soft Delete (Deactivate)
     const deactivatedRole = await roleDao.deactivateRole(newRole.cuid);

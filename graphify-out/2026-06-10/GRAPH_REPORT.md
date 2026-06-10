@@ -1,16 +1,16 @@
-# Graph Report - pieq-svelte-app-template  (2026-06-09)
+# Graph Report - pieq-svelte-app-template  (2026-06-10)
 
 ## Corpus Check
 - 218 files · ~69,676 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1034 nodes · 1698 edges · 54 communities (41 shown, 13 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.8)
+- 1034 nodes · 1695 edges · 53 communities (40 shown, 13 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 20 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `9e9b6d29`
+- Built from commit: `aadc00c4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -59,7 +59,6 @@
 - [[_COMMUNITY_Community 49|Community 49]]
 - [[_COMMUNITY_Community 50|Community 50]]
 - [[_COMMUNITY_Community 51|Community 51]]
-- [[_COMMUNITY_Community 52|Community 52]]
 - [[_COMMUNITY_Community 53|Community 53]]
 
 ## God Nodes (most connected - your core abstractions)
@@ -75,25 +74,25 @@
 10. `Changes` - 11 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `PUT()` --calls--> `mapToDb()`  [INFERRED]
+  src/routes/api/departments/[cuid]/+server.ts → src/lib/server/utils/mapping.ts
+- `PUT()` --calls--> `mapToDb()`  [INFERRED]
+  src/routes/api/designations/[cuid]/+server.ts → src/lib/server/utils/mapping.ts
+- `PUT()` --calls--> `validateUpdateSalaryComponent()`  [INFERRED]
+  src/routes/api/salary-components/[cuid]/+server.ts → src/lib/server/validators/salary-component.validator.ts
 - `Locals` --references--> `User`  [EXTRACTED]
   src/app.d.ts → src/lib/types/user.ts
 - `Window` --references--> `AppConfig`  [EXTRACTED]
   src/app.d.ts → src/lib/types/config.ts
-- `LocationListResponse` --references--> `CompanyLocation`  [EXTRACTED]
-  src/lib/api/locations.ts → src/lib/types/organization_location.ts
-- `RoleListResponse` --references--> `Role`  [EXTRACTED]
-  src/lib/api/roles.ts → src/lib/types/role.ts
-- `ShiftListResponse` --references--> `Shift`  [EXTRACTED]
-  src/lib/api/shifts.ts → src/lib/types/shift.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (54 total, 13 thin omitted)
+## Communities (53 total, 13 thin omitted)
 
 ### Community 0 - "API Endpoints"
-Cohesion: 0.08
-Nodes (42): GET(), PUT(), POST(), GET(), PUT(), POST(), requireAdmin(), requireAuth() (+34 more)
+Cohesion: 0.06
+Nodes (49): getMaster(), POST(), POST(), requireAdmin(), requireAuth(), requirePermission(), GET(), getMaster() (+41 more)
 
 ### Community 1 - "Data Access Tests"
 Cohesion: 0.19
@@ -129,11 +128,11 @@ Nodes (25): @lucide/svelte/icons/building-2, $lib/assets/favicon.svg, $lib/auth,
 
 ### Community 9 - "Department Service DAO"
 Cohesion: 0.06
-Nodes (23): POST(), GET(), PUT(), SalaryComponentDto, serializeSalaryComponent(), BusinessValidationError, ComponentNotFoundError, DuplicateComponentError (+15 more)
+Nodes (23): POST(), SalaryComponentDto, serializeSalaryComponent(), BusinessValidationError, ComponentNotFoundError, DuplicateComponentError, GET(), PUT() (+15 more)
 
 ### Community 10 - "Designation Service DAO"
-Cohesion: 0.15
-Nodes (12): CreateDesignationInput, UpdateDesignationInput, createDesignation(), CreateDesignationDto, deleteDesignation(), ensureDesignationNameIsUnique(), getDesignationByCuid2(), getDesignationById() (+4 more)
+Cohesion: 0.33
+Nodes (10): createDesignation(), CreateDesignationDto, deleteDesignation(), ensureDesignationNameIsUnique(), getDesignationByCuid2(), getDesignationById(), toPublicDesignation(), updateDesignation() (+2 more)
 
 ### Community 11 - "Server Authentication"
 Cohesion: 0.15
@@ -176,12 +175,12 @@ Cohesion: 0.10
 Nodes (20): Changes, Harden `pieq-svelte-app-template` based on initial review, High-priority fixes (in this PR), Motivation, Out of scope (tracked as follow-ups), `README.md`, Reviewer notes, Risk & rollback (+12 more)
 
 ### Community 34 - "Community 34"
-Cohesion: 0.15
-Nodes (16): ./$types, ./$types, CreateEmployeeData, actions, load(), GET(), getErrorStatus(), POST() (+8 more)
+Cohesion: 0.14
+Nodes (17): ./$types, ./$types, CreateEmployeeData, actions, load(), GET(), getErrorStatus(), POST() (+9 more)
 
 ### Community 35 - "Community 35"
-Cohesion: 0.28
-Nodes (4): assignPermissionsToRole(), AssignRolePermissionsDto, removePermissionFromRoleByCuid2(), validateCuid2()
+Cohesion: 0.14
+Nodes (5): CreateRolePermissionInput, assignPermissionsToRole(), AssignRolePermissionsDto, removePermissionFromRoleByCuid2(), validateCuid2()
 
 ### Community 43 - "Community 43"
 Cohesion: 0.40
@@ -197,7 +196,7 @@ Nodes (44): 1. Clone and install dependencies, 1. Project Overview, 2. Configure
 
 ### Community 46 - "Community 46"
 Cohesion: 0.11
-Nodes (28): GET(), DELETE(), parseCuid(), PATCH(), PUT(), GET(), POST(), DELETE() (+20 more)
+Nodes (28): GET(), GET(), POST(), GET(), POST(), mapCountry(), mapLocation(), mapRole() (+20 more)
 
 ### Community 47 - "Community 47"
 Cohesion: 0.09
@@ -219,10 +218,6 @@ Nodes (20): Changes, Harden `pieq-svelte-app-template` based on initial review, 
 Cohesion: 0.12
 Nodes (16): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+8 more)
 
-### Community 52 - "Community 52"
-Cohesion: 0.27
-Nodes (8): createDepartment(), CreateDepartmentDto, deleteDepartment(), getDepartmentByCuid2(), toPublicDepartment(), updateDepartment(), UpdateDepartmentDto, validateDepartmentName()
-
 ## Knowledge Gaps
 - **317 isolated node(s):** `$schema`, `css`, `baseColor`, `components`, `utils` (+312 more)
   These have ≤1 connection - possible missing edges or undocumented components.
@@ -231,7 +226,7 @@ Nodes (8): createDepartment(), CreateDepartmentDto, deleteDepartment(), getDepar
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `db` connect `Data Access Tests` to `Community 34`, `Master Data DAO`, `Community 37`, `Community 39`, `Community 40`, `Department Service DAO`, `Designation Service DAO`, `Community 38`, `Community 44`, `Community 46`, `Community 47`, `Community 48`?**
+- **Why does `db` connect `Data Access Tests` to `Community 34`, `Community 35`, `Community 36`, `Master Data DAO`, `Community 37`, `Community 39`, `Community 38`, `Department Service DAO`, `Community 44`, `Community 46`, `Community 47`, `Community 48`?**
   _High betweenness centrality (0.108) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `Dependencies & Icons` to `Package Dependencies`?**
   _High betweenness centrality (0.099) - this node is a cross-community bridge._
@@ -240,7 +235,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `$schema`, `css`, `baseColor` to the rest of the system?**
   _317 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `API Endpoints` be split into smaller, more focused modules?**
-  _Cohesion score 0.07629288274449565 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.062342342342342344 - nodes in this community are weakly interconnected._
 - **Should `UI Components Index` be split into smaller, more focused modules?**
   _Cohesion score 0.06935057302380253 - nodes in this community are weakly interconnected._
 - **Should `UI Components Core` be split into smaller, more focused modules?**

@@ -43,7 +43,7 @@
 
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
-	let sortColumn = $state('name');
+	let sortColumn = $state('role_name');
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -59,8 +59,8 @@
 	let backendError = $state('');
 	let roleNameInput = $state<HTMLInputElement | null>(null);
 
-	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
-	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ name: roleName.trim(), status: roleStatus }));
+	const dirtyChecker = createDirtyChecker<{ role_name: string; status: boolean }>();
+	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ role_name: roleName.trim(), status: roleStatus }));
 
 	// Deletion State
 	let itemToDelete = $state<Role | null>(null);
@@ -91,7 +91,7 @@
 
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase().trim();
-			result = result.filter((role) => role.name.toLowerCase().includes(query));
+			result = result.filter((role) => role.role_name.toLowerCase().includes(query));
 		}
 
 		if (statusFilter !== 'all') {
@@ -163,17 +163,17 @@
 		roleStatus = true;
 		isNameTouched = false;
 		backendError = '';
-		dirtyChecker.snapshot({ name: '', status: true });
+		dirtyChecker.snapshot({ role_name: '', status: true });
 		isModalOpen = true;
 	}
 
 	function openEditModal(role: Role) {
 		editingRole = role;
-		roleName = role.name;
+		roleName = role.role_name;
 		roleStatus = role.status;
 		isNameTouched = false;
 		backendError = '';
-		dirtyChecker.snapshot({ name: role.name, status: role.status });
+		dirtyChecker.snapshot({ role_name: role.role_name, status: role.status });
 		isModalOpen = true;
 	}
 
@@ -192,7 +192,7 @@
 
 		try {
 			if (editingRole) {
-				await updateRole(editingRole.cuid, { name: roleName.trim(), status: roleStatus });
+				await updateRole(editingRole.cuid, { role_name: roleName.trim(), status: roleStatus });
 			} else {
 				await createRole(roleName.trim());
 			}
@@ -277,11 +277,11 @@
 				<TableHeader class="bg-muted">
 					<TableRow>
 						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('role_name')}>
 								Role Name
-							{#if sortColumn === 'name' && sortDirection === 'asc'}
+							{#if sortColumn === 'role_name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortColumn === 'name' && sortDirection === 'desc'}
+							{:else if sortColumn === 'role_name' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
@@ -328,7 +328,7 @@
 							>
 								<TableCell>
 									<div class="flex flex-col">
-										<span class="font-semibold">{role.name}</span>
+										<span class="font-semibold">{role.role_name}</span>
 									</div>
 								</TableCell>
 								<TableCell class="text-center">
@@ -390,7 +390,7 @@
 <ConfirmModal
 	open={!!itemToDelete}
 	title="Deactivate Role"
-	description={`Are you sure you want to deactivate ${itemToDelete?.name}?`}
+	description={`Are you sure you want to deactivate ${itemToDelete?.role_name}?`}
 	confirmLabel="Deactivate"
 	isSubmitting={isDeleting}
 	onCancel={() => (itemToDelete = null)}

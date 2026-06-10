@@ -6,32 +6,32 @@ import * as locationValidator from '../../src/lib/server/validators/organization
 describe('Validation Unit Tests', () => {
   describe('Role Validator', () => {
     it('should validate a correct create payload', () => {
-      const valid = roleValidator.validateCreatePayload({ name: 'HR Manager' });
-      expect(valid.name).toBe('HR Manager');
+      const valid = roleValidator.validateCreatePayload({ role_name: 'HR Manager' });
+      expect(valid.role_name).toBe('HR Manager');
     });
 
     it('should reject a create payload with missing name', () => {
-      expect(() => roleValidator.validateCreatePayload({})).toThrow('Name is required');
-      expect(() => roleValidator.validateCreatePayload({ name: '   ' })).toThrow('Name is required');
+      expect(() => roleValidator.validateCreatePayload({})).toThrow('Role name is required');
+      expect(() => roleValidator.validateCreatePayload({ role_name: '   ' })).toThrow('Role name is required');
     });
 
     it('should reject names with numbers or special characters', () => {
-      expect(() => roleValidator.validateCreatePayload({ name: 'HR Manager 2' })).toThrow('Name must contain only letters and spaces');
-      expect(() => roleValidator.validateCreatePayload({ name: 'HR_Manager' })).toThrow('Name must contain only letters and spaces');
+      expect(() => roleValidator.validateCreatePayload({ role_name: 'HR Manager 2' })).toThrow('Role name must contain only letters and spaces');
+      expect(() => roleValidator.validateCreatePayload({ role_name: 'HR_Manager' })).toThrow('Role name must contain only letters and spaces');
     });
 
     it('should reject names exceeding 255 characters', () => {
       const longName = 'A'.repeat(256);
-      expect(() => roleValidator.validateCreatePayload({ name: longName })).toThrow('Name exceeds maximum length of 255 characters');
+      expect(() => roleValidator.validateCreatePayload({ role_name: longName })).toThrow('Role name exceeds maximum length of 255 characters');
     });
 
     it('should reject unknown keys in create payload', () => {
-      expect(() => roleValidator.validateCreatePayload({ name: 'HR Manager', extra: 123 })).toThrow('Unknown field(s) in request payload');
+      expect(() => roleValidator.validateCreatePayload({ role_name: 'HR Manager', extra: 123 })).toThrow('Unknown field(s) in request payload');
     });
 
     it('should validate a correct update payload', () => {
-      const valid = roleValidator.validateUpdatePayload({ name: 'Recruiter', status: false });
-      expect(valid.name).toBe('Recruiter');
+      const valid = roleValidator.validateUpdatePayload({ role_name: 'Recruiter', status: false });
+      expect(valid.role_name).toBe('Recruiter');
       expect(valid.status).toBe(false);
     });
 

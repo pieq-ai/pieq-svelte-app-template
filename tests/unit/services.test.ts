@@ -6,7 +6,7 @@ import { db } from '../../src/lib/server/db.js';
 
 describe('Service Layer Unit Tests', () => {
   beforeAll(async () => {
-    await db.role.deleteMany({ where: { name: { in: ['Service HR', 'Service HR Updated'] } } });
+    await db.role.deleteMany({ where: { role_name: { in: ['Service HR', 'Service HR Updated'] } } });
     await db.shift.deleteMany({ where: { shift_name: { in: ['Service Shift', 'Sibling Shift'] } } });
     await db.companyLocation.deleteMany({ where: { location_name: { in: ['Service Location'] } } });
   });
@@ -14,13 +14,13 @@ describe('Service Layer Unit Tests', () => {
   describe('Role Service', () => {
     it('should cleanly create, duplicate check, update, list, and soft delete Roles', async () => {
       // 1. Create a Role
-      const role = await roleService.createRole({ name: 'Service HR' });
+      const role = await roleService.createRole({ role_name: 'Service HR' });
       expect(role).toBeDefined();
-      expect(role.name).toBe('Service HR');
+      expect(role.role_name).toBe('Service HR');
       expect(role.status).toBe(true);
 
       // 2. Expect duplicate name creation to throw 409
-      await expect(roleService.createRole({ name: 'Service HR' })).rejects.toThrow('Role name already exists');
+      await expect(roleService.createRole({ role_name: 'Service HR' })).rejects.toThrow('Role name already exists');
 
       // 3. List Roles
       const activeList = await roleService.listRoles({ page: 1, limit: 10 });
@@ -30,11 +30,11 @@ describe('Service Layer Unit Tests', () => {
       expect(allList.data.some((r) => r.cuid === role.cuid)).toBe(true);
 
       // 4. Update Role
-      const updated = await roleService.updateRole(role.cuid, { name: 'Service HR Updated' });
-      expect(updated.name).toBe('Service HR Updated');
+      const updated = await roleService.updateRole(role.cuid, { role_name: 'Service HR Updated' });
+      expect(updated.role_name).toBe('Service HR Updated');
 
       // 5. Update non-existent Role CUID should throw 404
-      await expect(roleService.updateRole('nonexistentcuid12345', { name: 'New Name' })).rejects.toThrow('Role not found');
+      await expect(roleService.updateRole('nonexistentcuid12345', { role_name: 'New Name' })).rejects.toThrow('Role not found');
 
       // 6. Delete Role (soft delete)
       const deleted = await roleService.deleteRole(role.cuid);

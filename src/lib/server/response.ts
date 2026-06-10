@@ -40,7 +40,7 @@ export function sendDeleted(entityName: string, cuid: string) {
 export function mapRole(role: any) {
   return {
     cuid: role.cuid,
-    name: role.name,
+    role_name: role.role_name,
     status: role.status,
     created_by: role.created_by ?? null,
     updated_by: role.updated_by ?? null

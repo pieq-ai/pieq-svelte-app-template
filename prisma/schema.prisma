@@ -44,7 +44,7 @@ model Role {
 
   cuid String @unique @default(cuid())
 
-  name String @unique @db.VarChar(255)
+  role_name String @unique @db.VarChar(255)
 
   status Boolean @default(true)
 
