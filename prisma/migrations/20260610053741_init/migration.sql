@@ -1,59 +1,36 @@
-/*
-  Warnings:
+-- CreateTable
+CREATE TABLE "salary_components" (
+    "id" BIGSERIAL NOT NULL,
+    "cuid" TEXT NOT NULL,
+    "component_name" VARCHAR(150) NOT NULL,
+    "component_type" VARCHAR(20) NOT NULL,
+    "is_taxable" BOOLEAN NOT NULL DEFAULT false,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" TEXT,
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" TEXT,
 
-  - You are about to drop the `attendance_source` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `blood_group` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `country` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `department` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `designation` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `document_type` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `employment_type` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `nationality` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `pay_grade` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `relation_type` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `role_permission` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `state` table. If the table is not empty, all the data it contains will be lost.
+    CONSTRAINT "salary_components_pkey" PRIMARY KEY ("id")
+);
 
-*/
--- DropTable
-DROP TABLE "attendance_source";
+-- CreateTable
+CREATE TABLE "system_roles" (
+    "id" BIGSERIAL NOT NULL,
+    "cuid" TEXT NOT NULL,
+    "system_role_name" VARCHAR(100) NOT NULL,
+    "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
 
--- DropTable
-DROP TABLE "blood_group";
-
--- DropTable
-DROP TABLE "country";
-
--- DropTable
-DROP TABLE "department";
-
--- DropTable
-DROP TABLE "designation";
-
--- DropTable
-DROP TABLE "document_type";
-
--- DropTable
-DROP TABLE "employment_type";
-
--- DropTable
-DROP TABLE "nationality";
-
--- DropTable
-DROP TABLE "pay_grade";
-
--- DropTable
-DROP TABLE "relation_type";
-
--- DropTable
-DROP TABLE "role_permission";
-
--- DropTable
-DROP TABLE "state";
+    CONSTRAINT "system_roles_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "departments" (
-    "id" SERIAL NOT NULL,
+    "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
     "dept_name" VARCHAR(150) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
@@ -66,8 +43,22 @@ CREATE TABLE "departments" (
 );
 
 -- CreateTable
+CREATE TABLE "permissions" (
+    "id" BIGSERIAL NOT NULL,
+    "cuid" TEXT NOT NULL,
+    "permission_key" VARCHAR(100) NOT NULL,
+    "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
+
+    CONSTRAINT "permissions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "role_permissions" (
-    "id" SERIAL NOT NULL,
+    "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
     "system_role_cuid" TEXT NOT NULL,
     "permission_cuid" TEXT NOT NULL,
@@ -81,7 +72,7 @@ CREATE TABLE "role_permissions" (
 
 -- CreateTable
 CREATE TABLE "blood_groups" (
-    "id" SERIAL NOT NULL,
+    "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
     "blood_group_name" VARCHAR(5) NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -94,7 +85,7 @@ CREATE TABLE "blood_groups" (
 
 -- CreateTable
 CREATE TABLE "designations" (
-    "id" SERIAL NOT NULL,
+    "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
     "designation_name" VARCHAR(150) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
@@ -108,7 +99,7 @@ CREATE TABLE "designations" (
 
 -- CreateTable
 CREATE TABLE "pay_grades" (
-    "id" SERIAL NOT NULL,
+    "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
     "paygrade_name" VARCHAR(100) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
@@ -122,7 +113,7 @@ CREATE TABLE "pay_grades" (
 
 -- CreateTable
 CREATE TABLE "nationalities" (
-    "id" SERIAL NOT NULL,
+    "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
     "nationality_name" VARCHAR(100) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
@@ -136,7 +127,7 @@ CREATE TABLE "nationalities" (
 
 -- CreateTable
 CREATE TABLE "employment_types" (
-    "id" SERIAL NOT NULL,
+    "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
     "employment_name" VARCHAR(50) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
@@ -150,7 +141,7 @@ CREATE TABLE "employment_types" (
 
 -- CreateTable
 CREATE TABLE "relation_types" (
-    "id" SERIAL NOT NULL,
+    "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
     "relation_name" VARCHAR(50) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
@@ -164,7 +155,7 @@ CREATE TABLE "relation_types" (
 
 -- CreateTable
 CREATE TABLE "document_types" (
-    "id" SERIAL NOT NULL,
+    "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
     "document_type_name" VARCHAR(100) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
@@ -178,7 +169,7 @@ CREATE TABLE "document_types" (
 
 -- CreateTable
 CREATE TABLE "states" (
-    "id" SERIAL NOT NULL,
+    "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
     "country_cuid" TEXT NOT NULL,
     "state_name" VARCHAR(100) NOT NULL,
@@ -192,7 +183,7 @@ CREATE TABLE "states" (
 
 -- CreateTable
 CREATE TABLE "countries" (
-    "id" SERIAL NOT NULL,
+    "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
     "country_name" VARCHAR(100) NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -204,8 +195,22 @@ CREATE TABLE "countries" (
 );
 
 -- CreateTable
+CREATE TABLE "skills" (
+    "id" BIGSERIAL NOT NULL,
+    "cuid" TEXT NOT NULL,
+    "skills_name" VARCHAR(100) NOT NULL,
+    "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
+
+    CONSTRAINT "skills_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "attendance_sources" (
-    "id" SERIAL NOT NULL,
+    "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
     "attendance_source_name" VARCHAR(100) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
@@ -217,6 +222,35 @@ CREATE TABLE "attendance_sources" (
     CONSTRAINT "attendance_sources_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "languages" (
+    "id" BIGSERIAL NOT NULL,
+    "cuid" TEXT NOT NULL,
+    "languages_name" VARCHAR(100) NOT NULL,
+    "status" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by" VARCHAR(100),
+    "updated_at" TIMESTAMPTZ NOT NULL,
+    "updated_by" VARCHAR(100),
+
+    CONSTRAINT "languages_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "salary_components_cuid_key" ON "salary_components"("cuid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "salary_components_component_name_key" ON "salary_components"("component_name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "system_roles_cuid_key" ON "system_roles"("cuid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "system_roles_system_role_name_key" ON "system_roles"("system_role_name");
+
+-- CreateIndex
+CREATE INDEX "system_roles_cuid_idx" ON "system_roles"("cuid");
+
 -- CreateIndex
 CREATE UNIQUE INDEX "departments_cuid_key" ON "departments"("cuid");
 
@@ -225,6 +259,15 @@ CREATE UNIQUE INDEX "departments_dept_name_key" ON "departments"("dept_name");
 
 -- CreateIndex
 CREATE INDEX "departments_cuid_idx" ON "departments"("cuid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "permissions_cuid_key" ON "permissions"("cuid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "permissions_permission_key_key" ON "permissions"("permission_key");
+
+-- CreateIndex
+CREATE INDEX "permissions_cuid_idx" ON "permissions"("cuid");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "role_permissions_cuid_key" ON "role_permissions"("cuid");
@@ -320,6 +363,15 @@ CREATE UNIQUE INDEX "countries_country_name_key" ON "countries"("country_name");
 CREATE INDEX "countries_cuid_idx" ON "countries"("cuid");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "skills_cuid_key" ON "skills"("cuid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "skills_skills_name_key" ON "skills"("skills_name");
+
+-- CreateIndex
+CREATE INDEX "skills_cuid_idx" ON "skills"("cuid");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "attendance_sources_cuid_key" ON "attendance_sources"("cuid");
 
 -- CreateIndex
@@ -327,3 +379,12 @@ CREATE UNIQUE INDEX "attendance_sources_attendance_source_name_key" ON "attendan
 
 -- CreateIndex
 CREATE INDEX "attendance_sources_cuid_idx" ON "attendance_sources"("cuid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "languages_cuid_key" ON "languages"("cuid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "languages_languages_name_key" ON "languages"("languages_name");
+
+-- CreateIndex
+CREATE INDEX "languages_cuid_idx" ON "languages"("cuid");

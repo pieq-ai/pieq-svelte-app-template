@@ -39,14 +39,6 @@ model SalaryComponent {
   @@map("salary_components")
 }
 
-model Employee {
-  id   BigInt    @id @default(autoincrement())
-  uuid String @unique @default(uuid())
-  name String
-  age  Int
-
-  @@map("employees")
-}
 
 model SystemRoles {
   id BigInt @id @default(autoincrement())
@@ -328,4 +320,326 @@ model Languages {
 
   @@index([cuid])
   @@map("languages")
+}
+
+model Employee {
+  id BigInt @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  // Employee Identity
+  emp_code String @unique @db.VarChar(50)
+
+  first_name String @db.VarChar(100)
+  last_name  String @db.VarChar(100)
+
+  father_name String? @db.VarChar(150)
+
+  // Personal Details
+  dob DateTime? @db.Date
+
+  gender String? @db.VarChar(20)
+
+  marital_status String? @db.VarChar(20)
+
+  blood_group_cuid String?
+
+  nationality_cuid String?
+
+  // Contact
+  mobile_no String? @db.VarChar(20)
+
+  personal_email String? @db.VarChar(255)
+
+  // Government IDs
+  aadhar_no String? @db.VarChar(20)
+
+  pan_no String? @db.VarChar(20)
+
+  uan_no String? @db.VarChar(30)
+
+  esi_no String? @db.VarChar(30)
+
+  // Emergency Contact
+  emergency_contact_name String? @db.VarChar(150)
+
+  emergency_contact_no String? @db.VarChar(20)
+
+  relation_cuid String?
+
+  // HR Remarks
+  remarks String? @db.Text
+
+  // Onboarding Tracking
+  profile_completion_status String @default("pending") @db.VarChar(30)
+
+  // Audit
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  created_by String? @db.VarChar(100)
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+
+  updated_by String? @db.VarChar(100)
+
+  @@index([cuid])
+
+  @@map("employees")
+}
+
+model Employment {
+  id BigInt @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  employee_cuid String
+
+  department_cuid String
+
+  role_cuid String?
+
+  designation_cuid String
+
+  pay_grade_cuid String?
+
+  employment_type_cuid String?
+
+  location_cuid String?
+
+  reporting_manager_cuid String?
+
+  employment_status String @default("onboarding") @db.VarChar(30)
+
+  date_of_joining DateTime? @db.Date
+
+  confirmation_date DateTime? @db.Date
+
+  relieving_date DateTime? @db.Date
+
+  official_email String? @db.VarChar(255)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  created_by String? @db.VarChar(100)
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+
+  updated_by String? @db.VarChar(100)
+
+  @@index([employee_cuid])
+  @@index([department_cuid])
+  @@index([designation_cuid])
+  @@index([role_cuid])
+
+  @@map("employments")
+}
+
+model EmployeeSkill {
+  id BigInt @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  employee_cuid String
+
+  skill_cuid String
+
+  proficiency_level String? @db.VarChar(20)
+
+  years_of_experience Decimal? @db.Decimal(5,2)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  created_by String? @db.VarChar(100)
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+
+  updated_by String? @db.VarChar(100)
+
+  @@unique([employee_cuid, skill_cuid])
+
+  @@map("employee_skills")
+}
+
+model EmployeeLanguage {
+  id BigInt @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  employee_cuid String
+
+  language_cuid String
+
+  proficiency_level String? @db.VarChar(20)
+
+  can_read Boolean @default(false)
+
+  can_write Boolean @default(false)
+
+  can_speak Boolean @default(false)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  created_by String? @db.VarChar(100)
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+
+  updated_by String? @db.VarChar(100)
+
+  @@unique([employee_cuid, language_cuid])
+
+  @@map("employee_languages")
+}
+
+model EmployeeEducation {
+  id BigInt @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  employee_cuid String
+
+  education_level String @db.VarChar(30)
+
+  specialization String? @db.VarChar(150)
+
+  institution String? @db.VarChar(255)
+
+  university_board String? @db.VarChar(255)
+
+  percentage Decimal? @db.Decimal(5,2)
+
+  completed_at DateTime? @db.Date
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  created_by String? @db.VarChar(100)
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+
+  updated_by String? @db.VarChar(100)
+
+  @@index([employee_cuid])
+
+  @@map("employee_educations")
+}
+
+model EmployeeExperience {
+  id BigInt @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  employee_cuid String
+
+  company_name String @db.VarChar(255)
+
+  role String? @db.VarChar(150)
+
+  description String? @db.Text
+
+  from_date DateTime? @db.Date
+
+  to_date DateTime? @db.Date
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  created_by String? @db.VarChar(100)
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+
+  updated_by String? @db.VarChar(100)
+
+  @@index([employee_cuid])
+
+  @@map("employee_experiences")
+}
+
+model EmployeeDocument {
+  id BigInt @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  employee_cuid String
+
+  document_type_cuid String
+
+  mime_type String? @db.VarChar(100)
+
+  file_name String? @db.VarChar(255)
+
+  file_size BigInt?
+
+  document Bytes?
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String? @db.VarChar(100)
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String? @db.VarChar(100)
+
+  @@index([employee_cuid])
+
+  @@map("employee_documents")
+}
+
+model Address {
+  id BigInt @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  employee_cuid String
+
+  address_type String @default("communication") @db.VarChar(30)
+
+  door_no String? @db.VarChar(50)
+
+  address_line1 String @db.VarChar(255)
+
+  address_line2 String? @db.VarChar(255)
+
+  city String @db.VarChar(100)
+
+  state_cuid String
+
+  country_cuid String
+
+  pin_code String? @db.VarChar(20)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String? @db.VarChar(100)
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String? @db.VarChar(100)
+
+  @@index([employee_cuid])
+
+  @@map("addresses")
+}
+
+model BankDetail {
+  id BigInt @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  employee_cuid String
+
+  account_holder_name String @db.VarChar(150)
+
+  account_number String @db.VarChar(50)
+
+  bank_name String @db.VarChar(150)
+
+  branch_name String? @db.VarChar(150)
+
+  ifsc_code String @db.VarChar(20)
+
+  is_primary Boolean @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String? @db.VarChar(100)
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String? @db.VarChar(100)
+
+  @@index([employee_cuid])
+
+  @@map("bank_details")
 }
