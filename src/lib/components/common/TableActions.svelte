@@ -5,6 +5,11 @@
 	import { Button } from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
+	export interface CustomAction {
+		label: string;
+		onClick: () => void;
+	}
+
 	interface Props {
 		editLabel?: string;
 		canEdit?: boolean;

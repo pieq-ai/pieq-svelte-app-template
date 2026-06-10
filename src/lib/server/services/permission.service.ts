@@ -84,7 +84,8 @@ export async function getPermissionById(id: bigint) {
 		throw new Error('Permission ID must be a positive integer');
 	}
 
-	const permission = await permissionDao.findById(id);
+	const idVal = typeof id === 'bigint' ? id : BigInt(id);
+	const permission = await permissionDao.findById(idVal);
 	if (!permission) {
 		throw new Error(`Permission with ID "${id}" not found`);
 	}

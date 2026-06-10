@@ -138,6 +138,6 @@
 					onClose();
 				}}>Discard Changes</Button>
 			</div>
-		</Card>
+		</div>
 	</div>
 {/if}

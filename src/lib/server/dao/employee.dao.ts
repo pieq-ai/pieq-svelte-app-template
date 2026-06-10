@@ -12,7 +12,7 @@ export async function list() {
 }
 
 export async function create(data: CreateEmployeeData) {
-	return db.employee.create({
+	return (db as any).employee.create({
 		data: {
 			name: data.name,
 			age: data.age

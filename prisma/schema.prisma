@@ -40,6 +40,87 @@ model SalaryComponent {
   @@map("salary_components")
 }
 
+model Role {
+  id BigInt @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  role_name String @unique @db.VarChar(255)
+
+  status Boolean @default(true)
+
+  created_by String? @db.VarChar(255)
+
+  updated_by String? @db.VarChar(255)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+
+  @@map("roles")
+}
+
+model Shift {
+  id BigInt @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  shift_name String @unique @db.VarChar(100)
+
+  start_time DateTime @db.Time(6)
+
+  end_time DateTime @db.Time(6)
+
+  minimum_work_hours Decimal @db.Decimal(4, 2)
+
+  status Boolean @default(true)
+
+  created_by String? @db.VarChar(255)
+
+  updated_by String? @db.VarChar(255)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+
+  @@map("shifts")
+}
+
+model CompanyLocation {
+  id BigInt @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  location_name String @unique @db.VarChar(150)
+
+  address_line1 String @db.VarChar(255)
+
+  address_line2 String? @db.VarChar(255)
+
+  city String @db.VarChar(100)
+
+  state_cuid String @db.VarChar(50)
+
+  country_cuid String @db.VarChar(50)
+
+  pin_code String @db.VarChar(10)
+
+  timezone String @db.VarChar(60)
+
+  is_active Boolean @default(true)
+
+  created_by String? @db.VarChar(255)
+
+  updated_by String? @db.VarChar(255)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+
+  @@map("company_locations")
+}
+
+
 model Employee {
   id   BigInt    @id @default(autoincrement())
   uuid String @unique @default(uuid())
@@ -48,7 +129,6 @@ model Employee {
 
   @@map("employees")
 }
-
 model SystemRoles {
   id BigInt @id @default(autoincrement())
 

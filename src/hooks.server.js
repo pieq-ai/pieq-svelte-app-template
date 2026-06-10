@@ -47,22 +47,24 @@ const injectLocals = async ({ event, resolve }) => {
 const routeGuard = async ({ event, resolve }) => {
 	const protectedPaths = [
 		'/dashboard',
-		'/salary-components',
 		'/leave-types',
 		'/leave-policies',
 		'/holidays',
-		'/settings',
 		'/employees',
 		'/departments',
-		'/department',
 		'/designations',
-		'/designation',
 		'/system-roles',
 		'/permissions',
 		'/role-permissions',
+		'/salary-components',
+		'/roles',
+		'/shifts',
+		'/organization_locations',
+		'/settings'
 	];
-	const pathname = event.url.pathname;
-	const isProtected = protectedPaths.some((p) => pathname === p || pathname.startsWith(p + '/'));
+	const isProtectedRoute = protectedRoutes.some(
+		(path) => event.url.pathname === path || event.url.pathname.startsWith(`${path}/`)
+	);
 
 	if (isProtected && !event.locals.user) {
 		throw redirect(303, '/auth/signin');

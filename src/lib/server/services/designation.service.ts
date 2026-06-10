@@ -73,7 +73,8 @@ export async function getDesignationById(designation_id: bigint) {
 		throw new Error('Designation ID must be a positive integer');
 	}
 
-	const designation = await designationDao.findById(designation_id);
+	const idVal = typeof designation_id === 'bigint' ? designation_id : BigInt(designation_id);
+	const designation = await designationDao.findById(idVal);
 	if (!designation) {
 		throw new Error(`Designation with ID "${designation_id}" not found`);
 	}

@@ -79,12 +79,21 @@ export async function getSystemRoles() {
 	return (await systemRoleDao.list()).map(toPublicSystemRole);
 }
 
-export async function getSystemRoleById(id: bigint) {
-	if (typeof id !== 'bigint' || id <= 0n) {
+export async function getSystemRoleById(id: bigint | number) {
+	if (typeof id === 'number') {
+		if (!Number.isInteger(id) || id <= 0) {
+			throw new Error('System role ID must be a positive integer');
+		}
+	} else if (typeof id === 'bigint') {
+		if (id <= 0n) {
+			throw new Error('System role ID must be a positive integer');
+		}
+	} else {
 		throw new Error('System role ID must be a positive integer');
 	}
 
-	const role = await systemRoleDao.findById(id);
+	const idVal = typeof id === 'bigint' ? id : BigInt(id);
+	const role = await systemRoleDao.findById(idVal);
 	if (!role) {
 		throw new Error(`System role with ID "${id}" not found`);
 	}

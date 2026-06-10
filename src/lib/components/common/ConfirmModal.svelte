@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { Button } from '$lib/components';
-	import CrudModal from './CrudModal.svelte';
+	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 
 	interface Props {
 		open: boolean;
@@ -8,6 +7,7 @@
 		description: string;
 		confirmLabel?: string;
 		isSubmitting?: boolean;
+		isDestructive?: boolean;
 		onCancel: () => void;
 		onConfirm: () => void;
 	}
@@ -18,6 +18,7 @@
 		description,
 		confirmLabel = 'Confirm',
 		isSubmitting = false,
+		isDestructive = true,
 		onCancel,
 		onConfirm
 	}: Props = $props();
