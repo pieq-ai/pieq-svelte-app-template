@@ -47,7 +47,7 @@
 			const body = await response.json();
 			if (response.ok) {
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				options = (body.data ?? []).filter((d: any) => d.status).map((d: any) => ({ id: d.cuid, label: d.designation_name }));
+				options = (body.data ?? []).filter((d: any) => d.status).map((d: any) => ({ id: d.cuid, label: d.name }));
 			} else {
 				errorMessage = body.error || `Failed to load options.`;
 			}
@@ -80,7 +80,7 @@
 			const response = await fetch(`/api/designations`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ designation_name: inputValue.trim(), status: true })
+				body: JSON.stringify({ name: inputValue.trim(), status: true })
 			});
 			const body = await response.json();
 			if (response.ok) {

@@ -58,7 +58,7 @@ describe('Master Data DAO', () => {
 
 			if (master === 'states') {
 				expect(mockDbMethods.findMany).toHaveBeenCalledWith({
-					orderBy: [{ country_cuid: 'asc' }, { state_name: 'asc' }]
+					orderBy: [{ country_cuid: 'asc' }, { name: 'asc' }]
 				});
 			} else {
 				// Assert it was called with some orderBy containing 'asc'
@@ -109,7 +109,7 @@ describe('Master Data DAO', () => {
 
 			const callArgs = mockDbMethods.create.mock.calls[0][0];
 			if (master === 'states') {
-				expect(callArgs.data.state_name).toBe('New Entry');
+				expect(callArgs.data.name).toBe('New Entry');
 				expect(callArgs.data.country_cuid).toBe('cntry123');
 			} else {
 				// The generic mapped name field
@@ -122,7 +122,7 @@ describe('Master Data DAO', () => {
 			mockDbMethods.create.mockResolvedValueOnce({});
 			await masterDataDao.create('states', { name: 'State A' });
 			expect(mockDbMethods.create).toHaveBeenCalledWith({
-				data: { state_name: 'State A', country_cuid: '', updated_by: undefined }
+				data: { name: 'State A', country_cuid: '', updated_by: undefined }
 			});
 		});
 	});
@@ -142,7 +142,7 @@ describe('Master Data DAO', () => {
 			expect(callArgs.where.id).toBe(5n);
 
 			if (master === 'states') {
-				expect(callArgs.data.state_name).toBe('Updated Entry');
+				expect(callArgs.data.name).toBe('Updated Entry');
 				expect(callArgs.data.country_cuid).toBe('cntry123');
 			} else {
 				const nameKey = Object.keys(callArgs.data)[0];
@@ -155,7 +155,7 @@ describe('Master Data DAO', () => {
 			await masterDataDao.update('states', { id: 2n, name: 'State B' });
 			expect(mockDbMethods.update).toHaveBeenCalledWith({
 				where: { id: 2n },
-				data: { state_name: 'State B', country_cuid: '', updated_by: undefined }
+				data: { name: 'State B', country_cuid: '', updated_by: undefined }
 			});
 		});
 	});

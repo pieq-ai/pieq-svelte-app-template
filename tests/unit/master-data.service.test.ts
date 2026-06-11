@@ -15,10 +15,10 @@ vi.mock('$lib/master-data/master-config.js', () => ({
 	isMasterKey: vi.fn((key) => ['blood-groups', 'states', 'languages', 'countries'].includes(key)),
 	getMasterConfig: vi.fn((key) => {
 		switch (key) {
-			case 'blood-groups': return { label: 'Blood Group', idField: 'id', nameField: 'blood_group_name' };
-			case 'states': return { label: 'State', idField: 'id', nameField: 'state_name' };
-			case 'languages': return { label: 'Language', idField: 'id', nameField: 'languages_name' };
-			case 'countries': return { label: 'Country', idField: 'id', nameField: 'country_name' };
+			case 'blood-groups': return { label: 'Blood Group', idField: 'id', nameField: 'name' };
+			case 'states': return { label: 'State', idField: 'id', nameField: 'name' };
+			case 'languages': return { label: 'Language', idField: 'id', nameField: 'name' };
+			case 'countries': return { label: 'Country', idField: 'id', nameField: 'name' };
 			default: return { label: 'Unknown', idField: 'id', nameField: 'name' };
 		}
 	})
@@ -36,8 +36,8 @@ describe('Master Data Service', () => {
 
 		it('should return mapped master data options', async () => {
 			const mockData = [
-				{ id: 1n, cuid: 'bg1', blood_group_name: 'O+', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
-				{ id: 2n, cuid: 'bg2', blood_group_name: 'A+', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
+				{ id: 1n, cuid: 'bg1', name: 'O+', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
+				{ id: 2n, cuid: 'bg2', name: 'A+', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
 			];
 			vi.mocked(masterDataDao.list).mockResolvedValue(mockData as any);
 
@@ -52,8 +52,8 @@ describe('Master Data Service', () => {
 
 		it('should filter by search query', async () => {
 			const mockData = [
-				{ id: 1n, cuid: 'l1', languages_name: 'English' },
-				{ id: 2n, cuid: 'l2', languages_name: 'Spanish' }
+				{ id: 1n, cuid: 'l1', name: 'English' },
+				{ id: 2n, cuid: 'l2', name: 'Spanish' }
 			];
 			vi.mocked(masterDataDao.list).mockResolvedValue(mockData as any);
 
@@ -71,12 +71,12 @@ describe('Master Data Service', () => {
 
 		it('should filter states by country_cuid', async () => {
 			const mockData = [
-				{ id: 1n, cuid: 's1', state_name: 'California', country_cuid: 'c1' },
-				{ id: 2n, cuid: 's2', state_name: 'Texas', country_cuid: 'c1' },
-				{ id: 3n, cuid: 's3', state_name: 'Ontario', country_cuid: 'c2' }
+				{ id: 1n, cuid: 's1', name: 'California', country_cuid: 'c1' },
+				{ id: 2n, cuid: 's2', name: 'Texas', country_cuid: 'c1' },
+				{ id: 3n, cuid: 's3', name: 'Ontario', country_cuid: 'c2' }
 			];
 			vi.mocked(masterDataDao.list).mockResolvedValue(mockData as any);
-			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ id: 1n, country_name: 'USA' } as any);
+			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ id: 1n, name: 'USA' } as any);
 
 			const result = await masterDataService.getMasterData('states', '', 'c1');
 			expect(result).toHaveLength(2);
@@ -102,7 +102,7 @@ describe('Master Data Service', () => {
 				await expect(masterDataService.createMasterData('blood-groups', { name: 'C+' })).rejects.toThrow('Blood group must be one of A+, A-, B+, B-, AB+, AB-, O+, O-');
 				
 				vi.mocked(masterDataDao.list).mockResolvedValue([]);
-				vi.mocked(masterDataDao.create).mockResolvedValue({ cuid: 'bg3', blood_group_name: 'O+', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
+				vi.mocked(masterDataDao.create).mockResolvedValue({ cuid: 'bg3', name: 'O+', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
 				const res = await masterDataService.createMasterData('blood-groups', { name: 'o+' }); // should uppercase
 				expect(res.label).toBe('O+');
 			});
@@ -128,23 +128,23 @@ describe('Master Data Service', () => {
 		});
 
 		it('should throw if entry already exists (duplicate name)', async () => {
-			vi.mocked(masterDataDao.list).mockResolvedValue([{ cuid: 'bg1', blood_group_name: 'O+' }] as any);
+			vi.mocked(masterDataDao.list).mockResolvedValue([{ cuid: 'bg1', name: 'O+' }] as any);
 			await expect(masterDataService.createMasterData('blood-groups', { name: 'O+' })).rejects.toThrow('Blood Group already exists');
 		});
 
 		it('should allow duplicate name in states if country is different', async () => {
 			vi.mocked(masterDataDao.list).mockResolvedValue([
-				{ cuid: 's1', state_name: 'Georgia', country_cuid: 'c1' }
+				{ cuid: 's1', name: 'Georgia', country_cuid: 'c1' }
 			] as any);
 			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ id: 1n } as any);
-			vi.mocked(masterDataDao.create).mockResolvedValue({ cuid: 's2', state_name: 'Georgia' } as any);
+			vi.mocked(masterDataDao.create).mockResolvedValue({ cuid: 's2', name: 'Georgia' } as any);
 
 			await expect(masterDataService.createMasterData('states', { name: 'Georgia', country_cuid: 'c2' })).resolves.toBeDefined();
 		});
 
 		it('should successfully create and return Option', async () => {
 			vi.mocked(masterDataDao.list).mockResolvedValue([]);
-			vi.mocked(masterDataDao.create).mockResolvedValue({ cuid: 'l1', languages_name: 'French', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
+			vi.mocked(masterDataDao.create).mockResolvedValue({ cuid: 'l1', name: 'French', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
 
 			const result = await masterDataService.createMasterData('languages', { name: 'French' });
 			expect(result).toEqual({ id: 'l1', label: 'French', master: 'languages', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
@@ -158,21 +158,21 @@ describe('Master Data Service', () => {
 		});
 
 		it('should throw if state country is missing during update', async () => {
-			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 's1', state_name: 'Texas' } as any);
+			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 's1', name: 'Texas' } as any);
 			await expect(masterDataService.updateMasterData('states', 's1', { name: 'Texas Updated' })).rejects.toThrow('Country is required for states');
 		});
 
 		it('should throw if duplicate name exists on another record', async () => {
-			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'bg1', blood_group_name: 'A+' } as any); // current record
-			vi.mocked(masterDataDao.list).mockResolvedValue([{ cuid: 'bg2', blood_group_name: 'O+' }] as any); // other record
+			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'bg1', name: 'A+' } as any); // current record
+			vi.mocked(masterDataDao.list).mockResolvedValue([{ cuid: 'bg2', name: 'O+' }] as any); // other record
 
 			await expect(masterDataService.updateMasterData('blood-groups', 'bg1', { name: 'O+' })).rejects.toThrow('Blood Group already exists');
 		});
 
 		it('should successfully update and return Option', async () => {
-			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'l1', languages_name: 'Old French', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
-			vi.mocked(masterDataDao.list).mockResolvedValue([{ cuid: 'l1', languages_name: 'Old French', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }] as any);
-			vi.mocked(masterDataDao.update).mockResolvedValue({ cuid: 'l1', languages_name: 'French', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
+			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'l1', name: 'Old French', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
+			vi.mocked(masterDataDao.list).mockResolvedValue([{ cuid: 'l1', name: 'Old French', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }] as any);
+			vi.mocked(masterDataDao.update).mockResolvedValue({ cuid: 'l1', name: 'French', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
 
 			const result = await masterDataService.updateMasterData('languages', 'l1', { name: 'French' });
 			expect(result).toEqual({ id: 'l1', label: 'French', master: 'languages', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });

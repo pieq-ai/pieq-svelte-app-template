@@ -41,7 +41,7 @@ export async function replaceDocuments(employee_cuid: string, documents: UpsertD
                     updated_by: doc.updated_by
                 };
                 if (doc.document !== undefined) {
-                    data.document = doc.document;
+                    data.document = doc.document ? new Uint8Array(doc.document) : null;
                 }
                 results.push(await tx.employeeDocument.update({
                     where: { cuid: doc.cuid },
@@ -55,7 +55,7 @@ export async function replaceDocuments(employee_cuid: string, documents: UpsertD
                         mime_type: doc.mime_type,
                         file_name: doc.file_name,
                         file_size: doc.file_size,
-                        document: doc.document ?? null,
+                        document: doc.document ? new Uint8Array(doc.document) : null,
                         created_by: doc.created_by,
                         updated_by: doc.updated_by
                     }

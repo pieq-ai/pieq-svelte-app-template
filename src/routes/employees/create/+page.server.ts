@@ -58,7 +58,7 @@ export const load: PageServerLoad = async () => {
 			countries,
 			states,
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-            locations: locations.map((l: any) => ({ cuid: l.cuid, name: l.location_name })),
+            locations: locations.map((l: any) => ({ cuid: l.cuid, name: l.name })),
 			employees
 		};
 	} catch (e) {

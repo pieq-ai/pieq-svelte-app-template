@@ -299,13 +299,13 @@
 						master="blood-groups" 
 						label="Blood Group" 
 						value={emp.blood_group_cuid} 
-						onSelect={(val) => emp.blood_group_cuid = val} 
+						onSelect={(val) => emp.blood_group_cuid = val as string} 
 					/>
 					<MasterDataDropdown 
 						master="nationalities" 
 						label="Nationality" 
 						value={emp.nationality_cuid} 
-						onSelect={(val) => emp.nationality_cuid = val} 
+						onSelect={(val) => emp.nationality_cuid = val as string} 
 					/>
 					<div class="space-y-2">
 						<Label>Personal Email</Label>
@@ -343,7 +343,7 @@
 						master="relation-types" 
 						label="Emergency Relation" 
 						value={emp.relation_cuid} 
-						onSelect={(val) => emp.relation_cuid = val} 
+						onSelect={(val) => emp.relation_cuid = val as string} 
 					/>
 					<div class="space-y-2 xl:col-span-3">
 						<Label>Remarks</Label>
@@ -381,21 +381,21 @@
 					<SearchableDropdown 
 						label="Role" 
 						value={employment.role_cuid} 
-						options={data.roles?.map((r: any) => ({id: r.cuid, label: r.role_name})) || []}
+						options={data.roles?.map((r: any) => ({id: r.cuid, label: r.name})) || []}
 						onSelect={(val) => employment.role_cuid = val as string} 
 					/>
 					<MasterDataDropdown 
 						master="pay-grades" 
 						label="Pay Grade" 
 						value={employment.pay_grade_cuid} 
-						onSelect={(val) => employment.pay_grade_cuid = val} 
+						onSelect={(val) => employment.pay_grade_cuid = val as string} 
 					/>
 					<MasterDataDropdown 
 						master="employment-types" 
 						label="Employment Type" 
 						value={employment.employment_type_cuid} 
 						permissions={{ canCreate: false, canEdit: false }}
-						onSelect={(val) => employment.employment_type_cuid = val} 
+						onSelect={(val) => employment.employment_type_cuid = val as string} 
 					/>
 					<SearchableDropdown 
 						label="Employment Status" 

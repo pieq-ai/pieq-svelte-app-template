@@ -38,7 +38,7 @@
 
 	interface SystemRole {
 		cuid: string;
-		system_role_name: string;
+		name: string;
 		status: boolean;
 	}
 
@@ -54,7 +54,7 @@
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
 	
-	let sortColumn = $state('system_role_name');
+	let sortColumn = $state('name');
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -69,8 +69,8 @@
 	let backendError = $state('');
 	let roleNameInput = $state<HTMLInputElement | null>(null);
 
-	const dirtyChecker = createDirtyChecker<{ system_role_name: string; status: boolean }>();
-	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ system_role_name: roleName.trim(), status: roleStatus }));
+	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
+	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ name: roleName.trim(), status: roleStatus }));
 
 	let itemToDelete = $state<SystemRole | null>(null);
 	let isDeleting = $state(false);
@@ -88,7 +88,7 @@
 		let result = [...roles];
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
-			result = result.filter((role) => role.system_role_name.toLowerCase().includes(query));
+			result = result.filter((role) => role.name.toLowerCase().includes(query));
 		}
 		if (statusFilter !== 'all') {
 			result = result.filter((role) => role.status === statusFilter);
@@ -152,17 +152,17 @@
 		roleStatus = true;
 		isNameTouched = false;
 		backendError = '';
-		dirtyChecker.snapshot({ system_role_name: '', status: true });
+		dirtyChecker.snapshot({ name: '', status: true });
 		isModalOpen = true;
 	}
 
 	function openEditModal(role: SystemRole) {
 		editingRole = role;
-		roleName = role.system_role_name;
+		roleName = role.name;
 		roleStatus = role.status;
 		isNameTouched = false;
 		backendError = '';
-		dirtyChecker.snapshot({ system_role_name: role.system_role_name, status: role.status });
+		dirtyChecker.snapshot({ name: role.name, status: role.status });
 		isModalOpen = true;
 	}
 
@@ -183,7 +183,7 @@
 				{
 					method: editingRole ? 'PUT' : 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ system_role_name: roleName.trim(), status: roleStatus })
+					body: JSON.stringify({ name: roleName.trim(), status: roleStatus })
 				}
 			);
 			const body = await response.json();
@@ -191,7 +191,7 @@
 				await loadRoles();
 				toast.success(editingRole ? 'System role updated successfully.' : 'System role created successfully.');
 				isModalOpen = false;
-			} else if (response.status === 409 && body.field === 'system_role_name') {
+			} else if (response.status === 409 && body.field === 'name') {
 				backendError = body.error;
 				roleNameInput?.focus();
 			} else {
@@ -280,11 +280,11 @@
 			<TableHeader class="bg-muted">
 				<TableRow>
 					<TableHead class="font-bold text-foreground text-[15px]">
-						<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('system_role_name')}>
+						<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
 							Role Name
-							{#if sortColumn === 'system_role_name' && sortDirection === 'asc'}
+							{#if sortColumn === 'name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortColumn === 'system_role_name' && sortDirection === 'desc'}
+							{:else if sortColumn === 'name' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
@@ -320,7 +320,7 @@
 							}} 
 							class="cursor-pointer"
 						>
-							<TableCell class="font-semibold">{role.system_role_name}</TableCell>
+							<TableCell class="font-semibold">{role.name}</TableCell>
 							<TableCell class="text-center"><Badge variant={role.status === true ? 'default' : 'secondary'}>{role.status ? 'Active' : 'Inactive'}</Badge></TableCell>
 							<TableCell class="text-right">
 								<TableActions
@@ -348,10 +348,10 @@
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={saveRole}>
 			<div class="space-y-2">
-				<Label for="role_name">Role Name</Label>
+				<Label for="name">Role Name</Label>
 				<Input
-					id="role_name"
-					name="role_name"
+					id="name"
+					name="name"
 					bind:ref={roleNameInput}
 					bind:value={roleName}
 					class={nameValidationError || backendError ? 'border-destructive' : ''}
@@ -378,7 +378,7 @@
 <ConfirmModal
 	open={!!itemToDelete}
 	title="Deactivate System Role"
-	description={`Are you sure you want to deactivate ${itemToDelete?.system_role_name}?`}
+	description={`Are you sure you want to deactivate ${itemToDelete?.name}?`}
 	confirmLabel="Deactivate"
 	isSubmitting={isDeleting}
 	onCancel={() => (itemToDelete = null)}

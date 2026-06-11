@@ -36,7 +36,7 @@
 
 	interface Designation {
 		cuid: string;
-		designation_name: string;
+		name: string;
 		status: boolean;
 	}
 
@@ -46,7 +46,7 @@
 
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
-	let sortColumn = $state('designation_name');
+	let sortColumn = $state('name');
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -62,8 +62,8 @@
 	let backendError = $state('');
 	let designationNameInput = $state<HTMLInputElement | null>(null);
 
-	const dirtyChecker = createDirtyChecker<{ designation_name: string; status: boolean }>();
-	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ designation_name: formDesignationName.trim(), status: formDesignationStatus }));
+	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
+	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ name: formDesignationName.trim(), status: formDesignationStatus }));
 
 	// Deletion State
 	let itemToDelete = $state<Designation | null>(null);
@@ -90,7 +90,7 @@
 			const query = searchQuery.toLowerCase();
 			result = result.filter(
 				(designation) =>
-					designation.designation_name.toLowerCase().includes(query)
+					designation.name.toLowerCase().includes(query)
 			);
 		}
 
@@ -163,17 +163,17 @@
 		formDesignationStatus = true;
 		isNameTouched = false;
 		backendError = '';
-		dirtyChecker.snapshot({ designation_name: '', status: true });
+		dirtyChecker.snapshot({ name: '', status: true });
 		isModalOpen = true;
 	}
 
 	function openEditModal(designation: Designation) {
 		editingDesignation = designation;
-		formDesignationName = designation.designation_name;
+		formDesignationName = designation.name;
 		formDesignationStatus = designation.status;
 		isNameTouched = false;
 		backendError = '';
-		dirtyChecker.snapshot({ designation_name: designation.designation_name, status: designation.status });
+		dirtyChecker.snapshot({ name: designation.name, status: designation.status });
 		isModalOpen = true;
 	}
 
@@ -196,7 +196,7 @@
 				{
 					method: editingDesignation ? 'PUT' : 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ designation_name: formDesignationName.trim(), status: formDesignationStatus })
+					body: JSON.stringify({ name: formDesignationName.trim(), status: formDesignationStatus })
 				}
 			);
 			const resData = await response.json();
@@ -205,7 +205,7 @@
 				await loadDesignations();
 				toast.success(editingDesignation ? 'Designation updated successfully' : 'Designation created successfully');
 				isModalOpen = false;
-			} else if (response.status === 409 && resData.field === 'designation_name') {
+			} else if (response.status === 409 && resData.field === 'name') {
 				backendError = resData.error;
 				designationNameInput?.focus();
 			} else {
@@ -246,13 +246,13 @@
 </script>
 
 <svelte:head>
-	<title>HRMS Designation Directory</title>
+	<title>HRMS Designation</title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Designation Directory</h1>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Designation</h1>
 		</div>
 		<Button
 			type="button"
@@ -296,11 +296,11 @@
 				<TableHeader class="bg-muted">
 					<TableRow>
 						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('designation_name')}>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
 								Designation Name
-							{#if sortColumn === 'designation_name' && sortDirection === 'asc'}
+							{#if sortColumn === 'name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortColumn === 'designation_name' && sortDirection === 'desc'}
+							{:else if sortColumn === 'name' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
@@ -347,7 +347,7 @@
 							>
 								<TableCell>
 									<div class="flex flex-col">
-										<span class="font-semibold">{designation.designation_name}</span>
+										<span class="font-semibold">{designation.name}</span>
 									</div>
 								</TableCell>
 								<TableCell class="text-center">
@@ -379,10 +379,10 @@
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={handleSaveDesignation}>
 			<div class="space-y-2">
-				<Label for="designation_name">Designation Name</Label>
+				<Label for="name">Designation Name</Label>
 				<Input
-					id="designation_name"
-					name="designation_name"
+					id="name"
+					name="name"
 					bind:ref={designationNameInput}
 					bind:value={formDesignationName}
 					class={nameValidationError || backendError ? 'border-destructive' : ''}
@@ -409,7 +409,7 @@
 <ConfirmModal
 	open={!!itemToDelete}
 	title="Deactivate Designation"
-	description={`Are you sure you want to deactivate ${itemToDelete?.designation_name}?`}
+	description={`Are you sure you want to deactivate ${itemToDelete?.name}?`}
 	confirmLabel="Deactivate"
 	isSubmitting={isDeleting}
 	onCancel={() => (itemToDelete = null)}

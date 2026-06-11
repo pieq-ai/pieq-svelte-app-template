@@ -15,7 +15,7 @@ model SalaryComponent {
   /// Externally-exposed, non-guessable identifier — used in all API routes
   cuid           String   @unique @default(cuid(2)) @db.Text
 
-  component_name String   @db.VarChar(150)
+  name String   @db.VarChar(150)
 
   /// Stored as plain string: 'earning' | 'deduction' — validated at application layer
   component_type String   @db.VarChar(20)
@@ -34,7 +34,7 @@ model SalaryComponent {
   /// cuid of the user who last updated this record
   updated_by     String?  @db.Text
 
-  @@unique([component_name])
+  @@unique([name])
 
   @@map("salary_components")
 }
@@ -45,7 +45,7 @@ model SystemRoles {
 
   cuid String @unique @default(cuid())
 
-  system_role_name String @unique @db.VarChar(100)
+  name String @unique @db.VarChar(100)
 
   status          Boolean          @default(true)
 
@@ -59,7 +59,7 @@ model SystemRoles {
 model Department {
   id        BigInt    @id @default(autoincrement())
   cuid     String @unique @default(cuid())
-  dept_name String @unique @db.VarChar(150)
+  name String @unique @db.VarChar(150)
 
   status Boolean @default(true)
 
@@ -108,7 +108,7 @@ model BloodGroup {
 
   cuid String @unique @default(cuid())
 
-  blood_group_name String     @unique @db.VarChar(5)
+  name String     @unique @db.VarChar(5)
 
   created_at DateTime @default(now()) @db.Timestamptz()
   created_by String?  @db.VarChar(100)
@@ -120,7 +120,7 @@ model BloodGroup {
 model Designation {
   id               BigInt    @id @default(autoincrement())
   cuid            String @unique @default(cuid())
-  designation_name String @unique @db.VarChar(150)
+  name String @unique @db.VarChar(150)
 
   status Boolean @default(true)
 
@@ -136,7 +136,7 @@ model PayGrade {
 
   cuid String @unique @default(cuid())
 
-  paygrade_name String @unique @db.VarChar(100)
+  name String @unique @db.VarChar(100)
 
   status Boolean @default(true)
 
@@ -152,7 +152,7 @@ model Nationality {
 
   cuid String @unique @default(cuid())
 
-  nationality_name String @unique @db.VarChar(100)
+  name String @unique @db.VarChar(100)
 
   status    Boolean    @default(true)
 
@@ -168,7 +168,7 @@ model EmploymentType {
 
   cuid String @unique @default(cuid())
 
-  employment_name String @unique @db.VarChar(50)
+  name String @unique @db.VarChar(50)
 
   status Boolean @default(true)
 
@@ -184,7 +184,7 @@ model RelationType {
 
   cuid String @unique @default(cuid())
 
-  relation_name String @unique @db.VarChar(50)
+  name String @unique @db.VarChar(50)
 
   status    Boolean    @default(true)
 
@@ -200,7 +200,7 @@ model DocumentType {
 
   cuid String @unique @default(cuid())
 
-  document_type_name String @unique @db.VarChar(100)
+  name String @unique @db.VarChar(100)
 
   status Boolean @default(true)
 
@@ -218,14 +218,14 @@ model State {
 
   country_cuid String
 
-  state_name String @db.VarChar(100)
+  name String @db.VarChar(100)
 
   created_at DateTime @default(now()) @db.Timestamptz()
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
 
-  @@unique([country_cuid, state_name])
+  @@unique([country_cuid, name])
   @@index([country_cuid])
   @@map("states")
 }
@@ -235,7 +235,7 @@ model Country {
 
   cuid String @unique @default(cuid())
 
-  country_name String  @unique @db.VarChar(100)
+  name String  @unique @db.VarChar(100)
 
   created_at DateTime @default(now()) @db.Timestamptz()
   created_by String?  @db.VarChar(100)
@@ -249,7 +249,7 @@ model Skills {
 
   cuid String @unique @default(cuid())
 
-  skills_name String @unique @db.VarChar(100)
+  name String @unique @db.VarChar(100)
 
   status Boolean @default(true)
 
@@ -265,7 +265,7 @@ model AttendanceSource {
 
   cuid String @unique @default(cuid())
 
-  attendance_source_name String @unique @db.VarChar(100)
+  name String @unique @db.VarChar(100)
 
   status Boolean @default(true)
 
@@ -281,7 +281,7 @@ model Languages {
 
   cuid String @unique @default(cuid())
 
-  languages_name String @unique @db.VarChar(100)
+  name String @unique @db.VarChar(100)
 
   status Boolean @default(true)
 
@@ -617,7 +617,7 @@ model Role {
 
   cuid String @unique @default(cuid())
 
-  role_name String @unique @db.VarChar(150)
+  name String @unique @db.VarChar(150)
 
   status Boolean @default(true)
 
@@ -635,7 +635,7 @@ model CompanyLocation {
 
   cuid String @unique @default(cuid())
 
-  location_name String @unique @db.VarChar(150)
+  name String @unique @db.VarChar(150)
 
   address_line1 String @db.VarChar(255)
   address_line2 String? @db.VarChar(255)

@@ -30,7 +30,7 @@ describe('Role Permission Service', () => {
 	describe('getRolePermissionMatrix', () => {
 		it('should retrieve and format matrix data correctly', async () => {
 			vi.mocked(systemRoleDao.list).mockResolvedValue([
-				{ id: 1n, cuid: 'role1', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
+				{ id: 1n, cuid: 'role1', name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
 			] as any);
 			
 			vi.mocked(permissionDao.list).mockResolvedValue([
@@ -46,7 +46,7 @@ describe('Role Permission Service', () => {
 			const result = await rolePermissionService.getRolePermissionMatrix();
 
 			expect(result.roles).toHaveLength(1);
-			expect(result.roles[0]).toEqual({ cuid: 'role1', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
+			expect(result.roles[0]).toEqual({ cuid: 'role1', name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
 
 			expect(result.permissions).toHaveLength(3);
 			expect(result.groupedPermissions).toEqual({

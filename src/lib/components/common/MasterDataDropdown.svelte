@@ -14,7 +14,7 @@
 		countryCuid?: string;
 		placeholder?: string;
 		permissions?: Partial<MasterPermissionConfig>;
-		onSelect: (id: string) => void;
+		onSelect: (id: string | string[]) => void;
 	}
 
 	let {

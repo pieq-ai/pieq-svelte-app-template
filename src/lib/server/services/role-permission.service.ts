@@ -57,9 +57,9 @@ export async function getRolePermissionMatrix() {
 	);
 
 	return {
-		roles: roles.map(({ cuid, system_role_name, status, created_at, created_by, updated_at, updated_by }) => ({
+		roles: roles.map(({ cuid, name, status, created_at, created_by, updated_at, updated_by }) => ({
 			cuid,
-			system_role_name,
+			name,
 			status,
 			created_at,
 			created_by,

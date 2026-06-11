@@ -36,7 +36,7 @@
 
 	interface Department {
 		cuid: string;
-		dept_name: string;
+		name: string;
 		status: boolean;
 	}
 
@@ -46,7 +46,7 @@
 
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
-	let sortColumn = $state('dept_name');
+	let sortColumn = $state('name');
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -62,8 +62,8 @@
 	let backendError = $state('');
 	let deptNameInput = $state<HTMLInputElement | null>(null);
 
-	const dirtyChecker = createDirtyChecker<{ dept_name: string; status: boolean }>();
-	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ dept_name: formDeptName.trim(), status: formDeptStatus }));
+	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
+	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ name: formDeptName.trim(), status: formDeptStatus }));
 
 	// Deletion State
 	let itemToDelete = $state<Department | null>(null);
@@ -96,7 +96,7 @@
 			const query = searchQuery.toLowerCase();
 			result = result.filter(
 				(dept) =>
-					dept.dept_name.toLowerCase().includes(query)
+					dept.name.toLowerCase().includes(query)
 			);
 		}
 
@@ -167,17 +167,17 @@
 		formDeptStatus = true;
 		isNameTouched = false;
 		backendError = '';
-		dirtyChecker.snapshot({ dept_name: '', status: true });
+		dirtyChecker.snapshot({ name: '', status: true });
 		isModalOpen = true;
 	}
 
 	function openEditModal(dept: Department) {
 		editingDept = dept;
-		formDeptName = dept.dept_name;
+		formDeptName = dept.name;
 		formDeptStatus = dept.status;
 		isNameTouched = false;
 		backendError = '';
-		dirtyChecker.snapshot({ dept_name: dept.dept_name, status: dept.status });
+		dirtyChecker.snapshot({ name: dept.name, status: dept.status });
 		isModalOpen = true;
 	}
 
@@ -200,7 +200,7 @@
 				{
 					method: editingDept ? 'PUT' : 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ dept_name: formDeptName.trim(), status: formDeptStatus })
+					body: JSON.stringify({ name: formDeptName.trim(), status: formDeptStatus })
 				}
 			);
 			const resData = await response.json();
@@ -209,7 +209,7 @@
 				await loadDepartments();
 				toast.success(editingDept ? 'Department updated successfully' : 'Department created successfully');
 				isModalOpen = false;
-			} else if (response.status === 409 && resData.field === 'dept_name') {
+			} else if (response.status === 409 && resData.field === 'name') {
 				backendError = resData.error;
 				deptNameInput?.focus();
 			} else {
@@ -249,13 +249,13 @@
 </script>
 
 <svelte:head>
-	<title>HRMS Department Directory</title>
+	<title>HRMS Department</title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Department Directory</h1>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Department</h1>
 		</div>
 		<Button
 			type="button"
@@ -300,11 +300,11 @@
 				<TableHeader class="bg-muted">
 					<TableRow>
 						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('dept_name')}>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
 								Department Name
-							{#if sortColumn === 'dept_name' && sortDirection === 'asc'}
+							{#if sortColumn === 'name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortColumn === 'dept_name' && sortDirection === 'desc'}
+							{:else if sortColumn === 'name' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
@@ -351,7 +351,7 @@
 							>
 								<TableCell>
 									<div class="flex flex-col">
-										<span class="font-semibold">{dept.dept_name}</span>
+										<span class="font-semibold">{dept.name}</span>
 									</div>
 								</TableCell>
 								<TableCell class="text-center">
@@ -383,10 +383,10 @@
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={handleSaveDepartment}>
 			<div class="space-y-2">
-				<Label for="dept_name">Department Name</Label>
+				<Label for="name">Department Name</Label>
 				<Input
-					id="dept_name"
-					name="dept_name"
+					id="name"
+					name="name"
 					bind:ref={deptNameInput}
 					bind:value={formDeptName}
 					class={nameValidationError || backendError ? 'border-destructive' : ''}
@@ -413,7 +413,7 @@
 <ConfirmModal
 	open={!!itemToDelete}
 	title="Deactivate Department"
-	description={`Are you sure you want to deactivate ${itemToDelete?.dept_name}?`}
+	description={`Are you sure you want to deactivate ${itemToDelete?.name}?`}
 	confirmLabel="Deactivate"
 	isSubmitting={isDeleting}
 	onCancel={() => (itemToDelete = null)}
