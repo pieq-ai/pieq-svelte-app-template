@@ -51,8 +51,7 @@
 		emergency_contact_name: '',
 		emergency_contact_no: '',
 		relation_cuid: '',
-		remarks: '',
-		profile_completion_status: 'pending'
+		remarks: ''
 	});
 
 	// Employment
@@ -349,15 +348,7 @@
 						<Label>Remarks</Label>
 						<Input bind:value={emp.remarks} placeholder="Additional comments..." />
 					</div>
-					<SearchableDropdown 
-						label="Profile Completion Status" 
-						value={emp.profile_completion_status} 
-						options={[
-							{ id: 'pending', label: 'Pending' },
-							{ id: 'completed', label: 'Completed' }
-						]}
-						onSelect={(val) => emp.profile_completion_status = val as string} 
-					/>
+
 				</div>
 					</div>
 
@@ -502,13 +493,14 @@
 								master="countries" 
 								label="Country" 
 								value={address.country_cuid} 
-								onSelect={(val) => address.country_cuid = val} 
+								onSelect={(val) => address.country_cuid = val as string} 
 							/>
 							<MasterDataDropdown 
 								master="states" 
 								label="State" 
 								value={address.state_cuid} 
-								onSelect={(val) => address.state_cuid = val} 
+								countryCuid={address.country_cuid}
+								onSelect={(val) => address.state_cuid = val as string} 
 							/>
 							<div class="space-y-2">
 								<Label>PIN Code</Label>
@@ -595,7 +587,7 @@
 								master="document-types" 
 								label="Document Type" 
 								value={doc.document_type_cuid} 
-								onSelect={(val) => doc.document_type_cuid = val} 
+								onSelect={(val) => doc.document_type_cuid = val as string} 
 							/>
 							<div class="space-y-2">
 								<Label>File Upload</Label>
@@ -753,7 +745,7 @@
 									master="skills" 
 									label="Skill" 
 									value={skill.skill_cuid} 
-									onSelect={(val) => skill.skill_cuid = val} 
+									onSelect={(val) => skill.skill_cuid = val as string} 
 								/>
 							</div>
 							<div class="flex-1 w-32">
@@ -803,7 +795,7 @@
 										master="languages" 
 										label="Language" 
 										value={lang.language_cuid} 
-										onSelect={(val) => lang.language_cuid = val} 
+										onSelect={(val) => lang.language_cuid = val as string} 
 									/>
 								</div>
 								<div class="flex-1 w-32">

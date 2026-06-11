@@ -1,5 +1,6 @@
 import * as skillDao from '$lib/server/dao/skill.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as employeeService from '$lib/server/services/employee.service.js';
 
 export interface UpsertSkillDto {
     cuid?: string;
@@ -9,8 +10,10 @@ export interface UpsertSkillDto {
     updated_by?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toPublicSkill(skill: any) {
     if (!skill) return null;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, years_of_experience, ...rest } = skill;
     return { ...rest, years_of_experience: years_of_experience ? Number(years_of_experience) : null };
 }
@@ -42,5 +45,6 @@ export async function replaceSkills(employee_cuid: string, dtos: UpsertSkillDto[
     }));
 
     const results = await skillDao.replaceSkills(employee_cuid, payload);
+    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
     return results.map(toPublicSkill);
 }

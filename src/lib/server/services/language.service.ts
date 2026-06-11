@@ -1,5 +1,6 @@
 import * as languageDao from '$lib/server/dao/language.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as employeeService from '$lib/server/services/employee.service.js';
 
 export interface UpsertLanguageDto {
     cuid?: string;
@@ -55,5 +56,6 @@ export async function replaceLanguages(employee_cuid: string, dtos: UpsertLangua
     }));
 
     const results = await languageDao.replaceLanguages(employee_cuid, payload);
+    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
     return results.map(toPublicLanguage);
 }

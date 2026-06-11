@@ -1,5 +1,6 @@
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as employeeService from '$lib/server/services/employee.service.js';
 import { validateEmail } from '$lib/server/validators/employee.validator.js';
 
 export interface UpsertEmploymentDto {
@@ -86,5 +87,7 @@ export async function upsertEmployment(employee_cuid: string, dto: UpsertEmploym
         updated_by: dto.updated_by
     };
 
-    return toPublicEmployment(await employmentDao.upsert(employee_cuid, payload));
+    const result = await employmentDao.upsert(employee_cuid, payload);
+    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
+    return toPublicEmployment(result);
 }

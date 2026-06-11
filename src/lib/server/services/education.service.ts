@@ -1,5 +1,6 @@
 import * as educationDao from '$lib/server/dao/education.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as employeeService from '$lib/server/services/employee.service.js';
 
 export interface UpsertEducationDto {
     cuid?: string;
@@ -57,5 +58,6 @@ export async function replaceEducations(employee_cuid: string, dtos: UpsertEduca
     });
 
     const results = await educationDao.replaceEducations(employee_cuid, payload);
+    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
     return results.map(toPublicEducation);
 }

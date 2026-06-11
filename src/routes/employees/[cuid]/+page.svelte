@@ -59,6 +59,12 @@
 						<p class="text-sm text-muted-foreground">Mobile No.</p>
 						<p class="font-medium">{employee.mobile_no || '-'}</p>
 					</div>
+					<div>
+						<p class="text-sm text-muted-foreground">Profile Status</p>
+						<Badge variant={employee.profile_completion_status === 'completed' ? 'default' : 'secondary'}>
+							{employee.profile_completion_status?.toUpperCase() || 'PENDING'}
+						</Badge>
+					</div>
 				</div>
 			</CardContent>
 		</Card>

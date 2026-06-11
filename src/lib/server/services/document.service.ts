@@ -1,5 +1,6 @@
 import * as documentDao from '$lib/server/dao/document.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as employeeService from '$lib/server/services/employee.service.js';
 
 export interface UpsertDocumentDto {
     cuid?: string;
@@ -62,5 +63,6 @@ export async function replaceDocuments(employee_cuid: string, dtos: UpsertDocume
     });
 
     const results = await documentDao.replaceDocuments(employee_cuid, payload);
+    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
     return results.map(toPublicDocument);
 }

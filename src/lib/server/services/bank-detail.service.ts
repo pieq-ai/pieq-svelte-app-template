@@ -1,5 +1,6 @@
 import * as bankDetailDao from '$lib/server/dao/bank-detail.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as employeeService from '$lib/server/services/employee.service.js';
 
 export interface UpsertBankDetailDto {
     cuid?: string;
@@ -59,5 +60,6 @@ export async function replaceBankDetails(employee_cuid: string, dtos: UpsertBank
     }));
 
     const results = await bankDetailDao.replaceBankDetails(employee_cuid, payload);
+    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
     return results.map(toPublicBankDetail);
 }

@@ -1,5 +1,6 @@
 import * as experienceDao from '$lib/server/dao/experience.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as employeeService from '$lib/server/services/employee.service.js';
 
 export interface UpsertExperienceDto {
     cuid?: string;
@@ -60,5 +61,6 @@ export async function replaceExperiences(employee_cuid: string, dtos: UpsertExpe
     });
 
     const results = await experienceDao.replaceExperiences(employee_cuid, payload);
+    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
     return results.map(toPublicExperience);
 }

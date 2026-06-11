@@ -1,4 +1,11 @@
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as employmentDao from '$lib/server/dao/employment.dao.js';
+import * as addressDao from '$lib/server/dao/address.dao.js';
+import * as bankDetailDao from '$lib/server/dao/bank-detail.dao.js';
+import * as educationDao from '$lib/server/dao/education.dao.js';
+import * as experienceDao from '$lib/server/dao/experience.dao.js';
+import * as skillDao from '$lib/server/dao/skill.dao.js';
+import * as languageDao from '$lib/server/dao/language.dao.js';
 import * as validator from '$lib/server/validators/employee.validator.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
 
@@ -29,7 +36,9 @@ export interface UpdateEmployeeDto extends Partial<CreateEmployeeDto> {
     updated_by?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toPublicEmployee(emp: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, ...rest } = emp;
     return rest;
 }
@@ -76,6 +85,7 @@ export async function createEmployee(dto: CreateEmployeeDto) {
         aadhar_no,
         dob,
         father_name: dto.father_name?.trim() || null,
+        profile_completion_status: 'pending'
     }));
 }
 
@@ -85,6 +95,7 @@ export async function updateEmployee(cuid: string, dto: UpdateEmployeeDto) {
     if (!existing) throw new Error(`Employee with CUID2 "${cuid}" not found`);
 
     const updateData: employeeDao.UpdateEmployeeInput = { ...dto } as employeeDao.UpdateEmployeeInput;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (updateData as any).emp_code; // Do not update emp_code
 
     if (dto.first_name !== undefined) updateData.first_name = validator.validateName(dto.first_name, "First Name");
@@ -106,4 +117,49 @@ export async function updateEmployee(cuid: string, dto: UpdateEmployeeDto) {
     if (dto.dob !== undefined) updateData.dob = validator.validateDob(dto.dob);
 
     return toPublicEmployee(await employeeDao.update(cuid, updateData));
+}
+
+export async function checkAndSetProfileCompletionStatus(employee_cuid: string) {
+    if (!employee_cuid) return;
+
+    try {
+        const [
+            emp,
+            employment,
+            addresses,
+            banks,
+            educations,
+            experiences,
+            skills,
+            languages
+        ] = await Promise.all([
+            employeeDao.findByCuid2(employee_cuid),
+            employmentDao.findByEmployeeCuid(employee_cuid),
+            addressDao.findByEmployeeCuid(employee_cuid),
+            bankDetailDao.findByEmployeeCuid(employee_cuid),
+            educationDao.findByEmployeeCuid(employee_cuid),
+            experienceDao.findByEmployeeCuid(employee_cuid),
+            skillDao.findByEmployeeCuid(employee_cuid),
+            languageDao.findByEmployeeCuid(employee_cuid)
+        ]);
+
+        if (!emp) return;
+
+        const isCompleted = 
+            employment !== null &&
+            addresses.length > 0 &&
+            banks.length > 0 &&
+            educations.length > 0 &&
+            experiences.length > 0 &&
+            skills.length > 0 &&
+            languages.length > 0;
+
+        const newStatus = isCompleted ? 'completed' : 'pending';
+
+        if (emp.profile_completion_status !== newStatus) {
+            await employeeDao.update(employee_cuid, { profile_completion_status: newStatus });
+        }
+    } catch (error) {
+        console.error('Failed to calculate profile completion status', error);
+    }
 }

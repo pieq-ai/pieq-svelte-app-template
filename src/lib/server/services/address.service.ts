@@ -1,5 +1,6 @@
 import * as addressDao from '$lib/server/dao/address.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as employeeService from '$lib/server/services/employee.service.js';
 
 export interface UpsertAddressDto {
     cuid?: string;
@@ -14,8 +15,10 @@ export interface UpsertAddressDto {
     updated_by?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toPublicAddress(addr: any) {
     if (!addr) return null;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, ...rest } = addr;
     return rest;
 }
@@ -49,5 +52,6 @@ export async function replaceAddresses(employee_cuid: string, dtos: UpsertAddres
     }));
 
     const results = await addressDao.replaceAddresses(employee_cuid, payload);
+    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
     return results.map(toPublicAddress);
 }
