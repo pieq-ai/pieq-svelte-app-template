@@ -20,8 +20,7 @@ export async function list() {
 			description: true,
 			is_paid: true,
 			requires_approval: true,
-			status: true,
-			updated_at: true
+			status: true
 		},
 		orderBy: { updated_at: 'desc' }
 	});
@@ -86,8 +85,7 @@ export async function findByCuid(cuid: string) {
 			description: true,
 			is_paid: true,
 			requires_approval: true,
-			status: true,
-			updated_at: true
+			status: true
 		}
 	});
 }

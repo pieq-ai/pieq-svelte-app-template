@@ -33,7 +33,6 @@ export interface LeaveTypeInput {
 	is_paid: boolean;
 	requires_approval: boolean;
 	status: boolean;
-	updated_at?: Date | string;
 }
 
 export interface LeaveTypeDTO {
@@ -44,7 +43,6 @@ export interface LeaveTypeDTO {
 	is_paid: boolean;
 	requires_approval: boolean;
 	status: boolean;
-	updated_at: string;
 }
 
 export function formatLeaveType(type: LeaveTypeInput): LeaveTypeDTO {
@@ -55,10 +53,7 @@ export function formatLeaveType(type: LeaveTypeInput): LeaveTypeDTO {
 		description: type.description || null,
 		is_paid: type.is_paid,
 		requires_approval: type.requires_approval,
-		status: type.status,
-		updated_at: type.updated_at instanceof Date 
-			? type.updated_at.toISOString() 
-			: type.updated_at ? new Date(type.updated_at).toISOString() : new Date().toISOString()
+		status: type.status
 	};
 }
 
@@ -77,7 +72,6 @@ export interface LeavePolicyInput {
 	applicable_gender?: string | null;
 	status: boolean;
 	employment_type_cuids?: string[];
-	updated_at?: Date | string;
 }
 
 export interface LeavePolicyDTO {
@@ -95,7 +89,6 @@ export interface LeavePolicyDTO {
 	applicable_gender: 'Male' | 'Female' | 'Others' | null;
 	status: boolean;
 	employment_type_cuids: string[];
-	updated_at: string;
 }
 
 export function formatLeavePolicy(policy: LeavePolicyInput): LeavePolicyDTO {
@@ -113,10 +106,7 @@ export function formatLeavePolicy(policy: LeavePolicyInput): LeavePolicyDTO {
 		gender_specific: policy.gender_specific,
 		applicable_gender: (policy.applicable_gender || null) as 'Male' | 'Female' | 'Others' | null,
 		status: policy.status,
-		employment_type_cuids: policy.employment_type_cuids || [],
-		updated_at: policy.updated_at instanceof Date 
-			? policy.updated_at.toISOString() 
-			: policy.updated_at ? new Date(policy.updated_at).toISOString() : new Date().toISOString()
+		employment_type_cuids: policy.employment_type_cuids || []
 	};
 }
 

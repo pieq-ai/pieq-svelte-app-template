@@ -32,8 +32,7 @@ export async function list() {
 			allow_half_day: true,
 			gender_specific: true,
 			applicable_gender: true,
-			status: true,
-			updated_at: true
+			status: true
 		},
 		orderBy: { updated_at: 'desc' }
 	});
@@ -201,8 +200,7 @@ export async function findByCuid(cuid: string) {
 			allow_half_day: true,
 			gender_specific: true,
 			applicable_gender: true,
-			status: true,
-			updated_at: true
+			status: true
 		}
 	});
 

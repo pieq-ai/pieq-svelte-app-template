@@ -1,11 +1,11 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-11)
 
 ## Corpus Check
-- 259 files · ~95,102 words
+- 259 files · ~95,305 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1208 nodes · 2157 edges · 83 communities (64 shown, 19 thin omitted)
+- 1208 nodes · 2157 edges · 82 communities (63 shown, 19 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 57 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -83,7 +83,6 @@
 - [[_COMMUNITY_Community 72|Community 72]]
 - [[_COMMUNITY_Community 73|Community 73]]
 - [[_COMMUNITY_Community 74|Community 74]]
-- [[_COMMUNITY_Community 75|Community 75]]
 - [[_COMMUNITY_Community 76|Community 76]]
 - [[_COMMUNITY_Community 77|Community 77]]
 - [[_COMMUNITY_Community 78|Community 78]]
@@ -118,7 +117,7 @@
 ## Import Cycles
 - 1-file cycle: `src/routes/leave-policies/+page.svelte -> src/routes/leave-policies/+page.svelte`
 
-## Communities (83 total, 19 thin omitted)
+## Communities (82 total, 19 thin omitted)
 
 ### Community 0 - "API Endpoints"
 Cohesion: 0.06
@@ -129,8 +128,8 @@ Cohesion: 0.23
 Nodes (4): createClient(), db, getDb(), isValidClient()
 
 ### Community 2 - "UI Components Index"
-Cohesion: 0.20
-Nodes (22): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/toast, $lib/types/salary-component, $lib/utils, $lib/validators/salary-component (+14 more)
+Cohesion: 0.17
+Nodes (26): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/toast, $lib/types/salary-component (+18 more)
 
 ### Community 3 - "UI Components Core"
 Cohesion: 0.08
@@ -162,7 +161,7 @@ Nodes (23): POST(), SalaryComponentDto, serializeSalaryComponent(), BusinessVali
 
 ### Community 10 - "Designation Service DAO"
 Cohesion: 0.13
-Nodes (12): $lib/components, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/components, $lib/master-data/master-config, $lib/permissions/mock-permissions, @lucide/svelte/icons/chevron-left, modalStack (+4 more)
+Nodes (10): @lucide/svelte/icons/alert-triangle, $lib/components, $lib/components, $lib/confirmation.svelte.js, @lucide/svelte/icons/chevron-left, modalStack, stack, @lucide/svelte/icons/more-vertical (+2 more)
 
 ### Community 11 - "Server Authentication"
 Cohesion: 0.15
@@ -193,8 +192,8 @@ Cohesion: 0.25
 Nodes (3): load(), Toast, ToastStore
 
 ### Community 23 - "Dashboard Routes"
-Cohesion: 0.14
-Nodes (18): $lib/components/ui, $lib/components/ui/dropdown-menu/index.js, $lib/validators/employment-type.js, ./$types.js, ./$types.js, @lucide/svelte/icons/chevron-down, @lucide/svelte/icons/filter, getCodeClientError() (+10 more)
+Cohesion: 0.13
+Nodes (19): $lib/components/index.js, $lib/components/ui, $lib/components/ui/dropdown-menu/index.js, $lib/validators/employment-type.js, ./$types.js, ./$types.js, @lucide/svelte/icons/chevron-down, @lucide/svelte/icons/filter (+11 more)
 
 ### Community 31 - "Community 31"
 Cohesion: 0.17
@@ -202,7 +201,7 @@ Nodes (11): Adding a new feature, Deployment, Keycloak client setup, pieq-svelte
 
 ### Community 32 - "Community 32"
 Cohesion: 0.15
-Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
+Nodes (13): Code quality, Common workflows, Development, Other, Quick reference, Scripts, `yarn build`, `yarn check` (+5 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.10
@@ -211,6 +210,10 @@ Nodes (20): Changes, Harden `pieq-svelte-app-template` based on initial review, 
 ### Community 34 - "Community 34"
 Cohesion: 0.14
 Nodes (17): ./$types, ./$types, CreateEmployeeData, actions, load(), GET(), getErrorStatus(), POST() (+9 more)
+
+### Community 37 - "Community 37"
+Cohesion: 0.50
+Nodes (4): Testing, `yarn test`, `yarn test:e2e`, `yarn test:unit`
 
 ### Community 40 - "Community 40"
 Cohesion: 0.21
@@ -268,10 +271,6 @@ Nodes (8): createDepartment(), CreateDepartmentDto, deleteDepartment(), getDepar
 Cohesion: 0.22
 Nodes (6): @lucide/svelte/icons/circle-check, @lucide/svelte/icons/info, @lucide/svelte/icons/loader-2, @lucide/svelte/icons/octagon-x, mode-watcher, @lucide/svelte/icons/triangle-alert
 
-### Community 59 - "Community 59"
-Cohesion: 0.20
-Nodes (3): $lib/components/index.js, @lucide/svelte/icons/check, @lucide/svelte/icons/minus
-
 ### Community 61 - "Community 61"
 Cohesion: 0.29
 Nodes (7): 1. Project Overview, 2. Implemented Modules, 3. UI & Design System, 4. Tech Stack, 5. Testing Status, 6. Architecture Notes, Current Project State (Codebase Reality)
@@ -323,10 +322,6 @@ Nodes (5): `Cannot read properties of undefined (reading 'create')` or `'findMan
 ### Community 73 - "Community 73"
 Cohesion: 0.40
 Nodes (5): Database (Prisma), `yarn db:generate`, `yarn db:migrate`, `yarn db:push`, `yarn db:studio`
-
-### Community 75 - "Community 75"
-Cohesion: 0.50
-Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
 
 ### Community 78 - "Community 78"
 Cohesion: 0.67

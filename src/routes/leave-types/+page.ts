@@ -9,7 +9,6 @@ export interface LeaveType {
 	is_paid: boolean;
 	requires_approval: boolean;
 	status: boolean;
-	updated_at: string;
 }
 
 export const load: PageLoad = async ({ fetch }) => {
