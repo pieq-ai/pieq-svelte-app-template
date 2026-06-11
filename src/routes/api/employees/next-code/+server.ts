@@ -8,7 +8,7 @@ export async function GET(event: RequestEvent) {
         permissionGuard.requireAuth(event.locals.user);
         const nextCode = await employeeService.generateNextEmployeeCode();
         return json({ data: nextCode });
-    } catch (error: any) {
-        return json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        return json({ error: (error as Error).message }, { status: 500 });
     }
 }

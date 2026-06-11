@@ -1,11 +1,11 @@
 import { json } from '@sveltejs/kit';
 import { ValidationError } from '$lib/server/utils/errors.js';
 
-export function sendList(data: any) {
+export function sendList(data: unknown) {
 	return json({ data });
 }
 
-export function sendItem(data: any) {
+export function sendItem(data: unknown) {
 	return json({ data });
 }
 

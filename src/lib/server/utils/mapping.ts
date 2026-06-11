@@ -51,7 +51,8 @@ export function toDesignationDTO(designation: any) {
 
 export function toEmployeeDTO(employee: any) {
 	if (!employee) return employee;
-	const { id, ...rest } = employee;
+	const rest = { ...employee };
+	delete rest.id;
 	return rest;
 }
 

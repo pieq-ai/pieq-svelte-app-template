@@ -2,12 +2,16 @@
 	import { onMount } from 'svelte';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import { Alert, AlertDescription, Button, CrudModal, Input, Label, SearchableDropdown } from '$lib/components';
+	import { getMasterPermissions, type MasterPermissionConfig } from '$lib/permissions/mock-permissions';
 
 	interface Props {
 		label?: string;
 		value: string | string[];
 		multiple?: boolean;
 		placeholder?: string;
+		permissions?: Partial<MasterPermissionConfig>;
+		disabled?: boolean;
+		class?: string;
 		onSelect: (id: string | string[]) => void;
 	}
 
@@ -16,6 +20,9 @@
 		value,
 		multiple = false,
 		placeholder,
+		permissions = getMasterPermissions(),
+		disabled = false,
+		class: className = '',
 		onSelect
 	}: Props = $props();
 
@@ -104,11 +111,14 @@
 <div class="space-y-2">
 	<SearchableDropdown
 		label={label}
+		value={value}
 		{options}
-		{value}
 		{multiple}
 		{placeholder}
-		permissions={{ canCreate: false, canEdit: false, canDelete: false }}
+		{disabled}
+		class={className}
+		{permissions}
+		onAdd={openCreateModal}
 		{onSelect}
 	/>
 	{#if isLoading}

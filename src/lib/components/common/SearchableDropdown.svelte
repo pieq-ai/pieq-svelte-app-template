@@ -26,6 +26,8 @@
 		multiple?: boolean;
 		placeholder?: string;
 		permissions?: Partial<MasterPermissionConfig>;
+		disabled?: boolean;
+		class?: string;
 		onSelect: (id: string | string[]) => void;
 		onAdd?: () => void;
 		onEdit?: (id: string) => void;
@@ -38,6 +40,8 @@
 		multiple = false,
 		placeholder,
 		permissions = {},
+		disabled = false,
+		class: className = '',
 		onSelect,
 		onAdd,
 		onEdit
@@ -107,7 +111,8 @@
 				{#snippet child({ props })}
 					<Button
 						variant="outline"
-						class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {displayValue === activePlaceholder ? 'text-muted-foreground' : ''}"
+						disabled={disabled}
+						class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {displayValue === activePlaceholder ? 'text-muted-foreground' : ''} {className}"
 						{...props}
 					>
 						<span class="truncate block text-left flex-1">{displayValue}</span>

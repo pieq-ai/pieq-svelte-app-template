@@ -1,4 +1,4 @@
-import type { RequestEvent } from '@sveltejs/kit';
+import type { RequestEvent } from './$types';
 import * as addressService from '$lib/server/services/address.service.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import { sendList, sendUpdated, handleError } from '$lib/server/utils/response.js';
@@ -29,7 +29,7 @@ export async function PUT(event: RequestEvent) {
         
         // Inject updated_by into each record
         const user_id = event.locals.user?.id;
-        body = body.map((addr: any) => ({ ...addr, updated_by: user_id }));
+        body = body.map((addr: Record<string, unknown>) => ({ ...addr, updated_by: user_id }));
 
 		await addressService.replaceAddresses(employee_cuid, body);
 		return sendUpdated(employee_cuid, 'Successfully updated addresses');

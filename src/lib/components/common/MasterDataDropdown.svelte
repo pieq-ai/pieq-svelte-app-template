@@ -21,6 +21,8 @@
 		countryCuid?: string;
 		placeholder?: string;
 		permissions?: Partial<MasterPermissionConfig>;
+		disabled?: boolean;
+		class?: string;
 		onSelect: (id: string | string[]) => void;
 	}
 
@@ -32,6 +34,8 @@
 		countryCuid,
 		placeholder,
 		permissions = getMasterPermissions(),
+		disabled = false,
+		class: className = '',
 		onSelect
 	}: Props = $props();
 
@@ -196,8 +200,9 @@
 		{value}
 		{multiple}
 		{placeholder}
-		{permissions}
-		{onSelect}
+		{disabled}
+		class={className}
+		onSelect={onSelect}
 		onAdd={permissions.canCreate ? openCreateModal : undefined}
 		onEdit={permissions.canEdit ? openEditModal : undefined}
 	/>

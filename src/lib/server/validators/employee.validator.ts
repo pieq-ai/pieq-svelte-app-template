@@ -96,3 +96,32 @@ export function validateDob(dob: string | Date | null | undefined): Date {
     
     return date;
 }
+
+export function validateIfsc(ifsc: string | null | undefined): string {
+    if (!ifsc) throw new Error("IFSC code is required");
+    const trimmed = ifsc.trim().toUpperCase();
+    if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(trimmed)) throw new Error("Invalid IFSC code format");
+    return trimmed;
+}
+
+export function validatePastDate(dateStr: string | Date | null | undefined, fieldName: string): Date {
+    if (!dateStr) throw new Error(`${fieldName} is required`);
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) throw new Error(`Invalid date for ${fieldName}`);
+    if (date > new Date()) throw new Error(`${fieldName} cannot be in the future`);
+    return date;
+}
+
+export function validatePercentage(percentage: string | number | null | undefined): number {
+    if (percentage === null || percentage === undefined || percentage === "") throw new Error("Percentage is required");
+    const num = Number(percentage);
+    if (isNaN(num) || num < 0 || num > 100) throw new Error("Percentage must be between 0 and 100");
+    return num;
+}
+
+export function validatePinCode(pin: string | null | undefined): string {
+    if (!pin) throw new Error("PIN code is required");
+    const trimmed = pin.trim();
+    if (!/^[0-9]{6}$/.test(trimmed)) throw new Error("PIN code must be exactly 6 digits");
+    return trimmed;
+}

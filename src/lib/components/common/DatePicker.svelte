@@ -12,9 +12,10 @@
 		placeholder?: string;
 		class?: string;
 		isError?: boolean;
+		disabled?: boolean;
 	}
 
-	let { value = $bindable(''), placeholder = "DD/MM/YYYY", class: className = "", isError = $bindable(false) }: Props = $props();
+	let { value = $bindable(''), placeholder = "DD/MM/YYYY", class: className = "", isError = $bindable(false), disabled = false }: Props = $props();
 
 	let open = $state(false);
 	let prevValue = $state(value);
@@ -189,23 +190,26 @@
 		bind:value={textValue}
 		oninput={handleInput}
 		onblur={handleBlur}
+		{disabled}
 		class={cn(
 			"pr-10 transition-colors",
 			isError && "border-destructive focus-visible:ring-destructive/50",
 			className
 		)}
 	/>
-	<Popover.Root bind:open>
-		<Popover.Trigger class="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-r-md">
-			<CalendarIcon class="size-4 shrink-0" />
-		</Popover.Trigger>
-		<Popover.Content class="w-auto p-0 border border-border rounded-md shadow-md bg-popover z-50" align="end" sideOffset={4}>
-			<Calendar 
-				type="single" 
-				bind:value={calendarValue} 
-				captionLayout="dropdown"
-				years={yearsForDropdown}
-			/>
-		</Popover.Content>
-	</Popover.Root>
+	{#if !disabled}
+		<Popover.Root bind:open>
+			<Popover.Trigger class="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-r-md">
+				<CalendarIcon class="size-4 shrink-0" />
+			</Popover.Trigger>
+			<Popover.Content class="w-auto p-0 border border-border rounded-md shadow-md bg-popover z-50" align="end" sideOffset={4}>
+				<Calendar 
+					type="single" 
+					bind:value={calendarValue} 
+					captionLayout="dropdown"
+					years={yearsForDropdown}
+				/>
+			</Popover.Content>
+		</Popover.Root>
+	{/if}
 </div>

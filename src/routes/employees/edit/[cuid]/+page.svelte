@@ -3,10 +3,11 @@
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
+	let { employee } = $derived(data);
 </script>
 
 <svelte:head>
-	<title>Add Employee</title>
+	<title>Edit Employee | {employee?.first_name} {employee?.last_name || ''}</title>
 </svelte:head>
 
-<EmployeeWizard mode="create" data={data} />
+<EmployeeWizard mode="edit" employeeCuid={employee?.cuid} data={data} />
