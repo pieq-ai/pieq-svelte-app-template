@@ -19,6 +19,7 @@
 	import UsersRoundIcon from '@lucide/svelte/icons/users-round';
 	import WalletIcon from '@lucide/svelte/icons/wallet';
 	import ReceiptTextIcon from '@lucide/svelte/icons/receipt-text';
+	import BanknoteIcon from '@lucide/svelte/icons/banknote';
 
 	let { children, data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);
@@ -31,6 +32,7 @@
 		{ label: 'Designation', href: resolve('/designations'), icon: UserRoundIcon },
 		{ label: 'Salary Components', href: resolve('/salary-components'), icon: WalletIcon },
 		{ label: 'Salary Structures', href: resolve('/salary-structures'), icon: ReceiptTextIcon },
+		{ label: 'Payroll', href: resolve('/payrolls'), icon: BanknoteIcon },
 		{ label: 'System Roles', href: resolve('/system-roles'), icon: ShieldCheckIcon },
 		{ label: 'Permissions', href: resolve('/permissions'), icon: KeyRoundIcon },
 		{ label: 'Role Permissions', href: resolve('/role-permissions'), icon: LinkIcon }
