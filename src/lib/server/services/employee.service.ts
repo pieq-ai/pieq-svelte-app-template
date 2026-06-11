@@ -54,18 +54,43 @@ export async function getEmployeeByCuid2(cuid: string) {
     return toPublicEmployee(emp);
 }
 
+export async function generateNextEmployeeCode(): Promise<string> {
+    const latest = await employeeDao.getLatestEmployeeCode();
+    if (!latest) {
+        return 'PQ001';
+    }
+    const match = latest.match(/^PQ(\d{3})$/);
+    if (!match) {
+        return 'PQ001';
+    }
+    const nextNumber = parseInt(match[1], 10) + 1;
+    return `PQ${nextNumber.toString().padStart(3, '0')}`;
+}
+
 export async function createEmployee(dto: CreateEmployeeDto) {
-    const emp_code = validator.validateEmpCode(dto.emp_code);
+    // Auto-generate employee code if missing or to ensure sequence
+    // Although the frontend might send it, generating it on the server ensures uniqueness and safety against race conditions
+    const emp_code = await generateNextEmployeeCode();
+    
     const first_name = validator.validateName(dto.first_name, "First Name");
     const last_name = validator.validateName(dto.last_name, "Last Name");
+    const father_name = validator.validateName(dto.father_name, "Father's Name");
     const personal_email = validator.validateEmail(dto.personal_email);
+    const mobile_no = validator.validateMobile(dto.mobile_no, "Mobile Number");
+    const emergency_contact_name = validator.validateName(dto.emergency_contact_name, "Emergency Contact Name");
+    const emergency_contact_no = validator.validateMobile(dto.emergency_contact_no, "Emergency Contact Number");
+    
     const pan_no = validator.validatePan(dto.pan_no);
     const aadhar_no = validator.validateAadhar(dto.aadhar_no);
+    const uan_no = validator.validateUan(dto.uan_no);
+    const esi_no = validator.validateEsi(dto.esi_no);
+    
     const dob = validator.validateDob(dto.dob);
+    const remarks = validator.validateRemarks(dto.remarks);
 
     const existingCode = await employeeDao.findByEmpCode(emp_code);
     if (existingCode) {
-        throw new ValidationError("emp_code", `Employee code "${emp_code}" already exists`);
+        throw new ValidationError("emp_code", `Employee code "${emp_code}" already exists. Please try saving again.`);
     }
 
     if (personal_email) {
@@ -80,11 +105,17 @@ export async function createEmployee(dto: CreateEmployeeDto) {
         emp_code,
         first_name,
         last_name,
+        father_name,
         personal_email,
+        mobile_no,
+        emergency_contact_name,
+        emergency_contact_no,
         pan_no,
         aadhar_no,
+        uan_no,
+        esi_no,
         dob,
-        father_name: dto.father_name?.trim() || null,
+        remarks,
         profile_completion_status: 'pending'
     }));
 }
@@ -100,6 +131,10 @@ export async function updateEmployee(cuid: string, dto: UpdateEmployeeDto) {
 
     if (dto.first_name !== undefined) updateData.first_name = validator.validateName(dto.first_name, "First Name");
     if (dto.last_name !== undefined) updateData.last_name = validator.validateName(dto.last_name, "Last Name");
+    if (dto.father_name !== undefined) updateData.father_name = validator.validateName(dto.father_name, "Father's Name");
+    if (dto.mobile_no !== undefined) updateData.mobile_no = validator.validateMobile(dto.mobile_no, "Mobile Number");
+    if (dto.emergency_contact_name !== undefined) updateData.emergency_contact_name = validator.validateName(dto.emergency_contact_name, "Emergency Contact Name");
+    if (dto.emergency_contact_no !== undefined) updateData.emergency_contact_no = validator.validateMobile(dto.emergency_contact_no, "Emergency Contact Number");
     
     if (dto.personal_email !== undefined) {
         const email = validator.validateEmail(dto.personal_email);
@@ -114,6 +149,9 @@ export async function updateEmployee(cuid: string, dto: UpdateEmployeeDto) {
 
     if (dto.pan_no !== undefined) updateData.pan_no = validator.validatePan(dto.pan_no);
     if (dto.aadhar_no !== undefined) updateData.aadhar_no = validator.validateAadhar(dto.aadhar_no);
+    if (dto.uan_no !== undefined) updateData.uan_no = validator.validateUan(dto.uan_no);
+    if (dto.esi_no !== undefined) updateData.esi_no = validator.validateEsi(dto.esi_no);
+    if (dto.remarks !== undefined) updateData.remarks = validator.validateRemarks(dto.remarks);
     if (dto.dob !== undefined) updateData.dob = validator.validateDob(dto.dob);
 
     return toPublicEmployee(await employeeDao.update(cuid, updateData));

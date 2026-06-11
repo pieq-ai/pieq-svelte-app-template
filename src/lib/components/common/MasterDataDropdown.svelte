@@ -1,10 +1,17 @@
+<script module lang="ts">
+	import { SvelteMap } from 'svelte/reactivity';
+	import type { DropdownOption } from './SearchableDropdown.svelte';
+
+	const masterCache = new SvelteMap<string, DropdownOption[]>();
+	const pendingRequests = new SvelteMap<string, Promise<DropdownOption[]>>();
+</script>
+
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import { Alert, AlertDescription, Button, CrudModal, Input, Label, SearchableDropdown } from '$lib/components';
 	import { getMasterConfig, type MasterKey } from '$lib/master-data/master-config';
 	import { getMasterPermissions, type MasterPermissionConfig } from '$lib/permissions/mock-permissions';
-	import type { DropdownOption } from './SearchableDropdown.svelte';
 
 	interface Props {
 		master: MasterKey;
@@ -61,28 +68,61 @@
 	let validationError = $derived(isValueTouched ? getValidationError(masterValue) : '');
 
 	async function loadOptions() {
+		const cacheKey = countryCuid ? `${master}-${countryCuid}` : master;
+
+		if (masterCache.has(cacheKey)) {
+			options = masterCache.get(cacheKey)!;
+			return;
+		}
+
 		isLoading = true;
 		errorMessage = '';
+
+		if (pendingRequests.has(cacheKey)) {
+			try {
+				options = await pendingRequests.get(cacheKey)!;
+			} catch {
+				errorMessage = 'Failed to load options from pending request.';
+			} finally {
+				isLoading = false;
+			}
+			return;
+		}
+
 		const query = countryCuid ? `?countryCuid=${encodeURIComponent(countryCuid)}` : '';
-		try {
-			const response = await fetch(`/api/master-data/${master}${query}`);
+		
+		const fetchPromise = fetch(`/api/master-data/${master}${query}`).then(async (response) => {
 			const body = await response.json();
 			if (response.ok) {
-				options = body.data ?? [];
+				const data = body.data ?? [];
+				masterCache.set(cacheKey, data);
+				return data;
 			} else {
-				errorMessage = body.error || `Failed to load ${config.label.toLowerCase()} options.`;
+				throw new Error(body.error || `Failed to load ${config.label.toLowerCase()} options.`);
 			}
+		});
+
+		pendingRequests.set(cacheKey, fetchPromise);
+
+		try {
+			options = await fetchPromise;
+		} catch (err: unknown) {
+			errorMessage = err instanceof Error ? err.message : String(err);
 		} finally {
+			pendingRequests.delete(cacheKey);
 			isLoading = false;
 		}
 	}
 
-	onMount(loadOptions);
+	onMount(() => untrack(loadOptions));
 
 	$effect(() => {
-		if (master === 'states') {
-			loadOptions();
-		}
+		const currentCountryCuid = countryCuid;
+		untrack(() => {
+			if (currentCountryCuid !== undefined) {
+				loadOptions();
+			}
+		});
 	});
 
 	function openCreateModal() {
@@ -129,6 +169,9 @@
 			);
 			const body = await response.json();
 			if (response.ok) {
+				const cacheKey = countryCuid ? `${master}-${countryCuid}` : master;
+				masterCache.delete(cacheKey);
+
 				await loadOptions();
 				if (!editingOption && body.data?.cuid) {
 					onSelect(body.data.cuid);

@@ -24,6 +24,7 @@
 	import TrashIcon from '@lucide/svelte/icons/trash';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import type { PageData } from './$types';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	let { data }: { data: PageData } = $props();
 
@@ -102,39 +103,105 @@
 		documents = [...documents, { document_type_cuid: '', file_name: '', mime_type: '', file_size: 0 }];
 	}
 
+	import { onMount } from 'svelte';
+
+	onMount(async () => {
+		try {
+			const res = await fetch('/api/employees/next-code');
+			const body = await res.json();
+			if (res.ok && body.data) {
+				emp.emp_code = body.data;
+			}
+		} catch (e) {
+			console.error('Failed to fetch next employee code', e);
+		}
+	});
+
+	// Formatters
+	function formatAadharUan(val: string) {
+		let v = val.replace(/\D/g, '').slice(0, 12);
+		return v.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
+	}
+	function formatMobile(val: string) {
+		return val.replace(/\D/g, '').slice(0, 10);
+	}
+	function formatPan(val: string) {
+		return val.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+	}
+	function formatEsi(val: string) {
+		return val.replace(/\D/g, '');
+	}
+	function formatName(val: string) {
+		return val.replace(/[^a-zA-Z\s]/g, '').replace(/\s+/g, ' ');
+	}
+	function formatRemarks(val: string) {
+		return val.replace(/[^a-zA-Z\s.]/g, '').replace(/\s+/g, ' ');
+	}
+
 	// Validations
+	function validateName(val: string | undefined | null) {
+		if (!val) return '';
+		const trimmed = val.trim();
+		if (trimmed.length > 0 && trimmed.length < 3) return "Must be at least 3 characters.";
+		return '';
+	}
+	function validateMobileRule(val: string | undefined | null) {
+		if (!val) return '';
+		if (val.length > 0 && val.length < 10) return "Must be exactly 10 digits.";
+		return '';
+	}
+	function validatePanRule(val: string | undefined | null) {
+		if (!val) return '';
+		if (val.length > 0 && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(val)) return "Invalid PAN format.";
+		return '';
+	}
+	function validateAadharRule(val: string | undefined | null) {
+		if (!val) return '';
+		const stripped = val.replace(/\s+/g, '');
+		if (stripped.length > 0 && stripped.length < 12) return "Must be exactly 12 digits.";
+		return '';
+	}
+
 	function validateDob(dob: string) {
 		if (!dob) return '';
-		const date = new Date(dob);
-		const today = new Date();
-		if (date > today) return "Date of birth cannot be a future date.";
-		const age = today.getFullYear() - date.getFullYear() - (today.getMonth() < date.getMonth() || (today.getMonth() === date.getMonth() && today.getDate() < date.getDate()) ? 1 : 0);
+		const date = new SvelteDate(dob);
+		if (isNaN(date.getTime())) return "Invalid date format.";
+		const today = new SvelteDate();
+		today.setHours(0, 0, 0, 0);
+		const dobDate = new SvelteDate(date.getTime());
+		dobDate.setHours(0, 0, 0, 0);
+
+		if (dobDate >= today) return "Date of birth cannot be today or a future date.";
+		let age = today.getFullYear() - dobDate.getFullYear();
+		if (today.getMonth() < dobDate.getMonth() || (today.getMonth() === dobDate.getMonth() && today.getDate() < dobDate.getDate())) {
+			age--;
+		}
 		if (age < 18) return "Employee must be at least 18 years old.";
 		return '';
 	}
 	function validateDoj(dob: string, doj: string) {
 		if (!doj) return '';
-		if (dob && new Date(doj) < new Date(dob)) return "Cannot be before Date of Birth.";
+		if (dob && new SvelteDate(doj) < new SvelteDate(dob)) return "Cannot be before Date of Birth.";
 		return '';
 	}
 	function validateConfirmation(doj: string, conf: string) {
 		if (!conf) return '';
-		if (doj && new Date(conf) < new Date(doj)) return "Cannot be earlier than joining date.";
+		if (doj && new SvelteDate(conf) < new SvelteDate(doj)) return "Cannot be earlier than joining date.";
 		return '';
 	}
 	function validateRelieving(doj: string, rel: string) {
 		if (!rel) return '';
-		if (doj && new Date(rel) < new Date(doj)) return "Cannot be earlier than joining date.";
+		if (doj && new SvelteDate(rel) < new SvelteDate(doj)) return "Cannot be earlier than joining date.";
 		return '';
 	}
 	function validatePastDate(date: string) {
 		if (!date) return '';
-		if (new Date(date) > new Date()) return "Cannot be a future date.";
+		if (new SvelteDate(date) > new SvelteDate()) return "Cannot be a future date.";
 		return '';
 	}
 	function validateExperienceDates(from: string, to: string) {
 		if (!from || !to) return '';
-		if (new Date(from) > new Date(to)) return "From Date cannot be after To Date.";
+		if (new SvelteDate(from) > new SvelteDate(to)) return "From Date cannot be after To Date.";
 		return '';
 	}
 
@@ -142,7 +209,16 @@
 		dob: validateDob(emp.dob),
 		doj: validateDoj(emp.dob, employment.date_of_joining),
 		conf: validateConfirmation(employment.date_of_joining, employment.confirmation_date),
-		rel: validateRelieving(employment.date_of_joining, employment.relieving_date)
+		rel: validateRelieving(employment.date_of_joining, employment.relieving_date),
+		first_name: validateName(emp.first_name),
+		last_name: validateName(emp.last_name),
+		father_name: validateName(emp.father_name),
+		emergency_contact_name: validateName(emp.emergency_contact_name),
+		mobile_no: validateMobileRule(emp.mobile_no),
+		emergency_contact_no: validateMobileRule(emp.emergency_contact_no),
+		pan_no: validatePanRule(emp.pan_no),
+		aadhar_no: validateAadharRule(emp.aadhar_no),
+		uan_no: validateAadharRule(emp.uan_no)
 	});
 
 	let dateErrors = $state({
@@ -161,6 +237,15 @@
 		!!errors.doj || 
 		!!errors.conf || 
 		!!errors.rel ||
+		!!errors.first_name ||
+		!!errors.last_name ||
+		!!errors.father_name ||
+		!!errors.emergency_contact_name ||
+		!!errors.mobile_no ||
+		!!errors.emergency_contact_no ||
+		!!errors.pan_no ||
+		!!errors.aadhar_no ||
+		!!errors.uan_no ||
 		dateErrors.dob ||
 		dateErrors.doj ||
 		dateErrors.conf ||
@@ -255,22 +340,25 @@
 				<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
 					<div class="space-y-2">
 						<Label>Employee Code <span class="text-destructive">*</span></Label>
-						<Input bind:value={emp.emp_code} placeholder="EMP-001" class={inputErrorClass(emp.emp_code)} required />
+						<Input bind:value={emp.emp_code} placeholder="Auto-generated" class="bg-muted {inputErrorClass(emp.emp_code)}" readonly required />
 					</div>
 					<div class="space-y-2">
 						<Label>First Name <span class="text-destructive">*</span></Label>
-						<Input bind:value={emp.first_name} placeholder="John" class={inputErrorClass(emp.first_name)} required />
+						<Input bind:value={emp.first_name} oninput={(e) => emp.first_name = formatName(e.currentTarget.value)} onblur={() => emp.first_name = emp.first_name.trim()} placeholder="John" class={(isTouched && errors.first_name) ? 'border-destructive focus-visible:ring-destructive/50' : inputErrorClass(emp.first_name)} required />
+						{#if isTouched && errors.first_name}<p class="text-xs text-destructive">{errors.first_name}</p>{/if}
 					</div>
 					<div class="space-y-2">
 						<Label>Last Name <span class="text-destructive">*</span></Label>
-						<Input bind:value={emp.last_name} placeholder="Doe" class={inputErrorClass(emp.last_name)} required />
+						<Input bind:value={emp.last_name} oninput={(e) => emp.last_name = formatName(e.currentTarget.value)} onblur={() => emp.last_name = emp.last_name.trim()} placeholder="Doe" class={(isTouched && errors.last_name) ? 'border-destructive focus-visible:ring-destructive/50' : inputErrorClass(emp.last_name)} required />
+						{#if isTouched && errors.last_name}<p class="text-xs text-destructive">{errors.last_name}</p>{/if}
 					</div>
 					<div class="space-y-2">
-						<Label>Father's Name</Label>
-						<Input bind:value={emp.father_name} placeholder="Father's Name" />
+						<Label>Father's Name <span class="text-destructive">*</span></Label>
+						<Input bind:value={emp.father_name} oninput={(e) => emp.father_name = formatName(e.currentTarget.value)} onblur={() => emp.father_name = emp.father_name.trim()} placeholder="Father's Name" class={(isTouched && errors.father_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
+						{#if isTouched && errors.father_name}<p class="text-xs text-destructive">{errors.father_name}</p>{/if}
 					</div>
 					<div class="space-y-2">
-						<Label>Date of Birth</Label>
+						<Label>Date of Birth <span class="text-destructive">*</span></Label>
 						<DatePicker bind:value={emp.dob} bind:isError={dateErrors.dob} class={(isTouched && errors.dob) || dateErrors.dob ? 'border-destructive' : ''} />
 						{#if isTouched && errors.dob}
 							<p class="text-xs text-destructive">{errors.dob}</p>
@@ -316,32 +404,38 @@
 						<Input type="email" bind:value={emp.personal_email} placeholder="john@example.com" />
 					</div>
 					<div class="space-y-2">
-						<Label>Mobile Number</Label>
-						<Input type="tel" bind:value={emp.mobile_no} placeholder="+1234567890" />
+						<Label>Mobile Number <span class="text-destructive">*</span></Label>
+						<Input type="tel" bind:value={emp.mobile_no} oninput={(e) => emp.mobile_no = formatMobile(e.currentTarget.value)} placeholder="1234567890" class={(isTouched && errors.mobile_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
+						{#if isTouched && errors.mobile_no}<p class="text-xs text-destructive">{errors.mobile_no}</p>{/if}
 					</div>
 					<div class="space-y-2">
-						<Label>Aadhar Number</Label>
-						<Input bind:value={emp.aadhar_no} placeholder="0000 0000 0000" />
+						<Label>Aadhar Number <span class="text-destructive">*</span></Label>
+						<Input bind:value={emp.aadhar_no} oninput={(e) => { const v = e.currentTarget.value.replace(/\D/g, '').slice(0, 12); emp.aadhar_no = v.replace(/(\d{4})(?=\d)/g, '$1 ').trim(); }} placeholder="0000 0000 0000" class={(isTouched && errors.aadhar_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
+						{#if isTouched && errors.aadhar_no}<p class="text-xs text-destructive">{errors.aadhar_no}</p>{/if}
 					</div>
 					<div class="space-y-2">
-						<Label>PAN Number</Label>
-						<Input bind:value={emp.pan_no} placeholder="ABCDE1234F" />
+						<Label>PAN Number <span class="text-destructive">*</span></Label>
+						<Input bind:value={emp.pan_no} oninput={(e) => emp.pan_no = formatPan(e.currentTarget.value)} placeholder="ABCDE1234F" class={(isTouched && errors.pan_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
+						{#if isTouched && errors.pan_no}<p class="text-xs text-destructive">{errors.pan_no}</p>{/if}
 					</div>
 					<div class="space-y-2">
 						<Label>UAN Number</Label>
-						<Input bind:value={emp.uan_no} placeholder="UAN Number" />
+						<Input bind:value={emp.uan_no} oninput={(e) => { const v = e.currentTarget.value.replace(/\D/g, '').slice(0, 12); emp.uan_no = v.replace(/(\d{4})(?=\d)/g, '$1 ').trim(); }} placeholder="0000 0000 0000" class={(isTouched && errors.uan_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
+						{#if isTouched && errors.uan_no}<p class="text-xs text-destructive">{errors.uan_no}</p>{/if}
 					</div>
 					<div class="space-y-2">
 						<Label>ESI Number</Label>
-						<Input bind:value={emp.esi_no} placeholder="ESI Number" />
+						<Input bind:value={emp.esi_no} oninput={(e) => emp.esi_no = formatEsi(e.currentTarget.value)} placeholder="ESI Number" />
 					</div>
 					<div class="space-y-2">
-						<Label>Emergency Contact Name</Label>
-						<Input bind:value={emp.emergency_contact_name} placeholder="Emergency Contact Name" />
+						<Label>Emergency Contact Name <span class="text-destructive">*</span></Label>
+						<Input bind:value={emp.emergency_contact_name} oninput={(e) => emp.emergency_contact_name = formatName(e.currentTarget.value)} onblur={() => emp.emergency_contact_name = emp.emergency_contact_name.trim()} placeholder="Emergency Contact Name" class={(isTouched && errors.emergency_contact_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
+						{#if isTouched && errors.emergency_contact_name}<p class="text-xs text-destructive">{errors.emergency_contact_name}</p>{/if}
 					</div>
 					<div class="space-y-2">
-						<Label>Emergency Contact Number</Label>
-						<Input bind:value={emp.emergency_contact_no} placeholder="Emergency Contact No" />
+						<Label>Emergency Contact Number <span class="text-destructive">*</span></Label>
+						<Input bind:value={emp.emergency_contact_no} oninput={(e) => emp.emergency_contact_no = formatMobile(e.currentTarget.value)} placeholder="1234567890" class={(isTouched && errors.emergency_contact_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
+						{#if isTouched && errors.emergency_contact_no}<p class="text-xs text-destructive">{errors.emergency_contact_no}</p>{/if}
 					</div>
 					<MasterDataDropdown 
 						master="relation-types" 
@@ -351,7 +445,7 @@
 					/>
 					<div class="space-y-2 xl:col-span-3">
 						<Label>Remarks</Label>
-						<Input bind:value={emp.remarks} placeholder="Additional comments..." />
+						<Input bind:value={emp.remarks} oninput={(e) => emp.remarks = formatRemarks(e.currentTarget.value)} onblur={() => emp.remarks = emp.remarks.trim()} placeholder="Additional comments..." />
 					</div>
 
 				</div>

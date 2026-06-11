@@ -46,6 +46,23 @@ export async function findByEmpCode(emp_code: string) {
 	});
 }
 
+export async function getLatestEmployeeCode() {
+    const latest = await db.employee.findFirst({
+        where: {
+            emp_code: {
+                startsWith: 'PQ'
+            }
+        },
+        orderBy: {
+            emp_code: 'desc'
+        },
+        select: {
+            emp_code: true
+        }
+    });
+    return latest?.emp_code || null;
+}
+
 export async function findByEmail(email: string) {
 	return db.employee.findFirst({
 		where: { personal_email: email }
