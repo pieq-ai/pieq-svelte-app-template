@@ -14,6 +14,7 @@
 	import FilterIcon from '@lucide/svelte/icons/filter';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import {
 		Alert,
@@ -733,6 +734,7 @@
 										customActions={[
 											{
 												label: 'Delete',
+												icon: Trash2Icon,
 												onClick: () => {
 													activeDeleteCuid = holiday.cuid;
 													confirmTitle = 'Delete Holiday';

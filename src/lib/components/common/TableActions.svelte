@@ -7,6 +7,7 @@
 	export interface CustomAction {
 		label: string;
 		onClick: () => void;
+		icon?: any;
 	}
 
 	interface Props {
@@ -48,6 +49,10 @@
 		{#if customActions && customActions.length > 0}
 			{#each customActions as action}
 				<DropdownMenu.Item onclick={action.onClick} class="cursor-pointer">
+					{#if action.icon}
+						{@const IconComponent = action.icon}
+						<IconComponent class="mr-2 size-4" />
+					{/if}
 					{action.label}
 				</DropdownMenu.Item>
 			{/each}
