@@ -380,6 +380,10 @@ model SalaryStructureItem {
   /// CUID of the salary component (no FK constraint — resolved at application layer)
   salary_component_cuid String @db.Text
 
+  /// Snapshot of the component name at the time of structure creation/revision
+  /// Preserved even if the component is later renamed.
+  component_name_snapshot String @db.VarChar(150)
+
   /// Monetary amount for this component in the structure
   amount Decimal @db.Decimal(15, 2)
 

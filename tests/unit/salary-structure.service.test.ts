@@ -9,7 +9,7 @@ import {
 	InvalidEmployeeError,
 	InvalidSalaryComponentError,
 	DuplicateComponentInStructureError,
-	DuplicateEmployeeStructureError
+	ActiveStructureExistsError
 } from '$lib/server/services/salary-structure.service.js';
 
 // ─── Mock DAO ─────────────────────────────────────────────────────────────────
@@ -19,6 +19,7 @@ vi.mock('$lib/server/dao/salary-structure.dao.js', () => ({
 	update: vi.fn(),
 	findByCuid: vi.fn(),
 	findByEmployeeCuid: vi.fn(),
+	findActiveByEmployeeCuid: vi.fn(),
 	findMany: vi.fn(),
 	createItems: vi.fn(),
 	deleteItemsByStructureCuid: vi.fn(),
@@ -87,6 +88,7 @@ describe('Salary Structure Service', () => {
 	describe('createStructure', () => {
 		it('should create structure and items, returning serialized data', async () => {
 			vi.mocked(findEmployeeByCuid).mockReturnValue({ cuid: 'EMP001', employee_id: 'EMP001', name: 'John Doe' });
+			vi.mocked(structureDao.findActiveByEmployeeCuid).mockResolvedValue(null as never);
 			vi.mocked(componentDao.findByCuid).mockResolvedValue(mockComponentRecord() as never);
 			vi.mocked(structureDao.create).mockResolvedValue(mockStructureRecord() as never);
 			vi.mocked(structureDao.createItems).mockResolvedValue([mockItemRecord()] as never);
@@ -166,9 +168,9 @@ describe('Salary Structure Service', () => {
 			).rejects.toThrow(DuplicateComponentInStructureError);
 		});
 
-		it('should throw DuplicateEmployeeStructureError when employee already has a structure', async () => {
+		it('should throw ActiveStructureExistsError when employee already has an Active structure', async () => {
 			vi.mocked(findEmployeeByCuid).mockReturnValue({ cuid: 'EMP001', employee_id: 'EMP001', name: 'John Doe' });
-			vi.mocked(structureDao.findByEmployeeCuid).mockResolvedValue(mockStructureRecord() as never);
+			vi.mocked(structureDao.findActiveByEmployeeCuid).mockResolvedValue(mockStructureRecord() as never);
 
 			await expect(
 				createStructure({
@@ -178,7 +180,7 @@ describe('Salary Structure Service', () => {
 					status: true,
 					components: [{ salary_component_cuid: 'comp_abc', amount: 100 }]
 				})
-			).rejects.toThrow(DuplicateEmployeeStructureError);
+			).rejects.toThrow(ActiveStructureExistsError);
 		});
 	});
 
@@ -231,6 +233,10 @@ describe('Salary Structure Service', () => {
 	// ─── updateStructure ─────────────────────────────────────────────────────
 
 	describe('updateStructure', () => {
+		beforeEach(() => {
+			vi.mocked(structureDao.findByEmployeeCuid).mockResolvedValue([mockStructureRecord()] as never);
+		});
+
 		it('should update structure fields without touching items', async () => {
 			vi.mocked(structureDao.findByCuid).mockResolvedValue(mockStructureRecord() as never);
 			vi.mocked(structureDao.update).mockResolvedValue(mockStructureRecord({ status: false }) as never);
@@ -274,15 +280,52 @@ describe('Salary Structure Service', () => {
 			);
 		});
 
-		it('should throw DuplicateEmployeeStructureError when changing employee to one who already has a structure', async () => {
+		it('should NOT throw when changing employee (no Active-structure constraint on updateStructure)', async () => {
 			const original = mockStructureRecord({ employee_cuid: 'EMP001' });
 			vi.mocked(structureDao.findByCuid).mockResolvedValue(original as never);
 			vi.mocked(findEmployeeByCuid).mockReturnValue({ cuid: 'EMP002', employee_id: 'EMP002', name: 'Jane' });
-			vi.mocked(structureDao.findByEmployeeCuid).mockResolvedValue(mockStructureRecord({ cuid: 'struct_2', employee_cuid: 'EMP002' }) as never);
+			vi.mocked(structureDao.update).mockResolvedValue(mockStructureRecord({ employee_cuid: 'EMP002' }) as never);
+			vi.mocked(structureDao.findItemsByStructureCuid).mockResolvedValue([mockItemRecord()] as never);
 
+			// updateStructure no longer enforces active-structure-per-employee — that is
+			// handled only by createStructure / createRevision.
 			await expect(
 				updateStructure('struct_1', { employee_cuid: 'EMP002' })
-			).rejects.toThrow(DuplicateEmployeeStructureError);
+			).resolves.toBeDefined();
+		});
+
+		it('should throw BusinessValidationError when date range is invalid', async () => {
+			vi.mocked(structureDao.findByCuid).mockResolvedValue(mockStructureRecord({ effective_from: new Date('2024-01-01') }) as never);
+
+			await expect(
+				updateStructure('struct_1', { effective_to: '2023-01-01' })
+			).rejects.toThrow('Effective to must be after effective from');
+		});
+
+		it('should throw BusinessValidationError when date range overlaps with another structure', async () => {
+			vi.mocked(structureDao.findByCuid).mockResolvedValue(mockStructureRecord({ cuid: 'struct_1', employee_cuid: 'EMP001', effective_from: new Date('2024-01-01') }) as never);
+			
+			const other = {
+				id: 2n,
+				cuid: 'struct_2',
+				employee_cuid: 'EMP001',
+				effective_from: new Date('2026-07-01'),
+				effective_to: null,
+				status: true,
+				created_at: new Date(),
+				created_by: null,
+				updated_at: new Date(),
+				updated_by: null
+			};
+
+			vi.mocked(structureDao.findByEmployeeCuid).mockResolvedValue([
+				mockStructureRecord({ cuid: 'struct_1', employee_cuid: 'EMP001', effective_from: new Date('2024-01-01') }),
+				other
+			] as never);
+
+			await expect(
+				updateStructure('struct_1', { effective_to: '2026-07-05' })
+			).rejects.toThrow('The date range overlaps with another salary structure');
 		});
 	});
 

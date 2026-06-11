@@ -9,6 +9,8 @@ export interface SalaryStructureItem {
 	cuid: string;
 	salary_structure_cuid: string;
 	salary_component_cuid: string;
+	/** Component name captured at assignment time; stable even if component is later renamed. */
+	component_name_snapshot: string;
 	/** Stored as Decimal in DB; serialised as number for JSON transport */
 	amount: number;
 }
@@ -57,6 +59,20 @@ export interface UpdateSalaryStructureDto {
 	/** Renamed from `items` — the external API payload key is `components` */
 	components?: UpdateSalaryStructureItemDto[];
 	updated_by?: string | null;
+}
+
+/**
+ * DTO for creating a salary revision.
+ * The employee is inferred from the source structure — only the new effective_from
+ * and updated component assignments are required.
+ */
+export interface CreateRevisionDto {
+	effective_from: string;
+	components: Array<{
+		salary_component_cuid: string;
+		amount: number;
+	}>;
+	created_by?: string | null;
 }
 
 // ─── API response types ───────────────────────────────────────────────────────

@@ -15,6 +15,7 @@ export function serializeSalaryStructureItem(
 		cuid: record.cuid,
 		salary_structure_cuid: record.salary_structure_cuid,
 		salary_component_cuid: record.salary_component_cuid,
+		component_name_snapshot: record.component_name_snapshot,
 		amount: Number(record.amount)
 	};
 }

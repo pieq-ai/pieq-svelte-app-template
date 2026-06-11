@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
@@ -22,7 +24,6 @@
 		CardHeader,
 		CardTitle,
 		CardDescription,
-		CardContent,
 		Input,
 		Label,
 		Table,
@@ -32,12 +33,11 @@
 		TableHeader,
 		TableRow,
 		CrudModal,
-		TableActions,
 		FilterDropdown,
-		StatusDropdown,
 		Pagination,
 		SearchInput,
-		DatePicker
+		DatePicker,
+		TableActions
 	} from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
@@ -68,30 +68,25 @@
 	let currentPage = $state(1);
 	let pageSize = $state(10);
 
-	// ─── Modal state ─────────────────────────────────────────────────────────────
+	// ─── Create Modal state ───────────────────────────────────────────────────────
 
-	type ModalMode = 'create' | 'edit' | 'view' | null;
-	let modalMode = $state<ModalMode>(null);
-	let editingStructure = $state<SalaryStructure | null>(null);
+	let isCreateOpen = $state(false);
 	let isSubmitting = $state(false);
 	let backendError = $state('');
 
 	// ─── Form state ───────────────────────────────────────────────────────────────
 
 	interface FormItem {
-		id: number; // ephemeral local ID for keyed #each
+		id: number;
 		salary_component_cuid: string;
-		amount: string; // kept as string for input binding; parsed on submit
+		amount: string;
 	}
 
 	let formEmployeeCuid = $state('');
 	let formEffectiveFrom = $state<string | null>('');
 	let formEffectiveTo = $state<string | null>('');
-	let formIsActive = $state(true);
 	let formItems = $state<FormItem[]>([]);
 	let nextItemId = $state(0);
-
-	// Field-level validation errors
 	let fieldErrors = $state<Record<string, string>>({});
 
 	// ─── Dirty checking ──────────────────────────────────────────────────────────
@@ -100,19 +95,17 @@
 		employee_cuid: string;
 		effective_from: string | null;
 		effective_to: string | null;
-		status: boolean;
-		components: string; // JSON snapshot of components
+		components: string;
 	}
 
 	const dirtyChecker = createDirtyChecker<DirtySnapshot>();
 
 	let isDirty = $derived(
-		(modalMode === 'edit' || modalMode === 'create') &&
+		isCreateOpen &&
 			dirtyChecker.isDirty({
 				employee_cuid: formEmployeeCuid,
 				effective_from: formEffectiveFrom,
 				effective_to: formEffectiveTo,
-				status: formIsActive,
 				components: JSON.stringify(
 					formItems.map((i) => ({
 						salary_component_cuid: i.salary_component_cuid,
@@ -128,9 +121,31 @@
 		return employeesList.find((e) => e.cuid === cuid)?.name ?? cuid;
 	}
 
-	function getComponentName(cuid: string): string {
-		return componentsList.find((c) => c.cuid === cuid)?.component_name ?? cuid;
+	function getEmployeeId(cuid: string): string {
+		return employeesList.find((e) => e.cuid === cuid)?.employee_id ?? '';
 	}
+
+	function isStructureActive(s: { status: boolean; effective_from: string; effective_to: string | null }) {
+		const d = new Date();
+		const year = d.getFullYear();
+		const month = String(d.getMonth() + 1).padStart(2, '0');
+		const day = String(d.getDate()).padStart(2, '0');
+		const todayStr = `${year}-${month}-${day}`;
+
+		if (todayStr < s.effective_from) return false;
+		if (s.effective_to !== null && todayStr > s.effective_to) return false;
+		if (!s.status && s.effective_to === null) return false;
+		return true;
+	}
+
+	/**
+	 * Employees that currently have NO Active salary structure — eligible for Add Structure.
+	 */
+	let eligibleEmployees = $derived(
+		employeesList.filter(
+			(emp) => !structuresList.some((s) => s.employee_cuid === emp.cuid && s.status === true)
+		)
+	);
 
 	let filteredStructures = $derived.by(() => {
 		let result = [...structuresList];
@@ -139,12 +154,13 @@
 			const query = searchQuery.toLowerCase();
 			result = result.filter((s) => {
 				const empName = getEmployeeName(s.employee_cuid).toLowerCase();
-				return empName.includes(query) || s.employee_cuid.toLowerCase().includes(query);
+				const empId = getEmployeeId(s.employee_cuid).toLowerCase();
+				return empName.includes(query) || empId.includes(query);
 			});
 		}
 
 		if (statusFilter !== 'all') {
-			result = result.filter((s) => s.status === statusFilter);
+			result = result.filter((s) => isStructureActive(s) === statusFilter);
 		}
 
 		if (sortDirection && sortColumn) {
@@ -159,8 +175,8 @@
 					valA = a.effective_from;
 					valB = b.effective_from;
 				} else if (sortColumn === 'status') {
-					valA = String(a.status);
-					valB = String(b.status);
+					valA = String(isStructureActive(a));
+					valB = String(isStructureActive(b));
 				} else {
 					valA = String(a[sortColumn as keyof typeof a] ?? '');
 					valB = String(b[sortColumn as keyof typeof b] ?? '');
@@ -176,15 +192,14 @@
 	});
 
 	let totalCount = $derived(structuresList.length);
-	let activeCount = $derived(structuresList.filter((s) => s.status).length);
-	let inactiveCount = $derived(structuresList.filter((s) => !s.status).length);
+	let activeCount = $derived(structuresList.filter(isStructureActive).length);
+	let inactiveCount = $derived(structuresList.filter((s) => !isStructureActive(s)).length);
 	let paginatedStructures = $derived(
 		filteredStructures.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 	);
 
 	// ─── Fetch helpers ────────────────────────────────────────────────────────────
 
-	/** Initial page load — fetches structures, employees, and components once. */
 	async function loadAll() {
 		isLoading = true;
 		loadError = '';
@@ -219,11 +234,6 @@
 		}
 	}
 
-	/**
-	 * Post-mutation refresh — only re-fetches the structures list.
-	 * Employees and components are static reference data; no need to reload them
-	 * after a save or deactivate.
-	 */
 	async function loadStructures() {
 		try {
 			const res = await fetch('/api/salary-structures');
@@ -271,7 +281,6 @@
 		formEmployeeCuid = '';
 		formEffectiveFrom = '';
 		formEffectiveTo = '';
-		formIsActive = true;
 		formItems = [];
 		nextItemId = 0;
 		backendError = '';
@@ -279,55 +288,19 @@
 	}
 
 	function openCreateModal() {
-		editingStructure = null;
 		resetForm();
 		addItemRow();
 		dirtyChecker.snapshot({
 			employee_cuid: '',
 			effective_from: '',
 			effective_to: '',
-			status: true,
 			components: buildSnapshotItems()
 		});
-		modalMode = 'create';
-	}
-
-	function openEditModal(s: SalaryStructure) {
-		editingStructure = s;
-		formEmployeeCuid = s.employee_cuid;
-		formEffectiveFrom = s.effective_from;
-		formEffectiveTo = s.effective_to ?? '';
-		formIsActive = s.status;
-		formItems = s.components.map((item) => ({
-			id: nextItemId++,
-			salary_component_cuid: item.salary_component_cuid,
-			amount: String(item.amount)
-		}));
-		backendError = '';
-		fieldErrors = {};
-		dirtyChecker.snapshot({
-			employee_cuid: s.employee_cuid,
-			effective_from: s.effective_from,
-			effective_to: s.effective_to ?? '',
-			status: s.status,
-			components: JSON.stringify(
-				s.components.map((i) => ({
-					salary_component_cuid: i.salary_component_cuid,
-					amount: String(i.amount)
-				}))
-			)
-		});
-		modalMode = 'edit';
-	}
-
-	function openViewModal(s: SalaryStructure) {
-		editingStructure = s;
-		modalMode = 'view';
+		isCreateOpen = true;
 	}
 
 	function closeModal() {
-		modalMode = null;
-		editingStructure = null;
+		isCreateOpen = false;
 	}
 
 	// ─── Item row management ──────────────────────────────────────────────────────
@@ -348,6 +321,9 @@
 		);
 	}
 
+	/** Only show Active components for new assignments. */
+	let activeComponents = $derived(componentsList.filter((c) => c.status));
+
 	// ─── Client-side form validation ──────────────────────────────────────────────
 
 	function validateForm(): boolean {
@@ -355,20 +331,11 @@
 
 		if (!formEmployeeCuid) {
 			errors['employee_cuid'] = 'Employee is required';
-		} else {
-			const duplicateExists = structuresList.some((s) => 
-				s.employee_cuid === formEmployeeCuid && 
-				(modalMode === 'create' || !editingStructure || s.cuid !== editingStructure.cuid)
-			);
-			if (duplicateExists) {
-				errors['employee_cuid'] = 'Employee is already assigned to a salary structure';
-			}
 		}
 
 		const efError = validateEffectiveFrom(formEffectiveFrom);
 		if (efError) errors['effective_from'] = efError;
 
-		// Cross-field: effective_to must be after effective_from
 		if (!efError && formEffectiveTo) {
 			const rangeError = validateEffectiveDateRange(formEffectiveFrom, formEffectiveTo);
 			if (rangeError) errors['effective_to'] = rangeError;
@@ -405,8 +372,6 @@
 
 	async function handleSave(e: Event) {
 		e.preventDefault();
-		if (modalMode === 'edit' && !isDirty) return;
-
 		if (!validateForm()) return;
 
 		isSubmitting = true;
@@ -416,7 +381,6 @@
 			employee_cuid: formEmployeeCuid,
 			effective_from: formEffectiveFrom,
 			effective_to: formEffectiveTo || null,
-			status: formIsActive,
 			components: formItems.map((item) => ({
 				salary_component_cuid: item.salary_component_cuid,
 				amount: parseFloat(item.amount)
@@ -424,26 +388,17 @@
 		};
 
 		try {
-			const response = await fetch(
-				modalMode === 'edit' && editingStructure
-					? `/api/salary-structures/${editingStructure.cuid}`
-					: '/api/salary-structures',
-				{
-					method: modalMode === 'edit' ? 'PUT' : 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify(payload)
-				}
-			);
+			const response = await fetch('/api/salary-structures', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload)
+			});
 
 			const resData = await response.json();
 
 			if (response.ok && resData.data) {
 				await loadStructures();
-				toast.success(
-					modalMode === 'edit'
-						? 'Salary Structure updated successfully'
-						: 'Salary Structure created successfully'
-				);
+				toast.success('Salary Structure created successfully');
 				closeModal();
 			} else {
 				if (response.status === 400 || response.status === 409) {
@@ -460,7 +415,97 @@
 		}
 	}
 
+	// ─── Edit Effective Dates Modal state ─────────────────────────────────────────
 
+	let isEditDatesOpen = $state(false);
+	let isSubmittingDates = $state(false);
+	let editEffectiveFrom = $state<string | null>('');
+	let editEffectiveTo = $state<string | null>('');
+	let datesErrors = $state<Record<string, string>>({});
+	let datesBackendError = $state('');
+	let editingStructureForDates = $state<SalaryStructure | null>(null);
+
+	let editingDatesEmployeeName = $derived(
+		editingStructureForDates ? getEmployeeName(editingStructureForDates.employee_cuid) : ''
+	);
+
+	let isEditDatesDirty = $derived.by(() => {
+		if (!editingStructureForDates) return false;
+		return (
+			editEffectiveFrom !== editingStructureForDates.effective_from ||
+			editEffectiveTo !== editingStructureForDates.effective_to
+		);
+	});
+
+	function openEditDatesModal(s: SalaryStructure) {
+		editingStructureForDates = s;
+		editEffectiveFrom = s.effective_from;
+		editEffectiveTo = s.effective_to;
+		datesErrors = {};
+		datesBackendError = '';
+		isEditDatesOpen = true;
+	}
+
+	function closeEditDates() {
+		isEditDatesOpen = false;
+		editingStructureForDates = null;
+		editEffectiveFrom = '';
+		editEffectiveTo = '';
+		datesErrors = {};
+		datesBackendError = '';
+	}
+
+	async function handleSaveDates(e: Event) {
+		e.preventDefault();
+		if (!editingStructureForDates) return;
+
+		datesErrors = {};
+		datesBackendError = '';
+
+		// Validation
+		const efError = validateEffectiveFrom(editEffectiveFrom);
+		if (efError) {
+			datesErrors['effective_from'] = efError;
+		}
+
+		const rangeError = validateEffectiveDateRange(editEffectiveFrom, editEffectiveTo);
+		if (rangeError) {
+			datesErrors['effective_to'] = rangeError;
+		}
+
+		if (Object.keys(datesErrors).length > 0) {
+			return;
+		}
+
+		isSubmittingDates = true;
+
+		try {
+			const payload = {
+				effective_from: editEffectiveFrom,
+				effective_to: editEffectiveTo || null
+			};
+
+			const response = await fetch(`/api/salary-structures/${editingStructureForDates.cuid}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload)
+			});
+
+			const resData = await response.json();
+
+			if (response.ok) {
+				toast.success('Effective dates updated successfully');
+				closeEditDates();
+				await loadAll();
+			} else {
+				datesBackendError = resData.message || 'Failed to update effective dates';
+			}
+		} catch {
+			datesBackendError = 'An unexpected error occurred';
+		} finally {
+			isSubmittingDates = false;
+		}
+	}
 
 	// ─── Sort icon helper ─────────────────────────────────────────────────────────
 
@@ -589,29 +634,36 @@
 							<TableRow
 								onclick={(e) => {
 									if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
-									openViewModal(s);
+									goto(resolve(`/salary-structures/${s.cuid}`));
 								}}
 								class="cursor-pointer"
 							>
 								<TableCell>
 									<span class="font-semibold">{getEmployeeName(s.employee_cuid)}</span>
-									<span class="block text-xs text-muted-foreground">{s.employee_cuid}</span>
+									{#if getEmployeeId(s.employee_cuid)}
+										<span class="block text-xs text-muted-foreground">{getEmployeeId(s.employee_cuid)}</span>
+									{/if}
 								</TableCell>
 								<TableCell>{formatDateString(s.effective_from)}</TableCell>
-								<TableCell>{s.effective_to ? formatDateString(s.effective_to) : 'Ongoing'}</TableCell>
+								<TableCell>{s.effective_to ? formatDateString(s.effective_to) : '-'}</TableCell>
 								<TableCell>
 									<span class="text-sm text-muted-foreground">{s.components.length} component{s.components.length === 1 ? '' : 's'}</span>
 								</TableCell>
 								<TableCell class="text-center">
-									<Badge variant={s.status ? 'default' : 'secondary'}>
-										{s.status ? 'Active' : 'Inactive'}
+									<Badge variant={isStructureActive(s) ? 'default' : 'secondary'}>
+										{isStructureActive(s) ? 'Active' : 'Inactive'}
 									</Badge>
 								</TableCell>
 								<TableCell class="text-right">
-									<div class="flex items-center justify-end gap-1">
+									<div
+										class="flex items-center justify-end gap-1"
+										onclick={(e) => e.stopPropagation()}
+										onkeydown={(e) => e.stopPropagation()}
+										role="presentation"
+									>
 										<TableActions
 											canEdit={true}
-											onEdit={() => openEditModal(s)}
+											onEdit={() => openEditDatesModal(s)}
 										/>
 									</div>
 								</TableCell>
@@ -625,11 +677,11 @@
 	</div>
 </div>
 
-<!-- ─── Create / Edit Modal ─────────────────────────────────────────────────── -->
+<!-- ─── Create / Add Structure Modal ─────────────────────────────────────────── -->
 
 <CrudModal
-	open={modalMode === 'create' || modalMode === 'edit'}
-	title={modalMode === 'edit' ? 'Edit Salary Structure' : 'Create Salary Structure'}
+	open={isCreateOpen}
+	title="Add Salary Structure"
 	isDirty={isDirty}
 	isSubmitting={isSubmitting}
 	onClose={closeModal}
@@ -637,7 +689,7 @@
 	{#snippet children({ cancel })}
 		<form class="space-y-4" onsubmit={handleSave}>
 
-			<!-- Employee dropdown -->
+			<!-- Employee dropdown — only employees without an Active structure -->
 			<div class="space-y-2">
 				<Label for="employee_cuid">Employee</Label>
 				<DropdownMenu.Root>
@@ -659,26 +711,25 @@
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content class="w-[300px]">
 						<DropdownMenu.Group>
-							{#each employeesList as emp (emp.cuid)}
-								<DropdownMenu.Item
-									onclick={() => {
-										formEmployeeCuid = emp.cuid;
-										delete fieldErrors['employee_cuid'];
-										const duplicateExists = structuresList.some((s) => 
-											s.employee_cuid === emp.cuid && 
-											(modalMode === 'create' || !editingStructure || s.cuid !== editingStructure.cuid)
-										);
-										if (duplicateExists) {
-											fieldErrors['employee_cuid'] = 'Employee is already assigned to a salary structure';
-										}
-										fieldErrors = { ...fieldErrors };
-									}}
-									class="justify-between cursor-pointer {formEmployeeCuid === emp.cuid ? 'bg-accent text-accent-foreground' : ''}"
-								>
-									<span>{emp.name} <span class="text-xs text-muted-foreground">({emp.employee_id})</span></span>
-									{#if formEmployeeCuid === emp.cuid}<CheckIcon class="size-4" />{/if}
+							{#if eligibleEmployees.length === 0}
+								<DropdownMenu.Item disabled class="text-muted-foreground text-sm">
+									All employees already have an Active structure
 								</DropdownMenu.Item>
-							{/each}
+							{:else}
+								{#each eligibleEmployees as emp (emp.cuid)}
+									<DropdownMenu.Item
+										onclick={() => {
+											formEmployeeCuid = emp.cuid;
+											delete fieldErrors['employee_cuid'];
+											fieldErrors = { ...fieldErrors };
+										}}
+										class="justify-between cursor-pointer {formEmployeeCuid === emp.cuid ? 'bg-accent text-accent-foreground' : ''}"
+									>
+										<span>{emp.name} <span class="text-xs text-muted-foreground">({emp.employee_id})</span></span>
+										{#if formEmployeeCuid === emp.cuid}<CheckIcon class="size-4" />{/if}
+									</DropdownMenu.Item>
+								{/each}
+							{/if}
 						</DropdownMenu.Group>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
@@ -716,9 +767,6 @@
 					{/if}
 				</div>
 			</div>
-
-			<!-- Status -->
-			<StatusDropdown id="structure_status" name="structure_status" value={formIsActive} onChange={(val) => (formIsActive = val)} />
 
 			<!-- Component items -->
 			<div class="space-y-2">
@@ -759,7 +807,7 @@
 												{...props}
 											>
 												{item.salary_component_cuid
-													? (componentsList.find((c) => c.cuid === item.salary_component_cuid)?.component_name ?? item.salary_component_cuid)
+													? (activeComponents.find((c) => c.cuid === item.salary_component_cuid)?.component_name ?? item.salary_component_cuid)
 													: 'Select component...'}
 												<ChevronDownIcon class="ml-2 size-4 opacity-50" />
 											</Button>
@@ -767,7 +815,7 @@
 									</DropdownMenu.Trigger>
 									<DropdownMenu.Content class="w-[220px] max-h-60 overflow-y-auto">
 										<DropdownMenu.Group>
-											{#each componentsList as comp (comp.cuid)}
+											{#each activeComponents as comp (comp.cuid)}
 												<DropdownMenu.Item
 													onclick={() => {
 														item.salary_component_cuid = comp.cuid;
@@ -834,7 +882,7 @@
 				<Button
 					type="submit"
 					class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
-					disabled={isSubmitting || (modalMode === 'edit' && !isDirty)}
+					disabled={isSubmitting}
 				>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : UI_CONSTANTS.BUTTON_SAVE}
 				</Button>
@@ -843,89 +891,62 @@
 	{/snippet}
 </CrudModal>
 
-<!-- ─── View Modal ──────────────────────────────────────────────────────────── -->
+<CrudModal
+	open={isEditDatesOpen}
+	title="Edit Effective Dates"
+	isDirty={isEditDatesDirty}
+	isSubmitting={isSubmittingDates}
+	onClose={closeEditDates}
+>
+	<form class="space-y-4" onsubmit={handleSaveDates}>
+		<div class="space-y-1">
+			<p class="text-xs uppercase tracking-wide text-muted-foreground font-medium">Employee</p>
+			<p class="font-semibold text-foreground">{editingDatesEmployeeName}</p>
+		</div>
 
-{#if modalMode === 'view' && editingStructure}
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-[#262626]/70 px-4 py-6"
-		onclick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
-	>
-		<Card class="relative w-full max-w-lg max-h-[90vh] overflow-y-auto" onclick={(e) => e.stopPropagation()}>
-			<CardHeader class="flex-col items-start gap-1 pr-12">
-				<CardTitle>Salary Structure</CardTitle>
-			</CardHeader>
+		<div class="grid grid-cols-2 gap-4">
+			<div class="space-y-2">
+				<Label for="edit_effective_from">Effective From</Label>
+				<DatePicker
+					id="edit_effective_from"
+					name="effective_from"
+					bind:value={editEffectiveFrom}
+					class={datesErrors['effective_from'] ? 'border-destructive' : ''}
+					onChange={() => { delete datesErrors['effective_from']; datesErrors = { ...datesErrors }; }}
+				/>
+				{#if datesErrors['effective_from']}
+					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{datesErrors['effective_from']}</p>
+				{/if}
+			</div>
+
+			<div class="space-y-2">
+				<Label for="edit_effective_to">Effective To <span class="text-muted-foreground text-xs">(optional)</span></Label>
+				<DatePicker
+					id="edit_effective_to"
+					name="effective_to"
+					bind:value={editEffectiveTo}
+					class={datesErrors['effective_to'] ? 'border-destructive' : ''}
+					onChange={() => { delete datesErrors['effective_to']; datesErrors = { ...datesErrors }; }}
+				/>
+				{#if datesErrors['effective_to']}
+					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{datesErrors['effective_to']}</p>
+				{/if}
+			</div>
+		</div>
+
+		{#if datesBackendError}
+			<p class="text-xs rounded bg-destructive/10 px-3 py-2" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{datesBackendError}</p>
+		{/if}
+
+		<div class="flex items-center justify-end gap-3 pt-4">
+			<Button type="button" variant="outline" onclick={closeEditDates} disabled={isSubmittingDates}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
 			<Button
-				type="button"
-				variant="ghost"
-				size="icon-sm"
-				class="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
-				aria-label="Close"
-				onclick={closeModal}
+				type="submit"
+				class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+				disabled={isSubmittingDates}
 			>
-				✕
+				{isSubmittingDates ? UI_CONSTANTS.BUTTON_SAVING : UI_CONSTANTS.BUTTON_SAVE}
 			</Button>
-			<CardContent class="space-y-4">
-				<div class="grid grid-cols-2 gap-4 text-sm">
-					<div>
-						<p class="text-muted-foreground text-xs uppercase tracking-wide mb-1">Employee</p>
-						<p class="font-medium">{getEmployeeName(editingStructure.employee_cuid)}</p>
-						<p class="text-xs text-muted-foreground">{editingStructure.employee_cuid}</p>
-					</div>
-					<div>
-						<p class="text-muted-foreground text-xs uppercase tracking-wide mb-1">Status</p>
-						<Badge variant={editingStructure.status ? 'default' : 'secondary'}>
-							{editingStructure.status ? 'Active' : 'Inactive'}
-						</Badge>
-					</div>
-					<div>
-						<p class="text-muted-foreground text-xs uppercase tracking-wide mb-1">Effective From</p>
-						<p class="font-medium">{formatDateString(editingStructure.effective_from)}</p>
-					</div>
-					<div>
-						<p class="text-muted-foreground text-xs uppercase tracking-wide mb-1">Effective To</p>
-						<p class="font-medium">{editingStructure.effective_to ? formatDateString(editingStructure.effective_to) : 'Ongoing'}</p>
-					</div>
-				</div>
-
-				<div>
-					<p class="text-muted-foreground text-xs uppercase tracking-wide mb-2">Components</p>
-					<div class="rounded-lg border overflow-hidden">
-						<Table>
-							<TableHeader class="bg-muted">
-								<TableRow>
-									<TableHead class="text-xs font-semibold">Component</TableHead>
-									<TableHead class="text-xs font-semibold text-right">Amount</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{#each editingStructure.components as item (item.cuid)}
-									<TableRow>
-										<TableCell class="text-sm">{getComponentName(item.salary_component_cuid)}</TableCell>
-										<TableCell class="text-sm text-right font-mono">{Number(item.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</TableCell>
-									</TableRow>
-								{:else}
-									<TableRow>
-										<TableCell colspan={2} class="text-center text-muted-foreground text-sm py-4">No components</TableCell>
-									</TableRow>
-								{/each}
-							</TableBody>
-						</Table>
-					</div>
-				</div>
-
-				<div class="flex justify-end gap-2 pt-2">
-					<Button type="button" variant="outline" onclick={closeModal}>Close</Button>
-					<Button
-						type="button"
-						class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
-						onclick={() => openEditModal(editingStructure!)}
-					>
-						Edit
-					</Button>
-				</div>
-			</CardContent>
-		</Card>
-	</div>
-{/if}
+		</div>
+	</form>
+</CrudModal>

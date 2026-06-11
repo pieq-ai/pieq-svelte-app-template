@@ -5,7 +5,8 @@ import {
 } from '$lib/validators/salary-structure.js';
 import type {
 	CreateSalaryStructureDto,
-	UpdateSalaryStructureDto
+	UpdateSalaryStructureDto,
+	CreateRevisionDto
 } from '$lib/types/salary-structure.js';
 
 export interface ValidationError {
@@ -20,7 +21,6 @@ const CREATE_ALLOWED_KEYS = new Set<string>([
 	'employee_cuid',
 	'effective_from',
 	'effective_to',
-	'status',
 	'components'
 ]);
 
@@ -32,6 +32,9 @@ const UPDATE_ALLOWED_KEYS = new Set<string>([
 	'status',
 	'components'
 ]);
+
+/** Keys allowed in POST revision body. */
+const REVISION_ALLOWED_KEYS = new Set<string>(['effective_from', 'components']);
 
 /** Keys allowed on each component object. */
 const COMPONENT_ALLOWED_KEYS = new Set<string>(['salary_component_cuid', 'amount']);
@@ -173,14 +176,6 @@ export function validateCreateSalaryStructure(data: unknown): {
 		}
 	}
 
-	// Validate status (optional, defaults to true)
-	let status = body.status;
-	if (status === undefined || status === null) {
-		status = true;
-	} else if (typeof status !== 'boolean') {
-		errors.push({ field: 'status', message: 'status must be a boolean' });
-	}
-
 	// Validate components
 	const componentsValid = validateComponents(body.components, errors);
 
@@ -203,7 +198,7 @@ export function validateCreateSalaryStructure(data: unknown): {
 				body.effective_to && body.effective_to !== ''
 					? (body.effective_to as string)
 					: null,
-			status: status as boolean,
+			status: true,
 			components: rawComponents.map((item) => ({
 				salary_component_cuid: (item.salary_component_cuid as string).trim(),
 				amount: item.amount as number
@@ -327,4 +322,62 @@ export function validateUpdateSalaryStructure(data: unknown): {
 	}
 
 	return { errors: [], validatedData };
+}
+
+// ─── Create Revision validator ────────────────────────────────────────────────
+
+export function validateCreateRevision(data: unknown): {
+	errors: ValidationError[];
+	validatedData?: CreateRevisionDto;
+} {
+	const errors: ValidationError[] = [];
+
+	if (!data || typeof data !== 'object' || Array.isArray(data)) {
+		return { errors: [{ field: 'body', message: 'Invalid request body' }] };
+	}
+
+	const body = data as Record<string, unknown>;
+
+	// Reject unknown top-level fields
+	const unknownKeys = findUnknownKeys(body, REVISION_ALLOWED_KEYS);
+	if (unknownKeys.length > 0) {
+		return {
+			errors: [
+				{
+					field: 'body',
+					message: `Unknown field(s) not allowed: ${unknownKeys.join(', ')}`
+				}
+			]
+		};
+	}
+
+	// Validate effective_from (required)
+	const effectiveFromError = validateEffectiveFrom(body.effective_from);
+	if (effectiveFromError) {
+		errors.push({ field: 'effective_from', message: effectiveFromError });
+	}
+
+	// Validate components (required)
+	const componentsValid = validateComponents(body.components, errors);
+
+	if (errors.length > 0) {
+		return { errors };
+	}
+
+	if (!componentsValid) {
+		return { errors };
+	}
+
+	const rawComponents = body.components as Array<Record<string, unknown>>;
+
+	return {
+		errors: [],
+		validatedData: {
+			effective_from: body.effective_from as string,
+			components: rawComponents.map((item) => ({
+				salary_component_cuid: (item.salary_component_cuid as string).trim(),
+				amount: item.amount as number
+			}))
+		}
+	};
 }

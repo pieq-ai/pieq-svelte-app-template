@@ -1,7 +1,7 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-11)
 
 ## Corpus Check
-- 203 files · ~58,349 words
+- 203 files · ~58,351 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary

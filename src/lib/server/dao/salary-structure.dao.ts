@@ -40,10 +40,21 @@ export async function findByCuid(cuid: string) {
 	return db.salaryStructure.findUnique({ where: { cuid } });
 }
 
-/** Find a salary structure by employee cuid. */
+/** Find ALL salary structures for a given employee (may have multiple — one per revision). */
 export async function findByEmployeeCuid(employee_cuid: string) {
+	return db.salaryStructure.findMany({
+		where: { employee_cuid },
+		orderBy: { effective_from: 'desc' }
+	});
+}
+
+/**
+ * Find the currently Active salary structure for an employee.
+ * Returns null if none exists (employee has no structure yet).
+ */
+export async function findActiveByEmployeeCuid(employee_cuid: string) {
 	return db.salaryStructure.findFirst({
-		where: { employee_cuid }
+		where: { employee_cuid, status: true }
 	});
 }
 
@@ -59,7 +70,12 @@ export async function findMany() {
 /** Create multiple item rows for a given salary structure. */
 export async function createItems(
 	salary_structure_cuid: string,
-	items: Array<{ salary_component_cuid: string; amount: number; created_by?: string | null }>
+	items: Array<{
+		salary_component_cuid: string;
+		component_name_snapshot: string;
+		amount: number;
+		created_by?: string | null;
+	}>
 ) {
 	// createMany is not supported with Prisma Postgres adapter, so we batch individually
 	return Promise.all(
@@ -68,6 +84,7 @@ export async function createItems(
 				data: {
 					salary_structure_cuid,
 					salary_component_cuid: item.salary_component_cuid,
+					component_name_snapshot: item.component_name_snapshot,
 					amount: item.amount,
 					created_by: item.created_by ?? null
 				}

@@ -3,17 +3,20 @@
 	import MoreVerticalIcon from '@lucide/svelte/icons/more-vertical';
 	import { Button } from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		editLabel?: string;
 		canEdit?: boolean;
 		onEdit?: () => void;
+		children?: Snippet;
 	}
 
 	let {
 		editLabel = 'Edit',
 		canEdit = true,
-		onEdit
+		onEdit,
+		children
 	}: Props = $props();
 </script>
 
@@ -32,11 +35,14 @@
 		{/snippet}
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end" preventScroll={false}>
-		{#if canEdit}
+		{#if canEdit && onEdit}
 			<DropdownMenu.Item onclick={onEdit} class="cursor-pointer">
 				<PencilIcon class="mr-2 size-4" />
 				{editLabel}
 			</DropdownMenu.Item>
+		{/if}
+		{#if children}
+			{@render children()}
 		{/if}
 	</DropdownMenu.Content>
 </DropdownMenu.Root>

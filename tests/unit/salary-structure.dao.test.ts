@@ -95,20 +95,22 @@ describe('Salary Structure DAO', () => {
 	// ─── findByEmployeeCuid ────────────────────────────────────────────────────
 
 	describe('findByEmployeeCuid', () => {
-		it('should return a structure when found', async () => {
-			const mockData = { id: 1n, cuid: 'struct_1', employee_cuid: 'EMP001' };
-			vi.mocked(db.salaryStructure.findFirst).mockResolvedValue(mockData as never);
+		it('should return all structures for an employee', async () => {
+			const mockData = [{ id: 1n, cuid: 'struct_1', employee_cuid: 'EMP001' }];
+			vi.mocked(db.salaryStructure.findMany).mockResolvedValue(mockData as never);
 
 			const result = await dao.findByEmployeeCuid('EMP001');
 
-			expect(db.salaryStructure.findFirst).toHaveBeenCalledWith({ where: { employee_cuid: 'EMP001' } });
+			expect(db.salaryStructure.findMany).toHaveBeenCalledWith(
+				expect.objectContaining({ where: { employee_cuid: 'EMP001' } })
+			);
 			expect(result).toBe(mockData);
 		});
 
-		it('should return null when not found', async () => {
-			vi.mocked(db.salaryStructure.findFirst).mockResolvedValue(null);
+		it('should return empty array when not found', async () => {
+			vi.mocked(db.salaryStructure.findMany).mockResolvedValue([]);
 			const result = await dao.findByEmployeeCuid('nonexistent');
-			expect(result).toBeNull();
+			expect(result).toEqual([]);
 		});
 	});
 
@@ -135,8 +137,8 @@ describe('Salary Structure DAO', () => {
 			vi.mocked(db.salaryStructureItem.create).mockResolvedValue({ id: 1n, cuid: 'item_1' } as never);
 
 			const items = [
-				{ salary_component_cuid: 'comp_a', amount: 1000, created_by: null },
-				{ salary_component_cuid: 'comp_b', amount: 2000, created_by: null }
+				{ salary_component_cuid: 'comp_a', component_name_snapshot: 'Basic Pay', amount: 1000, created_by: null },
+				{ salary_component_cuid: 'comp_b', component_name_snapshot: 'HRA', amount: 2000, created_by: null }
 			];
 
 			await dao.createItems('struct_1', items);
