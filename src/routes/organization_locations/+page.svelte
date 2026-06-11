@@ -549,8 +549,31 @@
           : "Company Location created successfully"
       );
     } catch (e) {
-      formError = e instanceof ApiError ? e.message : "Something went wrong.";
-      toast.error(formError);
+      const errMsg = e instanceof ApiError ? e.message : "Something went wrong.";
+      if (e instanceof ApiError && (e.status === 400 || e.status === 409 || e.status === 422)) {
+        const lowerMsg = errMsg.toLowerCase();
+        if (lowerMsg.includes("location name") || lowerMsg.includes("security threat")) {
+          nameError = errMsg;
+        } else if (lowerMsg.includes("address line 1") || lowerMsg.includes("address 1")) {
+          address1Error = errMsg;
+        } else if (lowerMsg.includes("address line 2") || lowerMsg.includes("address 2")) {
+          address2Error = errMsg;
+        } else if (lowerMsg.includes("city")) {
+          cityError = errMsg;
+        } else if (lowerMsg.includes("state")) {
+          stateError = errMsg;
+        } else if (lowerMsg.includes("country")) {
+          countryError = errMsg;
+        } else if (lowerMsg.includes("pin code") || lowerMsg.includes("pincode")) {
+          pinCodeError = errMsg;
+        } else if (lowerMsg.includes("timezone")) {
+          timezoneError = errMsg;
+        } else {
+          nameError = errMsg;
+        }
+      } else {
+        toast.error(errMsg);
+      }
     } finally {
       formLoading = false;
     }
@@ -657,7 +680,9 @@
       toast.success("Country created successfully");
     } catch (e) {
       addCountryError = e instanceof ApiError ? e.message : "Failed to create country.";
-      toast.error(addCountryError);
+      if (!(e instanceof ApiError && (e.status === 400 || e.status === 409 || e.status === 422))) {
+        toast.error(addCountryError);
+      }
     } finally {
       addCountryLoading = false;
     }
@@ -698,7 +723,9 @@
       toast.success("State created successfully");
     } catch (e) {
       addStateError = e instanceof ApiError ? e.message : "Failed to create state.";
-      toast.error(addStateError);
+      if (!(e instanceof ApiError && (e.status === 400 || e.status === 409 || e.status === 422))) {
+        toast.error(addStateError);
+      }
     } finally {
       addStateLoading = false;
     }

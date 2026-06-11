@@ -81,6 +81,10 @@
 		if (!regex.test(trimmed)) {
 			return 'Only letters and spaces are allowed';
 		}
+		const lowerName = trimmed.toLowerCase();
+		if (rolesList.some((r) => r.role_name.trim().toLowerCase() === lowerName && (editingRole ? r.cuid !== editingRole.cuid : true))) {
+			return 'Role name already exists';
+		}
 		return '';
 	}
 
@@ -201,7 +205,9 @@
 			isModalOpen = false;
 		} catch (err) {
 			backendError = err instanceof ApiError ? err.message : 'Something went wrong.';
-			toast.error(backendError);
+			if (!(err instanceof ApiError && (err.status === 400 || err.status === 409 || err.status === 422))) {
+				toast.error(backendError);
+			}
 			console.error(err);
 		} finally {
 			isSubmitting = false;

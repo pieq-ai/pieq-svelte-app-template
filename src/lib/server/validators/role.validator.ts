@@ -51,6 +51,37 @@ export function validatePaginationParams(query: Record<string, unknown>): { page
   return { page, limit };
 }
 
+function validateRoleName(value: unknown): string {
+  if (typeof value !== 'string') {
+    const err: any = new Error('Role name is required');
+    err.status = 400;
+    throw err;
+  }
+  const trimmed = value.trim();
+  if (trimmed === '') {
+    const err: any = new Error('Role name is required');
+    err.status = 400;
+    throw err;
+  }
+  if (trimmed.length < 2) {
+    const err: any = new Error('Minimum 2 characters required');
+    err.status = 400;
+    throw err;
+  }
+  if (trimmed.length > 255) {
+    const err: any = new Error('Maximum 255 characters allowed');
+    err.status = 400;
+    throw err;
+  }
+  const nameRegex = /^[A-Za-z ]+$/;
+  if (!nameRegex.test(trimmed)) {
+    const err: any = new Error('Only letters and spaces are allowed');
+    err.status = 400;
+    throw err;
+  }
+  return trimmed;
+}
+
 /**
  * Validate payload for creating a role.
  */
@@ -64,26 +95,13 @@ export function validateCreatePayload(payload: unknown): RoleCreateDTO {
   const raw = payload as Record<string, unknown>;
   rejectUnknownKeys(raw, ['role_name', 'created_by', 'updated_by']);
 
-  const role_name = sanitizeString(raw.role_name);
-  if (!role_name) {
-    const err: any = new Error('Role name is required and cannot be empty');
+  if (raw.role_name === undefined || raw.role_name === null) {
+    const err: any = new Error('Role name is required');
     err.status = 400;
     throw err;
   }
 
-  // Name must contain only letters and spaces, max 255 chars
-  const nameRegex = /^[A-Za-z ]+$/;
-  if (!nameRegex.test(role_name)) {
-    const err: any = new Error('Role name must contain only letters and spaces');
-    err.status = 400;
-    throw err;
-  }
-
-  if (role_name.length > 255) {
-    const err: any = new Error('Role name exceeds maximum length of 255 characters');
-    err.status = 400;
-    throw err;
-  }
+  const role_name = validateRoleName(raw.role_name);
 
   return { role_name, created_by: raw.created_by as string | null | undefined, updated_by: raw.updated_by as string | null | undefined };
 }
@@ -104,24 +122,12 @@ export function validateUpdatePayload(payload: unknown): RoleUpdateDTO {
   const result: RoleUpdateDTO = {};
 
   if (raw.role_name !== undefined) {
-    const role_name = sanitizeString(raw.role_name);
-    if (!role_name) {
-      const err: any = new Error('Role name cannot be empty or whitespace');
+    if (raw.role_name === null) {
+      const err: any = new Error('Role name is required');
       err.status = 400;
       throw err;
     }
-    const nameRegex = /^[A-Za-z ]+$/;
-    if (!nameRegex.test(role_name)) {
-      const err: any = new Error('Role name must contain only letters and spaces');
-      err.status = 400;
-      throw err;
-    }
-    if (role_name.length > 255) {
-      const err: any = new Error('Role name exceeds maximum length of 255 characters');
-      err.status = 400;
-      throw err;
-    }
-    result.role_name = role_name;
+    result.role_name = validateRoleName(raw.role_name);
   }
 
   if (raw.status !== undefined) {

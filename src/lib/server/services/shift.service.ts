@@ -98,9 +98,9 @@ export async function createShift(payload: unknown): Promise<Shift> {
     let diffHrs = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
     if (diffHrs < 0) diffHrs += 24;
     const maxHrs = Math.round(diffHrs * 100) / 100;
-    if (valid.minimum_work_hours > maxHrs) {
+    if (valid.minimum_work_hours < 0 || valid.minimum_work_hours > maxHrs) {
       const err: any = new Error(
-        `Minimum work hours (${valid.minimum_work_hours}) cannot exceed the total shift duration (${maxHrs} hrs)`
+        `Minimum work hours must be between 0 and the total shift duration (${maxHrs} hrs)`
       );
       err.status = 422;
       throw err;
@@ -162,9 +162,9 @@ export async function updateShift(cuid: string, payload: unknown): Promise<Shift
     let diffHrs = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
     if (diffHrs < 0) diffHrs += 24;
     const maxHrs = Math.round(diffHrs * 100) / 100;
-    if (valid.minimum_work_hours > maxHrs) {
+    if (valid.minimum_work_hours < 0 || valid.minimum_work_hours > maxHrs) {
       const err: any = new Error(
-        `Minimum work hours (${valid.minimum_work_hours}) cannot exceed the total shift duration (${maxHrs} hrs)`
+        `Minimum work hours must be between 0 and the total shift duration (${maxHrs} hrs)`
       );
       err.status = 422;
       throw err;

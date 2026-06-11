@@ -67,6 +67,7 @@
 	let isMinHoursTouched = $state(false);
 	let backendError = $state('');
 	let formMinHoursError = $state('');
+	let timingError = $state('');
 	let shiftNameInput = $state<HTMLInputElement | null>(null);
 
 	let isMinHoursManuallyEdited = $state(false);
@@ -273,6 +274,7 @@
 		isMinHoursTouched = false;
 		backendError = '';
 		formMinHoursError = '';
+		timingError = '';
 		isMinHoursManuallyEdited = false;
 		formMinHours = 9.0; // calculated for 09:00 - 18:00
 		dirtyChecker.snapshot({
@@ -295,6 +297,7 @@
 		isMinHoursTouched = false;
 		backendError = '';
 		formMinHoursError = '';
+		timingError = '';
 		isMinHoursManuallyEdited = Number(shift.minimum_work_hours) !== calculatedMinHours;
 		formMinHours = Number(shift.minimum_work_hours);
 		dirtyChecker.snapshot({
@@ -318,8 +321,8 @@
 			return;
 		}
 
-		if (formMinHours > calculatedMinHours) {
-			formMinHoursError = `Minimum work hours cannot exceed the total shift duration (${formatHoursReadable(calculatedMinHours)}).`;
+		if (formMinHours < 0 || formMinHours > calculatedMinHours) {
+			formMinHoursError = `Minimum work hours must be between 0 and the total shift duration (${formatHoursReadable(calculatedMinHours)}).`;
 			return;
 		}
 
@@ -360,8 +363,21 @@
 			toast.success(editingShift ? 'Shift updated successfully' : 'Shift created successfully');
 			isModalOpen = false;
 		} catch (err) {
-			backendError = err instanceof ApiError ? err.message : 'Something went wrong.';
-			toast.error(backendError);
+			const errMsg = err instanceof ApiError ? err.message : 'Something went wrong.';
+			if (err instanceof ApiError && (err.status === 400 || err.status === 409 || err.status === 422)) {
+				const msg = errMsg.toLowerCase();
+				if (msg.includes('name')) {
+					backendError = errMsg;
+				} else if (msg.includes('time') || msg.includes('timing')) {
+					timingError = errMsg;
+				} else if (msg.includes('hour') || msg.includes('duration')) {
+					formMinHoursError = errMsg;
+				} else {
+					backendError = errMsg;
+				}
+			} else {
+				toast.error(errMsg);
+			}
 			console.error(err);
 		} finally {
 			isSubmitting = false;
@@ -571,6 +587,8 @@
 						name="start_time"
 						type="time"
 						bind:value={formStartTime}
+						class={timingError ? 'border-destructive' : ''}
+						oninput={() => { timingError = ''; }}
 					/>
 				</div>
 				<div class="space-y-2">
@@ -580,9 +598,14 @@
 						name="end_time"
 						type="time"
 						bind:value={formEndTime}
+						class={timingError ? 'border-destructive' : ''}
+						oninput={() => { timingError = ''; }}
 					/>
 				</div>
 			</div>
+			{#if timingError}
+				<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}; margin-top: -4px; margin-bottom: 4px;">{timingError}</p>
+			{/if}
 
 			<div class="space-y-2">
 				<div class="flex justify-between items-center">

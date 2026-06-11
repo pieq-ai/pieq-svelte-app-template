@@ -99,11 +99,22 @@ export function validateCreatePayload(payload: unknown): ShiftCreateDTO {
     throw err;
   }
 
+  let minimum_work_hours: number | undefined = undefined;
+  if (raw.minimum_work_hours !== undefined && raw.minimum_work_hours !== null) {
+    const minHours = Number(raw.minimum_work_hours);
+    if (isNaN(minHours) || minHours < 0) {
+      const err: any = new Error('Minimum work hours cannot be negative');
+      err.status = 400;
+      throw err;
+    }
+    minimum_work_hours = minHours;
+  }
+
   return {
     shift_name: shiftName,
     start_time: raw.start_time as string | undefined,
     end_time: raw.end_time as string | undefined,
-    minimum_work_hours: raw.minimum_work_hours !== undefined ? Number(raw.minimum_work_hours) : undefined,
+    minimum_work_hours,
     created_by: raw.created_by !== undefined ? (raw.created_by as string | null) : undefined,
     updated_by: raw.updated_by !== undefined ? (raw.updated_by as string | null) : undefined
   };
@@ -179,7 +190,18 @@ export function validateUpdatePayload(payload: unknown): ShiftUpdateDTO {
     result.end_time = raw.end_time as string;
   }
   if (raw.minimum_work_hours !== undefined) {
-    result.minimum_work_hours = Number(raw.minimum_work_hours);
+    if (raw.minimum_work_hours === null) {
+      const err: any = new Error('Minimum work hours is required');
+      err.status = 400;
+      throw err;
+    }
+    const minHours = Number(raw.minimum_work_hours);
+    if (isNaN(minHours) || minHours < 0) {
+      const err: any = new Error('Minimum work hours cannot be negative');
+      err.status = 400;
+      throw err;
+    }
+    result.minimum_work_hours = minHours;
   }
   if (raw.status !== undefined) {
     if (typeof raw.status !== 'boolean') {
