@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
 	import PlusIcon from '@lucide/svelte/icons/plus';
+	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import {
 		Badge,
 		Button,
@@ -18,18 +20,51 @@
 		TableRow
 	} from '$lib/components';
 	import { UI_CONSTANTS } from '$lib/constants';
-	import type { PageData } from './$types';
+	import { toast } from '$lib/toast';
 
-	let { data }: { data: PageData } = $props();
+	interface Employee {
+		cuid: string;
+		emp_code: string;
+		first_name: string;
+		last_name: string;
+		personal_email: string;
+		profile_completion_status: string;
+	}
 
-	type Employee = PageData['employees'][number];
 	type SortColumn = 'emp_code' | 'first_name' | 'last_name' | 'personal_email';
 
-	let employees: Employee[] = $derived([...data.employees]);
+	let employees = $state<Employee[]>([]);
+	let isLoading = $state(true);
+	let loadError = $state('');
 
 	let searchQuery = $state('');
 	let sortColumn = $state<SortColumn>('emp_code');
 	let sortDirection = $state<'asc' | 'desc'>('asc');
+
+	async function loadEmployees() {
+		isLoading = true;
+		loadError = '';
+		try {
+			const response = await fetch('/api/employees');
+			const resData = await response.json();
+			if (response.ok) {
+				employees = resData.data ?? [];
+			} else {
+				loadError = resData.error || 'Failed to load employees.';
+				toast.error(loadError);
+			}
+		} catch (err) {
+			loadError = 'An error occurred while loading employees.';
+			toast.error(loadError);
+			console.error(err);
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	onMount(() => {
+		loadEmployees();
+	});
 
 	let filteredEmployees = $derived.by(() => {
 		let result = [...employees];
@@ -173,7 +208,14 @@
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{#if filteredEmployees.length === 0}
+					{#if isLoading}
+						<TableRow>
+							<TableCell colspan={5} class="py-8 text-center text-muted-foreground">
+								<LoaderCircleIcon class="mx-auto mb-2 size-6 animate-spin" />
+								Loading employees...
+							</TableCell>
+						</TableRow>
+					{:else if filteredEmployees.length === 0}
 						<TableRow>
 							<TableCell colspan={5} class="py-8 text-center text-muted-foreground">
 								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}

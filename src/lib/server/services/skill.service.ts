@@ -1,3 +1,4 @@
+import { ValidationError } from '$lib/server/utils/errors.js';
 import * as skillDao from '$lib/server/dao/skill.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
@@ -29,10 +30,10 @@ export async function replaceSkills(employee_cuid: string, dtos: UpsertSkillDto[
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
-    if (!Array.isArray(dtos)) throw new Error("Skills must be an array");
+    if (!Array.isArray(dtos)) throw new ValidationError("skill", "Skills must be an array");
 
     for (const dto of dtos) {
-        if (!dto.skill_cuid) throw new Error("Skill reference is required");
+        if (!dto.skill_cuid) throw new ValidationError("skill", "Skill reference is required");
     }
 
     const payload = dtos.map(dto => ({

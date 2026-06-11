@@ -1,9 +1,8 @@
-import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import { mapToDb, toEmployeeDTO } from '$lib/server/utils/mapping.js';
-import { ValidationError } from '$lib/server/utils/errors.js';
+import { sendItem, sendUpdated, sendDeleted, handleError } from '$lib/server/utils/response.js';
 
 export async function GET(event: RequestEvent) {
 	try {
@@ -12,11 +11,9 @@ export async function GET(event: RequestEvent) {
 		if (!cuid) throw new Error('CUID2 parameter is missing');
 
 		const employee = await employeeService.getEmployeeByCuid2(cuid);
-		return json({ data: toEmployeeDTO(employee) });
+		return sendItem(toEmployeeDTO(employee));
 	} catch (error) {
-		const message = (error as Error).message;
-		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
-		return json({ error: message }, { status });
+		return handleError(error);
 	}
 }
 
@@ -31,13 +28,21 @@ export async function PUT(event: RequestEvent) {
 		body.updated_by = event.locals.user?.id;
 
 		const updatedEmployee = await employeeService.updateEmployee(cuid, body);
-		return json({ data: { cuid: updatedEmployee.cuid, message: 'Successfully updated' } });
+		return sendUpdated(updatedEmployee.cuid);
 	} catch (error) {
-		if (error instanceof ValidationError) {
-			return json({ error: error.message, field: error.field }, { status: 409 });
-		}
-		const message = (error as Error).message;
-		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
-		return json({ error: message }, { status });
+		return handleError(error);
+	}
+}
+
+export async function DELETE(event: RequestEvent) {
+	try {
+		permissionGuard.requireAuth(event.locals.user);
+		const cuid = event.params.cuid;
+		if (!cuid) throw new Error('CUID2 parameter is missing');
+
+		const deletedEmployee = await employeeService.deleteEmployee(cuid);
+        return sendDeleted(deletedEmployee.cuid);
+	} catch (error) {
+		return handleError(error);
 	}
 }

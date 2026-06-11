@@ -1,3 +1,4 @@
+import { ValidationError } from '$lib/server/utils/errors.js';
 import * as experienceDao from '$lib/server/dao/experience.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
@@ -31,10 +32,10 @@ export async function replaceExperiences(employee_cuid: string, dtos: UpsertExpe
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
-    if (!Array.isArray(dtos)) throw new Error("Experiences must be an array");
+    if (!Array.isArray(dtos)) throw new ValidationError("experience", "Experiences must be an array");
 
     for (const dto of dtos) {
-        if (!dto.company_name) throw new Error("Company name is required");
+        if (!dto.company_name) throw new ValidationError("experience", "Company name is required");
     }
 
     const payload = dtos.map(dto => {
@@ -42,10 +43,10 @@ export async function replaceExperiences(employee_cuid: string, dtos: UpsertExpe
         const to_date = dto.to_date ? new Date(dto.to_date) : null;
         
         if (from_date && to_date && from_date > to_date) {
-            throw new Error("Experience from_date cannot be after to_date");
+            throw new ValidationError("experience", "Experience from_date cannot be after to_date");
         }
         if (to_date && to_date > new Date()) {
-            throw new Error("Experience to_date cannot be in the future");
+            throw new ValidationError("experience", "Experience to_date cannot be in the future");
         }
 
         return {

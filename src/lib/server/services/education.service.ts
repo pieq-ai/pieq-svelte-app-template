@@ -1,3 +1,4 @@
+import { ValidationError } from '$lib/server/utils/errors.js';
 import * as educationDao from '$lib/server/dao/education.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
@@ -32,16 +33,16 @@ export async function replaceEducations(employee_cuid: string, dtos: UpsertEduca
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
-    if (!Array.isArray(dtos)) throw new Error("Educations must be an array");
+    if (!Array.isArray(dtos)) throw new ValidationError("education", "Educations must be an array");
 
     for (const dto of dtos) {
-        if (!dto.education_level) throw new Error("Education level is required");
+        if (!dto.education_level) throw new ValidationError("education", "Education level is required");
     }
 
     const payload = dtos.map(dto => {
         const completed_at = dto.completed_at ? new Date(dto.completed_at) : null;
         if (completed_at && completed_at > new Date()) {
-            throw new Error("Education completion date cannot be in the future");
+            throw new ValidationError("education", "Education completion date cannot be in the future");
         }
 
         return {

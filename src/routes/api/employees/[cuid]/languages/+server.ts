@@ -1,7 +1,7 @@
-import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as languageService from '$lib/server/services/language.service.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
+import { sendList, sendUpdated, handleError } from '$lib/server/utils/response.js';
 
 export async function GET(event: RequestEvent) {
 	try {
@@ -10,11 +10,9 @@ export async function GET(event: RequestEvent) {
 		if (!employee_cuid) throw new Error('CUID2 parameter is missing');
 
 		const languages = await languageService.getLanguagesByEmployeeCuid(employee_cuid);
-		return json({ data: languages });
+		return sendList(languages);
 	} catch (error) {
-		const message = (error as Error).message;
-		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
-		return json({ error: message }, { status });
+		return handleError(error);
 	}
 }
 
@@ -33,11 +31,9 @@ export async function PUT(event: RequestEvent) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         body = body.map((lang: any) => ({ ...lang, updated_by: user_id }));
 
-		const languages = await languageService.replaceLanguages(employee_cuid, body);
-		return json({ data: languages, message: 'Successfully updated languages' });
+		await languageService.replaceLanguages(employee_cuid, body);
+		return sendUpdated(employee_cuid, 'Successfully updated language records');
 	} catch (error) {
-		const message = (error as Error).message;
-		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
-		return json({ error: message }, { status });
+		return handleError(error);
 	}
 }

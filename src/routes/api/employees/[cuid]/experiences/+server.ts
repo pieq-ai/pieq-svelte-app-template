@@ -1,7 +1,7 @@
-import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as experienceService from '$lib/server/services/experience.service.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
+import { sendList, sendUpdated, handleError } from '$lib/server/utils/response.js';
 
 export async function GET(event: RequestEvent) {
 	try {
@@ -10,11 +10,9 @@ export async function GET(event: RequestEvent) {
 		if (!employee_cuid) throw new Error('CUID2 parameter is missing');
 
 		const experiences = await experienceService.getExperiencesByEmployeeCuid(employee_cuid);
-		return json({ data: experiences });
+		return sendList(experiences);
 	} catch (error) {
-		const message = (error as Error).message;
-		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
-		return json({ error: message }, { status });
+		return handleError(error);
 	}
 }
 
@@ -30,13 +28,12 @@ export async function PUT(event: RequestEvent) {
         }
         
         const user_id = event.locals.user?.id;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         body = body.map((exp: any) => ({ ...exp, updated_by: user_id }));
 
-		const experiences = await experienceService.replaceExperiences(employee_cuid, body);
-		return json({ data: experiences, message: 'Successfully updated experiences' });
+		await experienceService.replaceExperiences(employee_cuid, body);
+		return sendUpdated(employee_cuid, 'Successfully updated experience records');
 	} catch (error) {
-		const message = (error as Error).message;
-		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
-		return json({ error: message }, { status });
+		return handleError(error);
 	}
 }

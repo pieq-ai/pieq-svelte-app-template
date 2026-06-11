@@ -1,6 +1,7 @@
 import * as bankDetailDao from '$lib/server/dao/bank-detail.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
+import { ValidationError } from '$lib/server/utils/errors.js';
 
 export interface UpsertBankDetailDto {
     cuid?: string;
@@ -39,11 +40,11 @@ export async function replaceBankDetails(employee_cuid: string, dtos: UpsertBank
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
-    if (!Array.isArray(dtos)) throw new Error("Bank details must be an array");
+    if (!Array.isArray(dtos)) throw new ValidationError("bank_details", "Bank details must be an array");
 
     for (const dto of dtos) {
         if (!dto.account_holder_name || !dto.account_number || !dto.bank_name || !dto.ifsc_code) {
-            throw new Error("Account holder name, account number, bank name, and IFSC code are required");
+            throw new ValidationError("bank_details", "Account holder name, account number, bank name, and IFSC code are required");
         }
     }
 

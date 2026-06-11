@@ -163,3 +163,10 @@ export async function checkAndSetProfileCompletionStatus(employee_cuid: string) 
         console.error('Failed to calculate profile completion status', error);
     }
 }
+
+export async function deleteEmployee(cuid: string) {
+    if (!cuid) throw new Error("Employee CUID2 is required");
+    const existing = await employeeDao.findByCuid2(cuid);
+    if (!existing) throw new Error(`Employee with CUID2 "${cuid}" not found`);
+    return toPublicEmployee(await employeeDao.remove(cuid));
+}

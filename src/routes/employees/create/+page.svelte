@@ -191,22 +191,27 @@
 			}
 			const { data: { cuid } } = await empRes.json();
 
+			// Helper to handle fetch and throw on error
+			const runUpdate = async (url: string, body: any) => {
+				const res = await fetch(url, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+				if (!res.ok) {
+					const data = await res.json();
+					throw new Error(data.error || 'Failed to update records');
+				}
+			};
+
 			// 2. Employment
 			if (employment.department_cuid && employment.designation_cuid) {
-				await fetch(`/api/employees/${cuid}/employment`, {
-					method: 'PUT',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify(employment)
-				});
+				await runUpdate(`/api/employees/${cuid}/employment`, employment);
 			}
 
 			// 3. Optional arrays
-			if (addresses.length) await fetch(`/api/employees/${cuid}/addresses`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(addresses) });
-			if (educations.length) await fetch(`/api/employees/${cuid}/educations`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(educations) });
-			if (experiences.length) await fetch(`/api/employees/${cuid}/experiences`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(experiences) });
-			if (skills.length) await fetch(`/api/employees/${cuid}/skills`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(skills) });
-			if (languages.length) await fetch(`/api/employees/${cuid}/languages`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(languages) });
-			if (bankDetails.length) await fetch(`/api/employees/${cuid}/bank-details`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bankDetails) });
+			if (addresses.length) await runUpdate(`/api/employees/${cuid}/addresses`, addresses);
+			if (educations.length) await runUpdate(`/api/employees/${cuid}/educations`, educations);
+			if (experiences.length) await runUpdate(`/api/employees/${cuid}/experiences`, experiences);
+			if (skills.length) await runUpdate(`/api/employees/${cuid}/skills`, skills);
+			if (languages.length) await runUpdate(`/api/employees/${cuid}/languages`, languages);
+			if (bankDetails.length) await runUpdate(`/api/employees/${cuid}/bank-details`, bankDetails);
 
 			if (shouldExit) {
 				// eslint-disable-next-line

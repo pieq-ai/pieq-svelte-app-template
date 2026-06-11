@@ -1,3 +1,4 @@
+import { ValidationError } from '$lib/server/utils/errors.js';
 import * as documentDao from '$lib/server/dao/document.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
@@ -32,10 +33,10 @@ export async function replaceDocuments(employee_cuid: string, dtos: UpsertDocume
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
-    if (!Array.isArray(dtos)) throw new Error("Documents must be an array");
+    if (!Array.isArray(dtos)) throw new ValidationError("document", "Documents must be an array");
 
     for (const dto of dtos) {
-        if (!dto.document_type_cuid) throw new Error("Document type reference is required");
+        if (!dto.document_type_cuid) throw new ValidationError("document", "Document type reference is required");
     }
 
     const payload = dtos.map(dto => {

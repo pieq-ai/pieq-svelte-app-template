@@ -1,3 +1,4 @@
+import { ValidationError } from '$lib/server/utils/errors.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
@@ -38,8 +39,8 @@ export async function upsertEmployment(employee_cuid: string, dto: UpsertEmploym
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
-    if (!dto.department_cuid) throw new Error("Department is required");
-    if (!dto.designation_cuid) throw new Error("Designation is required");
+    if (!dto.department_cuid) throw new ValidationError("employment", "Department is required");
+    if (!dto.designation_cuid) throw new ValidationError("employment", "Designation is required");
 
     const official_email = validateEmail(dto.official_email);
     // Relaxed date validation: date of joining can be in the future, so we don't use validateDob exactly.
@@ -48,25 +49,25 @@ export async function upsertEmployment(employee_cuid: string, dto: UpsertEmploym
     const confirmation_date = dto.confirmation_date ? new Date(dto.confirmation_date) : null;
     const relieving_date = dto.relieving_date ? new Date(dto.relieving_date) : null;
 
-    if (date_of_joining && isNaN(date_of_joining.getTime())) throw new Error("Invalid date of joining");
-    if (confirmation_date && isNaN(confirmation_date.getTime())) throw new Error("Invalid confirmation date");
-    if (relieving_date && isNaN(relieving_date.getTime())) throw new Error("Invalid relieving date");
+    if (date_of_joining && isNaN(date_of_joining.getTime())) throw new ValidationError("employment", "Invalid date of joining");
+    if (confirmation_date && isNaN(confirmation_date.getTime())) throw new ValidationError("employment", "Invalid confirmation date");
+    if (relieving_date && isNaN(relieving_date.getTime())) throw new ValidationError("employment", "Invalid relieving date");
 
     if (employee.dob && date_of_joining) {
         if (date_of_joining < new Date(employee.dob)) {
-            throw new Error("Joining date cannot be before date of birth");
+            throw new ValidationError("employment", "Joining date cannot be before date of birth");
         }
     }
 
     if (confirmation_date && date_of_joining) {
         if (confirmation_date < date_of_joining) {
-            throw new Error("Confirmation date cannot be earlier than joining date");
+            throw new ValidationError("employment", "Confirmation date cannot be earlier than joining date");
         }
     }
 
     if (relieving_date && date_of_joining) {
         if (relieving_date < date_of_joining) {
-            throw new Error("Relieving date cannot be earlier than joining date");
+            throw new ValidationError("employment", "Relieving date cannot be earlier than joining date");
         }
     }
 

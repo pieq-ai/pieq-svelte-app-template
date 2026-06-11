@@ -1,7 +1,7 @@
-import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as addressService from '$lib/server/services/address.service.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
+import { sendList, sendUpdated, handleError } from '$lib/server/utils/response.js';
 
 export async function GET(event: RequestEvent) {
 	try {
@@ -10,11 +10,9 @@ export async function GET(event: RequestEvent) {
 		if (!employee_cuid) throw new Error('CUID2 parameter is missing');
 
 		const addresses = await addressService.getAddressesByEmployeeCuid(employee_cuid);
-		return json({ data: addresses });
+		return sendList(addresses);
 	} catch (error) {
-		const message = (error as Error).message;
-		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
-		return json({ error: message }, { status });
+		return handleError(error);
 	}
 }
 
@@ -33,11 +31,9 @@ export async function PUT(event: RequestEvent) {
         const user_id = event.locals.user?.id;
         body = body.map((addr: any) => ({ ...addr, updated_by: user_id }));
 
-		const addresses = await addressService.replaceAddresses(employee_cuid, body);
-		return json({ data: addresses, message: 'Successfully updated addresses' });
+		await addressService.replaceAddresses(employee_cuid, body);
+		return sendUpdated(employee_cuid, 'Successfully updated addresses');
 	} catch (error) {
-		const message = (error as Error).message;
-		const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;
-		return json({ error: message }, { status });
+		return handleError(error);
 	}
 }

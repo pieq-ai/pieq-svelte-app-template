@@ -1,3 +1,4 @@
+import { ValidationError } from '$lib/server/utils/errors.js';
 import * as addressDao from '$lib/server/dao/address.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
@@ -35,13 +36,13 @@ export async function replaceAddresses(employee_cuid: string, dtos: UpsertAddres
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
     if (!Array.isArray(dtos)) {
-        throw new Error("Addresses must be an array");
+        throw new ValidationError("address", "Addresses must be an array");
     }
 
     // Basic validation
     for (const dto of dtos) {
         if (!dto.address_line1 || !dto.city || !dto.state_cuid || !dto.country_cuid) {
-            throw new Error("Address line 1, city, state, and country are required for all addresses");
+            throw new ValidationError("address", "Address line 1, city, state, and country are required for all addresses");
         }
     }
 

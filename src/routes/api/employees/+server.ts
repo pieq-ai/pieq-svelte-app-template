@@ -1,19 +1,16 @@
-import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import { mapToDb, toEmployeeDTO } from '$lib/server/utils/mapping.js';
-import { ValidationError } from '$lib/server/utils/errors.js';
+import { sendList, sendCreated, handleError } from '$lib/server/utils/response.js';
 
 export async function GET(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
 		const employees = await employeeService.getEmployees();
-		return json({ data: employees.map(toEmployeeDTO) });
+		return sendList(employees.map(toEmployeeDTO));
 	} catch (error) {
-		const message = (error as Error).message;
-		const status = message === 'Unauthorized' ? 401 : 400;
-		return json({ error: message }, { status });
+		return handleError(error);
 	}
 }
 
@@ -26,13 +23,8 @@ export async function POST(event: RequestEvent) {
 		body.created_by = event.locals.user?.id;
 		
 		const newEmployee = await employeeService.createEmployee(body);
-		return json({ data: { cuid: newEmployee.cuid, message: 'Successfully created' } }, { status: 201 });
+		return sendCreated(newEmployee.cuid);
 	} catch (error) {
-		if (error instanceof ValidationError) {
-			return json({ error: error.message, field: error.field }, { status: 409 });
-		}
-		const message = (error as Error).message;
-		const status = message === 'Unauthorized' ? 401 : 400;
-		return json({ error: message }, { status });
+		return handleError(error);
 	}
 }

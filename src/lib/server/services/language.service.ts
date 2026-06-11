@@ -1,3 +1,4 @@
+import { ValidationError } from '$lib/server/utils/errors.js';
 import * as languageDao from '$lib/server/dao/language.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
@@ -38,10 +39,10 @@ export async function replaceLanguages(employee_cuid: string, dtos: UpsertLangua
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
-    if (!Array.isArray(dtos)) throw new Error("Languages must be an array");
+    if (!Array.isArray(dtos)) throw new ValidationError("language", "Languages must be an array");
 
     for (const dto of dtos) {
-        if (!dto.language_cuid) throw new Error("Language reference is required");
+        if (!dto.language_cuid) throw new ValidationError("language", "Language reference is required");
     }
 
     const payload = dtos.map(dto => ({
