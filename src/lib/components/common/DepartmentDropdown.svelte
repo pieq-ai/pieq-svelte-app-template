@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { UI_CONSTANTS } from '$lib/constants';
-	import { Alert, AlertDescription, Button, CrudModal, Input, Label, SearchableDropdown } from '$lib/components';
+	import { Alert, AlertDescription, SearchableDropdown } from '$lib/components';
 	import { getMasterPermissions, type MasterPermissionConfig } from '$lib/permissions/mock-permissions';
 
 	interface Props {
@@ -64,47 +64,7 @@
 
 	onMount(loadOptions);
 
-	function openCreateModal() {
-		inputValue = '';
-		errorMessage = '';
-		backendError = '';
-		isValueTouched = false;
-		isModalOpen = true;
-	}
 
-	async function saveValue(event: Event) {
-		event.preventDefault();
-		isValueTouched = true;
-		if (getValidationError(inputValue)) {
-			inputRef?.focus();
-			return;
-		}
-
-		isSubmitting = true;
-		errorMessage = '';
-		try {
-			const response = await fetch(`/api/departments`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name: inputValue.trim(), status: true })
-			});
-			const body = await response.json();
-			if (response.ok) {
-				await loadOptions();
-				if (body.data?.cuid) {
-					onSelect(body.data.cuid);
-				}
-				isModalOpen = false;
-			} else if (response.status === 409) {
-				backendError = body.error;
-				inputRef?.focus();
-			} else {
-				errorMessage = body.error || `Unable to save.`;
-			}
-		} finally {
-			isSubmitting = false;
-		}
-	}
 </script>
 
 <div class="space-y-2">
@@ -116,7 +76,6 @@
 		{disabled}
 		class={className}
 		{permissions}
-		onAdd={openCreateModal}
 		{onSelect}
 	/>
 	{#if isLoading}
@@ -127,34 +86,3 @@
 	{/if}
 </div>
 
-<CrudModal
-	open={isModalOpen}
-	title="Add Department"
-	description="Create a new department."
-	onClose={() => (isModalOpen = false)}
->
-	{#snippet children({ cancel })}
-		<form class="space-y-4" onsubmit={saveValue}>
-			<div class="space-y-2">
-				<Label for="dept_val">Department Name</Label>
-				<Input
-					id="dept_val"
-					bind:ref={inputRef}
-					bind:value={inputValue}
-					class={validationError || backendError ? 'border-destructive' : ''}
-					oninput={() => { backendError = ''; }}
-				/>
-				{#if validationError || backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{validationError || backendError}</p>
-				{/if}
-			</div>
-
-			<div class="flex items-center justify-end gap-3 pt-4">
-				<Button type="button" variant="outline" onclick={cancel}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting}>
-					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : UI_CONSTANTS.BUTTON_SAVE}
-				</Button>
-			</div>
-		</form>
-	{/snippet}
-</CrudModal>

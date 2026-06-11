@@ -1,6 +1,7 @@
 <script lang="ts">
 	import PencilIcon from '@lucide/svelte/icons/pencil';
 	import MoreVerticalIcon from '@lucide/svelte/icons/more-vertical';
+	import EyeIcon from '@lucide/svelte/icons/eye';
 	import { Button } from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
@@ -8,12 +9,18 @@
 		editLabel?: string;
 		canEdit?: boolean;
 		onEdit?: () => void;
+		viewLabel?: string;
+		canView?: boolean;
+		onView?: () => void;
 	}
 
 	let {
 		editLabel = 'Edit',
 		canEdit = true,
-		onEdit
+		onEdit,
+		viewLabel = 'View',
+		canView = false,
+		onView
 	}: Props = $props();
 </script>
 
@@ -32,6 +39,12 @@
 		{/snippet}
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end" preventScroll={false}>
+		{#if canView}
+			<DropdownMenu.Item onclick={onView} class="cursor-pointer">
+				<EyeIcon class="mr-2 size-4" />
+				{viewLabel}
+			</DropdownMenu.Item>
+		{/if}
 		{#if canEdit}
 			<DropdownMenu.Item onclick={onEdit} class="cursor-pointer">
 				<PencilIcon class="mr-2 size-4" />

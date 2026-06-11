@@ -5,7 +5,7 @@
 	import { SvelteDate } from 'svelte/reactivity';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
+
 
 	let { mode, cuid, data, onNext, onPrev } = $props<{ mode: 'create' | 'edit' | 'view', cuid: string | null, data?: { roles?: { cuid: string; name: string }[], locations?: { cuid: string; name: string }[], employees?: { cuid: string; first_name: string; last_name: string }[] }, onNext: (cuid?: string) => void, onPrev: () => void }>();
 
@@ -30,7 +30,18 @@
 	let dateErrors = $state({ doj: false, conf: false, rel: false });
 
 	onMount(async () => {
-		if (cuid) {
+		if (data?.employment) {
+			const serverEmp = { ...data.employment };
+			const dateFields = ['date_of_joining', 'confirmation_date', 'relieving_date'];
+			for (const field of dateFields) {
+				if (serverEmp[field] && serverEmp[field] instanceof Date) {
+					serverEmp[field] = serverEmp[field].toISOString().split('T')[0];
+				} else if (serverEmp[field] && typeof serverEmp[field] === 'string') {
+					serverEmp[field] = serverEmp[field].split('T')[0];
+				}
+			}
+			employment = { ...employment, ...serverEmp };
+		} else if (cuid) {
 			try {
 				const res = await fetch(`/api/employees/${cuid}/employment`);
 				const body = await res.json();
@@ -91,7 +102,10 @@
 
 	async function save(shouldExit: boolean) {
 		isTouched = true;
-		if (hasErrors) return;
+		if (hasErrors) {
+			toast.error('Please correct the validation errors before saving.');
+			return;
+		}
 		if (!cuid) {
 			toast.error('Employee CUID missing. Please go back to Personal Details.');
 			return;
@@ -113,7 +127,7 @@
 			}
 
 			if (shouldExit) {
-				await goto('/employees');
+				window.location.href = '/employees';
 			} else {
 				onNext();
 			}
@@ -161,7 +175,6 @@
 			master="employment-types" 
 			label="Employment Type *" 
 			value={employment.employment_type_cuid} 
-			permissions={{ canCreate: false, canEdit: false }}
 			onSelect={(val) => employment.employment_type_cuid = val as string} 
 			disabled={mode === 'view'}
 			class={(isTouched && errors.employment_type_cuid) ? 'border-destructive' : ''}

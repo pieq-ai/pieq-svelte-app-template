@@ -4,7 +4,7 @@
 	import TrashIcon from '@lucide/svelte/icons/trash';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
+
 
 	let { mode, cuid, onNext, onPrev } = $props<{ mode: 'create' | 'edit' | 'view', cuid: string | null, onNext: (cuid?: string) => void, onPrev: () => void }>();
 
@@ -76,7 +76,7 @@
 			}
 
 			if (shouldExit) {
-				goto('/employees').then();
+				window.location.href = '/employees';
 			} else {
 				onNext();
 			}

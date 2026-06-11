@@ -17,10 +17,12 @@
 		TableCell,
 		TableHead,
 		TableHeader,
-		TableRow
+		TableRow,
+		TableActions
 	} from '$lib/components';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import { toast } from '$lib/toast';
+	import { goto } from '$app/navigation';
 
 	interface Employee {
 		cuid: string;
@@ -231,9 +233,11 @@
 									{emp.personal_email || '-'}
 								</TableCell>
 								<TableCell class="text-right">
-									<Button variant="ghost" size="sm" href={`/employees/${emp.cuid}`}>
-										View
-									</Button>
+									<TableActions
+										canEdit={false}
+										canView={true}
+										onView={() => goto(`/employees/${emp.cuid}`)}
+									/>
 								</TableCell>
 							</TableRow>
 						{/each}

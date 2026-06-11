@@ -5,7 +5,7 @@
 	import { toast } from 'svelte-sonner';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
+
 
 	let { mode, cuid, onNext, onPrev } = $props<{ mode: 'create' | 'edit' | 'view', cuid: string | null, onNext: (cuid?: string) => void, onPrev: () => void }>();
 
@@ -78,7 +78,7 @@
 			}
 
 			if (shouldExit) {
-				await goto('/employees');
+				window.location.href = '/employees';
 			} else {
 				onNext();
 			}

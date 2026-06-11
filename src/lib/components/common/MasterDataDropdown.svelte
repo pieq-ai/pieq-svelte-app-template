@@ -202,6 +202,7 @@
 		{placeholder}
 		{disabled}
 		class={className}
+		{permissions}
 		onSelect={onSelect}
 		onAdd={permissions.canCreate ? openCreateModal : undefined}
 		onEdit={permissions.canEdit ? openEditModal : undefined}

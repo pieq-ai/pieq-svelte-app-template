@@ -1,6 +1,7 @@
 import { error } from '@sveltejs/kit';
 import { db } from '$lib/server/db.js';
 import type { PageServerLoad } from './$types';
+import { serialize } from '$lib/server/utils/mapping.js';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const employeeCuid = params.cuid;
@@ -18,7 +19,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	});
 
 	return {
-		employee,
-		employment
+		employee: serialize(employee),
+		employment: serialize(employment)
 	};
 };

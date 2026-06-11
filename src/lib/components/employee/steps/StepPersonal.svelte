@@ -3,9 +3,9 @@
 	import { SvelteDate } from 'svelte/reactivity';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
 
-	let { mode, cuid, onNext } = $props<{ mode: 'create' | 'edit' | 'view', cuid: string | null, onNext: (cuid?: string) => void }>();
+
+	let { mode, cuid, onNext, data } = $props<{ mode: 'create' | 'edit' | 'view', cuid: string | null, onNext: (cuid?: string) => void, data?: Record<string, unknown> }>();
 
 	let isSubmitting = $state(false);
 	let isTouched = $state(false);
@@ -35,7 +35,15 @@
 	let dateErrors = $state({ dob: false });
 
 	onMount(async () => {
-		if (mode === 'create' && !cuid) {
+		if (data?.employee) {
+			const serverEmp = { ...data.employee };
+			if (serverEmp.dob && serverEmp.dob instanceof Date) {
+				serverEmp.dob = serverEmp.dob.toISOString().split('T')[0];
+			} else if (serverEmp.dob && typeof serverEmp.dob === 'string') {
+				serverEmp.dob = serverEmp.dob.split('T')[0];
+			}
+			emp = { ...emp, ...serverEmp };
+		} else if (mode === 'create' && !cuid) {
 			try {
 				const res = await fetch('/api/employees/next-code');
 				const body = await res.json();
@@ -156,7 +164,10 @@
 
 	async function save(shouldExit: boolean) {
 		isTouched = true;
-		if (hasErrors) return;
+		if (hasErrors) {
+			toast.error('Please correct the validation errors before saving.');
+			return;
+		}
 
 		try {
 			isSubmitting = true;
@@ -179,7 +190,7 @@
 			const savedCuid = result.data?.cuid || cuid;
 
 			if (shouldExit) {
-				await goto('/employees');
+				window.location.href = '/employees';
 			} else {
 				onNext(savedCuid);
 			}

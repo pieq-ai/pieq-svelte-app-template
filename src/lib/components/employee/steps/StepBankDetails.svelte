@@ -4,7 +4,7 @@
 	import TrashIcon from '@lucide/svelte/icons/trash';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
+
 
 	let { mode, cuid, onPrev } = $props<{ mode: 'create' | 'edit' | 'view', cuid: string | null, onPrev: () => void }>();
 
@@ -74,7 +74,7 @@
 			}
 
 			toast.success(mode === 'create' ? 'Employee created successfully!' : 'Employee updated successfully!');
-			await goto('/employees');
+			window.location.href = '/employees';
 		} catch (e: unknown) {
 			toast.error((e as Error).message);
 		} finally {
@@ -147,7 +147,7 @@
 					{isSubmitting ? 'Saving...' : 'Submit / Complete'}
 				</Button>
 			{:else}
-				<Button onclick={async () => await goto('/employees')}>
+				<Button onclick={async () => window.location.href = '/employees'}>
 					Finish
 				</Button>
 			{/if}
