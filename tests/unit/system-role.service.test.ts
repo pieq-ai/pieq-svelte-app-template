@@ -8,7 +8,7 @@ vi.mock('$lib/server/dao/system-role.dao.js', () => ({
 	findById: vi.fn(),
 	findByCuid2: vi.fn(),
 	create: vi.fn(),
-	update: vi.fn()
+	update: vi.fn() 
 }));
 
 describe('System Role Service', () => {
