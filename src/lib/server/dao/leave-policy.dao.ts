@@ -19,6 +19,22 @@ export interface CreateLeavePolicyData {
 
 export async function list() {
 	const policies = await db.leavePolicy.findMany({
+		select: {
+			cuid: true,
+			leave_type_cuid: true,
+			annual_limit: true,
+			max_per_month: true,
+			carry_forward_allowed: true,
+			max_carry_forward_days: true,
+			document_required: true,
+			document_required_after_days: true,
+			min_service_days: true,
+			allow_half_day: true,
+			gender_specific: true,
+			applicable_gender: true,
+			status: true,
+			updated_at: true
+		},
 		orderBy: { updated_at: 'desc' }
 	});
 
@@ -171,7 +187,23 @@ export async function deletePolicy(cuid: string) {
 
 export async function findByCuid(cuid: string) {
 	const policy = await db.leavePolicy.findUnique({
-		where: { cuid }
+		where: { cuid },
+		select: {
+			cuid: true,
+			leave_type_cuid: true,
+			annual_limit: true,
+			max_per_month: true,
+			carry_forward_allowed: true,
+			max_carry_forward_days: true,
+			document_required: true,
+			document_required_after_days: true,
+			min_service_days: true,
+			allow_half_day: true,
+			gender_specific: true,
+			applicable_gender: true,
+			status: true,
+			updated_at: true
+		}
 	});
 
 	if (!policy) return null;

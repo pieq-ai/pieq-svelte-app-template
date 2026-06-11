@@ -5,8 +5,6 @@ export interface HolidayInput {
 	holiday_name: string;
 	holiday_date: Date | string;
 	holiday_type: string;
-	created_by?: string | null;
-	updated_by?: string | null;
 }
 
 export interface HolidayDTO {
@@ -14,8 +12,6 @@ export interface HolidayDTO {
 	holiday_name: string;
 	holiday_date: string;
 	holiday_type: 'National' | 'Regional' | 'Restricted';
-	created_by: string | null;
-	updated_by: string | null;
 }
 
 export function formatHoliday(holiday: HolidayInput): HolidayDTO {
@@ -25,9 +21,7 @@ export function formatHoliday(holiday: HolidayInput): HolidayDTO {
 		holiday_date: holiday.holiday_date instanceof Date 
 			? holiday.holiday_date.toISOString().split('T')[0]
 			: new Date(holiday.holiday_date).toISOString().split('T')[0],
-		holiday_type: holiday.holiday_type as 'National' | 'Regional' | 'Restricted',
-		created_by: holiday.created_by || null,
-		updated_by: holiday.updated_by || null
+		holiday_type: holiday.holiday_type as 'National' | 'Regional' | 'Restricted'
 	};
 }
 
@@ -40,8 +34,6 @@ export interface LeaveTypeInput {
 	requires_approval: boolean;
 	status: boolean;
 	updated_at?: Date | string;
-	created_by?: string | null;
-	updated_by?: string | null;
 }
 
 export interface LeaveTypeDTO {
@@ -53,8 +45,6 @@ export interface LeaveTypeDTO {
 	requires_approval: boolean;
 	status: boolean;
 	updated_at: string;
-	created_by: string | null;
-	updated_by: string | null;
 }
 
 export function formatLeaveType(type: LeaveTypeInput): LeaveTypeDTO {
@@ -68,9 +58,7 @@ export function formatLeaveType(type: LeaveTypeInput): LeaveTypeDTO {
 		status: type.status,
 		updated_at: type.updated_at instanceof Date 
 			? type.updated_at.toISOString() 
-			: type.updated_at ? new Date(type.updated_at).toISOString() : new Date().toISOString(),
-		created_by: type.created_by || null,
-		updated_by: type.updated_by || null
+			: type.updated_at ? new Date(type.updated_at).toISOString() : new Date().toISOString()
 	};
 }
 
@@ -90,8 +78,6 @@ export interface LeavePolicyInput {
 	status: boolean;
 	employment_type_cuids?: string[];
 	updated_at?: Date | string;
-	created_by?: string | null;
-	updated_by?: string | null;
 }
 
 export interface LeavePolicyDTO {
@@ -110,8 +96,6 @@ export interface LeavePolicyDTO {
 	status: boolean;
 	employment_type_cuids: string[];
 	updated_at: string;
-	created_by: string | null;
-	updated_by: string | null;
 }
 
 export function formatLeavePolicy(policy: LeavePolicyInput): LeavePolicyDTO {
@@ -132,9 +116,7 @@ export function formatLeavePolicy(policy: LeavePolicyInput): LeavePolicyDTO {
 		employment_type_cuids: policy.employment_type_cuids || [],
 		updated_at: policy.updated_at instanceof Date 
 			? policy.updated_at.toISOString() 
-			: policy.updated_at ? new Date(policy.updated_at).toISOString() : new Date().toISOString(),
-		created_by: policy.created_by || null,
-		updated_by: policy.updated_by || null
+			: policy.updated_at ? new Date(policy.updated_at).toISOString() : new Date().toISOString()
 	};
 }
 

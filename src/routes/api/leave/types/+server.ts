@@ -31,14 +31,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	try {
 		body = await request.json();
 	} catch {
-		return errorResponse('Request body must be valid JSON', 400);
+		return json({ error: { general: 'Request body must be valid JSON' } }, { status: 400 });
 	}
 
 	const allowedKeys = ['leave_name', 'leave_code', 'description', 'is_paid', 'requires_approval', 'status'];
 
 	const validation = validatePayloadKeys(body, allowedKeys);
 	if (validation) {
-		return errorResponse(validation.error, 400);
+		return json({ error: { general: validation.error } }, { status: 400 });
 	}
 
 	const trimmedBody = trimStringFields(body) as {
@@ -78,10 +78,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			(error !== null && typeof error === 'object' && 'name' in error && error.name === 'LeaveMultiValidationError');
 
 		if (isMultiError) {
-			return json({ error: (error as any).fields }, { status: 400 });
+			return json({ data: { error: (error as any).fields } }, { status: 400 });
 		}
 		if (error instanceof LeaveValidationError) {
-			return json({ error: { [error.field || 'general']: error.message } }, { status: 400 });
+			return json({ data: { error: { [error.field || 'general']: error.message } } }, { status: 400 });
 		}
 
 		console.error('POST /api/leave/types failed', error);

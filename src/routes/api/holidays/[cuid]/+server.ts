@@ -39,12 +39,12 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 	try {
 		body = await request.json();
 	} catch {
-		return errorResponse('Request body must be valid JSON', 400);
+		return json({ error: { general: 'Request body must be valid JSON' } }, { status: 400 });
 	}
 
 	const validation = validatePayloadKeys(body, ['holiday_name', 'holiday_date', 'holiday_type']);
 	if (validation) {
-		return errorResponse(validation.error, 400);
+		return json({ error: { general: validation.error } }, { status: 400 });
 	}
 
 	const trimmedBody = trimStringFields(body) as {
@@ -77,10 +77,10 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 			(error !== null && typeof error === 'object' && 'name' in error && error.name === 'HolidayMultiValidationError');
 
 		if (isMultiError) {
-			return json({ error: (error as any).fields }, { status: 400 });
+			return json({ data: { error: (error as any).fields } }, { status: 400 });
 		}
 		if (error instanceof HolidayValidationError) {
-			return json({ error: { [error.field]: error.message } }, { status: 400 });
+			return json({ data: { error: { [error.field]: error.message } } }, { status: 400 });
 		}
 
 		console.error(`PUT /api/holidays/${cuid} failed`, error);

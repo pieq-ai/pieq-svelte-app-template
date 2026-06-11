@@ -10,6 +10,12 @@ export interface CreateHolidayData {
 
 export async function list() {
 	return db.holidayCalendar.findMany({
+		select: {
+			cuid: true,
+			holiday_name: true,
+			holiday_date: true,
+			holiday_type: true
+		},
 		orderBy: { created_at: 'desc' }
 	});
 }
@@ -41,7 +47,13 @@ export async function deleteHoliday(cuid: string) {
 
 export async function findByCuid(cuid: string) {
 	return db.holidayCalendar.findUnique({
-		where: { cuid }
+		where: { cuid },
+		select: {
+			cuid: true,
+			holiday_name: true,
+			holiday_date: true,
+			holiday_type: true
+		}
 	});
 }
 

@@ -1,16 +1,16 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-11)
 
 ## Corpus Check
-- 259 files · ~94,932 words
+- 259 files · ~95,305 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1208 nodes · 2157 edges · 84 communities (65 shown, 19 thin omitted)
+- 1208 nodes · 2157 edges · 82 communities (63 shown, 19 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 57 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b2368e4a`
+- Built from commit: `56ced58e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -83,14 +83,12 @@
 - [[_COMMUNITY_Community 72|Community 72]]
 - [[_COMMUNITY_Community 73|Community 73]]
 - [[_COMMUNITY_Community 74|Community 74]]
-- [[_COMMUNITY_Community 75|Community 75]]
 - [[_COMMUNITY_Community 76|Community 76]]
 - [[_COMMUNITY_Community 77|Community 77]]
 - [[_COMMUNITY_Community 78|Community 78]]
 - [[_COMMUNITY_Community 79|Community 79]]
 - [[_COMMUNITY_Community 81|Community 81]]
 - [[_COMMUNITY_Community 82|Community 82]]
-- [[_COMMUNITY_Community 83|Community 83]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `$lib/utils.js` - 36 edges
@@ -119,7 +117,7 @@
 ## Import Cycles
 - 1-file cycle: `src/routes/leave-policies/+page.svelte -> src/routes/leave-policies/+page.svelte`
 
-## Communities (84 total, 19 thin omitted)
+## Communities (82 total, 19 thin omitted)
 
 ### Community 0 - "API Endpoints"
 Cohesion: 0.06
@@ -130,8 +128,8 @@ Cohesion: 0.23
 Nodes (4): createClient(), db, getDb(), isValidClient()
 
 ### Community 2 - "UI Components Index"
-Cohesion: 0.20
-Nodes (22): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/toast, $lib/types/salary-component, $lib/utils, $lib/validators/salary-component (+14 more)
+Cohesion: 0.17
+Nodes (26): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/toast, $lib/types/salary-component (+18 more)
 
 ### Community 3 - "UI Components Core"
 Cohesion: 0.08
@@ -162,8 +160,8 @@ Cohesion: 0.06
 Nodes (23): POST(), SalaryComponentDto, serializeSalaryComponent(), BusinessValidationError, ComponentNotFoundError, DuplicateComponentError, GET(), PUT() (+15 more)
 
 ### Community 10 - "Designation Service DAO"
-Cohesion: 0.18
-Nodes (9): $lib/components, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/components, $lib/master-data/master-config, $lib/permissions/mock-permissions, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/more-vertical (+1 more)
+Cohesion: 0.13
+Nodes (10): @lucide/svelte/icons/alert-triangle, $lib/components, $lib/components, $lib/confirmation.svelte.js, @lucide/svelte/icons/chevron-left, modalStack, stack, @lucide/svelte/icons/more-vertical (+2 more)
 
 ### Community 11 - "Server Authentication"
 Cohesion: 0.15
@@ -203,7 +201,7 @@ Nodes (11): Adding a new feature, Deployment, Keycloak client setup, pieq-svelte
 
 ### Community 32 - "Community 32"
 Cohesion: 0.15
-Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
+Nodes (13): Code quality, Common workflows, Development, Other, Quick reference, Scripts, `yarn build`, `yarn check` (+5 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.10
@@ -214,8 +212,8 @@ Cohesion: 0.14
 Nodes (17): ./$types, ./$types, CreateEmployeeData, actions, load(), GET(), getErrorStatus(), POST() (+9 more)
 
 ### Community 37 - "Community 37"
-Cohesion: 0.21
-Nodes (5): @lucide/svelte/icons/alert-triangle, $lib/confirmation.svelte.js, modalStack, stack, @lucide/svelte/icons/x
+Cohesion: 0.50
+Nodes (4): Testing, `yarn test`, `yarn test:e2e`, `yarn test:unit`
 
 ### Community 40 - "Community 40"
 Cohesion: 0.21
@@ -246,8 +244,8 @@ Cohesion: 0.11
 Nodes (9): RoleListResponse, Role, RoleCreateDTO, RoleUpdateDTO, rejectUnknownKeys(), sanitizeString(), validateCreatePayload(), validatePaginationParams() (+1 more)
 
 ### Community 49 - "Community 49"
-Cohesion: 0.22
-Nodes (9): Common workflows, Other, Quick reference, Scripts, Testing, `yarn prepare`, `yarn test`, `yarn test:e2e` (+1 more)
+Cohesion: 0.15
+Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
 
 ### Community 50 - "Community 50"
 Cohesion: 0.10
@@ -325,10 +323,6 @@ Nodes (5): `Cannot read properties of undefined (reading 'create')` or `'findMan
 Cohesion: 0.40
 Nodes (5): Database (Prisma), `yarn db:generate`, `yarn db:migrate`, `yarn db:push`, `yarn db:studio`
 
-### Community 75 - "Community 75"
-Cohesion: 0.50
-Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
-
 ### Community 78 - "Community 78"
 Cohesion: 0.67
 Nodes (3): API reference — Employees, GET — list employees, POST — create employee
@@ -344,10 +338,6 @@ Nodes (4): $app/environment, toast, svelte-sonner, $lib/components/ui/toaster.sv
 ### Community 82 - "Community 82"
 Cohesion: 0.50
 Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
-
-### Community 83 - "Community 83"
-Cohesion: 0.50
-Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
 
 ## Knowledge Gaps
 - **348 isolated node(s):** `$schema`, `css`, `baseColor`, `components`, `utils` (+343 more)

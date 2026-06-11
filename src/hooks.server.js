@@ -94,8 +94,8 @@ const errorHandler = async ({ event, resolve }) => {
 		try {
 			const cloned = response.clone();
 			const json = await cloned.json();
-			const rawError = json.error || json.message || '';
-			const field = json.field;
+			const rawError = json.data?.error || json.error || json.message || '';
+			const field = json.data?.field || json.field;
 
 			const isDatabaseError = typeof rawError === 'string' && (
 				rawError.toLowerCase().includes('prisma') ||
@@ -133,9 +133,7 @@ const errorHandler = async ({ event, resolve }) => {
 					data: {
 						error: sanitizedMessage,
 						field: actualField
-					},
-					error: sanitizedMessage,
-					field: actualField
+					}
 				}),
 				{
 					status,

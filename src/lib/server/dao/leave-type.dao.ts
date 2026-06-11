@@ -13,6 +13,16 @@ export interface CreateLeaveTypeData {
 
 export async function list() {
 	return db.leaveType.findMany({
+		select: {
+			cuid: true,
+			leave_name: true,
+			leave_code: true,
+			description: true,
+			is_paid: true,
+			requires_approval: true,
+			status: true,
+			updated_at: true
+		},
 		orderBy: { updated_at: 'desc' }
 	});
 }
@@ -68,7 +78,17 @@ export async function deleteLeaveType(cuid: string) {
 
 export async function findByCuid(cuid: string) {
 	return db.leaveType.findUnique({
-		where: { cuid }
+		where: { cuid },
+		select: {
+			cuid: true,
+			leave_name: true,
+			leave_code: true,
+			description: true,
+			is_paid: true,
+			requires_approval: true,
+			status: true,
+			updated_at: true
+		}
 	});
 }
 

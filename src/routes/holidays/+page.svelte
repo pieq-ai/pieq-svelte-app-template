@@ -126,9 +126,28 @@
 				}
 				await invalidateAll();
 			} else {
-				if (result.error && typeof result.error === 'object') {
+				if (result.data?.error && typeof result.data.error === 'object') {
+					errors = { ...result.data.error };
+					if (result.data.error.general) {
+						form = {
+							error: result.data.error.general,
+							field: undefined,
+							action: editCuid ? 'update' : 'create'
+						};
+					} else {
+						form = null;
+					}
+				} else if (result.error && typeof result.error === 'object') {
 					errors = { ...result.error };
-					form = null;
+					if (result.error.general) {
+						form = {
+							error: result.error.general,
+							field: undefined,
+							action: editCuid ? 'update' : 'create'
+						};
+					} else {
+						form = null;
+					}
 				} else if (result.data?.errors) {
 					errors = { ...result.data.errors };
 					form = null;

@@ -37,7 +37,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 	try {
 		body = await request.json();
 	} catch {
-		return errorResponse('Request body must be valid JSON', 400);
+		return json({ error: { general: 'Request body must be valid JSON' } }, { status: 400 });
 	}
 
 	const allowedKeys = [
@@ -58,7 +58,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
 	const validation = validatePayloadKeys(body, allowedKeys);
 	if (validation) {
-		return errorResponse(validation.error, 400);
+		return json({ error: { general: validation.error } }, { status: 400 });
 	}
 
 	const trimmedBody = trimStringFields(body) as {
@@ -130,7 +130,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 			(error !== null && typeof error === 'object' && 'name' in error && error.name === 'LeaveMultiValidationError');
 
 		if (isMultiError) {
-			return json({ error: (error as any).fields }, { status: 400 });
+			return json({ data: { error: (error as any).fields } }, { status: 400 });
 		}
 
 		const isValidationError =
@@ -140,7 +140,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 		if (isValidationError) {
 			const valError = error as { field?: string; message: string };
 			console.log('Validation failed:', { field: valError.field, message: valError.message });
-			return json({ error: { [valError.field || 'general']: valError.message } }, { status: 400 });
+			return json({ data: { error: { [valError.field || 'general']: valError.message } } }, { status: 400 });
 		}
 
 		const errMsg = error instanceof Error ? error.message : 'Unknown server error';
