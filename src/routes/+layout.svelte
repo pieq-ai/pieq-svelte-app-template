@@ -21,6 +21,8 @@
 	import UserCheckIcon from '@lucide/svelte/icons/user-check';
 	import MapPinIcon from '@lucide/svelte/icons/map-pin';
 	import ClockIcon from '@lucide/svelte/icons/clock';
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
+	import CalendarCogIcon from '@lucide/svelte/icons/calendar-cog';
 
 	let { children, data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);
@@ -35,6 +37,9 @@
 		{ label: 'Shifts', href: resolve('/shifts'), icon: ClockIcon },
 		{ label: 'Locations', href: resolve('/organization_locations'), icon: MapPinIcon },
 		{ label: 'Salary Components', href: resolve('/salary-components'), icon: WalletIcon },
+		{ label: 'Leave Types', href: resolve('/leave-types'), icon: CalendarCogIcon },
+		{ label: 'Leave Policies', href: resolve('/leave-policies'), icon: ShieldCheckIcon },
+		{ label: 'Holiday Calendar', href: resolve('/holidays'), icon: CalendarIcon },
 		{ label: 'System Roles', href: resolve('/system-roles'), icon: ShieldCheckIcon },
 		{ label: 'Permissions', href: resolve('/permissions'), icon: KeyRoundIcon },
 		{ label: 'Role Permissions', href: resolve('/role-permissions'), icon: LinkIcon }

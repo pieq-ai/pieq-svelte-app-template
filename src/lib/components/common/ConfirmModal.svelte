@@ -1,5 +1,7 @@
 <script lang="ts">
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
+	import { modalStack } from './modalStack.js';
+	import { onDestroy } from 'svelte';
 
 	interface Props {
 		open: boolean;
@@ -22,7 +24,32 @@
 		onCancel,
 		onConfirm
 	}: Props = $props();
+
+	const modalId = Symbol('ConfirmModal');
+
+	$effect(() => {
+		if (open) {
+			modalStack.push(modalId);
+		} else {
+			modalStack.pop(modalId);
+		}
+	});
+
+	onDestroy(() => {
+		modalStack.pop(modalId);
+	});
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape' && open) {
+			if (modalStack.isTop(modalId)) {
+				onCancel();
+				e.preventDefault();
+			}
+		}
+	}
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 {#if open}
 	<!-- svelte-ignore a11y_click_events_have_key_events -->

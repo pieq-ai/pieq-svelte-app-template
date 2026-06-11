@@ -3,7 +3,8 @@ import { redirect } from '@sveltejs/kit';
 import { handle as authHandle } from '$lib/server/auth.js';
 
 // Add global BigInt JSON serialization support
-BigInt.prototype.toJSON = function () {
+/** @type {any} */
+(BigInt.prototype).toJSON = function () {
 	return this.toString();
 };
 
@@ -43,7 +44,10 @@ const routeGuard = async ({ event, resolve }) => {
 		'/shifts',
 		'/organization_locations',
 		'/organization_location',
-		'/settings'
+		'/settings',
+		'/leave-types',
+		'/leave-policies',
+		'/holidays'
 	];
 	const isProtectedRoute = protectedRoutes.some(
 		(path) => event.url.pathname === path || event.url.pathname.startsWith(`${path}/`)
