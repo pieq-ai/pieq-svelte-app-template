@@ -34,6 +34,7 @@ export interface LocationCreatePayload {
   country_cuid: string;
   pin_code: string;
   timezone: string;
+  is_active?: boolean;
 }
 
 export interface LocationUpdatePayload extends Partial<LocationCreatePayload> {
@@ -43,7 +44,7 @@ export interface LocationUpdatePayload extends Partial<LocationCreatePayload> {
 /** Fetch all locations (active + inactive). */
 export async function fetchAllLocations(): Promise<CompanyLocation[]> {
   const res = await localApi.get<LocationListResponse>(
-    '/api/organization_location?includeInactive=true'
+    '/api/organization-locations'
   );
   return res.data ?? [];
 }
@@ -63,7 +64,7 @@ export async function fetchStates(): Promise<State[]> {
 /** Create a new location. */
 export async function createLocation(payload: LocationCreatePayload): Promise<CompanyLocation> {
   const res = await localApi.post<{ data: CompanyLocation }>(
-    '/api/organization_location',
+    '/api/organization-locations',
     payload
   );
   return res.data;
@@ -75,7 +76,7 @@ export async function updateLocation(
   payload: LocationUpdatePayload
 ): Promise<CompanyLocation> {
   const res = await localApi.put<{ data: CompanyLocation }>(
-    `/api/organization_location/${cuid}`,
+    `/api/organization-locations/${cuid}`,
     payload
   );
   return res.data;
@@ -84,7 +85,7 @@ export async function updateLocation(
 /** Soft-delete (deactivate) a location. */
 export async function deleteLocation(cuid: string): Promise<CompanyLocation> {
   const res = await localApi.delete<{ data: CompanyLocation }>(
-    `/api/organization_location/${cuid}`
+    `/api/organization-locations/${cuid}`
   );
   return res.data;
 }
@@ -92,7 +93,7 @@ export async function deleteLocation(cuid: string): Promise<CompanyLocation> {
 /** Activate a previously deactivated location. */
 export async function activateLocation(cuid: string): Promise<CompanyLocation> {
   const res = await localApi.patch<{ data: CompanyLocation }>(
-    `/api/organization_location/${cuid}`
+    `/api/organization-locations/${cuid}`
   );
   return res.data;
 }

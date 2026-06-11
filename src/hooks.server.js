@@ -59,14 +59,14 @@ const routeGuard = async ({ event, resolve }) => {
 		'/salary-components',
 		'/roles',
 		'/shifts',
-		'/organization_locations',
+		'/organization-locations',
 		'/settings'
 	];
-	const isProtectedRoute = protectedRoutes.some(
+	const isProtectedRoute = protectedPaths.some(
 		(path) => event.url.pathname === path || event.url.pathname.startsWith(`${path}/`)
 	);
 
-	if (isProtected && !event.locals.user) {
+	if (isProtectedRoute && !event.locals.user) {
 		throw redirect(303, '/auth/signin');
 	}
 

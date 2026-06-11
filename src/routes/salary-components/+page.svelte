@@ -51,7 +51,7 @@
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
 	let typeFilter = $state<'all' | SalaryComponentType>('all');
-	let sortColumn = $state('component_name');
+	let sortColumn = $state<string | null>(null);
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -251,15 +251,11 @@
 				toast.success(editingComp ? 'Salary Component updated successfully' : 'Salary Component created successfully');
 				isModalOpen = false;
 			} else {
-				if (response.status === 400 || response.status === 409) {
-					errors.component_name = resData.message || resData.error || 'Validation failed';
-					nameInput?.focus();
-				} else {
-					toast.error(resData.message || resData.error || 'Failed to save salary component.');
-				}
+				errors.component_name = resData.message || resData.error || 'Validation failed';
+				nameInput?.focus();
 			}
 		} catch (err) {
-			toast.error('An error occurred. Please try again.');
+			errors.component_name = 'An error occurred. Please try again.';
 			console.error(err);
 		} finally {
 			isSubmitting = false;
@@ -268,7 +264,7 @@
 </script>
 
 <svelte:head>
-	<title>HRMS Salary Components</title>
+	<title>Salary Components</title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
@@ -342,7 +338,7 @@
 			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
 		</div>
 
-		<Card class="py-0">
+		<Card>
 			<Table>
 				<TableHeader>
 					<TableRow>
@@ -382,7 +378,7 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-center">
+						<TableHead class="w-24 text-center">
 							<Button variant="ghost" size="sm" class="h-8" onclick={() => handleSort('is_active')}>
 								Status
 							{#if sortColumn === 'is_active' && sortDirection === 'asc'}
@@ -420,16 +416,16 @@
 								}} 
 								class="cursor-pointer"
 							>
-								<TableCell>
-									<span class="font-semibold">{comp.component_name}</span>
+								<TableCell class="font-normal">
+									<div>{comp.component_name}</div>
 								</TableCell>
-								<TableCell>
-									<span class="capitalize">{comp.component_type}</span>
+								<TableCell class="font-normal capitalize">
+									{comp.component_type}
 								</TableCell>
-								<TableCell>
-									<span>{comp.is_taxable ? "Taxable" : "Non-taxable"}</span>
+								<TableCell class="font-normal">
+									{comp.is_taxable ? "Taxable" : "Non-taxable"}
 								</TableCell>
-								<TableCell class="text-center">
+								<TableCell class="text-center font-normal">
 									<StatusBadge status={comp.is_active} />
 								</TableCell>
 								<TableCell class="text-right">

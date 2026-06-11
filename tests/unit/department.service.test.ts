@@ -19,7 +19,7 @@ vi.mock('$lib/server/validators/department.validator.js', () => ({
 describe('Department Service', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.mocked(validator.validateDepartmentName).mockImplementation((name) => String(name).trim());
+		vi.mocked(validator.validateDepartmentName).mockImplementation((name: any) => String(name).trim());
 	});
 
 	describe('getDepartments', () => {
@@ -65,7 +65,7 @@ describe('Department Service', () => {
 	describe('createDepartment', () => {
 		it('should throw an error if department name already exists', async () => {
 			vi.mocked(departmentDao.findByName).mockResolvedValue({ id: 1 } as any);
-			await expect(departmentService.createDepartment({ dept_name: 'IT' })).rejects.toThrow('Department name "IT" already exists');
+			await expect(departmentService.createDepartment({ dept_name: 'IT' })).rejects.toThrow('Department name already exists');
 			expect(validator.validateDepartmentName).toHaveBeenCalledWith('IT');
 		});
 
@@ -104,7 +104,7 @@ describe('Department Service', () => {
 			vi.mocked(departmentDao.findByCuid2).mockResolvedValue({ id: 1, dept_name: 'OldName' } as any);
 			vi.mocked(departmentDao.findByName).mockResolvedValue({ id: 2, dept_name: 'NewName' } as any);
 
-			await expect(departmentService.updateDepartment('abc', { dept_name: 'NewName' })).rejects.toThrow('Department name "NewName" already exists');
+			await expect(departmentService.updateDepartment('abc', { dept_name: 'NewName' })).rejects.toThrow('Department name already exists');
 		});
 
 		it('should bypass uniqueness check if name is the same as existing', async () => {

@@ -62,7 +62,7 @@ export function validateCreatePayload(payload: unknown): RoleCreateDTO {
   }
 
   const raw = payload as Record<string, unknown>;
-  rejectUnknownKeys(raw, ['role_name', 'created_by', 'updated_by']);
+  rejectUnknownKeys(raw, ['role_name', 'status', 'created_by', 'updated_by']);
 
   const role_name = sanitizeString(raw.role_name);
   if (!role_name) {
@@ -85,7 +85,12 @@ export function validateCreatePayload(payload: unknown): RoleCreateDTO {
     throw err;
   }
 
-  return { role_name, created_by: raw.created_by as string | null | undefined, updated_by: raw.updated_by as string | null | undefined };
+  return { 
+    role_name, 
+    status: raw.status !== undefined ? Boolean(raw.status) : undefined,
+    created_by: raw.created_by as string | null | undefined, 
+    updated_by: raw.updated_by as string | null | undefined 
+  };
 }
 
 /**

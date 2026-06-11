@@ -57,17 +57,39 @@
 	let filteredRoles = $derived.by(() => {
 		const query = searchQuery.trim().toLowerCase();
 		if (!query) return activeRoles;
-		return activeRoles.filter((role) =>
+		const matchedRoles = activeRoles.filter((role) =>
 			role.system_role_name.toLowerCase().includes(query)
 		);
+		const hasMatchedPermissions = activePermissions.some((permission) =>
+			permission.permission_key.toLowerCase().includes(query)
+		);
+
+		if (matchedRoles.length > 0) {
+			return matchedRoles;
+		}
+		if (hasMatchedPermissions) {
+			return activeRoles;
+		}
+		return [];
 	});
 
 	let filteredPermissions = $derived.by(() => {
 		const query = searchQuery.trim().toLowerCase();
 		if (!query) return activePermissions;
-		return activePermissions.filter((permission) =>
+		const matchedPermissions = activePermissions.filter((permission) =>
 			permission.permission_key.toLowerCase().includes(query)
 		);
+		const hasMatchedRoles = activeRoles.some((role) =>
+			role.system_role_name.toLowerCase().includes(query)
+		);
+
+		if (matchedPermissions.length > 0) {
+			return matchedPermissions;
+		}
+		if (hasMatchedRoles) {
+			return activePermissions;
+		}
+		return [];
 	});
 
 	function assignmentKey(roleCuid: string, permissionCuid: string) {
@@ -86,7 +108,7 @@
 		isLoading = true;
 		loadError = '';
 		try {
-			const response = await fetch(`/api/role-permissions?t=${Date.now()}`);
+			const response = await fetch('/api/role-permissions');
 			const body = await response.json();
 			if (response.ok) {
 				data = body.data;

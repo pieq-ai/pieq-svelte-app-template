@@ -3,6 +3,16 @@ import type { ShiftCreateDTO, ShiftUpdateDTO, Shift } from '$lib/types/shift';
 import * as shiftDao from '$lib/server/dao/shift.dao.js';
 import { validateCreatePayload, validateUpdatePayload, validatePaginationParams } from '$lib/server/validators/shift.validator.js';
 
+export class ShiftMultiValidationError extends Error {
+  readonly fields: Record<string, string>;
+
+  constructor(fields: Record<string, string>) {
+    super('Validation failed');
+    this.name = 'ShiftMultiValidationError';
+    this.fields = fields;
+  }
+}
+
 export function parseTimeToDate(timeVal: Date | string | undefined, defaultTimeIso: string): Date {
   if (!timeVal) return new Date(defaultTimeIso);
   if (timeVal instanceof Date) return timeVal;
@@ -70,25 +80,25 @@ export async function listAllShifts(query?: Record<string, unknown>): Promise<{ 
 export async function createShift(payload: unknown): Promise<Shift> {
   const valid = validateCreatePayload(payload);
   
+  const errors: Record<string, string> = {};
+
   // Ensure unique active name
-  const existing = await shiftDao.getShifts();
-  if (existing.some((s) => s.shift_name.toLowerCase() === valid.shift_name.toLowerCase())) {
-    const err: any = new Error('Shift name already exists');
-    err.status = 409;
-    throw err;
+  const allShiftsForName = await shiftDao.getAllShifts();
+  if (allShiftsForName.some((s) => s.shift_name.toLowerCase() === valid.shift_name.toLowerCase())) {
+    errors.shift_name = 'Shift name already exists';
   }
 
   // Duplicate timing validation: No two ACTIVE shifts can share the exact same combination of start_time and end_time.
   const startHHMMSS = formatTimeToHHMMSS(valid.start_time, '09:00:00');
   const endHHMMSS = formatTimeToHHMMSS(valid.end_time, '18:00:00');
 
+  const existing = await shiftDao.getShifts();
   if (existing.some((s) => {
     return formatTimeToHHMMSS(s.start_time, '09:00:00') === startHHMMSS &&
            formatTimeToHHMMSS(s.end_time, '18:00:00') === endHHMMSS;
   })) {
-    const err: any = new Error('Shift timing range already exists');
-    err.status = 409;
-    throw err;
+    errors.start_time = 'Shift timing range already exists';
+    errors.end_time = 'Shift timing range already exists';
   }
 
   // Validate minimum_work_hours does not exceed the calculated shift duration
@@ -99,12 +109,12 @@ export async function createShift(payload: unknown): Promise<Shift> {
     if (diffHrs < 0) diffHrs += 24;
     const maxHrs = Math.round(diffHrs * 100) / 100;
     if (valid.minimum_work_hours > maxHrs) {
-      const err: any = new Error(
-        `Minimum work hours (${valid.minimum_work_hours}) cannot exceed the total shift duration (${maxHrs} hrs)`
-      );
-      err.status = 422;
-      throw err;
+      errors.minimum_work_hours = `Minimum work hours (${valid.minimum_work_hours}) cannot exceed the total shift duration (${maxHrs} hrs)`;
     }
+  }
+
+  if (Object.keys(errors).length > 0) {
+    throw new ShiftMultiValidationError(errors);
   }
   
   return shiftDao.createShift(valid);
@@ -121,14 +131,14 @@ export async function updateShift(cuid: string, payload: unknown): Promise<Shift
     throw err;
   }
   
+  const errors: Record<string, string> = {};
+
   // Duplicate name check if name provided
   if (valid.shift_name) {
     const nameToCheck = valid.shift_name.toLowerCase();
-    const existing = await shiftDao.getShifts();
-    if (existing.some((s) => s.shift_name.toLowerCase() === nameToCheck && s.cuid !== cuid)) {
-      const err: any = new Error('Shift name already exists');
-      err.status = 409;
-      throw err;
+    const allShiftsForName = await shiftDao.getAllShifts();
+    if (allShiftsForName.some((s) => s.shift_name.toLowerCase() === nameToCheck && s.cuid !== cuid)) {
+      errors.shift_name = 'Shift name already exists';
     }
   }
 
@@ -147,9 +157,8 @@ export async function updateShift(cuid: string, payload: unknown): Promise<Shift
       return formatTimeToHHMMSS(s.start_time, '09:00:00') === startHHMMSS &&
              formatTimeToHHMMSS(s.end_time, '18:00:00') === endHHMMSS;
     })) {
-      const err: any = new Error('Shift timing range already exists');
-      err.status = 409;
-      throw err;
+      errors.start_time = 'Shift timing range already exists';
+      errors.end_time = 'Shift timing range already exists';
     }
   }
 
@@ -163,12 +172,12 @@ export async function updateShift(cuid: string, payload: unknown): Promise<Shift
     if (diffHrs < 0) diffHrs += 24;
     const maxHrs = Math.round(diffHrs * 100) / 100;
     if (valid.minimum_work_hours > maxHrs) {
-      const err: any = new Error(
-        `Minimum work hours (${valid.minimum_work_hours}) cannot exceed the total shift duration (${maxHrs} hrs)`
-      );
-      err.status = 422;
-      throw err;
+      errors.minimum_work_hours = `Minimum work hours (${valid.minimum_work_hours}) cannot exceed the total shift duration (${maxHrs} hrs)`;
     }
+  }
+
+  if (Object.keys(errors).length > 0) {
+    throw new ShiftMultiValidationError(errors);
   }
   
   return shiftDao.updateShift(cuid, valid);

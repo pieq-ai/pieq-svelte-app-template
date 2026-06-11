@@ -1,8 +1,10 @@
+import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types.js';
 import {
 	getLeaveTypeByCuid,
 	updateLeaveType,
-	LeaveValidationError
+	LeaveValidationError,
+	LeaveMultiValidationError
 } from '$lib/server/services/leave-type.service.js';
 import { validatePayloadKeys, trimStringFields } from '$lib/server/validation.js';
 import {
@@ -76,6 +78,9 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 		});
 		return updateSuccessResponse('Leave type', data.cuid);
 	} catch (error) {
+		if (error instanceof LeaveMultiValidationError) {
+			return json({ data: { error: 'Validation failed', errors: error.fields } }, { status: 400 });
+		}
 		if (error instanceof LeaveValidationError) {
 			return errorResponse(error.message, 400, error.field);
 		}

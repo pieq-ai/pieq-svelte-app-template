@@ -94,7 +94,7 @@ describe('Permission Service', () => {
 
 		it('should throw an error if permission key already exists', async () => {
 			vi.mocked(permissionDao.list).mockResolvedValue([{ id: 1n, permission_key: 'admin_read' } as any]);
-			await expect(permissionService.createPermission({ permission_key: 'admin_read' })).rejects.toThrow('Permission already exists');
+			await expect(permissionService.createPermission({ permission_key: 'admin_read' })).rejects.toThrow('Permission key already exists');
 		});
 
 		it('should create and return the new permission', async () => {
@@ -119,7 +119,7 @@ describe('Permission Service', () => {
 			vi.mocked(permissionDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'abc', permission_key: 'old_key' } as any);
 			vi.mocked(permissionDao.list).mockResolvedValue([{ id: 2n, cuid: 'xyz', permission_key: 'new_key' } as any]);
 
-			await expect(permissionService.updatePermission('abc', { permission_key: 'new_key' })).rejects.toThrow('Permission already exists');
+			await expect(permissionService.updatePermission('abc', { permission_key: 'new_key' })).rejects.toThrow('Permission key already exists');
 		});
 
 		it('should allow updating with same name', async () => {

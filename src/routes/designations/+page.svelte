@@ -49,7 +49,7 @@
 
   let searchQuery = $state("");
   let statusFilter = $state<"all" | boolean>("all");
-  let sortColumn = $state("designation_name");
+  let sortColumn = $state<string | null>(null);
   let sortDirection = $state<"asc" | "desc" | null>(null);
 
   let currentPage = $state(1);
@@ -274,14 +274,12 @@
 				await loadDesignations();
 				toast.success(editingDesignation ? 'Designation updated successfully' : 'Designation created successfully');
 				isModalOpen = false;
-			} else if (response.status === 409 && resData.field === 'designation_name') {
-				errors.designation_name = resData.error;
-				designationNameInput?.focus();
 			} else {
-				toast.error(resData.error || 'Failed to save designation.');
+				errors.designation_name = resData.error || 'Failed to save designation.';
+				designationNameInput?.focus();
 			}
 		} catch (err) {
-			toast.error('An error occurred. Please try again.');
+			errors.designation_name = 'An error occurred. Please try again.';
 			console.error(err);
 		} finally {
 			isSubmitting = false;
@@ -290,13 +288,13 @@
 </script>
 
 <svelte:head>
-	<title>Designation </title>
+	<title>Designations </title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Designation </h1>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Designations </h1>
 		</div>
 		<Button
 			type="button"
@@ -353,7 +351,7 @@
       />
     </div>
 
-		<Card class="py-0">
+		<Card>
 			<Table>
 				<TableHeader>
 					<TableRow>
@@ -369,7 +367,7 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-center">
+						<TableHead class="w-24 text-center">
 							<Button variant="ghost" size="sm" class="h-8" onclick={() => handleSort('status')}>
 								Status
 							{#if sortColumn === 'status' && sortDirection === 'asc'}
@@ -407,10 +405,8 @@
 								}} 
 								class="cursor-pointer"
 							>
-								<TableCell>
-									<div class="flex flex-col">
-										<span class="font-semibold">{designation.designation_name}</span>
-									</div>
+								<TableCell class="font-normal">
+									<div>{designation.designation_name}</div>
 								</TableCell>
 								<TableCell class="text-center">
 									<StatusBadge status={designation.status} />
@@ -456,9 +452,7 @@
 					<p class="text-xs font-medium text-danger mt-1">{errors.designation_name}</p>
 				{/if}
 			</div>
-			{#if editingDesignation}
-				<StatusDropdown id="designation_status" name="designation_status" value={formDesignationStatus} onChange={(val) => (formDesignationStatus = val)} />
-			{/if}
+			<StatusDropdown id="designation_status" name="designation_status" value={formDesignationStatus} onChange={(val) => (formDesignationStatus = val)} />
 			</div>
 
 			<div class="flex items-center justify-end gap-3 pt-6 flex-shrink-0">

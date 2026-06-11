@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>Dashboard – PieQ HRMS</title>
+	<title>Dashboard </title>
 </svelte:head>
 
 <div class="space-y-6">

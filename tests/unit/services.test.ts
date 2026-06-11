@@ -67,7 +67,11 @@ describe('Service Layer Unit Tests', () => {
         start_time: '1970-01-01T09:00:00Z',
         end_time: '1970-01-01T17:00:00Z',
         minimum_work_hours: 8
-      })).rejects.toThrow('Shift name already exists');
+      })).rejects.toThrowError(new shiftService.ShiftMultiValidationError({
+        shift_name: 'Shift name already exists',
+        start_time: 'Shift timing range already exists',
+        end_time: 'Shift timing range already exists'
+      }));
 
       // 3. Update Shift
       const updated = await shiftService.updateShift(shift.cuid, { minimum_work_hours: 7.5 });
@@ -80,7 +84,7 @@ describe('Service Layer Unit Tests', () => {
         end_time: '1970-01-01T17:30:00Z',
         minimum_work_hours: 8
       });
-      await expect(shiftService.updateShift(shift.cuid, { shift_name: 'Sibling Shift' })).rejects.toThrow('Shift name already exists');
+      await expect(shiftService.updateShift(shift.cuid, { shift_name: 'Sibling Shift' })).rejects.toThrowError(new shiftService.ShiftMultiValidationError({ shift_name: 'Shift name already exists' }));
 
       // 5. Delete Shift (soft delete)
       const deactivated = await shiftService.deleteShift(shift.cuid);

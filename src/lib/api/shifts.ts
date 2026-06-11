@@ -19,6 +19,7 @@ export interface ShiftCreatePayload {
   start_time: string;
   end_time: string;
   minimum_work_hours: number;
+  status?: boolean;
 }
 
 export interface ShiftUpdatePayload {
@@ -31,7 +32,7 @@ export interface ShiftUpdatePayload {
 
 /** Fetch all shifts (active + inactive). */
 export async function fetchAllShifts(): Promise<Shift[]> {
-  const res = await localApi.get<ShiftListResponse>('/api/shifts?includeInactive=true');
+  const res = await localApi.get<ShiftListResponse>('/api/shifts');
   return res.data ?? [];
 }
 

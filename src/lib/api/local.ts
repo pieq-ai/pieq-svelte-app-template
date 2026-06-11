@@ -8,20 +8,11 @@
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
-    message: string
+    message: string,
+    public readonly data?: any
   ) {
     super(message);
     this.name = 'ApiError';
-  }
-}
-
-/** Extract the server's error message from a non-ok response. */
-async function extractErrorMessage(response: Response): Promise<string> {
-  try {
-    const json = await response.json();
-    return json?.data?.error ?? json?.error ?? json?.message ?? `Request failed (${response.status})`;
-  } catch {
-    return `Request failed (${response.status})`;
   }
 }
 
@@ -38,8 +29,16 @@ async function localRequest<T>(
   });
 
   if (!response.ok) {
-    const message = await extractErrorMessage(response);
-    throw new ApiError(response.status, message);
+    let message = `Request failed (${response.status})`;
+    let data: any = undefined;
+    try {
+      const parsed = await response.json();
+      message = parsed?.data?.error ?? parsed?.error ?? parsed?.message ?? message;
+      data = parsed?.data ?? parsed;
+    } catch {
+      // ignore
+    }
+    throw new ApiError(response.status, message, data);
   }
 
   if (response.status === 204) {

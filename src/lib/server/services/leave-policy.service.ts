@@ -87,15 +87,15 @@ async function validateAndMapPolicyInput(
 		throw new LeaveValidationError('annual_limit', 'Annual limit is required');
 	}
 	const annual_limit = Number(input.annual_limit);
-	if (isNaN(annual_limit) || annual_limit < 0) {
-		throw new LeaveValidationError('annual_limit', 'Annual limit must be a positive number');
+	if (isNaN(annual_limit) || annual_limit <= 0) {
+		throw new LeaveValidationError('annual_limit', 'Annual limit must be greater than zero');
 	}
 
 	let max_per_month: number | null = null;
 	if (input.max_per_month !== undefined && input.max_per_month !== null && String(input.max_per_month).trim() !== '') {
 		max_per_month = Number(input.max_per_month);
-		if (isNaN(max_per_month) || max_per_month < 0) {
-			throw new LeaveValidationError('max_per_month', 'Max per month must be a positive number');
+		if (isNaN(max_per_month) || max_per_month <= 0) {
+			throw new LeaveValidationError('max_per_month', 'Max per month must be greater than zero');
 		}
 		if (max_per_month > annual_limit) {
 			throw new LeaveValidationError('max_per_month', 'Max per month cannot exceed annual limit');
@@ -114,7 +114,7 @@ async function validateAndMapPolicyInput(
 		}
 		max_carry_forward_days = Number(input.max_carry_forward_days);
 		if (isNaN(max_carry_forward_days) || max_carry_forward_days <= 0) {
-			throw new LeaveValidationError('max_carry_forward_days', 'Max carry forward days must be greater than 0');
+			throw new LeaveValidationError('max_carry_forward_days', 'Max carry forward days must be greater than zero');
 		}
 	} else {
 		if (
@@ -143,8 +143,8 @@ async function validateAndMapPolicyInput(
 			String(input.document_required_after_days).trim() !== ''
 		) {
 			document_required_after_days = Number(input.document_required_after_days);
-			if (isNaN(document_required_after_days) || !Number.isInteger(document_required_after_days) || document_required_after_days < 0) {
-				throw new LeaveValidationError('document_required_after_days', 'Document required after days must be a positive integer or 0');
+			if (isNaN(document_required_after_days) || !Number.isInteger(document_required_after_days) || document_required_after_days <= 0) {
+				throw new LeaveValidationError('document_required_after_days', 'Document required after days must be greater than zero');
 			}
 		}
 	} else {

@@ -53,7 +53,7 @@ export function validateCreatePayload(payload: unknown): ShiftCreateDTO {
   }
 
   const raw = payload as Record<string, unknown>;
-  rejectUnknownKeys(raw, ['shift_name', 'start_time', 'end_time', 'minimum_work_hours', 'created_by', 'updated_by']);
+  rejectUnknownKeys(raw, ['shift_name', 'start_time', 'end_time', 'minimum_work_hours', 'status', 'created_by', 'updated_by']);
 
   if (raw.shift_name === undefined || raw.shift_name === null) {
     const err: any = new Error('Shift name is required');
@@ -103,7 +103,17 @@ export function validateCreatePayload(payload: unknown): ShiftCreateDTO {
     shift_name: shiftName,
     start_time: raw.start_time as string | undefined,
     end_time: raw.end_time as string | undefined,
-    minimum_work_hours: raw.minimum_work_hours !== undefined ? Number(raw.minimum_work_hours) : undefined,
+    minimum_work_hours: (() => {
+      if (raw.minimum_work_hours === undefined) return undefined;
+      const val = Number(raw.minimum_work_hours);
+      if (isNaN(val) || val <= 0) {
+        const err: any = new Error('Minimum work hours must be greater than zero');
+        err.status = 400;
+        throw err;
+      }
+      return val;
+    })(),
+    status: raw.status !== undefined ? Boolean(raw.status) : undefined,
     created_by: raw.created_by !== undefined ? (raw.created_by as string | null) : undefined,
     updated_by: raw.updated_by !== undefined ? (raw.updated_by as string | null) : undefined
   };
@@ -179,7 +189,13 @@ export function validateUpdatePayload(payload: unknown): ShiftUpdateDTO {
     result.end_time = raw.end_time as string;
   }
   if (raw.minimum_work_hours !== undefined) {
-    result.minimum_work_hours = Number(raw.minimum_work_hours);
+    const val = Number(raw.minimum_work_hours);
+    if (isNaN(val) || val <= 0) {
+      const err: any = new Error('Minimum work hours must be greater than zero');
+      err.status = 400;
+      throw err;
+    }
+    result.minimum_work_hours = val;
   }
   if (raw.status !== undefined) {
     if (typeof raw.status !== 'boolean') {

@@ -71,7 +71,7 @@ async function ensurePermissionKeyIsUnique(permission_key: string, currentId?: b
 	);
 
 	if (duplicate) {
-		throw new ValidationError('permission_key', 'Permission already exists');
+		throw new ValidationError('permission_key', 'Permission key already exists');
 	}
 }
 

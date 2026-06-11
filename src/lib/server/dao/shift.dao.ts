@@ -47,7 +47,7 @@ export async function createShift(data: ShiftCreateDTO): Promise<Shift> {
       start_time: startTime,
       end_time: endTime,
       minimum_work_hours: minHours,
-      status: true,
+      status: data.status ?? true,
       created_by: data.created_by ?? null,
       updated_by: data.updated_by ?? null
     },
@@ -59,7 +59,9 @@ export async function createShift(data: ShiftCreateDTO): Promise<Shift> {
       minimum_work_hours: true,
       status: true,
       created_by: true,
-      updated_by: true
+      updated_by: true,
+      created_at: true,
+      updated_at: true
     }
   }) as unknown as Promise<Shift>;
 }
@@ -70,7 +72,7 @@ export async function createShift(data: ShiftCreateDTO): Promise<Shift> {
 export async function getShifts(): Promise<Shift[]> {
   return db.shift.findMany({
     where: { status: true },
-    orderBy: { id: 'asc' },
+    orderBy: { updated_at: 'desc' },
     select: {
       cuid: true,
       shift_name: true,
@@ -79,7 +81,9 @@ export async function getShifts(): Promise<Shift[]> {
       minimum_work_hours: true,
       status: true,
       created_by: true,
-      updated_by: true
+      updated_by: true,
+      created_at: true,
+      updated_at: true
     }
   }) as unknown as Promise<Shift[]>;
 }
@@ -89,7 +93,7 @@ export async function getShifts(): Promise<Shift[]> {
  */
 export async function getAllShifts(): Promise<Shift[]> {
   return db.shift.findMany({
-    orderBy: { id: 'asc' },
+    orderBy: { updated_at: 'desc' },
     select: {
       cuid: true,
       shift_name: true,
@@ -98,7 +102,9 @@ export async function getAllShifts(): Promise<Shift[]> {
       minimum_work_hours: true,
       status: true,
       created_by: true,
-      updated_by: true
+      updated_by: true,
+      created_at: true,
+      updated_at: true
     }
   }) as unknown as Promise<Shift[]>;
 }
@@ -131,7 +137,9 @@ export async function getShiftByCuid(cuid: string): Promise<Shift | null> {
       minimum_work_hours: true,
       status: true,
       created_by: true,
-      updated_by: true
+      updated_by: true,
+      created_at: true,
+      updated_at: true
     }
   }) as unknown as Promise<Shift | null>;
 }
@@ -201,7 +209,9 @@ export async function updateShift(cuid: string, data: ShiftUpdateDTO): Promise<S
       minimum_work_hours: true,
       status: true,
       created_by: true,
-      updated_by: true
+      updated_by: true,
+      created_at: true,
+      updated_at: true
     }
   }) as unknown as Promise<Shift>;
 }
@@ -221,7 +231,9 @@ export async function deactivateShift(cuid: string): Promise<Shift> {
       minimum_work_hours: true,
       status: true,
       created_by: true,
-      updated_by: true
+      updated_by: true,
+      created_at: true,
+      updated_at: true
     }
   }) as unknown as Promise<Shift>;
 }
@@ -241,7 +253,9 @@ export async function activateShift(cuid: string): Promise<Shift> {
       minimum_work_hours: true,
       status: true,
       created_by: true,
-      updated_by: true
+      updated_by: true,
+      created_at: true,
+      updated_at: true
     }
   }) as unknown as Promise<Shift>;
 }

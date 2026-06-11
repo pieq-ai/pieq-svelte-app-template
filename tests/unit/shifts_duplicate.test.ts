@@ -62,7 +62,7 @@ describe('Shift Timing Duplicate Prevention Integration Tests', () => {
         end_time: '1970-01-01T15:30:00.000Z',
         minimum_work_hours: 9
       })
-    ).rejects.toThrow('Shift timing range already exists');
+    ).rejects.toThrowError(new shiftService.ShiftMultiValidationError({ start_time: 'Shift timing range already exists', end_time: 'Shift timing range already exists' }));
   });
 
   it('3. Should allow editing an active shift without changing its own timing range', async () => {
@@ -130,6 +130,6 @@ describe('Shift Timing Duplicate Prevention Integration Tests', () => {
     // Updating cuid3 status to true directly must also fail because of timing conflict with cuid1.
     await expect(
       shiftService.updateShift(cuid3, { status: true })
-    ).rejects.toThrow('Shift timing range already exists');
+    ).rejects.toThrowError(new shiftService.ShiftMultiValidationError({ start_time: 'Shift timing range already exists', end_time: 'Shift timing range already exists' }));
   });
 });

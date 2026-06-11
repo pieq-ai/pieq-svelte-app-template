@@ -40,12 +40,21 @@
   let sortColumn = $state<SortColumn>("id");
   let sortDirection = $state<"asc" | "desc">("asc");
 
-  let newName: string = $derived(
-    form && "name" in form && typeof form.name === "string" ? form.name : "",
-  );
-  let newAge: string = $derived(
-    form && "age" in form && typeof form.age === "string" ? form.age : "",
-  );
+  let nameValue = $state("");
+  let ageValue = $state("");
+  let errors = $state<Record<string, string>>({});
+
+  $effect(() => {
+    if (form) {
+      if ("name" in form && typeof form.name === "string") {
+        nameValue = form.name;
+      }
+      if ("age" in form && typeof form.age === "string") {
+        ageValue = form.age;
+      }
+    }
+  });
+
   let isSubmitting = $state(false);
   let successMessage = $state("");
 
@@ -264,7 +273,20 @@
           method="POST"
           action="?/create"
           class="space-y-4"
-          use:enhance={() => {
+          novalidate
+          use:enhance={({ cancel }) => {
+            errors = {};
+            if (!nameValue.trim()) {
+              errors.name = "Name is required";
+            }
+            const ageNum = Number(ageValue);
+            if (String(ageValue).trim() === '' || isNaN(ageNum) || ageNum <= 0) {
+              errors.age = "Age must be greater than zero";
+            }
+            if (Object.keys(errors).length > 0) {
+              cancel();
+              return;
+            }
             isSubmitting = true;
             return async ({ result, update }) => {
               if (
@@ -275,6 +297,8 @@
                 const created = result.data.created as Employee;
                 employees = [created, ...employees];
                 successMessage = "Employee added successfully!";
+                nameValue = "";
+                ageValue = "";
                 setTimeout(() => {
                   successMessage = "";
                 }, 3000);
@@ -287,28 +311,34 @@
           }}
         >
           <div class="space-y-2">
-            <Label for="name">Full Name</Label>
+            <Label for="name" class={errors.name ? 'text-danger' : ''}>Full Name</Label>
             <Input
               id="name"
               name="name"
-              bind:value={newName}
+              bind:value={nameValue}
+              class={errors.name ? 'border-destructive' : ''}
               placeholder="e.g. Charlie Brown"
-              required
+              oninput={() => { errors.name = ''; }}
             />
+            {#if errors.name}
+              <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{errors.name}</p>
+            {/if}
           </div>
 
           <div class="space-y-2">
-            <Label for="age">Age</Label>
+            <Label for="age" class={errors.age ? 'text-danger' : ''}>Age</Label>
             <Input
               id="age"
               name="age"
-              type="number"
-              bind:value={newAge}
+              type="text"
+              bind:value={ageValue}
+              class={errors.age ? 'border-destructive' : ''}
               placeholder="e.g. 29"
-              min="1"
-              max="120"
-              required
+              oninput={() => { errors.age = ''; }}
             />
+            {#if errors.age}
+              <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{errors.age}</p>
+            {/if}
           </div>
 
           {#if formError}

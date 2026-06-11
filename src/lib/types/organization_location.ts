@@ -25,6 +25,7 @@ export interface CompanyLocationCreateDTO {
   country_cuid?: string;
   pin_code?: string;
   timezone?: string;
+  is_active?: boolean;
   created_by?: string | null;
   updated_by?: string | null;
 }

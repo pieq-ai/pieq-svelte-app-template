@@ -4,7 +4,8 @@ import {
 	createLeaveType,
 	updateLeaveType,
 	deleteLeaveType,
-	LeaveValidationError
+	LeaveValidationError,
+	LeaveMultiValidationError
 } from '$lib/server/services/leave-type.service.js';
 
 vi.mock('$lib/server/dao/leave-type.dao.js', () => {
@@ -154,7 +155,7 @@ describe('leave type service', () => {
 					leave_name: 'Annual Leave',
 					leave_code: 'ANNUAL'
 				})
-			).rejects.toThrowError(new LeaveValidationError('leave_name', 'Leave name already exists'));
+			).rejects.toThrowError(new LeaveMultiValidationError({ leave_name: 'Leave name already exists' }));
 		});
 
 		it('should reject creation if code already exists', async () => {
@@ -176,7 +177,7 @@ describe('leave type service', () => {
 					leave_name: 'Annual Leave',
 					leave_code: 'annual'
 				})
-			).rejects.toThrowError(new LeaveValidationError('leave_code', 'Leave code already exists'));
+			).rejects.toThrowError(new LeaveMultiValidationError({ leave_code: 'Leave code already exists' }));
 		});
 
 		it('should successfully create leave type with default settings', async () => {
@@ -289,7 +290,7 @@ describe('leave type service', () => {
 				updateLeaveType(targetCuid, {
 					leave_name: 'Conflicting Name'
 				})
-			).rejects.toThrowError(new LeaveValidationError('leave_name', 'Leave name already exists'));
+			).rejects.toThrowError(new LeaveMultiValidationError({ leave_name: 'Leave name already exists' }));
 		});
 
 		it('should reject update if the updated code conflicts with another leave type', async () => {
@@ -321,7 +322,7 @@ describe('leave type service', () => {
 				updateLeaveType(targetCuid, {
 					leave_code: 'NEW_CODE'
 				})
-			).rejects.toThrowError(new LeaveValidationError('leave_code', 'Leave code already exists'));
+			).rejects.toThrowError(new LeaveMultiValidationError({ leave_code: 'Leave code already exists' }));
 		});
 
 		it('should successfully update leave type', async () => {

@@ -37,6 +37,7 @@
 	} from '$lib/components/ui';
 	import { ConfirmModal, CrudModal, Pagination, TableActions, FilterDropdown, StatusDropdown, StatusBadge } from '$lib/components';
 	import type { PageData } from './$types.js';
+	import type { EmploymentType } from './+page.js';
 
 	let { data }: { data: PageData } = $props();
 	let form = $state<{ error?: string; field?: string; action?: string } | null>(null);
@@ -205,7 +206,7 @@
 			}
 		} catch (error) {
 			console.error('Submit failed:', error);
-			toast.error('An unexpected error occurred.');
+			errors.general = 'An unexpected error occurred.';
 		} finally {
 			isSubmitting = false;
 		}
@@ -232,62 +233,28 @@
 	let applicableGender = $state<'Male' | 'Female' | 'Others' | ''>('');
 	let status = $state(true);
 
-	let dynamicEmploymentOptions = $state<Array<{ id: string; label: string }>>([]);
+	let localEmploymentTypes = $state<EmploymentType[]>([]);
 	let empSearchQuery = $state('');
-	let isLoadingEmploymentTypes = $state(false);
+
+	$effect(() => {
+		if (data.employmentTypes) {
+			localEmploymentTypes = [...data.employmentTypes];
+		}
+	});
+
+	let dynamicEmploymentOptions = $derived.by(() => {
+		return localEmploymentTypes
+			.filter((et) => et.status || (editingPolicy && editingPolicy.employment_type_cuids.includes(et.cuid)))
+			.map((et) => ({
+				id: et.cuid,
+				label: et.employment_name
+			}));
+	});
 
 	let isAddEmpModalOpen = $state(false);
 	let newEmpName = $state('');
 	let newEmpError = $state('');
 	let isSavingNewEmp = $state(false);
-
-	$effect(() => {
-		if (data.employmentTypes) {
-			const options = data.employmentTypes
-				.filter((et) => et.status || (editingPolicy && editingPolicy.employment_type_cuids.includes(et.cuid)))
-				.map((et) => ({
-					id: et.cuid,
-					label: et.employment_name
-				}));
-			dynamicEmploymentOptions = options;
-		}
-	});
-
-	async function fetchEmploymentTypes(search: string) {
-		isLoadingEmploymentTypes = true;
-		try {
-			const res = await fetch(`/api/master-data/employment-types?search=${encodeURIComponent(search)}`);
-			const result = await res.json();
-			if (res.ok && result.data) {
-				const apiOptions = result.data.map((et: any) => ({
-					id: et.id,
-					label: et.label
-				}));
-
-				const selectedOptions = dynamicEmploymentOptions.filter(opt => selectedEmploymentTypes.includes(opt.id));
-				const combined = [...apiOptions];
-				for (const sel of selectedOptions) {
-					if (!combined.some(opt => opt.id === sel.id)) {
-						combined.push(sel);
-					}
-				}
-				dynamicEmploymentOptions = combined;
-			}
-		} catch (err) {
-			console.error('Failed to fetch employment types:', err);
-		} finally {
-			isLoadingEmploymentTypes = false;
-		}
-	}
-
-	let debounceTimeout: any;
-	$effect(() => {
-		const query = empSearchQuery;
-		clearTimeout(debounceTimeout);
-		debounceTimeout = setTimeout(() => {
-			fetchEmploymentTypes(query);
-		}, 300);
-	});
 
 	async function handleAddEmploymentType(e: Event) {
 		e.preventDefault();
@@ -309,12 +276,14 @@
 			if (res.ok && result.data) {
 				toast.success(result.data.message || 'Employment Type created successfully');
 				
-				const newOption = {
-					id: result.data.cuid,
-					label: newEmpName
+				const newEmpType: EmploymentType = {
+					id: 0,
+					cuid: result.data.cuid,
+					employment_name: newEmpName,
+					status: true
 				};
 
-				dynamicEmploymentOptions = [...dynamicEmploymentOptions, newOption];
+				localEmploymentTypes = [...localEmploymentTypes, newEmpType];
 				selectedEmploymentTypes = [...selectedEmploymentTypes, result.data.cuid];
 
 				if (errors.employment_type_cuids) {
@@ -355,13 +324,13 @@
 		return (
 			leaveTypeId !== String(editingPolicy.leave_type_cuid) ||
 			!empTypesEqual ||
-			annualLimit !== String(editingPolicy.annual_limit) ||
-			maxPerMonth !== originalMaxPerMonth ||
+			annualLimit.trim() !== String(editingPolicy.annual_limit).trim() ||
+			maxPerMonth.trim() !== originalMaxPerMonth.trim() ||
 			carryForwardAllowed !== editingPolicy.carry_forward_allowed ||
-			maxCarryForwardDays !== originalMaxCarryForwardDays ||
+			maxCarryForwardDays.trim() !== originalMaxCarryForwardDays.trim() ||
 			documentRequired !== editingPolicy.document_required ||
-			documentRequiredAfterDays !== originalDocumentRequiredAfterDays ||
-			minServiceDays !== originalMinServiceDays ||
+			documentRequiredAfterDays.trim() !== originalDocumentRequiredAfterDays.trim() ||
+			minServiceDays.trim() !== originalMinServiceDays.trim() ||
 			allowHalfDay !== editingPolicy.allow_half_day ||
 			genderSpecific !== editingPolicy.gender_specific ||
 			applicableGender !== originalApplicableGender ||
@@ -376,13 +345,13 @@
 			return (
 				leaveTypeId !== '' ||
 				selectedEmploymentTypes.length > 0 ||
-				annualLimit !== '' ||
-				maxPerMonth !== '' ||
+				annualLimit.trim() !== '' ||
+				maxPerMonth.trim() !== '' ||
 				carryForwardAllowed !== false ||
-				maxCarryForwardDays !== '' ||
+				maxCarryForwardDays.trim() !== '' ||
 				documentRequired !== false ||
-				documentRequiredAfterDays !== '' ||
-				minServiceDays !== '0' ||
+				documentRequiredAfterDays.trim() !== '' ||
+				minServiceDays.trim() !== '0' && minServiceDays.trim() !== '' ||
 				allowHalfDay !== false ||
 				genderSpecific !== false ||
 				applicableGender !== '' ||
@@ -585,10 +554,10 @@
 	}
 
 	function getQuotaError(quotaStr: string): string {
-		if (!quotaStr || quotaStr.trim() === '') return 'Annual quota is required.';
+		if (!quotaStr || quotaStr.trim() === '') return 'Annual limit is required.';
 		const quota = Number(quotaStr);
-		if (isNaN(quota) || quota < 0) {
-			return 'Annual quota must be a positive number';
+		if (isNaN(quota) || quota <= 0) {
+			return 'Annual limit must be greater than zero';
 		}
 		return '';
 	}
@@ -596,13 +565,13 @@
 	function getMaxPerMonthError(maxMStr: string, quotaStr: string): string {
 		if (!maxMStr || maxMStr.trim() === '') return '';
 		const maxM = Number(maxMStr);
-		if (isNaN(maxM) || maxM < 0) {
-			return 'Max per month must be a positive number';
+		if (isNaN(maxM) || maxM <= 0) {
+			return 'Max per month must be greater than zero';
 		}
 		if (quotaStr) {
 			const quota = Number(quotaStr);
 			if (!isNaN(quota) && maxM > quota) {
-				return 'Max per month cannot exceed annual quota';
+				return 'Max per month cannot exceed annual limit';
 			}
 		}
 		return '';
@@ -615,7 +584,7 @@
 		}
 		const days = Number(daysStr);
 		if (isNaN(days) || days <= 0) {
-			return 'Max carry forward days must be greater than 0';
+			return 'Max carry forward days must be greater than zero';
 		}
 		return '';
 	}
@@ -640,8 +609,8 @@
 		if (!required) return '';
 		if (!daysStr || String(daysStr).trim() === '') return '';
 		const days = Number(daysStr);
-		if (isNaN(days) || !Number.isInteger(days) || days < 0) {
-			return 'Document required after days must be a positive integer or 0';
+		if (isNaN(days) || !Number.isInteger(days) || days <= 0) {
+			return 'Document required after days must be greater than zero';
 		}
 		return '';
 	}

@@ -16,13 +16,13 @@ interface RoleListResponse {
 
 /** Fetch all roles (active + inactive). */
 export async function fetchAllRoles(): Promise<Role[]> {
-  const res = await localApi.get<RoleListResponse>('/api/roles?includeInactive=true');
+  const res = await localApi.get<RoleListResponse>('/api/roles');
   return res.data ?? [];
 }
 
 /** Create a new role. */
-export async function createRole(role_name: string): Promise<Role> {
-  const res = await localApi.post<{ data: Role }>('/api/roles', { role_name });
+export async function createRole(role_name: string, status?: boolean): Promise<Role> {
+  const res = await localApi.post<{ data: Role }>('/api/roles', { role_name, status });
   return res.data;
 }
 

@@ -161,7 +161,7 @@
 			</div>
 
 			<!-- Select / Deselect All Actions -->
-			<div class="flex items-center gap-2 border-b border-border px-3 py-2 bg-muted/5 text-xs select-none">
+			<div class="flex justify-between items-center border-b border-border px-3 py-2 bg-muted/5 text-xs select-none">
 				<button
 					type="button"
 					class="px-2.5 py-1 text-xs font-semibold rounded-md border border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground transition-all cursor-pointer select-none disabled:opacity-50 disabled:pointer-events-none"

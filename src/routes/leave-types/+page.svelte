@@ -120,21 +120,26 @@
 				}
 				await invalidateAll();
 			} else {
-				const errorMsg = result.data?.error || 'Validation failed';
-				form = {
-					error: errorMsg,
-					field: result.data?.field,
-					action: editCuid ? 'update' : 'create'
-				};
-				if (result.data?.field) {
-					errors[result.data.field] = errorMsg;
+				if (result.data?.errors) {
+					Object.assign(errors, result.data.errors);
+					form = null;
 				} else {
-					errors.general = errorMsg;
+					const errorMsg = result.data?.error || 'Validation failed';
+					form = {
+						error: errorMsg,
+						field: result.data?.field,
+						action: editCuid ? 'update' : 'create'
+					};
+					if (result.data?.field) {
+						errors[result.data.field] = errorMsg;
+					} else {
+						errors.general = errorMsg;
+					}
 				}
 			}
 		} catch (error) {
 			console.error('Submit failed:', error);
-			toast.error('An unexpected error occurred.');
+			errors.general = 'An unexpected error occurred.';
 		} finally {
 			isSubmitting = false;
 		}
@@ -157,9 +162,9 @@
 	let hasChanges = $derived.by(() => {
 		if (!editCuid || !editingType) return false;
 		return (
-			leaveName !== editingType.leave_name ||
-			leaveCode !== editingType.leave_code ||
-			description !== (editingType.description || '') ||
+			leaveName.trim() !== editingType.leave_name.trim() ||
+			leaveCode.trim() !== editingType.leave_code.trim() ||
+			description.trim() !== (editingType.description || '').trim() ||
 			isPaid !== editingType.is_paid ||
 			requiresApproval !== editingType.requires_approval ||
 			status !== editingType.status
@@ -171,9 +176,9 @@
 			return hasChanges;
 		} else {
 			return (
-				leaveName !== '' ||
-				leaveCode !== '' ||
-				description !== '' ||
+				leaveName.trim() !== '' ||
+				leaveCode.trim() !== '' ||
+				description.trim() !== '' ||
 				isPaid !== true ||
 				requiresApproval !== true ||
 				status !== true

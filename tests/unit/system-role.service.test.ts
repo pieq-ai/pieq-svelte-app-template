@@ -93,7 +93,7 @@ describe('System Role Service', () => {
 
 		it('should throw an error if system role already exists', async () => {
 			vi.mocked(systemRoleDao.list).mockResolvedValue([{ id: 1n, system_role_name: 'Admin' } as any]);
-			await expect(systemRoleService.createSystemRole({ system_role_name: 'Admin' })).rejects.toThrow('System role already exists');
+			await expect(systemRoleService.createSystemRole({ system_role_name: 'Admin' })).rejects.toThrow('System role name already exists');
 		});
 
 		it('should create and return the new system role', async () => {
@@ -118,7 +118,7 @@ describe('System Role Service', () => {
 			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'abc', system_role_name: 'Old Role' } as any);
 			vi.mocked(systemRoleDao.list).mockResolvedValue([{ id: 2n, cuid: 'xyz', system_role_name: 'New Role' } as any]);
 
-			await expect(systemRoleService.updateSystemRole('abc', { system_role_name: 'New Role' })).rejects.toThrow('System role already exists');
+			await expect(systemRoleService.updateSystemRole('abc', { system_role_name: 'New Role' })).rejects.toThrow('System role name already exists');
 		});
 
 		it('should allow updating with same name', async () => {

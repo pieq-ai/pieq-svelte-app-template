@@ -26,7 +26,6 @@
   import { UI_CONSTANTS } from "$lib/constants";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import {
-    Badge,
     Button,
     Card,
     CardHeader,
@@ -44,6 +43,7 @@
     TableActions,
     FilterDropdown,
     StatusDropdown,
+    StatusBadge,
     Pagination,
     SearchInput
   } from "$lib/components";
@@ -67,15 +67,7 @@
   let formPinCode = $state("");
   let formTimezone = $state("");
   let formStatus = $state(true);
-  let formError = $state("");
-  let nameError = $state("");
-  let address1Error = $state("");
-  let address2Error = $state("");
-  let cityError = $state("");
-  let countryError = $state("");
-  let stateError = $state("");
-  let pinCodeError = $state("");
-  let timezoneError = $state("");
+  let errors = $state<Record<string, string>>({});
   let formLoading = $state(false);
 
   const dirtyChecker = createDirtyChecker<{
@@ -105,16 +97,24 @@
     })
   );
 
-  // Create enablement: enabled once required fields contain any value
-  let isCreateEnabled = $derived(
-    formName.trim() !== "" &&
-      formAddress1.trim() !== "" &&
-      formCity.trim() !== "" &&
-      formCountryCuid !== "" &&
-      formStateCuid !== "" &&
-      formPinCode.trim() !== "" &&
-      formTimezone.trim() !== ""
-  );
+  let isSubmitDisabled = $derived.by(() => {
+    if (formLoading) return true;
+    if (
+      !formName.trim() ||
+      !formAddress1.trim() ||
+      !formCity.trim() ||
+      !formCountryCuid ||
+      !formStateCuid ||
+      !formPinCode.trim() ||
+      !formTimezone.trim()
+    ) {
+      return true;
+    }
+    if (editLocation) {
+      return !isDirty;
+    }
+    return false;
+  });
 
   // Dropdown choices
   let countries = $state<any[]>([]);
@@ -268,6 +268,8 @@
         if (valA > valB) return sortDirection === "asc" ? 1 : -1;
         return 0;
       });
+    } else {
+      list.sort((a, b) => new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime());
     }
     return list;
   });
@@ -321,15 +323,7 @@
     formPinCode = "";
     formTimezone = "UTC";
     formStatus = true;
-    formError = "";
-    nameError = "";
-    address1Error = "";
-    cityError = "";
-    countryError = "";
-    stateError = "";
-    pinCodeError = "";
-    timezoneError = "";
-    address2Error = "";
+    errors = {};
     dirtyChecker.snapshot({
       location_name: "",
       address_line1: "",
@@ -355,15 +349,7 @@
     formPinCode = loc.pin_code ?? "";
     formTimezone = loc.timezone ?? "UTC";
     formStatus = loc.is_active;
-    formError = "";
-    nameError = "";
-    address1Error = "";
-    cityError = "";
-    countryError = "";
-    stateError = "";
-    pinCodeError = "";
-    timezoneError = "";
-    address2Error = "";
+    errors = {};
     dirtyChecker.snapshot({
       location_name: loc.location_name,
       address_line1: loc.address_line1 ?? "",
@@ -388,15 +374,7 @@
     formStateCuid = "";
     formPinCode = "";
     formTimezone = "";
-    formError = "";
-    nameError = "";
-    address1Error = "";
-    cityError = "";
-    countryError = "";
-    stateError = "";
-    pinCodeError = "";
-    timezoneError = "";
-    address2Error = "";
+    errors = {};
     editLocation = null;
   }
 
@@ -406,95 +384,17 @@
 
   async function submitForm(e: Event) {
     e.preventDefault();
-    formError = "";
-    nameError = "";
-    address1Error = "";
-    address2Error = "";
-    cityError = "";
-    countryError = "";
-    stateError = "";
-    pinCodeError = "";
-    timezoneError = "";
+    errors = {};
 
     const nameTrimmed = formName.trim();
-    if (!nameTrimmed) {
-      nameError = "Company Location name is required.";
-      return;
-    }
-    if (nameTrimmed.length < 2) {
-      nameError = "Company Location name must be at least 2 characters.";
-      return;
-    }
-    if (nameTrimmed.length > 150) {
-      nameError =
-        "Company Location name cannot exceed 150 characters.";
-      return;
-    }
-
-    const address1Trimmed = formAddress1.trim();
-    const cityTrimmed = formCity.trim();
-    const pinTrimmed = formPinCode.trim();
-    const tzTrimmed = formTimezone.trim();
-
-    if (!address1Trimmed) {
-      address1Error = "Address Line 1 is required.";
-      return;
-    }
-    if (address1Trimmed.length > 255) {
-      address1Error = "Address Line 1 cannot exceed 255 characters.";
-      return;
-    }
-
-    const address2Trimmed = formAddress2 ? formAddress2.trim() : "";
-    if (address2Trimmed.length > 255) {
-      address2Error = "Address Line 2 cannot exceed 255 characters.";
-      return;
-    }
-
-    if (!cityTrimmed) {
-      cityError = "City is required.";
-      return;
-    }
-    if (cityTrimmed.length < 2) {
-      cityError = "City must be at least 2 characters.";
-      return;
-    }
-    if (cityTrimmed.length > 100) {
-      cityError = "City cannot exceed 100 characters.";
-      return;
-    }
-    if (!/^[a-zA-Z\s.-]+$/.test(cityTrimmed)) {
-      cityError = "City can contain only letters, spaces, hyphens, and periods.";
-      return;
-    }
-
-    if (!formCountryCuid) {
-      countryError = "Country is required.";
-      return;
-    }
-    if (!formStateCuid) {
-      stateError = "State is required.";
-      return;
-    }
-    if (!pinTrimmed) {
-      pinCodeError = "Pin Code is required.";
-      return;
-    }
-    if (!/^\d+$/.test(pinTrimmed)) {
-      pinCodeError = "Pin Code must contain numeric values only.";
-      return;
-    }
-    if (pinTrimmed.length > 10) {
-      pinCodeError = "Pin Code cannot exceed 10 characters.";
-      return;
-    }
-    if (!tzTrimmed) {
-      timezoneError = "Timezone is required.";
-      return;
-    }
-
     const lower = nameTrimmed.toLowerCase();
-    if (
+    if (!nameTrimmed) {
+      errors.location_name = "Company Location name is required.";
+    } else if (nameTrimmed.length < 2) {
+      errors.location_name = "Company Location name must be at least 2 characters.";
+    } else if (nameTrimmed.length > 150) {
+      errors.location_name = "Company Location name cannot exceed 150 characters.";
+    } else if (
       lower.includes("<script") ||
       lower.includes("script>") ||
       lower.includes("drop table") ||
@@ -502,27 +402,64 @@
       lower.includes("--") ||
       lower.includes("/*")
     ) {
-      nameError = "Company Location name contains potential security threat.";
-      return;
+      errors.location_name = "Company Location name contains potential security threat.";
+    } else if (/^\d+$/.test(nameTrimmed)) {
+      errors.location_name = "Company Location name cannot contain only numbers.";
+    } else if (!/[A-Za-z]/.test(nameTrimmed)) {
+      errors.location_name = "Company Location name must contain at least one alphabet.";
+    } else if (/[A-Za-z]\d|\d[A-Za-z]/.test(nameTrimmed)) {
+      errors.location_name = "Company Location name cannot contain numbers.";
     }
 
-    if (/^\d+$/.test(nameTrimmed)) {
-      nameError = "Company Location name cannot contain only numbers.";
-      return;
+    const address1Trimmed = formAddress1.trim();
+    if (!address1Trimmed) {
+      errors.address_line1 = "Address Line 1 is required.";
+    } else if (address1Trimmed.length > 255) {
+      errors.address_line1 = "Address Line 1 cannot exceed 255 characters.";
     }
 
-    if (!/[A-Za-z]/.test(nameTrimmed)) {
-      nameError = "Company Location name must contain at least one alphabet.";
-      return;
+    const address2Trimmed = formAddress2 ? formAddress2.trim() : "";
+    if (address2Trimmed.length > 255) {
+      errors.address_line2 = "Address Line 2 cannot exceed 255 characters.";
     }
 
-    if (/[A-Za-z]\d|\d[A-Za-z]/.test(nameTrimmed)) {
-      nameError = "Company Location name cannot contain numbers.";
+    const cityTrimmed = formCity.trim();
+    if (!cityTrimmed) {
+      errors.city = "City is required.";
+    } else if (cityTrimmed.length < 2) {
+      errors.city = "City must be at least 2 characters.";
+    } else if (cityTrimmed.length > 100) {
+      errors.city = "City cannot exceed 100 characters.";
+    } else if (!/^[a-zA-Z\s.-]+$/.test(cityTrimmed)) {
+      errors.city = "City can contain only letters, spaces, hyphens, and periods.";
+    }
+
+    if (!formCountryCuid) {
+      errors.country_cuid = "Country is required.";
+    }
+    if (!formStateCuid) {
+      errors.state_cuid = "State is required.";
+    }
+
+    const pinTrimmed = formPinCode.trim();
+    if (!pinTrimmed) {
+      errors.pin_code = "Pin Code is required.";
+    } else if (!/^\d+$/.test(pinTrimmed)) {
+      errors.pin_code = "Pin Code must contain numeric values only.";
+    } else if (pinTrimmed.length > 10) {
+      errors.pin_code = "Pin Code cannot exceed 10 characters.";
+    }
+
+    const tzTrimmed = formTimezone.trim();
+    if (!tzTrimmed) {
+      errors.timezone = "Timezone is required.";
+    }
+
+    if (Object.keys(errors).length > 0) {
       return;
     }
 
     formLoading = true;
-    formError = "";
     try {
       const payload: any = {
         location_name: nameTrimmed,
@@ -533,9 +470,9 @@
         country_cuid: formCountryCuid,
         pin_code: pinTrimmed,
         timezone: tzTrimmed,
+        is_active: formStatus
       };
       if (editLocation) {
-        payload.is_active = formStatus;
         await updateLocation(editLocation.cuid, payload);
       } else {
         await createLocation(payload);
@@ -548,9 +485,12 @@
           ? "Company Location updated successfully"
           : "Company Location created successfully"
       );
-    } catch (e) {
-      formError = e instanceof ApiError ? e.message : "Something went wrong.";
-      toast.error(formError);
+    } catch (e: any) {
+      if (e instanceof ApiError && e.data?.errors) {
+        errors = e.data.errors;
+      } else {
+        errors.general = e instanceof ApiError ? e.message : "Something went wrong.";
+      }
     } finally {
       formLoading = false;
     }
@@ -657,7 +597,6 @@
       toast.success("Country created successfully");
     } catch (e) {
       addCountryError = e instanceof ApiError ? e.message : "Failed to create country.";
-      toast.error(addCountryError);
     } finally {
       addCountryLoading = false;
     }
@@ -698,7 +637,6 @@
       toast.success("State created successfully");
     } catch (e) {
       addStateError = e instanceof ApiError ? e.message : "Failed to create state.";
-      toast.error(addStateError);
     } finally {
       addStateLoading = false;
     }
@@ -805,12 +743,12 @@
       </DropdownMenu.Root>
     </div>
 
-    <Card class="py-0">
+    <Card>
       <Table>
-        <TableHeader class="bg-muted">
+        <TableHeader>
           <TableRow>
-            <TableHead class="font-bold text-foreground text-[15px]">
-              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('location_name')}>
+            <TableHead>
+              <Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => toggleSort('location_name')}>
                 Location Name
                 {#if sortColumn === 'location_name' && sortDirection === 'asc'}
                   <ArrowUpIcon class="ml-2 size-4" />
@@ -821,8 +759,8 @@
                 {/if}
               </Button>
             </TableHead>
-            <TableHead class="font-bold text-foreground text-[15px]">
-              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('address_line1')}>
+            <TableHead>
+              <Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => toggleSort('address_line1')}>
                 Address
                 {#if sortColumn === 'address_line1' && sortDirection === 'asc'}
                   <ArrowUpIcon class="ml-2 size-4" />
@@ -833,8 +771,8 @@
                 {/if}
               </Button>
             </TableHead>
-            <TableHead class="font-bold text-foreground text-[15px]">
-              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('city')}>
+            <TableHead>
+              <Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => toggleSort('city')}>
                 City
                 {#if sortColumn === 'city' && sortDirection === 'asc'}
                   <ArrowUpIcon class="ml-2 size-4" />
@@ -845,8 +783,8 @@
                 {/if}
               </Button>
             </TableHead>
-            <TableHead class="font-bold text-foreground text-[15px]">
-              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('state_cuid')}>
+            <TableHead>
+              <Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => toggleSort('state_cuid')}>
                 State
                 {#if sortColumn === 'state_cuid' && sortDirection === 'asc'}
                   <ArrowUpIcon class="ml-2 size-4" />
@@ -857,8 +795,8 @@
                 {/if}
               </Button>
             </TableHead>
-            <TableHead class="font-bold text-foreground text-[15px]">
-              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('country_cuid')}>
+            <TableHead>
+              <Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => toggleSort('country_cuid')}>
                 Country
                 {#if sortColumn === 'country_cuid' && sortDirection === 'asc'}
                   <ArrowUpIcon class="ml-2 size-4" />
@@ -869,8 +807,8 @@
                 {/if}
               </Button>
             </TableHead>
-            <TableHead class="font-bold text-foreground text-[15px]">
-              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('pin_code')}>
+            <TableHead>
+              <Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => toggleSort('pin_code')}>
                 Pin Code
                 {#if sortColumn === 'pin_code' && sortDirection === 'asc'}
                   <ArrowUpIcon class="ml-2 size-4" />
@@ -881,8 +819,8 @@
                 {/if}
               </Button>
             </TableHead>
-            <TableHead class="font-bold text-foreground text-[15px]">
-              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('timezone')}>
+            <TableHead>
+              <Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => toggleSort('timezone')}>
                 Timezone
                 {#if sortColumn === 'timezone' && sortDirection === 'asc'}
                   <ArrowUpIcon class="ml-2 size-4" />
@@ -893,8 +831,8 @@
                 {/if}
               </Button>
             </TableHead>
-            <TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
-              <Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('is_active')}>
+            <TableHead class="w-24 text-center">
+              <Button variant="ghost" size="sm" class="h-8" onclick={() => toggleSort('is_active')}>
                 Status
                 {#if sortColumn === 'is_active' && sortDirection === 'asc'}
                   <ArrowUpIcon class="ml-2 size-4" />
@@ -905,7 +843,7 @@
                 {/if}
               </Button>
             </TableHead>
-            <TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
+            <TableHead class="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -931,19 +869,19 @@
                 }} 
                 class="cursor-pointer"
               >
-                <TableCell>
-                  <span class="font-semibold">{loc.location_name}</span>
+                <TableCell class="font-normal">
+                  <div>{loc.location_name}</div>
                 </TableCell>
-                <TableCell>
+                <TableCell class="font-normal">
                   {loc.address_line1}{loc.address_line2 ? ", " + loc.address_line2 : ""}
                 </TableCell>
-                <TableCell>{loc.city}</TableCell>
-                <TableCell>{getStateName(loc.state_cuid)}</TableCell>
-                <TableCell>{getCountryName(loc.country_cuid)}</TableCell>
-                <TableCell>{loc.pin_code}</TableCell>
-                <TableCell>{loc.timezone}</TableCell>
-                <TableCell class="text-center">
-                  <Badge variant={loc.is_active === true ? 'default' : 'secondary'}>{loc.is_active ? 'Active' : 'Inactive'}</Badge>
+                <TableCell class="font-normal">{loc.city}</TableCell>
+                <TableCell class="font-normal">{getStateName(loc.state_cuid)}</TableCell>
+                <TableCell class="font-normal">{getCountryName(loc.country_cuid)}</TableCell>
+                <TableCell class="font-normal">{loc.pin_code}</TableCell>
+                <TableCell class="font-normal">{loc.timezone}</TableCell>
+                <TableCell class="text-center font-normal">
+                  <StatusBadge status={loc.is_active} />
                 </TableCell>
                 <TableCell class="text-right">
                   <TableActions
@@ -971,91 +909,91 @@
   {#snippet children({ cancel })}
     <form class="space-y-4" onsubmit={submitForm}>
       <div class="space-y-2">
-        <Label for="location_name">Location Name <span class="text-destructive">*</span></Label>
+        <Label for="location_name" class={errors.location_name ? 'text-danger' : ''}>Location Name <span class="text-destructive">*</span></Label>
         <Input
           id="location_name"
           name="location_name"
           bind:value={formName}
-          class={formError || nameError ? 'border-destructive' : ''}
+          class={errors.location_name ? 'border-destructive' : ''}
           placeholder="e.g. Chennai - HQ"
-          oninput={() => { formError = ''; nameError = ''; }}
+          oninput={() => { errors.location_name = ''; }}
         />
-        {#if nameError || formError}
-          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameError || formError}</p>
+        {#if errors.location_name}
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{errors.location_name}</p>
         {/if}
       </div>
 
       <div class="space-y-2">
-        <Label for="location_address1">Address Line 1 <span class="text-destructive">*</span></Label>
+        <Label for="location_address1" class={errors.address_line1 ? 'text-danger' : ''}>Address Line 1 <span class="text-destructive">*</span></Label>
         <Input
           id="location_address1"
           name="location_address1"
           bind:value={formAddress1}
-          class={address1Error ? 'border-destructive' : ''}
+          class={errors.address_line1 ? 'border-destructive' : ''}
           placeholder="e.g. 123 Enterprise Way"
-          oninput={() => { address1Error = ''; }}
+          oninput={() => { errors.address_line1 = ''; }}
         />
-        {#if address1Error}
-          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{address1Error}</p>
+        {#if errors.address_line1}
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{errors.address_line1}</p>
         {/if}
       </div>
 
       <div class="space-y-2">
-        <Label for="location_address2">Address Line 2 (Optional)</Label>
+        <Label for="location_address2" class={errors.address_line2 ? 'text-danger' : ''}>Address Line 2 (Optional)</Label>
         <Input
           id="location_address2"
           name="location_address2"
           bind:value={formAddress2}
-          class={address2Error ? 'border-destructive' : ''}
+          class={errors.address_line2 ? 'border-destructive' : ''}
           placeholder="e.g. Suite 400"
-          oninput={() => { address2Error = ''; }}
+          oninput={() => { errors.address_line2 = ''; }}
         />
-        {#if address2Error}
-          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{address2Error}</p>
+        {#if errors.address_line2}
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{errors.address_line2}</p>
         {/if}
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div class="space-y-2">
-          <Label for="location_city">City <span class="text-destructive">*</span></Label>
+          <Label for="location_city" class={errors.city ? 'text-danger' : ''}>City <span class="text-destructive">*</span></Label>
           <Input
             id="location_city"
             name="location_city"
             bind:value={formCity}
-            class={cityError ? 'border-destructive' : ''}
+            class={errors.city ? 'border-destructive' : ''}
             placeholder="e.g. Chennai"
-            oninput={() => { cityError = ''; }}
+            oninput={() => { errors.city = ''; }}
           />
-          {#if cityError}
-            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{cityError}</p>
+          {#if errors.city}
+            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{errors.city}</p>
           {/if}
         </div>
         <div class="space-y-2">
-          <Label for="location_pincode">Pin Code <span class="text-destructive">*</span></Label>
+          <Label for="location_pincode" class={errors.pin_code ? 'text-danger' : ''}>Pin Code <span class="text-destructive">*</span></Label>
           <Input
             id="location_pincode"
             name="location_pincode"
             bind:value={formPinCode}
-            class={pinCodeError ? 'border-destructive' : ''}
+            class={errors.pin_code ? 'border-destructive' : ''}
             placeholder="e.g. 600001"
-            oninput={() => { pinCodeError = ''; }}
+            oninput={() => { errors.pin_code = ''; }}
           />
-          {#if pinCodeError}
-            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{pinCodeError}</p>
+          {#if errors.pin_code}
+            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{errors.pin_code}</p>
           {/if}
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div class="space-y-2 flex flex-col justify-end">
-          <Label for="location_country" class="mb-2">Country <span class="text-destructive">*</span></Label>
+          <Label for="location_country" class="mb-2 {errors.country_cuid ? 'text-danger' : ''}">Country <span class="text-destructive">*</span></Label>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger>
               {#snippet child({ props })}
                 <Button
                   id="location_country"
                   variant="outline"
-                  class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none {countryError ? 'border-destructive' : ''}"
+                  class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none {errors.country_cuid ? 'border-destructive' : ''}"
                   {...props}
                 >
                   <span class="truncate">{countries.find((c) => c.cuid === formCountryCuid)?.country_name || "Select Country"}</span>
@@ -1063,40 +1001,41 @@
                 </Button>
               {/snippet}
             </DropdownMenu.Trigger>
-            <DropdownMenu.Content class="max-h-56 overflow-y-auto w-[200px]">
-              <DropdownMenu.Group>
-                <DropdownMenu.Item
-                  onclick={() => { formCountryCuid = ''; formStateCuid = ''; countryError = ''; }}
-                  class="cursor-pointer justify-between {!formCountryCuid ? 'bg-accent font-semibold' : ''}"
+            <DropdownMenu.Content class="max-h-56 flex flex-col w-[200px] p-0 overflow-hidden">
+              <div class="max-h-44 overflow-y-auto p-1 flex-1">
+                <DropdownMenu.Group>
+                  {#each countries as country}
+                    <DropdownMenu.Item
+                      onclick={() => { formCountryCuid = country.cuid; formStateCuid = ''; errors.country_cuid = ''; }}
+                      class="cursor-pointer justify-between {formCountryCuid === country.cuid ? 'bg-accent font-semibold' : ''}"
+                    >
+                      {country.country_name}
+                      {#if formCountryCuid === country.cuid}<CheckIcon class="size-4" />{/if}
+                    </DropdownMenu.Item>
+                  {/each}
+                </DropdownMenu.Group>
+              </div>
+              <div class="border-t border-border p-1 bg-muted/20 flex-shrink-0">
+                <button
+                  type="button"
+                  class="flex items-center justify-center gap-1.5 w-full rounded-sm px-2 py-1.5 text-xs font-medium border border-input bg-card text-foreground hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer select-none"
+                  onclick={(e) => {
+                    e.stopPropagation();
+                    openAddCountryModal();
+                  }}
                 >
-                  Select Country
-                </DropdownMenu.Item>
-                {#each countries as country}
-                  <DropdownMenu.Item
-                    onclick={() => { formCountryCuid = country.cuid; formStateCuid = ''; countryError = ''; }}
-                    class="cursor-pointer justify-between {formCountryCuid === country.cuid ? 'bg-accent font-semibold' : ''}"
-                  >
-                    {country.country_name}
-                    {#if formCountryCuid === country.cuid}<CheckIcon class="size-4" />{/if}
-                  </DropdownMenu.Item>
-                {/each}
-              </DropdownMenu.Group>
-              <DropdownMenu.Separator />
-              <DropdownMenu.Item
-                onclick={openAddCountryModal}
-                class="cursor-pointer font-medium text-[#F45310] hover:text-[#F45310]/90 focus:text-[#F45310]"
-              >
-                <PlusIcon class="mr-2 size-4" />
-                Add Country
-              </DropdownMenu.Item>
+                  <PlusIcon class="size-3.5" />
+                  Add Country
+                </button>
+              </div>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
-          {#if countryError}
-            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{countryError}</p>
+          {#if errors.country_cuid}
+            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{errors.country_cuid}</p>
           {/if}
         </div>
         <div class="space-y-2 flex flex-col justify-end">
-          <Label for="location_state" class="mb-2">State <span class="text-destructive">*</span></Label>
+          <Label for="location_state" class="mb-2 {errors.state_cuid ? 'text-danger' : ''}">State <span class="text-destructive">*</span></Label>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger>
               {#snippet child({ props })}
@@ -1104,7 +1043,7 @@
                   id="location_state"
                   variant="outline"
                   disabled={!formCountryCuid}
-                  class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none disabled:opacity-50 disabled:cursor-not-allowed {stateError ? 'border-destructive' : ''}"
+                  class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none disabled:opacity-50 disabled:cursor-not-allowed {errors.state_cuid ? 'border-destructive' : ''}"
                   {...props}
                 >
                   <span class="truncate">{filteredStates.find((s) => s.cuid === formStateCuid)?.state_name || "Select State"}</span>
@@ -1112,63 +1051,68 @@
                 </Button>
               {/snippet}
             </DropdownMenu.Trigger>
-            <DropdownMenu.Content class="max-h-56 overflow-y-auto w-[200px]">
-              <DropdownMenu.Group>
-                <DropdownMenu.Item
-                  onclick={() => { formStateCuid = ''; stateError = ''; }}
-                  class="cursor-pointer justify-between {!formStateCuid ? 'bg-accent font-semibold' : ''}"
+            <DropdownMenu.Content class="max-h-56 flex flex-col w-[200px] p-0 overflow-hidden">
+              <div class="max-h-44 overflow-y-auto p-1 flex-1">
+                <DropdownMenu.Group>
+                  {#each filteredStates as state}
+                    <DropdownMenu.Item
+                      onclick={() => { formStateCuid = state.cuid; errors.state_cuid = ''; }}
+                      class="cursor-pointer justify-between {formStateCuid === state.cuid ? 'bg-accent font-semibold' : ''}"
+                    >
+                      {state.state_name}
+                      {#if formStateCuid === state.cuid}<CheckIcon class="size-4" />{/if}
+                    </DropdownMenu.Item>
+                  {/each}
+                </DropdownMenu.Group>
+              </div>
+              <div class="border-t border-border p-1 bg-muted/20 flex-shrink-0">
+                <button
+                  type="button"
+                  disabled={!formCountryCuid}
+                  class="flex items-center justify-center gap-1.5 w-full rounded-sm px-2 py-1.5 text-xs font-medium border border-input bg-card text-foreground hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  onclick={(e) => {
+                    e.stopPropagation();
+                    openAddStateModal();
+                  }}
                 >
-                  Select State
-                </DropdownMenu.Item>
-                {#each filteredStates as state}
-                  <DropdownMenu.Item
-                    onclick={() => { formStateCuid = state.cuid; stateError = ''; }}
-                    class="cursor-pointer justify-between {formStateCuid === state.cuid ? 'bg-accent font-semibold' : ''}"
-                  >
-                    {state.state_name}
-                    {#if formStateCuid === state.cuid}<CheckIcon class="size-4" />{/if}
-                  </DropdownMenu.Item>
-                {/each}
-              </DropdownMenu.Group>
-              <DropdownMenu.Separator />
-              <DropdownMenu.Item
-                onclick={openAddStateModal}
-                disabled={!formCountryCuid}
-                class="cursor-pointer font-medium text-[#F45310] hover:text-[#F45310]/90 focus:text-[#F45310] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <PlusIcon class="mr-2 size-4" />
-                Add State
-              </DropdownMenu.Item>
+                  <PlusIcon class="size-3.5" />
+                  Add State
+                </button>
+              </div>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
-          {#if stateError}
-            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{stateError}</p>
+          {#if errors.state_cuid}
+            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{errors.state_cuid}</p>
           {/if}
         </div>
       </div>
 
       <div class="space-y-2">
-        <Label for="location_timezone">Timezone <span class="text-destructive">*</span></Label>
+        <Label for="location_timezone" class={errors.timezone ? 'text-danger' : ''}>Timezone <span class="text-destructive">*</span></Label>
         <Input
           id="location_timezone"
           name="location_timezone"
           bind:value={formTimezone}
-          class={timezoneError ? 'border-destructive' : ''}
+          class={errors.timezone ? 'border-destructive' : ''}
           placeholder="e.g. Asia/Kolkata or UTC"
-          oninput={() => { timezoneError = ''; }}
+          oninput={() => { errors.timezone = ''; }}
         />
-        {#if timezoneError}
-          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{timezoneError}</p>
+        {#if errors.timezone}
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{errors.timezone}</p>
         {/if}
       </div>
 
-      {#if editLocation}
-        <StatusDropdown id="location_status" name="location_status" value={formStatus} onChange={(val) => (formStatus = val)} />
+      <StatusDropdown id="location_status" name="location_status" value={formStatus} onChange={(val) => (formStatus = val)} />
+
+      {#if errors.general}
+        <div class="p-3 bg-destructive/15 text-destructive rounded-md text-sm">
+          {errors.general}
+        </div>
       {/if}
 
       <div class="flex items-center justify-end gap-3 pt-4">
         <Button type="button" variant="outline" onclick={cancel} disabled={formLoading}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={formLoading || (!!editLocation && !isDirty) || (!editLocation && !isCreateEnabled)}>
+        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitDisabled}>
           {formLoading ? UI_CONSTANTS.BUTTON_SAVING : (editLocation ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
         </Button>
       </div>
@@ -1179,30 +1123,37 @@
 <CrudModal
   open={showAddCountry}
   title="Add Country"
+  description="Create a new country master record."
   isDirty={newCountryName.trim() !== ""}
   isSubmitting={addCountryLoading}
   onClose={() => { showAddCountry = false; newCountryName = ""; addCountryError = ""; }}
 >
   {#snippet children({ cancel })}
-    <form class="space-y-4" onsubmit={handleAddCountrySubmit}>
-      <div class="space-y-2">
-        <Label for="new_country_name">Country Name <span class="text-destructive">*</span></Label>
-        <Input
-          id="new_country_name"
-          name="new_country_name"
-          bind:value={newCountryName}
-          class={addCountryError ? 'border-destructive' : ''}
-          placeholder="e.g. India"
-          oninput={() => { addCountryError = ''; }}
-        />
-        {#if addCountryError}
-          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{addCountryError}</p>
-        {/if}
+    <form class="flex flex-col min-h-0 flex-1 overflow-hidden" onsubmit={handleAddCountrySubmit}>
+      <div class="flex-1 overflow-y-auto pr-1 space-y-4 modal-scroll-area">
+        <div class="space-y-2">
+          <Label for="new_country_name" class={addCountryError ? 'text-danger' : ''}>Country Name <span class="text-destructive">*</span></Label>
+          <Input
+            id="new_country_name"
+            bind:value={newCountryName}
+            class={addCountryError ? 'border-danger focus-visible:ring-danger/30' : ''}
+            placeholder="e.g. India"
+            oninput={() => { addCountryError = ''; }}
+          />
+          {#if addCountryError}
+            <p class="text-xs font-medium text-danger mt-1">{addCountryError}</p>
+          {/if}
+        </div>
       </div>
-      <div class="flex items-center justify-end gap-3 pt-4">
+      <div class="flex items-center justify-end gap-3 pt-6 flex-shrink-0">
         <Button type="button" variant="outline" onclick={cancel} disabled={addCountryLoading}>Cancel</Button>
         <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={addCountryLoading || !newCountryName.trim()}>
-          {addCountryLoading ? 'Saving...' : 'Save'}
+          {#if addCountryLoading}
+            <LoaderCircleIcon class="size-4 animate-spin" />
+            Saving...
+          {:else}
+            Save
+          {/if}
         </Button>
       </div>
     </form>
@@ -1212,30 +1163,37 @@
 <CrudModal
   open={showAddState}
   title="Add State"
+  description="Create a new state master record."
   isDirty={newStateName.trim() !== ""}
   isSubmitting={addStateLoading}
   onClose={() => { showAddState = false; newStateName = ""; addStateError = ""; }}
 >
   {#snippet children({ cancel })}
-    <form class="space-y-4" onsubmit={handleAddStateSubmit}>
-      <div class="space-y-2">
-        <Label for="new_state_name">State Name <span class="text-destructive">*</span></Label>
-        <Input
-          id="new_state_name"
-          name="new_state_name"
-          bind:value={newStateName}
-          class={addStateError ? 'border-destructive' : ''}
-          placeholder="e.g. Tamil Nadu"
-          oninput={() => { addStateError = ''; }}
-        />
-        {#if addStateError}
-          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{addStateError}</p>
-        {/if}
+    <form class="flex flex-col min-h-0 flex-1 overflow-hidden" onsubmit={handleAddStateSubmit}>
+      <div class="flex-1 overflow-y-auto pr-1 space-y-4 modal-scroll-area">
+        <div class="space-y-2">
+          <Label for="new_state_name" class={addStateError ? 'text-danger' : ''}>State Name <span class="text-destructive">*</span></Label>
+          <Input
+            id="new_state_name"
+            bind:value={newStateName}
+            class={addStateError ? 'border-danger focus-visible:ring-danger/30' : ''}
+            placeholder="e.g. Tamil Nadu"
+            oninput={() => { addStateError = ''; }}
+          />
+          {#if addStateError}
+            <p class="text-xs font-medium text-danger mt-1">{addStateError}</p>
+          {/if}
+        </div>
       </div>
-      <div class="flex items-center justify-end gap-3 pt-4">
+      <div class="flex items-center justify-end gap-3 pt-6 flex-shrink-0">
         <Button type="button" variant="outline" onclick={cancel} disabled={addStateLoading}>Cancel</Button>
         <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={addStateLoading || !newStateName.trim()}>
-          {addStateLoading ? 'Saving...' : 'Save'}
+          {#if addStateLoading}
+            <LoaderCircleIcon class="size-4 animate-spin" />
+            Saving...
+          {:else}
+            Save
+          {/if}
         </Button>
       </div>
     </form>

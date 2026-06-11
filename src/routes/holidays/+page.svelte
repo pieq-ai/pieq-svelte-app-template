@@ -137,7 +137,7 @@
 			}
 		} catch (error) {
 			console.error('Submit failed:', error);
-			toast.error('An unexpected error occurred.');
+			errors.general = 'An unexpected error occurred.';
 		} finally {
 			isSubmitting = false;
 		}
@@ -197,7 +197,7 @@
 		const originalDateStr = `${year}-${month}-${day}`;
 
 		return (
-			holidayName !== editingHoliday.holiday_name ||
+			holidayName.trim() !== editingHoliday.holiday_name.trim() ||
 			holidayDate !== originalDateStr ||
 			holidayType !== editingHoliday.holiday_type
 		);
@@ -207,7 +207,7 @@
 		if (editCuid) {
 			return hasChanges;
 		} else {
-			return holidayName !== '' || holidayDate !== '' || holidayType !== 'National';
+			return holidayName.trim() !== '' || holidayDate !== '' || holidayType !== 'National';
 		}
 	});
 

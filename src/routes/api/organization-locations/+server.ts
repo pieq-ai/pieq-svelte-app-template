@@ -1,17 +1,17 @@
-// src/routes/api/organization_location/+server.ts
+// src/routes/api/organization-locations/+server.ts
 import { json } from '@sveltejs/kit';
 import * as locationService from '$lib/server/services/organization_location.service.js';
 import { sendList, sendCreated, mapLocation } from '$lib/server/response.js';
 
 /**
- * GET /api/organization_location
+ * GET /api/organization-locations
  * Returns paginated list of company locations.
  * Pass ?includeInactive=true to include deactivated locations.
  */
 export async function GET({ url }) {
   try {
     const params = Object.fromEntries(url.searchParams.entries());
-    const includeInactive = params.includeInactive === 'true';
+    const includeInactive = params.includeInactive !== 'false';
     const result = includeInactive
       ? await locationService.listAllLocations()
       : await locationService.listLocations();
@@ -24,7 +24,7 @@ export async function GET({ url }) {
 }
 
 /**
- * POST /api/organization_location
+ * POST /api/organization-locations
  * Creates a new company location.
  */
 export async function POST({ request }) {

@@ -11,7 +11,6 @@
 	import { UI_CONSTANTS } from '$lib/constants';
 
 	import {
-		Badge,
 		Button,
 		Card,
 		CardHeader,
@@ -30,6 +29,7 @@
 		TableActions,
 		FilterDropdown,
 		StatusDropdown,
+		StatusBadge,
 		Pagination,
 		SearchInput
 	} from '$lib/components';
@@ -43,7 +43,7 @@
 
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
-	let sortColumn = $state('role_name');
+	let sortColumn = $state<string | null>(null);
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -61,6 +61,15 @@
 
 	const dirtyChecker = createDirtyChecker<{ role_name: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ role_name: roleName.trim(), status: roleStatus }));
+
+	let isSubmitDisabled = $derived.by(() => {
+		if (isSubmitting) return true;
+		if (!roleName.trim()) return true;
+		if (editingRole) {
+			return !isDirty;
+		}
+		return false;
+	});
 
 	// Deletion State
 	let itemToDelete = $state<Role | null>(null);
@@ -118,6 +127,8 @@
 				}
 				return 0;
 			});
+		} else {
+			result.sort((a, b) => new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime());
 		}
 
 		return result;
@@ -194,14 +205,13 @@
 			if (editingRole) {
 				await updateRole(editingRole.cuid, { role_name: roleName.trim(), status: roleStatus });
 			} else {
-				await createRole(roleName.trim());
+				await createRole(roleName.trim(), roleStatus);
 			}
 			await loadRoles();
 			toast.success(editingRole ? 'Role updated successfully' : 'Role created successfully');
 			isModalOpen = false;
 		} catch (err) {
 			backendError = err instanceof ApiError ? err.message : 'Something went wrong.';
-			toast.error(backendError);
 			console.error(err);
 		} finally {
 			isSubmitting = false;
@@ -272,12 +282,12 @@
 			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
 		</div>
 
-		<Card class="py-0">
+		<Card>
 			<Table>
-				<TableHeader class="bg-muted">
+				<TableHeader>
 					<TableRow>
-						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('role_name')}>
+						<TableHead>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => handleSort('role_name')}>
 								Role Name
 							{#if sortColumn === 'role_name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -288,8 +298,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
-							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
+						<TableHead class="w-24 text-center">
+							<Button variant="ghost" size="sm" class="h-8" onclick={() => handleSort('status')}>
 								Status
 							{#if sortColumn === 'status' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -300,7 +310,7 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
+						<TableHead class="text-right">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -326,13 +336,11 @@
 								}} 
 								class="cursor-pointer"
 							>
-								<TableCell>
-									<div class="flex flex-col">
-										<span class="font-semibold">{role.role_name}</span>
-									</div>
+								<TableCell class="font-normal">
+									<div>{role.role_name}</div>
 								</TableCell>
 								<TableCell class="text-center">
-									<Badge variant={role.status === true ? 'default' : 'secondary'}>{role.status ? 'Active' : 'Inactive'}</Badge>
+									<StatusBadge status={role.status} />
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
@@ -360,7 +368,7 @@
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={handleSaveRole}>
 			<div class="space-y-2">
-				<Label for="role_name">Role Name</Label>
+				<Label for="role_name" class={nameValidationError || backendError ? 'text-danger' : ''}>Role Name <span class="text-destructive">*</span></Label>
 				<Input
 					id="role_name"
 					name="role_name"
@@ -368,18 +376,16 @@
 					bind:value={roleName}
 					class={nameValidationError || backendError ? 'border-destructive' : ''}
 					placeholder="e.g. HR Manager"
-					oninput={() => { backendError = ''; }}
+					oninput={() => { backendError = ''; isNameTouched = false; }}
 				/>
 				{#if nameValidationError || backendError}
 					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
 				{/if}
 			</div>
-			{#if editingRole}
-				<StatusDropdown id="role_status" name="role_status" value={roleStatus} onChange={(val) => (roleStatus = val)} />
-			{/if}
+			<StatusDropdown id="role_status" name="role_status" value={roleStatus} onChange={(val) => (roleStatus = val)} />
 			<div class="flex items-center justify-end gap-3 pt-4">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingRole && !isDirty)}>
+				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitDisabled}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingRole ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>
 			</div>

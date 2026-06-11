@@ -2,7 +2,8 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg'
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
-	import { Button, ConfirmationModal } from '$lib/components';
+	import { Button, ConfirmModal } from '$lib/components';
+	import { confirmation } from '$lib/confirmation.svelte.js';
 	import Toaster from '$lib/components/ui/toaster.svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
@@ -27,6 +28,7 @@
 	let { children, data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);
 	let isSidebarCollapsed = $state(false);
+	let globalConfirmLoading = $state(false);
 
 	const protectedNavItems = [
 		{ label: 'Dashboard', href: resolve('/dashboard'), icon: LayoutDashboardIcon },
@@ -35,11 +37,11 @@
 		{ label: 'Designations', href: resolve('/designations'), icon: UserRoundIcon },
 		{ label: 'Roles', href: resolve('/roles'), icon: UserCheckIcon },
 		{ label: 'Shifts', href: resolve('/shifts'), icon: ClockIcon },
-		{ label: 'Locations', href: resolve('/organization_locations'), icon: MapPinIcon },
+		{ label: 'Locations', href: resolve('/organization-locations'), icon: MapPinIcon },
 		{ label: 'Salary Components', href: resolve('/salary-components'), icon: WalletIcon },
-		{ label: 'Leave Type', href: resolve('/leave-types'), icon: CalendarCogIcon },
-		{ label: 'Leave Policy', href: resolve('/leave-policies'), icon: ShieldCheckIcon },
-		{ label: 'Holiday Master', href: resolve('/holidays'), icon: CalendarIcon },
+		{ label: 'Leave Types', href: resolve('/leave-types'), icon: CalendarCogIcon },
+		{ label: 'Leave Policies', href: resolve('/leave-policies'), icon: ShieldCheckIcon },
+		{ label: 'Holiday Calendar', href: resolve('/holidays'), icon: CalendarIcon },
 		{ label: 'System Roles', href: resolve('/system-roles'), icon: ShieldCheckIcon },
 		{ label: 'Permissions', href: resolve('/permissions'), icon: KeyRoundIcon },
 		{ label: 'Role Permissions', href: resolve('/role-permissions'), icon: LinkIcon }
@@ -178,4 +180,20 @@
 	</main>
 </div>
 
-<ConfirmationModal />
+<ConfirmModal
+	open={confirmation.show}
+	title={confirmation.title}
+	description={confirmation.message}
+	confirmLabel={confirmation.confirmText}
+	isDestructive={confirmation.isDestructive}
+	isSubmitting={globalConfirmLoading}
+	onCancel={confirmation.onCancel}
+	onConfirm={async () => {
+		globalConfirmLoading = true;
+		try {
+			await confirmation.onConfirm();
+		} finally {
+			globalConfirmLoading = false;
+		}
+	}}
+/>

@@ -17,7 +17,7 @@ export async function createLocation(data: CompanyLocationCreateDTO): Promise<Co
       country_cuid: data.country_cuid !== undefined ? data.country_cuid : 'country-cuid-placeholder',
       pin_code: data.pin_code !== undefined ? data.pin_code : '000000',
       timezone: data.timezone !== undefined ? data.timezone : 'UTC',
-      is_active: true,
+      is_active: data.is_active ?? true,
       created_by: data.created_by ?? null,
       updated_by: data.updated_by ?? null
     },
@@ -46,7 +46,7 @@ export async function createLocation(data: CompanyLocationCreateDTO): Promise<Co
 export async function getLocations(): Promise<CompanyLocation[]> {
   return db.companyLocation.findMany({
     where: { is_active: true },
-    orderBy: { id: 'asc' },
+    orderBy: { updated_at: 'desc' },
     select: {
       cuid: true,
       location_name: true,
@@ -71,7 +71,7 @@ export async function getLocations(): Promise<CompanyLocation[]> {
  */
 export async function getAllLocations(): Promise<CompanyLocation[]> {
   return db.companyLocation.findMany({
-    orderBy: { id: 'asc' },
+    orderBy: { updated_at: 'desc' },
     select: {
       cuid: true,
       location_name: true,

@@ -51,6 +51,10 @@ function validateAge(raw: unknown): number {
 		throw new EmployeeValidationError('age', 'Age is required and must be a valid number');
 	}
 
+	if (coerced <= 0) {
+		throw new EmployeeValidationError('age', 'Age must be greater than zero');
+	}
+
 	if (!Number.isInteger(coerced)) {
 		throw new EmployeeValidationError('age', 'Age must be a whole number');
 	}

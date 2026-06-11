@@ -13,6 +13,16 @@ export class LeaveValidationError extends Error {
 	}
 }
 
+export class LeaveMultiValidationError extends Error {
+	readonly fields: Record<string, string>;
+
+	constructor(fields: Record<string, string>) {
+		super('Validation failed');
+		this.name = 'LeaveMultiValidationError';
+		this.fields = fields;
+	}
+}
+
 export interface CreateLeaveTypeInput {
 	leave_name: unknown;
 	leave_code: unknown;
@@ -116,14 +126,19 @@ export async function createLeaveType(input: CreateLeaveTypeInput) {
 	const status = input.status === undefined ? true : Boolean(input.status);
 
 	// Duplicate checks
+	const errors: Record<string, string> = {};
 	const existingName = await leaveTypeDao.findByName(leave_name);
 	if (existingName) {
-		throw new LeaveValidationError('leave_name', 'Leave name already exists');
+		errors.leave_name = 'Leave name already exists';
 	}
 
 	const existingCode = await leaveTypeDao.findByCode(leave_code);
 	if (existingCode) {
-		throw new LeaveValidationError('leave_code', 'Leave code already exists');
+		errors.leave_code = 'Leave code already exists';
+	}
+
+	if (Object.keys(errors).length > 0) {
+		throw new LeaveMultiValidationError(errors);
 	}
 
 	return leaveTypeDao.create({
@@ -156,18 +171,23 @@ export async function updateLeaveType(cuid: string, input: UpdateLeaveTypeInput)
 	const status = input.status !== undefined ? Boolean(input.status) : existingType.status;
 
 	// Duplicate checks excluding this cuid
+	const errors: Record<string, string> = {};
 	if (input.leave_name !== undefined) {
 		const duplicateName = await leaveTypeDao.findDuplicateName(leave_name, cuid);
 		if (duplicateName) {
-			throw new LeaveValidationError('leave_name', 'Leave name already exists');
+			errors.leave_name = 'Leave name already exists';
 		}
 	}
 
 	if (input.leave_code !== undefined) {
 		const duplicateCode = await leaveTypeDao.findDuplicateCode(leave_code, cuid);
 		if (duplicateCode) {
-			throw new LeaveValidationError('leave_code', 'Leave code already exists');
+			errors.leave_code = 'Leave code already exists';
 		}
+	}
+
+	if (Object.keys(errors).length > 0) {
+		throw new LeaveMultiValidationError(errors);
 	}
 
 	return leaveTypeDao.update(cuid, {

@@ -57,7 +57,7 @@
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
 	
-	let sortColumn = $state('system_role_name');
+	let sortColumn = $state<string | null>(null);
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -246,14 +246,12 @@
 				await loadRoles();
 				toast.success(editingRole ? 'System role updated successfully.' : 'System role created successfully.');
 				isModalOpen = false;
-			} else if (response.status === 409 && body.field === 'system_role_name') {
-				errors.system_role_name = body.error;
-				roleNameInput?.focus();
 			} else {
-				toast.error(body.error || 'Unable to save system role.');
+				errors.system_role_name = body.error || 'Unable to save system role.';
+				roleNameInput?.focus();
 			}
 		} catch (err) {
-			toast.error('An error occurred. Please try again.');
+			errors.system_role_name = 'An error occurred. Please try again.';
 			console.error(err);
 		} finally {
 			isSubmitting = false;
@@ -330,7 +328,7 @@
 		<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
 	</div>
 
-	<Card class="py-0">
+	<Card>
 			<Table>
 			<TableHeader>
 				<TableRow>
@@ -346,7 +344,7 @@
 							{/if}
 						</Button>
 					</TableHead>
-					<TableHead class="text-center">
+					<TableHead class="w-24 text-center">
 						<Button variant="ghost" size="sm" class="h-8" onclick={() => handleSort('status')}>
 							Status
 							{#if sortColumn === 'status' && sortDirection === 'asc'}
@@ -363,7 +361,7 @@
 			</TableHeader>
 			<TableBody>
 				{#if isLoading}
-					<TableRow><TableCell colspan={3} class="py-8 text-center"><LoaderCircleIcon class="mx-auto size-6 animate-spin" /></TableCell></TableRow>
+					<TableRow><TableCell colspan={3} class="py-8 text-center text-muted-foreground"><LoaderCircleIcon class="mx-auto mb-2 size-6 animate-spin" />Loading roles...</TableCell></TableRow>
 				{:else if filteredRoles.length === 0}
 					<TableRow><TableCell colspan={3} class="py-8 text-center text-muted-foreground">{UI_CONSTANTS.EMPTY_STATE_MESSAGE}</TableCell></TableRow>
 				{:else}
@@ -375,7 +373,9 @@
 							}} 
 							class="cursor-pointer"
 						>
-							<TableCell class="font-semibold">{role.system_role_name}</TableCell>
+							<TableCell class="font-normal">
+								<div>{role.system_role_name}</div>
+							</TableCell>
 							<TableCell class="text-center"><StatusBadge status={role.status} /></TableCell>
 							<TableCell class="text-right">
 								<TableActions
@@ -418,9 +418,7 @@
 					<p class="text-xs font-medium text-danger mt-1">{errors.system_role_name}</p>
 				{/if}
 			</div>
-			{#if editingRole}
-				<StatusDropdown id="role_status" name="role_status" value={roleStatus} onChange={(val) => (roleStatus = val)} />
-			{/if}
+			<StatusDropdown id="role_status" name="role_status" value={roleStatus} onChange={(val) => (roleStatus = val)} />
 			</div>
 
 			<div class="flex items-center justify-end gap-3 pt-6 flex-shrink-0">

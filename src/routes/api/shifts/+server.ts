@@ -11,7 +11,7 @@ import { sendList, sendCreated, mapShift } from '$lib/server/response.js';
 export async function GET({ url }) {
   try {
     const params = Object.fromEntries(url.searchParams.entries());
-    const includeInactive = params.includeInactive === 'true';
+    const includeInactive = params.includeInactive !== 'false';
     const result = includeInactive
       ? await shiftService.listAllShifts()
       : await shiftService.listShifts();
@@ -44,6 +44,9 @@ export async function POST({ request }) {
     const shift = await shiftService.createShift(payload);
     return sendCreated('Shift', shift.cuid);
   } catch (err: any) {
+    if (err instanceof shiftService.ShiftMultiValidationError) {
+      return json({ data: { error: 'Validation failed', errors: err.fields } }, { status: 400 });
+    }
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });
   }

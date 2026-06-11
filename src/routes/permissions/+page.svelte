@@ -52,7 +52,7 @@
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
 	
-	let sortColumn = $state('permission_key');
+	let sortColumn = $state<string | null>(null);
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -247,14 +247,12 @@
 				await loadPermissions();
 				toast.success(editingPermission ? 'Permission updated successfully.' : 'Permission created successfully.');
 				isModalOpen = false;
-			} else if (response.status === 409 && body.field === 'permission_key') {
-				errors.permission_key = body.error;
-				permissionKeyInput?.focus();
 			} else {
-				toast.error(body.error || 'Unable to save permission.');
+				errors.permission_key = body.error || 'Unable to save permission.';
+				permissionKeyInput?.focus();
 			}
 		} catch (err) {
-			toast.error('An error occurred. Please try again.');
+			errors.permission_key = 'An error occurred. Please try again.';
 			console.error(err);
 		} finally {
 			isSubmitting = false;
@@ -331,7 +329,7 @@
 		<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
 	</div>
 
-	<Card class="py-0">
+	<Card>
 			<Table>
 			<TableHeader>
 				<TableRow>
@@ -347,7 +345,7 @@
 							{/if}
 						</Button>
 					</TableHead>
-					<TableHead class="text-center">
+					<TableHead class="w-24 text-center">
 						<Button variant="ghost" size="sm" class="h-8" onclick={() => handleSort('status')}>
 							Status
 							{#if sortColumn === 'status' && sortDirection === 'asc'}
@@ -364,7 +362,7 @@
 			</TableHeader>
 			<TableBody>
 				{#if isLoading}
-					<TableRow><TableCell colspan={3} class="py-8 text-center"><LoaderCircleIcon class="mx-auto size-6 animate-spin" /></TableCell></TableRow>
+					<TableRow><TableCell colspan={3} class="py-8 text-center text-muted-foreground"><LoaderCircleIcon class="mx-auto mb-2 size-6 animate-spin" />Loading permissions...</TableCell></TableRow>
 				{:else if filteredPermissions.length === 0}
 					<TableRow><TableCell colspan={3} class="py-8 text-center text-muted-foreground">{UI_CONSTANTS.EMPTY_STATE_MESSAGE}</TableCell></TableRow>
 				{:else}
@@ -376,7 +374,7 @@
 							}} 
 							class="cursor-pointer"
 						>
-							<TableCell class="font-mono text-sm font-semibold">{permission.permission_key}</TableCell>
+							<TableCell class="font-mono text-sm font-normal"><div>{permission.permission_key}</div></TableCell>
 							<TableCell class="text-center"><StatusBadge status={permission.status} /></TableCell>
 							<TableCell class="text-right">
 								<TableActions
@@ -419,9 +417,7 @@
 					<p class="text-xs font-medium text-danger mt-1">{errors.permission_key}</p>
 				{/if}
 			</div>
-			{#if editingPermission}
-				<StatusDropdown id="permission_status" name="permission_status" value={permissionStatus} onChange={(val) => (permissionStatus = val)} />
-			{/if}
+			<StatusDropdown id="permission_status" name="permission_status" value={permissionStatus} onChange={(val) => (permissionStatus = val)} />
 			</div>
 
 			<div class="flex items-center justify-end gap-3 pt-6 flex-shrink-0">

@@ -11,7 +11,7 @@ import { sendList, sendCreated, mapRole } from '$lib/server/response.js';
 export async function GET({ url }) {
   try {
     const params = Object.fromEntries(url.searchParams.entries());
-    const includeInactive = params.includeInactive === 'true';
+    const includeInactive = params.includeInactive !== 'false';
     const result = includeInactive
       ? await roleService.listAllRoles()
       : await roleService.listRoles();

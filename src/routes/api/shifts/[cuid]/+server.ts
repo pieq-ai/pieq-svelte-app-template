@@ -42,6 +42,9 @@ export async function PUT({ request, params }) {
     const shift = await shiftService.updateShift(cuid, payload);
     return sendUpdated('Shift', shift.cuid);
   } catch (err: any) {
+    if (err instanceof shiftService.ShiftMultiValidationError) {
+      return json({ data: { error: 'Validation failed', errors: err.fields } }, { status: 400 });
+    }
     const status = err.status ?? 500;
     return json({ error: err.message }, { status });
   }

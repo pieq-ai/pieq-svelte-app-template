@@ -86,7 +86,7 @@ describe('Designation Service', () => {
 
 		it('should throw an error if designation name already exists', async () => {
 			vi.mocked(designationDao.list).mockResolvedValue([{ cuid: '123', designation_name: 'Manager', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any]);
-			await expect(designationService.createDesignation({ designation_name: 'manager ' })).rejects.toThrow('Designation already exists');
+			await expect(designationService.createDesignation({ designation_name: 'manager ' })).rejects.toThrow('Designation name already exists');
 		});
 
 		it('should create and return the new designation', async () => {
@@ -124,7 +124,7 @@ describe('Designation Service', () => {
 			vi.mocked(designationDao.findByCuid2).mockResolvedValue({ id: 1, cuid: 'abc', designation_name: 'OldName' } as any);
 			vi.mocked(designationDao.list).mockResolvedValue([{ id: 2, cuid: 'xyz', designation_name: 'NewName' } as any]);
 
-			await expect(designationService.updateDesignation('abc', { designation_name: 'NewName' })).rejects.toThrow('Designation already exists');
+			await expect(designationService.updateDesignation('abc', { designation_name: 'NewName' })).rejects.toThrow('Designation name already exists');
 		});
 
 		it('should bypass uniqueness check if name is the same as existing (case insensitive)', async () => {

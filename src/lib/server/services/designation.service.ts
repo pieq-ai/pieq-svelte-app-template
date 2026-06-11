@@ -60,7 +60,7 @@ async function ensureDesignationNameIsUnique(designation_name: string, currentCu
 	);
 
 	if (duplicate) {
-		throw new ValidationError('designation_name', 'Designation already exists');
+		throw new ValidationError('designation_name', 'Designation name already exists');
 	}
 }
 

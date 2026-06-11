@@ -49,7 +49,7 @@
 
   let searchQuery = $state("");
   let statusFilter = $state<"all" | boolean>("all");
-  let sortColumn = $state("dept_name");
+  let sortColumn = $state<string | null>(null);
   let sortDirection = $state<"asc" | "desc" | null>(null);
 
   let currentPage = $state(1);
@@ -276,14 +276,12 @@
 				await loadDepartments();
 				toast.success(editingDept ? 'Department updated successfully' : 'Department created successfully');
 				isModalOpen = false;
-			} else if (response.status === 409 && resData.field === 'dept_name') {
-				errors.dept_name = resData.error;
-				deptNameInput?.focus();
 			} else {
-				toast.error(resData.error || 'Failed to save department.');
+				errors.dept_name = resData.error || 'Failed to save department.';
+				deptNameInput?.focus();
 			}
 		} catch (err) {
-			toast.error('An error occurred. Please try again.');
+			errors.dept_name = 'An error occurred. Please try again.';
 			console.error(err);
 		} finally {
 			isSubmitting = false;
@@ -292,13 +290,13 @@
 </script>
 
 <svelte:head>
-	<title>Department </title>
+	<title>Departments </title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Department</h1>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Departments</h1>
 		</div>
 		<Button
 			type="button"
@@ -356,7 +354,7 @@
       />
     </div>
 
-		<Card class="py-0">
+		<Card>
 			<Table>
 				<TableHeader>
 					<TableRow>
@@ -372,7 +370,7 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-center">
+						<TableHead class="w-24 text-center">
 							<Button variant="ghost" size="sm" class="h-8" onclick={() => handleSort('status')}>
 								Status
 							{#if sortColumn === 'status' && sortDirection === 'asc'}
@@ -410,10 +408,8 @@
 								}} 
 								class="cursor-pointer"
 							>
-								<TableCell>
-									<div class="flex flex-col">
-										<span class="font-semibold">{dept.dept_name}</span>
-									</div>
+								<TableCell class="font-normal">
+									<div>{dept.dept_name}</div>
 								</TableCell>
 								<TableCell class="text-center">
 									<StatusBadge status={dept.status} />
@@ -459,9 +455,7 @@
 					<p class="text-xs font-medium text-danger mt-1">{errors.dept_name}</p>
 				{/if}
 			</div>
-			{#if editingDept}
-				<StatusDropdown id="dept_status" name="dept_status" value={formDeptStatus} onChange={(val) => (formDeptStatus = val)} />
-			{/if}
+			<StatusDropdown id="dept_status" name="dept_status" value={formDeptStatus} onChange={(val) => (formDeptStatus = val)} />
 			</div>
 
 			<div class="flex items-center justify-end gap-3 pt-6 flex-shrink-0">

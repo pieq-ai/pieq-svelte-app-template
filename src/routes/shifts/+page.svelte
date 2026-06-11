@@ -11,7 +11,6 @@
 	import { UI_CONSTANTS } from '$lib/constants';
 
 	import {
-		Badge,
 		Button,
 		Card,
 		CardHeader,
@@ -29,6 +28,7 @@
 		TableActions,
 		FilterDropdown,
 		StatusDropdown,
+		StatusBadge,
 		Pagination,
 		SearchInput
 	} from '$lib/components';
@@ -49,7 +49,7 @@
 
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
-	let sortColumn = $state('shift_name');
+	let sortColumn = $state<string | null>(null);
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -63,10 +63,7 @@
 	let formStatus = $state<boolean>(true);
 	let isSubmitting = $state(false);
 	let isModalOpen = $state(false);
-	let isNameTouched = $state(false);
-	let isMinHoursTouched = $state(false);
-	let backendError = $state('');
-	let formMinHoursError = $state('');
+	let errors = $state<Record<string, string>>({});
 	let shiftNameInput = $state<HTMLInputElement | null>(null);
 
 	let isMinHoursManuallyEdited = $state(false);
@@ -91,6 +88,23 @@
 		})
 	);
 
+	let isSubmitDisabled = $derived.by(() => {
+		if (isSubmitting) return true;
+		if (
+			!formName.trim() ||
+			!formStartTime ||
+			!formEndTime ||
+			formMinHours === null ||
+			formMinHours === undefined ||
+			String(formMinHours).trim() === ''
+		)
+			return true;
+		if (editingShift) {
+			return !isDirty;
+		}
+		return false;
+	});
+
 	function getValidationError(name: string): string {
 		const trimmed = name.trim();
 		if (trimmed === '') {
@@ -112,8 +126,6 @@
 		return '';
 	}
 
-	let nameValidationError = $derived(isNameTouched ? getValidationError(formName) : '');
-
 	let calculatedMinHours = $derived.by(() => {
 		if (!formStartTime || !formEndTime) return 0;
 		const [startH, startM] = formStartTime.split(':').map(Number);
@@ -134,7 +146,7 @@
 	$effect(() => {
 		if (isModalOpen && !isMinHoursManuallyEdited) {
 			formMinHours = calculatedMinHours;
-			formMinHoursError = '';
+			errors.minimum_work_hours = '';
 		}
 	});
 
@@ -190,6 +202,8 @@
 				}
 				return 0;
 			});
+		} else {
+			result.sort((a, b) => new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime());
 		}
 
 		return result;
@@ -269,10 +283,7 @@
 		formStartTime = '09:00';
 		formEndTime = '18:00';
 		formStatus = true;
-		isNameTouched = false;
-		isMinHoursTouched = false;
-		backendError = '';
-		formMinHoursError = '';
+		errors = {};
 		isMinHoursManuallyEdited = false;
 		formMinHours = 9.0; // calculated for 09:00 - 18:00
 		dirtyChecker.snapshot({
@@ -291,10 +302,7 @@
 		formStartTime = formatTimeForInput(shift.start_time);
 		formEndTime = formatTimeForInput(shift.end_time);
 		formStatus = shift.status;
-		isNameTouched = false;
-		isMinHoursTouched = false;
-		backendError = '';
-		formMinHoursError = '';
+		errors = {};
 		isMinHoursManuallyEdited = Number(shift.minimum_work_hours) !== calculatedMinHours;
 		formMinHours = Number(shift.minimum_work_hours);
 		dirtyChecker.snapshot({
@@ -310,16 +318,22 @@
 	async function handleSaveShift(e: Event) {
 		e.preventDefault();
 		if (editingShift && !isDirty) return;
-		isNameTouched = true;
+
+		errors = {};
 
 		const validationError = getValidationError(formName);
 		if (validationError) {
-			shiftNameInput?.focus();
-			return;
+			errors.shift_name = validationError;
 		}
 
-		if (formMinHours > calculatedMinHours) {
-			formMinHoursError = `Minimum work hours cannot exceed the total shift duration (${formatHoursReadable(calculatedMinHours)}).`;
+		const minHoursNum = Number(formMinHours);
+		if (isNaN(minHoursNum) || minHoursNum <= 0) {
+			errors.minimum_work_hours = 'Minimum work hours must be greater than zero';
+		} else if (minHoursNum > calculatedMinHours) {
+			errors.minimum_work_hours = `Minimum work hours cannot exceed the total shift duration (${formatHoursReadable(calculatedMinHours)}).`;
+		}
+
+		if (Object.keys(errors).length > 0) {
 			return;
 		}
 
@@ -345,7 +359,7 @@
 					shift_name: formName.trim(),
 					start_time: startTimeOnly,
 					end_time: endTimeOnly,
-					minimum_work_hours: formMinHours,
+					minimum_work_hours: minHoursNum,
 					status: formStatus
 				});
 			} else {
@@ -353,15 +367,19 @@
 					shift_name: formName.trim(),
 					start_time: startTimeOnly,
 					end_time: endTimeOnly,
-					minimum_work_hours: formMinHours
+					minimum_work_hours: minHoursNum,
+					status: formStatus
 				});
 			}
 			await loadShifts();
 			toast.success(editingShift ? 'Shift updated successfully' : 'Shift created successfully');
 			isModalOpen = false;
-		} catch (err) {
-			backendError = err instanceof ApiError ? err.message : 'Something went wrong.';
-			toast.error(backendError);
+		} catch (err: any) {
+			if (err instanceof ApiError && err.data?.errors) {
+				errors = err.data.errors;
+			} else {
+				errors.general = err instanceof ApiError ? err.message : 'Something went wrong.';
+			}
 			console.error(err);
 		} finally {
 			isSubmitting = false;
@@ -456,12 +474,12 @@
 			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
 		</div>
 
-		<Card class="py-0">
+		<Card>
 			<Table>
-				<TableHeader class="bg-muted">
+				<TableHeader>
 					<TableRow>
-						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('shift_name')}>
+						<TableHead>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8" onclick={() => handleSort('shift_name')}>
 								Shift Name
 							{#if sortColumn === 'shift_name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -472,11 +490,11 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">Start Time</TableHead>
-						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">End Time</TableHead>
-						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">Min Work Hours</TableHead>
-						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
-							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
+						<TableHead class="w-32 text-center">Start Time</TableHead>
+						<TableHead class="w-32 text-center">End Time</TableHead>
+						<TableHead class="w-32 text-center">Min Work Hours</TableHead>
+						<TableHead class="w-24 text-center">
+							<Button variant="ghost" size="sm" class="h-8" onclick={() => handleSort('status')}>
 								Status
 							{#if sortColumn === 'status' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -487,7 +505,7 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
+						<TableHead class="text-right">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -513,14 +531,14 @@
 								}} 
 								class="cursor-pointer"
 							>
-								<TableCell>
-									<span class="font-semibold">{shift.shift_name}</span>
+								<TableCell class="font-normal">
+									<div>{shift.shift_name}</div>
 								</TableCell>
-								<TableCell class="text-center">{formatTimeForDisplay(shift.start_time)}</TableCell>
-								<TableCell class="text-center">{formatTimeForDisplay(shift.end_time)}</TableCell>
-								<TableCell class="text-center">{formatHoursReadable(Number(shift.minimum_work_hours))}</TableCell>
+								<TableCell class="text-center font-normal">{formatTimeForDisplay(shift.start_time)}</TableCell>
+								<TableCell class="text-center font-normal">{formatTimeForDisplay(shift.end_time)}</TableCell>
+								<TableCell class="text-center font-normal">{formatHoursReadable(Number(shift.minimum_work_hours))}</TableCell>
 								<TableCell class="text-center">
-									<Badge variant={shift.status === true ? 'default' : 'secondary'}>{shift.status ? 'Active' : 'Inactive'}</Badge>
+									<StatusBadge status={shift.status} />
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
@@ -548,45 +566,55 @@
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={handleSaveShift}>
 			<div class="space-y-2">
-				<Label for="shift_name">Shift Name</Label>
+				<Label for="shift_name" class={errors.shift_name ? 'text-danger' : ''}>Shift Name <span class="text-destructive">*</span></Label>
 				<Input
 					id="shift_name"
 					name="shift_name"
 					bind:ref={shiftNameInput}
 					bind:value={formName}
-					class={nameValidationError || backendError ? 'border-destructive' : ''}
+					class={errors.shift_name ? 'border-destructive' : ''}
 					placeholder="e.g. Morning Shift"
-					oninput={() => { backendError = ''; }}
+					oninput={() => { errors.shift_name = ''; }}
 				/>
-				{#if nameValidationError || backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
+				{#if errors.shift_name}
+					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{errors.shift_name}</p>
 				{/if}
 			</div>
 
 			<div class="grid grid-cols-2 gap-4">
 				<div class="space-y-2">
-					<Label for="start_time">Start Time</Label>
+					<Label for="start_time" class={errors.start_time ? 'text-danger' : ''}>Start Time <span class="text-destructive">*</span></Label>
 					<Input
 						id="start_time"
 						name="start_time"
 						type="time"
 						bind:value={formStartTime}
+						class={errors.start_time ? 'border-destructive' : ''}
+						oninput={() => { errors.start_time = ''; errors.end_time = ''; }}
 					/>
+					{#if errors.start_time}
+						<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{errors.start_time}</p>
+					{/if}
 				</div>
 				<div class="space-y-2">
-					<Label for="end_time">End Time</Label>
+					<Label for="end_time" class={errors.end_time ? 'text-danger' : ''}>End Time <span class="text-destructive">*</span></Label>
 					<Input
 						id="end_time"
 						name="end_time"
 						type="time"
 						bind:value={formEndTime}
+						class={errors.end_time ? 'border-destructive' : ''}
+						oninput={() => { errors.start_time = ''; errors.end_time = ''; }}
 					/>
+					{#if errors.end_time}
+						<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{errors.end_time}</p>
+					{/if}
 				</div>
 			</div>
 
 			<div class="space-y-2">
 				<div class="flex justify-between items-center">
-					<Label for="minimum_work_hours">Minimum Work Hours</Label>
+					<Label for="minimum_work_hours" class={errors.minimum_work_hours ? 'text-danger' : ''}>Minimum Work Hours <span class="text-destructive">*</span></Label>
 					{#if isMinHoursManuallyEdited}
 						<button 
 							type="button" 
@@ -600,14 +628,13 @@
 				<Input
 					id="minimum_work_hours"
 					name="minimum_work_hours"
-					type="number"
-					step="0.25"
+					type="text"
 					bind:value={formMinHours}
-					class={formMinHoursError ? 'border-destructive' : ''}
-					oninput={() => { isMinHoursManuallyEdited = true; formMinHoursError = ''; }}
+					class={errors.minimum_work_hours ? 'border-destructive' : ''}
+					oninput={() => { isMinHoursManuallyEdited = true; errors.minimum_work_hours = ''; }}
 				/>
-				{#if formMinHoursError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{formMinHoursError}</p>
+				{#if errors.minimum_work_hours}
+					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{errors.minimum_work_hours}</p>
 				{:else}
 					<p class="text-xs text-muted-foreground">
 						Shift duration: {formatHoursReadable(calculatedMinHours)} (auto-calculated)
@@ -615,12 +642,17 @@
 				{/if}
 			</div>
 
-			{#if editingShift}
-				<StatusDropdown id="shift_status" name="shift_status" value={formStatus} onChange={(val) => (formStatus = val)} />
+			<StatusDropdown id="shift_status" name="shift_status" value={formStatus} onChange={(val) => (formStatus = val)} />
+			
+			{#if errors.general}
+				<div class="p-3 bg-destructive/15 text-destructive rounded-md text-sm">
+					{errors.general}
+				</div>
 			{/if}
+
 			<div class="flex items-center justify-end gap-3 pt-4">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingShift && !isDirty)}>
+				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitDisabled}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingShift ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>
 			</div>

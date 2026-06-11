@@ -62,6 +62,7 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
     'country_cuid',
     'pin_code',
     'timezone',
+    'is_active',
     'created_by',
     'updated_by'
   ];
@@ -310,6 +311,7 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
     country_cuid: countryCuid,
     pin_code: pinCode,
     timezone: timezone,
+    is_active: raw.is_active !== undefined ? Boolean(raw.is_active) : undefined,
     created_by: raw.created_by !== undefined ? (raw.created_by as string | null) : undefined,
     updated_by: raw.updated_by !== undefined ? (raw.updated_by as string | null) : undefined
   };

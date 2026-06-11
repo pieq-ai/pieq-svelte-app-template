@@ -206,7 +206,7 @@ describe('leave policy service', () => {
 					annual_limit: -5
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('annual_limit', 'Annual limit must be a positive number')
+				new LeaveValidationError('annual_limit', 'Annual limit must be greater than zero')
 			);
 
 			await expect(
@@ -215,7 +215,7 @@ describe('leave policy service', () => {
 					annual_limit: 'invalid-num'
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('annual_limit', 'Annual limit must be a positive number')
+				new LeaveValidationError('annual_limit', 'Annual limit must be greater than zero')
 			);
 		});
 
@@ -246,7 +246,7 @@ describe('leave policy service', () => {
 					max_per_month: -1
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('max_per_month', 'Max per month must be a positive number')
+				new LeaveValidationError('max_per_month', 'Max per month must be greater than zero')
 			);
 
 			await expect(
@@ -302,7 +302,7 @@ describe('leave policy service', () => {
 			).rejects.toThrowError(
 				new LeaveValidationError(
 					'max_carry_forward_days',
-					'Max carry forward days must be greater than 0'
+					'Max carry forward days must be greater than zero'
 				)
 			);
 
@@ -315,7 +315,7 @@ describe('leave policy service', () => {
 			).rejects.toThrowError(
 				new LeaveValidationError(
 					'max_carry_forward_days',
-					'Max carry forward days must be greater than 0'
+					'Max carry forward days must be greater than zero'
 				)
 			);
 
@@ -483,7 +483,7 @@ describe('leave policy service', () => {
 					document_required_after_days: -1
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('document_required_after_days', 'Document required after days must be a positive integer or 0')
+				new LeaveValidationError('document_required_after_days', 'Document required after days must be greater than zero')
 			);
 
 			await expect(
@@ -493,7 +493,7 @@ describe('leave policy service', () => {
 					document_required_after_days: 1.5
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('document_required_after_days', 'Document required after days must be a positive integer or 0')
+				new LeaveValidationError('document_required_after_days', 'Document required after days must be greater than zero')
 			);
 		});
 

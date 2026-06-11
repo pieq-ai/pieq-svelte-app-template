@@ -71,7 +71,7 @@ async function ensureRoleNameIsUnique(system_role_name: string, currentId?: bigi
 	);
 
 	if (duplicate) {
-		throw new ValidationError('system_role_name', 'System role already exists');
+		throw new ValidationError('system_role_name', 'System role name already exists');
 	}
 }
 

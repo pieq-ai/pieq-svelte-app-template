@@ -9,7 +9,7 @@ export async function createRole(data: RoleCreateDTO): Promise<Role> {
   return db.role.create({
     data: {
       role_name: data.role_name.trim(),
-      status: true,
+      status: data.status ?? true,
       created_by: data.created_by ?? null,
       updated_by: data.updated_by ?? null
     },
@@ -18,7 +18,9 @@ export async function createRole(data: RoleCreateDTO): Promise<Role> {
       role_name: true,
       status: true,
       created_by: true,
-      updated_by: true
+      updated_by: true,
+      created_at: true,
+      updated_at: true
     }
   });
 }
@@ -29,13 +31,15 @@ export async function createRole(data: RoleCreateDTO): Promise<Role> {
 export async function getRoles(): Promise<Role[]> {
   return db.role.findMany({
     where: { status: true },
-    orderBy: { id: 'asc' },
+    orderBy: { updated_at: 'desc' },
     select: {
       cuid: true,
       role_name: true,
       status: true,
       created_by: true,
-      updated_by: true
+      updated_by: true,
+      created_at: true,
+      updated_at: true
     }
   });
 }
@@ -46,13 +50,15 @@ export async function getRoles(): Promise<Role[]> {
  */
 export async function getAllRoles(): Promise<Role[]> {
   return db.role.findMany({
-    orderBy: { id: 'asc' },
+    orderBy: { updated_at: 'desc' },
     select: {
       cuid: true,
       role_name: true,
       status: true,
       created_by: true,
-      updated_by: true
+      updated_by: true,
+      created_at: true,
+      updated_at: true
     }
   });
 }
@@ -82,7 +88,9 @@ export async function getRoleByCuid(cuid: string): Promise<Role | null> {
       role_name: true,
       status: true,
       created_by: true,
-      updated_by: true
+      updated_by: true,
+      created_at: true,
+      updated_at: true
     }
   });
 }
@@ -104,7 +112,9 @@ export async function updateRole(cuid: string, data: RoleUpdateDTO): Promise<Rol
       role_name: true,
       status: true,
       created_by: true,
-      updated_by: true
+      updated_by: true,
+      created_at: true,
+      updated_at: true
     }
   });
 }
@@ -121,7 +131,9 @@ export async function deactivateRole(cuid: string): Promise<Role> {
       role_name: true,
       status: true,
       created_by: true,
-      updated_by: true
+      updated_by: true,
+      created_at: true,
+      updated_at: true
     }
   });
 }
