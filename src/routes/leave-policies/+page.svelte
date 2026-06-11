@@ -1161,6 +1161,7 @@
 			{#if carryForwardAllowed}
 				<div transition:slide class="space-y-2 pl-4">
 					<Label for="modal_max_carry_forward_days" class={errors.max_carry_forward_days ? 'text-destructive' : ''}>Max Carry Forward Days <span class="text-destructive">*</span></Label>
+					
 					<Input
 						id="modal_max_carry_forward_days"
 						name="max_carry_forward_days"
@@ -1206,7 +1207,7 @@
 
 			{#if documentRequired}
 				<div transition:slide class="space-y-2 pl-4">
-					<Label for="modal_document_required_after_days" class={errors.document_required_after_days ? 'text-destructive' : ''}>Document Required After Days</Label>
+					<Label for="modal_document_required_after_days" class={errors.document_required_after_days ? 'text-destructive' : ''}>Document Required After (Days)<span class="text-destructive">*</span></Label>
 					<Input
 						id="modal_document_required_after_days"
 						name="document_required_after_days"
@@ -1215,7 +1216,7 @@
 							if (form && form.field === 'document_required_after_days') form = null;
 							errors.document_required_after_days = '';
 						}}
-						placeholder="Leave blank or 0 to require for all requests"
+						placeholder="Document becomes mandatory after these days."
 						class={errors.document_required_after_days ? 'border-destructive focus-visible:ring-destructive/30' : ''}
 					/>
 					{#if errors.document_required_after_days}
