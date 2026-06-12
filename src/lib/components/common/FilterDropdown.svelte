@@ -7,11 +7,12 @@
 	interface Props {
 		value: 'all' | boolean;
 		onChange: (value: 'all' | boolean) => void;
+		allLabel?: string;
 	}
 
-	let { value, onChange }: Props = $props();
+	let { value, onChange, allLabel = 'All' }: Props = $props();
 
-	let displayValue = $derived(value === 'all' ? 'All' : value === true ? 'Active' : 'Inactive');
+	let displayValue = $derived(value === 'all' ? allLabel : value === true ? 'Active' : 'Inactive');
 </script>
 
 <DropdownMenu.Root>
@@ -26,7 +27,7 @@
 	<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
 		<DropdownMenu.Group>
 			<DropdownMenu.Item onclick={() => onChange('all')} class="justify-between cursor-pointer {value === 'all' ? 'bg-accent text-accent-foreground' : ''}">
-				<span class="truncate pr-2">All</span>
+				<span class="truncate pr-2">{allLabel}</span>
 				{#if value === 'all'}<CheckIcon class="size-4 shrink-0" />{/if}
 			</DropdownMenu.Item>
 			<DropdownMenu.Item onclick={() => onChange(true)} class="justify-between cursor-pointer {value === true ? 'bg-accent text-accent-foreground' : ''}">

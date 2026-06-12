@@ -538,7 +538,7 @@
 					</Button>
 				{/if}
 			</div>
-			<FilterDropdown value={filterStatus} onChange={(value) => { filterStatus = value; currentPage = 1; }} />
+			<FilterDropdown value={filterStatus} onChange={(value) => { filterStatus = value; currentPage = 1; }} allLabel="All Status" />
 		</div>
 
 		<!-- Table Card -->
