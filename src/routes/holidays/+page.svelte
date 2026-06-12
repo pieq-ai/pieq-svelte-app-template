@@ -761,6 +761,7 @@
 	title={editCuid ? 'Edit Holiday' : 'Create Holiday'}
 	isDirty={hasUnsavedChanges}
 	onClose={confirmDiscard}
+	preventOutsideClickClose={true}
 >
 	{#snippet children({ cancel })}
 		<form method="POST" action="" onsubmit={handleSubmit} class="space-y-4" novalidate>
@@ -888,6 +889,7 @@
 		}
 		isConfirmOpen = false;
 	}}
+	preventOutsideClickClose={true}
 />
 
 <ConfirmModal
@@ -897,4 +899,5 @@
 	confirmLabel="Keep Editing"
 	onCancel={confirmDiscard}
 	onConfirm={() => (isDiscardModalOpen = false)}
+	preventOutsideClickClose={true}
 />

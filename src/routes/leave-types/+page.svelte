@@ -664,6 +664,7 @@
 	title={editCuid ? 'Edit Leave Type' : 'Create Leave Type'}
 	isDirty={hasUnsavedChanges}
 	onClose={confirmDiscard}
+	preventOutsideClickClose={true}
 >
 	{#snippet children({ cancel })}
 		<form method="POST" action="" onsubmit={handleSubmit} class="space-y-4" novalidate>
@@ -797,6 +798,7 @@
 	confirmLabel="Keep Editing"
 	onCancel={confirmDiscard}
 	onConfirm={() => (isDiscardModalOpen = false)}
+	preventOutsideClickClose={true}
 />
 
 

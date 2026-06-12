@@ -12,6 +12,7 @@
 		isDestructive?: boolean;
 		onCancel: () => void;
 		onConfirm: () => void;
+		preventOutsideClickClose?: boolean;
 	}
 
 	let {
@@ -22,7 +23,8 @@
 		isSubmitting = false,
 		isDestructive = true,
 		onCancel,
-		onConfirm
+		onConfirm,
+		preventOutsideClickClose = false
 	}: Props = $props();
 
 	const modalId = Symbol('ConfirmModal');
@@ -56,7 +58,10 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		class="fixed inset-0 z-250 flex items-center justify-center bg-[rgba(15,11,10,0.4)] backdrop-blur-md px-4 py-6"
-		onclick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
+		onclick={(e) => {
+			if (preventOutsideClickClose) return;
+			if (e.target === e.currentTarget) onCancel();
+		}}
 	>
 		<div
 			class="bg-card border border-border/50 rounded-[24px] w-full max-w-[420px] shadow-2xl flex flex-col p-6 sm:p-7 md:p-8"

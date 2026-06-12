@@ -1063,6 +1063,7 @@
 	title={editUuid ? 'Edit Leave Policy' : 'Create Leave Policy'}
 	isDirty={hasUnsavedChanges}
 	onClose={confirmDiscard}
+	preventOutsideClickClose={true}
 >
 	{#snippet children({ cancel })}
 		<form method="POST" action="" onsubmit={handleSubmit} class="space-y-4" novalidate>
@@ -1371,6 +1372,7 @@
 	confirmLabel="Keep Editing"
 	onCancel={confirmDiscard}
 	onConfirm={() => (isDiscardModalOpen = false)}
+	preventOutsideClickClose={true}
 />
 
 <CrudModal
@@ -1383,6 +1385,7 @@
 		newEmpName = '';
 		newEmpError = '';
 	}}
+	preventOutsideClickClose={true}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-4" onsubmit={handleAddEmploymentType}>

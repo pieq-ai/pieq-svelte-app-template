@@ -13,9 +13,20 @@
 		isSubmitting?: boolean;
 		onClose: () => void;
 		children?: import('svelte').Snippet<[{ cancel: () => void }]>;
+		preventOutsideClickClose?: boolean;
 	}
 
-	let { open, title, description = '', closeLabel = 'Close modal', isDirty = false, isSubmitting = false, onClose, children }: Props = $props();
+	let {
+		open,
+		title,
+		description = '',
+		closeLabel = 'Close modal',
+		isDirty = false,
+		isSubmitting = false,
+		onClose,
+		children,
+		preventOutsideClickClose = false
+	}: Props = $props();
 
 	let showUnsavedConfirm = $state(false);
 
@@ -66,6 +77,7 @@
 	}
 
 	function handleBackdropClick(e: MouseEvent) {
+		if (preventOutsideClickClose) return;
 		if (e.target === e.currentTarget) {
 			handleCloseAttempt();
 		}
@@ -111,7 +123,10 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div 
 		class="fixed inset-0 z-100 flex items-center justify-center bg-[rgba(15,11,10,0.4)] backdrop-blur-md px-4 py-6"
-		onclick={(e) => { if (e.target === e.currentTarget) showUnsavedConfirm = false; }}
+		onclick={(e) => {
+			if (preventOutsideClickClose) return;
+			if (e.target === e.currentTarget) showUnsavedConfirm = false;
+		}}
 	>
 		<div
 			class="bg-card border border-border/50 rounded-[24px] w-full max-w-[420px] shadow-2xl flex flex-col p-6 sm:p-7 md:p-8"
