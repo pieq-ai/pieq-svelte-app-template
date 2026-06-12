@@ -8,6 +8,7 @@
 		label: string;
 		onClick: () => void;
 		icon?: any;
+		class?: string;
 	}
 
 	interface Props {
@@ -48,7 +49,7 @@
 		{/if}
 		{#if customActions && customActions.length > 0}
 			{#each customActions as action}
-				<DropdownMenu.Item onclick={action.onClick} class="cursor-pointer">
+				<DropdownMenu.Item onclick={action.onClick} class="cursor-pointer {action.class || ''}">
 					{#if action.icon}
 						{@const IconComponent = action.icon}
 						<IconComponent class="mr-2 size-4" />

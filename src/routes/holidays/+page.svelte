@@ -735,6 +735,7 @@
 											{
 												label: 'Delete',
 												icon: Trash2Icon,
+												class: 'focus:bg-[#800020]/10',
 												onClick: () => {
 													activeDeleteCuid = holiday.cuid;
 													confirmTitle = 'Delete Holiday';
