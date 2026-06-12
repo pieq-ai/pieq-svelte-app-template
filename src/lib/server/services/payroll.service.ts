@@ -100,6 +100,7 @@ export async function uploadPayroll(
 	rows: ParsedPayrollRow[],
 	month: number,
 	year: number,
+	file_name?: string | null,
 	created_by?: string | null
 ): Promise<PayrollUploadResult> {
 	// Step 1: Create the PayrollUpload batch record
@@ -107,6 +108,7 @@ export async function uploadPayroll(
 		month,
 		year,
 		status: 'processed',
+		file_name: file_name ?? null,
 		created_by: created_by ?? null
 	});
 

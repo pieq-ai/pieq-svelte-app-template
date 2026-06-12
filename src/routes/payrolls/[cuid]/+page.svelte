@@ -6,11 +6,12 @@
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import EyeIcon from '@lucide/svelte/icons/eye';
+	import XIcon from '@lucide/svelte/icons/x';
+	import { fly, fade } from 'svelte/transition';
 
 	import { UI_CONSTANTS } from '$lib/constants';
 
 	import {
-		Badge,
 		Button,
 		Card,
 		CardHeader,
@@ -36,6 +37,18 @@
 	let upload = $derived(data.upload);
 	let records = $derived<Payroll[]>(data.records);
 
+	// ─── Sidebar state ────────────────────────────────────────────────────────────
+
+	let selectedRecord = $state<Payroll | null>(null);
+
+	let selectedBreakdownEntries = $derived.by(() => {
+		if (!selectedRecord) return [];
+		return Object.entries(selectedRecord.payroll_breakdown).sort(([, a], [, b]) => b - a);
+	});
+
+	let selectedEarnings = $derived(selectedBreakdownEntries.filter(([, v]) => v >= 0));
+	let selectedDeductions = $derived(selectedBreakdownEntries.filter(([, v]) => v < 0));
+
 	// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 	const MONTH_NAMES = [
@@ -57,12 +70,6 @@
 		});
 	}
 
-	function statusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' {
-		if (status === 'processed') return 'default';
-		if (status === 'partial') return 'secondary';
-		if (status === 'failed') return 'destructive';
-		return 'outline';
-	}
 
 	// ─── Filter / sort / page state ──────────────────────────────────────────────
 
@@ -142,7 +149,7 @@
 </script>
 
 <svelte:head>
-	<title>HRMS Payroll — {monthName(upload.month)} {upload.year}</title>
+	<title>HRMS Payroll — {upload.file_name || `${monthName(upload.month)} ${upload.year}`}</title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
@@ -160,8 +167,8 @@
 				<ArrowLeftIcon class="size-4" />
 			</Button>
 			<div class="space-y-0.5">
-				<h1 class="text-2xl font-bold tracking-tight sm:text-3xl">
-					{monthName(upload.month)} {upload.year}
+				<h1 class="text-2xl font-bold tracking-tight sm:text-3xl break-all">
+					{upload.file_name || `${monthName(upload.month)} ${upload.year}`}
 				</h1>
 				<p class="text-sm text-muted-foreground">Payroll Upload Batch</p>
 			</div>
@@ -250,7 +257,7 @@
 							<TableRow
 								onclick={(e) => {
 									if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
-									goto(resolve(`/payroll-records/${r.cuid}`));
+									selectedRecord = r;
 								}}
 								class="cursor-pointer hover:bg-muted/70 transition-colors"
 							>
@@ -262,7 +269,7 @@
 								<TableCell class="text-center font-mono font-semibold">₹{formatAmount(r.net_salary)}</TableCell>
 								<TableCell class="text-right w-24">
 									<TableActions canEdit={false}>
-										<DropdownMenu.Item onclick={() => goto(resolve(`/payroll-records/${r.cuid}`))} class="cursor-pointer">
+										<DropdownMenu.Item onclick={() => selectedRecord = r} class="cursor-pointer">
 											<EyeIcon class="mr-2 size-4 text-muted-foreground" />
 											View Details
 										</DropdownMenu.Item>
@@ -277,3 +284,164 @@
 		<Pagination bind:currentPage pageSize={pageSize} totalItems={filteredRecords.length} />
 	</div>
 </div>
+
+<!-- Sidebar Slide-over Panel -->
+{#if selectedRecord}
+	<!-- Backdrop Overlay -->
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div
+		transition:fade={{ duration: 200 }}
+		class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs transition-opacity"
+		onclick={() => selectedRecord = null}
+	></div>
+
+	<!-- Panel Container -->
+	<div
+		transition:fly={{ x: 500, duration: 300 }}
+		class="fixed inset-y-0 right-0 z-50 w-full max-w-lg bg-background shadow-2xl border-l border-border flex flex-col h-full"
+		role="dialog"
+		aria-modal="true"
+	>
+		<!-- Header -->
+		<div class="flex items-center justify-between border-b border-border px-6 py-5">
+			<div>
+				<h2 class="text-xl font-bold text-foreground">Employee Payroll Detail</h2>
+				<p class="text-xs text-muted-foreground mt-0.5">{monthName(selectedRecord.month)} {selectedRecord.year}</p>
+			</div>
+			<Button
+				type="button"
+				variant="ghost"
+				size="icon-sm"
+				class="h-9 w-9 text-muted-foreground hover:text-foreground"
+				onclick={() => selectedRecord = null}
+				aria-label="Close"
+			>
+				<XIcon class="size-4" />
+			</Button>
+		</div>
+
+		<!-- Scrollable Content -->
+		<div class="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+			<!-- Employee Information -->
+			<div class="space-y-2">
+				<h3 class="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Employee Information</h3>
+				<div class="rounded-lg border bg-muted/20 px-4 py-4 grid grid-cols-2 gap-4">
+					<div class="space-y-0.5">
+						<p class="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Name</p>
+						<p class="text-sm font-semibold text-foreground">{selectedRecord.employee_name}</p>
+					</div>
+					<div class="space-y-0.5">
+						<p class="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Code</p>
+						<p class="text-sm font-semibold text-foreground font-mono">{selectedRecord.employee_code}</p>
+					</div>
+					<div class="space-y-0.5">
+						<p class="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Month</p>
+						<p class="text-sm font-semibold text-foreground">{monthName(selectedRecord.month)}</p>
+					</div>
+					<div class="space-y-0.5">
+						<p class="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Year</p>
+						<p class="text-sm font-semibold text-foreground">{selectedRecord.year}</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Earnings -->
+			{#if selectedEarnings.length > 0}
+				<div class="space-y-2">
+					<h3 class="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Earnings</h3>
+					<div class="rounded-md border overflow-hidden">
+						<Table>
+							<TableHeader class="bg-muted">
+								<TableRow>
+									<TableHead class="font-bold text-foreground text-[13px] py-2">Component</TableHead>
+									<TableHead class="text-right font-bold text-foreground text-[13px] py-2">Amount (₹)</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{#each selectedEarnings as [component, amount] (component)}
+									<TableRow class="hover:bg-transparent">
+										<TableCell class="font-medium py-2 text-sm">{component}</TableCell>
+										<TableCell class="text-right font-mono text-sm py-2">{formatAmount(amount)}</TableCell>
+									</TableRow>
+								{/each}
+							</TableBody>
+						</Table>
+					</div>
+				</div>
+			{/if}
+
+			<!-- Deductions -->
+			{#if selectedDeductions.length > 0}
+				<div class="space-y-2">
+					<h3 class="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Deductions</h3>
+					<div class="rounded-md border overflow-hidden">
+						<Table>
+							<TableHeader class="bg-muted">
+								<TableRow>
+									<TableHead class="font-bold text-foreground text-[13px] py-2">Component</TableHead>
+									<TableHead class="text-right font-bold text-foreground text-[13px] py-2">Amount (₹)</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{#each selectedDeductions as [component, amount] (component)}
+									<TableRow class="hover:bg-transparent">
+										<TableCell class="font-medium py-2 text-sm">{component}</TableCell>
+										<TableCell class="text-right font-mono text-sm py-2 text-destructive">{formatAmount(Math.abs(amount))}</TableCell>
+									</TableRow>
+								{/each}
+							</TableBody>
+						</Table>
+					</div>
+				</div>
+			{/if}
+
+			<!-- Fallback components -->
+			{#if selectedEarnings.length === 0 && selectedDeductions.length === 0}
+				<div class="space-y-2">
+					<h3 class="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Payroll Components</h3>
+					<div class="rounded-md border overflow-hidden">
+						<Table>
+							<TableHeader class="bg-muted">
+								<TableRow>
+									<TableHead class="font-bold text-foreground text-[13px] py-2">Component</TableHead>
+									<TableHead class="text-right font-bold text-foreground text-[13px] py-2">Amount (₹)</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								<TableRow class="hover:bg-transparent">
+									<TableCell colspan={2} class="py-4 text-center text-muted-foreground text-sm">
+										No component breakdown available.
+									</TableCell>
+								</TableRow>
+							</TableBody>
+						</Table>
+					</div>
+				</div>
+			{/if}
+
+			<!-- Summary -->
+			<div class="space-y-2">
+				<h3 class="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Summary</h3>
+				<div class="rounded-md border overflow-hidden">
+					<Table>
+						<TableBody>
+							<TableRow class="hover:bg-transparent">
+								<TableCell class="font-medium text-muted-foreground py-2 text-sm">Gross Earnings</TableCell>
+								<TableCell class="text-right font-mono font-semibold py-2 text-sm">₹{formatAmount(selectedRecord.gross_earnings)}</TableCell>
+							</TableRow>
+							<TableRow class="hover:bg-transparent">
+								<TableCell class="font-medium text-muted-foreground py-2 text-sm">Total Deduction</TableCell>
+								<TableCell class="text-right font-mono font-semibold text-destructive py-2 text-sm">₹{formatAmount(selectedRecord.total_deduction)}</TableCell>
+							</TableRow>
+							<TableRow class="border-t-2 bg-muted/40 hover:bg-muted/40">
+								<TableCell class="font-bold text-foreground py-2.5 text-sm">Net Salary</TableCell>
+								<TableCell class="text-right font-mono font-bold text-[#F45310] py-2.5 text-base">₹{formatAmount(selectedRecord.net_salary)}</TableCell>
+							</TableRow>
+						</TableBody>
+					</Table>
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}

@@ -10,6 +10,7 @@ export async function create(data: CreatePayrollUploadDto) {
 			month: data.month,
 			year: data.year,
 			status: data.status ?? 'processed',
+			file_name: data.file_name ?? null,
 			created_by: data.created_by ?? null
 		}
 	});

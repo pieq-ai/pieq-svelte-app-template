@@ -16,6 +16,8 @@ export interface PayrollUpload {
 	employee_count: number;
 	/** 'processed' | 'partial' */
 	status: string;
+	/** The original name of the uploaded Excel file */
+	file_name: string | null;
 	/** ISO timestamp string */
 	uploaded_at: string;
 	/** ISO timestamp string */
@@ -50,6 +52,7 @@ export interface CreatePayrollUploadDto {
 	month: number;
 	year: number;
 	status?: string;
+	file_name?: string | null;
 	created_by?: string | null;
 }
 

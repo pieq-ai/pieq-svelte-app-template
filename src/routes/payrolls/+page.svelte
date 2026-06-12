@@ -8,6 +8,8 @@
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import UploadIcon from '@lucide/svelte/icons/upload';
 	import EyeIcon from '@lucide/svelte/icons/eye';
+	import FileSpreadsheetIcon from '@lucide/svelte/icons/file-spreadsheet';
+	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 
 	import { toast } from '$lib/toast';
 	import { UI_CONSTANTS } from '$lib/constants';
@@ -19,6 +21,7 @@
 		CardHeader,
 		CardTitle,
 		CardDescription,
+		CardContent,
 		Table,
 		TableBody,
 		TableCell,
@@ -33,7 +36,7 @@
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import FilterIcon from '@lucide/svelte/icons/filter';
 
-	import type { PayrollUpload } from '$lib/types/payroll';
+	import type { PayrollUpload, PayrollUploadError } from '$lib/types/payroll';
 
 	// ─── Data state ──────────────────────────────────────────────────────────────
 
@@ -190,6 +193,173 @@
 		if (sortColumn !== col) return 'none';
 		return sortDirection === 'asc' ? 'asc' : sortDirection === 'desc' ? 'desc' : 'none';
 	}
+
+	// ─── Upload state ─────────────────────────────────────────────────────────────
+
+	let selectedFile = $state<File | null>(null);
+	let isUploading = $state(false);
+	let dragOver = $state(false);
+
+	// ─── Pay Period state ─────────────────────────────────────────────────────────
+
+	const currentYear = new Date().getFullYear();
+	const currentMonth = new Date().getMonth() + 1; // 1-indexed
+
+	let uploadMonth = $state(currentMonth);
+	let uploadYear = $state(currentYear);
+
+	const monthOptions = [
+		{ value: 1, label: 'January' },
+		{ value: 2, label: 'February' },
+		{ value: 3, label: 'March' },
+		{ value: 4, label: 'April' },
+		{ value: 5, label: 'May' },
+		{ value: 6, label: 'June' },
+		{ value: 7, label: 'July' },
+		{ value: 8, label: 'August' },
+		{ value: 9, label: 'September' },
+		{ value: 10, label: 'October' },
+		{ value: 11, label: 'November' },
+		{ value: 12, label: 'December' }
+	];
+
+	const yearOptions = Array.from({ length: 8 }, (_, i) => currentYear - 5 + i);
+
+	// ─── Result state ─────────────────────────────────────────────────────────────
+
+	interface UploadResult {
+		created: number;
+		skipped: number;
+		errors: PayrollUploadError[];
+		upload_cuid: string;
+		warnings?: string[];
+	}
+
+	let uploadResult = $state<UploadResult | null>(null);
+	let uploadError = $state('');
+
+	// ─── File selection ───────────────────────────────────────────────────────────
+
+	function handleFileChange(e: Event) {
+		const input = e.target as HTMLInputElement;
+		const file = input.files?.[0] ?? null;
+		selectFile(file);
+	}
+
+	function selectFile(file: File | null) {
+		uploadError = '';
+		uploadResult = null;
+
+		if (!file) {
+			selectedFile = null;
+			return;
+		}
+
+		if (!/\.(xlsx|xls)$/i.test(file.name)) {
+			uploadError = `Invalid file type: "${file.name}". Only .xlsx and .xls files are accepted.`;
+			selectedFile = null;
+			return;
+		}
+
+		selectedFile = file;
+	}
+
+	// ─── Drag and drop ────────────────────────────────────────────────────────────
+
+	function handleDrop(e: DragEvent) {
+		e.preventDefault();
+		dragOver = false;
+		const file = e.dataTransfer?.files?.[0] ?? null;
+		selectFile(file);
+	}
+
+	function handleDragOver(e: DragEvent) {
+		e.preventDefault();
+		dragOver = true;
+	}
+
+	function handleDragLeave() {
+		dragOver = false;
+	}
+
+	// ─── Upload ───────────────────────────────────────────────────────────────────
+
+	async function handleUpload() {
+		if (!selectedFile) return;
+
+		isUploading = true;
+		uploadError = '';
+		uploadResult = null;
+
+		const formData = new FormData();
+		formData.append('file', selectedFile);
+		formData.append('month', String(uploadMonth));
+		formData.append('year', String(uploadYear));
+
+		try {
+			const res = await fetch('/api/payrolls/upload', {
+				method: 'POST',
+				body: formData
+			});
+
+			const resData = await res.json();
+
+			if (res.ok && resData.data) {
+				uploadResult = resData.data;
+				const createdCount = resData.data.created;
+				const skippedCount = resData.data.skipped;
+
+				if (createdCount > 0) {
+					if (skippedCount > 0) {
+						toast.success(`${createdCount} payroll record(s) uploaded successfully. ${skippedCount} row(s) skipped/failed.`);
+					} else {
+						toast.success(`${createdCount} payroll record(s) uploaded successfully.`);
+					}
+					// Refresh list
+					await loadUploads();
+					// Reset upload state so user can upload another file and see the updated list
+					resetUpload();
+				} else {
+					const errorsList = (resData.data.errors || []) as PayrollUploadError[];
+					const isAllDuplicate = errorsList.length > 0 && errorsList.every(
+						(err) => err.reason && (
+							err.reason.toLowerCase().includes('already exists') ||
+							err.reason.toLowerCase().includes('duplicate')
+						)
+					);
+
+					if (isAllDuplicate) {
+						toast.error('Upload failed due to duplicate upload entries.');
+					} else {
+						toast.error(`Upload failed: No records were created. ${skippedCount} row(s) skipped/failed.`);
+					}
+				}
+			} else {
+				uploadError = resData.message || 'Upload failed. Please try again.';
+				toast.error(uploadError);
+			}
+		} catch (err) {
+			uploadError = 'An unexpected error occurred. Please try again.';
+			toast.error(uploadError);
+			console.error(err);
+		} finally {
+			isUploading = false;
+		}
+	}
+
+	function resetUpload() {
+		selectedFile = null;
+		uploadResult = null;
+		uploadError = '';
+	}
+
+	// ─── File size helper ─────────────────────────────────────────────────────────
+
+	function formatSize(bytes: number): string {
+		if (bytes < 1024) return `${bytes} B`;
+		if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+		return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+	}
 </script>
 
 <svelte:head>
@@ -202,14 +372,6 @@
 		<div class="space-y-1">
 			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Payroll</h1>
 		</div>
-		<Button
-			type="button"
-			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
-			onclick={() => goto(resolve('/payrolls/upload'))}
-		>
-			<UploadIcon class="size-4" />
-			Upload Payroll
-		</Button>
 	</div>
 
 	<!-- Stats cards -->
@@ -233,6 +395,153 @@
 			</CardHeader>
 		</Card>
 	</div>
+
+	<!-- Inline Upload Section -->
+	<Card>
+		<CardHeader>
+			<CardTitle>Select File</CardTitle>
+			<CardDescription>
+				Upload a payroll spreadsheet (.xlsx or .xls). One record will be created per employee per month.
+			</CardDescription>
+		</CardHeader>
+		<CardContent>
+			<div class="grid gap-6 md:grid-cols-3">
+				<!-- Drop zone / Selected File display -->
+				<div class="md:col-span-2">
+					{#if selectedFile}
+						<div
+							class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-10 text-center transition-colors h-full min-h-[220px] border-[#F45310]/40 bg-[#F45310]/5 animate-in fade-in zoom-in duration-200"
+						>
+							<FileSpreadsheetIcon class="mx-auto mb-3 size-12 text-[#F45310]" />
+							<p class="text-base font-semibold text-foreground truncate max-w-xs">{selectedFile.name}</p>
+							<p class="mt-1 text-xs text-muted-foreground">{formatSize(selectedFile.size)}</p>
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								class="mt-4 border-input bg-background hover:bg-accent text-sm font-medium"
+								onclick={resetUpload}
+							>
+								Remove File
+							</Button>
+						</div>
+					{:else}
+						<!-- svelte-ignore a11y_no_static_element_interactions -->
+						<div
+							class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-10 text-center transition-colors h-full min-h-[220px] {dragOver
+								? 'border-[#F45310] bg-[#F45310]/5'
+								: 'border-border bg-muted/20 hover:border-[#F45310]/50 hover:bg-muted/40'}"
+							ondrop={handleDrop}
+							ondragover={handleDragOver}
+							ondragleave={handleDragLeave}
+						>
+							<FileSpreadsheetIcon class="mx-auto mb-3 size-10 text-muted-foreground" />
+							<p class="text-sm font-medium text-foreground">Drag & drop your Excel file here</p>
+							<p class="mt-1 text-xs text-muted-foreground">or click to browse</p>
+							<p class="mt-2 text-xs text-muted-foreground">Accepts .xlsx and .xls files</p>
+							<!-- Hidden file input overlay -->
+							<input
+								id="payroll_file_input"
+								type="file"
+								accept=".xlsx,.xls"
+								class="absolute inset-0 cursor-pointer opacity-0"
+								onchange={handleFileChange}
+								aria-label="Select payroll Excel file"
+							/>
+						</div>
+					{/if}
+				</div>
+
+				<!-- Selectors and action buttons -->
+				<div class="flex flex-col justify-between space-y-4">
+					<div class="space-y-4">
+						<div class="space-y-1.5">
+							<label for="pay_month" class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pay Month</label>
+							<DropdownMenu.Root>
+								<DropdownMenu.Trigger>
+									{#snippet child({ props })}
+										<Button id="pay_month" name="pay_month" variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none" {...props}>
+											{monthOptions.find(m => m.value === uploadMonth)?.label ?? uploadMonth}
+											<ChevronDownIcon class="ml-2 size-4 opacity-50" />
+										</Button>
+									{/snippet}
+								</DropdownMenu.Trigger>
+								<DropdownMenu.Content class="w-[200px] max-h-64 overflow-y-auto">
+									<DropdownMenu.Group>
+										{#each monthOptions as opt (opt.value)}
+											<DropdownMenu.Item onclick={() => (uploadMonth = opt.value)} class="justify-between cursor-pointer {uploadMonth === opt.value ? 'bg-accent text-accent-foreground' : ''}">
+												{opt.label}
+												{#if uploadMonth === opt.value}<CheckIcon class="size-4" />{/if}
+											</DropdownMenu.Item>
+										{/each}
+									</DropdownMenu.Group>
+								</DropdownMenu.Content>
+							</DropdownMenu.Root>
+						</div>
+						<div class="space-y-1.5">
+							<label for="pay_year" class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pay Year</label>
+							<DropdownMenu.Root>
+								<DropdownMenu.Trigger>
+									{#snippet child({ props })}
+										<Button id="pay_year" name="pay_year" variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none" {...props}>
+											{uploadYear}
+											<ChevronDownIcon class="ml-2 size-4 opacity-50" />
+										</Button>
+									{/snippet}
+								</DropdownMenu.Trigger>
+								<DropdownMenu.Content class="w-[200px] max-h-64 overflow-y-auto">
+									<DropdownMenu.Group>
+										{#each yearOptions as yr (yr)}
+											<DropdownMenu.Item onclick={() => (uploadYear = yr)} class="justify-between cursor-pointer {uploadYear === yr ? 'bg-accent text-accent-foreground' : ''}">
+												{yr}
+												{#if uploadYear === yr}<CheckIcon class="size-4" />{/if}
+											</DropdownMenu.Item>
+										{/each}
+									</DropdownMenu.Group>
+								</DropdownMenu.Content>
+							</DropdownMenu.Root>
+						</div>
+					</div>
+
+					<div class="space-y-3 pt-2">
+						<!-- Frontend error -->
+						{#if uploadError}
+							<p class="text-xs rounded bg-destructive/10 px-3 py-2" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">
+								{uploadError}
+							</p>
+						{/if}
+
+						<!-- Action buttons -->
+						<div class="flex items-center gap-3">
+							<Button
+								type="button"
+								class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0 flex-1"
+								disabled={!selectedFile || isUploading}
+								onclick={handleUpload}
+							>
+								{#if isUploading}
+									<LoaderCircleIcon class="mr-2 size-4 animate-spin" />
+									Uploading...
+								{:else}
+									<UploadIcon class="mr-2 size-4" />
+									Upload Payroll
+								{/if}
+							</Button>
+							{#if uploadResult && uploadResult.upload_cuid}
+								<Button
+									type="button"
+									variant="outline"
+									onclick={() => goto(resolve(`/payrolls/${uploadResult!.upload_cuid}`))}
+								>
+									View Upload
+								</Button>
+							{/if}
+						</div>
+					</div>
+				</div>
+			</div>
+		</CardContent>
+	</Card>
 
 	<!-- Filters + table -->
 	<div class="space-y-3">

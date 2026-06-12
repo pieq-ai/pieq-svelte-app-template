@@ -423,6 +423,9 @@ model PayrollUpload {
   /// Processing status: 'processed' | 'partial'
   status String @default("processed") @db.VarChar(50)
 
+  /// The original name of the uploaded Excel file
+  file_name String? @db.VarChar(255)
+
   /// Timestamp when the file was uploaded
   uploaded_at DateTime @default(now()) @db.Timestamptz()
 

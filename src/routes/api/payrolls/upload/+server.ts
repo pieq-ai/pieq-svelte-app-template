@@ -62,7 +62,7 @@ export async function POST({ request }) {
 		}
 
 		// Process rows through service — creates upload batch + individual payroll records
-		const result = await uploadPayroll(rows, defaultMonth, defaultYear);
+		const result = await uploadPayroll(rows, defaultMonth, defaultYear, file.name);
 
 		return json({
 			data: {
