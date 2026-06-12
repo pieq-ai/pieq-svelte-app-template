@@ -2,7 +2,7 @@
 	import { slide } from 'svelte/transition';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
-	import { goto, invalidateAll, beforeNavigate } from '$app/navigation';
+	import { goto, invalidate, beforeNavigate } from '$app/navigation';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
@@ -121,7 +121,7 @@
 					requiresApproval = true;
 					status = true;
 				}
-				await invalidateAll();
+				await invalidate('/api/leave/types');
 			} else {
 				if (result.data?.error && typeof result.data.error === 'object') {
 					errors = { ...result.data.error };

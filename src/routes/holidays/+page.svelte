@@ -2,7 +2,7 @@
 	import { slide } from 'svelte/transition';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
-	import { goto, invalidateAll, beforeNavigate } from '$app/navigation';
+	import { goto, invalidate, beforeNavigate } from '$app/navigation';
 	import { SvelteDate } from 'svelte/reactivity';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
@@ -125,7 +125,7 @@
 					holidayDate = '';
 					holidayType = 'National';
 				}
-				await invalidateAll();
+				await invalidate('/api/holidays');
 			} else {
 				if (result.data?.error && typeof result.data.error === 'object') {
 					errors = { ...result.data.error };
@@ -183,7 +183,7 @@
 			const result = await res.json();
 			if (res.ok && result.data) {
 				toast.success(result.data.message);
-				await invalidateAll();
+				await invalidate('/api/holidays');
 			} else {
 				toast.error(result.data?.error || 'Action failed');
 			}
