@@ -1,4 +1,5 @@
 import * as dao from '$lib/server/dao/payroll.dao.js';
+import * as uploadDao from '$lib/server/dao/payroll-upload.dao.js';
 import { findEmployeeByCode } from '$lib/server/providers/employee.provider.js';
 import { serializePayroll, serializePayrollList } from '$lib/server/serializers/payroll.serializer.js';
 import { validatePayrollRow } from '$lib/server/validators/payroll.validator.js';
@@ -81,28 +82,40 @@ function computeSummary(
 /**
  * Process a batch of parsed payroll rows from an Excel upload.
  *
- * For each row:
- * 1. Validate the row fields.
- * 2. Match the employee by code using the provider.
- * 3. Check for duplicate (employee_cuid + month + year).
- * 4. Insert the payroll record.
+ * Steps:
+ * 1. Create a PayrollUpload batch record.
+ * 2. For each row: validate → match employee → check duplicate → insert.
+ * 3. Update the upload's employee_count and status.
+ * 4. Return upload summary including the upload_cuid for navigation.
  *
  * Errors are collected and returned — a single bad row does NOT abort the upload.
  *
  * @param rows - Parsed rows from the Excel parser
+ * @param month - Pay period month (1-12) used for the upload batch record
+ * @param year - Pay period year used for the upload batch record
  * @param created_by - User identifier for audit trail (optional)
- * @returns Upload summary: created, skipped, errors
+ * @returns Upload summary: created, skipped, errors, upload_cuid
  */
 export async function uploadPayroll(
 	rows: ParsedPayrollRow[],
+	month: number,
+	year: number,
 	created_by?: string | null
 ): Promise<PayrollUploadResult> {
+	// Step 1: Create the PayrollUpload batch record
+	const uploadRecord = await uploadDao.create({
+		month,
+		year,
+		status: 'processed',
+		created_by: created_by ?? null
+	});
+
 	let created = 0;
 	let skipped = 0;
 	const errors: PayrollUploadResult['errors'] = [];
 
 	for (const row of rows) {
-		// Step 1: Validate row fields
+		// Step 2a: Validate row fields
 		const { errors: rowErrors, validatedData } = validatePayrollRow(row);
 		if (rowErrors.length > 0 || !validatedData) {
 			skipped++;
@@ -110,7 +123,7 @@ export async function uploadPayroll(
 			continue;
 		}
 
-		// Step 2: Match employee by code
+		// Step 2b: Match employee by code
 		const employee = findEmployeeByCode(validatedData.employee_code);
 		if (!employee) {
 			skipped++;
@@ -122,7 +135,7 @@ export async function uploadPayroll(
 			continue;
 		}
 
-		// Step 3: Check for duplicate
+		// Step 2c: Check for duplicate
 		const existing = await dao.findByEmployeeMonthYear(
 			employee.cuid,
 			validatedData.month,
@@ -138,7 +151,7 @@ export async function uploadPayroll(
 			continue;
 		}
 
-		// Step 4: Compute summary fields
+		// Step 2d: Compute summary fields
 		const { gross_earnings, total_deduction, net_salary } = computeSummary(
 			validatedData.components,
 			validatedData.gross_earnings,
@@ -146,7 +159,7 @@ export async function uploadPayroll(
 			validatedData.net_salary
 		);
 
-		// Step 5: Create payroll record
+		// Step 2e: Create payroll record linked to upload batch
 		try {
 			await dao.create({
 				employee_cuid: employee.cuid,
@@ -158,6 +171,7 @@ export async function uploadPayroll(
 				total_deduction,
 				net_salary,
 				payroll_breakdown: validatedData.components,
+				payroll_upload_cuid: uploadRecord.cuid,
 				created_by: created_by ?? null
 			});
 			created++;
@@ -182,7 +196,11 @@ export async function uploadPayroll(
 		}
 	}
 
-	return { created, skipped, errors };
+	// Step 3: Update upload batch with final count and status
+	const status = skipped > 0 && created === 0 ? 'failed' : skipped > 0 ? 'partial' : 'processed';
+	await uploadDao.updateEmployeeCount(uploadRecord.cuid, created, status);
+
+	return { created, skipped, errors, upload_cuid: uploadRecord.cuid };
 }
 
 /**
@@ -203,4 +221,12 @@ export async function getPayrollByCuid(cuid: string) {
 		throw new PayrollNotFoundError(cuid);
 	}
 	return serializePayroll(record);
+}
+
+/**
+ * Retrieve all payroll records belonging to a specific upload batch.
+ */
+export async function getPayrollsByUploadCuid(uploadCuid: string) {
+	const records = await dao.findManyByUploadCuid(uploadCuid);
+	return serializePayrollList(records);
 }

@@ -7,10 +7,11 @@ import { validateExcelExtension } from '$lib/server/validators/payroll.validator
  * POST /api/payrolls/upload
  *
  * Accepts a multipart/form-data request with a single `file` field
- * containing the payroll Excel (.xlsx or .xls).
+ * containing the payroll Excel (.xlsx or .xls), plus `month` and `year`
+ * form fields for the pay period.
  *
  * Returns:
- *   { data: { created: number, skipped: number, errors: [...] } }
+ *   { data: { created, skipped, errors, upload_cuid, warnings } }
  */
 export async function POST({ request }) {
 	try {
@@ -29,12 +30,19 @@ export async function POST({ request }) {
 			);
 		}
 
-		// Read default month and year parameters
+		// Read and validate month/year parameters (required for the upload batch record)
 		const defaultMonthRaw = formData.get('month');
 		const defaultYearRaw = formData.get('year');
 
 		const defaultMonth = defaultMonthRaw ? parseInt(String(defaultMonthRaw), 10) : null;
 		const defaultYear = defaultYearRaw ? parseInt(String(defaultYearRaw), 10) : null;
+
+		if (!defaultMonth || defaultMonth < 1 || defaultMonth > 12) {
+			return json({ message: 'A valid pay month (1-12) is required.' }, { status: 400 });
+		}
+		if (!defaultYear || defaultYear < 2000 || defaultYear > 9999) {
+			return json({ message: 'A valid 4-digit pay year is required.' }, { status: 400 });
+		}
 
 		// Read file buffer
 		const arrayBuffer = await file.arrayBuffer();
@@ -53,14 +61,15 @@ export async function POST({ request }) {
 			);
 		}
 
-		// Process rows through service
-		const result = await uploadPayroll(rows);
+		// Process rows through service — creates upload batch + individual payroll records
+		const result = await uploadPayroll(rows, defaultMonth, defaultYear);
 
 		return json({
 			data: {
 				created: result.created,
 				skipped: result.skipped,
 				errors: result.errors,
+				upload_cuid: result.upload_cuid,
 				warnings
 			}
 		});

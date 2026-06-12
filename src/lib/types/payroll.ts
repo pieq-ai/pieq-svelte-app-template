@@ -5,6 +5,23 @@
 
 // ─── Core types ───────────────────────────────────────────────────────────────
 
+/** Represents one uploaded payroll file — the top-level entity. */
+export interface PayrollUpload {
+	cuid: string;
+	/** 1-12 */
+	month: number;
+	/** 4-digit year e.g. 2026 */
+	year: number;
+	/** Number of employee payroll records successfully created */
+	employee_count: number;
+	/** 'processed' | 'partial' */
+	status: string;
+	/** ISO timestamp string */
+	uploaded_at: string;
+	/** ISO timestamp string */
+	created_at: string;
+}
+
 export interface Payroll {
 	cuid: string;
 	employee_cuid: string;
@@ -19,6 +36,8 @@ export interface Payroll {
 	net_salary: number;
 	/** Flat JSON: { "Basic": 30000, "HRA": 12000, "PF": 1800 } */
 	payroll_breakdown: Record<string, number>;
+	/** CUID of the parent PayrollUpload batch (null for legacy records) */
+	payroll_upload_cuid: string | null;
 	/** ISO timestamp string */
 	uploaded_at: string;
 	/** ISO timestamp string */
@@ -26,6 +45,13 @@ export interface Payroll {
 }
 
 // ─── DTO types ────────────────────────────────────────────────────────────────
+
+export interface CreatePayrollUploadDto {
+	month: number;
+	year: number;
+	status?: string;
+	created_by?: string | null;
+}
 
 export interface CreatePayrollDto {
 	employee_cuid: string;
@@ -37,6 +63,7 @@ export interface CreatePayrollDto {
 	total_deduction: number;
 	net_salary: number;
 	payroll_breakdown: Record<string, number>;
+	payroll_upload_cuid?: string | null;
 	created_by?: string | null;
 }
 
@@ -52,9 +79,19 @@ export interface PayrollUploadResult {
 	created: number;
 	skipped: number;
 	errors: PayrollUploadError[];
+	/** CUID of the PayrollUpload batch record that was created */
+	upload_cuid: string;
 }
 
 // ─── API response types ───────────────────────────────────────────────────────
+
+export interface ListPayrollUploadResponse {
+	data: PayrollUpload[];
+}
+
+export interface PayrollUploadDetailResponse {
+	data: PayrollUpload;
+}
 
 export interface ListPayrollResponse {
 	data: Payroll[];

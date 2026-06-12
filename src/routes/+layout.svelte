@@ -20,23 +20,41 @@
 	import WalletIcon from '@lucide/svelte/icons/wallet';
 	import ReceiptTextIcon from '@lucide/svelte/icons/receipt-text';
 	import BanknoteIcon from '@lucide/svelte/icons/banknote';
+	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 
 	let { children, data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);
 	let isSidebarCollapsed = $state(false);
 
-	const protectedNavItems = [
+	const protectedNavItems1 = [
 		{ label: 'Dashboard', href: resolve('/dashboard'), icon: LayoutDashboardIcon },
 		{ label: 'Employee', href: resolve('/employees'), icon: UsersRoundIcon },
 		{ label: 'Department', href: resolve('/departments'), icon: Building2Icon },
-		{ label: 'Designation', href: resolve('/designations'), icon: UserRoundIcon },
+		{ label: 'Designation', href: resolve('/designations'), icon: UserRoundIcon }
+	];
+
+	const salaryRoutes = [resolve('/salary-components'), resolve('/salary-structures'), resolve('/payrolls')];
+
+	const salaryManagementItems = [
 		{ label: 'Salary Components', href: resolve('/salary-components'), icon: WalletIcon },
 		{ label: 'Salary Structures', href: resolve('/salary-structures'), icon: ReceiptTextIcon },
-		{ label: 'Payroll', href: resolve('/payrolls'), icon: BanknoteIcon },
+		{ label: 'Payroll', href: resolve('/payrolls'), icon: BanknoteIcon }
+	];
+
+	const protectedNavItems2 = [
 		{ label: 'System Roles', href: resolve('/system-roles'), icon: ShieldCheckIcon },
 		{ label: 'Permissions', href: resolve('/permissions'), icon: KeyRoundIcon },
 		{ label: 'Role Permissions', href: resolve('/role-permissions'), icon: LinkIcon }
 	];
+
+	let isSalaryManagementExpanded = $state(false);
+
+	$effect(() => {
+		const path = $page.url.pathname;
+		if (salaryRoutes.some(r => path === r || path.startsWith(r + '/'))) {
+			isSalaryManagementExpanded = true;
+		}
+	});
 
 	$effect(() => {
 		if (typeof window !== 'undefined' && data.config) {
@@ -95,7 +113,66 @@
 		<!-- Main nav -->
 		<nav class="flex flex-1 flex-col gap-1 px-3 py-4 overflow-y-auto">
 			{#if authenticatedUser}
-				{#each protectedNavItems as item (item.href)}
+				{#each protectedNavItems1 as item (item.href)}
+					{@const Icon = item.icon}
+					{@const isActive = $page.url.pathname === item.href || $page.url.pathname.startsWith(item.href + '/')}
+					<Button
+						href={item.href}
+						variant="ghost"
+						class={`h-10 justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-[#F45310]' : ''}`}
+						title={isSidebarCollapsed ? item.label : undefined}
+						aria-label={item.label}
+					>
+						<Icon class="size-4 shrink-0" />
+						{#if !isSidebarCollapsed}
+							<span>{item.label}</span>
+						{/if}
+					</Button>
+				{/each}
+
+				<!-- Salary Management expandable group -->
+				<div class="flex flex-col gap-1">
+					<Button
+						variant="ghost"
+						class={`h-10 justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						onclick={() => {
+							if (isSidebarCollapsed) {
+								isSidebarCollapsed = false;
+								isSalaryManagementExpanded = true;
+							} else {
+								isSalaryManagementExpanded = !isSalaryManagementExpanded;
+							}
+						}}
+						title={isSidebarCollapsed ? 'Salary Management' : undefined}
+						aria-label="Salary Management"
+					>
+						<WalletIcon class="size-4 shrink-0" />
+						{#if !isSidebarCollapsed}
+							<span class="flex-1 text-left">Salary Management</span>
+							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ${isSalaryManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
+						{/if}
+					</Button>
+
+					{#if isSalaryManagementExpanded && !isSidebarCollapsed}
+						<div class="flex flex-col gap-1 pl-4 border-l border-white/10 ml-5">
+							{#each salaryManagementItems as child (child.href)}
+								{@const ChildIcon = child.icon}
+								{@const isChildActive = $page.url.pathname === child.href || $page.url.pathname.startsWith(child.href + '/')}
+								<Button
+									href={child.href}
+									variant="ghost"
+									class={`h-9 justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
+									aria-label={child.label}
+								>
+									<ChildIcon class="size-3.5 shrink-0" />
+									<span>{child.label}</span>
+								</Button>
+							{/each}
+						</div>
+					{/if}
+				</div>
+
+				{#each protectedNavItems2 as item (item.href)}
 					{@const Icon = item.icon}
 					{@const isActive = $page.url.pathname === item.href || $page.url.pathname.startsWith(item.href + '/')}
 					<Button

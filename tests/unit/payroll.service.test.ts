@@ -15,6 +15,15 @@ vi.mock('$lib/server/dao/payroll.dao.js', () => ({
 	findMany: vi.fn()
 }));
 
+// ─── Mock upload DAO ──────────────────────────────────────────────────────────
+
+vi.mock('$lib/server/dao/payroll-upload.dao.js', () => ({
+	create: vi.fn(),
+	findByCuid: vi.fn(),
+	updateEmployeeCount: vi.fn(),
+	findMany: vi.fn()
+}));
+
 // ─── Mock employee provider ───────────────────────────────────────────────────
 
 vi.mock('$lib/server/providers/employee.provider.js', () => ({
@@ -24,6 +33,7 @@ vi.mock('$lib/server/providers/employee.provider.js', () => ({
 // ─── Import mocked modules ────────────────────────────────────────────────────
 
 import * as dao from '$lib/server/dao/payroll.dao.js';
+import * as uploadDao from '$lib/server/dao/payroll-upload.dao.js';
 import { findEmployeeByCode } from '$lib/server/providers/employee.provider.js';
 import type { ParsedPayrollRow } from '$lib/server/utils/excel-parser.js';
 
@@ -46,6 +56,24 @@ function mockPayrollRecord(overrides = {}) {
 		total_deduction: 5000,
 		net_salary: 45000,
 		payroll_breakdown: { Basic: 30000, HRA: 12000, PF: 3600 },
+		payroll_upload_cuid: 'upload_001',
+		uploaded_at: new Date(),
+		created_at: new Date(),
+		created_by: null,
+		updated_at: new Date(),
+		updated_by: null,
+		...overrides
+	};
+}
+
+function mockUploadRecord(overrides = {}) {
+	return {
+		id: 1n,
+		cuid: 'upload_001',
+		month: 6,
+		year: 2026,
+		employee_count: 0,
+		status: 'processed',
 		uploaded_at: new Date(),
 		created_at: new Date(),
 		created_by: null,
@@ -76,6 +104,9 @@ function mockParsedRow(overrides: Partial<ParsedPayrollRow> = {}): ParsedPayroll
 describe('Payroll Service', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		// Default: upload DAO create returns a mock upload record
+		vi.mocked(uploadDao.create).mockResolvedValue(mockUploadRecord() as never);
+		vi.mocked(uploadDao.updateEmployeeCount).mockResolvedValue(mockUploadRecord() as never);
 	});
 
 	// ─── uploadPayroll ────────────────────────────────────────────────────────
@@ -86,11 +117,12 @@ describe('Payroll Service', () => {
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
 			vi.mocked(dao.create).mockResolvedValue(mockPayrollRecord() as never);
 
-			const result = await uploadPayroll([mockParsedRow()]);
+			const result = await uploadPayroll([mockParsedRow()], 6, 2026);
 
 			expect(result.created).toBe(1);
 			expect(result.skipped).toBe(0);
 			expect(result.errors).toHaveLength(0);
+			expect(result.upload_cuid).toBe('upload_001');
 			expect(dao.create).toHaveBeenCalledWith(
 				expect.objectContaining({
 					employee_cuid: 'EMP001',
@@ -104,7 +136,7 @@ describe('Payroll Service', () => {
 		it('should skip a row when employee code is not found', async () => {
 			vi.mocked(findEmployeeByCode).mockReturnValue(null);
 
-			const result = await uploadPayroll([mockParsedRow({ employee_code: 'UNKNOWN' })]);
+			const result = await uploadPayroll([mockParsedRow({ employee_code: 'UNKNOWN' })], 6, 2026);
 
 			expect(result.created).toBe(0);
 			expect(result.skipped).toBe(1);
@@ -114,7 +146,7 @@ describe('Payroll Service', () => {
 		});
 
 		it('should skip a row when employee code is missing (validation error)', async () => {
-			const result = await uploadPayroll([mockParsedRow({ employee_code: '' })]);
+			const result = await uploadPayroll([mockParsedRow({ employee_code: '' })], 6, 2026);
 
 			expect(result.created).toBe(0);
 			expect(result.skipped).toBe(1);
@@ -123,7 +155,7 @@ describe('Payroll Service', () => {
 		});
 
 		it('should skip a row when month is null (validation error)', async () => {
-			const result = await uploadPayroll([mockParsedRow({ month: null })]);
+			const result = await uploadPayroll([mockParsedRow({ month: null })], 6, 2026);
 
 			expect(result.created).toBe(0);
 			expect(result.skipped).toBe(1);
@@ -131,7 +163,7 @@ describe('Payroll Service', () => {
 		});
 
 		it('should skip a row when year is null (validation error)', async () => {
-			const result = await uploadPayroll([mockParsedRow({ year: null })]);
+			const result = await uploadPayroll([mockParsedRow({ year: null })], 6, 2026);
 
 			expect(result.created).toBe(0);
 			expect(result.skipped).toBe(1);
@@ -142,7 +174,7 @@ describe('Payroll Service', () => {
 			vi.mocked(findEmployeeByCode).mockReturnValue(mockEmployee());
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(mockPayrollRecord() as never);
 
-			const result = await uploadPayroll([mockParsedRow()]);
+			const result = await uploadPayroll([mockParsedRow()], 6, 2026);
 
 			expect(result.created).toBe(0);
 			expect(result.skipped).toBe(1);
@@ -162,7 +194,7 @@ describe('Payroll Service', () => {
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
 			vi.mocked(dao.create).mockResolvedValue(mockPayrollRecord() as never);
 
-			const result = await uploadPayroll(rows);
+			const result = await uploadPayroll(rows, 6, 2026);
 
 			expect(result.created).toBe(1);
 			expect(result.skipped).toBe(1);
@@ -181,7 +213,7 @@ describe('Payroll Service', () => {
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
 			vi.mocked(dao.create).mockResolvedValue(mockPayrollRecord() as never);
 
-			const result = await uploadPayroll(rows);
+			const result = await uploadPayroll(rows, 6, 2026);
 
 			expect(result.created).toBe(2);
 			expect(result.skipped).toBe(0);
@@ -194,7 +226,7 @@ describe('Payroll Service', () => {
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
 			vi.mocked(dao.create).mockResolvedValue(mockPayrollRecord() as never);
 
-			await uploadPayroll([mockParsedRow({ employee_name: 'John Doe Excel' })]);
+			await uploadPayroll([mockParsedRow({ employee_name: 'John Doe Excel' })], 6, 2026);
 
 			expect(dao.create).toHaveBeenCalledWith(
 				expect.objectContaining({ employee_name: 'John Doe Excel' })
@@ -206,7 +238,7 @@ describe('Payroll Service', () => {
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
 			vi.mocked(dao.create).mockResolvedValue(mockPayrollRecord() as never);
 
-			await uploadPayroll([mockParsedRow({ employee_name: '' })]);
+			await uploadPayroll([mockParsedRow({ employee_name: '' })], 6, 2026);
 
 			expect(dao.create).toHaveBeenCalledWith(
 				expect.objectContaining({ employee_name: 'John Doe Provider' })

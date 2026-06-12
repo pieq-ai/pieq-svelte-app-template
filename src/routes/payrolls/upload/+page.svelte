@@ -20,6 +20,9 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import CheckIcon from '@lucide/svelte/icons/check';
 
 	import type { PayrollUploadError } from '$lib/types/payroll';
 
@@ -60,6 +63,7 @@
 		created: number;
 		skipped: number;
 		errors: PayrollUploadError[];
+		upload_cuid: string;
 		warnings?: string[];
 	}
 
@@ -136,6 +140,10 @@
 				uploadResult = resData.data;
 				if (resData.data.created > 0) {
 					toast.success(`${resData.data.created} payroll record(s) uploaded successfully.`);
+					// Navigate to the upload batch detail page
+					if (resData.data.upload_cuid) {
+						goto(resolve(`/payrolls/${resData.data.upload_cuid}`));
+					}
 				} else {
 					toast.error('No records were created. Check the error details below.');
 				}
@@ -168,7 +176,7 @@
 </script>
 
 <svelte:head>
-	<title>HRMS — Upload Payroll</title>
+	<title>HRMS Upload Payroll</title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
@@ -187,7 +195,6 @@
 			</Button>
 			<div class="space-y-0.5">
 				<h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Upload Payroll</h1>
-				<p class="text-sm text-muted-foreground">Upload an Excel file to create payroll records.</p>
 			</div>
 		</div>
 	</div>
@@ -206,27 +213,49 @@
 				<div class="grid grid-cols-2 gap-4">
 					<div class="space-y-1.5">
 						<label for="pay_month" class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pay Month</label>
-						<select
-							id="pay_month"
-							bind:value={uploadMonth}
-							class="flex h-9 w-full rounded-md border border-input bg-transparent dark:bg-input/30 px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-						>
-							{#each monthOptions as opt (opt.value)}
-								<option value={opt.value} class="bg-background text-foreground">{opt.label}</option>
-							{/each}
-						</select>
+						<DropdownMenu.Root>
+							<DropdownMenu.Trigger>
+								{#snippet child({ props })}
+									<Button id="pay_month" name="pay_month" variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none" {...props}>
+										{monthOptions.find(m => m.value === uploadMonth)?.label ?? uploadMonth}
+										<ChevronDownIcon class="ml-2 size-4 opacity-50" />
+									</Button>
+								{/snippet}
+							</DropdownMenu.Trigger>
+							<DropdownMenu.Content class="w-[200px] max-h-64 overflow-y-auto">
+								<DropdownMenu.Group>
+									{#each monthOptions as opt (opt.value)}
+										<DropdownMenu.Item onclick={() => (uploadMonth = opt.value)} class="justify-between cursor-pointer {uploadMonth === opt.value ? 'bg-accent text-accent-foreground' : ''}">
+											{opt.label}
+											{#if uploadMonth === opt.value}<CheckIcon class="size-4" />{/if}
+										</DropdownMenu.Item>
+									{/each}
+								</DropdownMenu.Group>
+							</DropdownMenu.Content>
+						</DropdownMenu.Root>
 					</div>
 					<div class="space-y-1.5">
 						<label for="pay_year" class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pay Year</label>
-						<select
-							id="pay_year"
-							bind:value={uploadYear}
-							class="flex h-9 w-full rounded-md border border-input bg-transparent dark:bg-input/30 px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-						>
-							{#each yearOptions as yr (yr)}
-								<option value={yr} class="bg-background text-foreground">{yr}</option>
-							{/each}
-						</select>
+						<DropdownMenu.Root>
+							<DropdownMenu.Trigger>
+								{#snippet child({ props })}
+									<Button id="pay_year" name="pay_year" variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none" {...props}>
+										{uploadYear}
+										<ChevronDownIcon class="ml-2 size-4 opacity-50" />
+									</Button>
+								{/snippet}
+							</DropdownMenu.Trigger>
+							<DropdownMenu.Content class="w-[200px] max-h-64 overflow-y-auto">
+								<DropdownMenu.Group>
+									{#each yearOptions as yr (yr)}
+										<DropdownMenu.Item onclick={() => (uploadYear = yr)} class="justify-between cursor-pointer {uploadYear === yr ? 'bg-accent text-accent-foreground' : ''}">
+											{yr}
+											{#if uploadYear === yr}<CheckIcon class="size-4" />{/if}
+										</DropdownMenu.Item>
+									{/each}
+								</DropdownMenu.Group>
+							</DropdownMenu.Content>
+						</DropdownMenu.Root>
 					</div>
 				</div>
 
@@ -298,13 +327,13 @@
 							Upload Payroll
 						{/if}
 					</Button>
-					{#if uploadResult}
+					{#if uploadResult && uploadResult.upload_cuid}
 						<Button
 							type="button"
 							variant="outline"
-							onclick={() => goto(resolve('/payrolls'))}
+							onclick={() => goto(resolve(`/payrolls/${uploadResult!.upload_cuid}`))}
 						>
-							View Records
+							View Upload
 						</Button>
 					{/if}
 				</div>
@@ -321,7 +350,7 @@
 				<div class="space-y-2">
 					<p class="font-medium text-foreground">Required columns:</p>
 					<ul class="space-y-1 text-muted-foreground">
-						<li><span class="font-mono text-xs bg-muted px-1 py-0.5 rounded">Emp No</span> — Employee code (e.g. EMP001)</li>
+						<li><span class="font-mono text-xs bg-muted px-1 py-0.5 rounded">Emp No</span> — Employee code (e.g. PY001)</li>
 						<li><span class="font-mono text-xs bg-muted px-1 py-0.5 rounded">Month</span> — "June", "Jun", 6, or "06"</li>
 						<li><span class="font-mono text-xs bg-muted px-1 py-0.5 rounded">Year</span> — 4-digit year (e.g. 2026)</li>
 					</ul>

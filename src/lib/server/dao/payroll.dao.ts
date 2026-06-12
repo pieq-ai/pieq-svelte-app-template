@@ -16,6 +16,7 @@ export async function create(data: CreatePayrollDto) {
 			total_deduction: data.total_deduction,
 			net_salary: data.net_salary,
 			payroll_breakdown: data.payroll_breakdown,
+			payroll_upload_cuid: data.payroll_upload_cuid ?? null,
 			created_by: data.created_by ?? null
 		}
 	});
@@ -43,5 +44,13 @@ export async function findByEmployeeMonthYear(
 export async function findMany() {
 	return db.payroll.findMany({
 		orderBy: [{ year: 'desc' }, { month: 'desc' }, { employee_code: 'asc' }]
+	});
+}
+
+/** Fetch all payroll records belonging to a specific upload batch. */
+export async function findManyByUploadCuid(payroll_upload_cuid: string) {
+	return db.payroll.findMany({
+		where: { payroll_upload_cuid },
+		orderBy: [{ employee_code: 'asc' }]
 	});
 }

@@ -13,6 +13,7 @@
 	import { UI_CONSTANTS } from '$lib/constants';
 
 	import {
+		Badge,
 		Button,
 		Card,
 		CardHeader,
@@ -25,23 +26,26 @@
 		TableHeader,
 		TableRow,
 		Pagination,
-		SearchInput
+		SearchInput,
+		TableActions
 	} from '$lib/components';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import CheckIcon from '@lucide/svelte/icons/check';
+	import FilterIcon from '@lucide/svelte/icons/filter';
 
-	import type { Payroll } from '$lib/types/payroll';
+	import type { PayrollUpload } from '$lib/types/payroll';
 
 	// ─── Data state ──────────────────────────────────────────────────────────────
 
-	let payrollList = $state<Payroll[]>([]);
+	let uploadList = $state<PayrollUpload[]>([]);
 	let isLoading = $state(true);
 	let loadError = $state('');
 
 	// ─── Filter / sort / page state ──────────────────────────────────────────────
 
 	let searchQuery = $state('');
-	let monthFilter = $state<number | 'all'>('all');
 	let yearFilter = $state<number | 'all'>('all');
-	let sortColumn = $state('year');
+	let sortColumn = $state('uploaded_at');
 	let sortDirection = $state<'asc' | 'desc' | null>('desc');
 
 	let currentPage = $state(1);
@@ -58,46 +62,52 @@
 		return MONTH_NAMES[month - 1] ?? String(month);
 	}
 
-	function formatAmount(amount: number): string {
-		return amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+	function formatDate(iso: string): string {
+		return new Date(iso).toLocaleDateString('en-IN', {
+			day: '2-digit', month: 'short', year: 'numeric'
+		});
+	}
+
+	function statusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' {
+		if (status === 'processed') return 'default';
+		if (status === 'partial') return 'secondary';
+		if (status === 'failed') return 'destructive';
+		return 'outline';
+	}
+
+	function statusLabel(status: string): string {
+		return status.charAt(0).toUpperCase() + status.slice(1);
 	}
 
 	// ─── Derived filter options ───────────────────────────────────────────────────
 
 	let availableYears = $derived(
-		[...new Set(payrollList.map((p) => p.year))].sort((a, b) => b - a)
-	);
-
-	let availableMonths = $derived(
-		[...new Set(payrollList.map((p) => p.month))].sort((a, b) => a - b)
+		[...new Set(uploadList.map((u) => u.year))].sort((a, b) => b - a)
 	);
 
 	// ─── Stats ────────────────────────────────────────────────────────────────────
 
-	let totalRecords = $derived(payrollList.length);
-	let uniqueEmployees = $derived(new Set(payrollList.map((p) => p.employee_cuid)).size);
-	let uniqueMonths = $derived(new Set(payrollList.map((p) => `${p.year}-${p.month}`)).size);
+	let totalUploads = $derived(uploadList.length);
+	let employeesProcessed = $derived(uploadList.reduce((sum, u) => sum + u.employee_count, 0));
+	let payPeriods = $derived(new Set(uploadList.map((u) => `${u.year}-${u.month}`)).size);
 
 	// ─── Filtered + sorted + paginated list ──────────────────────────────────────
 
-	let filteredPayrolls = $derived.by(() => {
-		let result = [...payrollList];
+	let filteredUploads = $derived.by(() => {
+		let result = [...uploadList];
 
 		if (searchQuery.trim()) {
 			const q = searchQuery.toLowerCase();
 			result = result.filter(
-				(p) =>
-					p.employee_name.toLowerCase().includes(q) ||
-					p.employee_code.toLowerCase().includes(q)
+				(u) =>
+					monthName(u.month).toLowerCase().includes(q) ||
+					String(u.year).includes(q) ||
+					u.status.toLowerCase().includes(q)
 			);
 		}
 
-		if (monthFilter !== 'all') {
-			result = result.filter((p) => p.month === monthFilter);
-		}
-
 		if (yearFilter !== 'all') {
-			result = result.filter((p) => p.year === yearFilter);
+			result = result.filter((u) => u.year === yearFilter);
 		}
 
 		if (sortDirection && sortColumn) {
@@ -106,25 +116,17 @@
 				let valB: string | number;
 
 				switch (sortColumn) {
-					case 'employee':
-						valA = a.employee_name;
-						valB = b.employee_name;
-						break;
 					case 'month':
-						valA = a.month;
-						valB = b.month;
-						break;
+						valA = a.month; valB = b.month; break;
 					case 'year':
-						valA = a.year;
-						valB = b.year;
-						break;
-					case 'net_salary':
-						valA = a.net_salary;
-						valB = b.net_salary;
-						break;
+						valA = a.year; valB = b.year; break;
+					case 'employees':
+						valA = a.employee_count; valB = b.employee_count; break;
+					case 'uploaded_at':
+						valA = a.uploaded_at; valB = b.uploaded_at; break;
 					default:
-						valA = String(a[sortColumn as keyof typeof a] ?? '');
-						valB = String(b[sortColumn as keyof typeof b] ?? '');
+						valA = String((a as unknown as Record<string, unknown>)[sortColumn] ?? '');
+						valB = String((b as unknown as Record<string, unknown>)[sortColumn] ?? '');
 				}
 
 				if (typeof valA === 'number' && typeof valB === 'number') {
@@ -139,22 +141,22 @@
 		return result;
 	});
 
-	let paginatedPayrolls = $derived(
-		filteredPayrolls.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+	let paginatedUploads = $derived(
+		filteredUploads.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 	);
 
 	// ─── Data loading ─────────────────────────────────────────────────────────────
 
-	async function loadPayrolls() {
+	async function loadUploads() {
 		isLoading = true;
 		loadError = '';
 		try {
-			const res = await fetch('/api/payrolls');
+			const res = await fetch('/api/payroll-uploads');
 			const data = await res.json();
 			if (res.ok) {
-				payrollList = data.data ?? [];
+				uploadList = data.data ?? [];
 			} else {
-				loadError = data.message || 'Failed to load payroll records.';
+				loadError = data.message || 'Failed to load payroll uploads.';
 				toast.error(loadError);
 			}
 		} catch (err) {
@@ -167,7 +169,7 @@
 	}
 
 	onMount(() => {
-		loadPayrolls();
+		loadUploads();
 	});
 
 	// ─── Sorting ──────────────────────────────────────────────────────────────────
@@ -191,7 +193,7 @@
 </script>
 
 <svelte:head>
-	<title>HRMS — Payroll</title>
+	<title>HRMS Payroll</title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
@@ -199,7 +201,6 @@
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
 			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Payroll</h1>
-			<p class="text-sm text-muted-foreground">Manage and view employee payroll records.</p>
 		</div>
 		<Button
 			type="button"
@@ -215,20 +216,20 @@
 	<div class="grid gap-4 sm:grid-cols-3">
 		<Card>
 			<CardHeader class="pb-2">
-				<CardDescription>Total Records</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalRecords}</CardTitle>
+				<CardDescription>Total Uploads</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalUploads}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
-				<CardDescription>Employees</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{uniqueEmployees}</CardTitle>
+				<CardDescription>Employees Processed</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{employeesProcessed}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Pay Periods</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{uniqueMonths}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{payPeriods}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
@@ -237,52 +238,44 @@
 	<div class="space-y-3">
 		<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
 			<SearchInput
-				id="search_payrolls"
-				name="search_payrolls"
+				id="search_payroll_uploads"
+				name="search_payroll_uploads"
 				bind:value={searchQuery}
 				oninput={() => (currentPage = 1)}
-				placeholder="Search by employee name or code..."
+				placeholder="Search by month, year or status..."
 			/>
 
-			<!-- Month filter -->
-			<select
-				class="h-9 rounded-md border border-input bg-background px-3 text-sm shadow-xs focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
-				bind:value={monthFilter}
-				onchange={() => (currentPage = 1)}
-				aria-label="Filter by month"
-			>
-				<option value="all">All Months</option>
-				{#each availableMonths as m (m)}
-					<option value={m}>{monthName(m)}</option>
-				{/each}
-			</select>
-
 			<!-- Year filter -->
-			<select
-				class="h-9 rounded-md border border-input bg-background px-3 text-sm shadow-xs focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
-				bind:value={yearFilter}
-				onchange={() => (currentPage = 1)}
-				aria-label="Filter by year"
-			>
-				<option value="all">All Years</option>
-				{#each availableYears as y (y)}
-					<option value={y}>{y}</option>
-				{/each}
-			</select>
+			<DropdownMenu.Root>
+				<DropdownMenu.Trigger>
+					{#snippet child({ props })}
+						<Button variant="outline" class="h-9 w-[180px] justify-between border-input bg-background shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none" {...props}>
+							{yearFilter === 'all' ? 'All Years' : yearFilter}
+							<FilterIcon class="ml-2 size-4 opacity-50" />
+						</Button>
+					{/snippet}
+				</DropdownMenu.Trigger>
+				<DropdownMenu.Content class="w-[180px]">
+					<DropdownMenu.Group>
+						<DropdownMenu.Item onclick={() => { yearFilter = 'all'; currentPage = 1; }} class="justify-between cursor-pointer {yearFilter === 'all' ? 'bg-accent text-accent-foreground' : ''}">
+							All Years
+							{#if yearFilter === 'all'}<CheckIcon class="size-4" />{/if}
+						</DropdownMenu.Item>
+						{#each availableYears as y (y)}
+							<DropdownMenu.Item onclick={() => { yearFilter = y; currentPage = 1; }} class="justify-between cursor-pointer {yearFilter === y ? 'bg-accent text-accent-foreground' : ''}">
+								{y}
+								{#if yearFilter === y}<CheckIcon class="size-4" />{/if}
+							</DropdownMenu.Item>
+						{/each}
+					</DropdownMenu.Group>
+				</DropdownMenu.Content>
+			</DropdownMenu.Root>
 		</div>
 
 		<Card class="py-0">
 			<Table>
 				<TableHeader class="bg-muted">
 					<TableRow>
-						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('employee')}>
-								Employee
-								{#if sortIcon('employee') === 'asc'}<ArrowUpIcon class="ml-2 size-4" />
-								{:else if sortIcon('employee') === 'desc'}<ArrowDownIcon class="ml-2 size-4" />
-								{:else}<ArrowUpDownIcon class="ml-2 size-4" />{/if}
-							</Button>
-						</TableHead>
 						<TableHead class="font-bold text-foreground text-[15px]">
 							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('month')}>
 								Month
@@ -299,64 +292,65 @@
 								{:else}<ArrowUpDownIcon class="ml-2 size-4" />{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-right font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('net_salary')}>
-								Net Salary
-								{#if sortIcon('net_salary') === 'asc'}<ArrowUpIcon class="ml-2 size-4" />
-								{:else if sortIcon('net_salary') === 'desc'}<ArrowDownIcon class="ml-2 size-4" />
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('employees')}>
+								Employees
+								{#if sortIcon('employees') === 'asc'}<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortIcon('employees') === 'desc'}<ArrowDownIcon class="ml-2 size-4" />
 								{:else}<ArrowUpDownIcon class="ml-2 size-4" />{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('uploaded_at')}>
+								Uploaded On
+								{#if sortIcon('uploaded_at') === 'asc'}<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortIcon('uploaded_at') === 'desc'}<ArrowDownIcon class="ml-2 size-4" />
+								{:else}<ArrowUpDownIcon class="ml-2 size-4" />{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="text-center font-bold text-foreground text-[15px]">Status</TableHead>
+						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap w-24">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{#if isLoading}
 						<TableRow>
-							<TableCell colspan={5} class="py-8 text-center text-muted-foreground">
+							<TableCell colspan={6} class="py-8 text-center text-muted-foreground">
 								<LoaderCircleIcon class="mx-auto mb-2 size-6 animate-spin" />
-								Loading payroll records...
+								Loading payroll uploads...
 							</TableCell>
 						</TableRow>
-					{:else if filteredPayrolls.length === 0}
+					{:else if filteredUploads.length === 0}
 						<TableRow>
-							<TableCell colspan={5} class="py-8 text-center text-muted-foreground">
+							<TableCell colspan={6} class="py-8 text-center text-muted-foreground">
 								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 							</TableCell>
 						</TableRow>
 					{:else}
-						{#each paginatedPayrolls as p (p.cuid)}
+						{#each paginatedUploads as u (u.cuid)}
 							<TableRow
 								onclick={(e) => {
 									if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
-									goto(resolve(`/payrolls/${p.cuid}`));
+									goto(resolve(`/payrolls/${u.cuid}`));
 								}}
-								class="cursor-pointer"
+								class="cursor-pointer hover:bg-muted/70 transition-colors"
 							>
-								<TableCell>
-									<span class="font-semibold">{p.employee_name}</span>
-									<span class="block text-xs text-muted-foreground">{p.employee_code}</span>
+								<TableCell class="font-medium">{monthName(u.month)}</TableCell>
+								<TableCell>{u.year}</TableCell>
+								<TableCell class="font-semibold tabular-nums">{u.employee_count}</TableCell>
+								<TableCell class="text-muted-foreground">{formatDate(u.uploaded_at)}</TableCell>
+								<TableCell class="text-center">
+									<Badge variant={statusVariant(u.status)} class="capitalize">
+										{statusLabel(u.status)}
+									</Badge>
 								</TableCell>
-								<TableCell>{monthName(p.month)}</TableCell>
-								<TableCell>{p.year}</TableCell>
-								<TableCell class="text-right font-mono font-semibold">₹{formatAmount(p.net_salary)}</TableCell>
-								<TableCell class="text-right">
-									<div
-										class="flex items-center justify-end gap-1"
-										onclick={(e) => e.stopPropagation()}
-										onkeydown={(e) => e.stopPropagation()}
-										role="presentation"
-									>
-										<Button
-											variant="ghost"
-											size="icon-sm"
-											class="h-8 w-8 text-muted-foreground hover:text-foreground"
-											onclick={() => goto(resolve(`/payrolls/${p.cuid}`))}
-											aria-label="View payroll"
-										>
-											<EyeIcon class="size-4" />
-										</Button>
-									</div>
+								<TableCell class="text-right w-24">
+									<TableActions canEdit={false}>
+										<DropdownMenu.Item onclick={() => goto(resolve(`/payrolls/${u.cuid}`))} class="cursor-pointer">
+											<EyeIcon class="mr-2 size-4 text-muted-foreground" />
+											View Details
+										</DropdownMenu.Item>
+									</TableActions>
 								</TableCell>
 							</TableRow>
 						{/each}
@@ -364,6 +358,6 @@
 				</TableBody>
 			</Table>
 		</Card>
-		<Pagination bind:currentPage pageSize={pageSize} totalItems={filteredPayrolls.length} />
+		<Pagination bind:currentPage pageSize={pageSize} totalItems={filteredUploads.length} />
 	</div>
 </div>

@@ -403,6 +403,39 @@ model SalaryStructureItem {
   @@map("salary_structure_items")
 }
 
+/// Represents one uploaded payroll file — the parent of N Payroll records.
+model PayrollUpload {
+  /// Auto-incrementing surrogate primary key (internal use only)
+  id BigInt @id @default(autoincrement())
+
+  /// Externally-exposed, non-guessable identifier — used in all API routes
+  cuid String @unique @default(cuid(2)) @db.Text
+
+  /// Pay period month (1-12)
+  month Int
+
+  /// Pay period year (4-digit, e.g. 2026)
+  year Int
+
+  /// Number of employee payroll records successfully created in this batch
+  employee_count Int @default(0)
+
+  /// Processing status: 'processed' | 'partial'
+  status String @default("processed") @db.VarChar(50)
+
+  /// Timestamp when the file was uploaded
+  uploaded_at DateTime @default(now()) @db.Timestamptz()
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.Text
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.Text
+
+  @@index([cuid])
+  @@index([year, month])
+  @@map("payroll_uploads")
+}
+
 /// Payroll record — one row per employee per month/year.
 /// Payroll data comes directly from the uploaded Excel file (Excel always wins).
 /// Component breakdown is stored as JSON for schema flexibility.
@@ -440,6 +473,9 @@ model Payroll {
   /// Full payroll component breakdown as JSON: { "Basic": 30000, "HRA": 12000, "PF": 1800 }
   payroll_breakdown Json
 
+  /// CUID of the parent PayrollUpload batch (nullable for backwards-compat with records created before this refactor)
+  payroll_upload_cuid String? @db.Text
+
   /// Timestamp when this payroll record was created via upload
   uploaded_at DateTime @default(now()) @db.Timestamptz()
 
@@ -452,6 +488,7 @@ model Payroll {
   @@unique([employee_cuid, month, year])
   @@index([employee_cuid])
   @@index([year, month])
+  @@index([payroll_upload_cuid])
   @@index([cuid])
   @@map("payroll")
 }

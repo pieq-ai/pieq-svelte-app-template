@@ -1,11 +1,11 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-12)
 
 ## Corpus Check
-- 228 files · ~68,838 words
+- 228 files · ~68,619 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1107 nodes · 1823 edges · 65 communities (52 shown, 13 thin omitted)
+- 1106 nodes · 1821 edges · 64 communities (53 shown, 11 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 10 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -47,7 +47,6 @@
 - [[_COMMUNITY_Community 37|Community 37]]
 - [[_COMMUNITY_Community 38|Community 38]]
 - [[_COMMUNITY_Community 39|Community 39]]
-- [[_COMMUNITY_Community 40|Community 40]]
 - [[_COMMUNITY_Community 41|Community 41]]
 - [[_COMMUNITY_Community 42|Community 42]]
 - [[_COMMUNITY_Community 43|Community 43]]
@@ -100,15 +99,15 @@
 ## Import Cycles
 - None detected.
 
-## Communities (65 total, 13 thin omitted)
+## Communities (64 total, 11 thin omitted)
 
 ### Community 0 - "API Endpoints"
-Cohesion: 0.06
-Nodes (51): GET(), PUT(), POST(), GET(), PUT(), POST(), requireAdmin(), requireAuth() (+43 more)
+Cohesion: 0.08
+Nodes (41): GET(), PUT(), POST(), GET(), PUT(), POST(), requireAdmin(), requireAuth() (+33 more)
 
 ### Community 1 - "Data Access Tests"
-Cohesion: 0.26
-Nodes (5): CreateEmployeeData, createClient(), db, getDb(), isValidClient()
+Cohesion: 0.14
+Nodes (7): CreateDepartmentInput, UpdateDepartmentInput, CreateEmployeeData, createClient(), db, getDb(), isValidClient()
 
 ### Community 2 - "UI Components Index"
 Cohesion: 0.17
@@ -143,8 +142,8 @@ Cohesion: 0.06
 Nodes (23): POST(), SalaryComponentDto, serializeSalaryComponent(), BusinessValidationError, ComponentNotFoundError, DuplicateComponentError, GET(), PUT() (+15 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.20
-Nodes (8): CreateRevisionDto, CreateSalaryStructureItemDto, DeleteSalaryStructureResponse, ListSalaryStructureResponse, MutationSalaryStructureResponse, SalaryStructure, SalaryStructureItem, UpdateSalaryStructureItemDto
+Cohesion: 0.15
+Nodes (11): load(), load(), CreateRevisionDto, CreateSalaryStructureItemDto, DeleteSalaryStructureResponse, ListSalaryStructureResponse, MutationSalaryStructureResponse, SalaryStructure (+3 more)
 
 ### Community 11 - "Server Authentication"
 Cohesion: 0.16
@@ -171,8 +170,8 @@ Cohesion: 0.29
 Nodes (4): WithElementRef, WithoutChild, WithoutChildren, WithoutChildrenOrChild
 
 ### Community 22 - "Server Routing"
-Cohesion: 0.20
-Nodes (5): load(), load(), Toast, ToastStore, load()
+Cohesion: 0.21
+Nodes (5): load(), Toast, ToastStore, load(), load()
 
 ### Community 31 - "Community 31"
 Cohesion: 0.04
@@ -191,8 +190,8 @@ Cohesion: 0.17
 Nodes (17): ./$types, ./$types, actions, load(), GET(), getErrorStatus(), POST(), createEmployee() (+9 more)
 
 ### Community 35 - "Community 35"
-Cohesion: 0.21
-Nodes (6): DELETE(), getStatus(), assignPermissionsToRole(), AssignRolePermissionsDto, removePermissionFromRoleByCuid2(), validateCuid2()
+Cohesion: 0.13
+Nodes (5): CreateRolePermissionInput, assignPermissionsToRole(), AssignRolePermissionsDto, removePermissionFromRoleByCuid2(), validateCuid2()
 
 ### Community 43 - "Community 43"
 Cohesion: 0.40
@@ -243,8 +242,12 @@ Cohesion: 0.15
 Nodes (11): averageAge, filteredEmployees, formError, handleAddEmployee(), isSubmitting, loadEmployees(), maxAge, successMessage (+3 more)
 
 ### Community 55 - "Community 55"
-Cohesion: 0.18
-Nodes (6): findByEmployeeCuid(), findItemsByStructureCuid(), findItemsByStructureCuids(), findMany(), CreateSalaryStructureDto, UpdateSalaryStructureDto
+Cohesion: 0.19
+Nodes (5): findByEmployeeCuid(), findItemsByStructureCuid(), findItemsByStructureCuids(), findMany(), CreateSalaryStructureDto
+
+### Community 56 - "Community 56"
+Cohesion: 0.33
+Nodes (10): createDesignation(), CreateDesignationDto, deleteDesignation(), ensureDesignationNameIsUnique(), getDesignationByCuid2(), getDesignationById(), toPublicDesignation(), updateDesignation() (+2 more)
 
 ### Community 57 - "Community 57"
 Cohesion: 0.15
@@ -255,8 +258,8 @@ Cohesion: 0.33
 Nodes (3): findMany(), findManyByUploadCuid(), CreatePayrollDto
 
 ### Community 59 - "Community 59"
-Cohesion: 0.18
-Nodes (11): load(), load(), ListPayrollResponse, ListPayrollUploadResponse, Payroll, PayrollDetailResponse, PayrollUpload, PayrollUploadDetailResponse (+3 more)
+Cohesion: 0.14
+Nodes (10): CreatePayrollUploadDto, ListPayrollResponse, ListPayrollUploadResponse, Payroll, PayrollDetailResponse, PayrollUpload, PayrollUploadDetailResponse, PayrollUploadError (+2 more)
 
 ### Community 60 - "Community 60"
 Cohesion: 0.15
@@ -281,22 +284,22 @@ Nodes (5): serializePayroll(), serializePayrollList(), getPayrollByCuid(), getPa
 ## Knowledge Gaps
 - **364 isolated node(s):** `$schema`, `css`, `baseColor`, `components`, `utils` (+359 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `db` connect `Data Access Tests` to `Community 36`, `Master Data DAO`, `Community 37`, `Community 39`, `Community 40`, `Department Service DAO`, `Community 38`, `Community 55`, `Community 56`, `Community 58`?**
-  _High betweenness centrality (0.140) - this node is a cross-community bridge._
+- **Why does `db` connect `Data Access Tests` to `Community 35`, `Community 36`, `Community 37`, `Master Data DAO`, `Community 38`, `Department Service DAO`, `Community 55`, `Community 58`, `Community 59`?**
+  _High betweenness centrality (0.145) - this node is a cross-community bridge._
 - **Why does `User` connect `API Client Configuration` to `API Endpoints`?**
-  _High betweenness centrality (0.070) - this node is a cross-community bridge._
+  _High betweenness centrality (0.072) - this node is a cross-community bridge._
 - **What connects `$schema`, `css`, `baseColor` to the rest of the system?**
   _364 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `API Endpoints` be split into smaller, more focused modules?**
-  _Cohesion score 0.06442058496853018 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07826546800634585 - nodes in this community are weakly interconnected._
+- **Should `Data Access Tests` be split into smaller, more focused modules?**
+  _Cohesion score 0.1380952380952381 - nodes in this community are weakly interconnected._
 - **Should `UI Components Core` be split into smaller, more focused modules?**
   _Cohesion score 0.06538461538461539 - nodes in this community are weakly interconnected._
 - **Should `Dependencies & Icons` be split into smaller, more focused modules?**
   _Cohesion score 0.04878048780487805 - nodes in this community are weakly interconnected._
-- **Should `Master Data DAO` be split into smaller, more focused modules?**
-  _Cohesion score 0.11693548387096774 - nodes in this community are weakly interconnected._
