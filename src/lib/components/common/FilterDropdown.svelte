@@ -18,24 +18,24 @@
 	<DropdownMenu.Trigger>
 		{#snippet child({ props })}
 			<Button variant="outline" class="h-9 w-[180px] justify-between border-input bg-background shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none" {...props}>
-				{displayValue}
-				<FilterIcon class="ml-2 size-4 opacity-50" />
+				<span class="truncate pr-2">{displayValue}</span>
+				<FilterIcon class="ml-2 size-4 opacity-50 shrink-0" />
 			</Button>
 		{/snippet}
 	</DropdownMenu.Trigger>
-	<DropdownMenu.Content class="w-[180px]">
+	<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
 		<DropdownMenu.Group>
 			<DropdownMenu.Item onclick={() => onChange('all')} class="justify-between cursor-pointer {value === 'all' ? 'bg-accent text-accent-foreground' : ''}">
-				All
-				{#if value === 'all'}<CheckIcon class="size-4" />{/if}
+				<span class="truncate pr-2">All</span>
+				{#if value === 'all'}<CheckIcon class="size-4 shrink-0" />{/if}
 			</DropdownMenu.Item>
 			<DropdownMenu.Item onclick={() => onChange(true)} class="justify-between cursor-pointer {value === true ? 'bg-accent text-accent-foreground' : ''}">
-				Active
-				{#if value === true}<CheckIcon class="size-4" />{/if}
+				<span class="truncate pr-2">Active</span>
+				{#if value === true}<CheckIcon class="size-4 shrink-0" />{/if}
 			</DropdownMenu.Item>
 			<DropdownMenu.Item onclick={() => onChange(false)} class="justify-between cursor-pointer {value === false ? 'bg-accent text-accent-foreground' : ''}">
-				Inactive
-				{#if value === false}<CheckIcon class="size-4" />{/if}
+				<span class="truncate pr-2">Inactive</span>
+				{#if value === false}<CheckIcon class="size-4 shrink-0" />{/if}
 			</DropdownMenu.Item>
 		</DropdownMenu.Group>
 	</DropdownMenu.Content>

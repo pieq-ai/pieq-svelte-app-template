@@ -645,17 +645,17 @@
 						<DropdownMenu.Trigger>
 							{#snippet child({ props })}
 								<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none" {...props}>
-									{filterTypeOptions.find(o => o.value === filterType)?.label || 'All Holiday Types'}
+									<span class="truncate pr-2">{filterTypeOptions.find(o => o.value === filterType)?.label || 'All Holiday Types'}</span>
 									<FilterIcon class="ml-2 size-4 opacity-50 shrink-0" />
 								</Button>
 							{/snippet}
 						</DropdownMenu.Trigger>
-						<DropdownMenu.Content class="w-[180px]">
+						<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
 							<DropdownMenu.Group>
 								{#each filterTypeOptions as opt}
 									<DropdownMenu.Item onclick={() => { filterType = opt.value; currentPage = 1; }} class="justify-between cursor-pointer {filterType === opt.value ? 'bg-accent text-accent-foreground' : ''}">
-										{opt.label}
-										{#if filterType === opt.value}<CheckIcon class="size-4" />{/if}
+										<span class="truncate pr-2">{opt.label}</span>
+										{#if filterType === opt.value}<CheckIcon class="size-4 shrink-0" />{/if}
 									</DropdownMenu.Item>
 								{/each}
 							</DropdownMenu.Group>
@@ -815,12 +815,12 @@
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
 							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {errors.holiday_type ? 'border-destructive focus:border-destructive focus:ring-destructive/30 focus-visible:ring-destructive/30 data-[state=open]:border-destructive data-[state=open]:ring-destructive/30' : ''}" {...props}>
-								{holidayTypeOptions.find(o => o.value === holidayType)?.label || 'Select Category'}
+								<span class="truncate pr-2">{holidayTypeOptions.find(o => o.value === holidayType)?.label || 'Select Category'}</span>
 								<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[220px]">
+					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
 						<DropdownMenu.Group>
 							{#each holidayTypeOptions as opt}
 								<DropdownMenu.Item onclick={() => {
@@ -828,8 +828,8 @@
 									if (form && form.field === 'holiday_type') form = null;
 									errors.holiday_type = '';
 								}} class="justify-between cursor-pointer {holidayType === opt.value ? 'bg-accent text-accent-foreground' : ''}">
-									{opt.label}
-									{#if holidayType === opt.value}<CheckIcon class="size-4" />{/if}
+									<span class="truncate pr-2">{opt.label}</span>
+									{#if holidayType === opt.value}<CheckIcon class="size-4 shrink-0" />{/if}
 								</DropdownMenu.Item>
 							{/each}
 						</DropdownMenu.Group>

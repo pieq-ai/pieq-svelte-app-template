@@ -867,17 +867,17 @@
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
 							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none" {...props}>
-								{filterLeaveTypeOptions.find(o => o.value === filterLeaveType)?.label || 'All Leave Types'}
+								<span class="truncate pr-2">{filterLeaveTypeOptions.find(o => o.value === filterLeaveType)?.label || 'All Leave Types'}</span>
 								<FilterIcon class="ml-2 size-4 opacity-50 shrink-0" />
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[200px] max-h-60 overflow-y-auto">
+					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
 						<DropdownMenu.Group>
 							{#each filterLeaveTypeOptions as opt}
 								<DropdownMenu.Item onclick={() => { filterLeaveType = opt.value; currentPage = 1; }} class="justify-between cursor-pointer {filterLeaveType === opt.value ? 'bg-accent text-accent-foreground' : ''}">
-									{opt.label}
-									{#if filterLeaveType === opt.value}<CheckIcon class="size-4" />{/if}
+									<span class="truncate pr-2">{opt.label}</span>
+									{#if filterLeaveType === opt.value}<CheckIcon class="size-4 shrink-0" />{/if}
 								</DropdownMenu.Item>
 							{/each}
 						</DropdownMenu.Group>
@@ -891,17 +891,17 @@
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
 							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none" {...props}>
-								{filterEmploymentTypeOptions.find(o => o.value === filterEmploymentType)?.label || 'All Employment Types'}
+								<span class="truncate pr-2">{filterEmploymentTypeOptions.find(o => o.value === filterEmploymentType)?.label || 'All Employment Types'}</span>
 								<FilterIcon class="ml-2 size-4 opacity-50 shrink-0" />
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[220px] max-h-60 overflow-y-auto">
+					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
 						<DropdownMenu.Group>
 							{#each filterEmploymentTypeOptions as opt}
 								<DropdownMenu.Item onclick={() => { filterEmploymentType = opt.value; currentPage = 1; }} class="justify-between cursor-pointer {filterEmploymentType === opt.value ? 'bg-accent text-accent-foreground' : ''}">
-									{opt.label}
-									{#if filterEmploymentType === opt.value}<CheckIcon class="size-4" />{/if}
+									<span class="truncate pr-2">{opt.label}</span>
+									{#if filterEmploymentType === opt.value}<CheckIcon class="size-4 shrink-0" />{/if}
 								</DropdownMenu.Item>
 							{/each}
 						</DropdownMenu.Group>
@@ -1078,12 +1078,12 @@
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
 							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {errors.leave_type_cuid ? 'border-destructive focus:border-destructive focus:ring-destructive/30 focus-visible:ring-destructive/30 data-[state=open]:border-destructive data-[state=open]:ring-destructive/30' : ''}" {...props}>
-								{modalLeaveTypeOptions.find(o => o.value === leaveTypeId)?.label || 'Select Leave Type'}
+								<span class="truncate pr-2">{modalLeaveTypeOptions.find(o => o.value === leaveTypeId)?.label || 'Select Leave Type'}</span>
 								<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[280px] max-h-60 overflow-y-auto">
+					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
 						<DropdownMenu.Group>
 							{#each modalLeaveTypeOptions as opt}
 								<DropdownMenu.Item onclick={() => {
@@ -1092,8 +1092,8 @@
 									errors.leave_type_cuid = '';
 									errors.employment_type_cuids = '';
 								}} class="justify-between cursor-pointer {leaveTypeId === opt.value ? 'bg-accent text-accent-foreground' : ''}">
-									{opt.label}
-									{#if leaveTypeId === opt.value}<CheckIcon class="size-4" />{/if}
+									<span class="truncate pr-2">{opt.label}</span>
+									{#if leaveTypeId === opt.value}<CheckIcon class="size-4 shrink-0" />{/if}
 								</DropdownMenu.Item>
 							{/each}
 						</DropdownMenu.Group>
@@ -1266,12 +1266,12 @@
 						<DropdownMenu.Trigger>
 							{#snippet child({ props })}
 								<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {errors.applicable_gender ? 'border-destructive focus:border-destructive focus:ring-destructive/30 focus-visible:ring-destructive/30 data-[state=open]:border-destructive data-[state=open]:ring-destructive/30' : ''}" {...props}>
-									{genderOptions.find(o => o.value === applicableGender)?.label || 'Select Gender'}
+									<span class="truncate pr-2">{genderOptions.find(o => o.value === applicableGender)?.label || 'Select Gender'}</span>
 									<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
 								</Button>
 							{/snippet}
 						</DropdownMenu.Trigger>
-						<DropdownMenu.Content class="w-[200px]">
+						<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
 							<DropdownMenu.Group>
 								{#each genderOptions as opt}
 									<DropdownMenu.Item onclick={() => {
@@ -1279,8 +1279,8 @@
 										if (form && form.field === 'applicable_gender') form = null;
 										errors.applicable_gender = '';
 									}} class="justify-between cursor-pointer {applicableGender === opt.value ? 'bg-accent text-accent-foreground' : ''}">
-										{opt.label}
-										{#if applicableGender === opt.value}<CheckIcon class="size-4" />{/if}
+										<span class="truncate pr-2">{opt.label}</span>
+										{#if applicableGender === opt.value}<CheckIcon class="size-4 shrink-0" />{/if}
 									</DropdownMenu.Item>
 								{/each}
 							</DropdownMenu.Group>
