@@ -3,6 +3,7 @@ import type { ParsedPayrollRow } from '$lib/server/utils/excel-parser.js';
 export interface PayrollRowValidationError {
 	row: number;
 	employee_code: string;
+	error_type: string;
 	reason: string;
 }
 
@@ -20,6 +21,16 @@ export interface RowValidationResult {
 	};
 }
 
+// Helper to check if a component value is numeric (empty is valid)
+function isNumeric(raw: unknown): boolean {
+	if (raw === null || raw === undefined || raw === '') return true;
+	if (typeof raw === 'number') return !isNaN(raw);
+	const str = String(raw).replace(/,/g, '').trim();
+	if (str === '') return true;
+	const n = Number(str);
+	return !isNaN(n) && isFinite(n);
+}
+
 // ─── Row-level validation ─────────────────────────────────────────────────────
 
 /**
@@ -34,7 +45,8 @@ export function validatePayrollRow(row: ParsedPayrollRow): RowValidationResult {
 		errors.push({
 			row: row.rowIndex,
 			employee_code: row.employee_code || '(empty)',
-			reason: 'Employee code (Emp No) is missing or empty.'
+			error_type: 'Missing Employee Code',
+			reason: 'Employee code is required'
 		});
 	}
 
@@ -43,12 +55,14 @@ export function validatePayrollRow(row: ParsedPayrollRow): RowValidationResult {
 		errors.push({
 			row: row.rowIndex,
 			employee_code: row.employee_code || '(empty)',
-			reason: 'Month is missing or cannot be parsed. Accepted formats: "June", "Jun", 6, "06".'
+			error_type: 'Validation Error',
+			reason: 'Month is missing or cannot be parsed.'
 		});
 	} else if (row.month < 1 || row.month > 12) {
 		errors.push({
 			row: row.rowIndex,
 			employee_code: row.employee_code,
+			error_type: 'Validation Error',
 			reason: `Month value ${row.month} is out of range (must be 1-12).`
 		});
 	}
@@ -58,14 +72,30 @@ export function validatePayrollRow(row: ParsedPayrollRow): RowValidationResult {
 		errors.push({
 			row: row.rowIndex,
 			employee_code: row.employee_code || '(empty)',
+			error_type: 'Validation Error',
 			reason: 'Year is missing or cannot be parsed.'
 		});
 	} else if (row.year < 2000 || row.year > 9999) {
 		errors.push({
 			row: row.rowIndex,
 			employee_code: row.employee_code,
+			error_type: 'Validation Error',
 			reason: `Year value ${row.year} is not a valid 4-digit year.`
 		});
+	}
+
+	// Validate salary components
+	if (row.rawComponents) {
+		for (const [componentName, rawValue] of Object.entries(row.rawComponents)) {
+			if (!isNumeric(rawValue)) {
+				errors.push({
+					row: row.rowIndex,
+					employee_code: row.employee_code || '(empty)',
+					error_type: 'Validation Error',
+					reason: `${componentName} must be numeric.`
+				});
+			}
+		}
 	}
 
 	if (errors.length > 0) {

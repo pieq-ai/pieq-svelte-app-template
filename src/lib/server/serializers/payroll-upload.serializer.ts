@@ -14,6 +14,7 @@ export function serializePayrollUpload(record: PrismaPayrollUpload): PayrollUplo
 		employee_count: record.employee_count,
 		status: record.status,
 		file_name: record.file_name,
+		failure_reason: record.failure_reason,
 		uploaded_at: record.uploaded_at.toISOString(),
 		created_at: record.created_at.toISOString()
 	};

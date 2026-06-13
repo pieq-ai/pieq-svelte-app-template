@@ -36,17 +36,28 @@
 	let { data } = $props();
 	let upload = $derived(data.upload);
 	let records = $derived<Payroll[]>(data.records);
+	let failures = $derived(data.failures ?? []);
 
 	// ─── Sidebar state ────────────────────────────────────────────────────────────
 
 	let selectedRecord = $state<Payroll | null>(null);
 
+	function isMeaningful(value: unknown): boolean {
+		if (value === null || value === undefined) return false;
+		if (value === 0 || value === 0.0) return false;
+		const str = String(value).trim();
+		if (str === '' || str === '-' || str === '0' || str === '0.00') return false;
+		return true;
+	}
+
 	let selectedBreakdownEntries = $derived.by(() => {
 		if (!selectedRecord) return [];
-		return Object.entries(selectedRecord.payroll_breakdown).sort(([, a], [, b]) => b - a);
+		return Object.entries(selectedRecord.payroll_breakdown)
+			.filter(([, v]) => isMeaningful(v))
+			.sort(([, a], [, b]) => b - a);
 	});
 
-	let selectedEarnings = $derived(selectedBreakdownEntries.filter(([, v]) => v >= 0));
+	let selectedEarnings = $derived(selectedBreakdownEntries.filter(([, v]) => v > 0));
 	let selectedDeductions = $derived(selectedBreakdownEntries.filter(([, v]) => v < 0));
 
 	// ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -176,7 +187,40 @@
 
 	</div>
 
-	<!-- Upload summary cards -->
+	{#if upload.status === 'failed'}
+		<!-- Custom Failure Layout -->
+		<Card class="py-0">
+			<Table>
+				<TableHeader class="bg-muted">
+					<TableRow>
+						<TableHead class="font-bold text-foreground text-[15px] w-24">Row</TableHead>
+						<TableHead class="font-bold text-foreground text-[15px] w-40">Employee Code</TableHead>
+						<TableHead class="font-bold text-foreground text-[15px] w-48">Error Type</TableHead>
+						<TableHead class="font-bold text-foreground text-[15px]">Error Message</TableHead>
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{#if failures.length === 0}
+						<TableRow>
+							<TableCell colspan={4} class="py-8 text-center text-muted-foreground">
+								No failure details available.
+							</TableCell>
+						</TableRow>
+					{:else}
+						{#each failures as f (f.cuid)}
+							<TableRow class="hover:bg-muted/70 transition-colors">
+								<TableCell class="font-medium font-mono">{f.row_number === 0 ? '-' : f.row_number}</TableCell>
+								<TableCell class="font-semibold text-foreground font-mono">{f.employee_code || '-'}</TableCell>
+								<TableCell class="font-semibold text-destructive">{f.error_type}</TableCell>
+								<TableCell class="text-muted-foreground wrap-break-word">{f.error_message}</TableCell>
+							</TableRow>
+						{/each}
+					{/if}
+				</TableBody>
+			</Table>
+		</Card>
+	{:else}
+		<!-- Upload summary cards -->
 	<div class="grid gap-4 sm:grid-cols-3">
 		<Card>
 			<CardHeader class="pb-2">
@@ -201,7 +245,6 @@
 	<!-- Payroll records table -->
 	<div class="space-y-3">
 		<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-			<h2 class="text-lg font-semibold">Employee Payroll Records</h2>
 		</div>
 
 		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -283,6 +326,7 @@
 		</Card>
 		<Pagination bind:currentPage pageSize={pageSize} totalItems={filteredRecords.length} />
 	</div>
+	{/if}
 </div>
 
 <!-- Sidebar Slide-over Panel -->

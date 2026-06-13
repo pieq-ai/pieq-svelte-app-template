@@ -22,6 +22,7 @@ export interface ParsedPayrollRow {
 	month: number | null;
 	year: number | null;
 	components: Record<string, number>;
+	rawComponents?: Record<string, unknown>;
 	gross_earnings?: number;
 	total_deduction?: number;
 	net_salary?: number;
@@ -35,6 +36,10 @@ export interface ParseResult {
 	/** Column mapping that was resolved (for debugging) */
 	columnMapping: Record<string, string>;
 	warnings: string[];
+	headerMonth: number | null;
+	headerYear: number | null;
+	headerPeriodStr: string;
+	missingEmpCode: boolean;
 }
 
 // ─── Month normalisation ────────────────────────────────────────────────────────
@@ -159,9 +164,7 @@ function safeNumber(raw: unknown): number {
 // ─── Main parser ────────────────────────────────────────────────────────────────
 
 export function parsePayrollExcel(
-	buffer: Buffer,
-	defaultMonth?: number | null,
-	defaultYear?: number | null
+	buffer: Buffer
 ): ParseResult {
 	const warnings: string[] = [];
 
@@ -169,7 +172,16 @@ export function parsePayrollExcel(
 
 	const sheetName = workbook.SheetNames[0];
 	if (!sheetName) {
-		return { rows: [], detectedHeaders: [], columnMapping: {}, warnings: ['Workbook is empty — no sheets found.'] };
+		return {
+			rows: [],
+			detectedHeaders: [],
+			columnMapping: {},
+			warnings: ['Workbook is empty — no sheets found.'],
+			headerMonth: null,
+			headerYear: null,
+			headerPeriodStr: '',
+			missingEmpCode: true
+		};
 	}
 
 	const sheet = workbook.Sheets[sheetName];
@@ -181,18 +193,62 @@ export function parsePayrollExcel(
 	}) as unknown[][];
 
 	if (raw.length === 0) {
-		return { rows: [], detectedHeaders: [], columnMapping: {}, warnings: ['Sheet is empty.'] };
+		return {
+			rows: [],
+			detectedHeaders: [],
+			columnMapping: {},
+			warnings: ['Sheet is empty.'],
+			headerMonth: null,
+			headerYear: null,
+			headerPeriodStr: '',
+			missingEmpCode: true
+		};
+	}
+
+	// ── Scan for Report Header / Period ──────────────────────────────────────
+	let headerMonth: number | null = null;
+	let headerYear: number | null = null;
+	let headerPeriodStr = '';
+
+	const titleRegex = /Salary Details for the month\s+([A-Za-z]+)\s*'?\s*(\d{2,4})/i;
+
+	for (let i = 0; i < Math.min(raw.length, 15); i++) {
+		const row = raw[i] ?? [];
+		for (const cell of row) {
+			if (cell != null) {
+				const str = String(cell).trim();
+				const match = str.match(titleRegex);
+				if (match) {
+					const monthStr = match[1];
+					const yearStr = match[2];
+					headerMonth = parseMonth(monthStr);
+
+					let yr = parseInt(yearStr, 10);
+					if (!isNaN(yr)) {
+						if (yearStr.length === 2) {
+							yr = 2000 + yr;
+						}
+						headerYear = parseYear(yr);
+					}
+					headerPeriodStr = str;
+					break;
+				}
+			}
+		}
+		if (headerMonth !== null && headerYear !== null) {
+			break;
+		}
 	}
 
 	// ── Find header row ──────────────────────────────────────────────────────
-	// Scan first 15 rows for a row that contains an identity OR month column.
+	// Scan first 15 rows for a row that contains an employee identity key.
 	let headerRowIdx = -1;
 	let headers: string[] = [];
 
 	for (let i = 0; i < Math.min(raw.length, 15); i++) {
 		const candidate = (raw[i] ?? []).map((c) => (c != null ? String(c) : ''));
 		const normCandidates = candidate.map(normalise);
-		if (normCandidates.some((h) => IDENTITY_KEYS.has(h) || MONTH_KEYS.has(h) || YEAR_KEYS.has(h))) {
+		if (normCandidates.some((h) => IDENTITY_KEYS.has(h))) {
 			headerRowIdx = i;
 			headers = candidate;
 			break;
@@ -214,7 +270,7 @@ export function parsePayrollExcel(
 			`Could not find a recognised header row. ` +
 			`Falling back to row ${headerRowIdx + 1} as header. ` +
 			`Columns found: [${foundCols}]. ` +
-			`Expected columns like "Emp No", "Month", "Year".`
+			`Expected columns like "Emp No".`
 		);
 	}
 
@@ -233,31 +289,7 @@ export function parsePayrollExcel(
 	if (monthIdx   >= 0) columnMapping['month']         = headers[monthIdx];
 	if (yearIdx    >= 0) columnMapping['year']           = headers[yearIdx];
 
-	if (empCodeIdx === -1) {
-		warnings.push(
-			`Employee code column not found. ` +
-			`Looked for: ${[...IDENTITY_KEYS].slice(0, 6).join(', ')}, etc. ` +
-			`Actual columns: [${normHeaders.filter((h) => h).slice(0, 10).join(', ')}]`
-		);
-	}
-	if (monthIdx === -1) {
-		if (defaultMonth != null) {
-			warnings.push(`Month column not found. Using selected month (${defaultMonth}) as fallback.`);
-		} else {
-			warnings.push(
-				`Month column not found. Actual columns: [${headers.filter((h) => h.trim()).slice(0, 10).join(', ')}]`
-			);
-		}
-	}
-	if (yearIdx === -1) {
-		if (defaultYear != null) {
-			warnings.push(`Year column not found. Using selected year (${defaultYear}) as fallback.`);
-		} else {
-			warnings.push(
-				`Year column not found. Actual columns: [${headers.filter((h) => h.trim()).slice(0, 10).join(', ')}]`
-			);
-		}
-	}
+	const missingEmpCode = empCodeIdx === -1;
 
 	// ── Parse data rows ──────────────────────────────────────────────────────
 	const rows: ParsedPayrollRow[] = [];
@@ -270,17 +302,13 @@ export function parsePayrollExcel(
 
 		const employeeCode = empCodeIdx >= 0 ? String(dataRow[empCodeIdx] ?? '').trim() : '';
 		const employeeName = empNameIdx >= 0 ? String(dataRow[empNameIdx] ?? '').trim() : '';
-		let month = monthIdx >= 0 ? parseMonth(dataRow[monthIdx]) : null;
-		if (month === null && defaultMonth != null) {
-			month = defaultMonth;
-		}
 
-		let year = yearIdx >= 0 ? parseYear(dataRow[yearIdx]) : null;
-		if (year === null && defaultYear != null) {
-			year = defaultYear;
-		}
+		// The payroll period from report header applies to every row in the file
+		const month = headerMonth;
+		const year = headerYear;
 
 		const components: Record<string, number> = {};
+		const rawComponents: Record<string, unknown> = {};
 		let gross_earnings: number | undefined;
 		let total_deduction: number | undefined;
 		let net_salary: number | undefined;
@@ -307,6 +335,7 @@ export function parsePayrollExcel(
 
 			if (cellValue !== null && cellValue !== undefined && cellValue !== '') {
 				components[header.trim()] = num;
+				rawComponents[header.trim()] = cellValue;
 			}
 		}
 
@@ -317,6 +346,7 @@ export function parsePayrollExcel(
 			month,
 			year,
 			components,
+			rawComponents,
 			gross_earnings,
 			total_deduction,
 			net_salary,
@@ -328,6 +358,10 @@ export function parsePayrollExcel(
 		rows,
 		detectedHeaders: headers.filter((h) => h.trim()),
 		columnMapping,
-		warnings
+		warnings,
+		headerMonth,
+		headerYear,
+		headerPeriodStr,
+		missingEmpCode
 	};
 }

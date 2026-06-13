@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
-import type { PayrollUpload, Payroll } from '$lib/types/payroll';
+import type { PayrollUpload, Payroll, PayrollUploadFailure } from '$lib/types/payroll';
 
 export const load: PageLoad = async ({ params, fetch }) => {
 	// Load the upload batch metadata
@@ -16,14 +16,25 @@ export const load: PageLoad = async ({ params, fetch }) => {
 	const uploadData = await uploadRes.json();
 	const upload: PayrollUpload = uploadData.data;
 
-	// Load payroll records for this upload batch
-	const recordsRes = await fetch(`/api/payroll-uploads/${params.cuid}/records`);
-	if (!recordsRes.ok) {
-		error(500, 'Failed to load payroll records for this upload');
+	let records: Payroll[] = [];
+	let failures: PayrollUploadFailure[] = [];
+
+	if (upload.status === 'failed') {
+		const failuresRes = await fetch(`/api/payroll-uploads/${params.cuid}/failures`);
+		if (!failuresRes.ok) {
+			error(500, 'Failed to load failures for this upload');
+		}
+		const failuresData = await failuresRes.json();
+		failures = failuresData.data ?? [];
+	} else {
+		// Load payroll records for this upload batch
+		const recordsRes = await fetch(`/api/payroll-uploads/${params.cuid}/records`);
+		if (!recordsRes.ok) {
+			error(500, 'Failed to load payroll records for this upload');
+		}
+		const recordsData = await recordsRes.json();
+		records = recordsData.data ?? [];
 	}
 
-	const recordsData = await recordsRes.json();
-	const records: Payroll[] = recordsData.data ?? [];
-
-	return { upload, records };
+	return { upload, records, failures };
 };

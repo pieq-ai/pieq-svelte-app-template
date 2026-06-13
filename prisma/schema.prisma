@@ -426,6 +426,9 @@ model PayrollUpload {
   /// The original name of the uploaded Excel file
   file_name String? @db.VarChar(255)
 
+  /// Failure reason if the upload-level validation failed
+  failure_reason String? @db.Text
+
   /// Timestamp when the file was uploaded
   uploaded_at DateTime @default(now()) @db.Timestamptz()
 
@@ -495,3 +498,35 @@ model Payroll {
   @@index([cuid])
   @@map("payroll")
 }
+
+/// Represents one row-level failure in a payroll upload batch.
+model PayrollUploadFailure {
+  /// Auto-incrementing surrogate primary key (internal use only)
+  id BigInt @id @default(autoincrement())
+
+  /// Externally-exposed, non-guessable identifier — used in all API routes
+  cuid String @unique @default(cuid(2)) @db.Text
+
+  /// CUID of the parent PayrollUpload batch (no FK constraint)
+  payroll_upload_cuid String @db.Text
+
+  /// The row number of the failure in the sheet (1-indexed)
+  row_number Int
+
+  /// The employee code associated with the row, if any
+  employee_code String? @db.VarChar(50)
+
+  /// The error type/code (e.g., 'Validation Error', 'Employee Not Found', etc.)
+  error_type String @db.VarChar(100)
+
+  /// The detailed human-readable failure reason
+  error_message String @db.Text
+
+  /// Timestamp when this failure record was created
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  @@index([payroll_upload_cuid])
+  @@index([cuid])
+  @@map("payroll_upload_failures")
+}
+

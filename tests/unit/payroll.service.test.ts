@@ -24,6 +24,11 @@ vi.mock('$lib/server/dao/payroll-upload.dao.js', () => ({
 	findMany: vi.fn()
 }));
 
+vi.mock('$lib/server/dao/payroll-upload-failure.dao.js', () => ({
+	create: vi.fn(),
+	findManyByUploadCuid: vi.fn()
+}));
+
 // ─── Mock employee provider ───────────────────────────────────────────────────
 
 vi.mock('$lib/server/providers/employee.provider.js', () => ({
@@ -34,6 +39,7 @@ vi.mock('$lib/server/providers/employee.provider.js', () => ({
 
 import * as dao from '$lib/server/dao/payroll.dao.js';
 import * as uploadDao from '$lib/server/dao/payroll-upload.dao.js';
+import * as failureDao from '$lib/server/dao/payroll-upload-failure.dao.js';
 import { findEmployeeByCode } from '$lib/server/providers/employee.provider.js';
 import type { ParsedPayrollRow } from '$lib/server/utils/excel-parser.js';
 
@@ -155,6 +161,7 @@ describe('Payroll Service', () => {
 		});
 
 		it('should skip a row when month is null (validation error)', async () => {
+			vi.mocked(findEmployeeByCode).mockReturnValue(mockEmployee());
 			const result = await uploadPayroll([mockParsedRow({ month: null })], 6, 2026);
 
 			expect(result.created).toBe(0);
@@ -163,6 +170,7 @@ describe('Payroll Service', () => {
 		});
 
 		it('should skip a row when year is null (validation error)', async () => {
+			vi.mocked(findEmployeeByCode).mockReturnValue(mockEmployee());
 			const result = await uploadPayroll([mockParsedRow({ year: null })], 6, 2026);
 
 			expect(result.created).toBe(0);
@@ -242,6 +250,120 @@ describe('Payroll Service', () => {
 
 			expect(dao.create).toHaveBeenCalledWith(
 				expect.objectContaining({ employee_name: 'John Doe Provider' })
+			);
+		});
+
+		it('should fail-fast if workbook is unreadable', async () => {
+			const result = await uploadPayroll([], 6, 2026, 'payroll.xlsx', null, {
+				unreadable: true,
+				unreadableError: 'Unreadable workbook'
+			});
+			expect(result.created).toBe(0);
+			expect(result.skipped).toBe(0);
+			expect(uploadDao.updateEmployeeCount).toHaveBeenCalledWith(
+				expect.any(String),
+				0,
+				'failed',
+				'Unreadable workbook'
+			);
+		});
+
+		it('should fail-fast if workbook is empty', async () => {
+			const result = await uploadPayroll([], 6, 2026, 'payroll.xlsx', null);
+			expect(result.created).toBe(0);
+			expect(result.skipped).toBe(0);
+			expect(uploadDao.updateEmployeeCount).toHaveBeenCalledWith(
+				expect.any(String),
+				0,
+				'failed',
+				'Empty workbook'
+			);
+		});
+
+		it('should fail-fast if required columns are missing', async () => {
+			const result = await uploadPayroll([mockParsedRow()], 6, 2026, 'payroll.xlsx', null, {
+				missingEmpCode: true
+			});
+			expect(result.created).toBe(0);
+			expect(uploadDao.updateEmployeeCount).toHaveBeenCalledWith(
+				expect.any(String),
+				0,
+				'failed',
+				"Required column 'Emp No' is missing."
+			);
+		});
+
+		it('should fail-fast if period in row does not match selected period', async () => {
+			const result = await uploadPayroll(
+				[mockParsedRow({ month: 5, year: 2026 })],
+				6,
+				2026,
+				'payroll.xlsx',
+				null,
+				{
+					headerMonth: 5,
+					headerYear: 2026
+				}
+			);
+			expect(result.created).toBe(0);
+			expect(uploadDao.updateEmployeeCount).toHaveBeenCalledWith(
+				expect.any(String),
+				0,
+				'failed',
+				'Selected payroll period does not match uploaded file period.'
+			);
+		});
+
+		it('should fail-fast if unable to determine payroll period', async () => {
+			const result = await uploadPayroll([mockParsedRow()], 6, 2026, 'payroll.xlsx', null, {
+				headerMonth: null,
+				headerYear: null
+			});
+			expect(result.created).toBe(0);
+			expect(uploadDao.updateEmployeeCount).toHaveBeenCalledWith(
+				expect.any(String),
+				0,
+				'failed',
+				'Unable to determine payroll period from file header.'
+			);
+		});
+
+		it('should skip duplicate rows inside the Excel file', async () => {
+			vi.mocked(findEmployeeByCode).mockReturnValue(mockEmployee());
+			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
+			vi.mocked(dao.create).mockResolvedValue(mockPayrollRecord() as never);
+
+			const result = await uploadPayroll(
+				[
+					mockParsedRow({ rowIndex: 2 }),
+					mockParsedRow({ rowIndex: 3 })
+				],
+				6,
+				2026,
+				'payroll.xlsx'
+			);
+			expect(result.created).toBe(1);
+			expect(result.skipped).toBe(1);
+			expect(result.errors).toHaveLength(1);
+			expect(result.errors[0].reason).toBe('Duplicate row in upload');
+		});
+
+		it('should strictly follow validation order (Employee Not Found takes precedence over component Validation Error)', async () => {
+			vi.mocked(findEmployeeByCode).mockReturnValue(null); // Employee does not exist
+			const row = mockParsedRow({
+				employee_code: 'EMP999',
+				rawComponents: { Basic: 'ABC' } // Non-numeric
+			});
+
+			const result = await uploadPayroll([row], 6, 2026);
+			expect(result.created).toBe(0);
+			expect(result.skipped).toBe(1);
+			expect(result.errors).toHaveLength(1);
+			expect(result.errors[0].reason).toContain('does not exist (not found)');
+			expect(failureDao.create).toHaveBeenCalledWith(
+				expect.objectContaining({
+					error_type: 'Employee Not Found'
+				})
 			);
 		});
 	});

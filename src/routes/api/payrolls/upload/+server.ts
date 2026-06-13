@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { parsePayrollExcel } from '$lib/server/utils/excel-parser.js';
+import type { ParsedPayrollRow, ParseResult } from '$lib/server/utils/excel-parser.js';
 import { uploadPayroll } from '$lib/server/services/payroll.service.js';
 import { validateExcelExtension } from '$lib/server/validators/payroll.validator.js';
 
@@ -44,25 +45,42 @@ export async function POST({ request }) {
 			return json({ message: 'A valid 4-digit pay year is required.' }, { status: 400 });
 		}
 
-		// Read file buffer
-		const arrayBuffer = await file.arrayBuffer();
-		const buffer = Buffer.from(arrayBuffer);
+		let rows: ParsedPayrollRow[] = [];
+		let parseResult: ParseResult | null = null;
+		let unreadable = false;
+		let unreadableError = '';
 
-		// Parse Excel
-		const { rows, warnings } = parsePayrollExcel(buffer, defaultMonth, defaultYear);
+		try {
+			// Read file buffer
+			const arrayBuffer = await file.arrayBuffer();
+			const buffer = Buffer.from(arrayBuffer);
 
-		if (rows.length === 0) {
-			return json(
-				{
-					message: 'No data rows found in the uploaded file.',
-					warnings
-				},
-				{ status: 400 }
-			);
+			// Parse Excel
+			parseResult = parsePayrollExcel(buffer);
+			rows = parseResult.rows;
+		} catch (error) {
+			unreadable = true;
+			unreadableError = (error as Error).message || 'Failed to parse Excel file';
 		}
 
 		// Process rows through service — creates upload batch + individual payroll records
-		const result = await uploadPayroll(rows, defaultMonth, defaultYear, file.name);
+		const result = await uploadPayroll(
+			rows,
+			defaultMonth,
+			defaultYear,
+			file.name,
+			null, // created_by
+			{
+				unreadable,
+				unreadableError,
+				detectedHeaders: parseResult?.detectedHeaders,
+				columnMapping: parseResult?.columnMapping,
+				headerMonth: parseResult?.headerMonth,
+				headerYear: parseResult?.headerYear,
+				headerPeriodStr: parseResult?.headerPeriodStr,
+				missingEmpCode: parseResult?.missingEmpCode
+			}
+		);
 
 		return json({
 			data: {
@@ -70,7 +88,7 @@ export async function POST({ request }) {
 				skipped: result.skipped,
 				errors: result.errors,
 				upload_cuid: result.upload_cuid,
-				warnings
+				warnings: parseResult?.warnings || []
 			}
 		});
 	} catch (error) {

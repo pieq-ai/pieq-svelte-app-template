@@ -18,6 +18,8 @@ export interface PayrollUpload {
 	status: string;
 	/** The original name of the uploaded Excel file */
 	file_name: string | null;
+	/** Failure reason if the upload-level validation failed */
+	failure_reason: string | null;
 	/** ISO timestamp string */
 	uploaded_at: string;
 	/** ISO timestamp string */
@@ -53,6 +55,7 @@ export interface CreatePayrollUploadDto {
 	year: number;
 	status?: string;
 	file_name?: string | null;
+	failure_reason?: string | null;
 	created_by?: string | null;
 }
 
@@ -77,6 +80,17 @@ export interface PayrollUploadError {
 	employee_code: string;
 	reason: string;
 }
+
+export interface PayrollUploadFailure {
+	cuid: string;
+	payroll_upload_cuid: string;
+	row_number: number;
+	employee_code: string | null;
+	error_type: string;
+	error_message: string;
+	created_at: string;
+}
+
 
 export interface PayrollUploadResult {
 	created: number;

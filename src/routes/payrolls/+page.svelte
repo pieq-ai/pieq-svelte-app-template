@@ -410,7 +410,7 @@
 				<div class="md:col-span-2">
 					{#if selectedFile}
 						<div
-							class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-10 text-center transition-colors h-full min-h-[220px] border-[#F45310]/40 bg-[#F45310]/5 animate-in fade-in zoom-in duration-200"
+							class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 text-center transition-colors h-full min-h-[160px] border-[#F45310]/40 bg-[#F45310]/5 animate-in fade-in zoom-in duration-200"
 						>
 							<FileSpreadsheetIcon class="mx-auto mb-3 size-12 text-[#F45310]" />
 							<p class="text-base font-semibold text-foreground truncate max-w-xs">{selectedFile.name}</p>
@@ -428,7 +428,7 @@
 					{:else}
 						<!-- svelte-ignore a11y_no_static_element_interactions -->
 						<div
-							class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-10 text-center transition-colors h-full min-h-[220px] {dragOver
+							class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 text-center transition-colors h-full min-h-[160px] {dragOver
 								? 'border-[#F45310] bg-[#F45310]/5'
 								: 'border-border bg-muted/20 hover:border-[#F45310]/50 hover:bg-muted/40'}"
 							ondrop={handleDrop}

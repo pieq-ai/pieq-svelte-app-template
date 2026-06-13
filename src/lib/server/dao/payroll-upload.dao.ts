@@ -11,6 +11,7 @@ export async function create(data: CreatePayrollUploadDto) {
 			year: data.year,
 			status: data.status ?? 'processed',
 			file_name: data.file_name ?? null,
+			failure_reason: data.failure_reason ?? null,
 			created_by: data.created_by ?? null
 		}
 	});
@@ -21,17 +22,19 @@ export async function findByCuid(cuid: string) {
 	return db.payrollUpload.findUnique({ where: { cuid } });
 }
 
-/** Update the employee_count and optionally status after processing. */
+/** Update the employee_count, status, and failure_reason after processing. */
 export async function updateEmployeeCount(
 	cuid: string,
 	employee_count: number,
-	status?: string
+	status?: string,
+	failure_reason?: string | null
 ) {
 	return db.payrollUpload.update({
 		where: { cuid },
 		data: {
 			employee_count,
-			...(status ? { status } : {})
+			...(status ? { status } : {}),
+			...(failure_reason !== undefined ? { failure_reason } : {})
 		}
 	});
 }

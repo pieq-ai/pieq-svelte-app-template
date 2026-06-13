@@ -1,10 +1,11 @@
 import { describe, it, expect } from 'vitest';
+import * as XLSX from 'xlsx';
 import {
 	validatePayrollRow,
 	validateExcelExtension,
 	validateExcelMimeType
 } from '$lib/server/validators/payroll.validator.js';
-import { parseMonth, parseYear } from '$lib/server/utils/excel-parser.js';
+import { parseMonth, parseYear, parsePayrollExcel } from '$lib/server/utils/excel-parser.js';
 import type { ParsedPayrollRow } from '$lib/server/utils/excel-parser.js';
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
@@ -147,6 +148,21 @@ describe('validatePayrollRow', () => {
 
 		expect(errors[0].row).toBe(5);
 	});
+
+	it('should return an error when a salary component is non-numeric', () => {
+		const { errors } = validatePayrollRow(
+			makeRow({
+				rawComponents: {
+					Basic: '10000',
+					HRA: 'ABC'
+				}
+			})
+		);
+
+		expect(errors).toHaveLength(1);
+		expect(errors[0].error_type).toBe('Validation Error');
+		expect(errors[0].reason).toBe('HRA must be numeric.');
+	});
 });
 
 // ─── validateExcelExtension ────────────────────────────────────────────────────
@@ -189,5 +205,27 @@ describe('validateExcelMimeType', () => {
 	it('should reject invalid MIME types', () => {
 		expect(validateExcelMimeType('text/csv')).toBe(false);
 		expect(validateExcelMimeType('application/pdf')).toBe(false);
+	});
+});
+
+describe('parsePayrollExcel report header parsing', () => {
+	it('should extract month and year from report header cell', () => {
+		const ws = XLSX.utils.aoa_to_sheet([
+			['Salary Details for the month April\'26'],
+			[],
+			['Emp No', 'Employee Name', 'Basic'],
+			['EMP001', 'John Doe', 30000]
+		]);
+		const wb = XLSX.utils.book_new();
+		XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+		const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+		const result = parsePayrollExcel(buffer);
+		expect(result.headerMonth).toBe(4);
+		expect(result.headerYear).toBe(2026);
+		expect(result.missingEmpCode).toBe(false);
+		expect(result.rows).toHaveLength(1);
+		expect(result.rows[0].month).toBe(4);
+		expect(result.rows[0].year).toBe(2026);
 	});
 });

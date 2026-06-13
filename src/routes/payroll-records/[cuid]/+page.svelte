@@ -39,12 +39,22 @@
 	// The breakdown JSON is flat {component: amount}. We display all entries in a
 	// single "Components" table, then show the explicit gross/deduction/net summary.
 
+	function isMeaningful(value: unknown): boolean {
+		if (value === null || value === undefined) return false;
+		if (value === 0 || value === 0.0) return false;
+		const str = String(value).trim();
+		if (str === '' || str === '-' || str === '0' || str === '0.00') return false;
+		return true;
+	}
+
 	let breakdownEntries = $derived(
-		Object.entries(payroll.payroll_breakdown).sort(([, a], [, b]) => b - a)
+		Object.entries(payroll.payroll_breakdown)
+			.filter(([, v]) => isMeaningful(v))
+			.sort(([, a], [, b]) => b - a)
 	);
 
 	// Separate earnings (positive) and deductions (negative or zero with known name)
-	let earnings = $derived(breakdownEntries.filter(([, v]) => v >= 0));
+	let earnings = $derived(breakdownEntries.filter(([, v]) => v > 0));
 	let deductions = $derived(breakdownEntries.filter(([, v]) => v < 0));
 
 	// Back navigation — prefer upload batch if available
