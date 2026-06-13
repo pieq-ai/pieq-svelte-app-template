@@ -71,6 +71,8 @@
 	let isSubmitting = $state(false);
 	let backendError = $state('');
 
+	let minDate = $derived(structure.effective_to ?? structure.effective_from);
+
 	interface RevisionItem {
 		id: number;
 		salary_component_cuid: string;
@@ -183,7 +185,11 @@
 		const errors: Record<string, string> = {};
 
 		const efError = validateEffectiveFrom(revisionEffectiveFrom);
-		if (efError) errors['effective_from'] = efError;
+		if (efError) {
+			errors['effective_from'] = efError;
+		} else if (revisionEffectiveFrom && revisionEffectiveFrom <= minDate) {
+			errors['effective_from'] = "New salary structures must start after the current active structure's effective period.";
+		}
 
 		if (revisionItems.length === 0) {
 			errors['components'] = 'At least one component is required';
@@ -237,7 +243,7 @@
 			const resData = await res.json();
 
 			if (res.ok && resData.data) {
-				toast.success('Salary revision created successfully');
+				toast.success('New salary structure added successfully');
 				closeRevision();
 				// Navigate to the new revision's detail page
 				goto(resolve(`/salary-structures/${resData.data.cuid}`));
@@ -245,7 +251,7 @@
 				if (res.status === 400 || res.status === 409) {
 					backendError = resData.message || resData.error || 'Validation failed';
 				} else {
-					toast.error(resData.message || resData.error || 'Failed to create revision.');
+					toast.error(resData.message || resData.error || 'Failed to add new structure.');
 				}
 			}
 		} catch (err) {
@@ -258,7 +264,7 @@
 </script>
 
 <svelte:head>
-	<title>Salary Structure — {employee?.name ?? structure.employee_cuid}</title>
+	<title>Salary Structure {employee?.name ?? structure.employee_cuid}</title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
@@ -286,7 +292,7 @@
 				class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
 				onclick={openRevision}
 			>
-				Create Revision
+				Add New Structure
 			</Button>
 		{/if}
 	</div>
@@ -294,7 +300,7 @@
 	<!-- Header card -->
 	<Card>
 		<CardContent>
-			<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+			<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
 				<!-- Employee -->
 				<div class="space-y-1">
 					<p class="text-xs uppercase tracking-wide text-muted-foreground font-medium">Employee</p>
@@ -374,7 +380,7 @@
 
 <CrudModal
 	open={isRevisionOpen}
-	title="Create Revision"
+	title="Add New Structure"
 	description="A new Active structure will be created. The current structure will be marked Inactive."
 	isDirty={isRevisionDirty}
 	isSubmitting={isSubmitting}
@@ -389,6 +395,7 @@
 					id="revision_effective_from"
 					name="revision_effective_from"
 					bind:value={revisionEffectiveFrom}
+					isDateDisabled={(date) => date.toString() <= minDate}
 					class={fieldErrors['effective_from'] ? 'border-destructive' : ''}
 					onChange={() => { delete fieldErrors['effective_from']; fieldErrors = { ...fieldErrors }; }}
 				/>
@@ -521,7 +528,7 @@
 						<LoaderCircleIcon class="mr-2 size-4 animate-spin" />
 						Creating...
 					{:else}
-						Create Revision
+						Add New Structure
 					{/if}
 				</Button>
 			</div>

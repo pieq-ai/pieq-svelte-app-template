@@ -14,6 +14,7 @@
 		placeholder?: string;
 		class?: string;
 		disabled?: boolean;
+		isDateDisabled?: (date: DateValue) => boolean;
 	}
 
 	let {
@@ -23,7 +24,8 @@
 		onChange,
 		placeholder = "Select date...",
 		class: className,
-		disabled = false
+		disabled = false,
+		isDateDisabled
 	}: Props = $props();
 
 	let open = $state(false);
@@ -82,6 +84,6 @@
 		{/snippet}
 	</PopoverTrigger>
 	<PopoverContent class="w-auto p-0" align="start" sideOffset={4}>
-		<Calendar value={calendarValue} onValueChange={handleSelect} initialFocus />
+		<Calendar value={calendarValue} onValueChange={handleSelect} {isDateDisabled} initialFocus />
 	</PopoverContent>
 </Popover>

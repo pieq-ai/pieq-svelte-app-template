@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
 	createStructure,
+	createRevision,
 	updateStructure,
 	getStructureByCuid,
 	getStructures,
@@ -9,7 +10,8 @@ import {
 	InvalidEmployeeError,
 	InvalidSalaryComponentError,
 	DuplicateComponentInStructureError,
-	ActiveStructureExistsError
+	ActiveStructureExistsError,
+	SourceStructureNotActiveError
 } from '$lib/server/services/salary-structure.service.js';
 
 // ─── Mock DAO ─────────────────────────────────────────────────────────────────
@@ -175,12 +177,102 @@ describe('Salary Structure Service', () => {
 			await expect(
 				createStructure({
 					employee_cuid: 'EMP001',
-					effective_from: '2024-01-01',
+					effective_from: '2025-01-01',
 					effective_to: null,
 					status: true,
 					components: [{ salary_component_cuid: 'comp_abc', amount: 100 }]
 				})
 			).rejects.toThrow(ActiveStructureExistsError);
+		});
+
+		it('should throw BusinessValidationError when new structure overlaps with existing active structure dates', async () => {
+			vi.mocked(findEmployeeByCuid).mockReturnValue({ cuid: 'EMP001', employee_id: 'EMP001', name: 'John Doe' });
+			vi.mocked(structureDao.findActiveByEmployeeCuid).mockResolvedValue(
+				mockStructureRecord({
+					effective_from: new Date('2024-01-01'),
+					effective_to: new Date('2024-06-30')
+				}) as never
+			);
+
+			await expect(
+				createStructure({
+					employee_cuid: 'EMP001',
+					effective_from: '2024-06-15',
+					effective_to: null,
+					status: true,
+					components: [{ salary_component_cuid: 'comp_abc', amount: 100 }]
+				})
+			).rejects.toThrow('The selected employee already has an active salary structure for the chosen period.');
+		});
+	});
+
+	// ─── createRevision ───────────────────────────────────────────────────────
+
+	describe('createRevision', () => {
+		it('should create revision, closing previous active structure', async () => {
+			const source = mockStructureRecord({ cuid: 'struct_1', effective_from: new Date('2024-01-01') });
+			vi.mocked(structureDao.findByCuid).mockResolvedValue(source as never);
+			vi.mocked(componentDao.findByCuid).mockResolvedValue(mockComponentRecord() as never);
+			vi.mocked(structureDao.create).mockResolvedValue(mockStructureRecord({ cuid: 'struct_2' }) as never);
+			vi.mocked(structureDao.createItems).mockResolvedValue([mockItemRecord()] as never);
+
+			const result = await createRevision('struct_1', {
+				effective_from: '2024-06-01',
+				components: [{ salary_component_cuid: 'comp_abc', amount: 6000 }]
+			});
+
+			expect(structureDao.update).toHaveBeenCalledWith('struct_1', expect.objectContaining({
+				status: false,
+				effective_to: '2024-05-31'
+			}));
+			expect(result.cuid).toBe('struct_2');
+		});
+
+		it('should throw SourceStructureNotActiveError if source is inactive', async () => {
+			const source = mockStructureRecord({ cuid: 'struct_1', status: false });
+			vi.mocked(structureDao.findByCuid).mockResolvedValue(source as never);
+
+			await expect(
+				createRevision('struct_1', {
+					effective_from: '2024-06-01',
+					components: [{ salary_component_cuid: 'comp_abc', amount: 6000 }]
+				})
+			).rejects.toThrow(SourceStructureNotActiveError);
+		});
+
+		it('should throw BusinessValidationError if new revision overlaps with an ongoing source structure (Scenario B)', async () => {
+			const source = mockStructureRecord({ cuid: 'struct_1', effective_from: new Date('2024-06-01'), effective_to: null });
+			vi.mocked(structureDao.findByCuid).mockResolvedValue(source as never);
+
+			await expect(
+				createRevision('struct_1', {
+					effective_from: '2024-06-01',
+					components: [{ salary_component_cuid: 'comp_abc', amount: 6000 }]
+				})
+			).rejects.toThrow("New salary structures must start after the current active structure's effective period.");
+
+			await expect(
+				createRevision('struct_1', {
+					effective_from: '2024-05-15',
+					components: [{ salary_component_cuid: 'comp_abc', amount: 6000 }]
+				})
+			).rejects.toThrow("New salary structures must start after the current active structure's effective period.");
+		});
+
+		it('should throw BusinessValidationError if new revision overlaps with a bounded source structure (Scenario A)', async () => {
+			const source = mockStructureRecord({
+				cuid: 'struct_1',
+				effective_from: new Date('2024-01-01'),
+				effective_to: new Date('2024-06-30')
+			});
+			vi.mocked(structureDao.findByCuid).mockResolvedValue(source as never);
+
+			await expect(
+				createRevision('struct_1', {
+					effective_from: '2024-06-15',
+					components: [{ salary_component_cuid: 'comp_abc', amount: 6000 }]
+				})
+			).rejects.toThrow("New salary structures must start after the current active structure's effective period.");
 		});
 	});
 
@@ -299,7 +391,7 @@ describe('Salary Structure Service', () => {
 
 			await expect(
 				updateStructure('struct_1', { effective_to: '2023-01-01' })
-			).rejects.toThrow('Effective to must be after effective from');
+			).rejects.toThrow('Effective To must be greater than Effective From.');
 		});
 
 		it('should throw BusinessValidationError when date range overlaps with another structure', async () => {

@@ -122,6 +122,16 @@ export async function createStructure(dto: CreateSalaryStructureDto) {
 	// Enforce: only one Active structure per employee — Add Structure is blocked if one exists
 	const existingActive = await dao.findActiveByEmployeeCuid(dto.employee_cuid);
 	if (existingActive) {
+		const activeFrom = existingActive.effective_from.toISOString().split('T')[0];
+		const activeTo = existingActive.effective_to ? existingActive.effective_to.toISOString().split('T')[0] : null;
+
+		const isOverlap = activeTo !== null
+			? dto.effective_from <= activeTo
+			: dto.effective_from <= activeFrom;
+
+		if (isOverlap) {
+			throw new BusinessValidationError("The selected employee already has an active salary structure for the chosen period.");
+		}
 		throw new ActiveStructureExistsError(dto.employee_cuid);
 	}
 
@@ -163,6 +173,17 @@ export async function createRevision(sourceCuid: string, dto: CreateRevisionDto)
 	}
 	if (!source.status) {
 		throw new SourceStructureNotActiveError();
+	}
+
+	const sourceFrom = source.effective_from.toISOString().split('T')[0];
+	const sourceTo = source.effective_to ? source.effective_to.toISOString().split('T')[0] : null;
+
+	const isOverlap = sourceTo !== null
+		? dto.effective_from <= sourceTo
+		: dto.effective_from <= sourceFrom;
+
+	if (isOverlap) {
+		throw new BusinessValidationError("New salary structures must start after the current active structure's effective period.");
 	}
 
 	// Validate all components and capture name snapshots

@@ -1,7 +1,7 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-13)
 
 ## Corpus Check
-- 228 files · ~69,513 words
+- 228 files · ~69,527 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -109,7 +109,7 @@ Cohesion: 0.08
 Nodes (41): GET(), PUT(), POST(), GET(), PUT(), POST(), requireAdmin(), requireAuth() (+33 more)
 
 ### Community 1 - "Data Access Tests"
-Cohesion: 0.26
+Cohesion: 0.23
 Nodes (5): CreateEmployeeData, createClient(), db, getDb(), isValidClient()
 
 ### Community 2 - "UI Components Index"

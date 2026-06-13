@@ -7148,7 +7148,7 @@
       "label": "if()",
       "file_type": "code",
       "source_file": "src/routes/salary-structures/+page.svelte",
-      "source_location": "L418",
+      "source_location": "L419",
       "id": "salary_structures_page_if",
       "community": 46,
       "norm_label": "if()"
@@ -7211,7 +7211,7 @@
       "label": "if()",
       "file_type": "code",
       "source_file": "src/routes/salary-structures/[cuid]/+page.svelte",
-      "source_location": "L251",
+      "source_location": "L252",
       "id": "cuid_page_if",
       "community": 46,
       "norm_label": "if()"
@@ -7220,7 +7220,7 @@
       "label": "#each()",
       "file_type": "code",
       "source_file": "src/routes/salary-structures/[cuid]/+page.svelte",
-      "source_location": "L431",
+      "source_location": "L432",
       "id": "cuid_page_each",
       "community": 46,
       "norm_label": "#each()"
@@ -7528,7 +7528,7 @@
       "source_file": "tests/unit/permission.dao.test.ts",
       "source_location": "L1",
       "id": "unit_permission_dao_test",
-      "community": 37,
+      "community": 1,
       "norm_label": "permission.dao.test.ts"
     },
     {
@@ -7654,7 +7654,7 @@
       "source_file": "tests/unit/system-role.dao.test.ts",
       "source_location": "L1",
       "id": "unit_system_role_dao_test",
-      "community": 38,
+      "community": 1,
       "norm_label": "system-role.dao.test.ts"
     },
     {
@@ -11760,9 +11760,9 @@
       "source_file": "src/lib/components/common/DatePicker.svelte",
       "source_location": "L49",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "common_datepicker",
-      "target": "common_datepicker_handleselect"
+      "target": "common_datepicker_handleselect",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -11811,17 +11811,17 @@
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/salary-structures/+page.svelte",
-      "confidence_score": 1.0,
       "source": "salary_structures_page",
-      "target": "date"
+      "target": "date",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/salary-structures/[cuid]/+page.svelte",
-      "confidence_score": 1.0,
       "source": "src_routes_salary_structures_cuid_page_svelte_cuid_page",
-      "target": "date"
+      "target": "date",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -19963,9 +19963,9 @@
       "source_file": "tests/unit/salary-structure.service.test.ts",
       "source_location": "L2",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "unit_salary_structure_service_test",
-      "target": "services_salary_structure_service_sourcestructurenotactiveerror"
+      "target": "services_salary_structure_service_sourcestructurenotactiveerror",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -20051,9 +20051,9 @@
       "source_file": "tests/unit/salary-structure.service.test.ts",
       "source_location": "L2",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "unit_salary_structure_service_test",
-      "target": "services_salary_structure_service_createrevision"
+      "target": "services_salary_structure_service_createrevision",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",

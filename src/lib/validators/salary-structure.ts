@@ -32,7 +32,7 @@ export function validateEffectiveDateRange(
 	const to = new Date(effectiveTo);
 	if (isNaN(from.getTime()) || isNaN(to.getTime())) return null; // individual field validators catch bad dates
 	if (to <= from) {
-		return 'Effective to must be after effective from';
+		return 'Effective To must be greater than Effective From.';
 	}
 	return null;
 }

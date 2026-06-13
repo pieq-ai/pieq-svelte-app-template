@@ -147,6 +147,16 @@
 		)
 	);
 
+	let selectedEmployeeActiveStructure = $derived(
+		formEmployeeCuid ? structuresList.find((s) => s.employee_cuid === formEmployeeCuid && s.status === true) : null
+	);
+
+	let selectedEmpMinDate = $derived(
+		selectedEmployeeActiveStructure
+			? (selectedEmployeeActiveStructure.effective_to ?? selectedEmployeeActiveStructure.effective_from)
+			: null
+	);
+
 	let filteredStructures = $derived.by(() => {
 		let result = [...structuresList];
 
@@ -334,7 +344,11 @@
 		}
 
 		const efError = validateEffectiveFrom(formEffectiveFrom);
-		if (efError) errors['effective_from'] = efError;
+		if (efError) {
+			errors['effective_from'] = efError;
+		} else if (formEffectiveFrom && selectedEmpMinDate && formEffectiveFrom <= selectedEmpMinDate) {
+			errors['effective_from'] = "The selected employee already has an active salary structure for the chosen period.";
+		}
 
 		if (!efError && formEffectiveTo) {
 			const rangeError = validateEffectiveDateRange(formEffectiveFrom, formEffectiveTo);
@@ -539,7 +553,6 @@
 			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
 			onclick={openCreateModal}
 		>
-			<PlusIcon class="size-4" />
 			Add Structure
 		</Button>
 	</div>
@@ -746,6 +759,12 @@
 						id="effective_from"
 						name="effective_from"
 						bind:value={formEffectiveFrom}
+						isDateDisabled={(date) => {
+							const dateStr = date.toString();
+							if (selectedEmpMinDate && dateStr <= selectedEmpMinDate) return true;
+							if (formEffectiveTo && dateStr >= formEffectiveTo) return true;
+							return false;
+						}}
 						class={fieldErrors['effective_from'] ? 'border-destructive' : ''}
 						onChange={() => { delete fieldErrors['effective_from']; fieldErrors = { ...fieldErrors }; }}
 					/>
@@ -759,6 +778,11 @@
 						id="effective_to"
 						name="effective_to"
 						bind:value={formEffectiveTo}
+						isDateDisabled={(date) => {
+							const dateStr = date.toString();
+							if (formEffectiveFrom && dateStr <= formEffectiveFrom) return true;
+							return false;
+						}}
 						class={fieldErrors['effective_to'] ? 'border-destructive' : ''}
 						onChange={() => { delete fieldErrors['effective_to']; fieldErrors = { ...fieldErrors }; }}
 					/>
@@ -911,6 +935,11 @@
 					id="edit_effective_from"
 					name="effective_from"
 					bind:value={editEffectiveFrom}
+					isDateDisabled={(date) => {
+						const dateStr = date.toString();
+						if (editEffectiveTo && dateStr >= editEffectiveTo) return true;
+						return false;
+					}}
 					class={datesErrors['effective_from'] ? 'border-destructive' : ''}
 					onChange={() => { delete datesErrors['effective_from']; datesErrors = { ...datesErrors }; }}
 				/>
@@ -925,6 +954,11 @@
 					id="edit_effective_to"
 					name="effective_to"
 					bind:value={editEffectiveTo}
+					isDateDisabled={(date) => {
+						const dateStr = date.toString();
+						if (editEffectiveFrom && dateStr <= editEffectiveFrom) return true;
+						return false;
+					}}
 					class={datesErrors['effective_to'] ? 'border-destructive' : ''}
 					onChange={() => { delete datesErrors['effective_to']; datesErrors = { ...datesErrors }; }}
 				/>

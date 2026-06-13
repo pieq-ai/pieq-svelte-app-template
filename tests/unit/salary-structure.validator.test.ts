@@ -47,13 +47,13 @@ describe('validateCreateSalaryStructure', () => {
 	it('should reject effective_to that is before effective_from', () => {
 		const body = { ...validCreateBody(), effective_to: '2023-06-01' }; // before 2024-01-01
 		const { errors } = validateCreateSalaryStructure(body);
-		expect(errors.some((e) => e.field === 'effective_to' && e.message.includes('after'))).toBe(true);
+		expect(errors.some((e) => e.field === 'effective_to' && e.message.includes('greater'))).toBe(true);
 	});
 
 	it('should reject effective_to equal to effective_from', () => {
 		const body = { ...validCreateBody(), effective_to: '2024-01-01' }; // same day
 		const { errors } = validateCreateSalaryStructure(body);
-		expect(errors.some((e) => e.field === 'effective_to' && e.message.includes('after'))).toBe(true);
+		expect(errors.some((e) => e.field === 'effective_to' && e.message.includes('greater'))).toBe(true);
 	});
 
 	it('should treat empty string effective_to as null', () => {
@@ -215,7 +215,7 @@ describe('validateUpdateSalaryStructure', () => {
 	it('should reject effective_to before effective_from in update', () => {
 		const body = { effective_from: '2024-06-01', effective_to: '2024-01-01' };
 		const { errors } = validateUpdateSalaryStructure(body);
-		expect(errors.some((e) => e.field === 'effective_to' && e.message.includes('after'))).toBe(true);
+		expect(errors.some((e) => e.field === 'effective_to' && e.message.includes('greater'))).toBe(true);
 	});
 
 	it('should reject status as null', () => {
