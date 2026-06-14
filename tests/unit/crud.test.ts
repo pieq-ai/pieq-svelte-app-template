@@ -6,9 +6,9 @@ import { db } from '../../src/lib/server/db.js';
 
 describe('Role, Shift, and Location CRUD Integration Tests', () => {
   beforeAll(async () => {
-    await db.role.deleteMany({ where: { role_name: { in: ['Test Integration Role', 'Test Integration Role Updated'] } } });
+    await db.role.deleteMany({ where: { name: { in: ['Test Integration Role', 'Test Integration Role Updated'] } } });
     await db.shift.deleteMany({ where: { shift_name: { in: ['Test Integration Shift', 'Test Integration Shift Updated'] } } });
-    await db.companyLocation.deleteMany({ where: { location_name: { in: ['Test Integration Location', 'Test Integration Location Updated'] } } });
+    await db.companyLocation.deleteMany({ where: { name: { in: ['Test Integration Location', 'Test Integration Location Updated'] } } });
   });
 
   it('should successfully perform CRUD on Role', async () => {

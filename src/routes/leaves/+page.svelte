@@ -1,0 +1,1576 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
+	import ClockIcon from '@lucide/svelte/icons/clock';
+	import CheckCircleIcon from '@lucide/svelte/icons/check-circle';
+	import XCircleIcon from '@lucide/svelte/icons/x-circle';
+	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
+	import Trash2Icon from '@lucide/svelte/icons/trash-2';
+	import FileTextIcon from '@lucide/svelte/icons/file-text';
+	import UploadIcon from '@lucide/svelte/icons/upload';
+	import PlusIcon from '@lucide/svelte/icons/plus';
+	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
+	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
+	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
+	import { resolve } from '$app/paths';
+
+	import { toast } from '$lib/toast';
+	import { leavesApi } from '$lib/api/leaves';
+	import { UI_CONSTANTS } from '$lib/constants';
+	import {
+		Badge,
+		Button,
+		Card,
+		CardHeader,
+		CardTitle,
+		CardDescription,
+		CardContent,
+		Input,
+		Label,
+		Table,
+		TableBody,
+		TableCell,
+		TableHead,
+		TableHeader,
+		TableRow,
+		ConfirmModal,
+		CrudModal,
+		Pagination,
+		SearchInput
+	} from '$lib/components';
+
+	interface LeaveBalance {
+		cuid: string;
+		leave_type_cuid: string;
+		leave_name: string;
+		leave_code: string;
+		allocated_days: number;
+		used_days: number;
+		remaining_days: number;
+		carried_forward_days: number;
+	}
+
+	interface LeaveRequest {
+		cuid: string;
+		leave_name: string;
+		leave_code: string;
+		start_date: string | Date;
+		end_date: string | Date;
+		total_days: number;
+		is_half_day: boolean;
+		half_day_session: string | null;
+		reason: string | null;
+		document_url: string | null;
+		request_status: string;
+		days_from_primary: number;
+		days_from_lwp: number;
+		created_at: string | Date;
+	}
+
+	interface LeaveType {
+		cuid: string;
+		leave_name: string;
+		leave_code: string;
+		is_paid: boolean;
+		requires_approval: boolean;
+		policy: {
+			annual_limit: number;
+			max_per_month: number | null;
+			carry_forward_allowed: boolean;
+			max_carry_forward_days: number | null;
+			document_required: boolean;
+			document_required_after_days: number | null;
+			min_service_days: number;
+			allow_half_day: boolean;
+			gender_specific: boolean;
+			applicable_gender: string | null;
+		} | null;
+	}
+
+	interface Employee {
+		cuid: string;
+		emp_code: string;
+		first_name: string;
+		last_name: string;
+		gender: string | null;
+		date_of_joining: string | null;
+	}
+
+	// State
+	let balances = $state<LeaveBalance[]>([]);
+	let requests = $state<LeaveRequest[]>([]);
+	let leaveTypes = $state<LeaveType[]>([]);
+	let employee = $state<Employee | null>(null);
+	let isLoading = $state(true);
+	let isSubmitting = $state(false);
+
+	let isManager = $state(false);
+	let pendingApprovals = $state<any[]>([]);
+
+	// Views state
+	let activeTab = $state<'dashboard' | 'requests' | 'approvals'>('dashboard');
+
+	// Modals State
+	let isApplyModalOpen = $state(false);
+	let withdrawModalOpen = $state(false);
+
+	// Approvals Modals State
+	let isDetailsModalOpen = $state(false);
+	let selectedApproval = $state<any>(null);
+	let approveModalOpen = $state(false);
+	let rejectModalOpen = $state(false);
+	let approvalToAct = $state<any>(null);
+	let isActionSubmitting = $state(false);
+
+	// Form State
+	let formLeaveTypeCuid = $state('');
+	let formStartDate = $state('');
+	let formEndDate = $state('');
+	let formIsHalfDay = $state(false);
+	let formHalfDaySession = $state<'FN' | 'AN'>('FN');
+	let formReason = $state('');
+	let formFileName = $state('');
+	let formFileMimeType = $state('');
+	let formFileBase64 = $state('');
+	let formValidationErrors = $state<Record<string, string>>({});
+	let formIsTouched = $state(false);
+	let formExpectedDeliveryDate = $state('');
+	let formIsMiscarriage = $state(false);
+	let formChildBirthDate = $state('');
+
+	// History Filters & Sorting
+	let searchQuery = $state('');
+	let statusFilter = $state<string>('all');
+	let currentPage = $state(1);
+	const pageSize = 10;
+	let sortColumn = $state('created_at');
+	let sortDirection = $state<'asc' | 'desc' | null>('desc');
+
+	// Approvals Filters & Sorting
+	let approvalsSearchQuery = $state('');
+	let approvalsStatusFilter = $state<string>('pending');
+	let approvalsCurrentPage = $state(1);
+	const approvalsPageSize = 10;
+	let approvalsSortColumn = $state('created_at');
+	let approvalsSortDirection = $state<'asc' | 'desc' | null>('desc');
+
+	// Modal State for Withdraw
+	let requestToWithdraw = $state<LeaveRequest | null>(null);
+	let isWithdrawing = $state(false);
+
+	// Form Dirtiness check
+	let isFormDirty = $derived(
+		formLeaveTypeCuid !== '' ||
+		formStartDate !== '' ||
+		formEndDate !== '' ||
+		formIsHalfDay !== false ||
+		formReason !== '' ||
+		formFileBase64 !== ''
+	);
+
+	// Fetch Data
+	async function loadDetails() {
+		try {
+			const res = await leavesApi.getDetails();
+			if (res && res.data) {
+				balances = res.data.balances || [];
+				requests = res.data.requests || [];
+				leaveTypes = res.data.leaveTypes || [];
+				employee = res.data.employee || null;
+				isManager = res.data.isManager || false;
+				pendingApprovals = res.data.pendingApprovals || [];
+			}
+		} catch (err: any) {
+			toast.error(err.message || 'Failed to load leave details.');
+			console.error(err);
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	onMount(() => {
+		loadDetails();
+	});
+
+	// Sort Approvals
+	function handleApprovalsSort(column: string) {
+		if (approvalsSortColumn === column) {
+			if (approvalsSortDirection === 'asc') approvalsSortDirection = 'desc';
+			else if (approvalsSortDirection === 'desc') approvalsSortDirection = null;
+			else approvalsSortDirection = 'asc';
+		} else {
+			approvalsSortColumn = column;
+			approvalsSortDirection = 'asc';
+		}
+	}
+
+	// Filter and Sort Approvals
+	let filteredApprovals = $derived.by(() => {
+		let result = [...pendingApprovals];
+
+		if (approvalsSearchQuery.trim()) {
+			const q = approvalsSearchQuery.toLowerCase();
+			result = result.filter(
+				(r) =>
+					r.employee_name.toLowerCase().includes(q) ||
+					r.employee_code.toLowerCase().includes(q) ||
+					r.leave_name.toLowerCase().includes(q) ||
+					(r.reason && r.reason.toLowerCase().includes(q))
+			);
+		}
+
+		if (approvalsStatusFilter !== 'all') {
+			result = result.filter((r) => r.request_status.toLowerCase() === approvalsStatusFilter.toLowerCase());
+		}
+
+		if (approvalsSortDirection && approvalsSortColumn) {
+			result.sort((a, b) => {
+				const valA = a[approvalsSortColumn as keyof typeof a];
+				const valB = b[approvalsSortColumn as keyof typeof b];
+
+				if (valA === null || valA === undefined) return approvalsSortDirection === 'asc' ? 1 : -1;
+				if (valB === null || valB === undefined) return approvalsSortDirection === 'asc' ? -1 : 1;
+
+				if (approvalsSortColumn === 'start_date' || approvalsSortColumn === 'end_date' || approvalsSortColumn === 'created_at') {
+					const dateA = new Date(valA as any).getTime();
+					const dateB = new Date(valB as any).getTime();
+					return approvalsSortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+				}
+
+				if (typeof valA === 'string' && typeof valB === 'string') {
+					return approvalsSortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+				}
+
+				if (typeof valA === 'number' && typeof valB === 'number') {
+					return approvalsSortDirection === 'asc' ? valA - valB : valB - valA;
+				}
+
+				return 0;
+			});
+		}
+
+		return result;
+	});
+
+	let paginatedApprovals = $derived(
+		filteredApprovals.slice((approvalsCurrentPage - 1) * approvalsPageSize, approvalsCurrentPage * approvalsPageSize)
+	);
+
+	// Action triggers
+	function openDetailsModal(app: any) {
+		selectedApproval = app;
+		isDetailsModalOpen = true;
+	}
+
+	function openApproveConfirm(app: any) {
+		approvalToAct = app;
+		approveModalOpen = true;
+	}
+
+	function openRejectConfirm(app: any) {
+		approvalToAct = app;
+		rejectModalOpen = true;
+	}
+
+	async function executeApprove() {
+		if (!approvalToAct) return;
+		isActionSubmitting = true;
+		try {
+			const res = await leavesApi.approveOrRejectLeave(approvalToAct.cuid, 'approve');
+			if (res) {
+				toast.success('Leave request approved successfully.');
+				approveModalOpen = false;
+				isDetailsModalOpen = false;
+				approvalToAct = null;
+				await loadDetails();
+			}
+		} catch (err: any) {
+			toast.error(err.message || 'Failed to approve leave request.');
+			console.error(err);
+		} finally {
+			isActionSubmitting = false;
+		}
+	}
+
+	async function executeReject() {
+		if (!approvalToAct) return;
+		isActionSubmitting = true;
+		try {
+			const res = await leavesApi.approveOrRejectLeave(approvalToAct.cuid, 'reject');
+			if (res) {
+				toast.success('Leave request rejected successfully.');
+				rejectModalOpen = false;
+				isDetailsModalOpen = false;
+				approvalToAct = null;
+				await loadDetails();
+			}
+		} catch (err: any) {
+			toast.error(err.message || 'Failed to reject leave request.');
+			console.error(err);
+		} finally {
+			isActionSubmitting = false;
+		}
+	}
+
+	// Get selected leave type details
+	let selectedLeaveType = $derived(leaveTypes.find((t) => t.cuid === formLeaveTypeCuid));
+
+	// Automatically set end date to start date if half day is checked
+	$effect(() => {
+		if (formIsHalfDay && formStartDate) {
+			formEndDate = formStartDate;
+		}
+		if (selectedLeaveType && !selectedLeaveType.policy?.allow_half_day) {
+			formIsHalfDay = false;
+		}
+	});
+
+	// Calculated Duration (days)
+	let computedDuration = $derived.by(() => {
+		if (formIsHalfDay) return 0.5;
+		if (!formStartDate || !formEndDate) return 0;
+		const start = new Date(formStartDate);
+		const end = new Date(formEndDate);
+		if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) return 0;
+		const diff = end.getTime() - start.getTime();
+		return Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
+	});
+
+	// Check if document is required for selected leave duration
+	let isDocRequired = $derived.by(() => {
+		if (!selectedLeaveType || !selectedLeaveType.policy) return false;
+		const p = selectedLeaveType.policy;
+		if (!p.document_required) return false;
+		const reqAfter = p.document_required_after_days ?? 0;
+		return computedDuration >= reqAfter;
+	});
+
+	// Client-side validations
+	function validateForm(): boolean {
+		const errors: Record<string, string> = {};
+		formValidationErrors = {};
+
+		if (!formLeaveTypeCuid) {
+			errors.leaveTypeCuid = 'Leave type is required';
+		}
+
+		if (!formStartDate) {
+			errors.startDate = 'Start date is required';
+		}
+
+		if (!formIsHalfDay && !formEndDate) {
+			errors.endDate = 'End date is required';
+		}
+
+		if (formStartDate && formEndDate) {
+			const start = new Date(formStartDate);
+			const end = new Date(formEndDate);
+			if (start > end) {
+				errors.startDate = 'Start date cannot exceed end date';
+			}
+		}
+
+		if (!formReason.trim()) {
+			errors.reason = 'Reason for leave is required';
+		} else if (formReason.trim().length < 5) {
+			errors.reason = 'Reason must be at least 5 characters';
+		}
+
+		if (isDocRequired && !formFileBase64) {
+			errors.document = 'A supporting document (image/PDF) is required for this request';
+		}
+
+		// Gender specific validation check
+		if (selectedLeaveType?.policy?.gender_specific && employee) {
+			const appGender = selectedLeaveType.policy.applicable_gender;
+			if (appGender && employee.gender && employee.gender !== appGender) {
+				errors.leaveTypeCuid = `This leave type is only applicable to ${appGender} employees.`;
+			}
+		}
+
+		// Service days validation check
+		if (selectedLeaveType?.policy?.min_service_days && employee?.date_of_joining && formStartDate) {
+			const joinDate = new Date(employee.date_of_joining);
+			const start = new Date(formStartDate);
+			const serviceDays = (start.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24);
+			const reqDays = selectedLeaveType.policy.min_service_days;
+			if (serviceDays < reqDays) {
+				errors.leaveTypeCuid = `Minimum service of ${reqDays} days is required for this leave type. You have ${Math.max(0, Math.floor(serviceDays))} days.`;
+			}
+		}
+
+		// ML Validations
+		if (selectedLeaveType?.leave_code === 'ML') {
+			if (!formExpectedDeliveryDate) {
+				errors.expectedDeliveryDate = 'Expected Delivery Date is required';
+			}
+			if (!formFileBase64) {
+				errors.document = 'A supporting medical certificate is mandatory for Maternity Leave';
+			}
+		}
+
+		// PL Validations
+		if (selectedLeaveType?.leave_code === 'PL') {
+			if (!formChildBirthDate) {
+				errors.childBirthDate = 'Child Birth Date is required';
+			}
+		}
+
+		formValidationErrors = errors;
+		return Object.keys(errors).length === 0;
+	}
+
+	// Handle file upload selection
+	function handleFileChange(e: Event) {
+		const target = e.target as HTMLInputElement;
+		const file = target.files?.[0];
+		if (!file) return;
+
+		// Limit to 5MB
+		if (file.size > 5 * 1024 * 1024) {
+			toast.error('File size cannot exceed 5MB.');
+			target.value = '';
+			return;
+		}
+
+		formFileName = file.name;
+		formFileMimeType = file.type;
+
+		const reader = new FileReader();
+		reader.onload = () => {
+			const result = reader.result as string;
+			formFileBase64 = result.split(',')[1] || '';
+		};
+		reader.onerror = () => {
+			toast.error('Failed to read file.');
+		};
+		reader.readAsDataURL(file);
+	}
+
+	// Submit Leave Request
+	async function handleApplyLeave(e: Event) {
+		e.preventDefault();
+		formIsTouched = true;
+
+		if (!validateForm()) {
+			toast.error('Please correct the validation errors before submitting.');
+			return;
+		}
+
+		isSubmitting = true;
+
+		try {
+			const payload = {
+				leaveTypeCuid: formLeaveTypeCuid,
+				startDate: formStartDate,
+				endDate: formEndDate,
+				isHalfDay: formIsHalfDay,
+				halfDaySession: formIsHalfDay ? formHalfDaySession : null,
+				reason: formReason.trim(),
+				document: formFileBase64
+					? {
+							fileName: formFileName,
+							mimeType: formFileMimeType,
+							base64Data: formFileBase64
+						}
+					: null,
+				expectedDeliveryDate: selectedLeaveType?.leave_code === 'ML' ? formExpectedDeliveryDate : null,
+				isMiscarriage: selectedLeaveType?.leave_code === 'ML' ? formIsMiscarriage : null,
+				childBirthDate: selectedLeaveType?.leave_code === 'PL' ? formChildBirthDate : null
+			};
+
+			const res = await leavesApi.applyLeave(payload);
+			if (res && res.data) {
+				toast.success('Leave request submitted successfully.');
+				closeApplyModal();
+				// Reload list & balances
+				await loadDetails();
+			}
+		} catch (err: any) {
+			if (err.field) {
+				formValidationErrors = { [err.field]: err.message };
+			}
+			toast.error(err.message || 'Failed to submit leave request.');
+			console.error(err);
+		} finally {
+			isSubmitting = false;
+		}
+	}
+
+	function openApplyModal() {
+		formLeaveTypeCuid = '';
+		formStartDate = '';
+		formEndDate = '';
+		formIsHalfDay = false;
+		formHalfDaySession = 'FN';
+		formReason = '';
+		formFileName = '';
+		formFileMimeType = '';
+		formFileBase64 = '';
+		formIsTouched = false;
+		formValidationErrors = {};
+		formExpectedDeliveryDate = '';
+		formIsMiscarriage = false;
+		formChildBirthDate = '';
+		isApplyModalOpen = true;
+	}
+
+	function closeApplyModal() {
+		isApplyModalOpen = false;
+		formLeaveTypeCuid = '';
+		formStartDate = '';
+		formEndDate = '';
+		formIsHalfDay = false;
+		formHalfDaySession = 'FN';
+		formReason = '';
+		formFileName = '';
+		formFileMimeType = '';
+		formFileBase64 = '';
+		formIsTouched = false;
+		formValidationErrors = {};
+		formExpectedDeliveryDate = '';
+		formIsMiscarriage = false;
+		formChildBirthDate = '';
+	}
+
+	// Open Confirm Withdraw Modal
+	function openWithdrawModal(req: LeaveRequest) {
+		requestToWithdraw = req;
+		withdrawModalOpen = true;
+	}
+
+	// Confirm Withdrawal
+	async function confirmWithdraw() {
+		if (!requestToWithdraw) return;
+		isWithdrawing = true;
+
+		try {
+			const res = await leavesApi.withdrawLeave(requestToWithdraw.cuid);
+			if (res) {
+				toast.success('Leave request withdrawn successfully.');
+				withdrawModalOpen = false;
+				requestToWithdraw = null;
+				await loadDetails();
+			}
+		} catch (err: any) {
+			toast.error(err.message || 'Failed to withdraw leave request.');
+			console.error(err);
+		} finally {
+			isWithdrawing = false;
+		}
+	}
+
+	// Sort Requests
+	function handleSort(column: string) {
+		if (sortColumn === column) {
+			if (sortDirection === 'asc') sortDirection = 'desc';
+			else if (sortDirection === 'desc') sortDirection = null;
+			else sortDirection = 'asc';
+		} else {
+			sortColumn = column;
+			sortDirection = 'asc';
+		}
+	}
+
+	// Filter and Sort Requests
+	let filteredRequests = $derived.by(() => {
+		let result = [...requests];
+
+		if (searchQuery.trim()) {
+			const q = searchQuery.toLowerCase();
+			result = result.filter(
+				(r) =>
+					r.leave_name.toLowerCase().includes(q) ||
+					(r.reason && r.reason.toLowerCase().includes(q))
+			);
+		}
+
+		if (statusFilter !== 'all') {
+			result = result.filter((r) => r.request_status.toLowerCase() === statusFilter.toLowerCase());
+		}
+
+		if (sortDirection && sortColumn) {
+			result.sort((a, b) => {
+				const valA = a[sortColumn as keyof typeof a];
+				const valB = b[sortColumn as keyof typeof b];
+
+				if (valA === null || valA === undefined) return sortDirection === 'asc' ? 1 : -1;
+				if (valB === null || valB === undefined) return sortDirection === 'asc' ? -1 : 1;
+
+				if (sortColumn === 'start_date' || sortColumn === 'end_date' || sortColumn === 'created_at') {
+					const dateA = new Date(valA as any).getTime();
+					const dateB = new Date(valB as any).getTime();
+					return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+				}
+
+				if (typeof valA === 'string' && typeof valB === 'string') {
+					return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+				}
+
+				if (typeof valA === 'number' && typeof valB === 'number') {
+					return sortDirection === 'asc' ? valA - valB : valB - valA;
+				}
+
+				return 0;
+			});
+		}
+
+		return result;
+	});
+
+	let paginatedRequests = $derived(
+		filteredRequests.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+	);
+
+	const cardThemes = {
+		EL: { bg: 'bg-[#FEF6F0]', border: 'border-orange-200', text: 'text-[#F45310]' }, // Soft Orange
+		CL: { bg: 'bg-[#F0F7FF]', border: 'border-blue-200', text: 'text-blue-600' }, // Soft Blue
+		SL: { bg: 'bg-[#FFF0F2]', border: 'border-pink-200', text: 'text-[#800020]' } // Soft Maroon
+	};
+
+	function formatDate(d: string | Date) {
+		if (!d) return '';
+		const dateObj = typeof d === 'string' ? new Date(d) : d;
+		return dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+	}
+
+	function getStatusBadge(status: string) {
+		const s = status.toLowerCase();
+		if (s === 'approved') return 'default';
+		if (s === 'pending') return 'outline'; // styled as warning/amber
+		if (s === 'rejected') return 'destructive';
+		return 'secondary'; // withdrawn
+	}
+</script>
+
+<svelte:head>
+	<title>Employee Leave Management</title>
+</svelte:head>
+
+<div class="w-full space-y-6 px-1 py-0">
+	<!-- Page Header matching design system -->
+	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
+		<div class="space-y-1">
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Leave Management</h1>
+			<p class="text-sm text-muted-foreground">View your balances, apply for leaves, and track requests.</p>
+		</div>
+		{#if employee}
+			<div class="hidden rounded-lg bg-accent/40 px-3 py-1.5 border border-border/60 sm:block">
+				<p class="text-xs text-muted-foreground">Logged in Employee</p>
+				<p class="text-sm font-semibold">{employee.first_name} {employee.last_name} ({employee.emp_code})</p>
+			</div>
+		{/if}
+	</div>
+
+	<!-- View Switcher Tabs (Requirement 4) -->
+	<div class="flex items-center justify-between border-b border-border pb-px">
+		<div class="flex gap-2">
+			<button
+				type="button"
+				class={`px-4 py-2.5 text-sm font-bold border-b-2 transition-all cursor-pointer mb-[-2px] ${activeTab === 'dashboard' ? 'border-[#F45310] text-[#F45310]' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+				onclick={() => (activeTab = 'dashboard')}
+			>
+				Dashboard
+			</button>
+			<button
+				type="button"
+				class={`px-4 py-2.5 text-sm font-bold border-b-2 transition-all cursor-pointer mb-[-2px] ${activeTab === 'requests' ? 'border-[#F45310] text-[#F45310]' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+				onclick={() => (activeTab = 'requests')}
+			>
+				My Leave Requests
+			</button>
+			{#if isManager}
+				<button
+					type="button"
+					class={`px-4 py-2.5 text-sm font-bold border-b-2 transition-all cursor-pointer mb-[-2px] ${activeTab === 'approvals' ? 'border-[#F45310] text-[#F45310]' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+					onclick={() => (activeTab = 'approvals')}
+				>
+					Pending Approvals
+				</button>
+			{/if}
+		</div>
+		{#if activeTab === 'dashboard'}
+			<Button
+				type="button"
+				class="bg-[#F45310] text-white hover:bg-[#F45310]/90 font-bold"
+				onclick={openApplyModal}
+			>
+				<PlusIcon class="mr-2 size-4" />
+				Apply Leave
+			</Button>
+		{/if}
+	</div>
+
+	{#if isLoading}
+		<div class="flex h-64 flex-col items-center justify-center text-muted-foreground">
+			<LoaderCircleIcon class="mb-2 size-8 animate-spin text-[#F45310]" />
+			<p class="text-sm">Loading leave dashboard...</p>
+		</div>
+	{:else if activeTab === 'dashboard'}
+		<!-- View A: Dashboard view -->
+		<div class="space-y-6">
+			<!-- Summary Cards for SL, CL, EL -->
+			<div class="grid gap-4 grid-cols-1 md:grid-cols-3">
+				{#each balances.filter(b => ['EL', 'CL', 'SL'].includes(b.leave_code)) as b (b.cuid)}
+					{@const theme = cardThemes[b.leave_code as keyof typeof cardThemes] || cardThemes.EL}
+					<Card class="border {theme.border} {theme.bg} shadow-xs transition-transform hover:-translate-y-0.5">
+						<CardHeader class="pb-1 pt-4 px-4 flex flex-row items-center justify-between">
+							<span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">{b.leave_name}</span>
+							<Badge variant="outline" class="font-bold text-[10px] bg-white {theme.text} border-current">{b.leave_code}</Badge>
+						</CardHeader>
+						<CardContent class="pb-4 pt-1 px-4">
+							<div class="text-3xl font-extrabold tracking-tight tabular-nums {theme.text}">{b.remaining_days.toFixed(1)}</div>
+							<p class="text-[10px] text-muted-foreground font-semibold mt-1">Available Days</p>
+							<div class="border-t border-muted/50 mt-2.5 pt-2 flex justify-between text-[10px] text-muted-foreground">
+								<span>Quota: <strong>{b.allocated_days.toFixed(1)}</strong></span>
+								<span>Used: <strong>{b.used_days.toFixed(1)}</strong></span>
+							</div>
+						</CardContent>
+					</Card>
+				{/each}
+			</div>
+
+			<!-- Leave Balance Table (EL, CL, SL only) -->
+			<Card class="shadow-sm border border-border/80">
+				<CardHeader class="pb-3 border-b border-border/50 bg-muted/20">
+					<CardTitle class="text-lg font-bold text-foreground">Leave Balance Summary</CardTitle>
+					<CardDescription class="text-xs">Your available leave quotas for the current year. (Maternity Leave, Paternity Leave, and Leave Without Pay balances are excluded from this summary)</CardDescription>
+				</CardHeader>
+				<CardContent class="pt-4 px-4 pb-4">
+					<div class="rounded-md border border-border overflow-hidden bg-background">
+						<Table>
+							<TableHeader class="bg-muted/40">
+								<TableRow>
+									<TableHead class="font-bold text-foreground text-xs py-3">Leave Type</TableHead>
+									<TableHead class="font-bold text-foreground text-xs text-center">Allocated Days</TableHead>
+									<TableHead class="font-bold text-foreground text-xs text-center">Used Days</TableHead>
+									<TableHead class="font-bold text-foreground text-xs text-center">Remaining Days</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{#each balances.filter(b => ['EL', 'CL', 'SL'].includes(b.leave_code)) as b (b.cuid)}
+									<TableRow class="hover:bg-muted/10 transition-colors">
+										<TableCell class="font-semibold text-xs py-3">{b.leave_name} ({b.leave_code})</TableCell>
+										<TableCell class="text-xs text-center tabular-nums">{b.allocated_days.toFixed(1)}</TableCell>
+										<TableCell class="text-xs text-center tabular-nums">{b.used_days.toFixed(1)}</TableCell>
+										<TableCell class="text-xs text-center font-bold tabular-nums text-foreground">{b.remaining_days.toFixed(1)}</TableCell>
+									</TableRow>
+								{/each}
+							</TableBody>
+						</Table>
+					</div>
+				</CardContent>
+			</Card>
+		</div>
+	{:else if activeTab === 'requests'}
+		<!-- View B: My Leave Requests history list -->
+		<div class="space-y-3">
+			<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+				<SearchInput
+					id="search_leaves"
+					name="search_leaves"
+					bind:value={searchQuery}
+					oninput={() => (currentPage = 1)}
+					placeholder="Search requests..."
+					class="max-w-xs"
+				/>
+				<div class="flex items-center gap-2">
+					<Label for="status_filter" class="text-xs text-muted-foreground whitespace-nowrap">Filter Status:</Label>
+					<select
+						id="status_filter"
+						bind:value={statusFilter}
+						onchange={() => (currentPage = 1)}
+						class="flex h-8 w-32 rounded-md border border-input bg-transparent px-2 text-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+					>
+						<option value="all">All</option>
+						<option value="pending">Pending</option>
+						<option value="approved">Approved</option>
+						<option value="rejected">Rejected</option>
+						<option value="withdrawn">Withdrawn</option>
+					</select>
+				</div>
+			</div>
+
+			<Card class="py-0 border border-border/80 shadow-sm">
+				<Table>
+					<TableHeader class="bg-muted/40">
+						<TableRow>
+							<TableHead class="font-bold text-foreground text-xs py-3">
+								<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-xs" onclick={() => handleSort('leave_name')}>
+									Leave Type
+									{#if sortColumn === 'leave_name' && sortDirection === 'asc'}
+										<ArrowUpIcon class="ml-1.5 size-3" />
+									{:else if sortColumn === 'leave_name' && sortDirection === 'desc'}
+										<ArrowDownIcon class="ml-1.5 size-3" />
+									{:else}
+										<ArrowUpDownIcon class="ml-1.5 size-3" />
+									{/if}
+								</Button>
+							</TableHead>
+							<TableHead class="font-bold text-foreground text-xs">
+								<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-xs" onclick={() => handleSort('start_date')}>
+									From Date
+									{#if sortColumn === 'start_date' && sortDirection === 'asc'}
+										<ArrowUpIcon class="ml-1.5 size-3" />
+									{:else if sortColumn === 'start_date' && sortDirection === 'desc'}
+										<ArrowDownIcon class="ml-1.5 size-3" />
+									{:else}
+										<ArrowUpDownIcon class="ml-1.5 size-3" />
+									{/if}
+								</Button>
+							</TableHead>
+							<TableHead class="font-bold text-foreground text-xs">
+								<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-xs" onclick={() => handleSort('end_date')}>
+									To Date
+									{#if sortColumn === 'end_date' && sortDirection === 'asc'}
+										<ArrowUpIcon class="ml-1.5 size-3" />
+									{:else if sortColumn === 'end_date' && sortDirection === 'desc'}
+										<ArrowDownIcon class="ml-1.5 size-3" />
+									{:else}
+										<ArrowUpDownIcon class="ml-1.5 size-3" />
+									{/if}
+								</Button>
+							</TableHead>
+							<TableHead class="font-bold text-foreground text-xs text-center">
+								<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-xs mx-auto" onclick={() => handleSort('total_days')}>
+									Total Days
+									{#if sortColumn === 'total_days' && sortDirection === 'asc'}
+										<ArrowUpIcon class="ml-1.5 size-3" />
+									{:else if sortColumn === 'total_days' && sortDirection === 'desc'}
+										<ArrowDownIcon class="ml-1.5 size-3" />
+									{:else}
+										<ArrowUpDownIcon class="ml-1.5 size-3" />
+									{/if}
+								</Button>
+							</TableHead>
+							<TableHead class="font-bold text-foreground text-xs">Reason</TableHead>
+							<TableHead class="font-bold text-foreground text-xs text-center">Status</TableHead>
+							<TableHead class="font-bold text-foreground text-xs text-right pr-4">Actions</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
+						{#if filteredRequests.length === 0}
+							<TableRow>
+								<TableCell colspan={7} class="py-12 text-center text-muted-foreground text-sm">
+									{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
+								</TableCell>
+							</TableRow>
+						{:else}
+							{#each paginatedRequests as req (req.cuid)}
+								<TableRow class="hover:bg-muted/10 transition-colors">
+									<TableCell class="text-xs font-semibold py-3.5">
+										<div class="font-medium">{req.leave_name}</div>
+										{#if req.days_from_lwp > 0}
+											<span class="text-[9px] text-orange-600 bg-orange-50 border border-orange-200 rounded px-1 py-0.5 inline-block mt-0.5">
+												Split: {req.days_from_primary} Type / {req.days_from_lwp} LWP
+											</span>
+										{/if}
+									</TableCell>
+									<TableCell class="text-xs">
+										{formatDate(req.start_date)}
+									</TableCell>
+									<TableCell class="text-xs">
+										{formatDate(req.end_date)}
+									</TableCell>
+									<TableCell class="text-xs text-center font-bold tabular-nums">
+										{req.total_days.toFixed(1)}
+										{#if req.is_half_day}
+											<Badge variant="secondary" class="block w-fit text-[9px] py-0 px-1 mt-0.5 mx-auto bg-accent/60">Half ({req.half_day_session})</Badge>
+										{/if}
+									</TableCell>
+									<TableCell class="text-xs max-w-xs truncate" title={req.reason || ''}>
+										{req.reason || '-'}
+										{#if req.document_url}
+											<a href={resolve(req.document_url as any)} target="_blank" class="inline-flex items-center ml-2 text-xs text-blue-600 hover:underline">
+												<FileTextIcon class="size-3 mr-0.5" /> Doc
+											</a>
+										{/if}
+									</TableCell>
+									<TableCell class="text-center">
+										<Badge variant={getStatusBadge(req.request_status)} class="capitalize font-bold text-[10px]">
+											{#if req.request_status === 'pending'}
+												<ClockIcon class="mr-1 size-3" />
+											{:else if req.request_status === 'approved'}
+												<CheckCircleIcon class="mr-1 size-3" />
+											{:else if req.request_status === 'rejected'}
+												<XCircleIcon class="mr-1 size-3" />
+											{:else}
+												<Trash2Icon class="mr-1 size-3" />
+											{/if}
+											{req.request_status}
+										</Badge>
+									</TableCell>
+									<TableCell class="text-right pr-4">
+										{#if req.request_status === 'pending'}
+											<Button
+												variant="outline"
+												size="xs"
+												class="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive h-7 px-2 font-bold"
+												onclick={() => openWithdrawModal(req)}
+											>
+												Withdraw
+											</Button>
+										{:else}
+											<span class="text-muted-foreground text-[11px]">-</span>
+										{/if}
+									</TableCell>
+								</TableRow>
+							{/each}
+						{/if}
+					</TableBody>
+				</Table>
+			</Card>
+			<Pagination bind:currentPage={currentPage} pageSize={pageSize} totalItems={filteredRequests.length} />
+		</div>
+	{:else if activeTab === 'approvals' && isManager}
+		<!-- View C: Subordinates Leave Requests (Pending Approvals) -->
+		<div class="space-y-3">
+			<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+				<SearchInput
+					id="search_approvals"
+					name="search_approvals"
+					bind:value={approvalsSearchQuery}
+					oninput={() => (approvalsCurrentPage = 1)}
+					placeholder="Search approvals..."
+					class="max-w-xs"
+				/>
+				<div class="flex items-center gap-2">
+					<Label for="approvals_status_filter" class="text-xs text-muted-foreground whitespace-nowrap">Filter Status:</Label>
+					<select
+						id="approvals_status_filter"
+						bind:value={approvalsStatusFilter}
+						onchange={() => (approvalsCurrentPage = 1)}
+						class="flex h-8 w-32 rounded-md border border-input bg-transparent px-2 text-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+					>
+						<option value="all">All</option>
+						<option value="pending">Pending</option>
+						<option value="approved">Approved</option>
+						<option value="rejected">Rejected</option>
+					</select>
+				</div>
+			</div>
+
+			<Card class="py-0 border border-border/80 shadow-sm">
+				<Table>
+					<TableHeader class="bg-muted/40">
+						<TableRow>
+							<TableHead class="font-bold text-foreground text-xs py-3">
+								<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-xs" onclick={() => handleApprovalsSort('employee_name')}>
+									Employee Name
+									{#if approvalsSortColumn === 'employee_name' && approvalsSortDirection === 'asc'}
+										<ArrowUpIcon class="ml-1.5 size-3" />
+									{:else if approvalsSortColumn === 'employee_name' && approvalsSortDirection === 'desc'}
+										<ArrowDownIcon class="ml-1.5 size-3" />
+									{:else}
+										<ArrowUpDownIcon class="ml-1.5 size-3" />
+									{/if}
+								</Button>
+							</TableHead>
+							<TableHead class="font-bold text-foreground text-xs">
+								<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-xs" onclick={() => handleApprovalsSort('employee_code')}>
+									Employee Code
+									{#if approvalsSortColumn === 'employee_code' && approvalsSortDirection === 'asc'}
+										<ArrowUpIcon class="ml-1.5 size-3" />
+									{:else if approvalsSortColumn === 'employee_code' && approvalsSortDirection === 'desc'}
+										<ArrowDownIcon class="ml-1.5 size-3" />
+									{:else}
+										<ArrowUpDownIcon class="ml-1.5 size-3" />
+									{/if}
+								</Button>
+							</TableHead>
+							<TableHead class="font-bold text-foreground text-xs">
+								<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-xs" onclick={() => handleApprovalsSort('leave_name')}>
+									Leave Type
+									{#if approvalsSortColumn === 'leave_name' && approvalsSortDirection === 'asc'}
+										<ArrowUpIcon class="ml-1.5 size-3" />
+									{:else if approvalsSortColumn === 'leave_name' && approvalsSortDirection === 'desc'}
+										<ArrowDownIcon class="ml-1.5 size-3" />
+									{:else}
+										<ArrowUpDownIcon class="ml-1.5 size-3" />
+									{/if}
+								</Button>
+							</TableHead>
+							<TableHead class="font-bold text-foreground text-xs text-center">
+								<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-xs mx-auto" onclick={() => handleApprovalsSort('start_date')}>
+									From Date
+									{#if approvalsSortColumn === 'start_date' && approvalsSortDirection === 'asc'}
+										<ArrowUpIcon class="ml-1.5 size-3" />
+									{:else if approvalsSortColumn === 'start_date' && approvalsSortDirection === 'desc'}
+										<ArrowDownIcon class="ml-1.5 size-3" />
+									{:else}
+										<ArrowUpDownIcon class="ml-1.5 size-3" />
+									{/if}
+								</Button>
+							</TableHead>
+							<TableHead class="font-bold text-foreground text-xs text-center">
+								<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-xs mx-auto" onclick={() => handleApprovalsSort('end_date')}>
+									To Date
+									{#if approvalsSortColumn === 'end_date' && approvalsSortDirection === 'asc'}
+										<ArrowUpIcon class="ml-1.5 size-3" />
+									{:else if approvalsSortColumn === 'end_date' && approvalsSortDirection === 'desc'}
+										<ArrowDownIcon class="ml-1.5 size-3" />
+									{:else}
+										<ArrowUpDownIcon class="ml-1.5 size-3" />
+									{/if}
+								</Button>
+							</TableHead>
+							<TableHead class="font-bold text-foreground text-xs text-center">
+								<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-xs mx-auto" onclick={() => handleApprovalsSort('total_days')}>
+									Total Days
+									{#if approvalsSortColumn === 'total_days' && approvalsSortDirection === 'asc'}
+										<ArrowUpIcon class="ml-1.5 size-3" />
+									{:else if approvalsSortColumn === 'total_days' && approvalsSortDirection === 'desc'}
+										<ArrowDownIcon class="ml-1.5 size-3" />
+									{:else}
+										<ArrowUpDownIcon class="ml-1.5 size-3" />
+									{/if}
+								</Button>
+							</TableHead>
+							<TableHead class="font-bold text-foreground text-xs">Reason</TableHead>
+							<TableHead class="font-bold text-foreground text-xs text-center">Status</TableHead>
+							<TableHead class="font-bold text-foreground text-xs text-right pr-4">Actions</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
+						{#if filteredApprovals.length === 0}
+							<TableRow>
+								<TableCell colspan={9} class="py-12 text-center text-muted-foreground text-sm">
+									{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
+								</TableCell>
+							</TableRow>
+						{:else}
+							{#each paginatedApprovals as app (app.cuid)}
+								<TableRow class="hover:bg-muted/10 transition-colors">
+									<TableCell class="text-xs font-semibold py-3.5">
+										{app.employee_name}
+									</TableCell>
+									<TableCell class="text-xs font-semibold">
+										{app.employee_code}
+									</TableCell>
+									<TableCell class="text-xs">
+										<div class="font-medium">{app.leave_name}</div>
+										{#if app.days_from_lwp > 0}
+											<span class="text-[9px] text-orange-600 bg-orange-50 border border-orange-200 rounded px-1 py-0.5 inline-block mt-0.5">
+												Split: {app.days_from_primary} Type / {app.days_from_lwp} LWP
+											</span>
+										{/if}
+									</TableCell>
+									<TableCell class="text-xs text-center">
+										{formatDate(app.start_date)}
+									</TableCell>
+									<TableCell class="text-xs text-center">
+										{formatDate(app.end_date)}
+									</TableCell>
+									<TableCell class="text-xs text-center font-bold tabular-nums">
+										{app.total_days.toFixed(1)}
+										{#if app.is_half_day}
+											<Badge variant="secondary" class="block w-fit text-[9px] py-0 px-1 mt-0.5 mx-auto bg-accent/60">Half ({app.half_day_session})</Badge>
+										{/if}
+									</TableCell>
+									<TableCell class="text-xs max-w-xs truncate" title={app.reason || ''}>
+										{app.reason || '-'}
+										{#if app.document_url}
+											<a href={resolve(app.document_url as any)} target="_blank" class="inline-flex items-center ml-2 text-xs text-blue-600 hover:underline">
+												<FileTextIcon class="size-3 mr-0.5" /> Doc
+											</a>
+										{/if}
+									</TableCell>
+									<TableCell class="text-center">
+										<Badge variant={getStatusBadge(app.request_status)} class="capitalize font-bold text-[10px]">
+											{#if app.request_status === 'pending'}
+												<ClockIcon class="mr-1 size-3" />
+											{:else if app.request_status === 'approved'}
+												<CheckCircleIcon class="mr-1 size-3" />
+											{:else if app.request_status === 'rejected'}
+												<XCircleIcon class="mr-1 size-3" />
+											{:else}
+												<Trash2Icon class="mr-1 size-3" />
+											{/if}
+											{app.request_status}
+										</Badge>
+									</TableCell>
+									<TableCell class="text-right pr-4">
+										<div class="flex items-center justify-end gap-1.5">
+											<Button
+												variant="ghost"
+												size="xs"
+												class="h-7 px-2 text-xs font-bold"
+												onclick={() => openDetailsModal(app)}
+											>
+												View Details
+											</Button>
+											{#if app.request_status === 'pending'}
+												<Button
+													variant="outline"
+													size="xs"
+													class="border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 h-7 px-2 font-bold"
+													onclick={() => openApproveConfirm(app)}
+												>
+													Approve
+												</Button>
+												<Button
+													variant="outline"
+													size="xs"
+													class="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive h-7 px-2 font-bold"
+													onclick={() => openRejectConfirm(app)}
+												>
+													Reject
+												</Button>
+											{/if}
+										</div>
+									</TableCell>
+								</TableRow>
+							{/each}
+						{/if}
+					</TableBody>
+				</Table>
+			</Card>
+			<Pagination bind:currentPage={approvalsCurrentPage} pageSize={approvalsPageSize} totalItems={filteredApprovals.length} />
+		</div>
+	{/if}
+</div>
+
+<!-- Section 3: CrudModal containing Apply Leave Form (Requirement 3) -->
+<CrudModal
+	open={isApplyModalOpen}
+	title="Apply Leave"
+	description="Fill out the details below to submit a leave request."
+	isDirty={isFormDirty}
+	isSubmitting={isSubmitting}
+	onClose={closeApplyModal}
+>
+	{#snippet children({ cancel })}
+		<form onsubmit={handleApplyLeave} class="space-y-4">
+			<!-- Leave Type -->
+			<div class="space-y-2">
+				<Label for="leave_type">Leave Type <span class="text-destructive">*</span></Label>
+				<select
+					id="leave_type"
+					bind:value={formLeaveTypeCuid}
+					class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+					disabled={isSubmitting}
+				>
+					<option value="">Select Leave Type...</option>
+					{#each leaveTypes as type (type.cuid)}
+						<option value={type.cuid}>
+							{type.leave_name} ({type.leave_code})
+						</option>
+					{/each}
+				</select>
+				{#if formIsTouched && formValidationErrors.leaveTypeCuid}
+					<p class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1">
+						<AlertCircleIcon class="size-3 shrink-0" />
+						{formValidationErrors.leaveTypeCuid}
+					</p>
+				{/if}
+			</div>
+
+			<!-- EL Encouragement Advice Tip -->
+			{#if selectedLeaveType?.leave_code === 'EL'}
+				<div class="rounded-lg border border-blue-200 bg-blue-50/40 p-3 text-xs text-blue-800">
+					💡 <strong>Tip:</strong> Employees are encouraged to utilize at least 6 Earned Leave (EL) days annually for planned vacations, travel, and rest.
+				</div>
+			{/if}
+
+			<!-- Maternity Leave Fields -->
+			{#if selectedLeaveType?.leave_code === 'ML'}
+				<div class="grid gap-4 grid-cols-2 rounded-lg border border-border/60 bg-muted/10 p-3">
+					<div class="space-y-2">
+						<Label for="expected_delivery_date">Expected Delivery Date <span class="text-destructive">*</span></Label>
+						<Input
+							type="date"
+							id="expected_delivery_date"
+							bind:value={formExpectedDeliveryDate}
+							class={formIsTouched && formValidationErrors.expectedDeliveryDate ? 'border-destructive' : ''}
+							disabled={isSubmitting}
+						/>
+						{#if formIsTouched && formValidationErrors.expectedDeliveryDate}
+							<p class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1">
+								<AlertCircleIcon class="size-3 shrink-0" />
+								{formValidationErrors.expectedDeliveryDate}
+							</p>
+						{/if}
+					</div>
+
+					<div class="flex items-center gap-2 pt-8">
+						<input
+							type="checkbox"
+							id="is_miscarriage"
+							bind:checked={formIsMiscarriage}
+							class="size-4 rounded-sm border border-input accent-[#F45310] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+							disabled={isSubmitting}
+						/>
+						<Label for="is_miscarriage" class="cursor-pointer font-semibold text-sm">Miscarriage/MTP Case</Label>
+					</div>
+				</div>
+			{/if}
+
+			<!-- Paternity Leave Fields -->
+			{#if selectedLeaveType?.leave_code === 'PL'}
+				<div class="space-y-2 rounded-lg border border-border/60 bg-muted/10 p-3">
+					<Label for="child_birth_date">Child's Birth Date <span class="text-destructive">*</span></Label>
+					<Input
+						type="date"
+						id="child_birth_date"
+						bind:value={formChildBirthDate}
+						class={formIsTouched && formValidationErrors.childBirthDate ? 'border-destructive' : ''}
+						disabled={isSubmitting}
+					/>
+					{#if formIsTouched && formValidationErrors.childBirthDate}
+						<p class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1">
+							<AlertCircleIcon class="size-3 shrink-0" />
+							{formValidationErrors.childBirthDate}
+						</p>
+					{/if}
+				</div>
+			{/if}
+
+			<!-- Start & End Date Grid -->
+			<div class="grid gap-4 grid-cols-2">
+				<div class="space-y-2">
+					<Label for="start_date">Start Date <span class="text-destructive">*</span></Label>
+					<Input
+						type="date"
+						id="start_date"
+						bind:value={formStartDate}
+						class={formIsTouched && formValidationErrors.startDate ? 'border-destructive' : ''}
+						disabled={isSubmitting}
+					/>
+					{#if formIsTouched && formValidationErrors.startDate}
+						<p class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1">
+							<AlertCircleIcon class="size-3 shrink-0" />
+							{formValidationErrors.startDate}
+						</p>
+					{/if}
+				</div>
+
+				<div class="space-y-2">
+					<Label for="end_date">End Date <span class="text-destructive">*</span></Label>
+					<Input
+						type="date"
+						id="end_date"
+						bind:value={formEndDate}
+						class={formIsTouched && formValidationErrors.endDate ? 'border-destructive' : ''}
+						disabled={isSubmitting || formIsHalfDay}
+					/>
+					{#if formIsTouched && formValidationErrors.endDate}
+						<p class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1">
+							<AlertCircleIcon class="size-3 shrink-0" />
+							{formValidationErrors.endDate}
+						</p>
+					{/if}
+				</div>
+			</div>
+
+			<!-- Half Day Section -->
+			{#if selectedLeaveType?.policy?.allow_half_day}
+				<div class="flex flex-col gap-3 rounded-lg border border-border/60 bg-muted/10 p-3">
+					<div class="flex items-center gap-2">
+						<input
+							type="checkbox"
+							id="half_day"
+							bind:checked={formIsHalfDay}
+							class="size-4 rounded-sm border border-input accent-[#F45310] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+							disabled={isSubmitting}
+						/>
+						<Label for="half_day" class="cursor-pointer font-semibold text-sm">Apply for Half Day</Label>
+					</div>
+
+					{#if formIsHalfDay}
+						<div class="grid gap-2 pl-6">
+							<Label for="half_day_session">Half Day Session <span class="text-destructive">*</span></Label>
+							<div class="flex gap-4">
+								<label class="flex items-center gap-1.5 cursor-pointer text-sm">
+									<input
+										type="radio"
+										name="half_day_session"
+										value="FN"
+										bind:group={formHalfDaySession}
+										class="accent-[#F45310]"
+										disabled={isSubmitting}
+									/>
+									Forenoon (FN)
+								</label>
+								<label class="flex items-center gap-1.5 cursor-pointer text-sm">
+									<input
+										type="radio"
+										name="half_day_session"
+										value="AN"
+										bind:group={formHalfDaySession}
+										class="accent-[#F45310]"
+										disabled={isSubmitting}
+									/>
+									Afternoon (AN)
+								</label>
+							</div>
+						</div>
+					{/if}
+				</div>
+			{/if}
+
+			<!-- Reason -->
+			<div class="space-y-2">
+				<Label for="reason">Reason <span class="text-destructive">*</span></Label>
+				<textarea
+					id="reason"
+					bind:value={formReason}
+					placeholder="Provide details about your leave..."
+					class="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+					disabled={isSubmitting}
+				></textarea>
+				{#if formIsTouched && formValidationErrors.reason}
+					<p class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1">
+						<AlertCircleIcon class="size-3 shrink-0" />
+						{formValidationErrors.reason}
+					</p>
+				{/if}
+			</div>
+
+			<!-- Document Upload -->
+			<div class="space-y-2">
+				<Label for="document">
+					Supporting Document
+					{#if isDocRequired}
+						<span class="text-destructive">* (Required)</span>
+					{:else}
+						<span class="text-muted-foreground text-xs">(Optional)</span>
+					{/if}
+				</Label>
+				<div class="relative flex items-center justify-center rounded-md border border-dashed border-input bg-muted/10 px-4 py-3 hover:bg-muted/20 transition-colors">
+					<input
+						type="file"
+						id="document"
+						accept="image/*,application/pdf"
+						onchange={handleFileChange}
+						class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+						disabled={isSubmitting}
+					/>
+					<div class="flex flex-col items-center gap-1 text-center pointer-events-none">
+						<UploadIcon class="size-5 text-muted-foreground" />
+						<span class="text-xs text-muted-foreground">
+							{formFileName || 'Click or drag image/PDF up to 5MB'}
+						</span>
+					</div>
+				</div>
+				{#if formIsTouched && formValidationErrors.document}
+					<p class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1">
+						<AlertCircleIcon class="size-3 shrink-0" />
+						{formValidationErrors.document}
+					</p>
+				{/if}
+			</div>
+
+			<!-- Leave Impact Preview Section (Requirement 5) -->
+			{#if formLeaveTypeCuid && computedDuration > 0}
+				{@const balance = balances.find((b) => b.leave_type_cuid === formLeaveTypeCuid)}
+				{@const remaining = balance ? balance.remaining_days : 0}
+				{@const isExceeded = selectedLeaveType?.leave_code !== 'LWP' && computedDuration > remaining}
+				{@const lopDays = isExceeded ? computedDuration - remaining : 0}
+				{@const primaryDays = isExceeded ? remaining : computedDuration}
+
+				<div class="rounded-lg border border-border bg-accent/20 p-3.5 space-y-2.5">
+					<p class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Leave Impact Preview</p>
+					{#if isExceeded}
+						<div class="text-xs text-[#F45310] font-semibold space-y-1.5">
+							<p class="flex items-start gap-1.5">
+								<AlertCircleIcon class="size-4 shrink-0 text-[#F45310]" />
+								<span>You have {remaining.toFixed(1)} available leave days. This request exceeds your balance by {lopDays.toFixed(1)} day(s) and will result in Loss of Pay (LOP).</span>
+							</p>
+						</div>
+					{:else}
+						<div class="grid grid-cols-2 gap-2 text-xs">
+							<div class="text-muted-foreground">Requested Duration:</div>
+							<div class="font-bold text-right">{computedDuration.toFixed(1)} days</div>
+							
+							<div class="text-muted-foreground">Deducted from {selectedLeaveType?.leave_code}:</div>
+							<div class="font-semibold text-right">{primaryDays.toFixed(1)} days</div>
+						</div>
+					{/if}
+				</div>
+			{/if}
+
+			<div class="flex items-center justify-end gap-3 pt-4 border-t border-border/50">
+				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
+				<Button
+					type="submit"
+					class="bg-[#F45310] text-white hover:bg-[#F45310]/90 font-bold"
+					disabled={isSubmitting}
+				>
+					{#if isSubmitting}
+						<LoaderCircleIcon class="mr-2 size-4 animate-spin" />
+						Submitting...
+					{:else}
+						Submit ({computedDuration.toFixed(1)} days)
+					{/if}
+				</Button>
+			</div>
+		</form>
+	{/snippet}
+</CrudModal>
+
+<!-- Confirm Withdraw Modal -->
+<ConfirmModal
+	open={withdrawModalOpen}
+	title="Withdraw Leave Request"
+	description="Are you sure you want to withdraw this leave request? This action cannot be undone."
+	confirmLabel="Withdraw"
+	isSubmitting={isWithdrawing}
+	onCancel={() => {
+		withdrawModalOpen = false;
+		requestToWithdraw = null;
+	}}
+	onConfirm={confirmWithdraw}
+/>
+
+<!-- View Details Modal for Approvals -->
+<CrudModal
+	open={isDetailsModalOpen}
+	title="Leave Request Details"
+	description="Review the leave request submitted by the employee."
+	isDirty={false}
+	isSubmitting={isActionSubmitting}
+	onClose={() => {
+		isDetailsModalOpen = false;
+		selectedApproval = null;
+	}}
+>
+	{#if selectedApproval}
+		<div class="space-y-5 py-2">
+			<!-- Employee Details -->
+			<div class="rounded-lg bg-accent/40 px-4 py-3 border border-border/60">
+				<p class="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Employee Information</p>
+				<div class="grid grid-cols-2 gap-2 text-sm">
+					<div class="text-muted-foreground">Name:</div>
+					<div class="font-bold text-right">{selectedApproval.employee_name}</div>
+					<div class="text-muted-foreground">Code:</div>
+					<div class="font-bold text-right">{selectedApproval.employee_code}</div>
+				</div>
+			</div>
+
+			<!-- Leave Request details -->
+			<div class="space-y-3">
+				<p class="text-xs text-muted-foreground uppercase font-bold tracking-wider border-b border-border pb-1">Request Information</p>
+				<div class="grid grid-cols-2 gap-2.5 text-sm">
+					<div class="text-muted-foreground">Leave Type:</div>
+					<div class="font-semibold text-right">{selectedApproval.leave_name} ({selectedApproval.leave_code})</div>
+
+					<div class="text-muted-foreground">From Date:</div>
+					<div class="font-semibold text-right">{formatDate(selectedApproval.start_date)}</div>
+
+					<div class="text-muted-foreground">To Date:</div>
+					<div class="font-semibold text-right">{formatDate(selectedApproval.end_date)}</div>
+
+					<div class="text-muted-foreground">Total Days:</div>
+					<div class="font-bold text-right">
+						{selectedApproval.total_days.toFixed(1)} days
+						{#if selectedApproval.is_half_day}
+							<Badge variant="secondary" class="ml-1 text-[9px] py-0 px-1 bg-accent/60 font-semibold">Half ({selectedApproval.half_day_session})</Badge>
+						{/if}
+					</div>
+
+					{#if selectedApproval.days_from_lwp > 0}
+						<div class="text-muted-foreground">Deduction Breakdown:</div>
+						<div class="font-semibold text-right text-xs">
+							{selectedApproval.days_from_primary} CL/SL | {selectedApproval.days_from_lwp} LWP
+						</div>
+					{/if}
+
+					<div class="text-muted-foreground">Applied Date:</div>
+					<div class="font-semibold text-right">{formatDate(selectedApproval.created_at)}</div>
+
+					<div class="text-muted-foreground">Status:</div>
+					<div class="text-right">
+						<Badge variant={getStatusBadge(selectedApproval.request_status)} class="capitalize font-bold text-[10px]">
+							{selectedApproval.request_status}
+						</Badge>
+					</div>
+				</div>
+			</div>
+
+			<!-- Reason -->
+			<div class="space-y-1.5">
+				<p class="text-xs text-muted-foreground uppercase font-bold tracking-wider">Reason</p>
+				<div class="rounded-md bg-muted/10 p-3 border border-border text-sm text-foreground wrap-break-word leading-relaxed min-h-[50px]">
+					{selectedApproval.reason || 'No reason provided'}
+				</div>
+			</div>
+
+			<!-- Supporting Document -->
+			{#if selectedApproval.document_url}
+				<div class="flex items-center justify-between border-t border-border pt-3">
+					<span class="text-sm text-muted-foreground">Supporting Document</span>
+					<a
+						href={resolve(selectedApproval.document_url as any)}
+						target="_blank"
+						class="inline-flex items-center text-xs font-bold text-blue-600 hover:underline border border-blue-200 rounded px-2.5 py-1 bg-blue-50/30"
+					>
+						<FileTextIcon class="size-3.5 mr-1" /> View Document
+					</a>
+				</div>
+			{/if}
+
+			<!-- Action Buttons if Pending -->
+			<div class="flex items-center justify-end gap-3 pt-4 border-t border-border/50">
+				<Button
+					type="button"
+					variant="outline"
+					onclick={() => {
+						isDetailsModalOpen = false;
+						selectedApproval = null;
+					}}
+					disabled={isActionSubmitting}
+				>
+					Close
+				</Button>
+				{#if selectedApproval.request_status === 'pending'}
+					<Button
+						type="button"
+						class="bg-emerald-600 text-white hover:bg-emerald-700 font-bold"
+						onclick={() => openApproveConfirm(selectedApproval)}
+						disabled={isActionSubmitting}
+					>
+						Approve
+					</Button>
+					<Button
+						type="button"
+						variant="destructive"
+						class="font-bold"
+						onclick={() => openRejectConfirm(selectedApproval)}
+						disabled={isActionSubmitting}
+					>
+						Reject
+					</Button>
+				{/if}
+			</div>
+		</div>
+	{/if}
+</CrudModal>
+
+<!-- Confirm Approve Modal -->
+<ConfirmModal
+	open={approveModalOpen}
+	title="Approve Leave Request"
+	description="Are you sure you want to approve this leave request? Leave balance will be deducted, and attendance records will be updated."
+	confirmLabel="Approve"
+	isSubmitting={isActionSubmitting}
+	onCancel={() => {
+		approveModalOpen = false;
+		approvalToAct = null;
+	}}
+	onConfirm={executeApprove}
+/>
+
+<!-- Confirm Reject Modal -->
+<ConfirmModal
+	open={rejectModalOpen}
+	title="Reject Leave Request"
+	description="Are you sure you want to reject this leave request? This action cannot be undone."
+	confirmLabel="Reject"
+	isSubmitting={isActionSubmitting}
+	onCancel={() => {
+		rejectModalOpen = false;
+		approvalToAct = null;
+	}}
+	onConfirm={executeReject}
+/>

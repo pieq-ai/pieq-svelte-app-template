@@ -1,11 +1,11 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-12)
 
 ## Corpus Check
-- 228 files · ~82,143 words
+- 228 files · ~82,152 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1091 nodes · 1793 edges · 55 communities (43 shown, 12 thin omitted)
+- 1091 nodes · 1794 edges · 59 communities (47 shown, 12 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 20 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -43,6 +43,7 @@
 - [[_COMMUNITY_Community 33|Community 33]]
 - [[_COMMUNITY_Community 34|Community 34]]
 - [[_COMMUNITY_Community 35|Community 35]]
+- [[_COMMUNITY_Community 36|Community 36]]
 - [[_COMMUNITY_Community 37|Community 37]]
 - [[_COMMUNITY_Community 38|Community 38]]
 - [[_COMMUNITY_Community 39|Community 39]]
@@ -61,6 +62,9 @@
 - [[_COMMUNITY_Community 52|Community 52]]
 - [[_COMMUNITY_Community 53|Community 53]]
 - [[_COMMUNITY_Community 55|Community 55]]
+- [[_COMMUNITY_Community 56|Community 56]]
+- [[_COMMUNITY_Community 57|Community 57]]
+- [[_COMMUNITY_Community 58|Community 58]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `$lib/utils.js` - 33 edges
@@ -89,7 +93,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (55 total, 12 thin omitted)
+## Communities (59 total, 12 thin omitted)
 
 ### Community 0 - "API Endpoints"
 Cohesion: 0.06
@@ -100,8 +104,8 @@ Cohesion: 0.15
 Nodes (5): CreateEmployeeData, createClient(), db, getDb(), isValidClient()
 
 ### Community 2 - "UI Components Index"
-Cohesion: 0.06
-Nodes (61): @lucide/svelte/icons/alert-circle, @lucide/svelte/icons/alert-triangle, @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/components, $lib/constants, $lib/master-data/master-config (+53 more)
+Cohesion: 0.19
+Nodes (23): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/toast, $lib/types/salary-component, $lib/utils, $lib/validators/salary-component (+15 more)
 
 ### Community 3 - "UI Components Core"
 Cohesion: 0.09
@@ -124,8 +128,8 @@ Cohesion: 0.07
 Nodes (27): dependencies, @auth/core, @auth/sveltekit, dotenv, @paralleldrive/cuid2, pg, @prisma/adapter-pg, @prisma/client (+19 more)
 
 ### Community 8 - "Layout & Toast"
-Cohesion: 0.08
-Nodes (24): @lucide/svelte/icons/building-2, $lib/assets/favicon.svg, $lib/auth, ./layout.css, $lib/assets/favicon.svg, $lib/auth, ./layout.css, @lucide/svelte/icons/key-round (+16 more)
+Cohesion: 0.06
+Nodes (33): @lucide/svelte/icons/alert-circle, @lucide/svelte/icons/building-2, $lib/assets/favicon.svg, $lib/auth, ./layout.css, $lib/api/leaves, $lib/assets/favicon.svg, $lib/auth (+25 more)
 
 ### Community 9 - "Department Service DAO"
 Cohesion: 0.06
@@ -179,6 +183,10 @@ Nodes (20): Changes, Harden `pieq-svelte-app-template` based on initial review, 
 Cohesion: 0.17
 Nodes (16): ./$types, ./$types, actions, load(), GET(), getErrorStatus(), POST(), createEmployee() (+8 more)
 
+### Community 36 - "Community 36"
+Cohesion: 0.18
+Nodes (10): $lib/components, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/components, $lib/master-data/master-config, $lib/permissions/mock-permissions, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/more-vertical (+2 more)
+
 ### Community 40 - "Community 40"
 Cohesion: 0.14
 Nodes (5): CreateRolePermissionInput, assignPermissionsToRole(), AssignRolePermissionsDto, removePermissionFromRoleByCuid2(), validateCuid2()
@@ -227,6 +235,18 @@ Nodes (12): CreateDesignationInput, UpdateDesignationInput, createDesignation(),
 Cohesion: 0.40
 Nodes (3): adapter, pool, prisma
 
+### Community 56 - "Community 56"
+Cohesion: 0.17
+Nodes (10): averageAge, filteredEmployees, formError, handleAddEmployee(), isSubmitting, loadEmployees(), maxAge, successMessage (+2 more)
+
+### Community 57 - "Community 57"
+Cohesion: 0.31
+Nodes (4): @lucide/svelte/icons/alert-triangle, $lib/confirmation.svelte.js, svelte/transition, @lucide/svelte/icons/x
+
+### Community 58 - "Community 58"
+Cohesion: 0.25
+Nodes (5): $lib/components/index.js, $lib/components/ui/dropdown-menu/index.js, @lucide/svelte/icons/check, @lucide/svelte/icons/filter, @lucide/svelte/icons/minus
+
 ## Knowledge Gaps
 - **324 isolated node(s):** `$schema`, `css`, `baseColor`, `components`, `utils` (+319 more)
   These have ≤1 connection - possible missing edges or undocumented components.
@@ -238,14 +258,14 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `db` connect `Data Access Tests` to `API Endpoints`, `Master Data DAO`, `Community 37`, `Community 39`, `Community 40`, `Department Service DAO`, `Community 38`, `Community 44`, `Community 46`, `Community 47`, `Community 48`, `Community 52`, `Community 54`?**
   _High betweenness centrality (0.128) - this node is a cross-community bridge._
 - **Why does `User` connect `API Client Configuration` to `API Endpoints`?**
-  _High betweenness centrality (0.104) - this node is a cross-community bridge._
+  _High betweenness centrality (0.105) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `Dependencies & Icons` to `Package Dependencies`?**
   _High betweenness centrality (0.065) - this node is a cross-community bridge._
 - **What connects `$schema`, `css`, `baseColor` to the rest of the system?**
   _324 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `API Endpoints` be split into smaller, more focused modules?**
   _Cohesion score 0.05553923009109609 - nodes in this community are weakly interconnected._
-- **Should `UI Components Index` be split into smaller, more focused modules?**
-  _Cohesion score 0.05755879059350504 - nodes in this community are weakly interconnected._
 - **Should `UI Components Core` be split into smaller, more focused modules?**
   _Cohesion score 0.08672699849170437 - nodes in this community are weakly interconnected._
+- **Should `Dependencies & Icons` be split into smaller, more focused modules?**
+  _Cohesion score 0.044444444444444446 - nodes in this community are weakly interconnected._

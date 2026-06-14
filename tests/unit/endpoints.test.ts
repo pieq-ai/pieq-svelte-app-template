@@ -16,9 +16,9 @@ import * as locationsCuidApi from '../../src/routes/api/organization_location/[c
 describe('API Endpoint Integration Tests', () => {
   beforeAll(async () => {
     // Database cleanup to keep tests idempotent
-    await db.role.deleteMany({ where: { role_name: { in: ['API Role', 'API Role Updated', 'API Conflict Role'] } } });
+    await db.role.deleteMany({ where: { name: { in: ['API Role', 'API Role Updated', 'API Conflict Role'] } } });
     await db.shift.deleteMany({ where: { shift_name: { in: ['API Shift', 'API Shift Updated', 'API Conflict Shift'] } } });
-    await db.companyLocation.deleteMany({ where: { location_name: { in: ['API Location', 'API Location Updated', 'API Conflict Location'] } } });
+    await db.companyLocation.deleteMany({ where: { name: { in: ['API Location', 'API Location Updated', 'API Conflict Location'] } } });
   });
 
   describe('Roles API Endpoints', () => {

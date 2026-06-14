@@ -6,9 +6,9 @@ import { db } from '../../src/lib/server/db.js';
 
 describe('Service Layer Unit Tests', () => {
   beforeAll(async () => {
-    await db.role.deleteMany({ where: { role_name: { in: ['Service HR', 'Service HR Updated'] } } });
+    await db.role.deleteMany({ where: { name: { in: ['Service HR', 'Service HR Updated'] } } });
     await db.shift.deleteMany({ where: { shift_name: { in: ['Service Shift', 'Sibling Shift'] } } });
-    await db.companyLocation.deleteMany({ where: { location_name: { in: ['Service Location'] } } });
+    await db.companyLocation.deleteMany({ where: { name: { in: ['Service Location'] } } });
   });
 
   describe('Role Service', () => {

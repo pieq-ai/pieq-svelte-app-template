@@ -69,13 +69,13 @@ function validateRoleName(value: unknown): string {
     throw err;
   }
   if (trimmed.length > 255) {
-    const err: any = new Error('Maximum 255 characters allowed');
+    const err: any = new Error('Role name exceeds maximum length of 255 characters');
     err.status = 400;
     throw err;
   }
   const nameRegex = /^[A-Za-z ]+$/;
   if (!nameRegex.test(trimmed)) {
-    const err: any = new Error('Only letters and spaces are allowed');
+    const err: any = new Error('Role name must contain only letters and spaces');
     err.status = 400;
     throw err;
   }
