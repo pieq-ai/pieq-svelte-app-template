@@ -38,3 +38,7 @@ export { default as SearchInput } from './common/SearchInput.svelte';
 
 export { default as ConfirmationModal } from './ConfirmationModal.svelte';
 
+export { default as DatePicker } from './ui/datepicker/DatePicker.svelte';
+export { default as MultiSelect } from './ui/multiselect/multiselect.svelte';
+export { default as StatusBadge } from './common/StatusBadge.svelte';
+

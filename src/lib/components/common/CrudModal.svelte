@@ -1,7 +1,8 @@
 <script lang="ts">
 	import XIcon from '@lucide/svelte/icons/x';
 	import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components';
-
+	import { modalStack } from './modalStack.js';
+	import { onDestroy } from 'svelte';
 
 	interface Props {
 		open: boolean;
@@ -12,11 +13,47 @@
 		isSubmitting?: boolean;
 		onClose: () => void;
 		children?: import('svelte').Snippet<[{ cancel: () => void }]>;
+		preventOutsideClickClose?: boolean;
 	}
 
-	let { open, title, description = '', closeLabel = 'Close modal', isDirty = false, isSubmitting = false, onClose, children }: Props = $props();
+	let {
+		open,
+		title,
+		description = '',
+		closeLabel = 'Close modal',
+		isDirty = false,
+		isSubmitting = false,
+		onClose,
+		children,
+		preventOutsideClickClose = false
+	}: Props = $props();
 
 	let showUnsavedConfirm = $state(false);
+
+	const modalId = Symbol('CrudModal');
+	const confirmId = Symbol('CrudModalConfirm');
+
+	$effect(() => {
+		if (open) {
+			modalStack.push(modalId);
+		} else {
+			modalStack.pop(modalId);
+			modalStack.pop(confirmId);
+		}
+	});
+
+	$effect(() => {
+		if (showUnsavedConfirm) {
+			modalStack.push(confirmId);
+		} else {
+			modalStack.pop(confirmId);
+		}
+	});
+
+	onDestroy(() => {
+		modalStack.pop(modalId);
+		modalStack.pop(confirmId);
+	});
 
 	function handleCloseAttempt() {
 		if (isSubmitting) return;
@@ -29,15 +66,18 @@
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Escape' && open) {
-			if (showUnsavedConfirm) {
+			if (showUnsavedConfirm && modalStack.isTop(confirmId)) {
 				showUnsavedConfirm = false;
-			} else {
+				e.preventDefault();
+			} else if (modalStack.isTop(modalId)) {
 				handleCloseAttempt();
+				e.preventDefault();
 			}
 		}
 	}
 
 	function handleBackdropClick(e: MouseEvent) {
+		if (preventOutsideClickClose) return;
 		if (e.target === e.currentTarget) {
 			handleCloseAttempt();
 		}
@@ -53,8 +93,8 @@
 		class="fixed inset-0 z-50 flex items-center justify-center bg-[#262626]/70 px-4 py-6"
 		onclick={handleBackdropClick}
 	>
-		<Card class="relative max-h-[90vh] w-full max-w-lg overflow-y-auto" onclick={(e) => e.stopPropagation()}>
-			<CardHeader class="flex-col items-start gap-1 pr-12">
+		<Card class="relative max-h-[90vh] w-full max-w-lg overflow-y-auto custom-scrollbar" onclick={(e) => e.stopPropagation()}>
+			<CardHeader class="flex-col items-start gap-1 px-6 pr-12">
 				<CardTitle>{title}</CardTitle>
 				{#if description}
 					<CardDescription>{description}</CardDescription>
@@ -71,7 +111,7 @@
 			>
 				<XIcon class="size-4" />
 			</Button>
-			<CardContent>
+			<CardContent class="px-6">
 				{@render children?.({ cancel: handleCloseAttempt })}
 			</CardContent>
 		</Card>
@@ -83,7 +123,10 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div 
 		class="fixed inset-0 z-100 flex items-center justify-center bg-[rgba(15,11,10,0.4)] backdrop-blur-md px-4 py-6"
-		onclick={(e) => { if (e.target === e.currentTarget) showUnsavedConfirm = false; }}
+		onclick={(e) => {
+			if (preventOutsideClickClose) return;
+			if (e.target === e.currentTarget) showUnsavedConfirm = false;
+		}}
 	>
 		<div
 			class="bg-card border border-border/50 rounded-[24px] w-full max-w-[420px] shadow-2xl flex flex-col p-6 sm:p-7 md:p-8"

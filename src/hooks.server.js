@@ -3,7 +3,8 @@ import { redirect } from '@sveltejs/kit';
 import { handle as authHandle } from '$lib/server/auth.js';
 
 // Add global BigInt JSON serialization support
-BigInt.prototype.toJSON = function () {
+/** @type {any} */
+(BigInt.prototype).toJSON = function () {
 	return this.toString();
 };
 
@@ -43,7 +44,10 @@ const routeGuard = async ({ event, resolve }) => {
 		'/shifts',
 		'/organization_locations',
 		'/organization_location',
-		'/settings'
+		'/settings',
+		'/leave-types',
+		'/leave-policies',
+		'/holidays'
 	];
 	const isProtectedRoute = protectedRoutes.some(
 		(path) => event.url.pathname === path || event.url.pathname.startsWith(`${path}/`)
@@ -90,8 +94,8 @@ const errorHandler = async ({ event, resolve }) => {
 		try {
 			const cloned = response.clone();
 			const json = await cloned.json();
-			const rawError = json.error || json.message || '';
-			const field = json.field;
+			const rawError = json.data?.error || json.error || json.message || '';
+			const field = json.data?.field || json.field;
 
 			const isDatabaseError = typeof rawError === 'string' && (
 				rawError.toLowerCase().includes('prisma') ||
@@ -129,9 +133,7 @@ const errorHandler = async ({ event, resolve }) => {
 					data: {
 						error: sanitizedMessage,
 						field: actualField
-					},
-					error: sanitizedMessage,
-					field: actualField
+					}
 				}),
 				{
 					status,
