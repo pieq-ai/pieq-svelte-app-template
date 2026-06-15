@@ -157,17 +157,17 @@
 		const record = historyRecords.find((rec) => rec.attendance_date === dateStr);
 		if (record) {
 			const status = record.attendance_status;
-			if (status === 'Present' || status === 'Late' || status === 'Half Day') {
+			if (status === 'Present' || status === 'Late' || status === 'Half Day' || status === 'WFH') {
 				return { status: 'Present', color: 'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/20' };
 			}
-			if (status === 'Absent') {
-				return { status: 'Absent', color: 'bg-destructive/10 text-destructive border border-destructive/20' };
-			}
-			if (status === 'On Leave') {
+			if (status === 'On Leave' || status === 'Leave') {
 				return { status: 'Leave', color: 'bg-amber-500/10 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-500/20' };
 			}
-			if (status === 'WFH') {
-				return { status: 'WFH', color: 'bg-purple-500/10 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border border-purple-500/20' };
+			if (status === 'LOP' || status === 'Absent') {
+				return { status: 'LOP', color: 'bg-destructive/10 text-destructive border border-destructive/20' };
+			}
+			if (status === 'Week Off') {
+				return { status: 'Week Off', color: 'bg-slate-500/10 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400 border border-slate-500/20' };
 			}
 		}
 
@@ -176,29 +176,92 @@
 			return { status: 'Holiday', color: 'bg-blue-500/10 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border border-blue-500/20' };
 		}
 
+		// Detect Week Off (Saturday & Sunday)
+		const parts = dateStr.split('-');
+		if (parts.length === 3) {
+			const year = parseInt(parts[0], 10);
+			const month = parseInt(parts[1], 10) - 1;
+			const day = parseInt(parts[2], 10);
+			const dateObj = new Date(year, month, day);
+			const dayOfWeek = dateObj.getDay();
+			if (dayOfWeek === 0 || dayOfWeek === 6) {
+				return { status: 'Week Off', color: 'bg-slate-500/10 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400 border border-slate-500/20' };
+			}
+		}
+
 		return null;
 	}
 
-	// Dynamic stats cards metrics
-	let presentDaysCount = $derived(
-		historyRecords.filter(r => r.attendance_status === 'Present' || r.attendance_status === 'Late' || r.attendance_status === 'Half Day').length
-	);
-	let absentDaysCount = $derived(
-		historyRecords.filter(r => r.attendance_status === 'Absent').length
-	);
-	let leaveDaysCount = $derived(
-		historyRecords.filter(r => r.attendance_status === 'On Leave').length
-	);
-	let wfhDaysCount = $derived(
-		historyRecords.filter(r => r.attendance_status === 'WFH').length
-	);
-	let totalWorkingHours = $derived(
-		(historyRecords.reduce((sum, r) => sum + (r.work_duration_minutes || 0), 0) / 60).toFixed(1)
-	);
+	// Dynamic stats cards metrics for the currently selected month
+	let monthlyStats = $derived.by(() => {
+		let present = 0;
+		let leave = 0;
+		let holiday = 0;
+		let weekOff = 0;
+		let lop = 0;
+		let workingDays = 0;
+
+		for (const d of calendarMonthDays) {
+			if (!d.isCurrentMonth) continue;
+
+			const statusObj = getDayStatus(d.dateStr);
+			if (statusObj) {
+				if (statusObj.status === 'Present') {
+					present++;
+				} else if (statusObj.status === 'Leave') {
+					leave++;
+				} else if (statusObj.status === 'Holiday') {
+					holiday++;
+				} else if (statusObj.status === 'Week Off') {
+					weekOff++;
+				} else if (statusObj.status === 'LOP') {
+					lop++;
+				}
+			}
+
+			// Calculate working days (business days)
+			const parts = d.dateStr.split('-');
+			if (parts.length === 3) {
+				const year = parseInt(parts[0], 10);
+				const month = parseInt(parts[1], 10) - 1;
+				const day = parseInt(parts[2], 10);
+				const dateObj = new Date(year, month, day);
+				const dayOfWeek = dateObj.getDay();
+				const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+				const isHoliday = data.holidays.some((h: any) => getISODateString(h.holiday_date) === d.dateStr);
+
+				if (!isWeekend && !isHoliday) {
+					workingDays++;
+				}
+			}
+		}
+
+		return {
+			totalWorkingDays: workingDays,
+			presentDays: present,
+			leaveDays: 0, // Default to 0 until leave data is integrated
+			holidayDays: holiday,
+			weekOffDays: weekOff,
+			lopDays: lop
+		};
+	});
+
+	let totalWorkingHours = $derived.by(() => {
+		const minutes = historyRecords.reduce((sum, r) => {
+			const d = new Date(r.attendance_date);
+			const isCurrentMonth = d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+			if (isCurrentMonth) {
+				return sum + (r.work_duration_minutes || 0);
+			}
+			return sum;
+		}, 0);
+		return (minutes / 60).toFixed(1);
+	});
+
 	let attendancePercentage = $derived.by(() => {
-		const total = presentDaysCount + absentDaysCount + leaveDaysCount + wfhDaysCount;
+		const total = monthlyStats.presentDays + monthlyStats.lopDays + monthlyStats.leaveDays;
 		if (total === 0) return 0;
-		return Math.round(((presentDaysCount + wfhDaysCount) / total) * 100);
+		return Math.round((monthlyStats.presentDays / total) * 100);
 	});
 
 	// Load employee specific data
@@ -272,13 +335,19 @@
 		switch (status) {
 			case 'Present':
 				return 'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/20';
-			case 'Absent':
-				return 'bg-destructive/10 text-destructive border border-destructive/20';
 			case 'Late':
 				return 'bg-amber-500/10 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-500/20';
 			case 'Half Day':
 				return 'bg-purple-500/10 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border border-purple-500/20';
 			case 'On Leave':
+			case 'Leave':
+				return 'bg-amber-500/10 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-500/20';
+			case 'LOP':
+			case 'Absent':
+				return 'bg-destructive/10 text-destructive border border-destructive/20';
+			case 'Week Off':
+				return 'bg-slate-500/10 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400 border border-slate-500/20';
+			case 'Holiday':
 				return 'bg-blue-500/10 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border border-blue-500/20';
 			default:
 				return '';
@@ -436,12 +505,22 @@
 		</div>
 	{:else}
 		<!-- Stats Summary Cards -->
-		<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
 			<Card class="bg-card">
 				<CardContent class="p-6 flex items-center justify-between">
 					<div class="space-y-1">
-						<p class="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-medium">Present</p>
-						<div class="text-3xl font-bold">{presentDaysCount}</div>
+						<p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Working Days</p>
+						<div class="text-3xl font-bold">{monthlyStats.totalWorkingDays}</div>
+					</div>
+					<span class="size-3 rounded-full bg-slate-400 shadow-sm shadow-slate-400/50"></span>
+				</CardContent>
+			</Card>
+
+			<Card class="bg-card">
+				<CardContent class="p-6 flex items-center justify-between">
+					<div class="space-y-1">
+						<p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Present Days</p>
+						<div class="text-3xl font-bold">{monthlyStats.presentDays}</div>
 					</div>
 					<span class="size-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span>
 				</CardContent>
@@ -450,18 +529,8 @@
 			<Card class="bg-card">
 				<CardContent class="p-6 flex items-center justify-between">
 					<div class="space-y-1">
-						<p class="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-medium">Absent</p>
-						<div class="text-3xl font-bold">{absentDaysCount}</div>
-					</div>
-					<span class="size-3 rounded-full bg-destructive shadow-sm shadow-destructive/50"></span>
-				</CardContent>
-			</Card>
-
-			<Card class="bg-card">
-				<CardContent class="p-6 flex items-center justify-between">
-					<div class="space-y-1">
-						<p class="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-medium">Leave</p>
-						<div class="text-3xl font-bold">{leaveDaysCount}</div>
+						<p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Leave Days</p>
+						<div class="text-3xl font-bold">{monthlyStats.leaveDays}</div>
 					</div>
 					<span class="size-3 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50"></span>
 				</CardContent>
@@ -470,10 +539,30 @@
 			<Card class="bg-card">
 				<CardContent class="p-6 flex items-center justify-between">
 					<div class="space-y-1">
-						<p class="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-medium">WFH</p>
-						<div class="text-3xl font-bold">{wfhDaysCount}</div>
+						<p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Holiday Days</p>
+						<div class="text-3xl font-bold">{monthlyStats.holidayDays}</div>
 					</div>
-					<span class="size-3 rounded-full bg-purple-500 shadow-sm shadow-purple-500/50"></span>
+					<span class="size-3 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50"></span>
+				</CardContent>
+			</Card>
+
+			<Card class="bg-card">
+				<CardContent class="p-6 flex items-center justify-between">
+					<div class="space-y-1">
+						<p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Week Off Days</p>
+						<div class="text-3xl font-bold">{monthlyStats.weekOffDays}</div>
+					</div>
+					<span class="size-3 rounded-full bg-slate-500 shadow-sm shadow-slate-500/50"></span>
+				</CardContent>
+			</Card>
+
+			<Card class="bg-card">
+				<CardContent class="p-6 flex items-center justify-between">
+					<div class="space-y-1">
+						<p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">LOP Days</p>
+						<div class="text-3xl font-bold">{monthlyStats.lopDays}</div>
+					</div>
+					<span class="size-3 rounded-full bg-destructive shadow-sm shadow-destructive/50"></span>
 				</CardContent>
 			</Card>
 		</div>
@@ -482,7 +571,7 @@
 			<Card class="bg-card">
 				<CardContent class="p-6 flex items-center justify-between h-full">
 					<div class="space-y-1">
-						<p class="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-medium">Total Work Hours</p>
+						<p class="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Total Work Hours</p>
 						<div class="text-3xl font-bold">{totalWorkingHours} hrs</div>
 					</div>
 					<ClockIcon class="size-8 text-[#F45310]" />
@@ -492,7 +581,7 @@
 			<Card class="bg-card">
 				<CardContent class="p-6 flex flex-col justify-center h-full space-y-2">
 					<div class="flex items-center justify-between">
-						<p class="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-medium">Attendance Rate</p>
+						<p class="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Attendance Rate</p>
 						<span class="text-sm font-bold text-foreground">{attendancePercentage}%</span>
 					</div>
 					<div class="w-full bg-muted rounded-full h-2.5 overflow-hidden">
@@ -516,8 +605,8 @@
 							<span class="text-xs text-muted-foreground font-semibold uppercase tracking-wider font-medium">Today's Status</span>
 							<div class="font-bold text-sm">
 								{#if todayRecord}
-									<Badge class={`border-none px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(todayRecord.attendance_status)}`}>
-										{todayRecord.attendance_status}
+									<Badge class={`border-none px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(todayRecord.attendance_status === 'Absent' ? 'LOP' : todayRecord.attendance_status)}`}>
+										{todayRecord.attendance_status === 'Absent' ? 'LOP' : todayRecord.attendance_status}
 									</Badge>
 								{:else}
 									<span class="text-muted-foreground">Not Marked</span>
@@ -610,20 +699,20 @@
 						<span class="text-muted-foreground">Present</span>
 					</div>
 					<div class="flex items-center gap-1.5">
-						<span class="size-3 rounded bg-destructive/10 border border-destructive/20"></span>
-						<span class="text-muted-foreground">Absent</span>
+						<span class="size-3 rounded bg-blue-500/10 border border-blue-500/20"></span>
+						<span class="text-muted-foreground">Holiday</span>
+					</div>
+					<div class="flex items-center gap-1.5">
+						<span class="size-3 rounded bg-slate-500/10 border border-slate-500/20"></span>
+						<span class="text-muted-foreground">Week Off</span>
 					</div>
 					<div class="flex items-center gap-1.5">
 						<span class="size-3 rounded bg-amber-500/10 border border-amber-500/20"></span>
 						<span class="text-muted-foreground">Leave</span>
 					</div>
 					<div class="flex items-center gap-1.5">
-						<span class="size-3 rounded bg-blue-500/10 border border-blue-500/20"></span>
-						<span class="text-muted-foreground">Holiday</span>
-					</div>
-					<div class="flex items-center gap-1.5">
-						<span class="size-3 rounded bg-purple-500/10 border border-purple-500/20"></span>
-						<span class="text-muted-foreground">WFH</span>
+						<span class="size-3 rounded bg-destructive/10 border border-destructive/20"></span>
+						<span class="text-muted-foreground">LOP (Loss of Pay)</span>
 					</div>
 				</div>
 
@@ -695,8 +784,8 @@
 											<TableCell>{formatDisplayTime(rec.check_out_time)}</TableCell>
 											<TableCell>{formatDuration(rec.work_duration_minutes)}</TableCell>
 											<TableCell>
-												<Badge class={`border-none px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(rec.attendance_status)}`}>
-													{rec.attendance_status}
+												<Badge class={`border-none px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(rec.attendance_status === 'Absent' ? 'LOP' : rec.attendance_status)}`}>
+													{rec.attendance_status === 'Absent' ? 'LOP' : rec.attendance_status}
 												</Badge>
 											</TableCell>
 										</TableRow>
