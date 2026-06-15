@@ -157,23 +157,29 @@
 		const record = historyRecords.find((rec) => rec.attendance_date === dateStr);
 		if (record) {
 			const status = record.attendance_status;
-			if (status === 'Present' || status === 'Late' || status === 'Half Day' || status === 'WFH') {
-				return { status: 'Present', color: 'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/20' };
+			if (status === 'Present' || status === 'Late') {
+				return { status: 'Present', color: 'bg-emerald-500/15 text-emerald-800 dark:bg-emerald-500/25 dark:text-emerald-300 border border-emerald-500/30 dark:border-emerald-500/40' };
+			}
+			if (status === 'Half Day') {
+				return { status: 'Half Day', color: 'bg-purple-500/15 text-purple-800 dark:bg-purple-500/25 dark:text-purple-300 border border-purple-500/30 dark:border-purple-500/40' };
+			}
+			if (status === 'WFH') {
+				return { status: 'WFH', color: 'bg-cyan-500/15 text-cyan-800 dark:bg-cyan-500/25 dark:text-cyan-300 border border-cyan-500/30 dark:border-cyan-500/40' };
 			}
 			if (status === 'On Leave' || status === 'Leave') {
-				return { status: 'Leave', color: 'bg-amber-500/10 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-500/20' };
+				return { status: 'Leave', color: 'bg-amber-500/15 text-amber-800 dark:bg-amber-500/25 dark:text-amber-300 border border-amber-500/30 dark:border-amber-500/40' };
 			}
 			if (status === 'LOP' || status === 'Absent') {
-				return { status: 'LOP', color: 'bg-destructive/10 text-destructive border border-destructive/20' };
+				return { status: 'LOP', color: 'bg-red-500/15 text-red-800 dark:bg-red-500/25 dark:text-red-300 border border-red-500/30 dark:border-red-500/40' };
 			}
 			if (status === 'Week Off') {
-				return { status: 'Week Off', color: 'bg-slate-500/10 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400 border border-slate-500/20' };
+				return { status: 'Week Off', color: 'bg-slate-500/15 text-slate-700 dark:bg-slate-500/25 dark:text-slate-300 border border-slate-500/30 dark:border-slate-500/40' };
 			}
 		}
 
 		const isHoliday = data.holidays.some((h: any) => getISODateString(h.holiday_date) === dateStr);
 		if (isHoliday) {
-			return { status: 'Holiday', color: 'bg-blue-500/10 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border border-blue-500/20' };
+			return { status: 'Holiday', color: 'bg-blue-500/15 text-blue-800 dark:bg-blue-500/25 dark:text-blue-300 border border-blue-500/30 dark:border-blue-500/40' };
 		}
 
 		// Detect Week Off (Saturday & Sunday)
@@ -185,7 +191,7 @@
 			const dateObj = new Date(year, month, day);
 			const dayOfWeek = dateObj.getDay();
 			if (dayOfWeek === 0 || dayOfWeek === 6) {
-				return { status: 'Week Off', color: 'bg-slate-500/10 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400 border border-slate-500/20' };
+				return { status: 'Week Off', color: 'bg-slate-500/15 text-slate-700 dark:bg-slate-500/25 dark:text-slate-300 border border-slate-500/30 dark:border-slate-500/40' };
 			}
 		}
 
@@ -196,10 +202,10 @@
 	let monthlyStats = $derived.by(() => {
 		let present = 0;
 		let leave = 0;
-		let holiday = 0;
-		let weekOff = 0;
 		let lop = 0;
 		let workingDays = 0;
+		let halfDays = 0;
+		let wfhDays = 0;
 
 		for (const d of calendarMonthDays) {
 			if (!d.isCurrentMonth) continue;
@@ -210,12 +216,12 @@
 					present++;
 				} else if (statusObj.status === 'Leave') {
 					leave++;
-				} else if (statusObj.status === 'Holiday') {
-					holiday++;
-				} else if (statusObj.status === 'Week Off') {
-					weekOff++;
 				} else if (statusObj.status === 'LOP') {
 					lop++;
+				} else if (statusObj.status === 'Half Day') {
+					halfDays++;
+				} else if (statusObj.status === 'WFH') {
+					wfhDays++;
 				}
 			}
 
@@ -239,10 +245,10 @@
 		return {
 			totalWorkingDays: workingDays,
 			presentDays: present,
-			leaveDays: 0, // Default to 0 until leave data is integrated
-			holidayDays: holiday,
-			weekOffDays: weekOff,
-			lopDays: lop
+			leaveDays: leave,
+			lopDays: lop,
+			halfDays: halfDays,
+			wfhDays: wfhDays
 		};
 	});
 
@@ -281,9 +287,9 @@
 	});
 
 	let attendancePercentage = $derived.by(() => {
-		const total = monthlyStats.presentDays + monthlyStats.lopDays + monthlyStats.leaveDays;
+		const total = monthlyStats.presentDays + monthlyStats.lopDays + monthlyStats.leaveDays + monthlyStats.halfDays + monthlyStats.wfhDays;
 		if (total === 0) return 0;
-		return Math.round((monthlyStats.presentDays / total) * 100);
+		return Math.round(((monthlyStats.presentDays + monthlyStats.wfhDays + monthlyStats.halfDays) / total) * 100);
 	});
 
 	// Load employee specific data
@@ -344,6 +350,13 @@
 		return `${hrs} hrs ${String(mins).padStart(2, '0')} min`;
 	}
 
+	function formatCalDuration(minutes: number | null) {
+		if (minutes === null || minutes === undefined) return '';
+		const hrs = Math.floor(minutes / 60);
+		const mins = minutes % 60;
+		return `${hrs}h ${String(mins).padStart(2, '0')}m`;
+	}
+
 	function getSourceName(cuid: string | null): string {
 		if (!cuid) return '--';
 		const src = data.sources.find((s: any) => s.id === cuid);
@@ -353,21 +366,23 @@
 	function getStatusBadgeClass(status: string): string {
 		switch (status) {
 			case 'Present':
-				return 'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/20';
+				return 'bg-emerald-500/15 text-emerald-800 dark:bg-emerald-500/25 dark:text-emerald-300 border border-emerald-500/30 dark:border-emerald-500/40';
 			case 'Late':
-				return 'bg-amber-500/10 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-500/20';
+				return 'bg-amber-500/15 text-amber-800 dark:bg-amber-500/25 dark:text-amber-300 border border-amber-500/30 dark:border-amber-500/40';
 			case 'Half Day':
-				return 'bg-purple-500/10 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border border-purple-500/20';
+				return 'bg-purple-500/15 text-purple-800 dark:bg-purple-500/25 dark:text-purple-300 border border-purple-500/30 dark:border-purple-500/40';
 			case 'On Leave':
 			case 'Leave':
-				return 'bg-amber-500/10 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-500/20';
+				return 'bg-amber-500/15 text-amber-800 dark:bg-amber-500/25 dark:text-amber-300 border border-amber-500/30 dark:border-amber-500/40';
 			case 'LOP':
 			case 'Absent':
-				return 'bg-destructive/10 text-destructive border border-destructive/20';
+				return 'bg-red-500/15 text-red-800 dark:bg-red-500/25 dark:text-red-300 border border-red-500/30 dark:border-red-500/40';
 			case 'Week Off':
-				return 'bg-slate-500/10 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400 border border-slate-500/20';
+				return 'bg-slate-500/15 text-slate-700 dark:bg-slate-500/25 dark:text-slate-300 border border-slate-500/30 dark:border-slate-500/40';
 			case 'Holiday':
-				return 'bg-blue-500/10 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border border-blue-500/20';
+				return 'bg-blue-500/15 text-blue-800 dark:bg-blue-500/25 dark:text-blue-300 border border-blue-500/30 dark:border-blue-500/40';
+			case 'WFH':
+				return 'bg-cyan-500/15 text-cyan-800 dark:bg-cyan-500/25 dark:text-cyan-300 border border-cyan-500/30 dark:border-cyan-500/40';
 			default:
 				return '';
 		}
@@ -570,20 +585,20 @@
 			<Card class="bg-card">
 				<CardContent class="p-6 flex items-center justify-between">
 					<div class="space-y-1">
-						<p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Holiday Days</p>
-						<div class="text-3xl font-bold">{monthlyStats.holidayDays}</div>
+						<p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Half Day</p>
+						<div class="text-3xl font-bold">{monthlyStats.halfDays}</div>
 					</div>
-					<span class="size-3 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50"></span>
+					<span class="size-3 rounded-full bg-purple-500 shadow-sm shadow-purple-500/50"></span>
 				</CardContent>
 			</Card>
 
 			<Card class="bg-card">
 				<CardContent class="p-6 flex items-center justify-between">
 					<div class="space-y-1">
-						<p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Week Off Days</p>
-						<div class="text-3xl font-bold">{monthlyStats.weekOffDays}</div>
+						<p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">WFH</p>
+						<div class="text-3xl font-bold">{monthlyStats.wfhDays}</div>
 					</div>
-					<span class="size-3 rounded-full bg-slate-500 shadow-sm shadow-slate-500/50"></span>
+					<span class="size-3 rounded-full bg-cyan-500 shadow-sm shadow-cyan-500/50"></span>
 				</CardContent>
 			</Card>
 
@@ -620,84 +635,6 @@
 				</CardContent>
 			</Card>
 		</div>
-
-		<!-- Action Section & Today's Info -->
-		<Card>
-			<CardHeader>
-				<CardTitle>Daily Attendance Logger</CardTitle>
-
-			</CardHeader>
-			<CardContent class="space-y-6">
-				<div class="flex flex-col md:flex-row gap-6 items-center justify-between">
-					<!-- Today's Status Details -->
-					<div class="grid grid-cols-2 sm:grid-cols-4 gap-6 w-full md:w-auto">
-						<div class="space-y-1">
-							<span class="text-xs text-muted-foreground font-semibold uppercase tracking-wider font-medium">Today's Status</span>
-							<div class="font-bold text-sm">
-								{#if todayRecord}
-									<Badge class={`border-none px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(todayRecord.attendance_status === 'Absent' ? 'LOP' : todayRecord.attendance_status)}`}>
-										{todayRecord.attendance_status === 'Absent' ? 'LOP' : todayRecord.attendance_status}
-									</Badge>
-								{:else}
-									<span class="text-muted-foreground">Not Marked</span>
-								{/if}
-							</div>
-						</div>
-						<div class="space-y-1">
-							<span class="text-xs text-muted-foreground font-semibold uppercase tracking-wider font-medium">Check In</span>
-							<div class="font-bold text-sm">{todayRecord ? formatDisplayTime(todayRecord.check_in_time) : '--'}</div>
-						</div>
-						<div class="space-y-1">
-							<span class="text-xs text-muted-foreground font-semibold uppercase tracking-wider font-medium">Check Out</span>
-							<div class="font-bold text-sm">{todayRecord ? formatDisplayTime(todayRecord.check_out_time) : '--'}</div>
-						</div>
-						<div class="space-y-1">
-							<span class="text-xs text-muted-foreground font-semibold uppercase tracking-wider font-medium">Working Duration</span>
-							<div class="font-bold text-sm">{todayRecord ? formatDuration(todayRecord.work_duration_minutes) : '--'}</div>
-						</div>
-					</div>
-
-					<!-- Buttons -->
-					<div class="flex items-center gap-3 w-full md:w-auto justify-end">
-						{#if !todayRecord}
-							<Button
-								onclick={handleCheckIn}
-								class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-none font-semibold px-6 h-10 w-full sm:w-auto"
-								disabled={isSubmitting}
-							>
-								Check In
-							</Button>
-							<Button
-								variant="outline"
-								class="font-semibold px-6 h-10 w-full sm:w-auto"
-								disabled={true}
-							>
-								Check Out
-							</Button>
-						{:else if todayRecord && !todayRecord.check_out_time}
-							<Button
-								variant="outline"
-								class="font-semibold px-6 h-10 w-full sm:w-auto"
-								disabled={true}
-							>
-								Check In
-							</Button>
-							<Button
-								onclick={handleCheckOut}
-								class="bg-[#800020] text-white hover:bg-[#800020]/90 border-none font-semibold px-6 h-10 w-full sm:w-auto"
-								disabled={isSubmitting}
-							>
-								Check Out
-							</Button>
-						{:else}
-							<div class="flex items-center gap-2 rounded-lg bg-emerald-500/10 p-3 text-sm text-emerald-600 dark:text-emerald-400 w-full">
-								<span>Attendance logs completed for today.</span>
-							</div>
-						{/if}
-					</div>
-				</div>
-			</CardContent>
-		</Card>
 
 		<!-- Calendar View Card -->
 		<Card class="bg-card">
@@ -779,24 +716,32 @@
 				<!-- Legend -->
 				<div class="flex flex-wrap gap-4 mb-6 text-xs font-semibold">
 					<div class="flex items-center gap-1.5">
-						<span class="size-3 rounded bg-emerald-500/10 border border-emerald-500/20"></span>
+						<span class="size-3 rounded bg-emerald-500/15 border border-emerald-500/30 dark:bg-emerald-500/25 dark:border-emerald-500/40"></span>
 						<span class="text-muted-foreground">Present</span>
 					</div>
 					<div class="flex items-center gap-1.5">
-						<span class="size-3 rounded bg-blue-500/10 border border-blue-500/20"></span>
+						<span class="size-3 rounded bg-blue-500/15 border border-blue-500/30 dark:bg-blue-500/25 dark:border-blue-500/40"></span>
 						<span class="text-muted-foreground">Holiday</span>
 					</div>
 					<div class="flex items-center gap-1.5">
-						<span class="size-3 rounded bg-slate-500/10 border border-slate-500/20"></span>
+						<span class="size-3 rounded bg-slate-500/15 border border-slate-500/30 dark:bg-slate-500/25 dark:border-slate-500/40"></span>
 						<span class="text-muted-foreground">Week Off</span>
 					</div>
 					<div class="flex items-center gap-1.5">
-						<span class="size-3 rounded bg-amber-500/10 border border-amber-500/20"></span>
+						<span class="size-3 rounded bg-amber-500/15 border border-amber-500/30 dark:bg-amber-500/25 dark:border-amber-500/40"></span>
 						<span class="text-muted-foreground">Leave</span>
 					</div>
 					<div class="flex items-center gap-1.5">
-						<span class="size-3 rounded bg-destructive/10 border border-destructive/20"></span>
+						<span class="size-3 rounded bg-red-500/15 border border-red-500/30 dark:bg-red-500/25 dark:border-red-500/40"></span>
 						<span class="text-muted-foreground">LOP (Loss of Pay)</span>
+					</div>
+					<div class="flex items-center gap-1.5">
+						<span class="size-3 rounded bg-purple-500/15 border border-purple-500/30 dark:bg-purple-500/25 dark:border-purple-500/40"></span>
+						<span class="text-muted-foreground">Half Day</span>
+					</div>
+					<div class="flex items-center gap-1.5">
+						<span class="size-3 rounded bg-cyan-500/15 border border-cyan-500/30 dark:bg-cyan-500/25 dark:border-cyan-500/40"></span>
+						<span class="text-muted-foreground">WFH</span>
 					</div>
 				</div>
 
@@ -810,19 +755,56 @@
 				<!-- Grid of Days -->
 				<div class="grid grid-cols-7 gap-2">
 					{#each calendarMonthDays as cell}
+						{@const record = historyRecords.find((rec) => rec.attendance_date === cell.dateStr)}
 						{@const dayStatus = getDayStatus(cell.dateStr)}
 						<div
 							class={cn(
-								"min-h-16 p-2 rounded-lg border border-border/50 flex flex-col justify-between transition-all relative",
+								"min-h-24 p-2.5 rounded-lg border border-border/50 flex flex-col justify-between transition-all relative",
 								cell.isCurrentMonth ? "bg-card text-foreground" : "bg-muted/10 text-muted-foreground opacity-50",
 								cell.isToday && "ring-2 ring-[#F45310] ring-offset-2 ring-offset-background",
 								dayStatus ? dayStatus.color : "hover:bg-muted/30"
 							)}
 						>
-							<span class="text-xs font-bold">{cell.day}</span>
-							{#if dayStatus}
-								<span class="text-[10px] font-semibold tracking-tight uppercase line-clamp-1">{dayStatus.status}</span>
-							{/if}
+							<div class="flex items-center justify-between w-full">
+								<span class="text-xs font-bold">{cell.day}</span>
+								{#if dayStatus}
+									<span class="text-[9px] font-bold tracking-tight uppercase line-clamp-1 opacity-90">{dayStatus.status}</span>
+								{/if}
+							</div>
+
+							<div class="mt-1 flex-1 flex flex-col justify-end w-full">
+								{#if record && record.check_in_time}
+									<div class="space-y-0.5 text-[9px] font-medium leading-none text-left">
+										<div>IN: {formatDisplayTime(record.check_in_time)}</div>
+										{#if record.check_out_time}
+											<div>OUT: {formatDisplayTime(record.check_out_time)}</div>
+											<div class="text-[8px] opacity-75 font-semibold mt-0.5">DURATION: {formatCalDuration(record.work_duration_minutes)}</div>
+										{/if}
+									</div>
+								{/if}
+
+								{#if cell.isToday}
+									{#if !record}
+										<Button
+											size="sm"
+											onclick={(e) => { e.stopPropagation(); handleCheckIn(); }}
+											class="w-full mt-1 h-5 text-[9px] px-1 bg-[#F45310] hover:bg-[#F45310]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all"
+											disabled={isSubmitting}
+										>
+											Check In
+										</Button>
+									{:else if record && !record.check_out_time}
+										<Button
+											size="sm"
+											onclick={(e) => { e.stopPropagation(); handleCheckOut(); }}
+											class="w-full mt-1 h-5 text-[9px] px-1 bg-[#800020] hover:bg-[#800020]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all"
+											disabled={isSubmitting}
+										>
+											Check Out
+										</Button>
+									{/if}
+								{/if}
+							</div>
 						</div>
 					{/each}
 				</div>

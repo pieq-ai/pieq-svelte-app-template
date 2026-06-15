@@ -124,8 +124,12 @@
 		{ value: 'Present', label: 'Present' },
 		{ value: 'Leave', label: 'Leave' },
 		{ value: 'LOP', label: 'LOP' },
-		{ value: 'Week Off', label: 'Week Off' }
+		{ value: 'Week Off', label: 'Week Off' },
+		{ value: 'Half Day', label: 'Half Day' },
+		{ value: 'WFH', label: 'WFH' }
 	];
+
+	const modalStatusOptions = statusOptions.filter((opt) => opt.value !== 'Week Off');
 
 	let employeeFormOptions = $derived(
 		data.employees.map((emp: any) => ({
@@ -354,15 +358,24 @@
 	function getStatusBadgeClass(status: string): string {
 		switch (status) {
 			case 'Present':
-				return 'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/20';
+				return 'bg-emerald-500/15 text-emerald-800 dark:bg-emerald-500/25 dark:text-emerald-300 border border-emerald-500/30 dark:border-emerald-500/40';
 			case 'Absent':
-				return 'bg-destructive/10 text-destructive border border-destructive/20';
+				return 'bg-red-500/15 text-red-800 dark:bg-red-500/25 dark:text-red-300 border border-red-500/30 dark:border-red-500/40';
 			case 'Late':
-				return 'bg-amber-500/10 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-500/20';
+				return 'bg-amber-500/15 text-amber-800 dark:bg-amber-500/25 dark:text-amber-300 border border-amber-500/30 dark:border-amber-500/40';
 			case 'Half Day':
-				return 'bg-purple-500/10 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border border-purple-500/20';
+				return 'bg-purple-500/15 text-purple-800 dark:bg-purple-500/25 dark:text-purple-300 border border-purple-500/30 dark:border-purple-500/40';
 			case 'On Leave':
-				return 'bg-blue-500/10 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border border-blue-500/20';
+			case 'Leave':
+				return 'bg-amber-500/15 text-amber-800 dark:bg-amber-500/25 dark:text-amber-300 border border-amber-500/30 dark:border-amber-500/40';
+			case 'LOP':
+				return 'bg-red-500/15 text-red-800 dark:bg-red-500/25 dark:text-red-300 border border-red-500/30 dark:border-red-500/40';
+			case 'Week Off':
+				return 'bg-slate-500/15 text-slate-700 dark:bg-slate-500/25 dark:text-slate-300 border border-slate-500/30 dark:border-slate-500/40';
+			case 'Holiday':
+				return 'bg-blue-500/15 text-blue-800 dark:bg-blue-500/25 dark:text-blue-300 border border-blue-500/30 dark:border-blue-500/40';
+			case 'WFH':
+				return 'bg-cyan-500/15 text-cyan-800 dark:bg-cyan-500/25 dark:text-cyan-300 border border-cyan-500/30 dark:border-cyan-500/40';
 			default:
 				return '';
 		}
@@ -983,7 +996,7 @@
 						</DropdownMenu.Trigger>
 						<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
 							<DropdownMenu.Group>
-								{#each statusOptions as opt}
+								{#each modalStatusOptions as opt}
 									<DropdownMenu.Item
 										onclick={() => {
 											formAttendanceStatus = opt.value;
