@@ -93,17 +93,17 @@ export function validateCreatePayload(payload: unknown): RoleCreateDTO {
   }
 
   const raw = payload as Record<string, unknown>;
-  rejectUnknownKeys(raw, ['role_name', 'created_by', 'updated_by']);
+  rejectUnknownKeys(raw, ['name', 'created_by', 'updated_by']);
 
-  if (raw.role_name === undefined || raw.role_name === null) {
+  if (raw.name === undefined || raw.name === null) {
     const err: any = new Error('Role name is required');
     err.status = 400;
     throw err;
   }
 
-  const role_name = validateRoleName(raw.role_name);
+  const name = validateRoleName(raw.name);
 
-  return { role_name, created_by: raw.created_by as string | null | undefined, updated_by: raw.updated_by as string | null | undefined };
+  return { name, created_by: raw.created_by as string | null | undefined, updated_by: raw.updated_by as string | null | undefined };
 }
 
 /**
@@ -117,17 +117,17 @@ export function validateUpdatePayload(payload: unknown): RoleUpdateDTO {
   }
 
   const raw = payload as Record<string, unknown>;
-  rejectUnknownKeys(raw, ['role_name', 'status', 'created_by', 'updated_by']);
+  rejectUnknownKeys(raw, ['name', 'status', 'created_by', 'updated_by']);
 
   const result: RoleUpdateDTO = {};
 
-  if (raw.role_name !== undefined) {
-    if (raw.role_name === null) {
+  if (raw.name !== undefined) {
+    if (raw.name === null) {
       const err: any = new Error('Role name is required');
       err.status = 400;
       throw err;
     }
-    result.role_name = validateRoleName(raw.role_name);
+    result.name = validateRoleName(raw.name);
   }
 
   if (raw.status !== undefined) {

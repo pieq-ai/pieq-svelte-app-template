@@ -15,7 +15,7 @@
 
 	interface SystemRole {
 		cuid: string;
-		system_role_name: string;
+		name: string;
 		status: boolean;
 	}
 
@@ -58,7 +58,7 @@
 		const query = searchQuery.trim().toLowerCase();
 		if (!query) return activeRoles;
 		return activeRoles.filter((role) =>
-			role.system_role_name.toLowerCase().includes(query)
+			role.name.toLowerCase().includes(query)
 		);
 	});
 
@@ -188,7 +188,7 @@
 							</th>
 							{#each filteredRoles as role (role.cuid)}
 								<th class="min-w-40 border-l border-white/10 px-4 py-3 text-center font-semibold">
-									{role.system_role_name}
+									{role.name}
 								</th>
 							{/each}
 						</tr>
@@ -210,7 +210,7 @@
 										<PermissionMatrixCell
 											checked={assignmentKeys.includes(key)}
 											pending={pendingKeys.includes(key)}
-											label={`${role.system_role_name}: ${permission.permission_key}`}
+											label={`${role.name}: ${permission.permission_key}`}
 											onToggle={() => togglePermission(role, permission)}
 										/>
 									</td>

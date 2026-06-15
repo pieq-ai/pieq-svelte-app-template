@@ -635,4 +635,220 @@ describe('Leave Service Unit Tests', () => {
 			}));
 		});
 	});
+
+	describe('Earned Leave (EL) Specific Logic', () => {
+		it('should reject a single EL request exceeding 24 days', async () => {
+			vi.mocked(leaveDao.getLeaveBalance).mockResolvedValue({ cuid: 'bal-el', remaining_days: 30.0 } as any);
+
+			await expect(leaveService.applyLeave('john@pieq.ai', {
+				leaveTypeCuid: 'cuid-el',
+				startDate: '2026-06-01',
+				endDate: '2026-07-05', // More than 24 days (excluding weekends, but still > 24 working days)
+				isHalfDay: false
+			})).rejects.toThrow('A single Earned Leave (EL) request must not exceed 24 days.');
+		});
+
+		it('should not grant any EL credit for the year if employee has resigned/relieved in that year', async () => {
+			const resignedEmployment = {
+				...mockEmployment,
+				employment_status: 'active',
+				relieving_date: new Date('2026-08-15T00:00:00.000Z')
+			};
+			vi.mocked(db.employment.findFirst).mockResolvedValue(resignedEmployment as any);
+			vi.mocked(leaveDao.getLeaveBalance).mockResolvedValue(null); // Force creation
+
+			await leaveService.accrueLeaves('emp-cuid', 2026);
+
+			// Check that EL balance was initialized with 0 allocated days
+			expect(leaveDao.createLeaveBalance).toHaveBeenCalledWith(expect.objectContaining({
+				leave_type_cuid: 'cuid-el',
+				allocated_days: 0.0
+			}));
+		});
+
+		it('should not grant any EL credit for the year if employee status is resigned', async () => {
+			const resignedEmployment = {
+				...mockEmployment,
+				employment_status: 'resigned',
+				relieving_date: null
+			};
+			vi.mocked(db.employment.findFirst).mockResolvedValue(resignedEmployment as any);
+			vi.mocked(leaveDao.getLeaveBalance).mockResolvedValue(null); // Force creation
+
+			await leaveService.accrueLeaves('emp-cuid', 2026);
+
+			expect(leaveDao.createLeaveBalance).toHaveBeenCalledWith(expect.objectContaining({
+				leave_type_cuid: 'cuid-el',
+				allocated_days: 0.0
+			}));
+		});
+
+		it('should limit EL calculations to the eligible service period (after min_service_days)', async () => {
+			// Join Date is 2025-06-01. Target year is 2026. min_service_days is 365.
+			// Eligible period starts 2026-06-01.
+			// Eligible period for 2026 is 2026-06-01 to 2026-12-31 (7 months).
+			const testEmployment = {
+				...mockEmployment,
+				date_of_joining: new Date('2025-06-01T00:00:00.000Z')
+			};
+			vi.mocked(db.employment.findFirst).mockResolvedValue(testEmployment as any);
+			vi.mocked(leaveDao.getLeaveBalance).mockResolvedValue(null);
+
+			await leaveService.accrueLeaves('emp-cuid', 2026);
+
+			// Expected allocated days: 7.0 days (7 months of eligible service)
+			expect(leaveDao.createLeaveBalance).toHaveBeenCalledWith(expect.objectContaining({
+				leave_type_cuid: 'cuid-el',
+				allocated_days: expect.closeTo(7.0, 1)
+			}));
+		});
+
+		it('should calculate carry-forward correctly prioritizing allocated days usage first', async () => {
+			// Previous year (2025) balance:
+			// allocated_days = 12.0
+			// carried_forward_days = 10.0
+			// used_days = 14.0
+			//
+			// unusedAllocated = max(0, 12 - 14) = 0
+			// cfFromAllocated = min(6.0, 0) = 0
+			// unusedPreviousCarriedForward = max(0, 10 - max(0, 14 - 12)) = 10 - 2 = 8
+			// Expected carry-forward = 8.0
+			const prevBalance = {
+				cuid: 'prev-bal-el',
+				allocated_days: 12.0,
+				carried_forward_days: 10.0,
+				used_days: 14.0,
+				remaining_days: 8.0
+			};
+
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid, typeCuid, year) => {
+				if (typeCuid === 'cuid-el' && year === 2025) return prevBalance as any;
+				return null;
+			});
+
+			const testEmployment = {
+				...mockEmployment,
+				date_of_joining: new Date('2024-01-01T00:00:00.000Z')
+			};
+			vi.mocked(db.employment.findFirst).mockResolvedValue(testEmployment as any);
+
+			await leaveService.accrueLeaves('emp-cuid', 2026);
+
+			expect(leaveDao.createLeaveBalance).toHaveBeenCalledWith(expect.objectContaining({
+				leave_type_cuid: 'cuid-el',
+				carried_forward_days: 8.0
+			}));
+		});
+
+		it('should retain previous carry-forward as-is when used_days <= allocated_days', async () => {
+			// Previous year (2025) balance:
+			// allocated_days = 12.0
+			// carried_forward_days = 10.0
+			// used_days = 4.0
+			//
+			// unusedAllocated = max(0, 12 - 4) = 8
+			// cfFromAllocated = min(6.0, 8) = 6
+			// unusedPreviousCarriedForward = max(0, 10 - max(0, 4 - 12)) = 10
+			// Expected carry-forward = 6 + 10 = 16.0
+			const prevBalance = {
+				cuid: 'prev-bal-el',
+				allocated_days: 12.0,
+				carried_forward_days: 10.0,
+				used_days: 4.0,
+				remaining_days: 18.0
+			};
+
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid, typeCuid, year) => {
+				if (typeCuid === 'cuid-el' && year === 2025) return prevBalance as any;
+				return null;
+			});
+
+			const testEmployment = {
+				...mockEmployment,
+				date_of_joining: new Date('2024-01-01T00:00:00.000Z')
+			};
+			vi.mocked(db.employment.findFirst).mockResolvedValue(testEmployment as any);
+
+			await leaveService.accrueLeaves('emp-cuid', 2026);
+
+			expect(leaveDao.createLeaveBalance).toHaveBeenCalledWith(expect.objectContaining({
+				leave_type_cuid: 'cuid-el',
+				carried_forward_days: 16.0
+			}));
+		});
+
+		it('should cap the total EL remaining days at 24', async () => {
+			// allocated_days = 12.0
+			// carried_forward_days = 16.0
+			// total = 28.0. Remaining capped at 24.
+			const prevBalance = {
+				cuid: 'prev-bal-el',
+				allocated_days: 12.0,
+				carried_forward_days: 10.0,
+				used_days: 4.0 // unusedAllocated = 8 -> cfFromAllocated = 6. unusedPreviousCarriedForward = 10. carried_forward_days = 16
+			};
+
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid, typeCuid, year) => {
+				if (typeCuid === 'cuid-el' && year === 2025) return prevBalance as any;
+				return null;
+			});
+
+			const testEmployment = {
+				...mockEmployment,
+				date_of_joining: new Date('2024-01-01T00:00:00.000Z')
+			};
+			vi.mocked(db.employment.findFirst).mockResolvedValue(testEmployment as any);
+
+			await leaveService.accrueLeaves('emp-cuid', 2026);
+
+			expect(leaveDao.createLeaveBalance).toHaveBeenCalledWith(expect.objectContaining({
+				leave_type_cuid: 'cuid-el',
+				remaining_days: 24.0
+			}));
+		});
+
+		it('should recalculate remaining days correctly after leaves are used (capped starting balance - used)', async () => {
+			// Current balance in DB:
+			// allocated_days = 12.0
+			// carried_forward_days = 16.0
+			// used_days = 2.0
+			//
+			// remaining = min(24.0, 12.0 + 16.0) - 2.0 = 22.0
+			const currentBalance = {
+				cuid: 'bal-el-cuid',
+				allocated_days: 12.0,
+				carried_forward_days: 16.0,
+				used_days: 2.0,
+				remaining_days: 22.0
+			};
+
+			const prevBalance = {
+				cuid: 'prev-bal-el',
+				allocated_days: 12.0,
+				carried_forward_days: 10.0,
+				used_days: 4.0, // unusedAllocated = 8 -> cfFromAllocated = 6. unusedPreviousCarriedForward = 10. carried_forward_days = 16
+				remaining_days: 18.0
+			};
+
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid, typeCuid, year) => {
+				if (typeCuid === 'cuid-el') {
+					if (year === 2026) return currentBalance as any;
+					if (year === 2025) return prevBalance as any;
+				}
+				return null;
+			});
+
+			const testEmployment = {
+				...mockEmployment,
+				date_of_joining: new Date('2024-01-01T00:00:00.000Z')
+			};
+			vi.mocked(db.employment.findFirst).mockResolvedValue(testEmployment as any);
+
+			await leaveService.accrueLeaves('emp-cuid', 2026);
+
+			expect(leaveDao.updateLeaveBalance).toHaveBeenCalledWith('bal-el-cuid', expect.objectContaining({
+				remaining_days: 22.0
+			}));
+		});
+	});
 });

@@ -50,7 +50,7 @@
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
 	let typeFilter = $state<'all' | SalaryComponentType>('all');
-	let sortColumn = $state('component_name');
+	let sortColumn = $state('name');
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -68,7 +68,7 @@
 	let nameInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{
-		component_name: string;
+		name: string;
 		component_type: SalaryComponentType;
 		is_taxable: boolean;
 		is_active: boolean;
@@ -76,7 +76,7 @@
 
 	let isDirty = $derived(
 		isModalOpen && dirtyChecker.isDirty({
-			component_name: formName.trim(),
+			name: formName.trim(),
 			component_type: formType,
 			is_taxable: formIsTaxable,
 			is_active: formIsActive
@@ -89,7 +89,7 @@
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
 			result = result.filter((comp) =>
-				comp.component_name.toLowerCase().includes(query)
+				comp.name.toLowerCase().includes(query)
 			);
 		}
 
@@ -170,7 +170,7 @@
 		formIsActive = true;
 		backendError = '';
 		dirtyChecker.snapshot({
-			component_name: '',
+			name: '',
 			component_type: 'earning',
 			is_taxable: false,
 			is_active: true
@@ -180,13 +180,13 @@
 
 	function openEditModal(comp: SalaryComponent) {
 		editingComp = comp;
-		formName = comp.component_name;
+		formName = comp.name;
 		formType = comp.component_type;
 		formIsTaxable = comp.is_taxable;
 		formIsActive = comp.is_active;
 		backendError = '';
 		dirtyChecker.snapshot({
-			component_name: comp.component_name,
+			name: comp.name,
 			component_type: comp.component_type,
 			is_taxable: comp.is_taxable,
 			is_active: comp.is_active
@@ -210,7 +210,7 @@
 
 		try {
 			const payload = {
-				component_name: formName.trim(),
+				name: formName.trim(),
 				component_type: formType,
 				is_taxable: formIsTaxable,
 				is_active: formIsActive
@@ -329,11 +329,11 @@
 				<TableHeader class="bg-muted">
 					<TableRow>
 						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('component_name')}>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
 								Component Name
-							{#if sortColumn === 'component_name' && sortDirection === 'asc'}
+							{#if sortColumn === 'name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortColumn === 'component_name' && sortDirection === 'desc'}
+							{:else if sortColumn === 'name' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
@@ -392,7 +392,7 @@
 								class="cursor-pointer"
 							>
 								<TableCell>
-									<span class="font-semibold">{comp.component_name}</span>
+									<span class="font-semibold">{comp.name}</span>
 								</TableCell>
 								<TableCell>
 									<span class="capitalize">{comp.component_type}</span>

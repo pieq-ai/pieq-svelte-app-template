@@ -7,37 +7,37 @@ export async function GET() {
     const count = await db.state.count();
     if (count === 0) {
       // Find country cuids
-      const india = await db.country.findFirst({ where: { country_name: 'India' } });
-      const usa = await db.country.findFirst({ where: { country_name: 'United States' } });
-      const uk = await db.country.findFirst({ where: { country_name: 'United Kingdom' } });
+      const india = await db.country.findFirst({ where: { name: 'India' } });
+      const usa = await db.country.findFirst({ where: { name: 'United States' } });
+      const uk = await db.country.findFirst({ where: { name: 'United Kingdom' } });
 
       const statesToCreate = [];
       if (india) {
         statesToCreate.push(
-          { country_cuid: india.cuid, state_name: 'Tamil Nadu' },
-          { country_cuid: india.cuid, state_name: 'Karnataka' },
-          { country_cuid: india.cuid, state_name: 'Maharashtra' }
+          { country_cuid: india.cuid, name: 'Tamil Nadu' },
+          { country_cuid: india.cuid, name: 'Karnataka' },
+          { country_cuid: india.cuid, name: 'Maharashtra' }
         );
       }
       if (usa) {
         statesToCreate.push(
-          { country_cuid: usa.cuid, state_name: 'California' },
-          { country_cuid: usa.cuid, state_name: 'New York' },
-          { country_cuid: usa.cuid, state_name: 'Texas' }
+          { country_cuid: usa.cuid, name: 'California' },
+          { country_cuid: usa.cuid, name: 'New York' },
+          { country_cuid: usa.cuid, name: 'Texas' }
         );
       }
       if (uk) {
         statesToCreate.push(
-          { country_cuid: uk.cuid, state_name: 'England' },
-          { country_cuid: uk.cuid, state_name: 'Scotland' },
-          { country_cuid: uk.cuid, state_name: 'Wales' }
+          { country_cuid: uk.cuid, name: 'England' },
+          { country_cuid: uk.cuid, name: 'Scotland' },
+          { country_cuid: uk.cuid, name: 'Wales' }
         );
       }
       if (statesToCreate.length > 0) {
         await db.state.createMany({ data: statesToCreate });
       }
     }
-    const states = await db.state.findMany({ orderBy: { state_name: 'asc' } });
+    const states = await db.state.findMany({ orderBy: { name: 'asc' } });
     const mapped = states.map(mapState);
     return sendList(mapped);
   } catch (err: any) {

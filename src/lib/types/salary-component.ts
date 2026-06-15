@@ -10,7 +10,7 @@ export interface SalaryComponent {
 	/** Externally-exposed non-guessable identifier — used in all API routes */
 	cuid: string;
 
-	component_name: string;
+	name: string;
 	component_type: SalaryComponentType;
 
 	is_taxable: boolean;
@@ -26,7 +26,7 @@ export interface SalaryComponent {
 }
 
 export interface CreateSalaryComponentDto {
-	component_name: string;
+	name: string;
 	component_type: SalaryComponentType;
 	is_taxable?: boolean;
 	is_active?: boolean;
@@ -35,7 +35,7 @@ export interface CreateSalaryComponentDto {
 }
 
 export interface UpdateSalaryComponentDto {
-	component_name?: string;
+	name?: string;
 	component_type?: SalaryComponentType;
 	is_taxable?: boolean;
 	is_active?: boolean;
@@ -47,7 +47,7 @@ export interface SalaryComponentFilters {
 	search?: string;
 	page?: number;
 	pageSize?: number;
-	sortBy?: 'component_name' | 'component_type' | 'is_active';
+	sortBy?: 'name' | 'component_type' | 'is_active';
 	sortOrder?: 'asc' | 'desc';
 }
 

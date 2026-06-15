@@ -2,7 +2,7 @@ import * as designationDao from '$lib/server/dao/designation.dao.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
 
 export interface CreateDesignationDto {
-	designation_name: string;
+	name: string;
 	status?: boolean;
 	created_by?: string;
 	created_at?: Date | string | null;
@@ -10,7 +10,7 @@ export interface CreateDesignationDto {
 }
 
 export interface UpdateDesignationDto {
-	designation_name?: string;
+	name?: string;
 	status?: boolean;
 	updated_by?: string;
 	updated_at?: Date | string | null;
@@ -18,14 +18,13 @@ export interface UpdateDesignationDto {
 
 function toPublicDesignation(designation: {
 	cuid: string;
-	designation_name: string;
+	name: string;
 	status: boolean;
- created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
+	created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
 	return {
 		cuid: designation.cuid,
-		designation_name: designation.designation_name,
-		status: designation.status
-	,
+		name: designation.name,
+		status: designation.status,
 		created_at: designation.created_at,
 		created_by: designation.created_by,
 		updated_at: designation.updated_at,
@@ -50,17 +49,17 @@ function validateDesignationName(name: string | null | undefined): string {
 	return trimmed;
 }
 
-async function ensureDesignationNameIsUnique(designation_name: string, currentCuid2?: string) {
-	const normalizedName = designation_name.toLowerCase();
+async function ensureDesignationNameIsUnique(name: string, currentCuid2?: string) {
+	const normalizedName = name.toLowerCase();
 	const designations = await designationDao.list();
 	const duplicate = designations.find(
 		(designation) =>
 			designation.cuid !== currentCuid2 &&
-			designation.designation_name.trim().toLowerCase() === normalizedName
+			designation.name.trim().toLowerCase() === normalizedName
 	);
 
 	if (duplicate) {
-		throw new ValidationError('designation_name', 'Designation already exists');
+		throw new ValidationError('name', 'Designation already exists');
 	}
 }
 
@@ -104,12 +103,12 @@ export async function getDesignationByCuid2(cuid: string) {
 }
 
 export async function createDesignation(dto: CreateDesignationDto) {
-	const designation_name = validateDesignationName(dto.designation_name);
+	const name = validateDesignationName(dto.name);
 
-	await ensureDesignationNameIsUnique(designation_name);
+	await ensureDesignationNameIsUnique(name);
 
 	return toPublicDesignation(await designationDao.create({
-		designation_name,
+		name,
 		status: dto.status ?? true,
 		created_by: dto.created_by ?? undefined,
 		created_at: dto.created_at ?? undefined,
@@ -129,12 +128,12 @@ export async function updateDesignation(cuid: string, dto: UpdateDesignationDto)
 		updateData.updated_by = dto.updated_by;
 	}
 
-	if (dto.designation_name !== undefined) {
-		const designation_name = validateDesignationName(dto.designation_name);
+	if (dto.name !== undefined) {
+		const name = validateDesignationName(dto.name);
 
-		await ensureDesignationNameIsUnique(designation_name, existing.cuid);
+		await ensureDesignationNameIsUnique(name, existing.cuid);
 
-		updateData.designation_name = designation_name;
+		updateData.name = name;
 	}
 
 	if (dto.status !== undefined) {

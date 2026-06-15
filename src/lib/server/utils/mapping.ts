@@ -35,7 +35,7 @@ export function toDepartmentDTO(department: any) {
 	if (!department) return department;
 	return {
 		cuid: department.cuid,
-		dept_name: department.dept_name,
+		name: department.name,
 		status: department.status
 	};
 }
@@ -44,7 +44,7 @@ export function toDesignationDTO(designation: any) {
 	if (!designation) return designation;
 	return {
 		cuid: designation.cuid,
-		designation_name: designation.designation_name,
+		name: designation.name,
 		status: designation.status
 	};
 }
@@ -71,7 +71,7 @@ export function toSystemRoleDTO(systemRole: any) {
 	if (!systemRole) return systemRole;
 	return {
 		cuid: systemRole.cuid,
-		system_role_name: systemRole.system_role_name,
+		name: systemRole.name,
 		status: systemRole.status
 	};
 }

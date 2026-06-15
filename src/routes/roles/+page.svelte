@@ -43,7 +43,7 @@
 
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
-	let sortColumn = $state('role_name');
+	let sortColumn = $state('name');
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -59,8 +59,8 @@
 	let backendError = $state('');
 	let roleNameInput = $state<HTMLInputElement | null>(null);
 
-	const dirtyChecker = createDirtyChecker<{ role_name: string; status: boolean }>();
-	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ role_name: roleName.trim(), status: roleStatus }));
+	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
+	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ name: roleName.trim(), status: roleStatus }));
 
 	// Deletion State
 	let itemToDelete = $state<Role | null>(null);
@@ -82,7 +82,7 @@
 			return 'Only letters and spaces are allowed';
 		}
 		const lowerName = trimmed.toLowerCase();
-		if (rolesList.some((r) => r.role_name.trim().toLowerCase() === lowerName && (editingRole ? r.cuid !== editingRole.cuid : true))) {
+		if (rolesList.some((r) => r.name.trim().toLowerCase() === lowerName && (editingRole ? r.cuid !== editingRole.cuid : true))) {
 			return 'Role name already exists';
 		}
 		return '';
@@ -95,7 +95,7 @@
 
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase().trim();
-			result = result.filter((role) => role.role_name.toLowerCase().includes(query));
+			result = result.filter((role) => role.name.toLowerCase().includes(query));
 		}
 
 		if (statusFilter !== 'all') {
@@ -167,17 +167,17 @@
 		roleStatus = true;
 		isNameTouched = false;
 		backendError = '';
-		dirtyChecker.snapshot({ role_name: '', status: true });
+		dirtyChecker.snapshot({ name: '', status: true });
 		isModalOpen = true;
 	}
 
 	function openEditModal(role: Role) {
 		editingRole = role;
-		roleName = role.role_name;
+		roleName = role.name;
 		roleStatus = role.status;
 		isNameTouched = false;
 		backendError = '';
-		dirtyChecker.snapshot({ role_name: role.role_name, status: role.status });
+		dirtyChecker.snapshot({ name: role.name, status: role.status });
 		isModalOpen = true;
 	}
 
@@ -196,7 +196,7 @@
 
 		try {
 			if (editingRole) {
-				await updateRole(editingRole.cuid, { role_name: roleName.trim(), status: roleStatus });
+				await updateRole(editingRole.cuid, { name: roleName.trim(), status: roleStatus });
 			} else {
 				await createRole(roleName.trim());
 			}
@@ -283,11 +283,11 @@
 				<TableHeader class="bg-muted">
 					<TableRow>
 						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('role_name')}>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
 								Role Name
-							{#if sortColumn === 'role_name' && sortDirection === 'asc'}
+							{#if sortColumn === 'name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortColumn === 'role_name' && sortDirection === 'desc'}
+							{:else if sortColumn === 'name' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
@@ -334,7 +334,7 @@
 							>
 								<TableCell>
 									<div class="flex flex-col">
-										<span class="font-semibold">{role.role_name}</span>
+										<span class="font-semibold">{role.name}</span>
 									</div>
 								</TableCell>
 								<TableCell class="text-center">
@@ -396,7 +396,7 @@
 <ConfirmModal
 	open={!!itemToDelete}
 	title="Deactivate Role"
-	description={`Are you sure you want to deactivate ${itemToDelete?.role_name}?`}
+	description={`Are you sure you want to deactivate ${itemToDelete?.name}?`}
 	confirmLabel="Deactivate"
 	isSubmitting={isDeleting}
 	onCancel={() => (itemToDelete = null)}

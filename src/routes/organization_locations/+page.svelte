@@ -79,7 +79,7 @@
   let formLoading = $state(false);
 
   const dirtyChecker = createDirtyChecker<{
-    location_name: string;
+    name: string;
     address_line1: string;
     address_line2: string;
     city: string;
@@ -93,7 +93,7 @@
   let isDirty = $derived(
     showForm &&
     dirtyChecker.isDirty({
-      location_name: formName.trim(),
+      name: formName.trim(),
       address_line1: formAddress1.trim(),
       address_line2: formAddress2.trim(),
       city: formCity.trim(),
@@ -140,12 +140,12 @@
 
   function getCountryName(countryCuid: string): string {
     const country = countries.find((c) => c.cuid === countryCuid);
-    return country ? country.country_name : countryCuid;
+    return country ? country.name : countryCuid;
   }
 
   function getStateName(stateCuid: string): string {
     const state = states.find((s) => s.cuid === stateCuid);
-    return state ? state.state_name : stateCuid;
+    return state ? state.name : stateCuid;
   }
 
   // Filter
@@ -156,14 +156,14 @@
   let selectedCountryLabel = $derived(
     filterCountry === "all"
       ? "All Countries"
-      : countries.find((c) => c.cuid === filterCountry)?.country_name ||
+      : countries.find((c) => c.cuid === filterCountry)?.name ||
           "All Countries"
   );
 
   let selectedStateLabel = $derived(
     filterState === "all"
       ? "All States"
-      : states.find((s) => s.cuid === filterState)?.state_name || "All States"
+      : states.find((s) => s.cuid === filterState)?.name || "All States"
   );
 
   function handleCountrySelect(val: string) {
@@ -211,7 +211,7 @@
   let filteredLocations = $derived.by(() => {
     let list = locations;
     if (filterStatus !== "all") {
-      list = locations.filter((loc) => loc.is_active === filterStatus);
+      list = locations.filter((loc) => loc.status === filterStatus);
     }
 
     if (filterCountry !== "all") {
@@ -224,7 +224,7 @@
     if (searchQuery.trim() !== "") {
       const query = searchQuery.toLowerCase().trim();
       list = list.filter((loc) => {
-        const locName = (loc.location_name ?? "").toLowerCase();
+        const locName = (loc.name ?? "").toLowerCase();
         const city = (loc.city ?? "").toLowerCase();
         const stateName = getStateName(loc.state_cuid ?? "").toLowerCase();
         const countryName = getCountryName(
@@ -278,10 +278,10 @@
 
   let totalLocations = $derived(locations.length);
   let activeLocationsCount = $derived(
-    locations.filter((loc) => loc.is_active).length
+    locations.filter((loc) => loc.status).length
   );
   let inactiveLocationsCount = $derived(
-    locations.filter((loc) => !loc.is_active).length
+    locations.filter((loc) => !loc.status).length
   );
 
   $effect(() => {
@@ -331,7 +331,7 @@
     timezoneError = "";
     address2Error = "";
     dirtyChecker.snapshot({
-      location_name: "",
+      name: "",
       address_line1: "",
       address_line2: "",
       city: "",
@@ -346,7 +346,7 @@
 
   function openEdit(loc: CompanyLocation) {
     editLocation = loc;
-    formName = loc.location_name;
+    formName = loc.name;
     formAddress1 = loc.address_line1 ?? "";
     formAddress2 = loc.address_line2 ?? "";
     formCity = loc.city ?? "";
@@ -354,7 +354,7 @@
     formStateCuid = loc.state_cuid ?? "";
     formPinCode = loc.pin_code ?? "";
     formTimezone = loc.timezone ?? "UTC";
-    formStatus = loc.is_active;
+    formStatus = loc.status;
     formError = "";
     nameError = "";
     address1Error = "";
@@ -365,7 +365,7 @@
     timezoneError = "";
     address2Error = "";
     dirtyChecker.snapshot({
-      location_name: loc.location_name,
+      name: loc.name,
       address_line1: loc.address_line1 ?? "",
       address_line2: loc.address_line2 ?? "",
       city: loc.city ?? "",
@@ -373,7 +373,7 @@
       country_cuid: loc.country_cuid ?? "",
       pin_code: loc.pin_code ?? "",
       timezone: loc.timezone ?? "UTC",
-      status: loc.is_active
+      status: loc.status
     });
     showForm = true;
   }
@@ -525,7 +525,7 @@
     formError = "";
     try {
       const payload: any = {
-        location_name: nameTrimmed,
+        name: nameTrimmed,
         address_line1: address1Trimmed,
         address_line2: formAddress2 ? formAddress2.trim() : null,
         city: cityTrimmed,
@@ -535,7 +535,7 @@
         timezone: tzTrimmed,
       };
       if (editLocation) {
-        payload.is_active = formStatus;
+        payload.status = formStatus;
         await updateLocation(editLocation.cuid, payload);
       } else {
         await createLocation(payload);
@@ -800,7 +800,7 @@
             </DropdownMenu.Item>
             {#each countries as c}
               <DropdownMenu.Item onclick={() => handleCountrySelect(c.cuid)} class="justify-between cursor-pointer {filterCountry === c.cuid ? 'bg-accent font-semibold' : ''}">
-                {c.country_name}
+                {c.name}
               </DropdownMenu.Item>
             {/each}
           </DropdownMenu.Group>
@@ -824,7 +824,7 @@
             </DropdownMenu.Item>
             {#each filterCountry === 'all' ? states : states.filter((s) => s.country_cuid === filterCountry) as s}
               <DropdownMenu.Item onclick={() => handleStateSelect(s.cuid)} class="justify-between cursor-pointer {filterState === s.cuid ? 'bg-accent font-semibold' : ''}">
-                {s.state_name}
+                {s.name}
               </DropdownMenu.Item>
             {/each}
           </DropdownMenu.Group>
@@ -837,11 +837,11 @@
         <TableHeader class="bg-muted">
           <TableRow>
             <TableHead class="font-bold text-foreground text-[15px]">
-              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('location_name')}>
+              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('name')}>
                 Location Name
-                {#if sortColumn === 'location_name' && sortDirection === 'asc'}
+                {#if sortColumn === 'name' && sortDirection === 'asc'}
                   <ArrowUpIcon class="ml-2 size-4" />
-                {:else if sortColumn === 'location_name' && sortDirection === 'desc'}
+                {:else if sortColumn === 'name' && sortDirection === 'desc'}
                   <ArrowDownIcon class="ml-2 size-4" />
                 {:else}
                   <ArrowUpDownIcon class="ml-2 size-4" />
@@ -921,11 +921,11 @@
               </Button>
             </TableHead>
             <TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
-              <Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('is_active')}>
+              <Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('status')}>
                 Status
-                {#if sortColumn === 'is_active' && sortDirection === 'asc'}
+                {#if sortColumn === 'status' && sortDirection === 'asc'}
                   <ArrowUpIcon class="ml-2 size-4" />
-                {:else if sortColumn === 'is_active' && sortDirection === 'desc'}
+                {:else if sortColumn === 'status' && sortDirection === 'desc'}
                   <ArrowDownIcon class="ml-2 size-4" />
                 {:else}
                   <ArrowUpDownIcon class="ml-2 size-4" />
@@ -959,7 +959,7 @@
                 class="cursor-pointer"
               >
                 <TableCell>
-                  <span class="font-semibold">{loc.location_name}</span>
+                  <span class="font-semibold">{loc.name}</span>
                 </TableCell>
                 <TableCell>
                   {loc.address_line1}{loc.address_line2 ? ", " + loc.address_line2 : ""}
@@ -970,7 +970,7 @@
                 <TableCell>{loc.pin_code}</TableCell>
                 <TableCell>{loc.timezone}</TableCell>
                 <TableCell class="text-center">
-                  <Badge variant={loc.is_active === true ? 'default' : 'secondary'}>{loc.is_active ? 'Active' : 'Inactive'}</Badge>
+                  <Badge variant={loc.status === true ? 'default' : 'secondary'}>{loc.status ? 'Active' : 'Inactive'}</Badge>
                 </TableCell>
                 <TableCell class="text-right">
                   <TableActions
@@ -1085,7 +1085,7 @@
                   class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none {countryError ? 'border-destructive' : ''}"
                   {...props}
                 >
-                  <span class="truncate">{countries.find((c) => c.cuid === formCountryCuid)?.country_name || "Select Country"}</span>
+                  <span class="truncate">{countries.find((c) => c.cuid === formCountryCuid)?.name || "Select Country"}</span>
                   <ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
                 </Button>
               {/snippet}
@@ -1103,7 +1103,7 @@
                     onclick={() => { formCountryCuid = country.cuid; formStateCuid = ''; countryError = ''; }}
                     class="cursor-pointer justify-between {formCountryCuid === country.cuid ? 'bg-accent font-semibold' : ''}"
                   >
-                    {country.country_name}
+                    {country.name}
                     {#if formCountryCuid === country.cuid}<CheckIcon class="size-4" />{/if}
                   </DropdownMenu.Item>
                 {/each}
@@ -1134,7 +1134,7 @@
                   class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none disabled:opacity-50 disabled:cursor-not-allowed {stateError ? 'border-destructive' : ''}"
                   {...props}
                 >
-                  <span class="truncate">{filteredStates.find((s) => s.cuid === formStateCuid)?.state_name || "Select State"}</span>
+                  <span class="truncate">{filteredStates.find((s) => s.cuid === formStateCuid)?.name || "Select State"}</span>
                   <ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
                 </Button>
               {/snippet}
@@ -1152,7 +1152,7 @@
                     onclick={() => { formStateCuid = state.cuid; stateError = ''; }}
                     class="cursor-pointer justify-between {formStateCuid === state.cuid ? 'bg-accent font-semibold' : ''}"
                   >
-                    {state.state_name}
+                    {state.name}
                     {#if formStateCuid === state.cuid}<CheckIcon class="size-4" />{/if}
                   </DropdownMenu.Item>
                 {/each}

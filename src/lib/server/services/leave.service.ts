@@ -153,9 +153,18 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 		if (type.leave_code === 'CL' || type.leave_code === 'SL') {
 			initialAllocated = Math.min(6.0, monthsAccrued * 0.5);
 		} else if (type.leave_code === 'EL') {
-			if (serviceStart <= serviceEnd) {
-				const totalServiceMonths = calculateFractionalMonths(serviceStart, serviceEnd);
-				initialAllocated = totalServiceMonths;
+			const hasResignedThisYear = (relievingDate && relievingDate.getFullYear() === year) || employment.employment_status === 'resigned';
+			if (hasResignedThisYear) {
+				initialAllocated = 0.0;
+			} else {
+				const eligibleDate = new Date(joinDate);
+				eligibleDate.setDate(eligibleDate.getDate() + policy.min_service_days);
+				eligibleDate.setHours(0, 0, 0, 0);
+				const elEligibleStart = eligibleDate > yearStart ? eligibleDate : yearStart;
+				if (elEligibleStart <= serviceEnd) {
+					const totalServiceMonths = calculateFractionalMonths(elEligibleStart, serviceEnd);
+					initialAllocated = totalServiceMonths;
+				}
 			}
 		} else if (type.leave_code === 'ML') {
 			initialAllocated = employee.gender === 'Female' ? 168.0 : 0.0;
@@ -171,7 +180,28 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 		if (type.leave_code === 'EL' && year > joinYear) {
 			const prevBalance = await leaveDao.getLeaveBalance(employeeCuid, type.cuid, year - 1);
 			if (prevBalance) {
-				carriedForward = Math.min(6.0, Math.max(0.0, Number(prevBalance.remaining_days)));
+				const prevAllocated = Number(prevBalance.allocated_days);
+				const prevCarried = Number(prevBalance.carried_forward_days);
+				
+				// Scoping check: prevBalance.used_days represents only the usage in year (year - 1).
+				// It is reset yearly (scoped per calendar year) and is not a lifetime cumulative value.
+				const prevUsed = Number(prevBalance.used_days);
+
+				// EL Consumption Priority Rule:
+				// Leave usage in the previous year (prevUsed) is deducted from that year's allocated_days (prevAllocated) first.
+				const unusedAllocated = Math.max(0.0, prevAllocated - prevUsed);
+				
+				// Carry-Forward Cap:
+				// Only the unused portion of the current year's allocated_days is eligible for carry-forward, subject to a maximum limit of 6 days.
+				const cfFromAllocated = Math.min(6.0, unusedAllocated);
+
+				// Carry-Forward Retained As-Is (No Cap):
+				// If leave usage (prevUsed) exceeds the year's allocated_days, the excess usage (prevUsed - prevAllocated) is deducted from the previously carried-forward days (prevCarried).
+				// Any unused previously carried-forward days are retained as-is, and carried forward to the new year without the 6-day limit.
+				const unusedPreviousCarriedForward = Math.max(0.0, prevCarried - Math.max(0.0, prevUsed - prevAllocated));
+
+				// The total carried forward balance for the new year is the sum of both components.
+				carriedForward = cfFromAllocated + unusedPreviousCarriedForward;
 			}
 		}
 
@@ -192,10 +222,9 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 			});
 		} else {
 			const used = Number(existingBalance.used_days);
-			let remaining = initialAllocated + carriedForward - used;
-			if (type.leave_code === 'EL') {
-				remaining = Math.min(24.0, remaining);
-			}
+			let remaining = type.leave_code === 'EL'
+				? Math.min(24.0, initialAllocated + carriedForward) - used
+				: initialAllocated + carriedForward - used;
 			remaining = Math.max(0.0, remaining);
 
 			await leaveDao.updateLeaveBalance(existingBalance.cuid, {
@@ -413,12 +442,9 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 	}
 
 	// Calculate requested days
-	let totalDays = 0;
-	if (input.isHalfDay) {
-		totalDays = 0.5;
-	} else {
-		totalDays = calculateLeaveDays(startDate, endDate, leaveType.leave_code);
-	}
+	const totalDays = input.isHalfDay
+		? 0.5
+		: calculateLeaveDays(startDate, endDate, leaveType.leave_code);
 
 	if (totalDays === 0) {
 		throw new ValidationError('startDate', 'Requested leave period contains only holidays or weekends and counts as 0 days.');
@@ -459,6 +485,13 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 	if (leaveType.leave_code === 'CL') {
 		if (totalDays > 2) {
 			throw new ValidationError('leaveTypeCuid', 'Maximum 2 days can be applied in a single Casual Leave request. For longer leaves, please use Earned Leave (EL).');
+		}
+	}
+
+	// EL specific validations
+	if (leaveType.leave_code === 'EL') {
+		if (totalDays > 24) {
+			throw new ValidationError('endDate', 'A single Earned Leave (EL) request must not exceed 24 days.');
 		}
 	}
 

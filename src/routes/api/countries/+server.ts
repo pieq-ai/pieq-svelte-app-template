@@ -8,13 +8,13 @@ export async function GET() {
     if (count === 0) {
       await db.country.createMany({
         data: [
-          { country_name: 'India' },
-          { country_name: 'United States' },
-          { country_name: 'United Kingdom' }
+          { name: 'India' },
+          { name: 'United States' },
+          { name: 'United Kingdom' }
         ]
       });
     }
-    const countries = await db.country.findMany({ orderBy: { country_name: 'asc' } });
+    const countries = await db.country.findMany({ orderBy: { name: 'asc' } });
     const mapped = countries.map(mapCountry);
     return sendList(mapped);
   } catch (err: any) {

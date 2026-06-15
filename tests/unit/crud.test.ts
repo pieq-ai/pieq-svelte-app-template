@@ -14,22 +14,22 @@ describe('Role, Shift, and Location CRUD Integration Tests', () => {
   it('should successfully perform CRUD on Role', async () => {
     // 1. Create Role
     const roleName = 'Test Integration Role';
-    const newRole = await roleDao.createRole({ role_name: roleName });
+    const newRole = await roleDao.createRole({ name: roleName });
     expect(newRole).toBeDefined();
-    expect(newRole.role_name).toBe(roleName);
+    expect(newRole.name).toBe(roleName);
     expect(newRole.status).toBe(true);
     expect(newRole.cuid).toBeDefined();
 
     // 2. Read Role
     const fetchedRole = await roleDao.getRoleByCuid(newRole.cuid);
     expect(fetchedRole).not.toBeNull();
-    expect(fetchedRole!.role_name).toBe(roleName);
+    expect(fetchedRole!.name).toBe(roleName);
     expect(fetchedRole!.status).toBe(true);
 
     // 3. Update Role
     const updatedName = 'Test Integration Role Updated';
-    const updatedRole = await roleDao.updateRole(newRole.cuid, { role_name: updatedName });
-    expect(updatedRole.role_name).toBe(updatedName);
+    const updatedRole = await roleDao.updateRole(newRole.cuid, { name: updatedName });
+    expect(updatedRole.name).toBe(updatedName);
 
     // 4. Soft Delete (Deactivate)
     const deactivatedRole = await roleDao.deactivateRole(newRole.cuid);
@@ -81,7 +81,7 @@ describe('Role, Shift, and Location CRUD Integration Tests', () => {
     // 1. Create Location
     const locName = 'Test Integration Location';
     const newLocation = await locationDao.createLocation({
-      location_name: locName,
+      name: locName,
       address_line1: '456 Test Blvd',
       city: 'Test City',
       state_cuid: 'state-cuid',
@@ -90,28 +90,28 @@ describe('Role, Shift, and Location CRUD Integration Tests', () => {
       timezone: 'UTC'
     });
     expect(newLocation).toBeDefined();
-    expect(newLocation.location_name).toBe(locName);
-    expect(newLocation.is_active).toBe(true);
+    expect(newLocation.name).toBe(locName);
+    expect(newLocation.status).toBe(true);
     expect(newLocation.cuid).toBeDefined();
 
     // 2. Read Location
     const fetchedLocation = await locationDao.getLocationByCuid(newLocation.cuid);
     expect(fetchedLocation).not.toBeNull();
-    expect(fetchedLocation!.location_name).toBe(locName);
-    expect(fetchedLocation!.is_active).toBe(true);
+    expect(fetchedLocation!.name).toBe(locName);
+    expect(fetchedLocation!.status).toBe(true);
 
     // 3. Update Location
     const updatedName = 'Test Integration Location Updated';
-    const updatedLocation = await locationDao.updateLocation(newLocation.cuid, { location_name: updatedName });
-    expect(updatedLocation.location_name).toBe(updatedName);
+    const updatedLocation = await locationDao.updateLocation(newLocation.cuid, { name: updatedName });
+    expect(updatedLocation.name).toBe(updatedName);
 
     // 4. Deactivate Location
     const deactivatedLocation = await locationDao.deactivateLocation(newLocation.cuid);
-    expect(deactivatedLocation.is_active).toBe(false);
+    expect(deactivatedLocation.status).toBe(false);
 
     // 5. Activate Location
     const activatedLocation = await locationDao.activateLocation(newLocation.cuid);
-    expect(activatedLocation.is_active).toBe(true);
+    expect(activatedLocation.status).toBe(true);
 
     // 6. Cleanup (hard delete)
     const { db } = await import('../../src/lib/server/db.js');

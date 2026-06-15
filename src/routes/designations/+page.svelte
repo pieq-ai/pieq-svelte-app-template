@@ -36,7 +36,7 @@
 
   interface Designation {
     cuid: string;
-    designation_name: string;
+    name: string;
     status: boolean;
   }
 
@@ -46,7 +46,7 @@
 
   let searchQuery = $state("");
   let statusFilter = $state<"all" | boolean>("all");
-  let sortColumn = $state("designation_name");
+  let sortColumn = $state("name");
   let sortDirection = $state<"asc" | "desc" | null>(null);
 
   let currentPage = $state(1);
@@ -63,13 +63,13 @@
   let designationNameInput = $state<HTMLInputElement | null>(null);
 
   const dirtyChecker = createDirtyChecker<{
-    designation_name: string;
+    name: string;
     status: boolean;
   }>();
   let isDirty = $derived(
     isModalOpen &&
       dirtyChecker.isDirty({
-        designation_name: formDesignationName.trim(),
+        name: formDesignationName.trim(),
         status: formDesignationStatus,
       }),
   );
@@ -100,7 +100,7 @@
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       result = result.filter((designation) =>
-        designation.designation_name.toLowerCase().includes(query),
+        designation.name.toLowerCase().includes(query),
       );
     }
 
@@ -182,18 +182,18 @@
     formDesignationStatus = true;
     isNameTouched = false;
     backendError = "";
-    dirtyChecker.snapshot({ designation_name: "", status: true });
+    dirtyChecker.snapshot({ name: "", status: true });
     isModalOpen = true;
   }
 
   function openEditModal(designation: Designation) {
     editingDesignation = designation;
-    formDesignationName = designation.designation_name;
+    formDesignationName = designation.name;
     formDesignationStatus = designation.status;
     isNameTouched = false;
     backendError = "";
     dirtyChecker.snapshot({
-      designation_name: designation.designation_name,
+      name: designation.name,
       status: designation.status,
     });
     isModalOpen = true;
@@ -221,7 +221,7 @@
           method: editingDesignation ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            designation_name: formDesignationName.trim(),
+            name: formDesignationName.trim(),
             status: formDesignationStatus,
           }),
         },
@@ -238,7 +238,7 @@
         isModalOpen = false;
       } else if (
         response.status === 409 &&
-        resData.field === "designation_name"
+        resData.field === "name"
       ) {
         backendError = resData.error;
         designationNameInput?.focus();
@@ -359,12 +359,12 @@
                 variant="ghost"
                 size="sm"
                 class="-ml-2.5 h-8 font-bold text-foreground text-[15px]"
-                onclick={() => handleSort("designation_name")}
+                onclick={() => handleSort("name")}
               >
                 Designation Name
-                {#if sortColumn === "designation_name" && sortDirection === "asc"}
+                {#if sortColumn === "name" && sortDirection === "asc"}
                   <ArrowUpIcon class="ml-2 size-4" />
-                {:else if sortColumn === "designation_name" && sortDirection === "desc"}
+                {:else if sortColumn === "name" && sortDirection === "desc"}
                   <ArrowDownIcon class="ml-2 size-4" />
                 {:else}
                   <ArrowUpDownIcon class="ml-2 size-4" />
@@ -432,7 +432,7 @@
                 <TableCell>
                   <div class="flex flex-col">
                     <span class="font-semibold"
-                      >{designation.designation_name}</span
+                      >{designation.name}</span
                     >
                   </div>
                 </TableCell>
@@ -474,10 +474,10 @@
   {#snippet children({ cancel })}
     <form class="space-y-3" onsubmit={handleSaveDesignation}>
       <div class="space-y-2">
-        <Label for="designation_name">Designation Name</Label>
+        <Label for="name">Designation Name</Label>
         <Input
-          id="designation_name"
-          name="designation_name"
+          id="name"
+          name="name"
           bind:ref={designationNameInput}
           bind:value={formDesignationName}
           class={nameValidationError || backendError
@@ -531,7 +531,7 @@
 <ConfirmModal
   open={!!itemToDelete}
   title="Deactivate Designation"
-  description={`Are you sure you want to deactivate ${itemToDelete?.designation_name}?`}
+  description={`Are you sure you want to deactivate ${itemToDelete?.name}?`}
   confirmLabel="Deactivate"
   isSubmitting={isDeleting}
   onCancel={() => (itemToDelete = null)}

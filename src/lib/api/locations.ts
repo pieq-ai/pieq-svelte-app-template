@@ -16,17 +16,17 @@ interface LocationListResponse {
 
 export interface Country {
   cuid: string;
-  country_name: string;
+  name: string;
 }
 
 export interface State {
   cuid: string;
   country_cuid: string;
-  state_name: string;
+  name: string;
 }
 
 export interface LocationCreatePayload {
-  location_name: string;
+  name: string;
   address_line1: string;
   address_line2?: string | null;
   city: string;
@@ -37,7 +37,7 @@ export interface LocationCreatePayload {
 }
 
 export interface LocationUpdatePayload extends Partial<LocationCreatePayload> {
-  is_active?: boolean;
+  status?: boolean;
 }
 
 /** Fetch all locations (active + inactive). */

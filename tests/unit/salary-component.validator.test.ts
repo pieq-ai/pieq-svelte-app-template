@@ -8,14 +8,14 @@ describe('salary-component.validator', () => {
 	describe('validateCreateSalaryComponent', () => {
 		it('should pass on valid input', () => {
 			const res = validateCreateSalaryComponent({
-				component_name: 'Basic Pay',
+				name: 'Basic Pay',
 				component_type: 'earning',
 				is_taxable: true,
 				is_active: true
 			});
 			expect(res.errors).toHaveLength(0);
 			expect(res.validatedData).toEqual({
-				component_name: 'Basic Pay',
+				name: 'Basic Pay',
 				component_type: 'earning',
 				is_taxable: true,
 				is_active: true
@@ -24,12 +24,12 @@ describe('salary-component.validator', () => {
 
 		it('should trim name, type, status, and set defaults for is_taxable and status', () => {
 			const res = validateCreateSalaryComponent({
-				component_name: '  HRA  ',
+				name: '  HRA  ',
 				component_type: ' earning  '
 			});
 			expect(res.errors).toHaveLength(0);
 			expect(res.validatedData).toEqual({
-				component_name: 'HRA',
+				name: 'HRA',
 				component_type: 'earning',
 				is_taxable: false,
 				is_active: true
@@ -38,89 +38,89 @@ describe('salary-component.validator', () => {
 
 		it('should fail on empty or whitespace-only name', () => {
 			const res1 = validateCreateSalaryComponent({
-				component_name: '',
+				name: '',
 				component_type: 'earning'
 			});
 			expect(res1.errors).toContainEqual({
-				field: 'component_name',
+				field: 'name',
 				message: 'Component name is required'
 			});
 
 			const res2 = validateCreateSalaryComponent({
-				component_name: '    ',
+				name: '    ',
 				component_type: 'earning'
 			});
 			expect(res2.errors).toContainEqual({
-				field: 'component_name',
+				field: 'name',
 				message: 'Component name is required'
 			});
 		});
 
 		it('should fail on too short or too long name', () => {
 			const resShort = validateCreateSalaryComponent({
-				component_name: 'A',
+				name: 'A',
 				component_type: 'earning'
 			});
 			expect(resShort.errors).toContainEqual({
-				field: 'component_name',
+				field: 'name',
 				message: 'Component name is too short'
 			});
 
 			const resLong = validateCreateSalaryComponent({
-				component_name: 'A'.repeat(151),
+				name: 'A'.repeat(151),
 				component_type: 'earning'
 			});
 			expect(resLong.errors).toContainEqual({
-				field: 'component_name',
+				field: 'name',
 				message: 'Component name is too long'
 			});
 		});
 
 		it('should fail on invalid special characters in name', () => {
 			const resSpecial = validateCreateSalaryComponent({
-				component_name: 'Basic @ Pay #1',
+				name: 'Basic @ Pay #1',
 				component_type: 'earning'
 			});
 			expect(resSpecial.errors).toContainEqual({
-				field: 'component_name',
+				field: 'name',
 				message: 'Special characters are not allowed'
 			});
 		});
 
 		it('should reject underscores in name', () => {
 			const resUnderscore = validateCreateSalaryComponent({
-				component_name: 'HRA_Pay',
+				name: 'HRA_Pay',
 				component_type: 'earning'
 			});
 			expect(resUnderscore.errors).toContainEqual({
-				field: 'component_name',
+				field: 'name',
 				message: 'Special characters are not allowed'
 			});
 		});
 
 		it('should allow hyphens, ampersands, and parentheses in name', () => {
 			const resSafe = validateCreateSalaryComponent({
-				component_name: 'HRA - & (Provident Fund)',
+				name: 'HRA - & (Provident Fund)',
 				component_type: 'earning'
 			});
 			expect(resSafe.errors).toHaveLength(0);
-			expect(resSafe.validatedData?.component_name).toBe('HRA - & (Provident Fund)');
+			expect(resSafe.validatedData?.name).toBe('HRA - & (Provident Fund)');
 		});
 
 		it('should fail on multiple consecutive spaces', () => {
 			const resMultipleSpaces = validateCreateSalaryComponent({
-				component_name: 'Basic  Pay',
+				name: 'Basic  Pay',
 				component_type: 'earning'
 			});
 			expect(resMultipleSpaces.errors).toContainEqual({
-				field: 'component_name',
+				field: 'name',
 				message: 'Multiple consecutive spaces are not allowed'
 			});
 		});
 
 		it('should fail on invalid component_type', () => {
 			const res = validateCreateSalaryComponent({
-				component_name: 'Basic Pay',
+				name: 'Basic Pay',
 				component_type: 'invalid-type'
 			});
 			expect(res.errors).toContainEqual({
@@ -131,7 +131,7 @@ describe('salary-component.validator', () => {
 
 		it('should fail on invalid is_active', () => {
 			const res = validateCreateSalaryComponent({
-				component_name: 'Basic Pay',
+				name: 'Basic Pay',
 				component_type: 'earning',
 				is_active: 'deleted'
 			});
@@ -145,7 +145,7 @@ describe('salary-component.validator', () => {
 
 		it('should reject unknown fields in create body', () => {
 			const res = validateCreateSalaryComponent({
-				component_name: 'Basic Pay',
+				name: 'Basic Pay',
 				component_type: 'earning',
 				unknown_field: 'oops'
 			});
@@ -157,7 +157,7 @@ describe('salary-component.validator', () => {
 
 		it('should reject multiple unknown fields in create body', () => {
 			const res = validateCreateSalaryComponent({
-				component_name: 'Basic Pay',
+				name: 'Basic Pay',
 				component_type: 'earning',
 				foo: 'bar',
 				baz: 123
@@ -169,14 +169,14 @@ describe('salary-component.validator', () => {
 		});
 
 		it('should reject arrays as the request body', () => {
-			const res = validateCreateSalaryComponent([{ component_name: 'Basic Pay' }]);
+			const res = validateCreateSalaryComponent([{ name: 'Basic Pay' }]);
 			expect(res.errors).toHaveLength(1);
 			expect(res.errors[0].field).toBe('body');
 		});
 
 		it('should reject non-boolean is_taxable in create', () => {
 			const res = validateCreateSalaryComponent({
-				component_name: 'Basic Pay',
+				name: 'Basic Pay',
 				component_type: 'earning',
 				is_taxable: 'yes'
 			});
@@ -190,12 +190,12 @@ describe('salary-component.validator', () => {
 	describe('validateUpdateSalaryComponent', () => {
 		it('should pass on valid partial updates', () => {
 			const res = validateUpdateSalaryComponent({
-				component_name: 'New Basic Pay',
+				name: 'New Basic Pay',
 				is_taxable: false
 			});
 			expect(res.errors).toHaveLength(0);
 			expect(res.validatedData).toEqual({
-				component_name: 'New Basic Pay',
+				name: 'New Basic Pay',
 				is_taxable: false
 			});
 		});
@@ -222,10 +222,10 @@ describe('salary-component.validator', () => {
 
 		it('should fail on invalid name format in update', () => {
 			const res = validateUpdateSalaryComponent({
-				component_name: 'HRA$'
+				name: 'HRA$'
 			});
 			expect(res.errors).toContainEqual({
-				field: 'component_name',
+				field: 'name',
 				message: 'Special characters are not allowed'
 			});
 		});
@@ -234,7 +234,7 @@ describe('salary-component.validator', () => {
 
 		it('should reject unknown fields in update body', () => {
 			const res = validateUpdateSalaryComponent({
-				component_name: 'HRA',
+				name: 'HRA',
 				extra_key: true
 			});
 			expect(res.errors).toHaveLength(1);

@@ -8,16 +8,16 @@ function runLocationFilters(
   filterCountry: string,
   filterState: string,
   searchQuery: string,
-  countries: Array<{ cuid: string; country_name: string }>,
-  states: Array<{ cuid: string; state_name: string; country_cuid: string }>
+  countries: Array<{ cuid: string; name: string }>,
+  states: Array<{ cuid: string; name: string; country_cuid: string }>
 ): CompanyLocation[] {
   let list = locations;
 
   // Status Filter
   if (filterStatus === 'active') {
-    list = locations.filter((loc) => loc.is_active);
+    list = locations.filter((loc) => loc.status);
   } else if (filterStatus === 'inactive') {
-    list = locations.filter((loc) => !loc.is_active);
+    list = locations.filter((loc) => !loc.status);
   }
 
   // Country Filter
@@ -33,11 +33,11 @@ function runLocationFilters(
   // Search Filter
   if (searchQuery.trim() !== '') {
     const query = searchQuery.toLowerCase().trim();
-    const getCountryName = (cuid: string) => countries.find(c => c.cuid === cuid)?.country_name ?? cuid;
-    const getStateName = (cuid: string) => states.find(s => s.cuid === cuid)?.state_name ?? cuid;
+    const getCountryName = (cuid: string) => countries.find(c => c.cuid === cuid)?.name ?? cuid;
+    const getStateName = (cuid: string) => states.find(s => s.cuid === cuid)?.name ?? cuid;
 
     list = list.filter((loc) => {
-      const locName = (loc.location_name ?? '').toLowerCase();
+      const locName = (loc.name ?? '').toLowerCase();
       const city = (loc.city ?? '').toLowerCase();
       const stateName = getStateName(loc.state_cuid ?? '').toLowerCase();
       const countryName = getCountryName(loc.country_cuid ?? '').toLowerCase();
@@ -87,49 +87,49 @@ function runLocationSorting(
 
 describe('Company Locations Client-side Filtering & Sorting Tests', () => {
   const mockCountries = [
-    { cuid: 'country-usa', country_name: 'United States' },
-    { cuid: 'country-can', country_name: 'Canada' }
+    { cuid: 'country-usa', name: 'United States' },
+    { cuid: 'country-can', name: 'Canada' }
   ];
 
   const mockStates = [
-    { cuid: 'state-ny', state_name: 'New York', country_cuid: 'country-usa' },
-    { cuid: 'state-ca', state_name: 'California', country_cuid: 'country-usa' },
-    { cuid: 'state-on', state_name: 'Ontario', country_cuid: 'country-can' }
+    { cuid: 'state-ny', name: 'New York', country_cuid: 'country-usa' },
+    { cuid: 'state-ca', name: 'California', country_cuid: 'country-usa' },
+    { cuid: 'state-on', name: 'Ontario', country_cuid: 'country-can' }
   ];
 
   const mockLocations: CompanyLocation[] = [
     {
       cuid: 'loc-1',
-      location_name: 'HQ New York',
+      name: 'HQ New York',
       address_line1: '123 Wall St',
       city: 'NYC',
       state_cuid: 'state-ny',
       country_cuid: 'country-usa',
       pin_code: '10005',
       timezone: 'EST',
-      is_active: true
+      status: true
     },
     {
       cuid: 'loc-2',
-      location_name: 'Silicon Valley Office',
+      name: 'Silicon Valley Office',
       address_line1: '456 Sand Hill Rd',
       city: 'Palo Alto',
       state_cuid: 'state-ca',
       country_cuid: 'country-usa',
       pin_code: '94301',
       timezone: 'PST',
-      is_active: true
+      status: true
     },
     {
       cuid: 'loc-3',
-      location_name: 'Toronto Branch',
+      name: 'Toronto Branch',
       address_line1: '789 Yonge St',
       city: 'Toronto',
       state_cuid: 'state-on',
       country_cuid: 'country-can',
       pin_code: 'M4Y 1Z9',
       timezone: 'EST',
-      is_active: false
+      status: false
     }
   ];
 
@@ -168,7 +168,7 @@ describe('Company Locations Client-side Filtering & Sorting Tests', () => {
 
   it('should work alongside client-side sorting', () => {
     const filtered = runLocationFilters(mockLocations, 'all', 'country-usa', 'all', '', mockCountries, mockStates);
-    const sorted = runLocationSorting(filtered, 'location_name', 'desc');
+    const sorted = runLocationSorting(filtered, 'name', 'desc');
     expect(sorted.length).toBe(2);
     expect(sorted[0].cuid).toBe('loc-2'); // "Silicon Valley Office" before "HQ New York" in descending sort
   });
