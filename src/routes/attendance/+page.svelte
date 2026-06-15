@@ -532,7 +532,6 @@
 
 	{#if !selectedEmployeeUuid}
 		<div class="text-center py-16 border rounded-lg bg-card text-muted-foreground font-medium flex flex-col items-center justify-center gap-3">
-			<ClockIcon class="size-10 text-muted-foreground/50" />
 			<span>Please select an employee to view their attendance dashboard.</span>
 		</div>
 	{:else}
@@ -606,7 +605,6 @@
 						<p class="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Average Working Hours</p>
 						<div class="text-3xl font-bold">{averageWorkingHours}</div>
 					</div>
-					<ClockIcon class="size-8 text-[#F45310]" />
 				</CardContent>
 			</Card>
 
@@ -693,7 +691,6 @@
 							</Button>
 						{:else}
 							<div class="flex items-center gap-2 rounded-lg bg-emerald-500/10 p-3 text-sm text-emerald-600 dark:text-emerald-400 w-full">
-								<CheckCircle2Icon class="size-4 shrink-0" />
 								<span>Attendance logs completed for today.</span>
 							</div>
 						{/if}
@@ -840,7 +837,6 @@
 			<CardContent>
 				{#if isLoadingHistory}
 					<div class="text-center py-12 text-muted-foreground font-medium flex items-center justify-center gap-2">
-						<LoaderCircleIcon class="size-5 animate-spin text-[#F45310]" />
 						Loading records...
 					</div>
 				{:else}

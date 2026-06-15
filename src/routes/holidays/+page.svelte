@@ -567,7 +567,6 @@
 			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
 			onclick={openAddModal}
 		>
-			<PlusIcon class="size-4" />
 			Add Holiday
 		</Button>
 	</div>
@@ -744,6 +743,7 @@
 												}
 											}
 										]}
+										showIcons={false}
 									/>
 								</TableCell>
 							</TableRow>
@@ -753,7 +753,7 @@
 			</Table>
 		</Card>
 
-		<Pagination totalItems={filteredHolidays.length} bind:currentPage={currentPage} pageSize={10} />
+		<Pagination totalItems={filteredHolidays.length} bind:currentPage={currentPage} pageSize={10} showIcons={false} />
 	</div>
 </div>
 
@@ -866,7 +866,6 @@
 					disabled={isSubmitDisabled}
 				>
 					{#if isSubmitting}
-						<LoaderCircleIcon class="size-4 animate-spin" />
 						Saving...
 					{:else}
 						Save

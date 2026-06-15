@@ -16,13 +16,15 @@
 		canEdit?: boolean;
 		onEdit?: () => void;
 		customActions?: CustomAction[];
+		showIcons?: boolean;
 	}
 
 	let {
 		editLabel = 'Edit',
 		canEdit = true,
 		onEdit,
-		customActions = []
+		customActions = [],
+		showIcons = true
 	}: Props = $props();
 </script>
 
@@ -43,14 +45,16 @@
 	<DropdownMenu.Content align="end" preventScroll={false}>
 		{#if canEdit}
 			<DropdownMenu.Item onclick={onEdit} class="cursor-pointer">
-				<PencilIcon class="mr-2 size-4" />
+				{#if showIcons}
+					<PencilIcon class="mr-2 size-4" />
+				{/if}
 				{editLabel}
 			</DropdownMenu.Item>
 		{/if}
 		{#if customActions && customActions.length > 0}
 			{#each customActions as action}
 				<DropdownMenu.Item onclick={action.onClick} class="cursor-pointer {action.class || ''}">
-					{#if action.icon}
+					{#if showIcons && action.icon}
 						{@const IconComponent = action.icon}
 						<IconComponent class="mr-2 size-4" />
 					{/if}

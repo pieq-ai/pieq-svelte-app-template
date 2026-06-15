@@ -7,9 +7,10 @@
 		currentPage: number;
 		pageSize: number;
 		totalItems: number;
+		showIcons?: boolean;
 	}
 
-	let { currentPage = $bindable(), pageSize, totalItems }: Props = $props();
+	let { currentPage = $bindable(), pageSize, totalItems, showIcons = true }: Props = $props();
 
 	let totalPages = $derived(Math.max(1, Math.ceil(totalItems / pageSize)));
 	
@@ -48,7 +49,9 @@
 			disabled={currentPage === 1 || totalItems === 0}
 			onclick={() => goToPage(currentPage - 1)}
 		>
-			<ChevronLeftIcon class="size-4" />
+			{#if showIcons}
+				<ChevronLeftIcon class="size-4" />
+			{/if}
 			<span>Previous</span>
 		</Button>
 		
@@ -77,7 +80,9 @@
 			onclick={() => goToPage(currentPage + 1)}
 		>
 			<span>Next</span>
-			<ChevronRightIcon class="size-4" />
+			{#if showIcons}
+				<ChevronRightIcon class="size-4" />
+			{/if}
 		</Button>
 	</div>
 </div>

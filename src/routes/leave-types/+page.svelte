@@ -487,7 +487,6 @@
 			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
 			onclick={openAddModal}
 		>
-			<PlusIcon class="size-4" />
 			Add Leave Type
 		</Button>
 	</div>
@@ -646,6 +645,7 @@
 								<TableCell class="text-right">
 									<TableActions
 										onEdit={() => goto(resolve(('/leave-types?edit=' + type.cuid) as '/leave-types'))}
+										showIcons={false}
 									/>
 								</TableCell>
 							</TableRow>
@@ -655,7 +655,7 @@
 			</Table>
 		</Card>
 		
-		<Pagination totalItems={filteredTypes.length} bind:currentPage={currentPage} pageSize={10} />
+		<Pagination totalItems={filteredTypes.length} bind:currentPage={currentPage} pageSize={10} showIcons={false} />
 	</div>
 </div>
 
@@ -780,7 +780,6 @@
 				>
 					<!-- force recompile -->
 					{#if isSubmitting}
-						<LoaderCircleIcon class="size-4 animate-spin" />
 						Saving...
 					{:else}
 						Save

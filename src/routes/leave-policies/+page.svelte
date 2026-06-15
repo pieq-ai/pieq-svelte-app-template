@@ -809,7 +809,6 @@
 			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
 			onclick={openAddModal}
 		>
-			<PlusIcon class="size-4" />
 			Add Leave Policy
 		</Button>
 	</div>
@@ -1045,6 +1044,7 @@
 								<TableCell class="text-right">
 									<TableActions
 										onEdit={() => goto(resolve(('/leave-policies?edit=' + policy.cuid) as '/leave-policies'))}
+										showIcons={false}
 									/>
 								</TableCell>
 							</TableRow>
@@ -1054,7 +1054,7 @@
 			</Table>
 		</Card>
 		
-		<Pagination totalItems={filteredPolicies.length} bind:currentPage={currentPage} pageSize={10} />
+		<Pagination totalItems={filteredPolicies.length} bind:currentPage={currentPage} pageSize={10} showIcons={false} />
 	</div>
 </div>
 
@@ -1116,6 +1116,7 @@
 					addLabel="Add Employment Type"
 					placeholder="Select Employment Types"
 					name="employment_type_cuids"
+					showAddIcon={false}
 				/>
 				{#if errors.employment_type_cuids}
 					<p class="text-xs font-medium text-destructive mt-1">{errors.employment_type_cuids}</p>
@@ -1354,7 +1355,6 @@
 					disabled={isSubmitDisabled}
 				>
 					{#if isSubmitting}
-						<LoaderCircleIcon class="size-4 animate-spin" />
 						Saving...
 					{:else}
 						Save

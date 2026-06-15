@@ -668,7 +668,6 @@
 			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0 font-semibold"
 			onclick={openAddModal}
 		>
-			<PlusIcon class="size-4" />
 			Add Record
 		</Button>
 	</div>
@@ -824,17 +823,7 @@
 								<TableCell class="text-right">
 									<TableActions
 										onEdit={() => openEditModal(rec)}
-										customActions={[
-											{
-												label: 'Delete',
-												icon: Trash2Icon,
-												class: 'focus:bg-[#800020]/10 text-destructive',
-												onClick: () => {
-													activeDeleteCuid = rec.cuid;
-													isConfirmOpen = true;
-												}
-											}
-										]}
+										showIcons={false}
 									/>
 								</TableCell>
 							</TableRow>
@@ -844,7 +833,7 @@
 			</Table>
 		</Card>
 
-		<Pagination totalItems={filteredRecords.length} bind:currentPage={currentPage} pageSize={pageSize} />
+		<Pagination totalItems={filteredRecords.length} bind:currentPage={currentPage} pageSize={pageSize} showIcons={false} />
 	</div>
 </div>
 
@@ -1114,7 +1103,6 @@
 											isAddSourceModalOpen = true;
 										}}
 									>
-										<PlusIcon class="size-3.5" />
 										Add Attendance Source
 									</button>
 								</div>
@@ -1153,7 +1141,6 @@
 					disabled={isSubmitDisabled}
 				>
 					{#if isSubmitting}
-						<LoaderCircleIcon class="size-4 animate-spin mr-2" />
 						{UI_CONSTANTS.BUTTON_SAVING}
 					{:else}
 						{editCuid ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE}
@@ -1188,6 +1175,7 @@
 	onConfirm={() => (isDiscardModalOpen = false)}
 	preventOutsideClickClose={true}
 />
+
 
 <!-- Add Attendance Source Modal -->
 <CrudModal
