@@ -124,7 +124,9 @@
 					case 'year':
 						valA = a.year; valB = b.year; break;
 					case 'employees':
-						valA = a.employee_count; valB = b.employee_count; break;
+						valA = a.employee_count + (a.failure_count ?? 0);
+						valB = b.employee_count + (b.failure_count ?? 0);
+						break;
 					case 'uploaded_at':
 						valA = a.uploaded_at; valB = b.uploaded_at; break;
 					default:
@@ -646,7 +648,9 @@
 							>
 								<TableCell class="font-medium">{monthName(u.month)}</TableCell>
 								<TableCell>{u.year}</TableCell>
-								<TableCell class="font-semibold tabular-nums">{u.employee_count}</TableCell>
+								<TableCell class="font-semibold tabular-nums">
+									{u.employee_count} / {u.employee_count + (u.failure_count ?? 0)}
+								</TableCell>
 								<TableCell class="text-muted-foreground">{formatDate(u.uploaded_at)}</TableCell>
 								<TableCell class="text-center">
 									<Badge variant={statusVariant(u.status)} class="capitalize">

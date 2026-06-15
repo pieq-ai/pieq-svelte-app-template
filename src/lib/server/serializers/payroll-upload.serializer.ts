@@ -6,12 +6,13 @@ import type { PayrollUpload } from '$lib/types/payroll.js';
  * - Strips internal BigInt `id`
  * - Converts DateTime fields to ISO strings
  */
-export function serializePayrollUpload(record: PrismaPayrollUpload): PayrollUpload {
+export function serializePayrollUpload(record: PrismaPayrollUpload & { failure_count?: number }): PayrollUpload {
 	return {
 		cuid: record.cuid,
 		month: record.month,
 		year: record.year,
 		employee_count: record.employee_count,
+		failure_count: record.failure_count ?? 0,
 		status: record.status,
 		file_name: record.file_name,
 		failure_reason: record.failure_reason,
@@ -21,6 +22,6 @@ export function serializePayrollUpload(record: PrismaPayrollUpload): PayrollUplo
 }
 
 /** Serialize a list of payroll upload records. */
-export function serializePayrollUploadList(records: PrismaPayrollUpload[]): PayrollUpload[] {
+export function serializePayrollUploadList(records: (PrismaPayrollUpload & { failure_count?: number })[]): PayrollUpload[] {
 	return records.map(serializePayrollUpload);
 }

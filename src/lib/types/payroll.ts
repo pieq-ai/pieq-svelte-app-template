@@ -14,6 +14,8 @@ export interface PayrollUpload {
 	year: number;
 	/** Number of employee payroll records successfully created */
 	employee_count: number;
+	/** Number of employee payroll records that failed to load */
+	failure_count: number;
 	/** 'processed' | 'partial' */
 	status: string;
 	/** The original name of the uploaded Excel file */

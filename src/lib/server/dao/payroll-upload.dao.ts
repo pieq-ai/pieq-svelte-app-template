@@ -19,7 +19,17 @@ export async function create(data: CreatePayrollUploadDto) {
 
 /** Find a payroll upload record by its external cuid. */
 export async function findByCuid(cuid: string) {
-	return db.payrollUpload.findUnique({ where: { cuid } });
+	const record = await db.payrollUpload.findUnique({ where: { cuid } });
+	if (!record) return null;
+
+	const failureCount = await db.payrollUploadFailure.count({
+		where: { payroll_upload_cuid: cuid }
+	});
+
+	return {
+		...record,
+		failure_count: failureCount
+	};
 }
 
 /** Update the employee_count, status, and failure_reason after processing. */
@@ -43,7 +53,23 @@ export async function updateEmployeeCount(
 
 /** Fetch all payroll upload batches, most recent first. */
 export async function findMany() {
-	return db.payrollUpload.findMany({
+	const uploads = await db.payrollUpload.findMany({
 		orderBy: [{ uploaded_at: 'desc' }]
 	});
+
+	const failureGroups = await db.payrollUploadFailure.groupBy({
+		by: ['payroll_upload_cuid'],
+		_count: {
+			id: true
+		}
+	});
+
+	const failureMap = new Map<string, number>(
+		failureGroups.map((g) => [g.payroll_upload_cuid, g._count.id])
+	);
+
+	return uploads.map((u) => ({
+		...u,
+		failure_count: failureMap.get(u.cuid) ?? 0
+	}));
 }

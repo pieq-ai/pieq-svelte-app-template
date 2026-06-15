@@ -116,6 +116,8 @@
 						valA = a.employee_code; valB = b.employee_code; break;
 					case 'gross_earnings':
 						valA = a.gross_earnings; valB = b.gross_earnings; break;
+					case 'total_deduction':
+						valA = a.total_deduction; valB = b.total_deduction; break;
 					case 'net_salary':
 						valA = a.net_salary; valB = b.net_salary; break;
 					default:
@@ -278,6 +280,14 @@
 							</Button>
 						</TableHead>
 						<TableHead class="text-center font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="mx-auto flex items-center justify-center font-bold text-foreground text-[15px]" onclick={() => handleSort('total_deduction')}>
+								Deductions
+								{#if sortIcon('total_deduction') === 'asc'}<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortIcon('total_deduction') === 'desc'}<ArrowDownIcon class="ml-2 size-4" />
+								{:else}<ArrowUpDownIcon class="ml-2 size-4" />{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="text-center font-bold text-foreground text-[15px]">
 							<Button variant="ghost" size="sm" class="mx-auto flex items-center justify-center font-bold text-foreground text-[15px]" onclick={() => handleSort('net_salary')}>
 								Net Salary
 								{#if sortIcon('net_salary') === 'asc'}<ArrowUpIcon class="ml-2 size-4" />
@@ -291,7 +301,7 @@
 				<TableBody>
 					{#if filteredRecords.length === 0}
 						<TableRow>
-							<TableCell colspan={4} class="py-8 text-center text-muted-foreground">
+							<TableCell colspan={5} class="py-8 text-center text-muted-foreground">
 								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 							</TableCell>
 						</TableRow>
@@ -300,7 +310,7 @@
 							<TableRow
 								onclick={(e) => {
 									if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
-									selectedRecord = r;
+									goto(resolve(`/payroll-records/${r.cuid}`));
 								}}
 								class="cursor-pointer hover:bg-muted/70 transition-colors"
 							>
@@ -309,12 +319,16 @@
 									<span class="block text-xs text-muted-foreground font-mono mt-0.5">{r.employee_code}</span>
 								</TableCell>
 								<TableCell class="text-center font-mono font-medium">₹{formatAmount(r.gross_earnings)}</TableCell>
+								<TableCell class="text-center font-mono font-medium text-destructive">₹{formatAmount(r.total_deduction)}</TableCell>
 								<TableCell class="text-center font-mono font-semibold">₹{formatAmount(r.net_salary)}</TableCell>
 								<TableCell class="text-right w-24">
 									<TableActions canEdit={false}>
-										<DropdownMenu.Item onclick={() => selectedRecord = r} class="cursor-pointer">
+										<DropdownMenu.Item onclick={() => goto(resolve(`/payroll-records/${r.cuid}`))} class="cursor-pointer">
 											<EyeIcon class="mr-2 size-4 text-muted-foreground" />
 											View Details
+										</DropdownMenu.Item>
+										<DropdownMenu.Item onclick={() => goto(resolve(`/payroll-records/${r.cuid}/payslip`))} class="cursor-pointer">
+											View Payslip
 										</DropdownMenu.Item>
 									</TableActions>
 								</TableCell>

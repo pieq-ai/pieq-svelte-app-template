@@ -15,6 +15,10 @@
 		TableRow
 	} from '$lib/components';
 
+	function goToPayslip() {
+		goto(resolve(`/payroll-records/${payroll.cuid}/payslip`));
+	}
+
 	// ─── Props ────────────────────────────────────────────────────────────────────
 
 	let { data } = $props();
@@ -86,9 +90,23 @@
 				<ArrowLeftIcon class="size-4" />
 			</Button>
 			<div class="space-y-0.5">
-				<h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Employee Payroll Detail</h1>
+				<h1 class="text-2xl font-bold tracking-tight sm:text-3xl">Payroll Record Details</h1>
 				<p class="text-sm text-muted-foreground">{monthName(payroll.month)} {payroll.year}</p>
 			</div>
+		</div>
+
+		<!-- Payslip actions -->
+		<div class="flex items-center gap-2">
+			<Button
+				id="btn_view_payslip"
+				type="button"
+				variant="default"
+				class="gap-2 bg-[#F45310] text-white hover:bg-[#d4430a]"
+				onclick={goToPayslip}
+				aria-label="View Payslip"
+			>
+				View Payslip
+			</Button>
 		</div>
 	</div>
 
