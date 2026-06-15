@@ -46,7 +46,6 @@
 	let searchQuery = $state('');
 
 	// Filters
-	let filterEmployeeCuid = $state('all');
 	let filterDate = $state('');
 	let filterStatus = $state('all');
 	let filterSourceCuid = $state('all');
@@ -79,19 +78,10 @@
 	// Dropdown Options
 	const statusOptions = [
 		{ value: 'Present', label: 'Present' },
-		{ value: 'Absent', label: 'Absent' },
-		{ value: 'Late', label: 'Late' },
-		{ value: 'Half Day', label: 'Half Day' },
-		{ value: 'On Leave', label: 'On Leave' }
+		{ value: 'Leave', label: 'Leave' },
+		{ value: 'LOP', label: 'LOP' },
+		{ value: 'Week Off', label: 'Week Off' }
 	];
-
-	let employeeFilterOptions = $derived([
-		{ value: 'all', label: 'All Employees' },
-		...data.employees.map((emp: any) => ({
-			value: emp.uuid,
-			label: emp.name
-		}))
-	]);
 
 	let employeeFormOptions = $derived(
 		data.employees.map((emp: any) => ({
@@ -101,8 +91,8 @@
 	);
 
 	let statusFilterOptions = [
-		{ value: 'all', label: 'All Statuses' },
-		...statusOptions
+		{ value: 'all', label: 'All Status' },
+		...statusOptions.filter((opt) => opt.value !== 'Week Off')
 	];
 
 	let sourceFilterOptions = $derived([
@@ -336,9 +326,6 @@
 		}
 
 		// Filters
-		if (filterEmployeeCuid !== 'all') {
-			result = result.filter((rec) => rec.employee_cuid === filterEmployeeCuid);
-		}
 
 		if (filterDate) {
 			result = result.filter((rec) => rec.attendance_date === filterDate);
@@ -387,7 +374,6 @@
 		// Reset page on search or filter change
 		/* eslint-disable @typescript-eslint/no-unused-expressions */
 		searchQuery;
-		filterEmployeeCuid;
 		filterDate;
 		filterStatus;
 		filterSourceCuid;
@@ -441,31 +427,7 @@
 				{/if}
 			</div>
 
-			<div class="grid grid-cols-2 md:grid-cols-4 gap-3 w-full lg:w-auto shrink-0">
-				<!-- Employee Filter -->
-				<DropdownMenu.Root>
-					<DropdownMenu.Trigger>
-						{#snippet child({ props })}
-							<Button variant="outline" class="h-9 justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
-								<span class="truncate pr-1">
-									{employeeFilterOptions.find(o => o.value === filterEmployeeCuid)?.label || 'Employee'}
-								</span>
-								<FilterIcon class="size-3.5 opacity-50 shrink-0" />
-							</Button>
-						{/snippet}
-					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-48 max-h-60 overflow-y-auto">
-						<DropdownMenu.Group>
-							{#each employeeFilterOptions as opt}
-								<DropdownMenu.Item onclick={() => filterEmployeeCuid = opt.value} class="justify-between cursor-pointer {filterEmployeeCuid === opt.value ? 'bg-accent text-accent-foreground font-semibold' : ''}">
-									<span class="truncate">{opt.label}</span>
-									{#if filterEmployeeCuid === opt.value}<CheckIcon class="size-4 shrink-0" />{/if}
-								</DropdownMenu.Item>
-							{/each}
-						</DropdownMenu.Group>
-					</DropdownMenu.Content>
-				</DropdownMenu.Root>
-
+			<div class="grid grid-cols-2 md:grid-cols-3 gap-3 w-full lg:w-auto shrink-0">
 				<!-- Date Filter -->
 				<div class="w-full">
 					<DatePicker
@@ -478,7 +440,7 @@
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
-							<Button variant="outline" class="h-9 justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
+							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
 								<span class="truncate pr-1">
 									{statusFilterOptions.find(o => o.value === filterStatus)?.label || 'Status'}
 								</span>
@@ -486,7 +448,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-44">
+					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
 						<DropdownMenu.Group>
 							{#each statusFilterOptions as opt}
 								<DropdownMenu.Item onclick={() => filterStatus = opt.value} class="justify-between cursor-pointer {filterStatus === opt.value ? 'bg-accent text-accent-foreground font-semibold' : ''}">
@@ -502,7 +464,7 @@
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
-							<Button variant="outline" class="h-9 justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
+							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
 								<span class="truncate pr-1">
 									{sourceFilterOptions.find(o => o.value === filterSourceCuid)?.label || 'Source'}
 								</span>
@@ -510,7 +472,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-48 max-h-60 overflow-y-auto">
+					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
 						<DropdownMenu.Group>
 							{#each sourceFilterOptions as opt}
 								<DropdownMenu.Item onclick={() => filterSourceCuid = opt.value} class="justify-between cursor-pointer {filterSourceCuid === opt.value ? 'bg-accent text-accent-foreground font-semibold' : ''}">
