@@ -803,6 +803,7 @@ model LeaveRequest {
 
   days_from_primary     Decimal? @db.Decimal(8, 2)
   days_from_lwp         Decimal? @db.Decimal(8, 2)
+  days_from_lop         Decimal? @db.Decimal(8, 2)
 
   approved_by           String?  @db.Text
   approved_at           DateTime? @db.Timestamptz(3)

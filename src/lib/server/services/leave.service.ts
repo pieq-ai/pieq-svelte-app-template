@@ -282,6 +282,7 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 			request_status: r.request_status,
 			days_from_primary: r.days_from_primary ? Number(r.days_from_primary) : 0,
 			days_from_lwp: r.days_from_lwp ? Number(r.days_from_lwp) : 0,
+			days_from_lop: r.days_from_lop ? Number(r.days_from_lop) : 0,
 			created_at: r.created_at
 		};
 	});
@@ -371,6 +372,7 @@ export async function getPendingApprovalsForManager(managerEmployeeCuid: string)
 			request_status: r.request_status,
 			days_from_primary: r.days_from_primary ? Number(r.days_from_primary) : 0,
 			days_from_lwp: r.days_from_lwp ? Number(r.days_from_lwp) : 0,
+			days_from_lop: r.days_from_lop ? Number(r.days_from_lop) : 0,
 			created_at: r.created_at
 		};
 	});
@@ -484,7 +486,7 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 	// CL specific validations
 	if (leaveType.leave_code === 'CL') {
 		if (totalDays > 2) {
-			throw new ValidationError('leaveTypeCuid', 'Maximum 2 days can be applied in a single Casual Leave request. For longer leaves, please use Earned Leave (EL).');
+			throw new ValidationError('leaveTypeCuid', 'Maximum 2 days can be applied in a single Casual Leave request. For longer leaves, please apply using Sick Leave (SL) or Earned Leave (EL) instead.');
 		}
 	}
 
@@ -622,10 +624,17 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 
 	let daysFromPrimary = totalDays;
 	let daysFromLwp = 0;
+	let daysFromLop = 0;
 
 	if (leaveType.leave_code === 'LWP') {
 		daysFromPrimary = 0.0;
 		daysFromLwp = totalDays;
+	} else if (leaveType.leave_code === 'CL' || leaveType.leave_code === 'SL') {
+		const remainingBalance = balance ? Number(balance.remaining_days) : 0;
+		if (totalDays > remainingBalance) {
+			daysFromPrimary = Math.max(0, remainingBalance);
+			daysFromLop = totalDays - daysFromPrimary;
+		}
 	} else {
 		const remainingBalance = balance ? Number(balance.remaining_days) : 0;
 		if (totalDays > remainingBalance) {
@@ -679,6 +688,7 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 		request_status: 'pending',
 		days_from_primary: daysFromPrimary,
 		days_from_lwp: daysFromLwp,
+		days_from_lop: daysFromLop,
 		created_by: employee.emp_code
 	});
 }
@@ -853,6 +863,43 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 						data: {
 							used_days: { increment: request.days_from_lwp },
 							remaining_days: { decrement: request.days_from_lwp }
+						}
+					});
+				}
+			}
+		}
+
+		if (request.days_from_lop && Number(request.days_from_lop) > 0) {
+			const lopType = await tx.leaveType.findFirst({ where: { leave_code: 'LOP' } });
+			if (lopType) {
+				const lopBalance = await tx.leaveBalance.findUnique({
+					where: {
+						employee_cuid_leave_type_cuid_year: {
+							employee_cuid: request.employee_cuid,
+							leave_type_cuid: lopType.cuid,
+							year
+						}
+					}
+				});
+				if (lopBalance) {
+					await tx.leaveBalance.update({
+						where: { cuid: lopBalance.cuid },
+						data: {
+							used_days: { increment: request.days_from_lop }
+						}
+					});
+				} else {
+					await tx.leaveBalance.create({
+						data: {
+							employee_cuid: request.employee_cuid,
+							leave_type_cuid: lopType.cuid,
+							year,
+							allocated_days: 0.0,
+							used_days: request.days_from_lop,
+							remaining_days: 0.0,
+							carried_forward_days: 0.0,
+							created_by: approverUserCuid,
+							updated_by: approverUserCuid
 						}
 					});
 				}

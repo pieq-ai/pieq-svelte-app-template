@@ -117,6 +117,7 @@ export async function createLeaveRequest(data: {
 	request_status?: string;
 	days_from_primary?: number | string | any;
 	days_from_lwp?: number | string | any;
+	days_from_lop?: number | string | any;
 	created_by?: string;
 }) {
 	return db.leaveRequest.create({
@@ -133,6 +134,7 @@ export async function createLeaveRequest(data: {
 			request_status: data.request_status ?? 'pending',
 			days_from_primary: data.days_from_primary ?? null,
 			days_from_lwp: data.days_from_lwp ?? null,
+			days_from_lop: data.days_from_lop ?? null,
 			created_by: data.created_by,
 			updated_by: data.created_by
 		}

@@ -133,7 +133,8 @@ async function main() {
     { name: 'Sick Leave', code: 'SL', isPaid: true, reqApproval: true },
     { name: 'Maternity Leave', code: 'ML', isPaid: true, reqApproval: true },
     { name: 'Paternity Leave', code: 'PL', isPaid: true, reqApproval: true },
-    { name: 'Leave Without Pay', code: 'LWP', isPaid: false, reqApproval: true }
+    { name: 'Leave Without Pay', code: 'LWP', isPaid: false, reqApproval: true },
+    { name: 'Loss of Pay', code: 'LOP', isPaid: false, reqApproval: true }
   ];
 
   const typeRecords = {};

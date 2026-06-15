@@ -8,7 +8,8 @@ vi.mock('$lib/server/db.js', () => {
 	const mockDb = {
 		employee: {
 			findFirst: vi.fn(),
-			findUnique: vi.fn()
+			findUnique: vi.fn(),
+			findMany: vi.fn()
 		},
 		employment: {
 			findFirst: vi.fn()
@@ -22,11 +23,13 @@ vi.mock('$lib/server/db.js', () => {
 		},
 		leaveBalance: {
 			findUnique: vi.fn(),
-			update: vi.fn()
+			update: vi.fn(),
+			create: vi.fn()
 		},
 		leaveRequest: {
 			findUnique: vi.fn(),
-			update: vi.fn()
+			update: vi.fn(),
+			findMany: vi.fn()
 		},
 		attendanceRecord: {
 			findUnique: vi.fn(),
@@ -53,7 +56,8 @@ vi.mock('$lib/server/dao/leave.dao.js', () => {
 		createLeaveRequest: vi.fn(),
 		updateLeaveRequest: vi.fn(),
 		getOverlappingRequests: vi.fn(),
-		upsertAttendanceRecord: vi.fn()
+		upsertAttendanceRecord: vi.fn(),
+		getSubordinates: vi.fn()
 	};
 });
 
@@ -84,7 +88,8 @@ describe('Leave Service Unit Tests', () => {
 		{ cuid: 'cuid-el', leave_code: 'EL', leave_name: 'Earned Leave', is_paid: true, requires_approval: true },
 		{ cuid: 'cuid-ml', leave_code: 'ML', leave_name: 'Maternity Leave', is_paid: true, requires_approval: true },
 		{ cuid: 'cuid-pl', leave_code: 'PL', leave_name: 'Paternity Leave', is_paid: true, requires_approval: true },
-		{ cuid: 'cuid-lwp', leave_code: 'LWP', leave_name: 'Leave Without Pay', is_paid: false, requires_approval: true }
+		{ cuid: 'cuid-lwp', leave_code: 'LWP', leave_name: 'Leave Without Pay', is_paid: false, requires_approval: true },
+		{ cuid: 'cuid-lop', leave_code: 'LOP', leave_name: 'Loss of Pay', is_paid: false, requires_approval: true }
 	];
 
 	const mockPolicies = {
@@ -93,7 +98,8 @@ describe('Leave Service Unit Tests', () => {
 		'cuid-el': { cuid: 'p-el', leave_type_cuid: 'cuid-el', annual_limit: 12, max_per_month: 1, carry_forward_allowed: true, min_service_days: 365, allow_half_day: false, gender_specific: false, status: true },
 		'cuid-ml': { cuid: 'p-ml', leave_type_cuid: 'cuid-ml', annual_limit: 180, max_per_month: null, carry_forward_allowed: false, min_service_days: 80, allow_half_day: false, gender_specific: true, applicable_gender: 'Female', status: true },
 		'cuid-pl': { cuid: 'p-pl', leave_type_cuid: 'cuid-pl', annual_limit: 5, max_per_month: null, carry_forward_allowed: false, min_service_days: 0, allow_half_day: false, gender_specific: true, applicable_gender: 'Male', status: true },
-		'cuid-lwp': { cuid: 'p-lwp', leave_type_cuid: 'cuid-lwp', annual_limit: 365, max_per_month: null, carry_forward_allowed: false, min_service_days: 0, allow_half_day: true, gender_specific: false, status: true }
+		'cuid-lwp': { cuid: 'p-lwp', leave_type_cuid: 'cuid-lwp', annual_limit: 365, max_per_month: null, carry_forward_allowed: false, min_service_days: 0, allow_half_day: true, gender_specific: false, status: true },
+		'cuid-lop': { cuid: 'p-lop', leave_type_cuid: 'cuid-lop', annual_limit: 365, max_per_month: null, carry_forward_allowed: false, min_service_days: 0, allow_half_day: false, gender_specific: false, status: true }
 	};
 
 	beforeEach(() => {
@@ -103,14 +109,15 @@ describe('Leave Service Unit Tests', () => {
 		vi.mocked(db.employment.findFirst).mockResolvedValue(mockEmployment as any);
 		vi.mocked(db.employee.findUnique).mockResolvedValue(mockEmployee as any);
 		vi.mocked(db.employee.findFirst).mockResolvedValue(mockEmployee as any);
-		vi.mocked(db.$transaction).mockImplementation(async (cb) => cb(db));
+		vi.mocked(db.$transaction).mockImplementation(async (cb: (tx: typeof db) => Promise<unknown>) => cb(db));
 
 		// Default DAO mocks
 		vi.mocked(leaveDao.listLeaveTypes).mockResolvedValue(mockLeaveTypes as any);
-		vi.mocked(leaveDao.getLeaveTypeByCuid).mockImplementation(async (cuid) => {
+		vi.mocked(leaveDao.listLeavePolicies).mockResolvedValue(Object.values(mockPolicies) as any);
+		vi.mocked(leaveDao.getLeaveTypeByCuid).mockImplementation(async (cuid: string) => {
 			return mockLeaveTypes.find(t => t.cuid === cuid) || null;
 		});
-		vi.mocked(leaveDao.getLeavePolicyByLeaveType).mockImplementation(async (cuid) => {
+		vi.mocked(leaveDao.getLeavePolicyByLeaveType).mockImplementation(async (cuid: string) => {
 			return mockPolicies[cuid as keyof typeof mockPolicies] || null;
 		});
 		vi.mocked(leaveDao.getLeavePolicyEmploymentTypes).mockResolvedValue([
@@ -118,7 +125,8 @@ describe('Leave Service Unit Tests', () => {
 			{ leave_policy_cuid: 'p-sl', employment_type_cuid: 'perm-type-cuid' },
 			{ leave_policy_cuid: 'p-el', employment_type_cuid: 'perm-type-cuid' },
 			{ leave_policy_cuid: 'p-ml', employment_type_cuid: 'perm-type-cuid' },
-			{ leave_policy_cuid: 'p-pl', employment_type_cuid: 'perm-type-cuid' }
+			{ leave_policy_cuid: 'p-pl', employment_type_cuid: 'perm-type-cuid' },
+			{ leave_policy_cuid: 'p-lop', employment_type_cuid: 'perm-type-cuid' }
 		] as any);
 		vi.mocked(leaveDao.getOverlappingRequests).mockResolvedValue([]);
 		vi.mocked(leaveDao.getLeaveRequests).mockResolvedValue([]);
@@ -175,7 +183,7 @@ describe('Leave Service Unit Tests', () => {
 				remaining_days: 1.0,
 				used_days: 0.0
 			};
-			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid, typeCuid) => {
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid: string, typeCuid: string) => {
 				if (typeCuid === 'cuid-cl') return mockBalance as any;
 				return null;
 			});
@@ -196,7 +204,7 @@ describe('Leave Service Unit Tests', () => {
 	describe('applyLeave Validations', () => {
 		beforeEach(() => {
 			// Mock default balance return
-			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid, typeCuid) => {
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid: string, typeCuid: string) => {
 				if (typeCuid === 'cuid-cl') {
 					return { cuid: 'bal-cl', remaining_days: 5.0 } as any;
 				}
@@ -287,7 +295,7 @@ describe('Leave Service Unit Tests', () => {
 					document_required_after_days: 3
 				}
 			};
-			vi.mocked(leaveDao.getLeavePolicyByLeaveType).mockImplementation(async (cuid) => {
+			vi.mocked(leaveDao.getLeavePolicyByLeaveType).mockImplementation(async (cuid: string) => {
 				return modifiedPolicies[cuid as keyof typeof modifiedPolicies] || null;
 			});
 
@@ -334,20 +342,26 @@ describe('Leave Service Unit Tests', () => {
 			expect(leaveDao.createLeaveRequest).toHaveBeenCalled();
 		});
 
-		it('should automatically split CL/SL request into LWP when primary balance is exceeded', async () => {
+		it('should reject Casual Leave (CL) request exceeding 2 days with a clear validation message', async () => {
+			await expect(leaveService.applyLeave('john@pieq.ai', {
+				leaveTypeCuid: 'cuid-cl',
+				startDate: '2026-06-15',
+				endDate: '2026-06-18', // 4 days request
+				isHalfDay: false
+			})).rejects.toThrow('Maximum 2 days can be applied in a single Casual Leave request. For longer leaves, please apply using Sick Leave (SL) or Earned Leave (EL) instead.');
+		});
+
+		it('should automatically split SL request into LOP when primary balance is exceeded (via applyLeave)', async () => {
 			// SL balance is 2 days, requesting 5 days (June 15 to June 19)
-			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid, typeCuid) => {
+			// The excess 3 days should automatically become LOP (not LWP)
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid: string, typeCuid: string) => {
 				if (typeCuid === 'cuid-sl') {
 					return { cuid: 'bal-sl', remaining_days: 2.0 } as any;
-				}
-				if (typeCuid === 'cuid-lwp') {
-					return { cuid: 'bal-lwp', remaining_days: 10.0 } as any;
 				}
 				return null;
 			});
 
-			// Mock db.leaveType.findUnique for LWP lookup inside split logic
-			vi.mocked(db.leaveType.findFirst).mockResolvedValue({ cuid: 'cuid-lwp', leave_code: 'LWP' } as any);
+			vi.mocked(leaveDao.createLeaveRequest).mockResolvedValue({ cuid: 'new-req-cuid' } as any);
 
 			await leaveService.applyLeave('john@pieq.ai', {
 				leaveTypeCuid: 'cuid-sl',
@@ -358,36 +372,13 @@ describe('Leave Service Unit Tests', () => {
 
 			expect(leaveDao.createLeaveRequest).toHaveBeenCalledWith(expect.objectContaining({
 				days_from_primary: 2.0,
-				days_from_lwp: 3.0
+				days_from_lop: 3.0
 			}));
-		});
-
-		it('should reject split when LWP balance is also insufficient', async () => {
-			// SL balance is 2 days, requesting 5 days (needs 3 LWP days)
-			// LWP balance has only 1 day left.
-			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid, typeCuid) => {
-				if (typeCuid === 'cuid-sl') {
-					return { cuid: 'bal-sl', remaining_days: 2.0 } as any;
-				}
-				if (typeCuid === 'cuid-lwp') {
-					return { cuid: 'bal-lwp', remaining_days: 1.0 } as any;
-				}
-				return null;
-			});
-
-			vi.mocked(db.leaveType.findFirst).mockResolvedValue({ cuid: 'cuid-lwp', leave_code: 'LWP' } as any);
-
-			await expect(leaveService.applyLeave('john@pieq.ai', {
-				leaveTypeCuid: 'cuid-sl',
-				startDate: '2026-06-15',
-				endDate: '2026-06-19',
-				isHalfDay: false
-			})).rejects.toThrow('Requested leave exceeds available balance. Split requires 3 LWP days, but you only have 1 LWP days left.');
 		});
 
 		it('should automatically split EL request into LWP when balance is exceeded', async () => {
 			// EL balance is 5 days, requesting 7 days (June 15 to June 23, excluding weekends = 7 days)
-			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid, typeCuid) => {
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid: string, typeCuid: string) => {
 				if (typeCuid === 'cuid-el') {
 					return { cuid: 'bal-el', remaining_days: 5.0 } as any;
 				}
@@ -721,7 +712,7 @@ describe('Leave Service Unit Tests', () => {
 				remaining_days: 8.0
 			};
 
-			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid, typeCuid, year) => {
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid: string, typeCuid: string, year?: number) => {
 				if (typeCuid === 'cuid-el' && year === 2025) return prevBalance as any;
 				return null;
 			});
@@ -758,7 +749,7 @@ describe('Leave Service Unit Tests', () => {
 				remaining_days: 18.0
 			};
 
-			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid, typeCuid, year) => {
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid: string, typeCuid: string, year?: number) => {
 				if (typeCuid === 'cuid-el' && year === 2025) return prevBalance as any;
 				return null;
 			});
@@ -788,7 +779,7 @@ describe('Leave Service Unit Tests', () => {
 				used_days: 4.0 // unusedAllocated = 8 -> cfFromAllocated = 6. unusedPreviousCarriedForward = 10. carried_forward_days = 16
 			};
 
-			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid, typeCuid, year) => {
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid: string, typeCuid: string, year?: number) => {
 				if (typeCuid === 'cuid-el' && year === 2025) return prevBalance as any;
 				return null;
 			});
@@ -830,7 +821,7 @@ describe('Leave Service Unit Tests', () => {
 				remaining_days: 18.0
 			};
 
-			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid, typeCuid, year) => {
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid: string, typeCuid: string, year?: number) => {
 				if (typeCuid === 'cuid-el') {
 					if (year === 2026) return currentBalance as any;
 					if (year === 2025) return prevBalance as any;
@@ -849,6 +840,248 @@ describe('Leave Service Unit Tests', () => {
 			expect(leaveDao.updateLeaveBalance).toHaveBeenCalledWith('bal-el-cuid', expect.objectContaining({
 				remaining_days: 22.0
 			}));
+		});
+	});
+
+	describe('Loss of Pay (LOP) Specific Logic', () => {
+		it('should automatically split CL request into LOP when primary balance is exceeded', async () => {
+			// CL balance is 1 day, requesting 2 days (June 15 to June 16)
+			// CL allows max 2 days per request; requesting exactly 2 with only 1 available triggers LOP split.
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid: string, typeCuid: string) => {
+				if (typeCuid === 'cuid-cl') {
+					return { cuid: 'bal-cl', remaining_days: 1.0 } as any;
+				}
+				return null;
+			});
+
+			vi.mocked(leaveDao.createLeaveRequest).mockResolvedValue({ cuid: 'new-req-cuid' } as any);
+
+			await leaveService.applyLeave('john@pieq.ai', {
+				leaveTypeCuid: 'cuid-cl',
+				startDate: '2026-06-15',
+				endDate: '2026-06-16',
+				isHalfDay: false
+			});
+
+			expect(leaveDao.createLeaveRequest).toHaveBeenCalledWith(expect.objectContaining({
+				days_from_primary: 1.0,
+				days_from_lop: 1.0
+			}));
+		});
+
+		it('should automatically split SL request into LOP when primary balance is exceeded', async () => {
+			// SL balance is 1 day, requesting 3 days (June 15 to June 17)
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid, typeCuid) => {
+				if (typeCuid === 'cuid-sl') {
+					return { cuid: 'bal-sl', remaining_days: 1.0 } as any;
+				}
+				return null;
+			});
+
+			vi.mocked(leaveDao.createLeaveRequest).mockResolvedValue({ cuid: 'new-req-cuid' } as any);
+
+			await leaveService.applyLeave('john@pieq.ai', {
+				leaveTypeCuid: 'cuid-sl',
+				startDate: '2026-06-15',
+				endDate: '2026-06-17',
+				isHalfDay: false
+			});
+
+			expect(leaveDao.createLeaveRequest).toHaveBeenCalledWith(expect.objectContaining({
+				days_from_primary: 1.0,
+				days_from_lop: 2.0
+			}));
+		});
+
+		it('should create a new LOP balance and increment used_days when LOP request is approved and balance does not exist', async () => {
+			const mockRequest = {
+				cuid: 'req-lop-123',
+				employee_cuid: 'emp-cuid',
+				leave_type_cuid: 'cuid-cl',
+				start_date: new Date('2026-06-15T00:00:00Z'),
+				end_date: new Date('2026-06-16T00:00:00Z'),
+				total_days: 2.0,
+				is_half_day: false,
+				request_status: 'pending',
+				days_from_primary: 0.0,
+				days_from_lwp: 0.0,
+				days_from_lop: 2.0
+			};
+
+			vi.mocked(db.leaveRequest.findUnique as any).mockResolvedValue(mockRequest);
+			vi.mocked(db.leaveType.findUnique as any).mockResolvedValue({ cuid: 'cuid-cl', leave_name: 'Casual Leave', leave_code: 'CL' });
+			vi.mocked(db.leaveType.findFirst as any).mockResolvedValue({ cuid: 'cuid-lop', leave_name: 'Loss of Pay', leave_code: 'LOP' });
+			
+			// Mock finding LOP balance returns null (does not exist yet)
+			vi.mocked(db.leaveBalance.findUnique as any).mockResolvedValue(null);
+
+			await leaveService.approveLeaveRequest('req-lop-123', 'admin-cuid');
+
+			// Check that leaveBalance.create was called for LOP
+			expect(db.leaveBalance.create).toHaveBeenCalledWith(expect.objectContaining({
+				data: expect.objectContaining({
+					leave_type_cuid: 'cuid-lop',
+					used_days: 2.0,
+					allocated_days: 0.0,
+					remaining_days: 0.0
+				})
+			}));
+		});
+
+		it('should update existing LOP balance used_days when LOP request is approved and balance already exists', async () => {
+			const mockRequest = {
+				cuid: 'req-lop-124',
+				employee_cuid: 'emp-cuid',
+				leave_type_cuid: 'cuid-cl',
+				start_date: new Date('2026-06-15T00:00:00Z'),
+				end_date: new Date('2026-06-16T00:00:00Z'),
+				total_days: 2.0,
+				is_half_day: false,
+				request_status: 'pending',
+				days_from_primary: 0.0,
+				days_from_lwp: 0.0,
+				days_from_lop: 2.0
+			};
+
+			const mockLopBalance = {
+				cuid: 'bal-lop-cuid',
+				employee_cuid: 'emp-cuid',
+				leave_type_cuid: 'cuid-lop',
+				year: 2026,
+				used_days: 1.0,
+				remaining_days: 0.0
+			};
+
+			vi.mocked(db.leaveRequest.findUnique as any).mockResolvedValue(mockRequest);
+			vi.mocked(db.leaveType.findUnique as any).mockResolvedValue({ cuid: 'cuid-cl', leave_name: 'Casual Leave', leave_code: 'CL' });
+			vi.mocked(db.leaveType.findFirst as any).mockResolvedValue({ cuid: 'cuid-lop', leave_name: 'Loss of Pay', leave_code: 'LOP' });
+			
+			// Mock finding LOP balance returns existing balance
+			vi.mocked(db.leaveBalance.findUnique as any).mockResolvedValue(mockLopBalance);
+
+			await leaveService.approveLeaveRequest('req-lop-124', 'admin-cuid');
+
+			// Check that leaveBalance.update was called for LOP
+			expect(db.leaveBalance.update).toHaveBeenCalledWith(expect.objectContaining({
+				where: { cuid: 'bal-lop-cuid' },
+				data: {
+					used_days: { increment: 2.0 }
+				}
+			}));
+		});
+
+		it('should return the updated LOP balance via getEmployeeLeaveDetails after approval', async () => {
+			const mockLopBalance = {
+				cuid: 'bal-lop-cuid',
+				employee_cuid: 'emp-cuid',
+				leave_type_cuid: 'cuid-lop',
+				year: 2026,
+				allocated_days: 0.0,
+				used_days: 2.0,
+				remaining_days: 0.0,
+				carried_forward_days: 0.0
+			};
+
+			vi.mocked(leaveDao.getLeaveBalances).mockResolvedValue([mockLopBalance] as any);
+			vi.mocked(leaveDao.getLeaveRequests).mockResolvedValue([]);
+			vi.mocked(leaveDao.getSubordinates).mockResolvedValue([]);
+
+			const result = await leaveService.getEmployeeLeaveDetails('john@pieq.ai', 2026);
+
+			const lopBal = result.balances.find(b => b.leave_code === 'LOP');
+			expect(lopBal).toBeDefined();
+			expect(lopBal?.used_days).toBe(2.0);
+			expect(lopBal?.remaining_days).toBe(0.0);
+		});
+
+		it('should return the updated LWP balance via getEmployeeLeaveDetails after approval', async () => {
+			const mockLwpBalance = {
+				cuid: 'bal-lwp-cuid',
+				employee_cuid: 'emp-cuid',
+				leave_type_cuid: 'cuid-lwp',
+				year: 2026,
+				allocated_days: 365.0,
+				used_days: 3.0,
+				remaining_days: 362.0,
+				carried_forward_days: 0.0
+			};
+
+			vi.mocked(leaveDao.getLeaveBalances).mockResolvedValue([mockLwpBalance] as any);
+			vi.mocked(leaveDao.getLeaveRequests).mockResolvedValue([]);
+			vi.mocked(leaveDao.getSubordinates).mockResolvedValue([]);
+
+			const result = await leaveService.getEmployeeLeaveDetails('john@pieq.ai', 2026);
+
+			const lwpBal = result.balances.find(b => b.leave_code === 'LWP');
+			expect(lwpBal).toBeDefined();
+			expect(lwpBal?.used_days).toBe(3.0);
+			expect(lwpBal?.remaining_days).toBe(362.0);
+		});
+
+		it('should preserve and return days_from_lop values in getPendingApprovalsForManager', async () => {
+			const mockSubordinate = {
+				employee_cuid: 'sub-cuid',
+				employee_code: 'SUB001',
+				first_name: 'Subordinate',
+				last_name: 'User'
+			};
+
+			const mockPendingRequest = {
+				cuid: 'req-pending-lop',
+				employee_cuid: 'sub-cuid',
+				leave_type_cuid: 'cuid-sl',
+				start_date: new Date('2026-06-15T00:00:00Z'),
+				end_date: new Date('2026-06-17T00:00:00Z'),
+				total_days: 3.0,
+				is_half_day: false,
+				half_day_session: null,
+				reason: 'Medical rest',
+				document_url: null,
+				request_status: 'pending',
+				days_from_primary: 1.0,
+				days_from_lwp: 0.0,
+				days_from_lop: 2.0,
+				created_at: new Date('2026-06-14T10:00:00Z')
+			};
+
+			vi.mocked(leaveDao.getSubordinates).mockResolvedValue([mockSubordinate] as any);
+			vi.mocked(db.leaveRequest.findMany as any).mockResolvedValue([mockPendingRequest]);
+			vi.mocked(db.employee.findMany as any).mockResolvedValue([
+				{ cuid: 'sub-cuid', emp_code: 'SUB001', first_name: 'Subordinate', last_name: 'User' }
+			]);
+
+			const result = await leaveService.getPendingApprovalsForManager('manager-cuid');
+
+			expect(result.length).toBe(1);
+			expect(result[0].days_from_lop).toBe(2.0);
+			expect(result[0].days_from_primary).toBe(1.0);
+		});
+
+		it('should ensure dashboard statistics receive the correct LOP used_days value after approval', async () => {
+			// Simulates dashboard data load for employee details
+			const mockLopBalance = {
+				cuid: 'bal-lop-cuid',
+				employee_cuid: 'emp-cuid',
+				leave_type_cuid: 'cuid-lop',
+				year: 2026,
+				allocated_days: 0.0,
+				used_days: 5.0, // After LOP request approved
+				remaining_days: 0.0,
+				carried_forward_days: 0.0
+			};
+
+			vi.mocked(leaveDao.getLeaveBalances).mockResolvedValue([mockLopBalance] as any);
+			vi.mocked(leaveDao.getLeaveRequests).mockResolvedValue([]);
+			vi.mocked(leaveDao.getSubordinates).mockResolvedValue([]);
+
+			const dashboardDetails = await leaveService.getEmployeeLeaveDetails('john@pieq.ai', 2026);
+
+			// This replicates the frontend dashboard statistics finding LOP used_days:
+			const lopStat = dashboardDetails.balances.find(b => b.leave_code === 'LOP');
+			expect(lopStat).toBeDefined();
+			expect(lopStat?.used_days).toBe(5.0);
+			expect(lopStat?.allocated_days).toBe(0.0);
+			expect(lopStat?.remaining_days).toBe(0.0);
 		});
 	});
 });

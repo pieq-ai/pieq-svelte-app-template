@@ -65,6 +65,7 @@
 		request_status: string;
 		days_from_primary: number;
 		days_from_lwp: number;
+		days_from_lop: number;
 		created_at: string | Date;
 	}
 
@@ -417,6 +418,13 @@
 			}
 		}
 
+		// CL Validations
+		if (selectedLeaveType?.leave_code === 'CL') {
+			if (computedDuration > 2) {
+				errors.leaveTypeCuid = 'Maximum 2 days can be applied in a single Casual Leave request. For longer leaves, please apply using Sick Leave (SL) or Earned Leave (EL) instead.';
+			}
+		}
+
 		formValidationErrors = errors;
 		return Object.keys(errors).length === 0;
 	}
@@ -710,8 +718,8 @@
 	{:else if activeTab === 'dashboard'}
 		<!-- View A: Dashboard view -->
 		<div class="space-y-6">
-			<!-- Summary Cards for SL, CL, EL -->
-			<div class="grid gap-4 grid-cols-1 md:grid-cols-3">
+			<!-- Summary Cards for SL, CL, EL & LWP Stats -->
+			<div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
 				{#each balances.filter(b => ['EL', 'CL', 'SL'].includes(b.leave_code)) as b (b.cuid)}
 					{@const theme = cardThemes[b.leave_code as keyof typeof cardThemes] || cardThemes.EL}
 					<Card class="border {theme.border} {theme.bg} shadow-xs transition-transform hover:-translate-y-0.5">
@@ -729,13 +737,31 @@
 						</CardContent>
 					</Card>
 				{/each}
+
+				<!-- Leave Without Pay (LWP) Stats Card -->
+				<Card class="border border-amber-200 bg-amber-50/50 shadow-xs transition-transform hover:-translate-y-0.5">
+					<CardHeader class="pb-1 pt-4 px-4 flex flex-row items-center justify-between">
+						<span class="text-xs font-bold uppercase tracking-wider text-amber-700">Leave Without Pay (LWP)</span>
+						<Badge variant="outline" class="font-bold text-[10px] bg-white text-amber-700 border-amber-200">LWP</Badge>
+					</CardHeader>
+					<CardContent class="pb-4 pt-1 px-4">
+						<div class="text-3xl font-extrabold tracking-tight tabular-nums text-amber-700">
+							{(balances.find(b => b.leave_code === 'LWP')?.used_days ?? 0).toFixed(1)}
+						</div>
+						<p class="text-[10px] text-muted-foreground font-semibold mt-1">Days Taken</p>
+						<div class="border-t border-amber-200/50 mt-2.5 pt-2 flex justify-between text-[10px] text-muted-foreground">
+							<span>Quota: <strong>0.0</strong></span>
+							<span>Remaining: <strong>0.0</strong></span>
+						</div>
+					</CardContent>
+				</Card>
 			</div>
 
 			<!-- Leave Balance Table (EL, CL, SL only) -->
 			<Card class="shadow-sm border border-border/80">
 				<CardHeader class="pb-3 border-b border-border/50 bg-muted/20">
 					<CardTitle class="text-lg font-bold text-foreground">Leave Balance Summary</CardTitle>
-					<CardDescription class="text-xs">Your available leave quotas for the current year. (Maternity Leave, Paternity Leave, and Leave Without Pay balances are excluded from this summary)</CardDescription>
+					<CardDescription class="text-xs">Your available leave quotas for the current year. (Maternity Leave, Paternity Leave, Leave Without Pay, and Loss of Pay balances are excluded from this summary)</CardDescription>
 				</CardHeader>
 				<CardContent class="pt-4 px-4 pb-4">
 					<div class="rounded-md border border-border overflow-hidden bg-background">
@@ -861,9 +887,14 @@
 								<TableRow class="hover:bg-muted/10 transition-colors">
 									<TableCell class="text-xs font-semibold py-3.5">
 										<div class="font-medium">{req.leave_name}</div>
-										{#if req.days_from_lwp > 0}
+										{#if req.leave_code !== 'LWP' && req.days_from_lwp > 0}
 											<span class="text-[9px] text-orange-600 bg-orange-50 border border-orange-200 rounded px-1 py-0.5 inline-block mt-0.5">
 												Split: {req.days_from_primary} Type / {req.days_from_lwp} LWP
+											</span>
+										{/if}
+										{#if req.leave_code !== 'LOP' && req.days_from_lop > 0}
+											<span class="text-[9px] text-red-600 bg-red-50 border border-red-200 rounded px-1 py-0.5 inline-block mt-0.5 font-semibold">
+												Split: {req.days_from_primary} Type / {req.days_from_lop} LOP
 											</span>
 										{/if}
 									</TableCell>
@@ -1050,9 +1081,14 @@
 									</TableCell>
 									<TableCell class="text-xs">
 										<div class="font-medium">{app.leave_name}</div>
-										{#if app.days_from_lwp > 0}
+										{#if app.leave_code !== 'LWP' && app.days_from_lwp > 0}
 											<span class="text-[9px] text-orange-600 bg-orange-50 border border-orange-200 rounded px-1 py-0.5 inline-block mt-0.5">
 												Split: {app.days_from_primary} Type / {app.days_from_lwp} LWP
+											</span>
+										{/if}
+										{#if app.leave_code !== 'LOP' && app.days_from_lop > 0}
+											<span class="text-[9px] text-red-600 bg-red-50 border border-red-200 rounded px-1 py-0.5 inline-block mt-0.5 font-semibold">
+												Split: {app.days_from_primary} Type / {app.days_from_lop} LOP
 											</span>
 										{/if}
 									</TableCell>
@@ -1152,7 +1188,7 @@
 					disabled={isSubmitting}
 				>
 					<option value="">Select Leave Type...</option>
-					{#each leaveTypes as type (type.cuid)}
+					{#each leaveTypes.filter(t => t.leave_code !== 'LOP') as type (type.cuid)}
 						<option value={type.cuid}>
 							{type.leave_name} ({type.leave_code})
 						</option>
@@ -1368,6 +1404,8 @@
 				{@const isExceeded = selectedLeaveType?.leave_code !== 'LWP' && computedDuration > remaining}
 				{@const lopDays = isExceeded ? computedDuration - remaining : 0}
 				{@const primaryDays = isExceeded ? remaining : computedDuration}
+				{@const isCLSL = ['CL', 'SL'].includes(selectedLeaveType?.leave_code || '')}
+				{@const splitType = isCLSL ? 'Loss of Pay (LOP)' : 'Leave Without Pay (LWP)'}
 
 				<div class="rounded-lg border border-border bg-accent/20 p-3.5 space-y-2.5">
 					<p class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Leave Impact Preview</p>
@@ -1375,7 +1413,7 @@
 						<div class="text-xs text-[#F45310] font-semibold space-y-1.5">
 							<p class="flex items-start gap-1.5">
 								<AlertCircleIcon class="size-4 shrink-0 text-[#F45310]" />
-								<span>You have {remaining.toFixed(1)} available leave days. This request exceeds your balance by {lopDays.toFixed(1)} day(s) and will result in Loss of Pay (LOP).</span>
+								<span>You have {remaining.toFixed(1)} available leave days. This request exceeds your balance by {lopDays.toFixed(1)} day(s) and will result in {splitType} for the excess days.</span>
 							</p>
 						</div>
 					{:else}
@@ -1469,10 +1507,17 @@
 						{/if}
 					</div>
 
-					{#if selectedApproval.days_from_lwp > 0}
+					{#if selectedApproval.leave_code !== 'LWP' && selectedApproval.days_from_lwp > 0}
 						<div class="text-muted-foreground">Deduction Breakdown:</div>
 						<div class="font-semibold text-right text-xs">
 							{selectedApproval.days_from_primary} CL/SL | {selectedApproval.days_from_lwp} LWP
+						</div>
+					{/if}
+
+					{#if selectedApproval.leave_code !== 'LOP' && selectedApproval.days_from_lop > 0}
+						<div class="text-muted-foreground">Deduction Breakdown:</div>
+						<div class="font-semibold text-right text-xs text-red-600">
+							{selectedApproval.days_from_primary} CL/SL | {selectedApproval.days_from_lop} LOP
 						</div>
 					{/if}
 

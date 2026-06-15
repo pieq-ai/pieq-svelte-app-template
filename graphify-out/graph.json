@@ -3034,7 +3034,7 @@
       "label": "updateLeaveRequest()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L142",
+      "source_location": "L144",
       "id": "dao_leave_dao_updateleaverequest",
       "community": 37,
       "norm_label": "updateleaverequest()"
@@ -3043,7 +3043,7 @@
       "label": "getOverlappingRequests()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L160",
+      "source_location": "L162",
       "id": "dao_leave_dao_getoverlappingrequests",
       "community": 37,
       "norm_label": "getoverlappingrequests()"
@@ -3052,7 +3052,7 @@
       "label": "upsertAttendanceRecord()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L171",
+      "source_location": "L173",
       "id": "dao_leave_dao_upsertattendancerecord",
       "community": 37,
       "norm_label": "upsertattendancerecord()"
@@ -3061,7 +3061,7 @@
       "label": "getSubordinates()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L201",
+      "source_location": "L203",
       "id": "dao_leave_dao_getsubordinates",
       "community": 37,
       "norm_label": "getsubordinates()"
@@ -4222,7 +4222,7 @@
       "label": "getEmployeeLeaveDetails()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L243",
+      "source_location": "L240",
       "id": "services_leave_service_getemployeeleavedetails",
       "community": 54,
       "norm_label": "getemployeeleavedetails()"
@@ -4231,7 +4231,7 @@
       "label": "getPendingApprovalsForManager()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L340",
+      "source_location": "L338",
       "id": "services_leave_service_getpendingapprovalsformanager",
       "community": 54,
       "norm_label": "getpendingapprovalsformanager()"
@@ -4240,7 +4240,7 @@
       "label": "applyLeave()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L382",
+      "source_location": "L381",
       "id": "services_leave_service_applyleave",
       "community": 54,
       "norm_label": "applyleave()"
@@ -4249,7 +4249,7 @@
       "label": "withdrawLeave()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L692",
+      "source_location": "L696",
       "id": "services_leave_service_withdrawleave",
       "community": 54,
       "norm_label": "withdrawleave()"
@@ -4258,7 +4258,7 @@
       "label": "approveLeaveRequest()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L722",
+      "source_location": "L726",
       "id": "services_leave_service_approveleaverequest",
       "community": 54,
       "norm_label": "approveleaverequest()"
@@ -4267,7 +4267,7 @@
       "label": "getLeaveRequestByCuid()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L932",
+      "source_location": "L973",
       "id": "services_leave_service_getleaverequestbycuid",
       "community": 54,
       "norm_label": "getleaverequestbycuid()"
@@ -4276,7 +4276,7 @@
       "label": "rejectLeaveRequest()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L936",
+      "source_location": "L977",
       "id": "services_leave_service_rejectleaverequest",
       "community": 54,
       "norm_label": "rejectleaverequest()"
@@ -28008,5 +28008,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "5cbe159a4914d3d0e8ac50d28296b70e4c4b54ce"
+  "built_at_commit": "c218d80d93f14017395590307aaf2f2401792229"
 }
