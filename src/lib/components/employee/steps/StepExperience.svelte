@@ -110,7 +110,7 @@
 					<TrashIcon class="size-4" />
 				</Button>
 			{/if}
-			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
 				<div class="space-y-2">
 					<Label>Company Name <span class="text-destructive">*</span></Label>
 					<Input bind:value={exp.company_name} placeholder="Company Name" class={(isTouched && validateRequired(exp.company_name)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
@@ -144,6 +144,9 @@
 		</Button>
 		<div class="space-x-2">
 			{#if mode !== 'view'}
+				<Button variant="outline" onclick={() => onNext()} disabled={isSubmitting}>
+					Next
+				</Button>
 				<Button variant="secondary" onclick={() => save(true)} disabled={isSubmitting}>
 					Save & Exit
 				</Button>

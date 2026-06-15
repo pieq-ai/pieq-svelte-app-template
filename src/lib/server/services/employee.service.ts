@@ -192,10 +192,11 @@ export async function checkAndSetProfileCompletionStatus(employee_cuid: string) 
             skills.length > 0 &&
             languages.length > 0;
 
-        const newStatus = isCompleted ? 'completed' : 'pending';
-
-        if (emp.profile_completion_status !== newStatus) {
-            await employeeDao.update(employee_cuid, { profile_completion_status: newStatus });
+        // We only automatically demote to pending if the profile is no longer complete.
+        // We do NOT automatically promote to completed on intermediate saves.
+        // Promotion to completed only occurs when explicitly submitted by the user.
+        if (emp.profile_completion_status === 'completed' && !isCompleted) {
+            await employeeDao.update(employee_cuid, { profile_completion_status: 'pending' });
         }
     } catch (error) {
         console.error('Failed to calculate profile completion status', error);

@@ -1,10 +1,15 @@
-fix: implement employee document upload storage and preview workflows
+feat(employee): draft-based multi-step wizard navigation and validation summary
 
-This commit fixes the document upload persistence issue in the Employee Document step and introduces a document preview/download workflow.
+- **Free Step Navigation**:
+  - Removed navigation blocks in `EmployeeWizard.svelte` to allow clicking any header step directly in Create and Edit modes.
+  - Added non-validating `Next` buttons on all intermediate steps (1 to 8) to allow navigating without saving or triggering validations.
+  - Set `Previous` button on step 1 to be disabled.
 
-- **DAO Layer**: Added `findByCuid` in `document.dao.ts` to query specific documents by CUID.
-- **Service Layer**: Added `getDocumentByCuid` in `document.service.ts` to fetch binary documents.
-- **API Endpoint**: Created `src/routes/api/employees/[cuid]/documents/[docCuid]/+server.ts` to serve stored binary document data as a Response with correct Content-Type and inline Content-Disposition.
-- **UI Component**: Updated `StepDocuments.svelte` to read file inputs using `FileReader` as base64 and bind `file` state for previews. Added a preview Eye icon for PDF, image, and downloadable files. Tracked file loading to disable navigation buttons during reads.
-- **Testing**: Bootstrapped unit tests in `tests/unit/document.service.test.ts` for getDocumentByCuid and replaceDocuments.
-- **Code Graph**: Updated AST knowledge graph using graphify.
+- **Selective Validations & Draft Mode**:
+  - Validations (red borders/messages) are only shown when explicitly saving (Save & Next, Save & Exit, or Submit/Complete).
+  - Modified `checkAndSetProfileCompletionStatus` in `employee.service.ts` to only automatically demote completed profiles to pending if they become incomplete, preventing automatic promotion on intermediate saves.
+
+- **Unified Validation & Submit Flow**:
+  - Created `src/lib/utils/employeeValidationHelper.ts` to implement frontend validations for all 9 sections.
+  - Updated `StepBankDetails.svelte` (Step 9) to add a `Save & Exit` button, saving step data as a draft (`pending`).
+  - Implemented the `Submit / Complete` action on step 9, which fetches all other sections' data, validates everything, and updates the profile status to `completed` if valid. If invalid, displays a `CrudModal` validation summary modal, letting users return to fix errors or save as a draft and exit.

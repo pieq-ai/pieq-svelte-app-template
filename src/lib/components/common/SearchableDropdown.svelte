@@ -103,8 +103,14 @@
 	}
 </script>
 
-<div class="space-y-2 flex flex-col">
-	<Label>{label}</Label>
+<div class="space-y-2">
+	<Label>
+		{#if label.endsWith('*')}
+			{label.slice(0, -1).trim()} <span class="text-destructive">*</span>
+		{:else}
+			{label}
+		{/if}
+	</Label>
 	<div bind:clientWidth={triggerWidth} class="w-full relative">
 		<Popover.Root bind:open>
 			<Popover.Trigger class="w-full">

@@ -249,6 +249,9 @@
 		</Button>
 		<div class="space-x-2">
 			{#if mode !== 'view'}
+				<Button variant="outline" onclick={() => onNext()} disabled={isSubmitting}>
+					Next
+				</Button>
 				<Button variant="secondary" onclick={() => save(true)} disabled={isSubmitting}>
 					Save & Exit
 				</Button>

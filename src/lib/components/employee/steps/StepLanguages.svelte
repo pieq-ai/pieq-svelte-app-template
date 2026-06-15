@@ -94,13 +94,13 @@
 
 	<div class="space-y-4">
 		{#each languages as lang, index (index)}
-			<div class="flex flex-col gap-4 p-4 border border-border rounded-lg relative">
+			<div class="flex flex-col gap-6 p-4 border border-border rounded-lg relative">
 				{#if mode !== 'view'}
 					<Button variant="ghost" size="icon-sm" class="absolute right-2 top-2 text-destructive hover:bg-destructive/10" onclick={() => languages = languages.filter((_, i) => i !== index)}>
 						<TrashIcon class="size-4" />
 					</Button>
 				{/if}
-				<div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center w-full mt-4 sm:mt-0">
+				<div class="flex flex-col sm:flex-row gap-6 items-start sm:items-center w-full mt-4 sm:mt-0">
 					<div class="flex-1 w-full sm:pr-8">
 						<MasterDataDropdown 
 							master="languages" 
@@ -141,6 +141,9 @@
 		</Button>
 		<div class="space-x-2">
 			{#if mode !== 'view'}
+				<Button variant="outline" onclick={() => onNext()} disabled={isSubmitting}>
+					Next
+				</Button>
 				<Button variant="secondary" onclick={() => save(true)} disabled={isSubmitting}>
 					Save & Exit
 				</Button>

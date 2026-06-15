@@ -1,15 +1,28 @@
 <script lang="ts">
-	import { Label, Input, Button } from '$lib/components';
+	import { Label, Input, Button, CrudModal } from '$lib/components';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
-
+	import {
+		validatePersonal,
+		validateEmployment,
+		validateAddresses,
+		validateEducations,
+		validateExperiences,
+		validateSkills,
+		validateLanguages,
+		validateDocuments,
+		validateBankDetails
+	} from '$lib/utils/employeeValidationHelper';
 
 	let { mode, cuid, onPrev } = $props<{ mode: 'create' | 'edit' | 'view', cuid: string | null, onPrev: () => void }>();
 
 	let isSubmitting = $state(false);
 	let isTouched = $state(false);
+	let isValidating = $state(false);
+	let showValidationModal = $state(false);
+	let validationErrors = $state<{ section: string; errors: string[] }[]>([]);
 
 	let bankDetails = $state<{ account_holder_name: string, account_number: string, bank_name: string, branch_name: string, ifsc_code: string, is_primary: boolean }[]>([]);
 
@@ -53,10 +66,10 @@
 		)
 	);
 
-	async function save() {
+	async function save(shouldExit: boolean = false) {
 		isTouched = true;
 		if (hasErrors) {
-			toast.error('Please correct the validation errors before saving.');
+			toast.error('Please correct the validation errors in Bank Details before saving.');
 			return;
 		}
 		if (!cuid) return;
@@ -73,12 +86,127 @@
 				throw new Error(body.error || 'Failed to save bank details');
 			}
 
-			toast.success(mode === 'create' ? 'Employee created successfully!' : 'Employee updated successfully!');
+			if (shouldExit) {
+				toast.success('Draft saved successfully!');
+				window.location.href = '/employees';
+			}
+		} catch (e: unknown) {
+			toast.error((e as Error).message);
+			throw e;
+		} finally {
+			isSubmitting = false;
+		}
+	}
+
+	async function handleSubmit() {
+		isTouched = true;
+		if (hasErrors) {
+			toast.error('Please correct the validation errors in Bank Details before submitting.');
+			return;
+		}
+		if (!cuid) return;
+
+		try {
+			isValidating = true;
+			// 1. Fetch data for sections 1-8
+			const [
+				resPersonal,
+				resEmployment,
+				resAddresses,
+				resEducations,
+				resExperiences,
+				resSkills,
+				resLanguages,
+				resDocuments
+			] = await Promise.all([
+				fetch(`/api/employees/${cuid}`),
+				fetch(`/api/employees/${cuid}/employment`),
+				fetch(`/api/employees/${cuid}/addresses`),
+				fetch(`/api/employees/${cuid}/educations`),
+				fetch(`/api/employees/${cuid}/experiences`),
+				fetch(`/api/employees/${cuid}/skills`),
+				fetch(`/api/employees/${cuid}/languages`),
+				fetch(`/api/employees/${cuid}/documents`)
+			]);
+
+			const personalData = resPersonal.ok ? (await resPersonal.json()).data : {};
+			const employmentData = resEmployment.ok ? (await resEmployment.json()).data : {};
+			const addressesData = resAddresses.ok ? (await resAddresses.json()).data : [];
+			const educationsData = resEducations.ok ? (await resEducations.json()).data : [];
+			const experiencesData = resExperiences.ok ? (await resExperiences.json()).data : [];
+			const skillsData = resSkills.ok ? (await resSkills.json()).data : [];
+			const languagesData = resLanguages.ok ? (await resLanguages.json()).data : [];
+			const documentsData = resDocuments.ok ? (await resDocuments.json()).data : [];
+
+			// 2. Validate all sections
+			const errorsList: { section: string; errors: string[] }[] = [];
+
+			const errPersonal = validatePersonal(personalData || {});
+			if (errPersonal.length > 0) errorsList.push({ section: 'Personal Details', errors: errPersonal });
+
+			const errEmployment = validateEmployment(employmentData || {});
+			if (errEmployment.length > 0) errorsList.push({ section: 'Employment Details', errors: errEmployment });
+
+			const errAddresses = validateAddresses(addressesData || []);
+			if (errAddresses.length > 0) errorsList.push({ section: 'Address Details', errors: errAddresses });
+
+			const errEducations = validateEducations(educationsData || []);
+			if (errEducations.length > 0) errorsList.push({ section: 'Education Details', errors: errEducations });
+
+			const errExperiences = validateExperiences(experiencesData || []);
+			if (errExperiences.length > 0) errorsList.push({ section: 'Experience Details', errors: errExperiences });
+
+			const errSkills = validateSkills(skillsData || []);
+			if (errSkills.length > 0) errorsList.push({ section: 'Skills Details', errors: errSkills });
+
+			const errLanguages = validateLanguages(languagesData || []);
+			if (errLanguages.length > 0) errorsList.push({ section: 'Languages Details', errors: errLanguages });
+
+			const errDocuments = validateDocuments(documentsData || []);
+			if (errDocuments.length > 0) errorsList.push({ section: 'Documents Details', errors: errDocuments });
+
+			const errBankDetails = validateBankDetails(bankDetails || []);
+			if (errBankDetails.length > 0) errorsList.push({ section: 'Bank Details', errors: errBankDetails });
+
+			if (errorsList.length > 0) {
+				validationErrors = errorsList;
+				showValidationModal = true;
+				return;
+			}
+
+			// 3. If everything is valid:
+			// Save Step 9
+			await save(false);
+
+			// Complete profile_completion_status to completed
+			const resComplete = await fetch(`/api/employees/${cuid}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ profile_completion_status: 'completed' })
+			});
+
+			if (!resComplete.ok) {
+				const body = await resComplete.json();
+				throw new Error(body.error || 'Failed to complete employee profile status');
+			}
+
+			toast.success('Employee profile completed successfully!');
 			window.location.href = '/employees';
+
 		} catch (e: unknown) {
 			toast.error((e as Error).message);
 		} finally {
-			isSubmitting = false;
+			isValidating = false;
+		}
+	}
+
+	async function saveDraftAndExit() {
+		try {
+			await save(false);
+			toast.success('Progress saved as draft.');
+			window.location.href = '/employees';
+		} catch {
+			// error already toasted in save()
 		}
 	}
 </script>
@@ -104,7 +232,7 @@
 						<TrashIcon class="size-4" />
 					</Button>
 				{/if}
-				<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+				<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
 					<div class="space-y-2">
 						<Label>Bank Name <span class="text-destructive">*</span></Label>
 						<Input bind:value={bank.bank_name} placeholder="e.g. Chase Bank" class={(isTouched && validateRequired(bank.bank_name)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
@@ -138,13 +266,16 @@
 	</div>
 
 	<div class="flex items-center justify-between pt-6 border-t border-border">
-		<Button variant="outline" onclick={onPrev} disabled={isSubmitting}>
+		<Button variant="outline" onclick={onPrev} disabled={isSubmitting || isValidating}>
 			Previous
 		</Button>
 		<div class="space-x-2">
 			{#if mode !== 'view'}
-				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save()} disabled={isSubmitting}>
-					{isSubmitting ? 'Saving...' : 'Submit / Complete'}
+				<Button variant="secondary" onclick={() => save(true)} disabled={isSubmitting || isValidating}>
+					Save & Exit
+				</Button>
+				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={handleSubmit} disabled={isSubmitting || isValidating}>
+					{isSubmitting || isValidating ? 'Submitting...' : 'Submit / Complete'}
 				</Button>
 			{:else}
 				<Button onclick={async () => window.location.href = '/employees'}>
@@ -154,3 +285,29 @@
 		</div>
 	</div>
 </div>
+
+{#if showValidationModal}
+	<CrudModal open={showValidationModal} title="Incomplete Employee Profile" onClose={() => showValidationModal = false}>
+		<div class="space-y-4">
+			<p class="text-sm text-muted-foreground">The profile cannot be marked as completed because some mandatory details are missing. You can return to the form to complete them, or save your progress as a draft and exit.</p>
+			
+			<div class="space-y-3 max-h-[40vh] overflow-y-auto border border-border rounded-lg p-4 bg-muted/20">
+				{#each validationErrors as sectionError (sectionError.section)}
+					<div class="space-y-1">
+						<h4 class="text-sm font-semibold text-foreground">{sectionError.section}</h4>
+						<ul class="list-disc pl-5 text-xs text-destructive space-y-1">
+							{#each sectionError.errors as err (err)}
+								<li>{err}</li>
+							{/each}
+						</ul>
+					</div>
+				{/each}
+			</div>
+
+			<div class="flex justify-end gap-2 pt-2 border-t border-border">
+				<Button type="button" variant="outline" onclick={() => showValidationModal = false}>Return to Form</Button>
+				<Button type="button" variant="secondary" onclick={saveDraftAndExit} disabled={isSubmitting}>Save as Draft & Exit</Button>
+			</div>
+		</div>
+	</CrudModal>
+{/if}

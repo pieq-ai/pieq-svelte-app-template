@@ -94,7 +94,7 @@
 
 	<div class="space-y-4">
 		{#each skills as skill, index (index)}
-			<div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center rounded-lg border border-border p-4 relative">
+			<div class="flex flex-col sm:flex-row gap-6 items-start sm:items-center rounded-lg border border-border p-4 relative">
 				{#if mode !== 'view'}
 					<Button variant="ghost" size="icon-sm" class="absolute right-2 top-2 sm:static sm:order-last text-destructive hover:bg-destructive/10" onclick={() => skills = skills.filter((_, i) => i !== index)}>
 						<TrashIcon class="size-4" />
@@ -138,6 +138,9 @@
 		</Button>
 		<div class="space-x-2">
 			{#if mode !== 'view'}
+				<Button variant="outline" onclick={() => onNext()} disabled={isSubmitting}>
+					Next
+				</Button>
 				<Button variant="secondary" onclick={() => save(true)} disabled={isSubmitting}>
 					Save & Exit
 				</Button>

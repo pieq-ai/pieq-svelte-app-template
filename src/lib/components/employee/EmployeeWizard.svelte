@@ -94,8 +94,8 @@
 					<li class="flex items-center shrink-0">
 						<button 
 							type="button" 
-							class="flex items-center {isCompleted || isCurrent ? 'cursor-pointer hover:opacity-80' : 'cursor-default'}" 
-							onclick={() => { if (isCompleted || isCurrent) currentStep = stepNum; }}
+							class="flex items-center cursor-pointer hover:opacity-80" 
+							onclick={() => { currentStep = stepNum; }}
 						>
 							<span class="flex items-center justify-center size-8 rounded-full border border-border mr-2 shrink-0
 								{isCompleted ? 'bg-primary text-primary-foreground border-primary' : ''}

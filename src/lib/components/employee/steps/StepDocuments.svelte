@@ -164,7 +164,7 @@
 						</Button>
 					{/if}
 				</div>
-				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
 					<MasterDataDropdown 
 						master="document-types" 
 						label="Document Type *" 
@@ -216,6 +216,9 @@
 		</Button>
 		<div class="space-x-2">
 			{#if mode !== 'view'}
+				<Button variant="outline" onclick={() => onNext()} disabled={isSubmitting || readingCount > 0}>
+					Next
+				</Button>
 				<Button variant="secondary" onclick={() => save(true)} disabled={isSubmitting || readingCount > 0}>
 					Save & Exit
 				</Button>

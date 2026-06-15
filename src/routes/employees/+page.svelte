@@ -234,9 +234,10 @@
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
-										canEdit={false}
-										canView={true}
-										onView={() => goto(`/employees/${emp.cuid}`)}
+										canEdit={true}
+										canView={false}
+										editLabel="Edit Employee"
+										onEdit={() => goto(`/employees/${emp.cuid}?mode=edit`)}
 									/>
 								</TableCell>
 							</TableRow>
