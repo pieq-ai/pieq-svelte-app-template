@@ -14,12 +14,20 @@ export const load: PageServerLoad = async ({ params }) => {
 		throw error(404, 'Employee not found');
 	}
 
-	const employment = await db.employment.findFirst({
-		where: { employee_cuid: employeeCuid }
-	});
+	const [employment, roles, locations, employees] = await Promise.all([
+		db.employment.findFirst({
+			where: { employee_cuid: employeeCuid }
+		}),
+		db.role.findMany({ where: { status: true } }),
+		db.companyLocation.findMany({ where: { status: true } }),
+		db.employee.findMany({ select: { cuid: true, first_name: true, last_name: true } })
+	]);
 
 	return {
 		employee: serialize(employee),
-		employment: serialize(employment)
+		employment: serialize(employment),
+		roles: roles.map((r) => ({ cuid: r.cuid, name: r.name })),
+		locations: locations.map((l) => ({ cuid: l.cuid, name: l.name })),
+		employees: employees.map((e) => ({ cuid: e.cuid, first_name: e.first_name, last_name: e.last_name }))
 	};
 };

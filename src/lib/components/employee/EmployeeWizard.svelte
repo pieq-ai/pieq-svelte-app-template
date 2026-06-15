@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent } from '$lib/components';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
-	import CheckIcon from '@lucide/svelte/icons/check';
+
 	import StepPersonal from './steps/StepPersonal.svelte';
 	import StepEmployment from './steps/StepEmployment.svelte';
 	import StepAddress from './steps/StepAddress.svelte';
@@ -89,24 +89,14 @@
 			<ol bind:this={navElement} class="flex items-center w-full space-x-2 text-sm font-medium text-center text-muted-foreground overflow-x-auto pb-2 custom-scrollbar">
 				{#each steps as step, index (step)}
 					{@const stepNum = index + 1}
-					{@const isCompleted = stepNum < currentStep}
 					{@const isCurrent = stepNum === currentStep}
 					<li class="flex items-center shrink-0">
 						<button 
 							type="button" 
-							class="flex items-center cursor-pointer hover:opacity-80" 
+							class="flex items-center cursor-pointer hover:opacity-80 transition-colors" 
 							onclick={() => { currentStep = stepNum; }}
 						>
-							<span class="flex items-center justify-center size-8 rounded-full border border-border mr-2 shrink-0
-								{isCompleted ? 'bg-primary text-primary-foreground border-primary' : ''}
-								{isCurrent ? 'bg-primary/20 border-primary text-primary font-bold' : ''}">
-								{#if isCompleted}
-									<CheckIcon class="size-4" />
-								{:else}
-									{stepNum}
-								{/if}
-							</span>
-							<span class="mr-2 {isCurrent ? 'text-foreground font-semibold' : ''} {isCompleted ? 'text-foreground' : ''}">
+							<span class="text-sm {isCurrent ? 'text-primary font-semibold' : 'text-muted-foreground hover:text-foreground'}">
 								{step}
 							</span>
 						</button>

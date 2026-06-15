@@ -46,7 +46,7 @@ export const load: PageServerLoad = async () => {
 		return {
 			departments,
 			designations,
-			roles,
+			roles: roles.map((r) => ({ cuid: r.cuid, name: r.name })),
 			bloodGroups,
 			nationalities,
 			employmentTypes,
