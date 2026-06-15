@@ -13,8 +13,11 @@
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
+	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import CheckIcon from '@lucide/svelte/icons/check';
 	import { resolve } from '$app/paths';
 
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { toast } from '$lib/toast';
 	import { leavesApi } from '$lib/api/leaves';
 	import { UI_CONSTANTS } from '$lib/constants';
@@ -139,6 +142,15 @@
 	let formExpectedDeliveryDate = $state('');
 	let formIsMiscarriage = $state(false);
 	let formChildBirthDate = $state('');
+
+	const getTodayLocalString = () => {
+		const d = new Date();
+		const year = d.getFullYear();
+		const month = String(d.getMonth() + 1).padStart(2, '0');
+		const day = String(d.getDate()).padStart(2, '0');
+		return `${year}-${month}-${day}`;
+	};
+	const todayLocalStr = $derived(getTodayLocalString());
 
 	// History Filters & Sorting
 	let searchQuery = $state('');
@@ -358,6 +370,13 @@
 
 		if (!formStartDate) {
 			errors.startDate = 'Start date is required';
+		} else {
+			const startLocal = new Date(formStartDate + 'T00:00:00');
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+			if (startLocal < today) {
+				errors.startDate = 'Start date cannot be in the past';
+			}
 		}
 
 		if (!formIsHalfDay && !formEndDate) {
@@ -365,10 +384,10 @@
 		}
 
 		if (formStartDate && formEndDate) {
-			const start = new Date(formStartDate);
-			const end = new Date(formEndDate);
+			const start = new Date(formStartDate + 'T00:00:00');
+			const end = new Date(formEndDate + 'T00:00:00');
 			if (start > end) {
-				errors.startDate = 'Start date cannot exceed end date';
+				errors.endDate = 'End date cannot be earlier than start date';
 			}
 		}
 
@@ -718,8 +737,8 @@
 	{:else if activeTab === 'dashboard'}
 		<!-- View A: Dashboard view -->
 		<div class="space-y-6">
-			<!-- Summary Cards for SL, CL, EL & LWP Stats -->
-			<div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+			<!-- Summary Cards for SL, CL, EL, LOP & LWP Stats -->
+			<div class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
 				{#each balances.filter(b => ['EL', 'CL', 'SL'].includes(b.leave_code)) as b (b.cuid)}
 					{@const theme = cardThemes[b.leave_code as keyof typeof cardThemes] || cardThemes.EL}
 					<Card class="border {theme.border} {theme.bg} shadow-xs transition-transform hover:-translate-y-0.5">
@@ -737,6 +756,24 @@
 						</CardContent>
 					</Card>
 				{/each}
+
+				<!-- Loss of Pay (LOP) Stats Card -->
+				<Card class="border border-destructive/20 bg-destructive/5 shadow-xs transition-transform hover:-translate-y-0.5">
+					<CardHeader class="pb-1 pt-4 px-4 flex flex-row items-center justify-between">
+						<span class="text-xs font-bold uppercase tracking-wider text-destructive">Loss of Pay (LOP)</span>
+						<Badge variant="destructive" class="font-bold text-[10px]">LOP</Badge>
+					</CardHeader>
+					<CardContent class="pb-4 pt-1 px-4">
+						<div class="text-3xl font-extrabold tracking-tight tabular-nums text-destructive">
+							{(balances.find(b => b.leave_code === 'LOP')?.used_days ?? 0).toFixed(1)}
+						</div>
+						<p class="text-[10px] text-muted-foreground font-semibold mt-1">Days Taken (Excess Leave)</p>
+						<div class="border-t border-destructive/20 mt-2.5 pt-2 flex justify-between text-[10px] text-muted-foreground">
+							<span>Quota: <strong>0.0</strong></span>
+							<span>Remaining: <strong>0.0</strong></span>
+						</div>
+					</CardContent>
+				</Card>
 
 				<!-- Leave Without Pay (LWP) Stats Card -->
 				<Card class="border border-amber-200 bg-amber-50/50 shadow-xs transition-transform hover:-translate-y-0.5">
@@ -803,18 +840,34 @@
 				/>
 				<div class="flex items-center gap-2">
 					<Label for="status_filter" class="text-xs text-muted-foreground whitespace-nowrap">Filter Status:</Label>
-					<select
-						id="status_filter"
-						bind:value={statusFilter}
-						onchange={() => (currentPage = 1)}
-						class="flex h-8 w-32 rounded-md border border-input bg-transparent px-2 text-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-					>
-						<option value="all">All</option>
-						<option value="pending">Pending</option>
-						<option value="approved">Approved</option>
-						<option value="rejected">Rejected</option>
-						<option value="withdrawn">Withdrawn</option>
-					</select>
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger>
+							{#snippet child({ props })}
+								<Button
+									id="status_filter"
+									variant="outline"
+									class="h-8 w-32 justify-between border-input bg-background px-2 text-xs font-normal shadow-xs hover:bg-accent outline-none"
+									{...props}
+								>
+									<span class="truncate capitalize">{statusFilter}</span>
+									<ChevronDownIcon class="ml-1.5 size-3 opacity-50 shrink-0" />
+								</Button>
+							{/snippet}
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content class="w-32">
+							<DropdownMenu.Group>
+								{#each ['all', 'pending', 'approved', 'rejected', 'withdrawn'] as status}
+									<DropdownMenu.Item
+										onclick={() => { statusFilter = status; currentPage = 1; }}
+										class="cursor-pointer justify-between text-xs capitalize {statusFilter === status ? 'bg-accent font-semibold' : ''}"
+									>
+										{status}
+										{#if statusFilter === status}<CheckIcon class="size-3.5" />{/if}
+									</DropdownMenu.Item>
+								{/each}
+							</DropdownMenu.Group>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
 				</div>
 			</div>
 
@@ -968,17 +1021,34 @@
 				/>
 				<div class="flex items-center gap-2">
 					<Label for="approvals_status_filter" class="text-xs text-muted-foreground whitespace-nowrap">Filter Status:</Label>
-					<select
-						id="approvals_status_filter"
-						bind:value={approvalsStatusFilter}
-						onchange={() => (approvalsCurrentPage = 1)}
-						class="flex h-8 w-32 rounded-md border border-input bg-transparent px-2 text-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-					>
-						<option value="all">All</option>
-						<option value="pending">Pending</option>
-						<option value="approved">Approved</option>
-						<option value="rejected">Rejected</option>
-					</select>
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger>
+							{#snippet child({ props })}
+								<Button
+									id="approvals_status_filter"
+									variant="outline"
+									class="h-8 w-32 justify-between border-input bg-background px-2 text-xs font-normal shadow-xs hover:bg-accent outline-none"
+									{...props}
+								>
+									<span class="truncate capitalize">{approvalsStatusFilter}</span>
+									<ChevronDownIcon class="ml-1.5 size-3 opacity-50 shrink-0" />
+								</Button>
+							{/snippet}
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content class="w-32">
+							<DropdownMenu.Group>
+								{#each ['all', 'pending', 'approved', 'rejected'] as status}
+									<DropdownMenu.Item
+										onclick={() => { approvalsStatusFilter = status; approvalsCurrentPage = 1; }}
+										class="cursor-pointer justify-between text-xs capitalize {approvalsStatusFilter === status ? 'bg-accent font-semibold' : ''}"
+									>
+										{status}
+										{#if approvalsStatusFilter === status}<CheckIcon class="size-3.5" />{/if}
+									</DropdownMenu.Item>
+								{/each}
+							</DropdownMenu.Group>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
 				</div>
 			</div>
 
@@ -1179,21 +1249,47 @@
 	{#snippet children({ cancel })}
 		<form onsubmit={handleApplyLeave} class="space-y-4">
 			<!-- Leave Type -->
-			<div class="space-y-2">
-				<Label for="leave_type">Leave Type <span class="text-destructive">*</span></Label>
-				<select
-					id="leave_type"
-					bind:value={formLeaveTypeCuid}
-					class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-					disabled={isSubmitting}
-				>
-					<option value="">Select Leave Type...</option>
-					{#each leaveTypes.filter(t => t.leave_code !== 'LOP') as type (type.cuid)}
-						<option value={type.cuid}>
-							{type.leave_name} ({type.leave_code})
-						</option>
-					{/each}
-				</select>
+			<div class="space-y-2 flex flex-col">
+				<Label for="leave_type" class="mb-1">Leave Type <span class="text-destructive">*</span></Label>
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger>
+						{#snippet child({ props })}
+							<Button
+								id="leave_type"
+								variant="outline"
+								disabled={isSubmitting}
+								class="h-9 w-full justify-between border-input bg-transparent px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none disabled:opacity-50 disabled:cursor-not-allowed {formIsTouched && formValidationErrors.leaveTypeCuid ? 'border-destructive' : ''}"
+								{...props}
+							>
+								<span class="truncate">
+									{leaveTypes.find(t => t.cuid === formLeaveTypeCuid)?.leave_name 
+										? `${leaveTypes.find(t => t.cuid === formLeaveTypeCuid)?.leave_name} (${leaveTypes.find(t => t.cuid === formLeaveTypeCuid)?.leave_code})` 
+										: "Select Leave Type..."}
+								</span>
+								<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
+							</Button>
+						{/snippet}
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content class="max-h-56 overflow-y-auto w-[250px]">
+						<DropdownMenu.Group>
+							<DropdownMenu.Item
+								onclick={() => { formLeaveTypeCuid = ''; }}
+								class="cursor-pointer justify-between {!formLeaveTypeCuid ? 'bg-accent font-semibold' : ''}"
+							>
+								Select Leave Type...
+							</DropdownMenu.Item>
+							{#each leaveTypes.filter(t => t.leave_code !== 'LOP') as type (type.cuid)}
+								<DropdownMenu.Item
+									onclick={() => { formLeaveTypeCuid = type.cuid; }}
+									class="cursor-pointer justify-between {formLeaveTypeCuid === type.cuid ? 'bg-accent font-semibold' : ''}"
+								>
+									{type.leave_name} ({type.leave_code})
+									{#if formLeaveTypeCuid === type.cuid}<CheckIcon class="size-4" />{/if}
+								</DropdownMenu.Item>
+							{/each}
+						</DropdownMenu.Group>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
 				{#if formIsTouched && formValidationErrors.leaveTypeCuid}
 					<p class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1">
 						<AlertCircleIcon class="size-3 shrink-0" />
@@ -1270,6 +1366,12 @@
 						type="date"
 						id="start_date"
 						bind:value={formStartDate}
+						min={todayLocalStr}
+						oninput={() => {
+							if (!formStartDate || (formEndDate && formStartDate > formEndDate)) {
+								formEndDate = '';
+							}
+						}}
 						class={formIsTouched && formValidationErrors.startDate ? 'border-destructive' : ''}
 						disabled={isSubmitting}
 					/>
@@ -1287,8 +1389,9 @@
 						type="date"
 						id="end_date"
 						bind:value={formEndDate}
+						min={formStartDate}
 						class={formIsTouched && formValidationErrors.endDate ? 'border-destructive' : ''}
-						disabled={isSubmitting || formIsHalfDay}
+						disabled={isSubmitting || formIsHalfDay || !formStartDate}
 					/>
 					{#if formIsTouched && formValidationErrors.endDate}
 						<p class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1">

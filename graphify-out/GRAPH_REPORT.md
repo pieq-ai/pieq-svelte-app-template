@@ -1,16 +1,16 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-15)
 
 ## Corpus Check
-- 229 files · ~85,334 words
+- 229 files · ~86,150 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1101 nodes · 1816 edges · 58 communities (49 shown, 9 thin omitted)
+- 1101 nodes · 1819 edges · 57 communities (48 shown, 9 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 20 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c218d80d`
+- Built from commit: `9ae69f64`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -63,7 +63,6 @@
 - [[_COMMUNITY_Community 54|Community 54]]
 - [[_COMMUNITY_Community 55|Community 55]]
 - [[_COMMUNITY_Community 56|Community 56]]
-- [[_COMMUNITY_Community 58|Community 58]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `$lib/utils.js` - 33 edges
@@ -92,7 +91,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (58 total, 9 thin omitted)
+## Communities (57 total, 9 thin omitted)
 
 ### Community 0 - "API Endpoints"
 Cohesion: 0.07
@@ -103,8 +102,8 @@ Cohesion: 0.19
 Nodes (4): createClient(), db, getDb(), isValidClient()
 
 ### Community 2 - "UI Components Index"
-Cohesion: 0.25
-Nodes (17): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/toast, $lib/utils, $lib/api/local, $lib/api/locations, $lib/api/roles (+9 more)
+Cohesion: 0.20
+Nodes (22): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/toast, $lib/types/salary-component, $lib/utils, $lib/validators/salary-component (+14 more)
 
 ### Community 3 - "UI Components Core"
 Cohesion: 0.09
@@ -183,12 +182,12 @@ Cohesion: 0.17
 Nodes (16): ./$types, ./$types, actions, load(), GET(), getErrorStatus(), POST(), createEmployee() (+8 more)
 
 ### Community 35 - "Community 35"
-Cohesion: 0.20
-Nodes (9): @lucide/svelte/icons/alert-circle, $lib/api/leaves, @lucide/svelte/icons/calendar, @lucide/svelte/icons/check-circle, @lucide/svelte/icons/clock, @lucide/svelte/icons/file-text, @lucide/svelte/icons/trash-2, @lucide/svelte/icons/upload (+1 more)
+Cohesion: 0.13
+Nodes (13): @lucide/svelte/icons/alert-circle, $lib/api/leaves, $lib/components/index.js, $lib/components/ui/dropdown-menu/index.js, @lucide/svelte/icons/calendar, @lucide/svelte/icons/check-circle, @lucide/svelte/icons/chevron-down, @lucide/svelte/icons/clock (+5 more)
 
 ### Community 36 - "Community 36"
 Cohesion: 0.16
-Nodes (13): $lib/components, $lib/constants, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/components, $lib/master-data/master-config, $lib/permissions/mock-permissions, @lucide/svelte/icons/chevron-left (+5 more)
+Nodes (12): $lib/components, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/components, $lib/master-data/master-config, $lib/permissions/mock-permissions, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/more-vertical (+4 more)
 
 ### Community 38 - "Community 38"
 Cohesion: 0.20
@@ -249,10 +248,6 @@ Nodes (3): adapter, pool, prisma
 ### Community 56 - "Community 56"
 Cohesion: 0.17
 Nodes (10): averageAge, filteredEmployees, formError, handleAddEmployee(), isSubmitting, loadEmployees(), maxAge, successMessage (+2 more)
-
-### Community 58 - "Community 58"
-Cohesion: 0.22
-Nodes (8): $lib/types/salary-component, $lib/validators/salary-component, $lib/components/index.js, $lib/components/ui/dropdown-menu/index.js, $lib/types/salary-component, $lib/validators/salary-component, @lucide/svelte/icons/chevron-down, @lucide/svelte/icons/filter
 
 ## Knowledge Gaps
 - **326 isolated node(s):** `$schema`, `css`, `baseColor`, `components`, `utils` (+321 more)
