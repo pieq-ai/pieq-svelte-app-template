@@ -359,13 +359,11 @@
 <div class="w-full space-y-6 px-1 py-0">
 	<!-- Header -->
 	<div class="space-y-1 border-b border-border pb-6">
-		<Badge variant="secondary" class="uppercase">HRMS Portal</Badge>
+		
 		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
 			Employee Attendance
 		</h1>
-		<p class="text-muted-foreground">
-			Track your daily logs, check-in and check-out status, and visual attendance calendar.
-		</p>
+		
 	</div>
 
 	<!-- Employee Selector (Demo Context) -->
