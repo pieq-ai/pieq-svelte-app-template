@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { Label, Input, SearchableDropdown, MasterDataDropdown, Button } from '$lib/components';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import TrashIcon from '@lucide/svelte/icons/trash';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 
@@ -83,7 +81,7 @@
 	{#if mode !== 'view'}
 		<div class="flex justify-end">
 			<Button variant="outline" size="sm" onclick={addSkill}>
-				<PlusIcon class="mr-2 size-4" /> Add Skill
+				Add Skill
 			</Button>
 		</div>
 	{/if}
@@ -96,8 +94,8 @@
 		{#each skills as skill, index (index)}
 			<div class="flex flex-col sm:flex-row gap-6 items-start sm:items-center rounded-lg border border-border p-4 relative">
 				{#if mode !== 'view'}
-					<Button variant="ghost" size="icon-sm" class="absolute right-2 top-2 sm:static sm:order-last text-destructive hover:bg-destructive/10" onclick={() => skills = skills.filter((_, i) => i !== index)}>
-						<TrashIcon class="size-4" />
+					<Button variant="ghost" size="sm" class="absolute right-2 top-2 sm:static sm:order-last text-destructive hover:bg-destructive/10" onclick={() => skills = skills.filter((_, i) => i !== index)}>
+						Delete
 					</Button>
 				{/if}
 				<div class="flex-1 w-full mt-4 sm:mt-0">

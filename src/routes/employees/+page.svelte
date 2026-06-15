@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import PlusIcon from '@lucide/svelte/icons/plus';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
@@ -139,7 +138,6 @@
 			href="/employees/create"
 			class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
 		>
-			<PlusIcon class="size-4" />
 			Add Employee
 		</Button>
 	</div>
@@ -271,7 +269,7 @@
 									<TableActions
 										canEdit={true}
 										canView={false}
-										editLabel="Edit Employee"
+										editLabel="Edit"
 										onEdit={() => goto(`/employees/${emp.cuid}?mode=edit`)}
 									/>
 								</TableCell>

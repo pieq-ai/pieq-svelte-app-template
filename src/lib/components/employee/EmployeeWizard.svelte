@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent } from '$lib/components';
-	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 
 	import StepPersonal from './steps/StepPersonal.svelte';
 	import StepEmployment from './steps/StepEmployment.svelte';
@@ -81,7 +80,7 @@
 <div class="flex justify-center p-4 md:py-8 bg-muted/10 min-h-screen">
 	<div class="w-full max-w-6xl space-y-6">
 		<Button variant="ghost" class="pl-0 text-muted-foreground hover:text-foreground mb-2" href="/employees">
-			<ArrowLeftIcon class="mr-2 size-4" /> Back to Employees
+			Back to Employees
 		</Button>
 
 		<!-- Wizard Navigation Header -->

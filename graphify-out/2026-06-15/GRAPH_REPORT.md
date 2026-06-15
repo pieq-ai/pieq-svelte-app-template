@@ -1,16 +1,16 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-15)
 
 ## Corpus Check
-- 263 files · ~67,485 words
+- 263 files · ~67,772 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1045 nodes · 1834 edges · 75 communities (48 shown, 27 thin omitted)
+- 1045 nodes · 1837 edges · 77 communities (50 shown, 27 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 19 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ac6319cf`
+- Built from commit: `02215911`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -80,6 +80,8 @@
 - [[_COMMUNITY_Community 71|Community 71]]
 - [[_COMMUNITY_Community 72|Community 72]]
 - [[_COMMUNITY_Community 74|Community 74]]
+- [[_COMMUNITY_Community 75|Community 75]]
+- [[_COMMUNITY_Community 76|Community 76]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `$lib/utils.js` - 60 edges
@@ -108,7 +110,7 @@
 ## Import Cycles
 - 3-file cycle: `src/lib/components/ui/calendar/calendar-caption.svelte -> src/lib/components/ui/calendar/calendar.svelte -> src/lib/components/ui/calendar/index.ts -> src/lib/components/ui/calendar/calendar-caption.svelte`
 
-## Communities (75 total, 27 thin omitted)
+## Communities (77 total, 27 thin omitted)
 
 ### Community 0 - "API Endpoints"
 Cohesion: 0.06
@@ -203,12 +205,12 @@ Cohesion: 0.40
 Nodes (4): SALARY_COMPONENT_TYPE_LABELS, SALARY_COMPONENT_TYPE_OPTIONS, SALARY_COMPONENT_TYPES, SalaryComponentType
 
 ### Community 45 - "Community 45"
-Cohesion: 0.11
-Nodes (13): $lib/components, $lib/components/index.js, $lib/components/ui/checkbox/index.js, $lib/components/ui/dropdown-menu/index.js, @lucide/svelte/icons/check, @lucide/svelte/icons/chevron-down, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/chevron-right (+5 more)
+Cohesion: 0.15
+Nodes (11): $lib/components/index.js, $lib/components/ui/checkbox/index.js, $lib/components/ui/dropdown-menu/index.js, $lib/permissions/mock-permissions, @lucide/svelte/icons/check, @lucide/svelte/icons/chevron-down, @lucide/svelte/icons/chevron-up, @lucide/svelte/icons/eye (+3 more)
 
 ### Community 46 - "Community 46"
-Cohesion: 0.35
-Nodes (10): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/permissions/mock-permissions, $lib/toast, $lib/types/salary-component, $lib/utils (+2 more)
+Cohesion: 0.38
+Nodes (9): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/toast, $lib/types/salary-component, $lib/utils, $lib/validators/salary-component (+1 more)
 
 ### Community 48 - "Community 48"
 Cohesion: 0.27
@@ -227,8 +229,8 @@ Cohesion: 0.32
 Nodes (4): UpsertAddressInput, createClient(), getDb(), isValidClient()
 
 ### Community 56 - "Community 56"
-Cohesion: 0.12
-Nodes (8): getEmploymentByEmployeeCuid(), toPublicEmployment(), upsertEmployment(), UpsertEmploymentDto, normalizeSpaces(), validateEmail(), validateName(), validateRemarks()
+Cohesion: 0.15
+Nodes (3): normalizeSpaces(), validateName(), validateRemarks()
 
 ### Community 58 - "Community 58"
 Cohesion: 0.17
@@ -261,6 +263,14 @@ Nodes (22): AddressData, BankData, DocumentData, EducationData, EmploymentDetail
 ### Community 74 - "Community 74"
 Cohesion: 0.15
 Nodes (12): $lib/master-data/master-config, backendError, errorMessage, getValidationError(), isLoading, isModalOpen, isSubmitting, isValueTouched (+4 more)
+
+### Community 75 - "Community 75"
+Cohesion: 0.25
+Nodes (3): $lib/components, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/chevron-right
+
+### Community 76 - "Community 76"
+Cohesion: 0.53
+Nodes (5): getEmploymentByEmployeeCuid(), toPublicEmployment(), upsertEmployment(), UpsertEmploymentDto, validateEmail()
 
 ## Knowledge Gaps
 - **293 isolated node(s):** `css.lint.unknownAtRules`, `$schema`, `css`, `baseColor`, `components` (+288 more)

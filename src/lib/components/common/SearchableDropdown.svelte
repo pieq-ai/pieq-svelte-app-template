@@ -1,6 +1,4 @@
 <script lang="ts">
-	import PencilIcon from '@lucide/svelte/icons/pencil';
-	import PlusIcon from '@lucide/svelte/icons/plus';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import ChevronUpIcon from '@lucide/svelte/icons/chevron-up';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
@@ -166,8 +164,8 @@
 									</span>
 								</button>
 								{#if permissions.canEdit && onEdit}
-									<Button type="button" variant="ghost" size="icon-xs" class="opacity-0 group-hover:opacity-100 h-6 w-6 ml-2 shrink-0" aria-label={`Edit ${option.label}`} onclick={(e: MouseEvent) => { e.stopPropagation(); onEdit!(option.id); }}>
-										<PencilIcon class="size-3" />
+									<Button type="button" variant="ghost" size="xs" class="opacity-0 group-hover:opacity-100 h-6 ml-2 shrink-0" aria-label={`Edit ${option.label}`} onclick={(e: MouseEvent) => { e.stopPropagation(); onEdit!(option.id); }}>
+										Edit
 									</Button>
 								{/if}
 							</div>
@@ -181,7 +179,6 @@
 				{#if permissions.canCreate && onAdd}
 					<div class="p-2 border-t border-border">
 						<Button type="button" variant="outline" class="w-full justify-center text-sm font-medium text-foreground bg-background hover:bg-accent focus-visible:ring-ring/50 focus-visible:ring-3 focus-visible:border-ring" onclick={() => { open = false; onAdd!(); }}>
-							<PlusIcon class="mr-2 size-4 shrink-0" />
 							Add {label.replace(/[*]/g, '').trim()}
 						</Button>
 					</div>

@@ -1,8 +1,5 @@
 <script lang="ts">
 	import { Label, Input, MasterDataDropdown, Button } from '$lib/components';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import TrashIcon from '@lucide/svelte/icons/trash';
-	import EyeIcon from '@lucide/svelte/icons/eye';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 
@@ -140,7 +137,7 @@
 	{#if mode !== 'view'}
 		<div class="flex justify-end">
 			<Button variant="outline" size="sm" onclick={addDocument} disabled={isSubmitting || readingCount > 0}>
-				<PlusIcon class="mr-2 size-4" /> Add Document
+				Add Document
 			</Button>
 		</div>
 	{/if}
@@ -154,13 +151,13 @@
 			<div class="rounded-lg border border-border p-4 pt-10 relative">
 				<div class="absolute right-2 top-2 flex items-center gap-1">
 					{#if doc.file_name}
-						<Button variant="ghost" size="icon-sm" class="text-primary hover:bg-primary/10" onclick={() => handlePreview(doc)} title="Preview Document">
-							<EyeIcon class="size-4" />
+						<Button variant="ghost" size="sm" class="text-primary hover:bg-primary/10" onclick={() => handlePreview(doc)} title="Preview Document">
+							View
 						</Button>
 					{/if}
 					{#if mode !== 'view'}
-						<Button variant="ghost" size="icon-sm" class="text-destructive hover:bg-destructive/10" onclick={() => documents = documents.filter((_, i) => i !== index)} title="Delete Document">
-							<TrashIcon class="size-4" />
+						<Button variant="ghost" size="sm" class="text-destructive hover:bg-destructive/10" onclick={() => documents = documents.filter((_, i) => i !== index)} title="Delete Document">
+							Delete
 						</Button>
 					{/if}
 				</div>

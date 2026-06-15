@@ -1,7 +1,7 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-15)
 
 ## Corpus Check
-- 263 files · ~67,772 words
+- 263 files · ~67,570 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `02215911`
+- Built from commit: `2ad1e459`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -280,12 +280,12 @@ Nodes (5): getEmploymentByEmployeeCuid(), toPublicEmployment(), upsertEmployment
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `db` connect `Community 64` to `API Endpoints`, `Data Access Tests`, `Community 67`, `Community 36`, `Master Data DAO`, `Community 70`, `Community 39`, `Community 35`, `Department Service DAO`, `Community 38`, `Community 44`, `Community 47`, `Community 52`, `Community 53`, `Community 55`, `Community 62`, `Community 63`?**
-  _High betweenness centrality (0.101) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `Dependencies & Icons` to `Community 57`, `Package Dependencies`?**
-  _High betweenness centrality (0.098) - this node is a cross-community bridge._
+  _High betweenness centrality (0.099) - this node is a cross-community bridge._
+- **Why does `db` connect `Community 64` to `API Endpoints`, `Data Access Tests`, `Community 67`, `Community 36`, `Master Data DAO`, `Community 70`, `Community 39`, `Community 35`, `Department Service DAO`, `Community 38`, `Community 44`, `Community 47`, `Community 52`, `Community 53`, `Community 55`, `Community 62`, `Community 63`?**
+  _High betweenness centrality (0.094) - this node is a cross-community bridge._
 - **Why does `User` connect `API Client Configuration` to `Designation Service DAO`?**
-  _High betweenness centrality (0.070) - this node is a cross-community bridge._
+  _High betweenness centrality (0.073) - this node is a cross-community bridge._
 - **What connects `css.lint.unknownAtRules`, `$schema`, `css` to the rest of the system?**
   _293 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `API Endpoints` be split into smaller, more focused modules?**

@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { Label, Input, DatePicker, Button } from '$lib/components';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import TrashIcon from '@lucide/svelte/icons/trash';
 	import { toast } from 'svelte-sonner';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { onMount } from 'svelte';
@@ -94,7 +92,7 @@
 	{#if mode !== 'view'}
 		<div class="flex justify-end">
 			<Button variant="outline" size="sm" onclick={addExperience}>
-				<PlusIcon class="mr-2 size-4" /> Add Experience
+				Add Experience
 			</Button>
 		</div>
 	{/if}
@@ -106,8 +104,8 @@
 	{#each experiences as exp, index (index)}
 		<div class="rounded-lg border border-border p-4 pt-10 relative">
 			{#if mode !== 'view'}
-				<Button variant="ghost" size="icon-sm" class="absolute right-2 top-2 text-destructive hover:bg-destructive/10" onclick={() => experiences = experiences.filter((_, i) => i !== index)}>
-					<TrashIcon class="size-4" />
+				<Button variant="ghost" size="sm" class="absolute right-2 top-2 text-destructive hover:bg-destructive/10" onclick={() => experiences = experiences.filter((_, i) => i !== index)}>
+					Delete
 				</Button>
 			{/if}
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
