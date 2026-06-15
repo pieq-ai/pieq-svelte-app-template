@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import SearchIcon from '@lucide/svelte/icons/search';
-	import XIcon from '@lucide/svelte/icons/x';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
+	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
+	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
+	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import {
 		Badge,
 		Button,
@@ -11,14 +12,16 @@
 		CardHeader,
 		CardTitle,
 		CardDescription,
-		Input,
 		Table,
 		TableBody,
 		TableCell,
 		TableHead,
 		TableHeader,
 		TableRow,
-		TableActions
+		TableActions,
+		Pagination,
+		SearchInput,
+		FilterDropdown
 	} from '$lib/components';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import { toast } from '$lib/toast';
@@ -33,15 +36,17 @@
 		profile_completion_status: string;
 	}
 
-	type SortColumn = 'emp_code' | 'first_name' | 'last_name' | 'personal_email';
-
 	let employees = $state<Employee[]>([]);
 	let isLoading = $state(true);
 	let loadError = $state('');
 
 	let searchQuery = $state('');
-	let sortColumn = $state<SortColumn>('emp_code');
-	let sortDirection = $state<'asc' | 'desc'>('asc');
+	let statusFilter = $state<'all' | boolean>('all');
+	let sortColumn = $state('emp_code');
+	let sortDirection = $state<'asc' | 'desc' | null>('asc');
+
+	let currentPage = $state(1);
+	let pageSize = $state(10);
 
 	async function loadEmployees() {
 		isLoading = true;
@@ -82,30 +87,42 @@
 			);
 		}
 
-		result.sort((a, b) => {
-			const valA = a[sortColumn] || '';
-			const valB = b[sortColumn] || '';
+		if (statusFilter !== 'all') {
+			result = result.filter(
+				(emp) =>
+					(statusFilter === true && emp.profile_completion_status === 'completed') ||
+					(statusFilter === false && emp.profile_completion_status === 'pending')
+			);
+		}
 
-			return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
-		});
+		if (sortDirection && sortColumn) {
+			result.sort((a, b) => {
+				const valA = a[sortColumn as keyof typeof a] || '';
+				const valB = b[sortColumn as keyof typeof b] || '';
+
+				return sortDirection === 'asc'
+					? String(valA).localeCompare(String(valB))
+					: String(valB).localeCompare(String(valA));
+			});
+		}
 
 		return result;
 	});
 
 	let totalEmployees = $derived(employees.length);
+	let completedCount = $derived(employees.filter((e) => e.profile_completion_status === 'completed').length);
+	let pendingCount = $derived(employees.filter((e) => e.profile_completion_status === 'pending').length);
+	let paginatedEmployees = $derived(filteredEmployees.slice((currentPage - 1) * pageSize, currentPage * pageSize));
 
-	function handleSort(column: SortColumn) {
+	function handleSort(column: string) {
 		if (sortColumn === column) {
-			sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+			if (sortDirection === 'asc') sortDirection = 'desc';
+			else if (sortDirection === 'desc') sortDirection = null;
+			else sortDirection = 'asc';
 		} else {
 			sortColumn = column;
 			sortDirection = 'asc';
 		}
-	}
-
-	function sortIndicator(column: SortColumn) {
-		if (sortColumn !== column) return '';
-		return sortDirection === 'asc' ? '↑' : '↓';
 	}
 </script>
 
@@ -113,124 +130,142 @@
 	<title>Employees Directory</title>
 </svelte:head>
 
-<div class="mx-auto max-w-6xl space-y-8 px-4 py-8">
-	<div class="flex items-center justify-between border-b border-border pb-6">
+<div class="w-full space-y-6 px-1 py-0">
+	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<Badge variant="secondary" class="uppercase">HRMS Module</Badge>
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Employees</h1>
-			<p class="text-muted-foreground">
-				Manage and monitor employee records in the organization.
-			</p>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Employees</h1>
 		</div>
-		<div>
-			<Button href="/employees/create" class="bg-[#F45310] text-white hover:bg-[#F45310]/90">
-				<PlusIcon class="mr-2 size-4" />
-				Add Employee
-			</Button>
-		</div>
+		<Button
+			href="/employees/create"
+			class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+		>
+			<PlusIcon class="size-4" />
+			Add Employee
+		</Button>
 	</div>
 
+	<!-- Metrics Cards -->
 	<div class="grid gap-4 sm:grid-cols-3">
 		<Card>
-			<CardHeader>
-				<CardDescription>Total Active Employees</CardDescription>
-				<CardTitle class="text-4xl tabular-nums">{totalEmployees}</CardTitle>
+			<CardHeader class="pb-2">
+				<CardDescription>Total Employees</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalEmployees}</CardTitle>
+			</CardHeader>
+		</Card>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Completed Profiles</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{completedCount}</CardTitle>
+			</CardHeader>
+		</Card>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Pending Profiles</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{pendingCount}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
 
-	<div class="space-y-4">
-		<div class="relative max-w-sm">
-			<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-			<Input
-				type="search"
-				placeholder="Search by code, name, email..."
-				bind:value={searchQuery}
-				class="pl-9 pr-9"
-			/>
-			{#if searchQuery}
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon-sm"
-					class="absolute top-1/2 right-1 -translate-y-1/2"
-					aria-label="Clear search"
-					onclick={() => (searchQuery = '')}
-				>
-					<XIcon class="size-4" />
-				</Button>
-			{/if}
+	<div class="space-y-3">
+		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+			<SearchInput id="search_employees" name="search_employees" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by code, name, email..." />
+			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
 		</div>
 
-		<Card>
+		<Card class="py-0">
 			<Table>
-				<TableHeader>
+				<TableHeader class="bg-muted">
 					<TableRow>
-						<TableHead>
-							<Button
-								variant="ghost"
-								size="sm"
-								class="-ml-2 h-8"
-								onclick={() => handleSort('emp_code')}
-							>
-								Emp Code {sortIndicator('emp_code')}
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('emp_code')}>
+								Emp Code
+								{#if sortColumn === 'emp_code' && sortDirection === 'asc'}
+									<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortColumn === 'emp_code' && sortDirection === 'desc'}
+									<ArrowDownIcon class="ml-2 size-4" />
+								{:else}
+									<ArrowUpDownIcon class="ml-2 size-4" />
+								{/if}
 							</Button>
 						</TableHead>
-						<TableHead>
-							<Button
-								variant="ghost"
-								size="sm"
-								class="-ml-2 h-8"
-								onclick={() => handleSort('first_name')}
-							>
-								First Name {sortIndicator('first_name')}
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('first_name')}>
+								First Name
+								{#if sortColumn === 'first_name' && sortDirection === 'asc'}
+									<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortColumn === 'first_name' && sortDirection === 'desc'}
+									<ArrowDownIcon class="ml-2 size-4" />
+								{:else}
+									<ArrowUpDownIcon class="ml-2 size-4" />
+								{/if}
 							</Button>
 						</TableHead>
-						<TableHead>
-							<Button
-								variant="ghost"
-								size="sm"
-								class="-ml-2 h-8"
-								onclick={() => handleSort('last_name')}
-							>
-								Last Name {sortIndicator('last_name')}
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('last_name')}>
+								Last Name
+								{#if sortColumn === 'last_name' && sortDirection === 'asc'}
+									<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortColumn === 'last_name' && sortDirection === 'desc'}
+									<ArrowDownIcon class="ml-2 size-4" />
+								{:else}
+									<ArrowUpDownIcon class="ml-2 size-4" />
+								{/if}
 							</Button>
 						</TableHead>
-						<TableHead>
-							<Button
-								variant="ghost"
-								size="sm"
-								class="-ml-2 h-8"
-								onclick={() => handleSort('personal_email')}
-							>
-								Email {sortIndicator('personal_email')}
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('personal_email')}>
+								Email
+								{#if sortColumn === 'personal_email' && sortDirection === 'asc'}
+									<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortColumn === 'personal_email' && sortDirection === 'desc'}
+									<ArrowDownIcon class="ml-2 size-4" />
+								{:else}
+									<ArrowUpDownIcon class="ml-2 size-4" />
+								{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-right">Actions</TableHead>
+						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('profile_completion_status')}>
+								Status
+								{#if sortColumn === 'profile_completion_status' && sortDirection === 'asc'}
+									<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortColumn === 'profile_completion_status' && sortDirection === 'desc'}
+									<ArrowDownIcon class="ml-2 size-4" />
+								{:else}
+									<ArrowUpDownIcon class="ml-2 size-4" />
+								{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{#if isLoading}
 						<TableRow>
-							<TableCell colspan={5} class="py-8 text-center text-muted-foreground">
+							<TableCell colspan={6} class="py-8 text-center text-muted-foreground">
 								<LoaderCircleIcon class="mx-auto mb-2 size-6 animate-spin" />
 								Loading employees...
 							</TableCell>
 						</TableRow>
 					{:else if filteredEmployees.length === 0}
 						<TableRow>
-							<TableCell colspan={5} class="py-8 text-center text-muted-foreground">
+							<TableCell colspan={6} class="py-8 text-center text-muted-foreground">
 								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 							</TableCell>
 						</TableRow>
 					{:else}
-						{#each filteredEmployees as emp (emp.cuid)}
+						{#each paginatedEmployees as emp (emp.cuid)}
 							<TableRow>
 								<TableCell class="font-medium text-xs">#{emp.emp_code}</TableCell>
 								<TableCell class="font-semibold">{emp.first_name}</TableCell>
 								<TableCell class="font-semibold">{emp.last_name || '-'}</TableCell>
 								<TableCell class="text-muted-foreground">
 									{emp.personal_email || '-'}
+								</TableCell>
+								<TableCell class="text-center">
+									<Badge variant={emp.profile_completion_status === 'completed' ? 'default' : 'secondary'}>
+										{emp.profile_completion_status === 'completed' ? 'Completed' : 'Pending'}
+									</Badge>
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
@@ -247,8 +282,6 @@
 			</Table>
 		</Card>
 
-		<p class="text-xs text-muted-foreground">
-			Showing {filteredEmployees.length} of {totalEmployees} entries
-		</p>
+		<Pagination bind:currentPage={currentPage} pageSize={pageSize} totalItems={filteredEmployees.length} />
 	</div>
 </div>
