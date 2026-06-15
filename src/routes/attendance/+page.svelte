@@ -246,16 +246,38 @@
 		};
 	});
 
-	let totalWorkingHours = $derived.by(() => {
-		const minutes = historyRecords.reduce((sum, r) => {
-			const d = new Date(r.attendance_date);
-			const isCurrentMonth = d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-			if (isCurrentMonth) {
-				return sum + (r.work_duration_minutes || 0);
+	let averageWorkingHours = $derived.by(() => {
+		let totalMinutes = 0;
+		let validDaysCount = 0;
+
+		for (const r of historyRecords) {
+			if (!r.attendance_date) continue;
+			const [yStr, mStr] = r.attendance_date.split('-');
+			const rYear = parseInt(yStr, 10);
+			const rMonth = parseInt(mStr, 10) - 1;
+
+			if (rYear === currentYear && rMonth === currentMonth) {
+				const duration = r.work_duration_minutes;
+				if (duration !== null && duration !== undefined && duration > 0) {
+					const statusObj = getDayStatus(r.attendance_date);
+					if (statusObj) {
+						const status = statusObj.status;
+						if (status === 'Holiday' || status === 'Week Off' || status === 'Leave' || status === 'LOP') {
+							continue;
+						}
+					}
+					totalMinutes += duration;
+					validDaysCount++;
+				}
 			}
-			return sum;
-		}, 0);
-		return (minutes / 60).toFixed(1);
+		}
+
+		if (validDaysCount === 0) return '0 hrs 00 min';
+
+		const avgMinutes = Math.round(totalMinutes / validDaysCount);
+		const hrs = Math.floor(avgMinutes / 60);
+		const mins = avgMinutes % 60;
+		return `${hrs} hrs ${String(mins).padStart(2, '0')} min`;
 	});
 
 	let attendancePercentage = $derived.by(() => {
@@ -319,10 +341,7 @@
 		if (minutes === null || minutes === undefined) return '--';
 		const hrs = Math.floor(minutes / 60);
 		const mins = minutes % 60;
-		if (hrs > 0) {
-			return `${hrs}h ${mins}m`;
-		}
-		return `${mins}m`;
+		return `${hrs} hrs ${String(mins).padStart(2, '0')} min`;
 	}
 
 	function getSourceName(cuid: string | null): string {
@@ -417,6 +436,19 @@
 			toast.error('An unexpected error occurred during check-out');
 		} finally {
 			isSubmitting = false;
+		}
+	}
+
+	function scrollIntoView(node: HTMLElement, condition: boolean) {
+		if (condition) {
+			setTimeout(() => {
+				const parent = node.closest('[data-slot="dropdown-menu-item"]');
+				if (parent) {
+					parent.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+				} else {
+					node.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+				}
+			}, 50);
 		}
 	}
 </script>
@@ -571,8 +603,8 @@
 			<Card class="bg-card">
 				<CardContent class="p-6 flex items-center justify-between h-full">
 					<div class="space-y-1">
-						<p class="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Total Work Hours</p>
-						<div class="text-3xl font-bold">{totalWorkingHours} hrs</div>
+						<p class="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Average Working Hours</p>
+						<div class="text-3xl font-bold">{averageWorkingHours}</div>
 					</div>
 					<ClockIcon class="size-8 text-[#F45310]" />
 				</CardContent>
@@ -595,7 +627,7 @@
 		<Card>
 			<CardHeader>
 				<CardTitle>Daily Attendance Logger</CardTitle>
-				<CardDescription>Simulate clocking in and out for today.</CardDescription>
+
 			</CardHeader>
 			<CardContent class="space-y-6">
 				<div class="flex flex-col md:flex-row gap-6 items-center justify-between">
@@ -676,15 +708,70 @@
 				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 					<div>
 						<CardTitle>Attendance Calendar</CardTitle>
-						<CardDescription>Visual tracker of your monthly status, leaves, and holidays.</CardDescription>
 					</div>
-					<div class="flex items-center gap-2">
+					<div class="flex flex-wrap items-center gap-2">
 						<Button variant="outline" size="icon-sm" onclick={prevMonth} title="Previous Month">
 							‹
 						</Button>
-						<span class="text-sm font-semibold select-none min-w-[120px] text-center">
-							{monthNames[currentMonth]} {currentYear}
-						</span>
+						
+						<!-- Month Dropdown -->
+						<DropdownMenu.Root>
+							<DropdownMenu.Trigger>
+								{#snippet child({ props })}
+									<Button variant="outline" class="h-9 justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
+										<span class="truncate pr-1">
+											{monthNames[currentMonth]}
+										</span>
+										<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
+									</Button>
+								{/snippet}
+							</DropdownMenu.Trigger>
+							<DropdownMenu.Content class="w-36 max-h-60 overflow-y-auto">
+								<DropdownMenu.Group>
+									{#each monthNames as monthName, index}
+										<DropdownMenu.Item
+											onclick={() => currentMonth = index}
+											class="justify-between cursor-pointer {currentMonth === index ? 'bg-accent text-accent-foreground font-semibold' : ''}"
+										>
+											<span use:scrollIntoView={currentMonth === index}>{monthName}</span>
+											{#if currentMonth === index}
+												<CheckIcon class="size-4 shrink-0 text-[#F45310]" />
+											{/if}
+										</DropdownMenu.Item>
+									{/each}
+								</DropdownMenu.Group>
+							</DropdownMenu.Content>
+						</DropdownMenu.Root>
+
+						<!-- Year Dropdown -->
+						<DropdownMenu.Root>
+							<DropdownMenu.Trigger>
+								{#snippet child({ props })}
+									<Button variant="outline" class="h-9 justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
+										<span class="truncate pr-1">
+											{currentYear}
+										</span>
+										<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
+									</Button>
+								{/snippet}
+							</DropdownMenu.Trigger>
+							<DropdownMenu.Content class="w-28 max-h-60 overflow-y-auto">
+								<DropdownMenu.Group>
+									{#each Array.from({ length: 101 }, (_, i) => 2000 + i) as yearVal}
+										<DropdownMenu.Item
+											onclick={() => currentYear = yearVal}
+											class="justify-between cursor-pointer {currentYear === yearVal ? 'bg-accent text-accent-foreground font-semibold' : ''}"
+										>
+											<span use:scrollIntoView={currentYear === yearVal}>{yearVal}</span>
+											{#if currentYear === yearVal}
+												<CheckIcon class="size-4 shrink-0 text-[#F45310]" />
+											{/if}
+										</DropdownMenu.Item>
+									{/each}
+								</DropdownMenu.Group>
+							</DropdownMenu.Content>
+						</DropdownMenu.Root>
+
 						<Button variant="outline" size="icon-sm" onclick={nextMonth} title="Next Month">
 							›
 						</Button>
@@ -749,7 +836,6 @@
 		<Card>
 			<CardHeader class="pb-2">
 				<CardTitle>Attendance History</CardTitle>
-				<CardDescription>Scoped log list for the selected employee context.</CardDescription>
 			</CardHeader>
 			<CardContent>
 				{#if isLoadingHistory}

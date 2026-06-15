@@ -139,10 +139,7 @@
 		if (minutes === null || minutes === undefined) return '--';
 		const hrs = Math.floor(minutes / 60);
 		const mins = minutes % 60;
-		if (hrs > 0) {
-			return `${hrs}h ${mins}m`;
-		}
-		return `${mins}m`;
+		return `${hrs} hrs ${String(mins).padStart(2, '0')} min`;
 	}
 
 	function getEmployeeName(uuid: string): string {

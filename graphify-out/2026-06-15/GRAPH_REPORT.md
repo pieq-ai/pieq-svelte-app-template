@@ -1,7 +1,7 @@
-# Graph Report - pieq-svelte-app-template  (2026-06-15)
+# Graph Report - pieq-svelte-app-template  (2026-06-16)
 
 ## Corpus Check
-- 273 files · ~103,891 words
+- 273 files · ~103,625 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `86fe9236`
+- Built from commit: `e8eb0abc`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -266,7 +266,7 @@ Nodes (7): RoleCreateDTO, RoleUpdateDTO, rejectUnknownKeys(), sanitizeString(), 
 
 ### Community 49 - "Community 49"
 Cohesion: 0.15
-Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
+Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
 
 ### Community 50 - "Community 50"
 Cohesion: 0.10
@@ -378,7 +378,7 @@ Nodes (3): AttendanceRecordFilters, CreateAttendanceRecordInput, UpdateAttendanc
 
 ### Community 87 - "Community 87"
 Cohesion: 0.50
-Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
+Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
 
 ### Community 88 - "Community 88"
 Cohesion: 0.17
