@@ -490,3 +490,25 @@ model HolidayCalendar {
 
   @@map("holiday_calendars")
 }
+
+model AttendanceRecord {
+  id BigInt @id @default(autoincrement())
+  cuid String @unique @default(cuid())
+  employee_cuid String @db.Text
+  attendance_date DateTime @db.Date
+  check_in_time DateTime? @db.Timestamptz(3)
+  check_out_time DateTime? @db.Timestamptz(3)
+  work_duration_minutes Int?
+  attendance_status String @db.VarChar(20)
+  attendance_source_cuid String? @db.Text
+  remarks String? @db.Text
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  created_by String? @db.Text
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz(3)
+  updated_by String? @db.Text
+
+  @@unique([employee_cuid, attendance_date])
+  @@index([employee_cuid])
+  @@index([attendance_date])
+  @@map("attendance_records")
+}

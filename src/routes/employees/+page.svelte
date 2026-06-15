@@ -71,9 +71,9 @@
           : valB.localeCompare(valA);
       }
 
-      return sortDirection === "asc"
-        ? (valA as number) - (valB as number)
-        : (valB as number) - (valA as number);
+      if (valA < valB) return sortDirection === "asc" ? -1 : 1;
+      if (valA > valB) return sortDirection === "asc" ? 1 : -1;
+      return 0;
     });
 
     return result;
