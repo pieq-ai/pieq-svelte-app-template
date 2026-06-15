@@ -4,7 +4,7 @@
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	
-	import { Button, Input, Label } from '$lib/components';
+	import { Button, Label } from '$lib/components';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
@@ -111,13 +111,13 @@
 	</Label>
 	<div bind:clientWidth={triggerWidth} class="w-full relative">
 		<Popover.Root bind:open>
-			<Popover.Trigger class="w-full">
+			<Popover.Trigger>
 				{#snippet child({ props })}
 					<Button
 						variant="outline"
 						disabled={disabled}
-						class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {displayValue === activePlaceholder ? 'text-muted-foreground' : ''} {className}"
 						{...props}
+						class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {displayValue === activePlaceholder ? 'text-muted-foreground' : ''} {className}"
 					>
 						<span class="truncate block text-left flex-1">{displayValue}</span>
 						{#if open}
@@ -131,8 +131,8 @@
 			<Popover.Content style="min-width: {triggerWidth}px; max-width: 90vw;" class="p-0 border border-border rounded-md shadow-md bg-popover text-popover-foreground w-auto" align="start" sideOffset={4}>
 				<div class="flex items-center border-b px-3">
 					<SearchIcon class="mr-2 size-4 shrink-0 opacity-50" />
-					<Input
-						class="flex h-10 w-full border-0 bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50"
+					<input
+						class="flex h-10 w-full border-0 bg-transparent px-3 py-3 text-sm outline-none placeholder:text-muted-foreground focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 						placeholder="Search..."
 						bind:value={query}
 					/>
