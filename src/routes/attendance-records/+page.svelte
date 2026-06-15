@@ -202,6 +202,34 @@
 		}
 	});
 
+	let isSubmitDisabled = $derived.by(() => {
+		if (isSubmitting) return true;
+
+		const mandatoryFieldsFilled =
+			formEmployeeCuid.trim() !== '' &&
+			formAttendanceDate.trim() !== '' &&
+			formAttendanceStatus.trim() !== '';
+
+		if (!mandatoryFieldsFilled) return true;
+
+		const checkInDateTimeStr = formAttendanceDate && formCheckInTimeOnly ? `${formAttendanceDate}T${formCheckInTimeOnly}` : '';
+		const checkOutDateTimeStr = formAttendanceDate && formCheckOutTimeOnly ? `${formAttendanceDate}T${formCheckOutTimeOnly}` : '';
+
+		if (checkInDateTimeStr && checkOutDateTimeStr) {
+			const checkIn = new Date(checkInDateTimeStr);
+			const checkOut = new Date(checkOutDateTimeStr);
+			if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime()) || checkOut < checkIn) {
+				return true;
+			}
+		}
+
+		if (editCuid) {
+			return !hasChanges;
+		}
+
+		return false;
+	});
+
 
 
 	async function confirmDiscard() {
@@ -1122,9 +1150,14 @@
 				<Button
 					type="submit"
 					class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-none font-semibold"
-					disabled={isSubmitting}
+					disabled={isSubmitDisabled}
 				>
-					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editCuid ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
+					{#if isSubmitting}
+						<LoaderCircleIcon class="size-4 animate-spin mr-2" />
+						{UI_CONSTANTS.BUTTON_SAVING}
+					{:else}
+						{editCuid ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE}
+					{/if}
 				</Button>
 			</div>
 		</form>

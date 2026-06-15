@@ -1,11 +1,11 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-15)
 
 ## Corpus Check
-- 273 files · ~104,952 words
+- 273 files · ~105,357 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1283 nodes · 2364 edges · 93 communities (73 shown, 20 thin omitted)
+- 1283 nodes · 2364 edges · 92 communities (72 shown, 20 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 68 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -92,7 +92,6 @@
 - [[_COMMUNITY_Community 83|Community 83]]
 - [[_COMMUNITY_Community 85|Community 85]]
 - [[_COMMUNITY_Community 86|Community 86]]
-- [[_COMMUNITY_Community 87|Community 87]]
 - [[_COMMUNITY_Community 88|Community 88]]
 - [[_COMMUNITY_Community 90|Community 90]]
 - [[_COMMUNITY_Community 92|Community 92]]
@@ -126,7 +125,7 @@
 ## Import Cycles
 - 1-file cycle: `src/routes/leave-policies/+page.svelte -> src/routes/leave-policies/+page.svelte`
 
-## Communities (93 total, 20 thin omitted)
+## Communities (92 total, 20 thin omitted)
 
 ### Community 0 - "API Endpoints"
 Cohesion: 0.05
@@ -210,7 +209,7 @@ Nodes (11): Adding a new feature, Deployment, Keycloak client setup, pieq-svelte
 
 ### Community 32 - "Community 32"
 Cohesion: 0.15
-Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
+Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.10
@@ -227,10 +226,6 @@ Nodes (11): createSystemRole(), CreateSystemRoleDto, deleteSystemRole(), ensureR
 ### Community 37 - "Community 37"
 Cohesion: 0.25
 Nodes (4): $lib/components, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/settings, $app/stores
-
-### Community 38 - "Community 38"
-Cohesion: 0.12
-Nodes (6): CreateSystemRoleInput, UpdateSystemRoleInput, assignPermissionsToRole(), AssignRolePermissionsDto, removePermissionFromRoleByCuid2(), validateCuid2()
 
 ### Community 40 - "Community 40"
 Cohesion: 0.10
@@ -261,8 +256,8 @@ Cohesion: 0.25
 Nodes (7): RoleCreateDTO, RoleUpdateDTO, rejectUnknownKeys(), sanitizeString(), validateCreatePayload(), validatePaginationParams(), validateUpdatePayload()
 
 ### Community 49 - "Community 49"
-Cohesion: 0.22
-Nodes (9): Common workflows, Other, Quick reference, Scripts, Testing, `yarn prepare`, `yarn test`, `yarn test:e2e` (+1 more)
+Cohesion: 0.15
+Nodes (13): Code quality, Common workflows, Development, Other, Quick reference, Scripts, `yarn build`, `yarn check` (+5 more)
 
 ### Community 50 - "Community 50"
 Cohesion: 0.10
@@ -286,7 +281,7 @@ Nodes (10): averageAge, filteredEmployees, formError, handleAddEmployee(), isSub
 
 ### Community 59 - "Community 59"
 Cohesion: 0.50
-Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
+Nodes (4): Testing, `yarn test`, `yarn test:e2e`, `yarn test:unit`
 
 ### Community 61 - "Community 61"
 Cohesion: 0.29
@@ -342,7 +337,7 @@ Nodes (5): Database (Prisma), `yarn db:generate`, `yarn db:migrate`, `yarn db:pu
 
 ### Community 74 - "Community 74"
 Cohesion: 0.50
-Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
+Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
 
 ### Community 75 - "Community 75"
 Cohesion: 0.11
@@ -372,9 +367,9 @@ Nodes (6): ApiError, extractErrorMessage(), localApi, localRequest(), RoleListRe
 Cohesion: 0.20
 Nodes (3): AttendanceRecordFilters, CreateAttendanceRecordInput, UpdateAttendanceRecordInput
 
-### Community 87 - "Community 87"
-Cohesion: 0.50
-Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
+### Community 86 - "Community 86"
+Cohesion: 0.12
+Nodes (6): CreatePermissionInput, UpdatePermissionInput, assignPermissionsToRole(), AssignRolePermissionsDto, removePermissionFromRoleByCuid2(), validateCuid2()
 
 ### Community 88 - "Community 88"
 Cohesion: 0.17
