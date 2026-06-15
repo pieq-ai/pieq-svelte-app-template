@@ -67,3 +67,11 @@ export async function replaceDocuments(employee_cuid: string, dtos: UpsertDocume
     await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
     return results.map(toPublicDocument);
 }
+
+export async function getDocumentByCuid(cuid: string) {
+    if (!cuid) throw new Error("Document CUID2 is required");
+    const doc = await documentDao.findByCuid(cuid);
+    if (!doc) throw new Error(`Document with CUID2 "${cuid}" not found`);
+    return doc;
+}
+

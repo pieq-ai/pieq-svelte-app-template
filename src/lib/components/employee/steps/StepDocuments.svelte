@@ -2,16 +2,27 @@
 	import { Label, Input, MasterDataDropdown, Button } from '$lib/components';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash';
+	import EyeIcon from '@lucide/svelte/icons/eye';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
-
 
 	let { mode, cuid, onNext, onPrev } = $props<{ mode: 'create' | 'edit' | 'view', cuid: string | null, onNext: (cuid?: string) => void, onPrev: () => void }>();
 
 	let isSubmitting = $state(false);
 	let isTouched = $state(false);
+	let readingCount = $state(0);
 
-	let documents = $state<{ document_type_cuid: string, file_name: string, mime_type: string, file_size: number }[]>([]);
+	interface DocumentItem {
+		cuid?: string;
+		document_type_cuid: string;
+		file_name: string;
+		mime_type: string;
+		file_size: number;
+		document_base64?: string | null;
+		file?: File;
+	}
+
+	let documents = $state<DocumentItem[]>([]);
 
 	function addDocument() {
 		documents = [...documents, { document_type_cuid: '', file_name: '', mime_type: '', file_size: 0 }];
@@ -46,6 +57,46 @@
 		)
 	);
 
+	function previewOrDownload(blob: Blob, fileName: string, mimeType: string) {
+		const objectUrl = URL.createObjectURL(blob);
+		const lowerMime = (mimeType || '').toLowerCase();
+		
+		if (lowerMime === 'application/pdf' || lowerMime.startsWith('image/')) {
+			const newTab = window.open();
+			if (newTab) {
+				newTab.location.href = objectUrl;
+			} else {
+				window.location.href = objectUrl;
+			}
+		} else {
+			const a = document.createElement('a');
+			a.href = objectUrl;
+			a.download = fileName;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+		}
+		
+		setTimeout(() => URL.revokeObjectURL(objectUrl), 10000);
+	}
+
+	async function handlePreview(doc: DocumentItem) {
+		if (doc.file) {
+			previewOrDownload(doc.file, doc.file_name, doc.mime_type);
+			return;
+		}
+		if (doc.cuid && cuid) {
+			try {
+				const res = await fetch(`/api/employees/${cuid}/documents/${doc.cuid}`);
+				if (!res.ok) throw new Error('Failed to retrieve document content');
+				const blob = await res.blob();
+				previewOrDownload(blob, doc.file_name, doc.mime_type);
+			} catch (e) {
+				toast.error((e as Error).message);
+			}
+		}
+	}
+
 	async function save(shouldExit: boolean) {
 		isTouched = true;
 		if (hasErrors) {
@@ -56,10 +107,16 @@
 
 		try {
 			isSubmitting = true;
+			// Strip local File objects for JSON payload
+			const payload = documents.map((doc) => {
+				const docCopy = { ...doc };
+				delete docCopy.file;
+				return docCopy;
+			});
 			const res = await fetch(`/api/employees/${cuid}/documents`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(documents)
+				body: JSON.stringify(payload)
 			});
 			if (!res.ok) {
 				const body = await res.json();
@@ -82,7 +139,7 @@
 <div class="space-y-6">
 	{#if mode !== 'view'}
 		<div class="flex justify-end">
-			<Button variant="outline" size="sm" onclick={addDocument}>
+			<Button variant="outline" size="sm" onclick={addDocument} disabled={isSubmitting || readingCount > 0}>
 				<PlusIcon class="mr-2 size-4" /> Add Document
 			</Button>
 		</div>
@@ -95,11 +152,18 @@
 	<div class="space-y-4">
 		{#each documents as doc, index (index)}
 			<div class="rounded-lg border border-border p-4 pt-10 relative">
-				{#if mode !== 'view'}
-					<Button variant="ghost" size="icon-sm" class="absolute right-2 top-2 text-destructive hover:bg-destructive/10" onclick={() => documents = documents.filter((_, i) => i !== index)}>
-						<TrashIcon class="size-4" />
-					</Button>
-				{/if}
+				<div class="absolute right-2 top-2 flex items-center gap-1">
+					{#if doc.file_name}
+						<Button variant="ghost" size="icon-sm" class="text-primary hover:bg-primary/10" onclick={() => handlePreview(doc)} title="Preview Document">
+							<EyeIcon class="size-4" />
+						</Button>
+					{/if}
+					{#if mode !== 'view'}
+						<Button variant="ghost" size="icon-sm" class="text-destructive hover:bg-destructive/10" onclick={() => documents = documents.filter((_, i) => i !== index)} title="Delete Document">
+							<TrashIcon class="size-4" />
+						</Button>
+					{/if}
+				</div>
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<MasterDataDropdown 
 						master="document-types" 
@@ -118,6 +182,19 @@
 									doc.file_name = file.name;
 									doc.mime_type = file.type;
 									doc.file_size = file.size;
+									doc.file = file;
+
+									readingCount++;
+									const reader = new FileReader();
+									reader.onload = () => {
+										doc.document_base64 = reader.result as string;
+										readingCount--;
+									};
+									reader.onerror = () => {
+										readingCount--;
+										toast.error('Failed to read file contents');
+									};
+									reader.readAsDataURL(file);
 								}
 							}} class={(isTouched && validateRequired(doc.file_name)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
 							{#if doc.file_name}
@@ -134,16 +211,16 @@
 	</div>
 
 	<div class="flex items-center justify-between pt-6 border-t border-border">
-		<Button variant="outline" onclick={onPrev} disabled={isSubmitting}>
+		<Button variant="outline" onclick={onPrev} disabled={isSubmitting || readingCount > 0}>
 			Previous
 		</Button>
 		<div class="space-x-2">
 			{#if mode !== 'view'}
-				<Button variant="secondary" onclick={() => save(true)} disabled={isSubmitting}>
+				<Button variant="secondary" onclick={() => save(true)} disabled={isSubmitting || readingCount > 0}>
 					Save & Exit
 				</Button>
-				<Button onclick={() => save(false)} disabled={isSubmitting}>
-					Save & Next
+				<Button onclick={() => save(false)} disabled={isSubmitting || readingCount > 0}>
+					{readingCount > 0 ? 'Reading file...' : 'Save & Next'}
 				</Button>
 			{:else}
 				<Button onclick={() => onNext()}>
@@ -153,3 +230,4 @@
 		</div>
 	</div>
 </div>
+

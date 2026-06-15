@@ -1,10 +1,10 @@
-refactor: standardize employee module API endpoints and UI integration
+fix: implement employee document upload storage and preview workflows
 
-This commit aligns the entire Employee module with the existing master modules pattern by standardizing the REST API layer, validation responses, and frontend data fetching architecture.
+This commit fixes the document upload persistence issue in the Employee Document step and introduces a document preview/download workflow.
 
-- **API Routes**: Refactored `api/employees` and all its sub-module routes (addresses, bank-details, documents, educations, employment, experiences, languages, skills) to utilize standardized response helpers (`sendList`, `sendItem`, `sendCreated`, `sendUpdated`, `sendDeleted`).
-- **Service Layer**: Migrated all validation errors across employee services to use the structured `ValidationError` class, enabling consistent 409 Conflict mappings in the UI. Added `deleteEmployee` implementation.
-- **Frontend Listing**: Removed SvelteKit SSR `+page.server.ts` from the Employee listing page in favor of a direct client-side fetch to `GET /api/employees`, matching master module behavior. Added dynamic table loading states.
-- **Frontend Creation**: Updated `create/+page.svelte` to properly extract `cuid` from standard response payloads and introduced a `runUpdate` wrapper to cleanly detect and alert on nested entity API failures.
-- **Testing**: Bootstrapped core unit tests for `employee.service.ts` focusing on mapping and data access patterns.
-- **Utilities**: Added `src/lib/server/utils/response.ts` for unified payload wrapping and generic error handling.
+- **DAO Layer**: Added `findByCuid` in `document.dao.ts` to query specific documents by CUID.
+- **Service Layer**: Added `getDocumentByCuid` in `document.service.ts` to fetch binary documents.
+- **API Endpoint**: Created `src/routes/api/employees/[cuid]/documents/[docCuid]/+server.ts` to serve stored binary document data as a Response with correct Content-Type and inline Content-Disposition.
+- **UI Component**: Updated `StepDocuments.svelte` to read file inputs using `FileReader` as base64 and bind `file` state for previews. Added a preview Eye icon for PDF, image, and downloadable files. Tracked file loading to disable navigation buttons during reads.
+- **Testing**: Bootstrapped unit tests in `tests/unit/document.service.test.ts` for getDocumentByCuid and replaceDocuments.
+- **Code Graph**: Updated AST knowledge graph using graphify.

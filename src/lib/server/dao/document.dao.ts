@@ -65,3 +65,10 @@ export async function replaceDocuments(employee_cuid: string, documents: UpsertD
         return results;
     });
 }
+
+export async function findByCuid(cuid: string) {
+    return db.employeeDocument.findUnique({
+        where: { cuid }
+    });
+}
+
