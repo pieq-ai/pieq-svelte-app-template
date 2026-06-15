@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent } from '$lib/components';
+	import CrudModal from '$lib/components/common/CrudModal.svelte';
 
 	import StepPersonal from './steps/StepPersonal.svelte';
 	import StepEmployment from './steps/StepEmployment.svelte';
@@ -12,10 +13,10 @@
 	import StepBankDetails from './steps/StepBankDetails.svelte';
 	import { replaceState } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { untrack } from 'svelte';
 
 	let { mode = 'create', employeeCuid = null, data } = $props<{ mode?: 'create' | 'edit' | 'view'; employeeCuid?: string | null; data?: Record<string, unknown> }>();
 
-	import { untrack } from 'svelte';
 	let currentStep = $state(1);
 	let cuid = $state(untrack(() => employeeCuid));
 	let internalMode = $state(untrack(() => mode));
@@ -44,14 +45,87 @@
 		'Bank Details'
 	];
 
+	// ── Wizard-level unsaved-changes state ──────────────────────────────────
+	type SaveOnlyFn = () => Promise<{ success: boolean; cuid?: string }>;
+
+	let stepIsDirty = $state(false);
+	let stepSaveOnly = $state<SaveOnlyFn | null>(null);
+	let pendingStep = $state<number | null>(null);
+	let showUnsavedModal = $state(false);
+	let modalSubmitting = $state(false);
+
+	/** Called by the active step whenever its dirty state changes. */
+	function handleDirtyChange(dirty: boolean) {
+		stepIsDirty = dirty;
+	}
+
+	/** Called by the active step in onMount to register its save-only function. */
+	function handleRegisterSaveOnly(fn: SaveOnlyFn) {
+		stepSaveOnly = fn;
+	}
+
+	/** Reset wizard dirty/save tracking when the active step changes. */
+	$effect(() => {
+		void currentStep;
+		stepIsDirty = false;
+		stepSaveOnly = null;
+	});
+
+	/** Single entry-point for ALL navigation (tabs, prev, next is exempt — it already saved). */
+	function requestNavigate(targetStep: number) {
+		if (internalMode === 'view' || !stepIsDirty) {
+			currentStep = targetStep;
+		} else {
+			pendingStep = targetStep;
+			showUnsavedModal = true;
+		}
+	}
+
+	function finalizePendingNavigation() {
+		showUnsavedModal = false;
+		if (pendingStep !== null) {
+			currentStep = pendingStep;
+			pendingStep = null;
+		}
+	}
+
+	async function handleModalSave() {
+		if (!stepSaveOnly) {
+			// No save function registered yet (still loading) — just navigate
+			finalizePendingNavigation();
+			return;
+		}
+		try {
+			modalSubmitting = true;
+			const result = await stepSaveOnly();
+			if (result.success) {
+				// Update cuid if step 1 just created a new employee
+				if (result.cuid && result.cuid !== cuid) {
+					cuid = result.cuid;
+					if (internalMode === 'create') {
+						replaceState(`/employees/${cuid}`, $page.state);
+						internalMode = 'edit';
+					}
+				}
+				finalizePendingNavigation();
+			}
+			// If save failed, modal stays open so user can see toast and fix errors
+		} finally {
+			modalSubmitting = false;
+		}
+	}
+
+	function handleModalDiscard() {
+		finalizePendingNavigation();
+	}
+
+	// ── Standard next/prev (called AFTER a step has already saved) ──────────
 	function handleNext(newCuid?: string) {
 		if (newCuid && newCuid !== cuid) {
 			cuid = newCuid;
-			// Update the URL to include the new cuid if we are creating
 			if (internalMode === 'create') {
-				// We don't want to reload the page, just update URL
 				replaceState(`/employees/${cuid}`, $page.state);
-				internalMode = 'edit'; // After creation, subsequent saves are edits
+				internalMode = 'edit';
 			}
 		}
 		if (currentStep < steps.length) {
@@ -61,7 +135,7 @@
 
 	function handlePrev() {
 		if (currentStep > 1) {
-			currentStep--;
+			requestNavigate(currentStep - 1);
 		}
 	}
 
@@ -90,10 +164,10 @@
 					{@const stepNum = index + 1}
 					{@const isCurrent = stepNum === currentStep}
 					<li class="flex items-center shrink-0">
-						<button 
-							type="button" 
-							class="flex items-center cursor-pointer hover:opacity-80 transition-colors" 
-							onclick={() => { currentStep = stepNum; }}
+						<button
+							type="button"
+							class="flex items-center cursor-pointer hover:opacity-80 transition-colors"
+							onclick={() => requestNavigate(stepNum)}
 						>
 							<span class="text-sm {isCurrent ? 'text-primary font-semibold' : 'text-muted-foreground hover:text-foreground'}">
 								{step}
@@ -133,28 +207,67 @@
 			<CardContent class="p-6 md:p-8">
 				<!-- Step Content rendered here -->
 				{#if currentStep === 1}
-					<StepPersonal mode={internalMode} {cuid} {data} onNext={handleNext} />
+					<StepPersonal mode={internalMode} {cuid} {data} onNext={handleNext}
+						onDirtyChange={handleDirtyChange}
+						onRegisterSaveOnly={handleRegisterSaveOnly} />
 				{:else if currentStep === 2}
-					<StepEmployment mode={internalMode} {cuid} {data} onNext={handleNext} onPrev={handlePrev} />
+					<StepEmployment mode={internalMode} {cuid} {data} onNext={handleNext} onPrev={handlePrev}
+						onDirtyChange={handleDirtyChange}
+						onRegisterSaveOnly={handleRegisterSaveOnly} />
 				{:else if currentStep === 3}
-					<StepAddress mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev} />
+					<StepAddress mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev}
+						onDirtyChange={handleDirtyChange}
+						onRegisterSaveOnly={handleRegisterSaveOnly} />
 				{:else if currentStep === 4}
-					<StepEducation mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev} />
+					<StepEducation mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev}
+						onDirtyChange={handleDirtyChange}
+						onRegisterSaveOnly={handleRegisterSaveOnly} />
 				{:else if currentStep === 5}
-					<StepExperience mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev} />
+					<StepExperience mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev}
+						onDirtyChange={handleDirtyChange}
+						onRegisterSaveOnly={handleRegisterSaveOnly} />
 				{:else if currentStep === 6}
-					<StepSkills mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev} />
+					<StepSkills mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev}
+						onDirtyChange={handleDirtyChange}
+						onRegisterSaveOnly={handleRegisterSaveOnly} />
 				{:else if currentStep === 7}
-					<StepLanguages mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev} />
+					<StepLanguages mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev}
+						onDirtyChange={handleDirtyChange}
+						onRegisterSaveOnly={handleRegisterSaveOnly} />
 				{:else if currentStep === 8}
-					<StepDocuments mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev} />
+					<StepDocuments mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev}
+						onDirtyChange={handleDirtyChange}
+						onRegisterSaveOnly={handleRegisterSaveOnly} />
 				{:else if currentStep === 9}
-					<StepBankDetails mode={internalMode} {cuid} onPrev={handlePrev} />
+					<StepBankDetails mode={internalMode} {cuid} onPrev={handlePrev}
+						onDirtyChange={handleDirtyChange}
+						onRegisterSaveOnly={handleRegisterSaveOnly} />
 				{/if}
 			</CardContent>
 		</Card>
 	</div>
 </div>
+
+<!-- Wizard-level Unsaved Changes Modal (reuses CrudModal design) -->
+<CrudModal
+	open={showUnsavedModal}
+	title="Unsaved Changes"
+	description="You have unsaved changes on this page. What would you like to do?"
+	isSubmitting={modalSubmitting}
+	onClose={() => { if (!modalSubmitting) showUnsavedModal = false; }}
+>
+	<div class="flex flex-col sm:flex-row justify-end gap-2 pt-2">
+		<Button type="button" variant="outline" onclick={() => showUnsavedModal = false} disabled={modalSubmitting}>
+			Cancel
+		</Button>
+		<Button type="button" variant="secondary" onclick={handleModalDiscard} disabled={modalSubmitting}>
+			Discard Changes
+		</Button>
+		<Button type="button" onclick={handleModalSave} disabled={modalSubmitting}>
+			{modalSubmitting ? 'Saving...' : 'Save'}
+		</Button>
+	</div>
+</CrudModal>
 
 <style>
 	.custom-scrollbar::-webkit-scrollbar {

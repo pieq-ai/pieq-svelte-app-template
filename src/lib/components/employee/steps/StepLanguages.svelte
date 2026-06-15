@@ -3,16 +3,53 @@
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 
+	type SaveOnlyFn = () => Promise<{ success: boolean; cuid?: string }>;
 
-	let { mode, cuid, onNext, onPrev } = $props<{ mode: 'create' | 'edit' | 'view', cuid: string | null, onNext: (cuid?: string) => void, onPrev: () => void }>();
+	let { mode, cuid, onNext, onPrev, onDirtyChange, onRegisterSaveOnly } = $props<{
+		mode: 'create' | 'edit' | 'view';
+		cuid: string | null;
+		onNext: (cuid?: string) => void;
+		onPrev: () => void;
+		onDirtyChange?: (dirty: boolean) => void;
+		onRegisterSaveOnly?: (fn: SaveOnlyFn) => void;
+	}>();
 
 	let isSubmitting = $state(false);
 	let isTouched = $state(false);
 
-	let languages = $state<{ language_cuid: string, proficiency_level: string, can_read: boolean, can_write: boolean, can_speak: boolean }[]>([]);
+	type LangItem = {
+		language_cuid: string;
+		proficiency_level: string;
+		can_read: boolean;
+		can_write: boolean;
+		can_speak: boolean;
+	};
+	const emptyLang = (): LangItem => ({
+		language_cuid: '',
+		proficiency_level: '',
+		can_read: false,
+		can_write: false,
+		can_speak: false
+	});
+
+	let languages = $state<LangItem[]>([]);
+	let originalData = $state('[]');
 
 	function addLanguage() {
-		languages = [...languages, { language_cuid: '', proficiency_level: '', can_read: false, can_write: false, can_speak: false }];
+		languages = [...languages, emptyLang()];
+	}
+
+	function normalizeLangItem(item: Partial<LangItem>): LangItem {
+		return {
+			language_cuid: item.language_cuid || '',
+			proficiency_level: item.proficiency_level || '',
+			can_read: item.can_read ?? false,
+			can_write: item.can_write ?? false,
+			can_speak: item.can_speak ?? false
+		};
+	}
+	function normalizeLanguages(list: Partial<LangItem>[]): LangItem[] {
+		return (list || []).map(normalizeLangItem);
 	}
 
 	onMount(async () => {
@@ -30,6 +67,14 @@
 		if (languages.length === 0 && mode !== 'view') {
 			addLanguage();
 		}
+		originalData = JSON.stringify(normalizeLanguages(languages));
+		onRegisterSaveOnly?.(saveOnly);
+	});
+
+	let isDirty = $derived(JSON.stringify(normalizeLanguages(languages)) !== originalData);
+
+	$effect(() => {
+		onDirtyChange?.(isDirty);
 	});
 
 	// Validations
@@ -38,19 +83,19 @@
 	}
 
 	let hasErrors = $derived(
-		languages.some(l => 
-			validateRequired(l.language_cuid) || 
+		languages.some(l =>
+			validateRequired(l.language_cuid) ||
 			validateRequired(l.proficiency_level)
 		)
 	);
 
-	async function save(shouldExit: boolean) {
+	async function saveOnly(): Promise<{ success: boolean }> {
 		isTouched = true;
 		if (hasErrors) {
 			toast.error('Please correct the validation errors before saving.');
-			return;
+			return { success: false };
 		}
-		if (!cuid) return;
+		if (!cuid) return { success: false };
 
 		try {
 			isSubmitting = true;
@@ -61,18 +106,25 @@
 			});
 			if (!res.ok) {
 				const body = await res.json();
-				throw new Error(body.error || 'Failed to save languages');
+				throw new Error(body.data?.message || body.error || 'Failed to save languages');
 			}
-
-			if (shouldExit) {
-				window.location.href = '/employees';
-			} else {
-				onNext();
-			}
+			originalData = JSON.stringify(normalizeLanguages(languages));
+			return { success: true };
 		} catch (e: unknown) {
 			toast.error((e as Error).message);
+			return { success: false };
 		} finally {
 			isSubmitting = false;
+		}
+	}
+
+	async function save(shouldExit: boolean) {
+		const result = await saveOnly();
+		if (!result.success) return;
+		if (shouldExit) {
+			window.location.href = '/employees';
+		} else {
+			onNext();
 		}
 	}
 </script>
@@ -100,28 +152,30 @@
 				{/if}
 				<div class="flex flex-col sm:flex-row gap-6 items-start sm:items-center w-full mt-4 sm:mt-0">
 					<div class="flex-1 w-full sm:pr-8">
-						<MasterDataDropdown 
-							master="languages" 
-							label="Language *" 
-							value={lang.language_cuid} 
-							onSelect={(val) => lang.language_cuid = val as string} 
+						<MasterDataDropdown
+							master="languages"
+							label="Language *"
+							value={lang.language_cuid}
+							onSelect={(val) => lang.language_cuid = val as string}
 							disabled={mode === 'view'}
 							class={(isTouched && validateRequired(lang.language_cuid)) ? 'border-destructive' : ''}
 						/>
+						{#if isTouched && validateRequired(lang.language_cuid)}<p class="text-xs text-destructive mt-1">{validateRequired(lang.language_cuid)}</p>{/if}
 					</div>
 					<div class="flex-1 w-full">
-						<SearchableDropdown 
-							label="Proficiency *" 
-							value={lang.proficiency_level} 
+						<SearchableDropdown
+							label="Proficiency *"
+							value={lang.proficiency_level}
 							options={[
 								{ id: 'beginner', label: 'Beginner' },
 								{ id: 'intermediate', label: 'Intermediate' },
 								{ id: 'fluent', label: 'Fluent' }
 							]}
-							onSelect={(val) => lang.proficiency_level = val as string} 
+							onSelect={(val) => lang.proficiency_level = val as string}
 							disabled={mode === 'view'}
 							class={(isTouched && validateRequired(lang.proficiency_level)) ? 'border-destructive' : ''}
 						/>
+						{#if isTouched && validateRequired(lang.proficiency_level)}<p class="text-xs text-destructive mt-1">{validateRequired(lang.proficiency_level)}</p>{/if}
 					</div>
 				</div>
 				<div class="flex gap-6 mt-2">

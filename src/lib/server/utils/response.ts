@@ -23,7 +23,10 @@ export function sendDeleted(cuid: string, message: string = 'Successfully delete
 
 export function handleError(error: unknown) {
 	if (error instanceof ValidationError) {
-		return json({ error: error.message, field: error.field }, { status: 409 });
+		return json(
+			{ data: { success: false, field: error.field, message: error.message } },
+			{ status: 409 }
+		);
 	}
 	const message = (error as Error).message;
 	const status = message === 'Unauthorized' ? 401 : message.includes('not found') ? 404 : 400;

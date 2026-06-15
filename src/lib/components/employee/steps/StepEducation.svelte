@@ -4,16 +4,53 @@
 	import { SvelteDate } from 'svelte/reactivity';
 	import { onMount } from 'svelte';
 
+	type SaveOnlyFn = () => Promise<{ success: boolean; cuid?: string }>;
 
-	let { mode, cuid, onNext, onPrev } = $props<{ mode: 'create' | 'edit' | 'view', cuid: string | null, onNext: () => void, onPrev: () => void }>();
+	let { mode, cuid, onNext, onPrev, onDirtyChange, onRegisterSaveOnly } = $props<{
+		mode: 'create' | 'edit' | 'view';
+		cuid: string | null;
+		onNext: () => void;
+		onPrev: () => void;
+		onDirtyChange?: (dirty: boolean) => void;
+		onRegisterSaveOnly?: (fn: SaveOnlyFn) => void;
+	}>();
 
 	let isSubmitting = $state(false);
 	let isTouched = $state(false);
 
-	let educations = $state<{ education_level: string, specialization: string, institution: string, university_board: string, percentage: string, completed_at: string }[]>([]);
+	type EduItem = { education_level: string; specialization: string; institution: string; university_board: string; percentage: string; completed_at: string };
+
+	const emptyEdu = (): EduItem => ({ education_level: '', specialization: '', institution: '', university_board: '', percentage: '', completed_at: '' });
+
+	let educations = $state<EduItem[]>([]);
+	let originalData = $state('[]');
 
 	function addEducation() {
-		educations = [...educations, { education_level: '', specialization: '', institution: '', university_board: '', percentage: '', completed_at: '' }];
+		educations = [...educations, emptyEdu()];
+	}
+
+	function normalizeEduItem(item: Partial<EduItem>): EduItem {
+		let completedAt = item.completed_at || '';
+		if (completedAt) {
+			completedAt = String(completedAt).split('T')[0];
+		}
+		let percentage = item.percentage;
+		if (percentage !== null && percentage !== undefined) {
+			percentage = String(parseFloat(String(percentage)));
+		} else {
+			percentage = '';
+		}
+		return {
+			education_level: item.education_level || '',
+			specialization: item.specialization || '',
+			institution: item.institution || '',
+			university_board: item.university_board || '',
+			percentage,
+			completed_at: completedAt
+		};
+	}
+	function normalizeEducations(list: Partial<EduItem>[]): EduItem[] {
+		return (list || []).map(normalizeEduItem);
 	}
 
 	onMount(async () => {
@@ -31,6 +68,14 @@
 		if (educations.length === 0 && mode !== 'view') {
 			addEducation();
 		}
+		originalData = JSON.stringify(normalizeEducations(educations));
+		onRegisterSaveOnly?.(saveOnly);
+	});
+
+	let isDirty = $derived(JSON.stringify(normalizeEducations(educations)) !== originalData);
+
+	$effect(() => {
+		onDirtyChange?.(isDirty);
 	});
 
 	// Validations
@@ -40,35 +85,35 @@
 	function validatePercentage(val: string | undefined | null) {
 		if (!val) return 'Required';
 		const num = parseFloat(val);
-		if (isNaN(num) || num < 0 || num > 100) return 'Must be 0-100';
+		if (isNaN(num) || num < 0 || num > 100) return 'Must be 0–100';
 		return '';
 	}
 	function validatePastDate(date: string) {
 		if (!date) return 'Required';
 		const dt = new SvelteDate(date);
-		if (isNaN(dt.getTime())) return "Invalid date.";
-		if (dt > new SvelteDate()) return "Cannot be a future date.";
+		if (isNaN(dt.getTime())) return 'Invalid date.';
+		if (dt > new SvelteDate()) return 'Cannot be a future date.';
 		return '';
 	}
 
 	let hasErrors = $derived(
-		educations.some(e => 
-			validateRequired(e.education_level) || 
-			validateRequired(e.specialization) || 
-			validateRequired(e.institution) || 
-			validateRequired(e.university_board) || 
-			validatePercentage(e.percentage?.toString()) || 
+		educations.some(e =>
+			validateRequired(e.education_level) ||
+			validateRequired(e.specialization) ||
+			validateRequired(e.institution) ||
+			validateRequired(e.university_board) ||
+			validatePercentage(e.percentage?.toString()) ||
 			validatePastDate(e.completed_at)
 		)
 	);
 
-	async function save(shouldExit: boolean) {
+	async function saveOnly(): Promise<{ success: boolean }> {
 		isTouched = true;
 		if (hasErrors) {
 			toast.error('Please correct the validation errors before saving.');
-			return;
+			return { success: false };
 		}
-		if (!cuid) return;
+		if (!cuid) return { success: false };
 
 		try {
 			isSubmitting = true;
@@ -79,18 +124,25 @@
 			});
 			if (!res.ok) {
 				const body = await res.json();
-				throw new Error(body.error || 'Failed to save educations');
+				throw new Error(body.data?.message || body.error || 'Failed to save educations');
 			}
-
-			if (shouldExit) {
-				window.location.href = '/employees';
-			} else {
-				onNext();
-			}
+			originalData = JSON.stringify(normalizeEducations(educations));
+			return { success: true };
 		} catch (e: unknown) {
 			toast.error((e as Error).message);
+			return { success: false };
 		} finally {
 			isSubmitting = false;
+		}
+	}
+
+	async function save(shouldExit: boolean) {
+		const result = await saveOnly();
+		if (!result.success) return;
+		if (shouldExit) {
+			window.location.href = '/employees';
+		} else {
+			onNext();
 		}
 	}
 </script>
@@ -116,9 +168,9 @@
 				</Button>
 			{/if}
 			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-				<SearchableDropdown 
-					label="Education Level *" 
-					value={edu.education_level} 
+				<SearchableDropdown
+					label="Education Level *"
+					value={edu.education_level}
 					options={[
 						{ id: '10th', label: '10th Standard' },
 						{ id: '12th', label: '12th Standard' },
@@ -127,7 +179,7 @@
 						{ id: 'masters', label: 'Masters Degree' },
 						{ id: 'doctorate', label: 'Doctorate (Ph.D)' }
 					]}
-					onSelect={(val) => edu.education_level = val as string} 
+					onSelect={(val) => edu.education_level = val as string}
 					disabled={mode === 'view'}
 					class={(isTouched && validateRequired(edu.education_level)) ? 'border-destructive' : ''}
 				/>

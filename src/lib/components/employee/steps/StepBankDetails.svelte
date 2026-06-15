@@ -14,7 +14,15 @@
 		validateBankDetails
 	} from '$lib/utils/employeeValidationHelper';
 
-	let { mode, cuid, onPrev } = $props<{ mode: 'create' | 'edit' | 'view', cuid: string | null, onPrev: () => void }>();
+	type SaveOnlyFn = () => Promise<{ success: boolean; cuid?: string }>;
+
+	let { mode, cuid, onPrev, onDirtyChange, onRegisterSaveOnly } = $props<{
+		mode: 'create' | 'edit' | 'view';
+		cuid: string | null;
+		onPrev: () => void;
+		onDirtyChange?: (dirty: boolean) => void;
+		onRegisterSaveOnly?: (fn: SaveOnlyFn) => void;
+	}>();
 
 	let isSubmitting = $state(false);
 	let isTouched = $state(false);
@@ -22,10 +30,34 @@
 	let showValidationModal = $state(false);
 	let validationErrors = $state<{ section: string; errors: string[] }[]>([]);
 
-	let bankDetails = $state<{ account_holder_name: string, account_number: string, bank_name: string, branch_name: string, ifsc_code: string, is_primary: boolean }[]>([]);
+	interface BankDetailsItem {
+		account_holder_name: string;
+		account_number: string;
+		bank_name: string;
+		branch_name: string;
+		ifsc_code: string;
+		is_primary: boolean;
+	}
+
+	let bankDetails = $state<BankDetailsItem[]>([]);
+	let originalData = $state('[]');
 
 	function addBank() {
 		bankDetails = [...bankDetails, { account_holder_name: '', account_number: '', bank_name: '', branch_name: '', ifsc_code: '', is_primary: false }];
+	}
+
+	function normalizeBankItem(item: Partial<BankDetailsItem>) {
+		return {
+			account_holder_name: item.account_holder_name || '',
+			account_number: item.account_number || '',
+			bank_name: item.bank_name || '',
+			branch_name: item.branch_name || '',
+			ifsc_code: (item.ifsc_code || '').toUpperCase().trim(),
+			is_primary: !!item.is_primary
+		};
+	}
+	function normalizeBankDetails(list: Partial<BankDetailsItem>[]) {
+		return (list || []).map(normalizeBankItem);
 	}
 
 	onMount(async () => {
@@ -43,6 +75,14 @@
 		if (bankDetails.length === 0 && mode !== 'view') {
 			addBank();
 		}
+		originalData = JSON.stringify(normalizeBankDetails(bankDetails));
+		onRegisterSaveOnly?.(saveOnly);
+	});
+
+	let isDirty = $derived(JSON.stringify(normalizeBankDetails(bankDetails)) !== originalData);
+
+	$effect(() => {
+		onDirtyChange?.(isDirty);
 	});
 
 	// Validations
@@ -64,13 +104,13 @@
 		)
 	);
 
-	async function save(shouldExit: boolean = false) {
+	async function saveOnly(): Promise<{ success: boolean }> {
 		isTouched = true;
 		if (hasErrors) {
 			toast.error('Please correct the validation errors in Bank Details before saving.');
-			return;
+			return { success: false };
 		}
-		if (!cuid) return;
+		if (!cuid) return { success: false };
 
 		try {
 			isSubmitting = true;
@@ -81,19 +121,27 @@
 			});
 			if (!res.ok) {
 				const body = await res.json();
-				throw new Error(body.error || 'Failed to save bank details');
+				throw new Error(body.data?.message || body.error || 'Failed to save bank details');
 			}
 
-			if (shouldExit) {
-				toast.success('Draft saved successfully!');
-				window.location.href = '/employees';
-			}
+			originalData = JSON.stringify(normalizeBankDetails(bankDetails));
+			return { success: true };
 		} catch (e: unknown) {
 			toast.error((e as Error).message);
-			throw e;
+			return { success: false };
 		} finally {
 			isSubmitting = false;
 		}
+	}
+
+	async function save(shouldExit: boolean = false): Promise<boolean> {
+		const result = await saveOnly();
+		if (!result.success) return false;
+		if (shouldExit) {
+			toast.success('Draft saved successfully!');
+			window.location.href = '/employees';
+		}
+		return true;
 	}
 
 	async function handleSubmit() {
@@ -174,7 +222,8 @@
 
 			// 3. If everything is valid:
 			// Save Step 9
-			await save(false);
+			const ok = await saveOnly();
+			if (!ok.success) return;
 
 			// Complete profile_completion_status to completed
 			const resComplete = await fetch(`/api/employees/${cuid}`, {
@@ -185,7 +234,7 @@
 
 			if (!resComplete.ok) {
 				const body = await resComplete.json();
-				throw new Error(body.error || 'Failed to complete employee profile status');
+				throw new Error(body.data?.message || body.error || 'Failed to complete employee profile status');
 			}
 
 			toast.success('Employee profile completed successfully!');
@@ -200,11 +249,13 @@
 
 	async function saveDraftAndExit() {
 		try {
-			await save(false);
-			toast.success('Progress saved as draft.');
-			window.location.href = '/employees';
+			const ok = await saveOnly();
+			if (ok.success) {
+				toast.success('Progress saved as draft.');
+				window.location.href = '/employees';
+			}
 		} catch {
-			// error already toasted in save()
+			// error already toasted in saveOnly()
 		}
 	}
 </script>

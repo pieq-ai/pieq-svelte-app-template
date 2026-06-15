@@ -4,16 +4,49 @@
 	import { SvelteDate } from 'svelte/reactivity';
 	import { onMount } from 'svelte';
 
+	type SaveOnlyFn = () => Promise<{ success: boolean; cuid?: string }>;
 
-	let { mode, cuid, onNext, onPrev } = $props<{ mode: 'create' | 'edit' | 'view', cuid: string | null, onNext: (cuid?: string) => void, onPrev: () => void }>();
+	let { mode, cuid, onNext, onPrev, onDirtyChange, onRegisterSaveOnly } = $props<{
+		mode: 'create' | 'edit' | 'view';
+		cuid: string | null;
+		onNext: (cuid?: string) => void;
+		onPrev: () => void;
+		onDirtyChange?: (dirty: boolean) => void;
+		onRegisterSaveOnly?: (fn: SaveOnlyFn) => void;
+	}>();
 
 	let isSubmitting = $state(false);
 	let isTouched = $state(false);
 
-	let experiences = $state<{ company_name: string, role: string, description: string, from_date: string, to_date: string }[]>([]);
+	type ExpItem = { company_name: string; role: string; description: string; from_date: string; to_date: string };
+	const emptyExp = (): ExpItem => ({ company_name: '', role: '', description: '', from_date: '', to_date: '' });
+
+	let experiences = $state<ExpItem[]>([]);
+	let originalData = $state('[]');
 
 	function addExperience() {
-		experiences = [...experiences, { company_name: '', role: '', description: '', from_date: '', to_date: '' }];
+		experiences = [...experiences, emptyExp()];
+	}
+
+	function normalizeExpItem(item: Partial<ExpItem>): ExpItem {
+		let fromDate = item.from_date || '';
+		if (fromDate) {
+			fromDate = String(fromDate).split('T')[0];
+		}
+		let toDate = item.to_date || '';
+		if (toDate) {
+			toDate = String(toDate).split('T')[0];
+		}
+		return {
+			company_name: item.company_name || '',
+			role: item.role || '',
+			description: item.description || '',
+			from_date: fromDate,
+			to_date: toDate
+		};
+	}
+	function normalizeExperiences(list: Partial<ExpItem>[]): ExpItem[] {
+		return (list || []).map(normalizeExpItem);
 	}
 
 	onMount(async () => {
@@ -31,6 +64,14 @@
 		if (experiences.length === 0 && mode !== 'view') {
 			addExperience();
 		}
+		originalData = JSON.stringify(normalizeExperiences(experiences));
+		onRegisterSaveOnly?.(saveOnly);
+	});
+
+	let isDirty = $derived(JSON.stringify(normalizeExperiences(experiences)) !== originalData);
+
+	$effect(() => {
+		onDirtyChange?.(isDirty);
 	});
 
 	// Validations
@@ -41,27 +82,27 @@
 		if (!from || !to) return 'Required';
 		const dFrom = new SvelteDate(from);
 		const dTo = new SvelteDate(to);
-		if (isNaN(dFrom.getTime()) || isNaN(dTo.getTime())) return "Invalid date.";
-		if (dTo > new SvelteDate()) return "Cannot be a future date.";
-		if (dFrom > dTo) return "From Date cannot be after To Date.";
+		if (isNaN(dFrom.getTime()) || isNaN(dTo.getTime())) return 'Invalid date.';
+		if (dTo > new SvelteDate()) return 'Cannot be a future date.';
+		if (dFrom > dTo) return 'From Date cannot be after To Date.';
 		return '';
 	}
 
 	let hasErrors = $derived(
-		experiences.some(e => 
-			validateRequired(e.company_name) || 
-			validateRequired(e.role) || 
+		experiences.some(e =>
+			validateRequired(e.company_name) ||
+			validateRequired(e.role) ||
 			validateDates(e.from_date, e.to_date)
 		)
 	);
 
-	async function save(shouldExit: boolean) {
+	async function saveOnly(): Promise<{ success: boolean }> {
 		isTouched = true;
 		if (hasErrors) {
 			toast.error('Please correct the validation errors before saving.');
-			return;
+			return { success: false };
 		}
-		if (!cuid) return;
+		if (!cuid) return { success: false };
 
 		try {
 			isSubmitting = true;
@@ -72,18 +113,25 @@
 			});
 			if (!res.ok) {
 				const body = await res.json();
-				throw new Error(body.error || 'Failed to save experiences');
+				throw new Error(body.data?.message || body.error || 'Failed to save experiences');
 			}
-
-			if (shouldExit) {
-				window.location.href = '/employees';
-			} else {
-				onNext();
-			}
+			originalData = JSON.stringify(normalizeExperiences(experiences));
+			return { success: true };
 		} catch (e: unknown) {
 			toast.error((e as Error).message);
+			return { success: false };
 		} finally {
 			isSubmitting = false;
+		}
+	}
+
+	async function save(shouldExit: boolean) {
+		const result = await saveOnly();
+		if (!result.success) return;
+		if (shouldExit) {
+			window.location.href = '/employees';
+		} else {
+			onNext();
 		}
 	}
 </script>

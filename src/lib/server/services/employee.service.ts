@@ -96,8 +96,25 @@ export async function createEmployee(dto: CreateEmployeeDto) {
     if (personal_email) {
         const existingEmail = await employeeDao.findByEmail(personal_email);
         if (existingEmail) {
-            throw new ValidationError("personal_email", `Email "${personal_email}" is already used`);
+            throw new ValidationError("personal_email", "Email already exists.");
         }
+    }
+
+    if (mobile_no) {
+        const existingMobile = await employeeDao.findByMobile(mobile_no);
+        if (existingMobile) {
+            throw new ValidationError("mobile_no", "Mobile number already exists.");
+        }
+    }
+
+    const existingAadhar = await employeeDao.findByAadhar(aadhar_no);
+    if (existingAadhar) {
+        throw new ValidationError("aadhar_no", "Aadhar number already exists.");
+    }
+
+    const existingPan = await employeeDao.findByPan(pan_no);
+    if (existingPan) {
+        throw new ValidationError("pan_no", "PAN number already exists.");
     }
 
     return toPublicEmployee(await employeeDao.create({
@@ -132,7 +149,6 @@ export async function updateEmployee(cuid: string, dto: UpdateEmployeeDto) {
     if (dto.first_name !== undefined) updateData.first_name = validator.validateName(dto.first_name, "First Name");
     if (dto.last_name !== undefined) updateData.last_name = validator.validateName(dto.last_name, "Last Name");
     if (dto.father_name !== undefined) updateData.father_name = validator.validateName(dto.father_name, "Father's Name");
-    if (dto.mobile_no !== undefined) updateData.mobile_no = validator.validateMobile(dto.mobile_no, "Mobile Number");
     if (dto.emergency_contact_name !== undefined) updateData.emergency_contact_name = validator.validateName(dto.emergency_contact_name, "Emergency Contact Name");
     if (dto.emergency_contact_no !== undefined) updateData.emergency_contact_no = validator.validateMobile(dto.emergency_contact_no, "Emergency Contact Number");
     
@@ -141,14 +157,45 @@ export async function updateEmployee(cuid: string, dto: UpdateEmployeeDto) {
         if (email && email !== existing.personal_email) {
             const existingEmail = await employeeDao.findByEmail(email);
             if (existingEmail) {
-                throw new ValidationError("personal_email", `Email "${email}" is already used`);
+                throw new ValidationError("personal_email", "Email already exists.");
             }
         }
         updateData.personal_email = email;
     }
 
-    if (dto.pan_no !== undefined) updateData.pan_no = validator.validatePan(dto.pan_no);
-    if (dto.aadhar_no !== undefined) updateData.aadhar_no = validator.validateAadhar(dto.aadhar_no);
+    if (dto.mobile_no !== undefined) {
+        const mobile = validator.validateMobile(dto.mobile_no, "Mobile Number");
+        if (mobile !== existing.mobile_no) {
+            const existingMobile = await employeeDao.findByMobile(mobile);
+            if (existingMobile) {
+                throw new ValidationError("mobile_no", "Mobile number already exists.");
+            }
+        }
+        updateData.mobile_no = mobile;
+    }
+
+    if (dto.pan_no !== undefined) {
+        const pan = validator.validatePan(dto.pan_no);
+        if (pan !== existing.pan_no) {
+            const existingPan = await employeeDao.findByPan(pan);
+            if (existingPan) {
+                throw new ValidationError("pan_no", "PAN number already exists.");
+            }
+        }
+        updateData.pan_no = pan;
+    }
+
+    if (dto.aadhar_no !== undefined) {
+        const aadhar = validator.validateAadhar(dto.aadhar_no);
+        if (aadhar !== existing.aadhar_no) {
+            const existingAadhar = await employeeDao.findByAadhar(aadhar);
+            if (existingAadhar) {
+                throw new ValidationError("aadhar_no", "Aadhar number already exists.");
+            }
+        }
+        updateData.aadhar_no = aadhar;
+    }
+
     if (dto.uan_no !== undefined) updateData.uan_no = validator.validateUan(dto.uan_no);
     if (dto.esi_no !== undefined) updateData.esi_no = validator.validateEsi(dto.esi_no);
     if (dto.remarks !== undefined) updateData.remarks = validator.validateRemarks(dto.remarks);

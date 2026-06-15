@@ -6,13 +6,27 @@
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 
+	type SaveOnlyFn = () => Promise<{ success: boolean; cuid?: string }>;
 
-	let { mode, cuid, data, onNext, onPrev } = $props<{ mode: 'create' | 'edit' | 'view', cuid: string | null, data?: { roles?: { cuid: string; name: string }[], locations?: { cuid: string; name: string }[], employees?: { cuid: string; first_name: string; last_name: string }[] }, onNext: (cuid?: string) => void, onPrev: () => void }>();
+	let { mode, cuid, data, onNext, onPrev, onDirtyChange, onRegisterSaveOnly } = $props<{
+		mode: 'create' | 'edit' | 'view';
+		cuid: string | null;
+		data?: {
+			roles?: { cuid: string; name: string }[];
+			locations?: { cuid: string; name: string }[];
+			employees?: { cuid: string; first_name: string; last_name: string }[];
+			employment?: Record<string, unknown>;
+		};
+		onNext: (cuid?: string) => void;
+		onPrev: () => void;
+		onDirtyChange?: (dirty: boolean) => void;
+		onRegisterSaveOnly?: (fn: SaveOnlyFn) => void;
+	}>();
 
 	let isSubmitting = $state(false);
 	let isTouched = $state(false);
 
-	let employment = $state({
+	const defaultEmployment = {
 		department_cuid: '',
 		designation_cuid: '',
 		role_cuid: '',
@@ -25,9 +39,33 @@
 		relieving_date: '',
 		official_email: '',
 		employment_status: 'onboarding'
-	});
+	};
+
+	let employment = $state({ ...defaultEmployment });
+	let originalData = $state(JSON.stringify(defaultEmployment));
 
 	let dateErrors = $state({ doj: false, conf: false, rel: false });
+
+	function normalizeEmployment(data: Partial<typeof defaultEmployment>) {
+		const res = { ...defaultEmployment };
+		for (const key of Object.keys(defaultEmployment) as Array<keyof typeof defaultEmployment>) {
+			let val = data[key];
+			if (val === null || val === undefined) {
+				val = '';
+			}
+			let sVal = String(val).trim();
+
+			if (key === 'date_of_joining' || key === 'confirmation_date' || key === 'relieving_date') {
+				if (sVal) {
+					sVal = sVal.split('T')[0];
+				}
+			} else if (key === 'official_email') {
+				sVal = sVal.toLowerCase();
+			}
+			res[key] = sVal;
+		}
+		return res;
+	}
 
 	onMount(async () => {
 		if (data?.employment) {
@@ -35,23 +73,31 @@
 			const dateFields = ['date_of_joining', 'confirmation_date', 'relieving_date'];
 			for (const field of dateFields) {
 				if (serverEmp[field] && serverEmp[field] instanceof Date) {
-					serverEmp[field] = serverEmp[field].toISOString().split('T')[0];
+					serverEmp[field] = (serverEmp[field] as Date).toISOString().split('T')[0];
 				} else if (serverEmp[field] && typeof serverEmp[field] === 'string') {
-					serverEmp[field] = serverEmp[field].split('T')[0];
+					serverEmp[field] = (serverEmp[field] as string).split('T')[0];
 				}
 			}
-			employment = { ...employment, ...serverEmp };
+			employment = { ...defaultEmployment, ...serverEmp } as typeof employment;
 		} else if (cuid) {
 			try {
 				const res = await fetch(`/api/employees/${cuid}/employment`);
 				const body = await res.json();
 				if (res.ok && body.data) {
-					employment = { ...employment, ...body.data };
+					employment = { ...defaultEmployment, ...body.data };
 				}
 			} catch (e) {
 				console.error('Failed to fetch employment details', e);
 			}
 		}
+		originalData = JSON.stringify(normalizeEmployment(employment));
+		onRegisterSaveOnly?.(saveOnly);
+	});
+
+	let isDirty = $derived(JSON.stringify(normalizeEmployment(employment)) !== originalData);
+
+	$effect(() => {
+		onDirtyChange?.(isDirty);
 	});
 
 	// Validations
@@ -61,24 +107,24 @@
 	}
 	function validateEmail(val: string | undefined | null) {
 		if (!val) return 'Required';
-		if (val.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return "Invalid email.";
+		if (val.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return 'Invalid email.';
 		return '';
 	}
 	function validateDoj(doj: string) {
 		if (!doj) return 'Required';
 		const date = new SvelteDate(doj);
-		if (isNaN(date.getTime())) return "Invalid date.";
-		if (date > new SvelteDate()) return "Cannot be a future date.";
+		if (isNaN(date.getTime())) return 'Invalid date.';
+		if (date > new SvelteDate()) return 'Cannot be a future date.';
 		return '';
 	}
 	function validateConfirmation(doj: string, conf: string) {
 		if (!conf) return '';
-		if (doj && new SvelteDate(conf) < new SvelteDate(doj)) return "Cannot be earlier than DOJ.";
+		if (doj && new SvelteDate(conf) < new SvelteDate(doj)) return 'Cannot be earlier than DOJ.';
 		return '';
 	}
 	function validateRelieving(doj: string, rel: string) {
 		if (!rel) return '';
-		if (doj && new SvelteDate(rel) < new SvelteDate(doj)) return "Cannot be earlier than DOJ.";
+		if (doj && new SvelteDate(rel) < new SvelteDate(doj)) return 'Cannot be earlier than DOJ.';
 		return '';
 	}
 
@@ -100,22 +146,21 @@
 		Object.values(errors).some(err => !!err) || Object.values(dateErrors).some(err => !!err)
 	);
 
-	async function save(shouldExit: boolean) {
+	// Core save (no navigation) — registered with wizard
+	async function saveOnly(): Promise<{ success: boolean }> {
 		isTouched = true;
 		if (hasErrors) {
 			toast.error('Please correct the validation errors before saving.');
-			return;
+			return { success: false };
 		}
 		if (!cuid) {
-			toast.error('Employee CUID missing. Please go back to Personal Details.');
-			return;
+			toast.error('Employee record missing. Please complete Personal Details first.');
+			return { success: false };
 		}
 
 		try {
 			isSubmitting = true;
-			// ensure email is lowercase
 			const payload = { ...employment, official_email: employment.official_email.toLowerCase() };
-
 			const res = await fetch(`/api/employees/${cuid}/employment`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
@@ -123,65 +168,73 @@
 			});
 			if (!res.ok) {
 				const body = await res.json();
-				throw new Error(body.error || 'Failed to save employment details');
+				throw new Error(body.data?.message || body.error || 'Failed to save employment details');
 			}
-
-			if (shouldExit) {
-				window.location.href = '/employees';
-			} else {
-				onNext();
-			}
+			originalData = JSON.stringify(normalizeEmployment(employment));
+			return { success: true };
 		} catch (e: unknown) {
 			toast.error((e as Error).message);
+			return { success: false };
 		} finally {
 			isSubmitting = false;
+		}
+	}
+
+	// Save + navigate
+	async function save(shouldExit: boolean) {
+		const result = await saveOnly();
+		if (!result.success) return;
+		if (shouldExit) {
+			window.location.href = '/employees';
+		} else {
+			onNext();
 		}
 	}
 </script>
 
 <div class="space-y-6">
 	<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-		<DepartmentDropdown 
-			label="Department *" 
-			value={employment.department_cuid} 
-			onSelect={(val) => employment.department_cuid = val as string} 
+		<DepartmentDropdown
+			label="Department *"
+			value={employment.department_cuid}
+			onSelect={(val) => employment.department_cuid = val as string}
 			disabled={mode === 'view'}
 			class={(isTouched && errors.department_cuid) ? 'border-destructive' : ''}
 		/>
-		<DesignationDropdown 
-			label="Designation *" 
-			value={employment.designation_cuid} 
-			onSelect={(val) => employment.designation_cuid = val as string} 
+		<DesignationDropdown
+			label="Designation *"
+			value={employment.designation_cuid}
+			onSelect={(val) => employment.designation_cuid = val as string}
 			disabled={mode === 'view'}
 			class={(isTouched && errors.designation_cuid) ? 'border-destructive' : ''}
 		/>
-		<SearchableDropdown 
-			label="Role *" 
-			value={employment.role_cuid} 
+		<SearchableDropdown
+			label="Role *"
+			value={employment.role_cuid}
 			options={Array.isArray(data?.roles) ? data.roles.map((r: { cuid: string, name: string }) => ({id: r.cuid, label: r.name})) : []}
-			onSelect={(val) => employment.role_cuid = val as string} 
+			onSelect={(val) => employment.role_cuid = val as string}
 			disabled={mode === 'view'}
 			class={(isTouched && errors.role_cuid) ? 'border-destructive' : ''}
 		/>
-		<MasterDataDropdown 
-			master="pay-grades" 
-			label="Pay Grade *" 
-			value={employment.pay_grade_cuid} 
-			onSelect={(val) => employment.pay_grade_cuid = val as string} 
+		<MasterDataDropdown
+			master="pay-grades"
+			label="Pay Grade *"
+			value={employment.pay_grade_cuid}
+			onSelect={(val) => employment.pay_grade_cuid = val as string}
 			disabled={mode === 'view'}
 			class={(isTouched && errors.pay_grade_cuid) ? 'border-destructive' : ''}
 		/>
-		<MasterDataDropdown 
-			master="employment-types" 
-			label="Employment Type *" 
-			value={employment.employment_type_cuid} 
-			onSelect={(val) => employment.employment_type_cuid = val as string} 
+		<MasterDataDropdown
+			master="employment-types"
+			label="Employment Type *"
+			value={employment.employment_type_cuid}
+			onSelect={(val) => employment.employment_type_cuid = val as string}
 			disabled={mode === 'view'}
 			class={(isTouched && errors.employment_type_cuid) ? 'border-destructive' : ''}
 		/>
-		<SearchableDropdown 
-			label="Employment Status *" 
-			value={employment.employment_status} 
+		<SearchableDropdown
+			label="Employment Status *"
+			value={employment.employment_status}
 			options={[
 				{ id: 'onboarding', label: 'Onboarding' },
 				{ id: 'active', label: 'Active' },
@@ -190,23 +243,23 @@
 				{ id: 'terminated', label: 'Terminated' },
 				{ id: 'resigned', label: 'Resigned' }
 			]}
-			onSelect={(val) => employment.employment_status = val as string} 
+			onSelect={(val) => employment.employment_status = val as string}
 			disabled={mode === 'view'}
 			class={(isTouched && errors.employment_status) ? 'border-destructive' : ''}
 		/>
-		<SearchableDropdown 
-			label="Company Location *" 
-			value={employment.location_cuid} 
+		<SearchableDropdown
+			label="Company Location *"
+			value={employment.location_cuid}
 			options={Array.isArray(data?.locations) ? data.locations.map((l: { cuid: string, name: string }) => ({id: l.cuid, label: l.name})) : []}
-			onSelect={(val) => employment.location_cuid = val as string} 
+			onSelect={(val) => employment.location_cuid = val as string}
 			disabled={mode === 'view'}
 			class={(isTouched && errors.location_cuid) ? 'border-destructive' : ''}
 		/>
-		<SearchableDropdown 
-			label="Reporting Manager" 
-			value={employment.reporting_manager_cuid} 
+		<SearchableDropdown
+			label="Reporting Manager"
+			value={employment.reporting_manager_cuid}
 			options={Array.isArray(data?.employees) ? data.employees.map((e: { cuid: string, first_name: string, last_name: string }) => ({id: e.cuid, label: e.first_name + ' ' + e.last_name})) : []}
-			onSelect={(val) => employment.reporting_manager_cuid = val as string} 
+			onSelect={(val) => employment.reporting_manager_cuid = val as string}
 			disabled={mode === 'view'}
 		/>
 		<div class="space-y-2">

@@ -69,6 +69,24 @@ export async function findByEmail(email: string) {
 	});
 }
 
+export async function findByMobile(mobile_no: string) {
+	return db.employee.findFirst({
+		where: { mobile_no }
+	});
+}
+
+export async function findByAadhar(aadhar_no: string) {
+	return db.employee.findFirst({
+		where: { aadhar_no }
+	});
+}
+
+export async function findByPan(pan_no: string) {
+	return db.employee.findFirst({
+		where: { pan_no }
+	});
+}
+
 export async function create(data: CreateEmployeeInput) {
 	return db.employee.create({
 		data: {

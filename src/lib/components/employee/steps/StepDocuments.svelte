@@ -3,7 +3,16 @@
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 
-	let { mode, cuid, onNext, onPrev } = $props<{ mode: 'create' | 'edit' | 'view', cuid: string | null, onNext: (cuid?: string) => void, onPrev: () => void }>();
+	type SaveOnlyFn = () => Promise<{ success: boolean; cuid?: string }>;
+
+	let { mode, cuid, onNext, onPrev, onDirtyChange, onRegisterSaveOnly } = $props<{
+		mode: 'create' | 'edit' | 'view';
+		cuid: string | null;
+		onNext: (cuid?: string) => void;
+		onPrev: () => void;
+		onDirtyChange?: (dirty: boolean) => void;
+		onRegisterSaveOnly?: (fn: SaveOnlyFn) => void;
+	}>();
 
 	let isSubmitting = $state(false);
 	let isTouched = $state(false);
@@ -20,9 +29,22 @@
 	}
 
 	let documents = $state<DocumentItem[]>([]);
+	let originalData = $state('[]');
 
 	function addDocument() {
 		documents = [...documents, { document_type_cuid: '', file_name: '', mime_type: '', file_size: 0 }];
+	}
+
+	function normalizeDocItem(item: Partial<DocumentItem>) {
+		return {
+			document_type_cuid: item.document_type_cuid || '',
+			file_name: item.file_name || '',
+			mime_type: item.mime_type || '',
+			file_size: item.file_size || 0
+		};
+	}
+	function normalizeDocs(list: Partial<DocumentItem>[]) {
+		return (list || []).map(normalizeDocItem);
 	}
 
 	onMount(async () => {
@@ -40,6 +62,16 @@
 		if (documents.length === 0 && mode !== 'view') {
 			addDocument();
 		}
+		originalData = JSON.stringify(normalizeDocs(documents));
+		onRegisterSaveOnly?.(saveOnly);
+	});
+
+	let isDirty = $derived(
+		JSON.stringify(normalizeDocs(documents)) !== originalData
+	);
+
+	$effect(() => {
+		onDirtyChange?.(isDirty);
 	});
 
 	// Validations
@@ -94,13 +126,13 @@
 		}
 	}
 
-	async function save(shouldExit: boolean) {
+	async function saveOnly(): Promise<{ success: boolean }> {
 		isTouched = true;
 		if (hasErrors) {
 			toast.error('Please correct the validation errors before saving.');
-			return;
+			return { success: false };
 		}
-		if (!cuid) return;
+		if (!cuid) return { success: false };
 
 		try {
 			isSubmitting = true;
@@ -117,18 +149,26 @@
 			});
 			if (!res.ok) {
 				const body = await res.json();
-				throw new Error(body.error || 'Failed to save documents');
+				throw new Error(body.data?.message || body.error || 'Failed to save documents');
 			}
 
-			if (shouldExit) {
-				window.location.href = '/employees';
-			} else {
-				onNext();
-			}
+			originalData = JSON.stringify(normalizeDocs(documents));
+			return { success: true };
 		} catch (e: unknown) {
 			toast.error((e as Error).message);
+			return { success: false };
 		} finally {
 			isSubmitting = false;
+		}
+	}
+
+	async function save(shouldExit: boolean) {
+		const result = await saveOnly();
+		if (!result.success) return;
+		if (shouldExit) {
+			window.location.href = '/employees';
+		} else {
+			onNext();
 		}
 	}
 </script>
@@ -230,4 +270,3 @@
 		</div>
 	</div>
 </div>
-

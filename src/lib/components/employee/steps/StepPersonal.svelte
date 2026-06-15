@@ -4,13 +4,22 @@
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 
+	type SaveOnlyFn = () => Promise<{ success: boolean; cuid?: string }>;
 
-	let { mode, cuid, onNext, data } = $props<{ mode: 'create' | 'edit' | 'view', cuid: string | null, onNext: (cuid?: string) => void, data?: Record<string, unknown> }>();
+	let { mode, cuid, onNext, data, onDirtyChange, onRegisterSaveOnly } = $props<{
+		mode: 'create' | 'edit' | 'view';
+		cuid: string | null;
+		onNext: (cuid?: string) => void;
+		data?: Record<string, unknown>;
+		onDirtyChange?: (dirty: boolean) => void;
+		onRegisterSaveOnly?: (fn: SaveOnlyFn) => void;
+	}>();
 
 	let isSubmitting = $state(false);
 	let isTouched = $state(false);
+	let backendErrors = $state<Record<string, string>>({});
 
-	let emp = $state({
+	const defaultEmp = {
 		emp_code: '',
 		first_name: '',
 		last_name: '',
@@ -30,19 +39,51 @@
 		emergency_contact_no: '',
 		relation_cuid: '',
 		remarks: ''
-	});
+	};
+
+	let emp = $state({ ...defaultEmp });
+	let originalData = $state(JSON.stringify(defaultEmp));
 
 	let dateErrors = $state({ dob: false });
 
+	function normalizePersonal(data: Partial<typeof defaultEmp>) {
+		const res = { ...defaultEmp };
+		for (const key of Object.keys(defaultEmp) as Array<keyof typeof defaultEmp>) {
+			let val = data[key];
+			if (val === null || val === undefined) {
+				val = '';
+			}
+			let sVal = String(val).trim();
+			
+			if (key === 'dob') {
+				if (sVal) {
+					sVal = sVal.split('T')[0];
+				}
+			} else if (key === 'mobile_no' || key === 'emergency_contact_no') {
+				sVal = sVal.replace(/\D/g, '');
+			} else if (key === 'personal_email') {
+				sVal = sVal.toLowerCase();
+			} else if (key === 'aadhar_no' || key === 'uan_no') {
+				sVal = sVal.replace(/\D/g, '');
+			} else if (key === 'pan_no') {
+				sVal = sVal.toUpperCase().replace(/[^A-Z0-9]/g, '');
+			} else if (key === 'esi_no') {
+				sVal = sVal.replace(/\D/g, '');
+			}
+			res[key] = sVal;
+		}
+		return res;
+	}
+
 	onMount(async () => {
 		if (data?.employee) {
-			const serverEmp = { ...data.employee };
+			const serverEmp = { ...data.employee } as Record<string, unknown>;
 			if (serverEmp.dob && serverEmp.dob instanceof Date) {
-				serverEmp.dob = serverEmp.dob.toISOString().split('T')[0];
+				serverEmp.dob = (serverEmp.dob as Date).toISOString().split('T')[0];
 			} else if (serverEmp.dob && typeof serverEmp.dob === 'string') {
-				serverEmp.dob = serverEmp.dob.split('T')[0];
+				serverEmp.dob = (serverEmp.dob as string).split('T')[0];
 			}
-			emp = { ...emp, ...serverEmp };
+			emp = { ...defaultEmp, ...serverEmp } as typeof emp;
 		} else if (mode === 'create' && !cuid) {
 			try {
 				const res = await fetch('/api/employees/next-code');
@@ -56,12 +97,20 @@
 				const res = await fetch(`/api/employees/${cuid}`);
 				const body = await res.json();
 				if (res.ok && body.data) {
-					emp = { ...emp, ...body.data };
+					emp = { ...defaultEmp, ...body.data };
 				}
 			} catch (e) {
 				console.error('Failed to fetch employee details', e);
 			}
 		}
+		originalData = JSON.stringify(normalizePersonal(emp));
+		onRegisterSaveOnly?.(saveOnly);
+	});
+
+	let isDirty = $derived(JSON.stringify(normalizePersonal(emp)) !== originalData);
+
+	$effect(() => {
+		onDirtyChange?.(isDirty);
 	});
 
 	// Formatters
@@ -78,39 +127,35 @@
 	function formatEsi(val: string) {
 		return val.replace(/\D/g, '');
 	}
-	function formatName(val: string) {
-		return val.replace(/[^a-zA-Z\s]/g, '').replace(/\s+/g, ' ');
-	}
-	function formatRemarks(val: string) {
-		return val.replace(/[^a-zA-Z\s.]/g, '').replace(/\s+/g, ' ');
-	}
 
 	// Validations
 	function validateName(val: string | undefined | null) {
-		if (!val) return 'Required';
+		if (!val || !val.trim()) return 'Required';
 		const trimmed = val.trim();
-		if (trimmed.length > 0 && trimmed.length < 3) return "Min 3 characters.";
+		if (trimmed.length < 3) return 'Min 3 characters.';
+		if (!/^[a-zA-Z\s]+$/.test(trimmed)) return 'Name can only contain alphabets and spaces.';
 		return '';
 	}
 	function validateMobileRule(val: string | undefined | null) {
 		if (!val) return 'Required';
-		if (val.length > 0 && val.length < 10) return "Must be exactly 10 digits.";
+		const digits = val.replace(/\D/g, '');
+		if (digits.length !== 10) return 'Must be exactly 10 digits.';
 		return '';
 	}
 	function validatePanRule(val: string | undefined | null) {
 		if (!val) return 'Required';
-		if (val.length > 0 && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(val)) return "Invalid PAN format.";
+		if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(val.trim().toUpperCase())) return 'Invalid PAN format (e.g. ABCDE1234F).';
 		return '';
 	}
 	function validateAadharRule(val: string | undefined | null) {
 		if (!val) return 'Required';
 		const stripped = val.replace(/\s+/g, '');
-		if (stripped.length > 0 && stripped.length < 12) return "Must be exactly 12 digits.";
+		if (stripped.length !== 12) return 'Must be exactly 12 digits.';
 		return '';
 	}
 	function validateEmail(val: string | undefined | null) {
 		if (!val) return 'Required';
-		if (val.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return "Invalid email.";
+		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim())) return 'Invalid email format.';
 		return '';
 	}
 	function validateDropdown(val: string | undefined | null) {
@@ -121,36 +166,36 @@
 	function validateDob(dob: string) {
 		if (!dob) return 'Required';
 		const date = new SvelteDate(dob);
-		if (isNaN(date.getTime())) return "Invalid date format.";
+		if (isNaN(date.getTime())) return 'Invalid date format.';
 		const today = new SvelteDate();
 		today.setHours(0, 0, 0, 0);
 		const dobDate = new SvelteDate(date.getTime());
 		dobDate.setHours(0, 0, 0, 0);
 
-		if (dobDate >= today) return "Cannot be today or a future date.";
+		if (dobDate >= today) return 'Cannot be today or a future date.';
 		let age = today.getFullYear() - dobDate.getFullYear();
 		if (today.getMonth() < dobDate.getMonth() || (today.getMonth() === dobDate.getMonth() && today.getDate() < dobDate.getDate())) {
 			age--;
 		}
-		if (age < 18) return "Must be at least 18 years old.";
+		if (age < 18) return 'Must be at least 18 years old.';
 		return '';
 	}
 
 	let errors = $derived({
-		first_name: validateName(emp.first_name),
-		last_name: validateName(emp.last_name),
-		father_name: validateName(emp.father_name),
+		first_name: backendErrors.first_name || validateName(emp.first_name),
+		last_name: backendErrors.last_name || validateName(emp.last_name),
+		father_name: backendErrors.father_name || validateName(emp.father_name),
 		dob: validateDob(emp.dob),
 		gender: validateDropdown(emp.gender),
 		marital_status: validateDropdown(emp.marital_status),
 		blood_group_cuid: validateDropdown(emp.blood_group_cuid),
 		nationality_cuid: validateDropdown(emp.nationality_cuid),
-		mobile_no: validateMobileRule(emp.mobile_no),
-		personal_email: validateEmail(emp.personal_email),
-		aadhar_no: validateAadharRule(emp.aadhar_no),
-		pan_no: validatePanRule(emp.pan_no),
-		emergency_contact_name: validateName(emp.emergency_contact_name),
-		emergency_contact_no: validateMobileRule(emp.emergency_contact_no),
+		mobile_no: backendErrors.mobile_no || validateMobileRule(emp.mobile_no),
+		personal_email: backendErrors.personal_email || validateEmail(emp.personal_email),
+		aadhar_no: backendErrors.aadhar_no || validateAadharRule(emp.aadhar_no),
+		pan_no: backendErrors.pan_no || validatePanRule(emp.pan_no),
+		emergency_contact_name: backendErrors.emergency_contact_name || validateName(emp.emergency_contact_name),
+		emergency_contact_no: backendErrors.emergency_contact_no || validateMobileRule(emp.emergency_contact_no),
 		relation_cuid: validateDropdown(emp.relation_cuid)
 	});
 
@@ -162,42 +207,65 @@
 		return isTouched && !val ? 'border-destructive focus-visible:ring-destructive/50' : '';
 	}
 
-	async function save(shouldExit: boolean) {
+	function clearBackendError(field: string) {
+		if (backendErrors[field]) {
+			backendErrors = { ...backendErrors, [field]: '' };
+		}
+	}
+
+	async function saveOnly(): Promise<{ success: boolean; cuid?: string }> {
 		isTouched = true;
+		backendErrors = {};
+
 		if (hasErrors) {
 			toast.error('Please correct the validation errors before saving.');
-			return;
+			return { success: false };
 		}
 
 		try {
 			isSubmitting = true;
 			const method = cuid ? 'PUT' : 'POST';
 			const url = cuid ? `/api/employees/${cuid}` : '/api/employees';
-			
-			// ensure email is lowercase
-			const payload = { ...emp, personal_email: emp.personal_email.toLowerCase() };
+			const payload = { ...emp, personal_email: emp.personal_email.toLowerCase().trim() };
 
 			const res = await fetch(url, {
 				method,
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(payload)
 			});
+
 			if (!res.ok) {
 				const body = await res.json();
-				throw new Error(body.error || 'Failed to save personal details');
+				if (body.data?.field && body.data?.message) {
+					backendErrors = { [body.data.field]: body.data.message };
+					toast.error(body.data.message);
+					return { success: false };
+				}
+				throw new Error(body.data?.message || body.error || 'Failed to save personal details');
 			}
+
 			const result = await res.json();
 			const savedCuid = result.data?.cuid || cuid;
 
-			if (shouldExit) {
-				window.location.href = '/employees';
-			} else {
-				onNext(savedCuid);
-			}
+			originalData = JSON.stringify(normalizePersonal(emp));
+
+			return { success: true, cuid: savedCuid ?? undefined };
 		} catch (e: unknown) {
 			toast.error((e as Error).message);
+			return { success: false };
 		} finally {
 			isSubmitting = false;
+		}
+	}
+
+	async function save(shouldExit: boolean) {
+		const result = await saveOnly();
+		if (!result.success) return;
+
+		if (shouldExit) {
+			window.location.href = '/employees';
+		} else {
+			onNext(result.cuid);
 		}
 	}
 </script>
@@ -210,17 +278,17 @@
 		</div>
 		<div class="space-y-2">
 			<Label>First Name <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.first_name} oninput={(e) => emp.first_name = formatName(e.currentTarget.value)} onblur={() => emp.first_name = emp.first_name.trim()} placeholder="John" class={(isTouched && errors.first_name) ? 'border-destructive focus-visible:ring-destructive/50' : inputErrorClass(emp.first_name)} readonly={mode === 'view'} required />
+			<Input bind:value={emp.first_name} oninput={() => clearBackendError('first_name')} onblur={() => emp.first_name = emp.first_name.trim()} placeholder="John" class={(isTouched && errors.first_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
 			{#if isTouched && errors.first_name}<p class="text-xs text-destructive">{errors.first_name}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Last Name <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.last_name} oninput={(e) => emp.last_name = formatName(e.currentTarget.value)} onblur={() => emp.last_name = emp.last_name.trim()} placeholder="Doe" class={(isTouched && errors.last_name) ? 'border-destructive focus-visible:ring-destructive/50' : inputErrorClass(emp.last_name)} readonly={mode === 'view'} required />
+			<Input bind:value={emp.last_name} oninput={() => clearBackendError('last_name')} onblur={() => emp.last_name = emp.last_name.trim()} placeholder="Doe" class={(isTouched && errors.last_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
 			{#if isTouched && errors.last_name}<p class="text-xs text-destructive">{errors.last_name}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Father's Name <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.father_name} oninput={(e) => emp.father_name = formatName(e.currentTarget.value)} onblur={() => emp.father_name = emp.father_name.trim()} placeholder="Father's Name" class={(isTouched && errors.father_name) ? 'border-destructive focus-visible:ring-destructive/50' : inputErrorClass(emp.father_name)} readonly={mode === 'view'} required />
+			<Input bind:value={emp.father_name} oninput={() => clearBackendError('father_name')} onblur={() => emp.father_name = emp.father_name.trim()} placeholder="Father's Name" class={(isTouched && errors.father_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
 			{#if isTouched && errors.father_name}<p class="text-xs text-destructive">{errors.father_name}</p>{/if}
 		</div>
 		<div class="space-y-2">
@@ -250,22 +318,22 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Mobile Number <span class="text-destructive">*</span></Label>
-			<Input type="tel" bind:value={emp.mobile_no} oninput={(e) => emp.mobile_no = formatMobile(e.currentTarget.value)} placeholder="1234567890" class={(isTouched && errors.mobile_no) ? 'border-destructive focus-visible:ring-destructive/50' : inputErrorClass(emp.mobile_no)} readonly={mode === 'view'} required />
+			<Input type="tel" bind:value={emp.mobile_no} oninput={(e) => { emp.mobile_no = formatMobile(e.currentTarget.value); clearBackendError('mobile_no'); }} placeholder="1234567890" class={(isTouched && errors.mobile_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
 			{#if isTouched && errors.mobile_no}<p class="text-xs text-destructive">{errors.mobile_no}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Personal Email <span class="text-destructive">*</span></Label>
-			<Input type="email" bind:value={emp.personal_email} onblur={() => emp.personal_email = emp.personal_email.trim().toLowerCase()} placeholder="john@example.com" class={(isTouched && errors.personal_email) ? 'border-destructive focus-visible:ring-destructive/50' : inputErrorClass(emp.personal_email)} readonly={mode === 'view'} required />
+			<Input type="email" bind:value={emp.personal_email} oninput={() => clearBackendError('personal_email')} onblur={() => emp.personal_email = emp.personal_email.trim().toLowerCase()} placeholder="john@example.com" class={(isTouched && errors.personal_email) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
 			{#if isTouched && errors.personal_email}<p class="text-xs text-destructive">{errors.personal_email}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Aadhar Number <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.aadhar_no} oninput={(e) => emp.aadhar_no = formatAadharUan(e.currentTarget.value)} placeholder="0000 0000 0000" class={(isTouched && errors.aadhar_no) ? 'border-destructive focus-visible:ring-destructive/50' : inputErrorClass(emp.aadhar_no)} readonly={mode === 'view'} required />
+			<Input bind:value={emp.aadhar_no} oninput={(e) => { emp.aadhar_no = formatAadharUan(e.currentTarget.value); clearBackendError('aadhar_no'); }} placeholder="0000 0000 0000" class={(isTouched && errors.aadhar_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
 			{#if isTouched && errors.aadhar_no}<p class="text-xs text-destructive">{errors.aadhar_no}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>PAN Number <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.pan_no} oninput={(e) => emp.pan_no = formatPan(e.currentTarget.value)} placeholder="ABCDE1234F" class={(isTouched && errors.pan_no) ? 'border-destructive focus-visible:ring-destructive/50' : inputErrorClass(emp.pan_no)} readonly={mode === 'view'} required />
+			<Input bind:value={emp.pan_no} oninput={(e) => { emp.pan_no = formatPan(e.currentTarget.value); clearBackendError('pan_no'); }} placeholder="ABCDE1234F" class={(isTouched && errors.pan_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
 			{#if isTouched && errors.pan_no}<p class="text-xs text-destructive">{errors.pan_no}</p>{/if}
 		</div>
 		<div class="space-y-2">
@@ -278,23 +346,23 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Emergency Contact Name <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.emergency_contact_name} oninput={(e) => emp.emergency_contact_name = formatName(e.currentTarget.value)} onblur={() => emp.emergency_contact_name = emp.emergency_contact_name.trim()} placeholder="Emergency Contact Name" class={(isTouched && errors.emergency_contact_name) ? 'border-destructive focus-visible:ring-destructive/50' : inputErrorClass(emp.emergency_contact_name)} readonly={mode === 'view'} required />
+			<Input bind:value={emp.emergency_contact_name} onblur={() => emp.emergency_contact_name = emp.emergency_contact_name.trim()} placeholder="Emergency Contact Name" class={(isTouched && errors.emergency_contact_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
 			{#if isTouched && errors.emergency_contact_name}<p class="text-xs text-destructive">{errors.emergency_contact_name}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Emergency Contact Number <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.emergency_contact_no} oninput={(e) => emp.emergency_contact_no = formatMobile(e.currentTarget.value)} placeholder="1234567890" class={(isTouched && errors.emergency_contact_no) ? 'border-destructive focus-visible:ring-destructive/50' : inputErrorClass(emp.emergency_contact_no)} readonly={mode === 'view'} required />
+			<Input bind:value={emp.emergency_contact_no} oninput={(e) => emp.emergency_contact_no = formatMobile(e.currentTarget.value)} placeholder="1234567890" class={(isTouched && errors.emergency_contact_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
 			{#if isTouched && errors.emergency_contact_no}<p class="text-xs text-destructive">{errors.emergency_contact_no}</p>{/if}
 		</div>
 		<div class="space-y-2 pt-3.5">
-			<MasterDataDropdown master="relation-types" label="Relation" value={emp.relation_cuid} onSelect={(val) => emp.relation_cuid = val as string} disabled={mode === 'view'} class={(isTouched && errors.relation_cuid) ? 'border-destructive' : ''}  />
+			<MasterDataDropdown master="relation-types" label="Relation" value={emp.relation_cuid} onSelect={(val) => emp.relation_cuid = val as string} disabled={mode === 'view'} class={(isTouched && errors.relation_cuid) ? 'border-destructive' : ''} />
 			{#if isTouched && errors.relation_cuid}<p class="text-xs text-destructive">{errors.relation_cuid}</p>{/if}
 		</div>
 	</div>
-	
+
 	<div class="space-y-2">
 		<Label>Remarks</Label>
-		<Input bind:value={emp.remarks} oninput={(e) => emp.remarks = formatRemarks(e.currentTarget.value)} onblur={() => emp.remarks = emp.remarks.trim()} placeholder="Any additional notes..." readonly={mode === 'view'} />
+		<Input bind:value={emp.remarks} onblur={() => emp.remarks = emp.remarks.trim()} placeholder="Any additional notes..." readonly={mode === 'view'} />
 	</div>
 
 	<div class="flex items-center justify-between pt-6 border-t border-border">

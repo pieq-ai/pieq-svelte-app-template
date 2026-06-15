@@ -80,8 +80,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\common\\Pagination.svelte": {
-    "mtime": 1780898642.7383304,
-    "ast_hash": "744afa477171ba46958daa678d57386d",
+    "mtime": 1781505774.398329,
+    "ast_hash": "259aa0a7c26b1e783e2706f7a04293a8",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\common\\PermissionMatrixCell.svelte": {
@@ -95,8 +95,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\common\\SearchableDropdown.svelte": {
-    "mtime": 1781502206.1712916,
-    "ast_hash": "e8ae95b5c46b126b9f802c7099fcd334",
+    "mtime": 1781506734.2840765,
+    "ast_hash": "6a7b9bc69f901bcb30166b18725033fc",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\common\\StatusDropdown.svelte": {
@@ -105,8 +105,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\common\\TableActions.svelte": {
-    "mtime": 1781198807.4961092,
-    "ast_hash": "f81ca5aafbce2d1c632a58faf0a77735",
+    "mtime": 1781505752.6637077,
+    "ast_hash": "5669807cf8205e71c248ba79d86137af",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\index.ts": {
@@ -415,8 +415,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\server\\dao\\employee.dao.ts": {
-    "mtime": 1781172378.3996098,
-    "ast_hash": "51f47bb797bd2c186a0186e9d499a65d",
+    "mtime": 1781508790.8086598,
+    "ast_hash": "6643b8a423bbea019884d77d4b666172",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\server\\dao\\master-data.dao.ts": {
@@ -595,23 +595,23 @@
     "semantic_hash": "4cf2ed00926363461e6901ec95d8ebb5"
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\routes\\departments\\+page.svelte": {
-    "mtime": 1781158469.232248,
-    "ast_hash": "9ef3ec07aba669d5f41cca67c363c518",
+    "mtime": 1781505893.444648,
+    "ast_hash": "fbba221fadabc347edd937f65905b004",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\routes\\designations\\+page.svelte": {
-    "mtime": 1781158469.2340357,
-    "ast_hash": "efc629c889eccaa1368285c4aa269d00",
+    "mtime": 1781505887.6133611,
+    "ast_hash": "4079877316b9f6c8bd6513d33574e56a",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\routes\\employees\\+page.svelte": {
-    "mtime": 1781505077.817007,
-    "ast_hash": "6ff0978fa542fbe4a0e2d1179bb0bf05",
+    "mtime": 1781506295.2712824,
+    "ast_hash": "c4d17280eabea55e2c792eb571224a2d",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\routes\\permissions\\+page.svelte": {
-    "mtime": 1781068621.5556056,
-    "ast_hash": "56e1eee79fee967ec79e277e4e882f19",
+    "mtime": 1781505721.1888707,
+    "ast_hash": "1952e34c1f5599c68b243a2b58b51ded",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\routes\\role-permissions\\+page.svelte": {
@@ -625,8 +625,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\routes\\system-roles\\+page.svelte": {
-    "mtime": 1781158469.2413628,
-    "ast_hash": "367b279de0da0a9533ecda8bfc9fa0f5",
+    "mtime": 1781505740.5087812,
+    "ast_hash": "5e0f13979582cbed79eefa04684f2f54",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\service-worker.js": {
@@ -685,8 +685,8 @@
     "semantic_hash": "17fb6d5f32c1874fae9a6bad26f1fcff"
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\server\\services\\employee.service.ts": {
-    "mtime": 1781502858.7372665,
-    "ast_hash": "33fcb91338fa309d5a0ad1bbf82e6b0e",
+    "mtime": 1781508844.9197013,
+    "ast_hash": "61bc1ca9ed601b8f530ce5dd489f38ed",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\tests\\unit\\employee.service.test.ts": {
@@ -765,8 +765,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\routes\\salary-components\\+page.svelte": {
-    "mtime": 1781158469.2398508,
-    "ast_hash": "a9df4cb9e850d6861a52739fb4519c1c",
+    "mtime": 1781505731.356286,
+    "ast_hash": "7863e09065aa28773e51220c084cae08",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\tests\\unit\\department.dao.test.ts": {
@@ -1260,58 +1260,58 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\employee\\EmployeeWizard.svelte": {
-    "mtime": 1781503542.2962945,
-    "ast_hash": "201ee2c0ac958c6a6bc4212d88587734",
+    "mtime": 1781510408.7295403,
+    "ast_hash": "90cf168bf721dcfacfd84422a621d046",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\employee\\steps\\StepAddress.svelte": {
-    "mtime": 1781502776.980407,
-    "ast_hash": "72e2b813ff2924cd430a4a351ebc85b3",
+    "mtime": 1781510555.4058635,
+    "ast_hash": "3614cc6c8fa4db08878fc7205eb3508c",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\employee\\steps\\StepBankDetails.svelte": {
-    "mtime": 1781503091.4617236,
-    "ast_hash": "963840243ed0a4f5f4966509a4045dac",
+    "mtime": 1781513489.4239202,
+    "ast_hash": "a7e914dc03859f2762547674fc79f3ed",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\employee\\steps\\StepDocuments.svelte": {
-    "mtime": 1781502824.5482626,
-    "ast_hash": "0ecaaa09699093c4f2ce4788615c8b44",
+    "mtime": 1781513480.355846,
+    "ast_hash": "480a07b5997a6172e64374576c3ab258",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\employee\\steps\\StepEducation.svelte": {
-    "mtime": 1781502786.731707,
-    "ast_hash": "f96470c3602296eccb2a2d59b9981350",
+    "mtime": 1781510610.6585107,
+    "ast_hash": "03d175d47056994ac52711451043fbd2",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\employee\\steps\\StepEmployment.svelte": {
-    "mtime": 1781502766.7349522,
-    "ast_hash": "5eb73f5d11d200bb8f3f0b28c160eb76",
+    "mtime": 1781513473.1689658,
+    "ast_hash": "bd346a25cda7a584dcf56ac659bbb2c5",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\employee\\steps\\StepExperience.svelte": {
-    "mtime": 1781502796.4285839,
-    "ast_hash": "a9f335e1ccf6e73d2a9597755c7a26a1",
+    "mtime": 1781510612.5185158,
+    "ast_hash": "7a4adb67c0a395c8561d8cbf53e45f36",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\employee\\steps\\StepLanguages.svelte": {
-    "mtime": 1781502815.6760287,
-    "ast_hash": "d4cba8c8eaa2e27ecc985682104cf4ec",
+    "mtime": 1781510657.6197107,
+    "ast_hash": "0917e085f783db3eca52d2090e502ad6",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\employee\\steps\\StepPersonal.svelte": {
-    "mtime": 1781502757.79796,
-    "ast_hash": "f77ec5bd2ec1b5f6b22101236f2f2048",
+    "mtime": 1781510482.951703,
+    "ast_hash": "f29f074ad9756bff21d988a9fe99a682",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\employee\\steps\\StepSkills.svelte": {
-    "mtime": 1781502805.7653296,
-    "ast_hash": "6c31de58ab76a22b7fecf1a157dcf51c",
+    "mtime": 1781510655.8949735,
+    "ast_hash": "3adbd84db66dc010d4dea392d5a4261d",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\server\\utils\\response.ts": {
-    "mtime": 1781187201.8672495,
-    "ast_hash": "79344aa2f9a1d67c92bff9517e45683f",
+    "mtime": 1781510358.344384,
+    "ast_hash": "0e16e9624d4982ee906a79c8fe842d88",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\routes\\api\\employees\\[cuid]\\documents\\[docCuid]\\+server.ts": {
@@ -1337,6 +1337,11 @@
   "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\tests\\unit\\employee.page.test.ts": {
     "mtime": 1781504562.4633987,
     "ast_hash": "64448fa15375dc34bf69d5e0e73bb103",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Desktop\\pieq-svelte-app-template\\src\\lib\\components\\common\\UnsavedChangesModal.svelte": {
+    "mtime": 1781508858.3590126,
+    "ast_hash": "95f382ea220e10f89406fe55e5bc2b56",
     "semantic_hash": ""
   }
 }
