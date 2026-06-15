@@ -147,7 +147,7 @@
 	}
 </script>
 
-<div class="space-y-6">
+<div class="space-y-4">
 	{#if mode !== 'view'}
 		<div class="flex justify-end">
 			<Button variant="outline" size="sm" onclick={addEducation}>
@@ -167,7 +167,7 @@
 					Delete
 				</Button>
 			{/if}
-			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
 				<SearchableDropdown
 					label="Education Level *"
 					value={edu.education_level}

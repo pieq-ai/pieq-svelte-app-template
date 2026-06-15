@@ -173,7 +173,7 @@
 	}
 </script>
 
-<div class="space-y-6">
+<div class="space-y-4">
 	{#if mode !== 'view'}
 		<div class="flex justify-end">
 			<Button variant="outline" size="sm" onclick={addDocument} disabled={isSubmitting || readingCount > 0}>
@@ -201,7 +201,7 @@
 						</Button>
 					{/if}
 				</div>
-				<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<MasterDataDropdown 
 						master="document-types" 
 						label="Document Type *" 

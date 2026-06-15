@@ -129,7 +129,7 @@
 	}
 </script>
 
-<div class="space-y-6">
+<div class="space-y-4">
 	{#if mode !== 'view'}
 		<div class="flex justify-end">
 			<Button variant="outline" size="sm" onclick={addLanguage}>
@@ -144,13 +144,13 @@
 
 	<div class="space-y-4">
 		{#each languages as lang, index (index)}
-			<div class="flex flex-col gap-6 p-4 border border-border rounded-lg relative">
+			<div class="flex flex-col gap-4 p-4 border border-border rounded-lg relative">
 				{#if mode !== 'view'}
 					<Button variant="ghost" size="sm" class="absolute right-2 top-2 text-destructive hover:bg-destructive/10" onclick={() => languages = languages.filter((_, i) => i !== index)}>
 						Delete
 					</Button>
 				{/if}
-				<div class="flex flex-col sm:flex-row gap-6 items-start sm:items-center w-full mt-4 sm:mt-0">
+				<div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center w-full mt-4 sm:mt-0">
 					<div class="flex-1 w-full sm:pr-8">
 						<MasterDataDropdown
 							master="languages"
@@ -178,7 +178,7 @@
 						{#if isTouched && validateRequired(lang.proficiency_level)}<p class="text-xs text-destructive mt-1">{validateRequired(lang.proficiency_level)}</p>{/if}
 					</div>
 				</div>
-				<div class="flex gap-6 mt-2">
+				<div class="flex gap-4 mt-2">
 					<label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" bind:checked={lang.can_read} disabled={mode === 'view'} /> Read</label>
 					<label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" bind:checked={lang.can_write} disabled={mode === 'view'} /> Write</label>
 					<label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" bind:checked={lang.can_speak} disabled={mode === 'view'} /> Speak</label>

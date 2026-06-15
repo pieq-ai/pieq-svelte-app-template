@@ -115,7 +115,7 @@
 	}
 </script>
 
-<div class="space-y-6">
+<div class="space-y-4">
 	{#if mode !== 'view'}
 		<div class="flex justify-end">
 			<Button variant="outline" size="sm" onclick={addSkill}>
@@ -130,7 +130,7 @@
 
 	<div class="space-y-4">
 		{#each skills as skill, index (index)}
-			<div class="flex flex-col sm:flex-row gap-6 items-start sm:items-center rounded-lg border border-border p-4 relative">
+			<div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center rounded-lg border border-border p-4 relative">
 				{#if mode !== 'view'}
 					<Button variant="ghost" size="sm" class="absolute right-2 top-2 sm:static sm:order-last text-destructive hover:bg-destructive/10" onclick={() => skills = skills.filter((_, i) => i !== index)}>
 						Delete

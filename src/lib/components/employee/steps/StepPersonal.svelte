@@ -270,8 +270,8 @@
 	}
 </script>
 
-<div class="space-y-6">
-	<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+<div class="space-y-4">
+	<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
 		<div class="space-y-2">
 			<Label>Employee Code <span class="text-destructive">*</span></Label>
 			<Input bind:value={emp.emp_code} placeholder="Auto-generated" class="bg-muted {inputErrorClass(emp.emp_code)}" readonly required />
@@ -354,7 +354,7 @@
 			<Input bind:value={emp.emergency_contact_no} oninput={(e) => emp.emergency_contact_no = formatMobile(e.currentTarget.value)} placeholder="1234567890" class={(isTouched && errors.emergency_contact_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
 			{#if isTouched && errors.emergency_contact_no}<p class="text-xs text-destructive">{errors.emergency_contact_no}</p>{/if}
 		</div>
-		<div class="space-y-2 pt-3.5">
+		<div class="space-y-2">
 			<MasterDataDropdown master="relation-types" label="Relation" value={emp.relation_cuid} onSelect={(val) => emp.relation_cuid = val as string} disabled={mode === 'view'} class={(isTouched && errors.relation_cuid) ? 'border-destructive' : ''} />
 			{#if isTouched && errors.relation_cuid}<p class="text-xs text-destructive">{errors.relation_cuid}</p>{/if}
 		</div>

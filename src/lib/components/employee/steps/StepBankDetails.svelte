@@ -260,7 +260,7 @@
 	}
 </script>
 
-<div class="space-y-6">
+<div class="space-y-4">
 	{#if mode !== 'view'}
 		<div class="flex justify-end">
 			<Button variant="outline" size="sm" onclick={addBank}>
@@ -281,7 +281,7 @@
 						Delete
 					</Button>
 				{/if}
-				<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+				<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
 					<div class="space-y-2">
 						<Label>Bank Name <span class="text-destructive">*</span></Label>
 						<Input bind:value={bank.bank_name} placeholder="e.g. Chase Bank" class={(isTouched && validateRequired(bank.bank_name)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />

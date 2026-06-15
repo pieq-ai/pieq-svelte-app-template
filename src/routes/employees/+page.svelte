@@ -129,8 +129,8 @@
 	<title>Employees Directory</title>
 </svelte:head>
 
-<div class="w-full space-y-6 px-1 py-0">
-	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
+<div class="w-full space-y-4 px-1 py-0">
+	<div class="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
 			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Employees</h1>
 		</div>
