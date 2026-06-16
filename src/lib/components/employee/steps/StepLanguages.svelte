@@ -3,15 +3,13 @@
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 
-	type SaveOnlyFn = () => Promise<{ success: boolean; cuid?: string }>;
-
-	let { mode, cuid, onNext, onPrev, onDirtyChange, onRegisterSaveOnly } = $props<{
+	let { mode, cuid, onNext, onPrev, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit' | 'view';
 		cuid: string | null;
 		onNext: (cuid?: string) => void;
 		onPrev: () => void;
 		onDirtyChange?: (dirty: boolean) => void;
-		onRegisterSaveOnly?: (fn: SaveOnlyFn) => void;
+		onCancel: () => void;
 	}>();
 
 	let isSubmitting = $state(false);
@@ -68,7 +66,6 @@
 			addLanguage();
 		}
 		originalData = JSON.stringify(normalizeLanguages(languages));
-		onRegisterSaveOnly?.(saveOnly);
 	});
 
 	let isDirty = $derived(JSON.stringify(normalizeLanguages(languages)) !== originalData);
@@ -92,7 +89,6 @@
 	async function saveOnly(): Promise<{ success: boolean }> {
 		isTouched = true;
 		if (hasErrors) {
-			toast.error('Please correct the validation errors before saving.');
 			return { success: false };
 		}
 		if (!cuid) return { success: false };
@@ -132,7 +128,7 @@
 <div class="space-y-4">
 	{#if mode !== 'view'}
 		<div class="flex justify-end">
-			<Button variant="outline" size="sm" onclick={addLanguage}>
+			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={addLanguage} disabled={isSubmitting}>
 				Add Language
 			</Button>
 		</div>
@@ -144,13 +140,15 @@
 
 	<div class="space-y-4">
 		{#each languages as lang, index (index)}
-			<div class="flex flex-col gap-4 p-4 border border-border rounded-lg relative">
+			<div class="flex flex-col gap-4 p-4 border border-border rounded-lg">
 				{#if mode !== 'view'}
-					<Button variant="ghost" size="sm" class="absolute right-2 top-2 text-destructive hover:bg-destructive/10" onclick={() => languages = languages.filter((_, i) => i !== index)}>
-						Delete
-					</Button>
+					<div class="flex justify-end -mb-2">
+						<Button variant="ghost" size="sm" class="h-7 px-2 text-destructive hover:bg-destructive/10" onclick={() => languages = languages.filter((_, i) => i !== index)}>
+							Delete
+						</Button>
+					</div>
 				{/if}
-				<div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center w-full mt-4 sm:mt-0">
+				<div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center w-full">
 					<div class="flex-1 w-full sm:pr-8">
 						<MasterDataDropdown
 							master="languages"
@@ -193,14 +191,11 @@
 		</Button>
 		<div class="space-x-2">
 			{#if mode !== 'view'}
-				<Button variant="outline" onclick={() => onNext()} disabled={isSubmitting}>
-					Next
+				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
+					Cancel
 				</Button>
-				<Button variant="secondary" onclick={() => save(true)} disabled={isSubmitting}>
-					Save & Exit
-				</Button>
-				<Button onclick={() => save(false)} disabled={isSubmitting}>
-					Save & Next
+				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save(false)} disabled={isSubmitting}>
+					Save
 				</Button>
 			{:else}
 				<Button onclick={() => onNext()}>

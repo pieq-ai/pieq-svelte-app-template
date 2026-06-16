@@ -6,7 +6,8 @@
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import { toast } from '$lib/toast';
-	import { createDirtyChecker } from '$lib/utils';
+	import {  createDirtyChecker  } from '$lib/utils';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import {
 		Alert,
@@ -65,6 +66,7 @@
 
 	const dirtyChecker = createDirtyChecker<{ permission_key: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ permission_key: permissionKey.trim(), status: permissionStatus }));
+	$effect(() => { $globalIsDirty = isDirty; });
 
 	let itemToDelete = $state<Permission | null>(null);
 	let isDeleting = $state(false);
@@ -191,6 +193,7 @@
 				await loadPermissions();
 				toast.success(editingPermission ? 'Permission updated successfully.' : 'Permission created successfully.');
 				isModalOpen = false;
+		$globalIsDirty = false;
 			} else if (response.status === 409 && body.field === 'permission_key') {
 				backendError = body.error;
 				permissionKeyInput?.focus();
@@ -342,7 +345,7 @@
 	title={editingPermission ? 'Edit Permission' : 'Create Permission'}
 	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => (isModalOpen = false)}
+	onClose={() => { isModalOpen = false; $globalIsDirty = false; }}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={savePermission}>

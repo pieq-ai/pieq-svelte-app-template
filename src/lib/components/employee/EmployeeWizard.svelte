@@ -16,6 +16,7 @@
 	import { replaceState, goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { untrack } from 'svelte';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 
 	let { mode = 'create', employeeCuid = null, data } = $props<{ mode?: 'create' | 'edit' | 'view'; employeeCuid?: string | null; data?: Record<string, unknown> }>();
 
@@ -48,30 +49,23 @@
 	];
 
 	// ── Wizard-level unsaved-changes state ──────────────────────────────────
-	type SaveOnlyFn = () => Promise<{ success: boolean; cuid?: string }>;
-
 	let stepIsDirty = $state(false);
-	let stepSaveOnly = $state<SaveOnlyFn | null>(null);
 	let pendingStep = $state<number | null>(null);
 	let pendingExit = $state(false);
 	let showUnsavedModal = $state(false);
-	let modalSubmitting = $state(false);
+
 
 	/** Called by the active step whenever its dirty state changes. */
 	function handleDirtyChange(dirty: boolean) {
 		stepIsDirty = dirty;
-	}
-
-	/** Called by the active step in onMount to register its save-only function. */
-	function handleRegisterSaveOnly(fn: SaveOnlyFn) {
-		stepSaveOnly = fn;
+		$globalIsDirty = dirty;
 	}
 
 	/** Reset wizard dirty/save tracking when the active step changes. */
 	$effect(() => {
 		void currentStep;
 		stepIsDirty = false;
-		stepSaveOnly = null;
+		$globalIsDirty = false;
 	});
 
 	/** Single entry-point for ALL navigation (tabs, prev, next). */
@@ -100,6 +94,7 @@
 
 	function finalizePendingNavigation() {
 		showUnsavedModal = false;
+		$globalIsDirty = false;
 		if (pendingExit) {
 			goto('/employees');
 			return;
@@ -110,31 +105,7 @@
 		}
 	}
 
-	async function handleModalSave() {
-		if (!stepSaveOnly) {
-			// No save function registered yet (still loading) — just navigate
-			finalizePendingNavigation();
-			return;
-		}
-		try {
-			modalSubmitting = true;
-			const result = await stepSaveOnly();
-			if (result.success) {
-				// Update cuid if step 1 just created a new employee
-				if (result.cuid && result.cuid !== cuid) {
-					cuid = result.cuid;
-					if (internalMode === 'create') {
-						replaceState(`/employees/${cuid}`, $page.state);
-						internalMode = 'edit';
-					}
-				}
-				finalizePendingNavigation();
-			}
-			// If save failed, modal stays open so user can see toast and fix errors
-		} finally {
-			modalSubmitting = false;
-		}
-	}
+
 
 	function handleModalCancel() {
 		showUnsavedModal = false;
@@ -229,39 +200,39 @@
 				{#if currentStep === 1}
 					<StepPersonal mode={internalMode} {cuid} {data} onNext={handleNext}
 						onDirtyChange={handleDirtyChange}
-						onRegisterSaveOnly={handleRegisterSaveOnly} />
+						onCancel={requestExit} />
 				{:else if currentStep === 2}
 					<StepEmployment mode={internalMode} {cuid} {data} onNext={handleNext} onPrev={handlePrev}
 						onDirtyChange={handleDirtyChange}
-						onRegisterSaveOnly={handleRegisterSaveOnly} />
+						onCancel={requestExit} />
 				{:else if currentStep === 3}
 					<StepAddress mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev}
 						onDirtyChange={handleDirtyChange}
-						onRegisterSaveOnly={handleRegisterSaveOnly} />
+						onCancel={requestExit} />
 				{:else if currentStep === 4}
 					<StepEducation mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev}
 						onDirtyChange={handleDirtyChange}
-						onRegisterSaveOnly={handleRegisterSaveOnly} />
+						onCancel={requestExit} />
 				{:else if currentStep === 5}
 					<StepExperience mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev}
 						onDirtyChange={handleDirtyChange}
-						onRegisterSaveOnly={handleRegisterSaveOnly} />
+						onCancel={requestExit} />
 				{:else if currentStep === 6}
 					<StepSkills mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev}
 						onDirtyChange={handleDirtyChange}
-						onRegisterSaveOnly={handleRegisterSaveOnly} />
+						onCancel={requestExit} />
 				{:else if currentStep === 7}
 					<StepLanguages mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev}
 						onDirtyChange={handleDirtyChange}
-						onRegisterSaveOnly={handleRegisterSaveOnly} />
+						onCancel={requestExit} />
 				{:else if currentStep === 8}
 					<StepDocuments mode={internalMode} {cuid} onNext={handleNext} onPrev={handlePrev}
 						onDirtyChange={handleDirtyChange}
-						onRegisterSaveOnly={handleRegisterSaveOnly} />
+						onCancel={requestExit} />
 				{:else if currentStep === 9}
 					<StepBankDetails mode={internalMode} {cuid} onPrev={handlePrev}
 						onDirtyChange={handleDirtyChange}
-						onRegisterSaveOnly={handleRegisterSaveOnly} />
+						onCancel={requestExit} />
 				{/if}
 			</CardContent>
 		</Card>
@@ -271,12 +242,12 @@
 <!-- Wizard-level Unsaved Changes Modal -->
 <ConfirmModal
 	open={showUnsavedModal}
-	title="Unsaved Changes"
-	description="You have unsaved changes on this page. Would you like to save them before continuing?"
-	confirmLabel="Save"
-	isSubmitting={modalSubmitting}
-	onCancel={() => { if (!modalSubmitting) handleModalCancel(); }}
-	onConfirm={handleModalSave}
+	title="Cancel Changes"
+	description="Are you sure you want to cancel? All unsaved changes will be lost."
+	cancelLabel="Keep Editing"
+	confirmLabel="Cancel"
+	onCancel={() => handleModalCancel()}
+	onConfirm={() => finalizePendingNavigation()}
 />
 
 <style>

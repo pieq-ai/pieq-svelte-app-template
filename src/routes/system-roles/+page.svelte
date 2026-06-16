@@ -6,7 +6,8 @@
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import { toast } from '$lib/toast';
-	import { createDirtyChecker } from '$lib/utils';
+	import {  createDirtyChecker  } from '$lib/utils';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import {
 		Alert,
@@ -70,6 +71,7 @@
 
 	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ name: roleName.trim(), status: roleStatus }));
+	$effect(() => { $globalIsDirty = isDirty; });
 
 	let itemToDelete = $state<SystemRole | null>(null);
 	let isDeleting = $state(false);
@@ -190,6 +192,7 @@
 				await loadRoles();
 				toast.success(editingRole ? 'System role updated successfully.' : 'System role created successfully.');
 				isModalOpen = false;
+		$globalIsDirty = false;
 			} else if (response.status === 409 && body.field === 'name') {
 				backendError = body.error;
 				roleNameInput?.focus();
@@ -341,7 +344,7 @@
 	title={editingRole ? 'Edit System Role' : 'Create System Role'}
 	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => (isModalOpen = false)}
+	onClose={() => { isModalOpen = false; $globalIsDirty = false; }}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={saveRole}>

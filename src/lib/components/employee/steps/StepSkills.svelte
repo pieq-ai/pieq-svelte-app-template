@@ -3,15 +3,13 @@
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 
-	type SaveOnlyFn = () => Promise<{ success: boolean; cuid?: string }>;
-
-	let { mode, cuid, onNext, onPrev, onDirtyChange, onRegisterSaveOnly } = $props<{
+	let { mode, cuid, onNext, onPrev, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit' | 'view';
 		cuid: string | null;
 		onNext: (cuid?: string) => void;
 		onPrev: () => void;
 		onDirtyChange?: (dirty: boolean) => void;
-		onRegisterSaveOnly?: (fn: SaveOnlyFn) => void;
+		onCancel: () => void;
 	}>();
 
 	let isSubmitting = $state(false);
@@ -54,7 +52,6 @@
 			addSkill();
 		}
 		originalData = JSON.stringify(normalizeSkills(skills));
-		onRegisterSaveOnly?.(saveOnly);
 	});
 
 	let isDirty = $derived(JSON.stringify(normalizeSkills(skills)) !== originalData);
@@ -78,7 +75,6 @@
 	async function saveOnly(): Promise<{ success: boolean }> {
 		isTouched = true;
 		if (hasErrors) {
-			toast.error('Please correct the validation errors before saving.');
 			return { success: false };
 		}
 		if (!cuid) return { success: false };
@@ -118,7 +114,7 @@
 <div class="space-y-4">
 	{#if mode !== 'view'}
 		<div class="flex justify-end">
-			<Button variant="outline" size="sm" onclick={addSkill}>
+			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={addSkill} disabled={isSubmitting}>
 				Add Skill
 			</Button>
 		</div>
@@ -130,13 +126,13 @@
 
 	<div class="space-y-4">
 		{#each skills as skill, index (index)}
-			<div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center rounded-lg border border-border p-4 relative">
+			<div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center rounded-lg border border-border p-4">
 				{#if mode !== 'view'}
-					<Button variant="ghost" size="sm" class="absolute right-2 top-2 sm:static sm:order-last text-destructive hover:bg-destructive/10" onclick={() => skills = skills.filter((_, i) => i !== index)}>
+					<Button variant="ghost" size="sm" class="sm:order-last text-destructive hover:bg-destructive/10 h-8 self-end sm:self-auto" onclick={() => skills = skills.filter((_, i) => i !== index)}>
 						Delete
 					</Button>
 				{/if}
-				<div class="flex-1 w-full mt-4 sm:mt-0">
+				<div class="flex-1 w-full">
 					<MasterDataDropdown
 						master="skills"
 						label="Skill *"
@@ -176,14 +172,11 @@
 		</Button>
 		<div class="space-x-2">
 			{#if mode !== 'view'}
-				<Button variant="outline" onclick={() => onNext()} disabled={isSubmitting}>
-					Next
+				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
+					Cancel
 				</Button>
-				<Button variant="secondary" onclick={() => save(true)} disabled={isSubmitting}>
-					Save & Exit
-				</Button>
-				<Button onclick={() => save(false)} disabled={isSubmitting}>
-					Save & Next
+				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save(false)} disabled={isSubmitting}>
+					Save
 				</Button>
 			{:else}
 				<Button onclick={() => onNext()}>

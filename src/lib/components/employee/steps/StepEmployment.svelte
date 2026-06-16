@@ -6,9 +6,7 @@
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 
-	type SaveOnlyFn = () => Promise<{ success: boolean; cuid?: string }>;
-
-	let { mode, cuid, data, onNext, onPrev, onDirtyChange, onRegisterSaveOnly } = $props<{
+	let { mode, cuid, data, onNext, onPrev, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit' | 'view';
 		cuid: string | null;
 		data?: {
@@ -20,7 +18,7 @@
 		onNext: (cuid?: string) => void;
 		onPrev: () => void;
 		onDirtyChange?: (dirty: boolean) => void;
-		onRegisterSaveOnly?: (fn: SaveOnlyFn) => void;
+		onCancel: () => void;
 	}>();
 
 	let isSubmitting = $state(false);
@@ -91,7 +89,6 @@
 			}
 		}
 		originalData = JSON.stringify(normalizeEmployment(employment));
-		onRegisterSaveOnly?.(saveOnly);
 	});
 
 	let isDirty = $derived(JSON.stringify(normalizeEmployment(employment)) !== originalData);
@@ -150,7 +147,6 @@
 	async function saveOnly(): Promise<{ success: boolean }> {
 		isTouched = true;
 		if (hasErrors) {
-			toast.error('Please correct the validation errors before saving.');
 			return { success: false };
 		}
 		if (!cuid) {
@@ -302,14 +298,11 @@
 		</Button>
 		<div class="space-x-2">
 			{#if mode !== 'view'}
-				<Button variant="outline" onclick={() => onNext()} disabled={isSubmitting}>
-					Next
+				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
+					Cancel
 				</Button>
-				<Button variant="secondary" onclick={() => save(true)} disabled={isSubmitting}>
-					Save & Exit
-				</Button>
-				<Button onclick={() => save(false)} disabled={isSubmitting}>
-					Save & Next
+				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save(false)} disabled={isSubmitting}>
+					Save
 				</Button>
 			{:else}
 				<Button onclick={() => onNext()}>

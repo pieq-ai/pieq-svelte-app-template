@@ -1,5 +1,6 @@
 export { Button, buttonVariants } from './ui/button/index.js';
 export { Input } from './ui/input/index.js';
+export { Textarea } from './ui/textarea/index.js';
 export { Label } from './ui/label/index.js';
 export { Badge } from './ui/badge/index.js';
 export {

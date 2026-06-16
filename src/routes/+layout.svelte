@@ -6,6 +6,9 @@
 	import Toaster from '$lib/components/ui/toaster.svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
+	import { beforeNavigate, goto } from '$app/navigation';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
+	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 	import Building2Icon from '@lucide/svelte/icons/building-2';
 	import MenuIcon from '@lucide/svelte/icons/menu';
 	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
@@ -22,6 +25,27 @@
 	let { children, data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);
 	let isSidebarCollapsed = $state(false);
+
+	let showGlobalUnsavedModal = $state(false);
+	let pendingNavigationUrl = $state('');
+
+	beforeNavigate(({ to, cancel }) => {
+		if ($globalIsDirty) {
+			cancel();
+			if (to?.url) {
+				pendingNavigationUrl = to.url.pathname + to.url.search;
+				showGlobalUnsavedModal = true;
+			}
+		}
+	});
+
+	function confirmGlobalLeave() {
+		$globalIsDirty = false;
+		showGlobalUnsavedModal = false;
+		if (pendingNavigationUrl) {
+			goto(pendingNavigationUrl);
+		}
+	}
 
 	const protectedNavItems = [
 		{ label: 'Dashboard', href: resolve('/dashboard'), icon: LayoutDashboardIcon },
@@ -162,3 +186,13 @@
 		{@render children()}
 	</main>
 </div>
+
+<ConfirmModal 
+	open={showGlobalUnsavedModal} 
+	title="Cancel Changes" 
+	description="Are you sure you want to cancel? All unsaved changes will be lost." 
+	cancelLabel="Keep Editing" 
+	confirmLabel="Cancel" 
+	onCancel={() => showGlobalUnsavedModal = false} 
+	onConfirm={confirmGlobalLeave} 
+/>

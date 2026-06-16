@@ -6,7 +6,8 @@
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import { toast } from '$lib/toast';
-	import { createDirtyChecker } from '$lib/utils';
+	import {  createDirtyChecker  } from '$lib/utils';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { UI_CONSTANTS } from '$lib/constants';
 
 	import {
@@ -63,6 +64,7 @@
 
 	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ name: formDesignationName.trim(), status: formDesignationStatus }));
+	$effect(() => { $globalIsDirty = isDirty; });
 
 	// Deletion State
 	let itemToDelete = $state<Designation | null>(null);
@@ -204,6 +206,7 @@
 				await loadDesignations();
 				toast.success(editingDesignation ? 'Designation updated successfully' : 'Designation created successfully');
 				isModalOpen = false;
+		$globalIsDirty = false;
 			} else if (response.status === 409 && resData.field === 'name') {
 				backendError = resData.error;
 				designationNameInput?.focus();
@@ -372,7 +375,7 @@
 	title={editingDesignation ? 'Edit Designation' : 'Create Designation'}
 	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => (isModalOpen = false)}
+	onClose={() => { isModalOpen = false; $globalIsDirty = false; }}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={handleSaveDesignation}>

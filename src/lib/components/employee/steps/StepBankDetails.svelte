@@ -14,14 +14,12 @@
 		validateBankDetails
 	} from '$lib/utils/employeeValidationHelper';
 
-	type SaveOnlyFn = () => Promise<{ success: boolean; cuid?: string }>;
-
-	let { mode, cuid, onPrev, onDirtyChange, onRegisterSaveOnly } = $props<{
+	let { mode, cuid, onPrev, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit' | 'view';
 		cuid: string | null;
 		onPrev: () => void;
 		onDirtyChange?: (dirty: boolean) => void;
-		onRegisterSaveOnly?: (fn: SaveOnlyFn) => void;
+		onCancel: () => void;
 	}>();
 
 	let isSubmitting = $state(false);
@@ -76,7 +74,6 @@
 			addBank();
 		}
 		originalData = JSON.stringify(normalizeBankDetails(bankDetails));
-		onRegisterSaveOnly?.(saveOnly);
 	});
 
 	let isDirty = $derived(JSON.stringify(normalizeBankDetails(bankDetails)) !== originalData);
@@ -107,7 +104,6 @@
 	async function saveOnly(): Promise<{ success: boolean }> {
 		isTouched = true;
 		if (hasErrors) {
-			toast.error('Please correct the validation errors in Bank Details before saving.');
 			return { success: false };
 		}
 		if (!cuid) return { success: false };
@@ -147,7 +143,6 @@
 	async function handleSubmit() {
 		isTouched = true;
 		if (hasErrors) {
-			toast.error('Please correct the validation errors in Bank Details before submitting.');
 			return;
 		}
 		if (!cuid) return;
@@ -263,7 +258,7 @@
 <div class="space-y-4">
 	{#if mode !== 'view'}
 		<div class="flex justify-end">
-			<Button variant="outline" size="sm" onclick={addBank}>
+			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={addBank} disabled={isSubmitting}>
 				Add Bank
 			</Button>
 		</div>
@@ -320,16 +315,14 @@
 		</Button>
 		<div class="space-x-2">
 			{#if mode !== 'view'}
-				<Button variant="secondary" onclick={() => save(true)} disabled={isSubmitting || isValidating}>
-					Save & Exit
+				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
+					Cancel
 				</Button>
-				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={handleSubmit} disabled={isSubmitting || isValidating}>
-					{isSubmitting || isValidating ? 'Submitting...' : 'Submit / Complete'}
+				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save(false)} disabled={isSubmitting}>
+					Save
 				</Button>
 			{:else}
-				<Button onclick={async () => window.location.href = '/employees'}>
-					Finish
-				</Button>
+				
 			{/if}
 		</div>
 	</div>

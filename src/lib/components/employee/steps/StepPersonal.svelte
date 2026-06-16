@@ -1,18 +1,16 @@
 <script lang="ts">
-	import { Input, Label, SearchableDropdown, MasterDataDropdown, DatePicker, Button } from '$lib/components';
+	import { Input, Label, SearchableDropdown, MasterDataDropdown, DatePicker, Button, Textarea } from '$lib/components';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 
-	type SaveOnlyFn = () => Promise<{ success: boolean; cuid?: string }>;
-
-	let { mode, cuid, onNext, data, onDirtyChange, onRegisterSaveOnly } = $props<{
+	let { mode, cuid, onNext, data, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit' | 'view';
 		cuid: string | null;
 		onNext: (cuid?: string) => void;
 		data?: Record<string, unknown>;
 		onDirtyChange?: (dirty: boolean) => void;
-		onRegisterSaveOnly?: (fn: SaveOnlyFn) => void;
+		onCancel: () => void;
 	}>();
 
 	let isSubmitting = $state(false);
@@ -104,7 +102,6 @@
 			}
 		}
 		originalData = JSON.stringify(normalizePersonal(emp));
-		onRegisterSaveOnly?.(saveOnly);
 	});
 
 	let isDirty = $derived(JSON.stringify(normalizePersonal(emp)) !== originalData);
@@ -218,7 +215,6 @@
 		backendErrors = {};
 
 		if (hasErrors) {
-			toast.error('Please correct the validation errors before saving.');
 			return { success: false };
 		}
 
@@ -238,7 +234,6 @@
 				const body = await res.json();
 				if (body.data?.field && body.data?.message) {
 					backendErrors = { [body.data.field]: body.data.message };
-					toast.error(body.data.message);
 					return { success: false };
 				}
 				throw new Error(body.data?.message || body.error || 'Failed to save personal details');
@@ -362,7 +357,7 @@
 
 	<div class="space-y-2">
 		<Label>Remarks</Label>
-		<Input bind:value={emp.remarks} onblur={() => emp.remarks = emp.remarks.trim()} placeholder="Any additional notes..." readonly={mode === 'view'} />
+		<Textarea bind:value={emp.remarks} onblur={() => emp.remarks = emp.remarks.trim()} placeholder="Any additional notes..." readonly={mode === 'view'} rows={3} />
 	</div>
 
 	<div class="flex items-center justify-between pt-6 border-t border-border">
@@ -371,14 +366,11 @@
 		</Button>
 		<div class="space-x-2">
 			{#if mode !== 'view'}
-				<Button variant="outline" onclick={() => onNext()} disabled={isSubmitting}>
-					Next
+				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
+					Cancel
 				</Button>
-				<Button variant="secondary" onclick={() => save(true)} disabled={isSubmitting}>
-					Save & Exit
-				</Button>
-				<Button onclick={() => save(false)} disabled={isSubmitting}>
-					Save & Next
+				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save(false)} disabled={isSubmitting}>
+					Save
 				</Button>
 			{:else}
 				<Button onclick={() => onNext()}>

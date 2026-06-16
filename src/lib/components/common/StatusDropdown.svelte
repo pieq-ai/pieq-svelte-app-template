@@ -35,17 +35,17 @@
 			<DropdownMenu.Group>
 				<DropdownMenu.Item
 					onclick={() => onChange(true)}
-					class="cursor-pointer justify-between {value === true ? 'bg-accent text-accent-foreground' : ''}"
+					class="cursor-pointer flex items-center gap-2 {value === true ? 'font-medium text-[#F45310]' : ''}"
 				>
+					<CheckIcon class="size-4 shrink-0 {value === true ? 'opacity-100 text-[#F45310]' : 'opacity-0'}" />
 					Active
-					{#if value === true}<CheckIcon class="size-4" />{/if}
 				</DropdownMenu.Item>
 				<DropdownMenu.Item
 					onclick={() => onChange(false)}
-					class="cursor-pointer justify-between {value === false ? 'bg-accent text-accent-foreground' : ''}"
+					class="cursor-pointer flex items-center gap-2 {value === false ? 'font-medium text-[#F45310]' : ''}"
 				>
+					<CheckIcon class="size-4 shrink-0 {value === false ? 'opacity-100 text-[#F45310]' : 'opacity-0'}" />
 					Inactive
-					{#if value === false}<CheckIcon class="size-4" />{/if}
 				</DropdownMenu.Item>
 			</DropdownMenu.Group>
 		</DropdownMenu.Content>

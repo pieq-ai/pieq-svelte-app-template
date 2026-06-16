@@ -3,15 +3,13 @@
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 
-	type SaveOnlyFn = () => Promise<{ success: boolean; cuid?: string }>;
-
-	let { mode, cuid, onNext, onPrev, onDirtyChange, onRegisterSaveOnly } = $props<{
+	let { mode, cuid, onNext, onPrev, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit' | 'view';
 		cuid: string | null;
 		onNext: (cuid?: string) => void;
 		onPrev: () => void;
 		onDirtyChange?: (dirty: boolean) => void;
-		onRegisterSaveOnly?: (fn: SaveOnlyFn) => void;
+		onCancel: () => void;
 	}>();
 
 	let isSubmitting = $state(false);
@@ -63,7 +61,6 @@
 			addDocument();
 		}
 		originalData = JSON.stringify(normalizeDocs(documents));
-		onRegisterSaveOnly?.(saveOnly);
 	});
 
 	let isDirty = $derived(
@@ -129,7 +126,6 @@
 	async function saveOnly(): Promise<{ success: boolean }> {
 		isTouched = true;
 		if (hasErrors) {
-			toast.error('Please correct the validation errors before saving.');
 			return { success: false };
 		}
 		if (!cuid) return { success: false };
@@ -188,19 +184,21 @@
 
 	<div class="space-y-4">
 		{#each documents as doc, index (index)}
-			<div class="rounded-lg border border-border p-4 pt-10 relative">
-				<div class="absolute right-2 top-2 flex items-center gap-1">
-					{#if doc.file_name}
-						<Button variant="ghost" size="sm" class="text-primary hover:bg-primary/10" onclick={() => handlePreview(doc)} title="Preview Document">
-							View
-						</Button>
-					{/if}
-					{#if mode !== 'view'}
-						<Button variant="ghost" size="sm" class="text-destructive hover:bg-destructive/10" onclick={() => documents = documents.filter((_, i) => i !== index)} title="Delete Document">
-							Delete
-						</Button>
-					{/if}
-				</div>
+			<div class="rounded-lg border border-border p-4 relative">
+				{#if doc.file_name || mode !== 'view'}
+					<div class="flex justify-end gap-1 mb-2">
+						{#if doc.file_name}
+							<Button variant="ghost" size="sm" class="h-7 px-2 text-primary hover:bg-primary/10" onclick={() => handlePreview(doc)} title="Preview Document">
+								View
+							</Button>
+						{/if}
+						{#if mode !== 'view'}
+							<Button variant="ghost" size="sm" class="h-7 px-2 text-destructive hover:bg-destructive/10" onclick={() => documents = documents.filter((_, i) => i !== index)} title="Delete Document">
+								Delete
+							</Button>
+						{/if}
+					</div>
+				{/if}
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<MasterDataDropdown 
 						master="document-types" 
@@ -253,14 +251,11 @@
 		</Button>
 		<div class="space-x-2">
 			{#if mode !== 'view'}
-				<Button variant="outline" onclick={() => onNext()} disabled={isSubmitting || readingCount > 0}>
-					Next
+				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
+					Cancel
 				</Button>
-				<Button variant="secondary" onclick={() => save(true)} disabled={isSubmitting || readingCount > 0}>
-					Save & Exit
-				</Button>
-				<Button onclick={() => save(false)} disabled={isSubmitting || readingCount > 0}>
-					{readingCount > 0 ? 'Reading file...' : 'Save & Next'}
+				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save(false)} disabled={isSubmitting}>
+					Save
 				</Button>
 			{:else}
 				<Button onclick={() => onNext()}>

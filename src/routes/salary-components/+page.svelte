@@ -9,7 +9,8 @@
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import { toast } from '$lib/toast';
-	import { createDirtyChecker } from '$lib/utils';
+	import {  createDirtyChecker  } from '$lib/utils';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { UI_CONSTANTS } from '$lib/constants';
 
 	import {
@@ -81,6 +82,7 @@
 			is_active: formIsActive
 		})
 	);
+	$effect(() => { $globalIsDirty = isDirty; });
 
 	let filteredComponents = $derived.by(() => {
 		let result = [...componentsList];
@@ -231,6 +233,7 @@
 				await loadComponents();
 				toast.success(editingComp ? 'Salary Component updated successfully' : 'Salary Component created successfully');
 				isModalOpen = false;
+		$globalIsDirty = false;
 			} else {
 				if (response.status === 400 || response.status === 409) {
 					backendError = resData.message || resData.error || 'Validation failed';
@@ -422,7 +425,7 @@
 	title={editingComp ? 'Edit Salary Component' : 'Create Salary Component'}
 	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => (isModalOpen = false)}
+	onClose={() => { isModalOpen = false; $globalIsDirty = false; }}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-4" onsubmit={handleSaveComponent}>

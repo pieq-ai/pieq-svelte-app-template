@@ -218,7 +218,6 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingOption ? `Edit ${config.label}` : `Add ${config.label}`}
-	description="Master values are validated on the frontend and again in the service layer."
 	onClose={() => (isModalOpen = false)}
 >
 	{#snippet children({ cancel })}

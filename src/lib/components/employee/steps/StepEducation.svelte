@@ -4,15 +4,13 @@
 	import { SvelteDate } from 'svelte/reactivity';
 	import { onMount } from 'svelte';
 
-	type SaveOnlyFn = () => Promise<{ success: boolean; cuid?: string }>;
-
-	let { mode, cuid, onNext, onPrev, onDirtyChange, onRegisterSaveOnly } = $props<{
+	let { mode, cuid, onNext, onPrev, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit' | 'view';
 		cuid: string | null;
 		onNext: () => void;
 		onPrev: () => void;
 		onDirtyChange?: (dirty: boolean) => void;
-		onRegisterSaveOnly?: (fn: SaveOnlyFn) => void;
+		onCancel: () => void;
 	}>();
 
 	let isSubmitting = $state(false);
@@ -69,7 +67,6 @@
 			addEducation();
 		}
 		originalData = JSON.stringify(normalizeEducations(educations));
-		onRegisterSaveOnly?.(saveOnly);
 	});
 
 	let isDirty = $derived(JSON.stringify(normalizeEducations(educations)) !== originalData);
@@ -110,7 +107,6 @@
 	async function saveOnly(): Promise<{ success: boolean }> {
 		isTouched = true;
 		if (hasErrors) {
-			toast.error('Please correct the validation errors before saving.');
 			return { success: false };
 		}
 		if (!cuid) return { success: false };
@@ -150,7 +146,7 @@
 <div class="space-y-4">
 	{#if mode !== 'view'}
 		<div class="flex justify-end">
-			<Button variant="outline" size="sm" onclick={addEducation}>
+			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={addEducation} disabled={isSubmitting}>
 				Add Education
 			</Button>
 		</div>
@@ -161,11 +157,13 @@
 	{/if}
 
 	{#each educations as edu, index (index)}
-		<div class="rounded-lg border border-border p-4 pt-10 relative">
+		<div class="rounded-lg border border-border p-4 relative">
 			{#if mode !== 'view'}
-				<Button variant="ghost" size="sm" class="absolute right-2 top-2 text-destructive hover:bg-destructive/10" onclick={() => educations = educations.filter((_, i) => i !== index)}>
-					Delete
-				</Button>
+				<div class="flex justify-end mb-2">
+					<Button variant="ghost" size="sm" class="h-7 px-2 text-destructive hover:bg-destructive/10" onclick={() => educations = educations.filter((_, i) => i !== index)}>
+						Delete
+					</Button>
+				</div>
 			{/if}
 			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
 				<SearchableDropdown
@@ -218,14 +216,11 @@
 		</Button>
 		<div class="space-x-2">
 			{#if mode !== 'view'}
-				<Button variant="outline" onclick={() => onNext()} disabled={isSubmitting}>
-					Next
+				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
+					Cancel
 				</Button>
-				<Button variant="secondary" onclick={() => save(true)} disabled={isSubmitting}>
-					Save & Exit
-				</Button>
-				<Button onclick={() => save(false)} disabled={isSubmitting}>
-					Save & Next
+				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save(false)} disabled={isSubmitting}>
+					Save
 				</Button>
 			{:else}
 				<Button onclick={() => onNext()}>
