@@ -1029,7 +1029,7 @@
 									{/if}
 								{/if}
 
-								{#if cell.isToday && !holiday}
+								{#if cell.isToday && !holiday && dayStatus?.status !== 'Leave'}
 									{#if !record}
 										<Button
 											size="sm"

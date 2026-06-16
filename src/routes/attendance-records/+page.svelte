@@ -39,6 +39,7 @@
 	import { toast } from '$lib/toast';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import type { PageData } from './$types';
+	import { cn } from '$lib/utils.js';
 
 	let { data }: { data: PageData } = $props();
 
@@ -46,8 +47,14 @@
 	const pageSize = 10;
 	let searchQuery = $state('');
 
+	const today = new Date();
+	const y = today.getFullYear();
+	const m = String(today.getMonth() + 1).padStart(2, '0');
+	const d = String(today.getDate()).padStart(2, '0');
+	const todayStr = `${y}-${m}-${d}`;
+
 	// Filters
-	let filterDate = $state('');
+	let summaryDate = $state(todayStr);
 	let filterStatus = $state('all');
 	let filterSourceCuid = $state('all');
 
@@ -548,9 +555,62 @@
 		}
 	}
 
+	let summaryCounts = $derived.by(() => {
+		const recordsForDate = data.records.filter((rec) => rec.attendance_date === summaryDate);
+		const present = recordsForDate.filter((rec) => rec.attendance_status === 'Present').length;
+		const leave = recordsForDate.filter((rec) => rec.attendance_status === 'Leave' || rec.attendance_status === 'On Leave').length;
+		const wfh = recordsForDate.filter((rec) => rec.attendance_status === 'WFH').length;
+		const halfDay = recordsForDate.filter((rec) => rec.attendance_status === 'Half Day').length;
+		const lop = recordsForDate.filter((rec) => rec.attendance_status === 'LOP' || rec.attendance_status === 'Absent').length;
+		
+		const loggedInCuids = new Set(recordsForDate.map((rec) => rec.employee_cuid));
+		const notLoggedIn = data.employees.filter((emp) => !loggedInCuids.has(emp.uuid)).length;
+
+		return {
+			total: data.employees.length,
+			present,
+			leave,
+			wfh,
+			halfDay,
+			lop,
+			notLoggedIn
+		};
+	});
+
 	// Derived filtering & sorting logic
 	let filteredRecords = $derived.by(() => {
-		let result = [...data.records];
+		const allEmployees = data.employees;
+		const recordsForDate = data.records.filter((rec) => rec.attendance_date === summaryDate);
+		const recordMap = new Map<string, any>();
+		for (const rec of recordsForDate) {
+			recordMap.set(rec.employee_cuid, rec);
+		}
+
+		const list: any[] = [];
+		for (const emp of allEmployees) {
+			const existingRecord = recordMap.get(emp.uuid);
+			if (existingRecord) {
+				list.push(existingRecord);
+			} else {
+				// Virtual "Not Logged In" record
+				list.push({
+					cuid: `virtual-${emp.uuid}-${summaryDate}`,
+					employee_cuid: emp.uuid,
+					attendance_date: summaryDate,
+					check_in_time: null,
+					check_out_time: null,
+					work_duration_minutes: null,
+					attendance_status: 'Not Logged In',
+					attendance_source_cuid: null,
+					remarks: null,
+					created_at: new Date(summaryDate).toISOString(),
+					updated_at: new Date(summaryDate).toISOString(),
+					isVirtual: true
+				});
+			}
+		}
+
+		let result = list;
 
 		// Search
 		if (searchQuery.trim()) {
@@ -561,13 +621,18 @@
 		}
 
 		// Filters
-
-		if (filterDate) {
-			result = result.filter((rec) => rec.attendance_date === filterDate);
-		}
-
 		if (filterStatus !== 'all') {
-			result = result.filter((rec) => rec.attendance_status === filterStatus);
+			if (filterStatus === 'LOP') {
+				result = result.filter(
+					(rec) => rec.attendance_status === 'LOP' || rec.attendance_status === 'Absent'
+				);
+			} else if (filterStatus === 'Leave') {
+				result = result.filter(
+					(rec) => rec.attendance_status === 'Leave' || rec.attendance_status === 'On Leave'
+				);
+			} else {
+				result = result.filter((rec) => rec.attendance_status === filterStatus);
+			}
 		}
 
 		if (filterSourceCuid !== 'all') {
@@ -609,7 +674,7 @@
 		// Reset page on search or filter change
 		/* eslint-disable @typescript-eslint/no-unused-expressions */
 		searchQuery;
-		filterDate;
+		summaryDate;
 		filterStatus;
 		filterSourceCuid;
 		/* eslint-enable @typescript-eslint/no-unused-expressions */
@@ -685,6 +750,51 @@
 		</Button>
 	</div>
 
+	<!-- Summary Cards Section -->
+	<div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
+		<!-- Total Employees Card -->
+		<div class="flex flex-col p-4 rounded-xl border border-border bg-card text-left shadow-xs">
+			<span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total</span>
+			<span class="text-2xl font-bold text-foreground mt-1">{summaryCounts.total}</span>
+		</div>
+		
+		<!-- Present Card -->
+		<div class="flex flex-col p-4 rounded-xl border border-border bg-card text-left shadow-xs">
+			<span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Present</span>
+			<span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{summaryCounts.present}</span>
+		</div>
+
+		<!-- Leave Card -->
+		<div class="flex flex-col p-4 rounded-xl border border-border bg-card text-left shadow-xs">
+			<span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Leave</span>
+			<span class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{summaryCounts.leave}</span>
+		</div>
+
+		<!-- WFH Card -->
+		<div class="flex flex-col p-4 rounded-xl border border-border bg-card text-left shadow-xs">
+			<span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">WFH</span>
+			<span class="text-2xl font-bold text-cyan-600 dark:text-cyan-400 mt-1">{summaryCounts.wfh}</span>
+		</div>
+
+		<!-- Half Day Card -->
+		<div class="flex flex-col p-4 rounded-xl border border-border bg-card text-left shadow-xs">
+			<span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Half Day</span>
+			<span class="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1">{summaryCounts.halfDay}</span>
+		</div>
+
+		<!-- LOP Card -->
+		<div class="flex flex-col p-4 rounded-xl border border-border bg-card text-left shadow-xs">
+			<span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">LOP</span>
+			<span class="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">{summaryCounts.lop}</span>
+		</div>
+
+		<!-- Not Logged In Card -->
+		<div class="flex flex-col p-4 rounded-xl border border-border bg-card text-left shadow-xs">
+			<span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Not Logged In</span>
+			<span class="text-2xl font-bold text-neutral-600 dark:text-neutral-400 mt-1">{summaryCounts.notLoggedIn}</span>
+		</div>
+	</div>
+
 	<!-- Filters & Search -->
 	<div class="space-y-3">
 		<div class="flex flex-col gap-4 lg:flex-row lg:items-center">
@@ -715,7 +825,7 @@
 				<div class="w-full">
 					<DatePicker
 						placeholder="Filter Date"
-						bind:value={filterDate}
+						bind:value={summaryDate}
 					/>
 				</div>
 
@@ -816,11 +926,15 @@
 						</TableRow>
 					{:else}
 						{#each paginatedRecords as rec (rec.cuid)}
-							<TableRow class="hover:bg-muted/50 cursor-pointer" onclick={(e) => {
-								const target = e.target as HTMLElement;
-								if (target.closest('button') || target.closest('a')) return;
-								openEditModal(rec);
-							}}>
+							<TableRow 
+								class={rec.isVirtual ? "" : "hover:bg-muted/50 cursor-pointer"} 
+								onclick={(e) => {
+									if (rec.isVirtual) return;
+									const target = e.target as HTMLElement;
+									if (target.closest('button') || target.closest('a')) return;
+									openEditModal(rec);
+								}}
+							>
 								<TableCell class="font-semibold">{getEmployeeName(rec.employee_cuid)}</TableCell>
 								<TableCell>{formatDate(rec.attendance_date)}</TableCell>
 								<TableCell>{formatDisplayTime(rec.check_in_time)}</TableCell>
@@ -832,12 +946,16 @@
 									</Badge>
 								</TableCell>
 								<TableCell>{getSourceName(rec.attendance_source_cuid)}</TableCell>
-								<TableCell>{formatDate(rec.updated_at)}</TableCell>
+								<TableCell>{rec.isVirtual ? '--' : formatDate(rec.updated_at)}</TableCell>
 								<TableCell class="text-right">
-									<TableActions
-										onEdit={() => openEditModal(rec)}
-										showIcons={false}
-									/>
+									{#if !rec.isVirtual}
+										<TableActions
+											onEdit={() => openEditModal(rec)}
+											showIcons={false}
+										/>
+									{:else}
+										<span class="text-muted-foreground text-xs select-none">--</span>
+									{/if}
 								</TableCell>
 							</TableRow>
 						{/each}
