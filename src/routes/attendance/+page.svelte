@@ -912,10 +912,10 @@
 									<!-- Holiday Info Mode -->
 									<div class="space-y-1 text-left w-full mt-1">
 										<div class="text-xs font-bold leading-tight line-clamp-2">
-											🏖️ {holiday.holiday_name}
+											{holiday.holiday_name}
 										</div>
 										<div class="text-[9.5px] opacity-90 font-bold leading-none">
-											🏷️ {formatHolidayType(holiday.holiday_type)}
+											{formatHolidayType(holiday.holiday_type)}
 										</div>
 									</div>
 								{:else if record && record.check_in_time}
