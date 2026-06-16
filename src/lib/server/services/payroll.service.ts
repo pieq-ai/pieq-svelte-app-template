@@ -153,7 +153,7 @@ export async function uploadPayroll(
 		}
 
 		if (options.headerMonth === null || options.headerYear === null || options.headerMonth === undefined || options.headerYear === undefined) {
-			await uploadDao.updateEmployeeCount(uploadRecord.cuid, 0, 'failed', 'Unable to determine payroll period from file header.');
+			await uploadDao.updateEmployeeCount(uploadRecord.cuid, 0, 'failed', 'Payroll period could not be extracted from the report header.');
 			return { created: 0, skipped: rows.length, errors: [], upload_cuid: uploadRecord.cuid };
 		}
 

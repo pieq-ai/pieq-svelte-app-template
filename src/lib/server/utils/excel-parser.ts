@@ -210,7 +210,7 @@ export function parsePayrollExcel(
 	let headerYear: number | null = null;
 	let headerPeriodStr = '';
 
-	const titleRegex = /Salary Details for the month\s+([A-Za-z]+)\s*'?\s*(\d{2,4})/i;
+	const titleRegex = /Salary Details for the month\s+([A-Za-z]+|[0-9]{1,2})(?:\s*[-/']\s*|\s+)?(\d{2,4})/i;
 
 	for (let i = 0; i < Math.min(raw.length, 15); i++) {
 		const row = raw[i] ?? [];

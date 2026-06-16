@@ -393,7 +393,7 @@
 </script>
 
 <svelte:head>
-	<title>Payslip — {payroll.employee_name} — {monthName(payroll.month)} {payroll.year}</title>
+	<title>Payslip {payroll.employee_name} {monthName(payroll.month)} {payroll.year}</title>
 </svelte:head>
 
 <!-- ─── Screen-only page chrome ──────────────────────────────────────────────── -->

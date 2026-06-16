@@ -209,7 +209,7 @@ describe('validateExcelMimeType', () => {
 });
 
 describe('parsePayrollExcel report header parsing', () => {
-	it('should extract month and year from report header cell', () => {
+	it('should extract month and year from report header cell (alphabetic month)', () => {
 		const ws = XLSX.utils.aoa_to_sheet([
 			['Salary Details for the month April\'26'],
 			[],
@@ -227,5 +227,65 @@ describe('parsePayrollExcel report header parsing', () => {
 		expect(result.rows).toHaveLength(1);
 		expect(result.rows[0].month).toBe(4);
 		expect(result.rows[0].year).toBe(2026);
+	});
+
+	it('should extract month and year from report header cell (numeric format like 04-2026)', () => {
+		const ws = XLSX.utils.aoa_to_sheet([
+			['Salary Details for the month 04-2026'],
+			[],
+			['Emp No', 'Employee Name', 'Basic'],
+			['EMP001', 'John Doe', 30000]
+		]);
+		const wb = XLSX.utils.book_new();
+		XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+		const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+		const result = parsePayrollExcel(buffer);
+		expect(result.headerMonth).toBe(4);
+		expect(result.headerYear).toBe(2026);
+		expect(result.rows[0].month).toBe(4);
+		expect(result.rows[0].year).toBe(2026);
+	});
+
+	it('should extract month and year from report header cell (numeric format like 4/2026)', () => {
+		const ws = XLSX.utils.aoa_to_sheet([
+			['Salary Details for the month 4/2026'],
+			[],
+			['Emp No', 'Employee Name', 'Basic'],
+			['EMP001', 'John Doe', 30000]
+		]);
+		const wb = XLSX.utils.book_new();
+		XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+		const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+		const result = parsePayrollExcel(buffer);
+		expect(result.headerMonth).toBe(4);
+		expect(result.headerYear).toBe(2026);
+	});
+
+	it('should fail to extract month/year for invalid formats', () => {
+		const invalidFormats = [
+			'Salary Details for the month ABC-2026',
+			'Salary Details for the month April-XXXX',
+			'Salary Details for the month Unknown',
+			'Salary Details for the month 2026',
+			'Salary Details for the month --',
+			'Salary Details for the month'
+		];
+
+		for (const header of invalidFormats) {
+			const ws = XLSX.utils.aoa_to_sheet([
+				[header],
+				[],
+				['Emp No', 'Employee Name', 'Basic'],
+				['EMP001', 'John Doe', 30000]
+			]);
+			const wb = XLSX.utils.book_new();
+			XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+			const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+			const result = parsePayrollExcel(buffer);
+			expect(result.headerMonth === null || result.headerYear === null).toBe(true);
+		}
 	});
 });

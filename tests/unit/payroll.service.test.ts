@@ -324,7 +324,7 @@ describe('Payroll Service', () => {
 				expect.any(String),
 				0,
 				'failed',
-				'Unable to determine payroll period from file header.'
+				'Payroll period could not be extracted from the report header.'
 			);
 		});
 

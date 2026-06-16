@@ -7,7 +7,6 @@
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import UploadIcon from '@lucide/svelte/icons/upload';
-	import EyeIcon from '@lucide/svelte/icons/eye';
 	import FileSpreadsheetIcon from '@lucide/svelte/icons/file-spreadsheet';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 
@@ -659,8 +658,7 @@
 								</TableCell>
 								<TableCell class="text-right w-24">
 									<TableActions canEdit={false}>
-										<DropdownMenu.Item onclick={() => goto(resolve(`/payrolls/${u.cuid}`))} class="cursor-pointer">
-											<EyeIcon class="mr-2 size-4 text-muted-foreground" />
+										<DropdownMenu.Item onclick={() => goto(resolve(`/payrolls/${u.cuid}`))} class="cursor-pointer whitespace-nowrap">
 											View Details
 										</DropdownMenu.Item>
 									</TableActions>

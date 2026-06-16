@@ -123,3 +123,7 @@ export interface PayrollDetailResponse {
 export interface PayrollUploadResponse {
 	data: PayrollUploadResult;
 }
+
+export type PayrollOrFailure = 
+	| (Payroll & { isFailure?: false; status?: never; error_type?: never; error_message?: never; row_number?: never })
+	| (PayrollUploadFailure & { isFailure: true; status: 'Failed'; employee_name?: never; gross_earnings?: never; total_deduction?: never; net_salary?: never; payroll_breakdown?: never });

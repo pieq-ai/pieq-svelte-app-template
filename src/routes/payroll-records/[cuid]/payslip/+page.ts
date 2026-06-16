@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
-import type { Payroll } from '$lib/types/payroll';
+import type { PayrollOrFailure } from '$lib/types/payroll';
 
 export const load: PageLoad = async ({ params, fetch }) => {
 	const res = await fetch(`/api/payrolls/${params.cuid}`);
@@ -14,7 +14,11 @@ export const load: PageLoad = async ({ params, fetch }) => {
 	}
 
 	const data = await res.json();
-	const payroll: Payroll = data.data;
+	const payroll: PayrollOrFailure = data.data;
+
+	if (payroll?.isFailure) {
+		error(404, 'Payslip not available for failed records');
+	}
 
 	return { payroll };
 };

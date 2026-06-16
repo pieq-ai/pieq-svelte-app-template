@@ -22,7 +22,22 @@
 	// ─── Props ────────────────────────────────────────────────────────────────────
 
 	let { data } = $props();
-	let payroll = $derived(data.payroll);
+	let payroll = $derived(data.payroll as unknown as {
+		cuid: string;
+		isFailure: boolean;
+		row_number: number;
+		error_type: string;
+		error_message: string;
+		employee_code: string;
+		employee_name: string;
+		month: number;
+		year: number;
+		gross_earnings: number;
+		total_deduction: number;
+		net_salary: number;
+		payroll_breakdown: Record<string, number>;
+		payroll_upload_cuid: string | null;
+	});
 
 	// ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -72,11 +87,57 @@
 </script>
 
 <svelte:head>
-	<title>Payslip — {payroll.employee_name} — {monthName(payroll.month)} {payroll.year}</title>
+	{#if payroll.isFailure}
+		<title>Payroll Record Details {payroll.employee_code || ''}</title>
+	{:else}
+		<title>Payslip {payroll.employee_name} {monthName(payroll.month)} {payroll.year}</title>
+	{/if}
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
-	<!-- Page header -->
+	{#if payroll.isFailure}
+		<!-- Custom Failure Layout -->
+		<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
+			<div class="flex items-center gap-3">
+				<Button
+					type="button"
+					variant="ghost"
+					size="icon-sm"
+					class="h-9 w-9 text-muted-foreground hover:text-foreground"
+					onclick={goBack}
+					aria-label="Back"
+				>
+					<ArrowLeftIcon class="size-4" />
+				</Button>
+				<div class="space-y-0.5">
+					<h1 class="text-2xl font-bold tracking-tight sm:text-3xl break-all">Payroll Record Details</h1>
+					<p class="text-sm text-muted-foreground">Failure details for the uploaded row</p>
+				</div>
+			</div>
+		</div>
+
+		<Card class="py-0">
+			<Table>
+				<TableHeader class="bg-muted">
+					<TableRow>
+						<TableHead class="font-bold text-foreground text-[15px] w-24">Row</TableHead>
+						<TableHead class="font-bold text-foreground text-[15px] w-40">Employee Code</TableHead>
+						<TableHead class="font-bold text-foreground text-[15px] w-48">Error Type</TableHead>
+						<TableHead class="font-bold text-foreground text-[15px]">Error Message</TableHead>
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					<TableRow class="hover:bg-muted/70 transition-colors">
+						<TableCell class="font-medium font-mono">{payroll.row_number === 0 ? '-' : payroll.row_number}</TableCell>
+						<TableCell class="font-semibold text-foreground font-mono">{payroll.employee_code || '-'}</TableCell>
+						<TableCell class="font-semibold text-destructive">{payroll.error_type}</TableCell>
+						<TableCell class="text-muted-foreground wrap-break-word">{payroll.error_message}</TableCell>
+					</TableRow>
+				</TableBody>
+			</Table>
+		</Card>
+	{:else}
+		<!-- Page header -->
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="flex items-center gap-3">
 			<Button
@@ -233,4 +294,5 @@
 			</Table>
 		</Card>
 	</div>
+	{/if}
 </div>

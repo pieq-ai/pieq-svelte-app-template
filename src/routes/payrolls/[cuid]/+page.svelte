@@ -5,7 +5,6 @@
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
-	import EyeIcon from '@lucide/svelte/icons/eye';
 	import XIcon from '@lucide/svelte/icons/x';
 	import { fly, fade } from 'svelte/transition';
 
@@ -25,18 +24,51 @@
 		TableRow,
 		Pagination,
 		SearchInput,
-		TableActions
+		TableActions,
+		Badge
 	} from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
-	import type { Payroll } from '$lib/types/payroll';
+	import type { Payroll, PayrollUploadFailure } from '$lib/types/payroll';
 
 	// ─── Props ────────────────────────────────────────────────────────────────────
 
 	let { data } = $props();
 	let upload = $derived(data.upload);
 	let records = $derived<Payroll[]>(data.records);
-	let failures = $derived(data.failures ?? []);
+	let failures = $derived<PayrollUploadFailure[]>(data.failures ?? []);
+
+	// ─── Combined records ─────────────────────────────────────────────────────────
+
+	let combinedRecords = $derived.by(() => {
+		const recs = records.map(r => ({
+			cuid: r.cuid,
+			employee_code: r.employee_code,
+			employee_name: r.employee_name,
+			status: 'Processed' as const,
+			gross_earnings: Number(r.gross_earnings),
+			total_deduction: Number(r.total_deduction),
+			net_salary: Number(r.net_salary),
+			originalRecord: r,
+			originalFailure: null
+		}));
+
+		const fails = failures
+			.filter(f => f.row_number > 0 && f.cuid !== 'synthetic')
+			.map(f => ({
+				cuid: f.cuid,
+				employee_code: f.employee_code || '-',
+				employee_name: '-',
+				status: 'Failed' as const,
+				gross_earnings: 0,
+				total_deduction: 0,
+				net_salary: 0,
+				originalRecord: null,
+				originalFailure: f
+			}));
+
+		return [...recs, ...fails];
+	});
 
 	// ─── Sidebar state ────────────────────────────────────────────────────────────
 
@@ -93,14 +125,15 @@
 	// ─── Filtered + sorted + paginated ───────────────────────────────────────────
 
 	let filteredRecords = $derived.by(() => {
-		let result = [...records];
+		let result = [...combinedRecords];
 
 		if (searchQuery.trim()) {
 			const q = searchQuery.toLowerCase();
 			result = result.filter(
 				(r) =>
 					r.employee_name.toLowerCase().includes(q) ||
-					r.employee_code.toLowerCase().includes(q)
+					r.employee_code.toLowerCase().includes(q) ||
+					r.status.toLowerCase().includes(q)
 			);
 		}
 
@@ -120,6 +153,8 @@
 						valA = a.total_deduction; valB = b.total_deduction; break;
 					case 'net_salary':
 						valA = a.net_salary; valB = b.net_salary; break;
+					case 'status':
+						valA = a.status; valB = b.status; break;
 					default:
 						valA = String((a as unknown as Record<string, unknown>)[sortColumn] ?? '');
 						valB = String((b as unknown as Record<string, unknown>)[sortColumn] ?? '');
@@ -162,7 +197,7 @@
 </script>
 
 <svelte:head>
-	<title>HRMS Payroll — {upload.file_name || `${monthName(upload.month)} ${upload.year}`}</title>
+	<title>HRMS Payroll {upload.file_name || `${monthName(upload.month)} ${upload.year}`}</title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
@@ -233,7 +268,13 @@
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Employees</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{upload.employee_count}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">
+					{#if (upload.failure_count ?? 0) > 0}
+						{upload.employee_count} / {upload.employee_count + (upload.failure_count ?? 0)}
+					{:else}
+						{upload.employee_count}
+					{/if}
+				</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
@@ -295,13 +336,21 @@
 								{:else}<ArrowUpDownIcon class="ml-2 size-4" />{/if}
 							</Button>
 						</TableHead>
+						<TableHead class="text-center font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="mx-auto flex items-center justify-center font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
+								Status
+								{#if sortIcon('status') === 'asc'}<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortIcon('status') === 'desc'}<ArrowDownIcon class="ml-2 size-4" />
+								{:else}<ArrowUpDownIcon class="ml-2 size-4" />{/if}
+							</Button>
+						</TableHead>
 						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap w-24">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{#if filteredRecords.length === 0}
 						<TableRow>
-							<TableCell colspan={5} class="py-8 text-center text-muted-foreground">
+							<TableCell colspan={6} class="py-8 text-center text-muted-foreground">
 								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 							</TableCell>
 						</TableRow>
@@ -318,18 +367,42 @@
 									<span class="font-semibold text-foreground block">{r.employee_name}</span>
 									<span class="block text-xs text-muted-foreground font-mono mt-0.5">{r.employee_code}</span>
 								</TableCell>
-								<TableCell class="text-center font-mono font-medium">₹{formatAmount(r.gross_earnings)}</TableCell>
-								<TableCell class="text-center font-mono font-medium text-destructive">₹{formatAmount(r.total_deduction)}</TableCell>
-								<TableCell class="text-center font-mono font-semibold">₹{formatAmount(r.net_salary)}</TableCell>
+								<TableCell class="text-center font-mono font-medium">
+									{#if r.status === 'Processed'}
+										₹{formatAmount(r.gross_earnings)}
+									{:else}
+										-
+									{/if}
+								</TableCell>
+								<TableCell class="text-center font-mono font-medium text-destructive">
+									{#if r.status === 'Processed'}
+										₹{formatAmount(r.total_deduction)}
+									{:else}
+										-
+									{/if}
+								</TableCell>
+								<TableCell class="text-center font-mono font-semibold">
+									{#if r.status === 'Processed'}
+										₹{formatAmount(r.net_salary)}
+									{:else}
+										-
+									{/if}
+								</TableCell>
+								<TableCell class="text-center">
+									<Badge variant={r.status === 'Processed' ? 'default' : 'destructive'} class="capitalize">
+										{r.status}
+									</Badge>
+								</TableCell>
 								<TableCell class="text-right w-24">
 									<TableActions canEdit={false}>
-										<DropdownMenu.Item onclick={() => goto(resolve(`/payroll-records/${r.cuid}`))} class="cursor-pointer">
-											<EyeIcon class="mr-2 size-4 text-muted-foreground" />
+										<DropdownMenu.Item onclick={() => goto(resolve(`/payroll-records/${r.cuid}`))} class="cursor-pointer whitespace-nowrap">
 											View Details
 										</DropdownMenu.Item>
-										<DropdownMenu.Item onclick={() => goto(resolve(`/payroll-records/${r.cuid}/payslip`))} class="cursor-pointer">
-											View Payslip
-										</DropdownMenu.Item>
+										{#if r.status === 'Processed'}
+											<DropdownMenu.Item onclick={() => goto(resolve(`/payroll-records/${r.cuid}/payslip`))} class="cursor-pointer whitespace-nowrap">
+												View Payslip
+											</DropdownMenu.Item>
+										{/if}
 									</TableActions>
 								</TableCell>
 							</TableRow>
