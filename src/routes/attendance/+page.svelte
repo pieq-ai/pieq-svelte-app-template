@@ -18,7 +18,9 @@
 		TableHeader,
 		TableRow,
 		Input,
-		CrudModal
+		CrudModal,
+		Pagination,
+		DatePicker
 	} from '$lib/components';
 	import ClockIcon from '@lucide/svelte/icons/clock';
 	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
@@ -29,6 +31,10 @@
 	import XIcon from '@lucide/svelte/icons/x';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import PlusIcon from '@lucide/svelte/icons/plus';
+	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
+	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
+	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
+	import FilterIcon from '@lucide/svelte/icons/filter';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { cn } from '$lib/utils.js';
 	import { GEOFENCE_CONFIG, calculateDistance } from '$lib/geofence.js';
@@ -142,6 +148,99 @@
 	// Employee-specific history and active record state
 	let historyRecords = $state<any[]>([]);
 	let isLoadingHistory = $state(false);
+
+	let historyCurrentPage = $state(1);
+	let historyFilterStatus = $state<string>('all');
+	let historyFilterStartDate = $state('');
+	let historyFilterEndDate = $state('');
+	let historySortKey = $state<string | null>('attendance_date');
+	let historySortDirection = $state<'asc' | 'desc' | null>('desc');
+
+	function handleHistorySort(key: string) {
+		historyCurrentPage = 1;
+		if (historySortKey !== key) {
+			historySortKey = key;
+			historySortDirection = 'asc';
+		} else if (historySortDirection === 'asc') {
+			historySortDirection = 'desc';
+		} else {
+			historySortKey = null;
+			historySortDirection = null;
+		}
+	}
+
+	const historyFilterStatusOptions = [
+		{ value: 'all', label: 'All Status' },
+		{ value: 'Present', label: 'Present' },
+		{ value: 'Leave', label: 'Leave' },
+		{ value: 'LOP', label: 'LOP' },
+		{ value: 'Half Day', label: 'Half Day' },
+		{ value: 'WFH', label: 'WFH' }
+	];
+
+	let filteredHistory = $derived.by(() => {
+		let result = [...historyRecords];
+
+		if (historyFilterStatus !== 'all') {
+			result = result.filter((r) => r.attendance_status === historyFilterStatus || (r.attendance_status === 'Absent' && historyFilterStatus === 'LOP'));
+		}
+
+		if (historyFilterStartDate) {
+			result = result.filter((r) => getISODateString(r.attendance_date) >= historyFilterStartDate);
+		}
+
+		if (historyFilterEndDate) {
+			result = result.filter((r) => getISODateString(r.attendance_date) <= historyFilterEndDate);
+		}
+
+		if (historySortKey && historySortDirection) {
+			result.sort((a, b) => {
+				const key = historySortKey as string;
+				const valA = a[key];
+				const valB = b[key];
+
+				if (key === 'attendance_date' || key === 'check_in_time' || key === 'check_out_time') {
+					const timeA = valA ? new Date(valA).getTime() : 0;
+					const timeB = valB ? new Date(valB).getTime() : 0;
+					return historySortDirection === 'asc' ? timeA - timeB : timeB - timeA;
+				}
+
+				if (key === 'work_duration_minutes') {
+					const durA = valA || 0;
+					const durB = valB || 0;
+					return historySortDirection === 'asc' ? durA - durB : durB - durA;
+				}
+
+				if (typeof valA === 'string' && typeof valB === 'string') {
+					return historySortDirection === 'asc'
+						? valA.localeCompare(valB)
+						: valB.localeCompare(valA);
+				}
+
+				return 0;
+			});
+		} else {
+			result.sort((a, b) => {
+				const timeA = new Date(a.attendance_date).getTime();
+				const timeB = new Date(b.attendance_date).getTime();
+				return timeB - timeA; // default sort desc
+			});
+		}
+
+		return result;
+	});
+
+	let paginatedHistory = $derived(filteredHistory.slice((historyCurrentPage - 1) * 10, historyCurrentPage * 10));
+
+	$effect(() => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+		historyFilterStatus;
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+		historyFilterStartDate;
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+		historyFilterEndDate;
+		historyCurrentPage = 1;
+	});
 
 	// Local state for dropdown searching
 	let empSearchQuery = $state('');
@@ -968,44 +1067,143 @@
 			<CardContent>
 				{#if isLoadingHistory}
 					<div class="text-center py-12 text-muted-foreground font-medium flex items-center justify-center gap-2">
+						<LoaderCircleIcon class="size-5 animate-spin text-muted-foreground" />
 						Loading records...
 					</div>
 				{:else}
-					<div class="border rounded-md">
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead class="font-bold">Date</TableHead>
-									<TableHead class="font-bold">Check In</TableHead>
-									<TableHead class="font-bold">Check Out</TableHead>
-									<TableHead class="font-bold">Duration</TableHead>
-									<TableHead class="font-bold">Status</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{#if historyRecords.length === 0}
+					<div class="space-y-3">
+						<!-- Filters -->
+						<div class="flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full lg:w-auto mt-2 mb-4">
+							<div class="w-full sm:w-40">
+								<DatePicker
+									placeholder="Start Date"
+									bind:value={historyFilterStartDate}
+									max={historyFilterEndDate || '2099-12-31'}
+								/>
+							</div>
+							<div class="w-full sm:w-40">
+								<DatePicker
+									placeholder="End Date"
+									bind:value={historyFilterEndDate}
+									min={historyFilterStartDate}
+								/>
+							</div>
+							<div class="w-full sm:w-48">
+								<DropdownMenu.Root>
+									<DropdownMenu.Trigger>
+										{#snippet child({ props })}
+											<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
+												<span class="truncate pr-2">{historyFilterStatusOptions.find(o => o.value === historyFilterStatus)?.label || 'All Status'}</span>
+												<FilterIcon class="ml-2 size-4 opacity-50 shrink-0" />
+											</Button>
+										{/snippet}
+									</DropdownMenu.Trigger>
+									<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
+										<DropdownMenu.Group>
+											{#each historyFilterStatusOptions as opt}
+												<DropdownMenu.Item onclick={() => { historyFilterStatus = opt.value; historyCurrentPage = 1; }} class="justify-between cursor-pointer {historyFilterStatus === opt.value ? 'bg-accent text-accent-foreground' : ''}">
+													<span class="truncate pr-2">{opt.label}</span>
+													{#if historyFilterStatus === opt.value}<CheckIcon class="size-4 shrink-0 text-[#F45310]" />{/if}
+												</DropdownMenu.Item>
+											{/each}
+										</DropdownMenu.Group>
+									</DropdownMenu.Content>
+								</DropdownMenu.Root>
+							</div>
+						</div>
+
+						<div class="border rounded-md">
+							<Table>
+								<TableHeader>
 									<TableRow>
-										<TableCell colspan={5} class="text-center py-8 text-muted-foreground font-medium">
-											No attendance records found for this employee.
-										</TableCell>
+										<TableHead class="font-bold">
+											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleHistorySort('attendance_date')}>
+												Date
+											{#if historySortKey === 'attendance_date' && historySortDirection === 'asc'}
+												<ArrowUpIcon class="ml-2 size-4" />
+											{:else if historySortKey === 'attendance_date' && historySortDirection === 'desc'}
+												<ArrowDownIcon class="ml-2 size-4" />
+											{:else}
+												<ArrowUpDownIcon class="ml-2 size-4" />
+											{/if}
+											</Button>
+										</TableHead>
+										<TableHead class="font-bold">
+											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleHistorySort('check_in_time')}>
+												Check In
+											{#if historySortKey === 'check_in_time' && historySortDirection === 'asc'}
+												<ArrowUpIcon class="ml-2 size-4" />
+											{:else if historySortKey === 'check_in_time' && historySortDirection === 'desc'}
+												<ArrowDownIcon class="ml-2 size-4" />
+											{:else}
+												<ArrowUpDownIcon class="ml-2 size-4" />
+											{/if}
+											</Button>
+										</TableHead>
+										<TableHead class="font-bold">
+											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleHistorySort('check_out_time')}>
+												Check Out
+											{#if historySortKey === 'check_out_time' && historySortDirection === 'asc'}
+												<ArrowUpIcon class="ml-2 size-4" />
+											{:else if historySortKey === 'check_out_time' && historySortDirection === 'desc'}
+												<ArrowDownIcon class="ml-2 size-4" />
+											{:else}
+												<ArrowUpDownIcon class="ml-2 size-4" />
+											{/if}
+											</Button>
+										</TableHead>
+										<TableHead class="font-bold">
+											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleHistorySort('work_duration_minutes')}>
+												Duration
+											{#if historySortKey === 'work_duration_minutes' && historySortDirection === 'asc'}
+												<ArrowUpIcon class="ml-2 size-4" />
+											{:else if historySortKey === 'work_duration_minutes' && historySortDirection === 'desc'}
+												<ArrowDownIcon class="ml-2 size-4" />
+											{:else}
+												<ArrowUpDownIcon class="ml-2 size-4" />
+											{/if}
+											</Button>
+										</TableHead>
+										<TableHead class="font-bold">
+											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleHistorySort('attendance_status')}>
+												Status
+											{#if historySortKey === 'attendance_status' && historySortDirection === 'asc'}
+												<ArrowUpIcon class="ml-2 size-4" />
+											{:else if historySortKey === 'attendance_status' && historySortDirection === 'desc'}
+												<ArrowDownIcon class="ml-2 size-4" />
+											{:else}
+												<ArrowUpDownIcon class="ml-2 size-4" />
+											{/if}
+											</Button>
+										</TableHead>
 									</TableRow>
-								{:else}
-									{#each historyRecords as rec (rec.cuid)}
+								</TableHeader>
+								<TableBody>
+									{#if filteredHistory.length === 0}
 										<TableRow>
-											<TableCell class="font-semibold">{formatDisplayDate(rec.attendance_date)}</TableCell>
-											<TableCell>{formatDisplayTime(rec.check_in_time)}</TableCell>
-											<TableCell>{formatDisplayTime(rec.check_out_time)}</TableCell>
-											<TableCell>{formatDuration(rec.work_duration_minutes)}</TableCell>
-											<TableCell>
-												<Badge class={`border-none px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(rec.attendance_status === 'Absent' ? 'LOP' : rec.attendance_status)}`}>
-													{rec.attendance_status === 'Absent' ? 'LOP' : rec.attendance_status}
-												</Badge>
+											<TableCell colspan={5} class="text-center py-8 text-muted-foreground font-medium">
+												No attendance records found.
 											</TableCell>
 										</TableRow>
-									{/each}
-								{/if}
-							</TableBody>
-						</Table>
+									{:else}
+										{#each paginatedHistory as rec (rec.cuid)}
+											<TableRow>
+												<TableCell class="font-semibold">{formatDisplayDate(rec.attendance_date)}</TableCell>
+												<TableCell>{formatDisplayTime(rec.check_in_time)}</TableCell>
+												<TableCell>{formatDisplayTime(rec.check_out_time)}</TableCell>
+												<TableCell>{formatDuration(rec.work_duration_minutes)}</TableCell>
+												<TableCell>
+													<Badge class={`border-none px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(rec.attendance_status === 'Absent' ? 'LOP' : rec.attendance_status)}`}>
+														{rec.attendance_status === 'Absent' ? 'LOP' : rec.attendance_status}
+													</Badge>
+												</TableCell>
+											</TableRow>
+										{/each}
+									{/if}
+								</TableBody>
+							</Table>
+						</div>
+						<Pagination totalItems={filteredHistory.length} bind:currentPage={historyCurrentPage} pageSize={10} showIcons={false} />
 					</div>
 				{/if}
 			</CardContent>

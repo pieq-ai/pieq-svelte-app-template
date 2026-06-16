@@ -46,6 +46,7 @@
 	});
 
 	let triggerContainer = $state<HTMLDivElement | null>(null);
+	let popupElement = $state<HTMLElement | null>(null);
 	let popupPosition = $state({ top: 0, left: 0 });
 
 	const monthNames = [
@@ -161,10 +162,32 @@
 	function updatePopupPosition() {
 		if (triggerContainer) {
 			const rect = triggerContainer.getBoundingClientRect();
-			popupPosition = {
-				top: rect.bottom + 4,
-				left: rect.left
-			};
+			const viewportHeight = window.innerHeight;
+			const viewportWidth = window.innerWidth;
+			
+			const popupHeight = popupElement ? popupElement.offsetHeight : 340;
+			const popupWidth = 280;
+			const margin = 4;
+			const screenMargin = 8;
+
+			const spaceBelow = viewportHeight - rect.bottom - margin;
+			const spaceAbove = rect.top - margin;
+
+			let top = rect.bottom + margin;
+			if (spaceBelow < popupHeight && spaceAbove > spaceBelow) {
+				// Open above the input field
+				top = rect.top - margin - popupHeight;
+			}
+
+			let left = rect.left;
+			if (left + popupWidth > viewportWidth) {
+				left = viewportWidth - popupWidth - screenMargin;
+			}
+			if (left < screenMargin) {
+				left = screenMargin;
+			}
+
+			popupPosition = { top, left };
 		}
 	}
 
@@ -336,6 +359,7 @@
 
 	{#if isOpen}
 		<div
+			bind:this={popupElement}
 			style="position: fixed; top: {popupPosition.top}px; left: {popupPosition.left}px;"
 			class="datepicker-popup z-100 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-4 shadow-lg w-[280px] select-none text-left"
 		>
