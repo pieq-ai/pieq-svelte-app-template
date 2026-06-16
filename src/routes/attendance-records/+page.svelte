@@ -59,8 +59,8 @@
 	let filterSourceCuid = $state('all');
 
 	// Sorting
-	let sortKey = $state<string | null>('attendance_date');
-	let sortDirection = $state<'asc' | 'desc' | null>('desc');
+	let sortKey = $state<string | null>('employee_name');
+	let sortDirection = $state<'asc' | 'desc' | null>('asc');
 
 	// Modal States
 	let isFormModalOpen = $state(false);
@@ -642,13 +642,29 @@
 		// Sorting
 		if (sortKey && sortDirection) {
 			result.sort((a, b) => {
-				let valA = a[sortKey as keyof typeof a];
-				let valB = b[sortKey as keyof typeof b];
-
 				if (sortKey === 'employee_name') {
-					valA = getEmployeeName(a.employee_cuid);
-					valB = getEmployeeName(b.employee_cuid);
+					const valA = getEmployeeName(a.employee_cuid);
+					const valB = getEmployeeName(b.employee_cuid);
+					return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
 				}
+
+				if (sortKey === 'check_in_time' || sortKey === 'check_out_time') {
+					const valA = a[sortKey as keyof typeof a];
+					const valB = b[sortKey as keyof typeof b];
+					const timeA = valA ? new Date(valA as string).getTime() : 0;
+					const timeB = valB ? new Date(valB as string).getTime() : 0;
+					return sortDirection === 'asc' ? timeA - timeB : timeB - timeA;
+				}
+
+				if (sortKey === 'work_duration_minutes') {
+					const valA = a.work_duration_minutes || 0;
+					const valB = b.work_duration_minutes || 0;
+					return sortDirection === 'asc' ? valA - valB : valB - valA;
+				}
+
+				// fallback (e.g. status)
+				const valA = a[sortKey as keyof typeof a];
+				const valB = b[sortKey as keyof typeof b];
 
 				if (typeof valA === 'string' && typeof valB === 'string') {
 					return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
@@ -896,31 +912,63 @@
 								{/if}
 							</Button>
 						</TableHead>
+						<TableHead class="font-bold">Date</TableHead>
 						<TableHead class="font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('attendance_date')}>
-								Date
-								{#if sortKey === 'attendance_date' && sortDirection === 'asc'}
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('check_in_time')}>
+								Check In
+								{#if sortKey === 'check_in_time' && sortDirection === 'asc'}
 									<ArrowUpIcon class="ml-1 size-3.5" />
-								{:else if sortKey === 'attendance_date' && sortDirection === 'desc'}
+								{:else if sortKey === 'check_in_time' && sortDirection === 'desc'}
 									<ArrowDownIcon class="ml-1 size-3.5" />
 								{:else}
 									<ArrowUpDownIcon class="ml-1 size-3.5" />
 								{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="font-bold">Check In</TableHead>
-						<TableHead class="font-bold">Check Out</TableHead>
-						<TableHead class="font-bold">Work Duration</TableHead>
-						<TableHead class="font-bold">Status</TableHead>
+						<TableHead class="font-bold">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('check_out_time')}>
+								Check Out
+								{#if sortKey === 'check_out_time' && sortDirection === 'asc'}
+									<ArrowUpIcon class="ml-1 size-3.5" />
+								{:else if sortKey === 'check_out_time' && sortDirection === 'desc'}
+									<ArrowDownIcon class="ml-1 size-3.5" />
+								{:else}
+									<ArrowUpDownIcon class="ml-1 size-3.5" />
+								{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="font-bold">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('work_duration_minutes')}>
+								Work Duration
+								{#if sortKey === 'work_duration_minutes' && sortDirection === 'asc'}
+									<ArrowUpIcon class="ml-1 size-3.5" />
+								{:else if sortKey === 'work_duration_minutes' && sortDirection === 'desc'}
+									<ArrowDownIcon class="ml-1 size-3.5" />
+								{:else}
+									<ArrowUpDownIcon class="ml-1 size-3.5" />
+								{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="font-bold">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('attendance_status')}>
+								Status
+								{#if sortKey === 'attendance_status' && sortDirection === 'asc'}
+									<ArrowUpIcon class="ml-1 size-3.5" />
+								{:else if sortKey === 'attendance_status' && sortDirection === 'desc'}
+									<ArrowDownIcon class="ml-1 size-3.5" />
+								{:else}
+									<ArrowUpDownIcon class="ml-1 size-3.5" />
+								{/if}
+							</Button>
+						</TableHead>
 						<TableHead class="font-bold">Source</TableHead>
-						<TableHead class="font-bold">Updated At</TableHead>
 						<TableHead class="text-right font-bold">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{#if filteredRecords.length === 0}
 						<TableRow>
-							<TableCell colspan={9} class="py-12 text-center text-muted-foreground font-medium">
+							<TableCell colspan={8} class="py-12 text-center text-muted-foreground font-medium">
 								No attendance records found
 							</TableCell>
 						</TableRow>
@@ -946,7 +994,6 @@
 									</Badge>
 								</TableCell>
 								<TableCell>{getSourceName(rec.attendance_source_cuid)}</TableCell>
-								<TableCell>{rec.isVirtual ? '--' : formatDate(rec.updated_at)}</TableCell>
 								<TableCell class="text-right">
 									{#if !rec.isVirtual}
 										<TableActions
