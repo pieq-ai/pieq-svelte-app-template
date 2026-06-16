@@ -153,7 +153,8 @@
 
 	let statusFilterOptions = [
 		{ value: 'all', label: 'All Status' },
-		...statusOptions.filter((opt) => opt.value !== 'Week Off')
+		...statusOptions.filter((opt) => opt.value !== 'Week Off'),
+		{ value: 'Not Logged In', label: 'Not Logged In' }
 	];
 
 	let sourceFilterOptions = $derived([
