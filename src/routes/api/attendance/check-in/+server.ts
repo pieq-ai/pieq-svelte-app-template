@@ -16,13 +16,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		return json({ error: { general: 'Request body must be valid JSON' } }, { status: 400 });
 	}
 
-	const allowedKeys = ['employee_cuid', 'attendance_source_cuid'];
+	const allowedKeys = ['employee_cuid', 'attendance_source_cuid', 'latitude', 'longitude'];
 	const validation = validatePayloadKeys(body, allowedKeys);
 	if (validation) {
 		return json({ error: { general: validation.error } }, { status: 400 });
 	}
 
-	const { employee_cuid, attendance_source_cuid } = trimStringFields(body) as any;
+	const { employee_cuid, attendance_source_cuid, latitude, longitude } = trimStringFields(body) as any;
 
 	try {
 		let userId: string | null = null;
@@ -33,7 +33,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			console.warn('Failed to retrieve session from locals.auth():', authError);
 		}
 
-		const record = await checkIn(employee_cuid, attendance_source_cuid, userId);
+		const record = await checkIn(employee_cuid, attendance_source_cuid, userId, {
+			latitude: Number(latitude),
+			longitude: Number(longitude)
+		});
 		return successResponse({
 			message: 'Checked in successfully',
 			cuid: record.cuid
@@ -43,7 +46,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			return json({ data: { error: { [error.field]: error.message } } }, { status: 400 });
 		}
 
-		console.error('POST /api/attendance/check-in failed', error);
+		console.error('POST /api/attendance/check-in fa	iled', error);
 		return errorResponse('Failed to check in', 500);
 	}
 };

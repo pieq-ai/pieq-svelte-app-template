@@ -1345,13 +1345,13 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\dao\\attendance.dao.ts": {
-    "mtime": 1781505337.5625038,
-    "ast_hash": "614f289fed5523a5496b739f3bd57c3e",
+    "mtime": 1781589658.7578819,
+    "ast_hash": "0838a945c33d9bb2e576934b5b532579",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\services\\attendance.service.ts": {
-    "mtime": 1781587816.2254446,
-    "ast_hash": "4cdc7a999231fdaa45f014e232a2d67a",
+    "mtime": 1781589711.6615615,
+    "ast_hash": "9a40785c26c450aeb711e200f0c06f8c",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\api\\attendance\\+server.ts": {
@@ -1360,13 +1360,13 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\api\\attendance\\check-in\\+server.ts": {
-    "mtime": 1781437574.801361,
-    "ast_hash": "1a73b49932dfa591a9018c6b890f9084",
+    "mtime": 1781589720.7585862,
+    "ast_hash": "8dfc7c1cebe282aa868d54ceb6e921c6",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\api\\attendance\\check-out\\+server.ts": {
-    "mtime": 1781437580.591936,
-    "ast_hash": "614f5da07fee6e364b394a7e433742d9",
+    "mtime": 1781589726.875251,
+    "ast_hash": "35644af61c1b81ec5ad40fb251c36b5a",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\attendance-records\\+page.svelte": {
@@ -1380,13 +1380,23 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\attendance\\+page.svelte": {
-    "mtime": 1781588051.3546686,
-    "ast_hash": "e56846971af2256801d3565fe9648cd3",
+    "mtime": 1781589782.4451156,
+    "ast_hash": "c78a1d5b596181a230707ba3bad9b0d8",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\attendance\\+page.ts": {
     "mtime": 1781439991.1246986,
     "ast_hash": "e51dfe2fa40c325cefabfa950e0537aa",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260616060019_add_gps_to_attendance\\migration.sql": {
+    "mtime": 1781589619.7682257,
+    "ast_hash": "a01090fb87c7bdb9d83a4ad92e75178e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\geofence.ts": {
+    "mtime": 1781590275.5449595,
+    "ast_hash": "83ca3690919c22dccf2f0b8fd386d447",
     "semantic_hash": ""
   }
 }

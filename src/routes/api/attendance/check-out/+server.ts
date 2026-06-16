@@ -16,13 +16,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		return json({ error: { general: 'Request body must be valid JSON' } }, { status: 400 });
 	}
 
-	const allowedKeys = ['employee_cuid'];
+	const allowedKeys = ['employee_cuid', 'latitude', 'longitude'];
 	const validation = validatePayloadKeys(body, allowedKeys);
 	if (validation) {
 		return json({ error: { general: validation.error } }, { status: 400 });
 	}
 
-	const { employee_cuid } = trimStringFields(body) as any;
+	const { employee_cuid, latitude, longitude } = trimStringFields(body) as any;
 
 	try {
 		let userId: string | null = null;
@@ -33,7 +33,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			console.warn('Failed to retrieve session from locals.auth():', authError);
 		}
 
-		const record = await checkOut(employee_cuid, userId);
+		const record = await checkOut(employee_cuid, userId, {
+			latitude: Number(latitude),
+			longitude: Number(longitude)
+		});
 		return successResponse({
 			message: 'Checked out successfully',
 			cuid: record.cuid

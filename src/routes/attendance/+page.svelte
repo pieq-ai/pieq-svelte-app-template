@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
 	import { toast } from '$lib/toast';
 	import {
@@ -30,12 +31,113 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { cn } from '$lib/utils.js';
+	import { GEOFENCE_CONFIG, calculateDistance } from '$lib/geofence.js';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
 	let selectedEmployeeUuid = $state('');
 	let isSubmitting = $state(false);
+
+	// GPS Geofence States
+	let gpsLatitude = $state<number | null>(null);
+	let gpsLongitude = $state<number | null>(null);
+	let locationError = $state<string | null>(null);
+	let locationPermissionDenied = $state(false);
+	let isLocating = $state(false);
+
+	let distanceFromOffice = $derived.by(() => {
+		if (gpsLatitude === null || gpsLongitude === null) return null;
+		return calculateDistance(
+			gpsLatitude,
+			gpsLongitude,
+			GEOFENCE_CONFIG.OFFICE_LATITUDE,
+			GEOFENCE_CONFIG.OFFICE_LONGITUDE
+		);
+	});
+
+	let gpsValidation = $derived.by(() => {
+		if (locationPermissionDenied) {
+			return {
+				isValid: false,
+				status: 'Outside Office Zone',
+				message: 'Location permission denied. Please allow location access to mark attendance.'
+			};
+		}
+		if (locationError) {
+			return {
+				isValid: false,
+				status: 'Location Error',
+				message: `Location error: ${locationError}`
+			};
+		}
+		if (isLocating && gpsLatitude === null) {
+			return {
+				isValid: false,
+				status: 'Determining Location...',
+				message: 'Getting your current location...'
+			};
+		}
+		if (gpsLatitude === null || gpsLongitude === null) {
+			return {
+				isValid: false,
+				status: 'Location Unavailable',
+				message: 'Unable to determine your location.'
+			};
+		}
+
+		const dist = calculateDistance(
+			gpsLatitude,
+			gpsLongitude,
+			GEOFENCE_CONFIG.OFFICE_LATITUDE,
+			GEOFENCE_CONFIG.OFFICE_LONGITUDE
+		);
+		const isInside = dist <= GEOFENCE_CONFIG.ALLOWED_RADIUS_METERS;
+
+		return {
+			isValid: isInside,
+			status: isInside ? 'Inside Office Zone' : 'Outside Office Zone',
+			message: isInside
+				? 'You are within the office zone. Attendance marking is enabled.'
+				: `You are outside the office zone (Distance: ${Math.round(dist)}m).`
+		};
+	});
+
+	onMount(() => {
+		if (!navigator.geolocation) {
+			locationError = 'Geolocation is not supported by your browser';
+			return;
+		}
+
+		isLocating = true;
+		const watchId = navigator.geolocation.watchPosition(
+			(position) => {
+				gpsLatitude = position.coords.latitude;
+				gpsLongitude = position.coords.longitude;
+				locationError = null;
+				locationPermissionDenied = false;
+				isLocating = false;
+			},
+			(error) => {
+				isLocating = false;
+				if (error.code === error.PERMISSION_DENIED) {
+					locationPermissionDenied = true;
+					locationError = 'Location permission denied. Please allow location access to mark attendance.';
+				} else {
+					locationError = error.message || 'Unable to determine location';
+				}
+			},
+			{
+				enableHighAccuracy: true,
+				timeout: 15000,
+				maximumAge: 0
+			}
+		);
+
+		return () => {
+			navigator.geolocation.clearWatch(watchId);
+		};
+	});
 
 	// Employee-specific history and active record state
 	let historyRecords = $state<any[]>([]);
@@ -412,7 +514,9 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					employee_cuid: selectedEmployeeUuid,
-					attendance_source_cuid: null
+					attendance_source_cuid: null,
+					latitude: gpsLatitude,
+					longitude: gpsLongitude
 				})
 			});
 
@@ -444,7 +548,9 @@
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					employee_cuid: selectedEmployeeUuid
+					employee_cuid: selectedEmployeeUuid,
+					latitude: gpsLatitude,
+					longitude: gpsLongitude
 				})
 			});
 
@@ -563,6 +669,7 @@
 			<span>Please select an employee to view their attendance dashboard.</span>
 		</div>
 	{:else}
+
 		<!-- Stats Summary Cards -->
 		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
 			<Card class="bg-card">
@@ -653,8 +760,22 @@
 		<Card class="bg-card">
 			<CardHeader>
 				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-					<div>
+					<div class="flex items-center gap-3">
 						<CardTitle>Attendance Calendar</CardTitle>
+						<div class={cn(
+							"px-2.5 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1.5 border transition-all duration-300 shadow-xs uppercase tracking-wider",
+							gpsValidation.status === 'Inside Office Zone'
+								? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/40"
+								: (gpsValidation.status === 'Determining Location...'
+									? "bg-amber-500/10 text-amber-600 border-amber-500/30 animate-pulse"
+									: "bg-destructive/10 text-destructive border-destructive/30")
+						)}>
+							<span class={cn(
+								"size-1.5 rounded-full",
+								gpsValidation.status === 'Inside Office Zone' ? "bg-emerald-500" : "bg-destructive"
+							)}></span>
+							{gpsValidation.status}
+						</div>
 					</div>
 					<div class="flex flex-wrap items-center gap-2">
 						<Button variant="outline" size="icon-sm" onclick={prevMonth} title="Previous Month">
@@ -814,8 +935,9 @@
 										<Button
 											size="sm"
 											onclick={(e) => { e.stopPropagation(); handleCheckIn(); }}
-											class="w-full mt-1 h-5 text-[9px] px-1 bg-[#F45310] hover:bg-[#F45310]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all"
-											disabled={isSubmitting}
+											class="w-full mt-1 h-5 text-[9px] px-1 bg-[#F45310] hover:bg-[#F45310]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+											disabled={isSubmitting || !gpsValidation.isValid}
+											title={!gpsValidation.isValid ? gpsValidation.message : ''}
 										>
 											Check In
 										</Button>
@@ -823,8 +945,9 @@
 										<Button
 											size="sm"
 											onclick={(e) => { e.stopPropagation(); handleCheckOut(); }}
-											class="w-full mt-1 h-5 text-[9px] px-1 bg-[#800020] hover:bg-[#800020]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all"
-											disabled={isSubmitting}
+											class="w-full mt-1 h-5 text-[9px] px-1 bg-[#800020] hover:bg-[#800020]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+											disabled={isSubmitting || !gpsValidation.isValid}
+											title={!gpsValidation.isValid ? gpsValidation.message : ''}
 										>
 											Check Out
 										</Button>

@@ -1,5 +1,6 @@
 import * as attendanceDao from '$lib/server/dao/attendance.dao.js';
 import { db } from '$lib/server/db.js';
+import { GEOFENCE_CONFIG, calculateDistance } from '$lib/geofence.js';
 
 export class AttendanceValidationError extends Error {
 	readonly field: string;
@@ -32,7 +33,12 @@ async function getOrCreateWebSource(): Promise<string> {
 	return created.cuid;
 }
 
-export async function checkIn(employeeCuid: string, attendanceSourceCuid?: string | null, createdBy?: string | null) {
+export async function checkIn(
+	employeeCuid: string,
+	attendanceSourceCuid?: string | null,
+	createdBy?: string | null,
+	gpsData?: { latitude: number; longitude: number } | null
+) {
 	if (!employeeCuid) {
 		throw new AttendanceValidationError('employee_cuid', 'Employee is required');
 	}
@@ -62,6 +68,22 @@ export async function checkIn(employeeCuid: string, attendanceSourceCuid?: strin
 		throw new AttendanceValidationError('employee_cuid', 'Already checked in for today');
 	}
 
+	// Geofence Validation
+	if (
+		!gpsData ||
+		gpsData.latitude === undefined || gpsData.latitude === null || isNaN(gpsData.latitude) ||
+		gpsData.longitude === undefined || gpsData.longitude === null || isNaN(gpsData.longitude)
+	) {
+		throw new AttendanceValidationError('employee_cuid', 'GPS coordinates are required to mark attendance');
+	}
+
+	const { latitude, longitude } = gpsData;
+
+	const dist = calculateDistance(latitude, longitude, GEOFENCE_CONFIG.OFFICE_LATITUDE, GEOFENCE_CONFIG.OFFICE_LONGITUDE);
+	if (dist > GEOFENCE_CONFIG.ALLOWED_RADIUS_METERS) {
+		throw new AttendanceValidationError('employee_cuid', 'You are outside the office zone');
+	}
+
 	let sourceCuid = attendanceSourceCuid;
 	if (!sourceCuid) {
 		sourceCuid = await getOrCreateWebSource();
@@ -82,11 +104,17 @@ export async function checkIn(employeeCuid: string, attendanceSourceCuid?: strin
 		attendance_status: 'Present',
 		attendance_source_cuid: sourceCuid,
 		created_by: createdBy,
-		updated_by: createdBy
+		updated_by: createdBy,
+		check_in_latitude: latitude,
+		check_in_longitude: longitude
 	});
 }
 
-export async function checkOut(employeeCuid: string, updatedBy?: string | null) {
+export async function checkOut(
+	employeeCuid: string,
+	updatedBy?: string | null,
+	gpsData?: { latitude: number; longitude: number } | null
+) {
 	if (!employeeCuid) {
 		throw new AttendanceValidationError('employee_cuid', 'Employee is required');
 	}
@@ -111,6 +139,22 @@ export async function checkOut(employeeCuid: string, updatedBy?: string | null) 
 		throw new AttendanceValidationError('employee_cuid', 'Already checked out for today');
 	}
 
+	// Geofence Validation
+	if (
+		!gpsData ||
+		gpsData.latitude === undefined || gpsData.latitude === null || isNaN(gpsData.latitude) ||
+		gpsData.longitude === undefined || gpsData.longitude === null || isNaN(gpsData.longitude)
+	) {
+		throw new AttendanceValidationError('employee_cuid', 'GPS coordinates are required to mark attendance');
+	}
+
+	const { latitude, longitude } = gpsData;
+
+	const dist = calculateDistance(latitude, longitude, GEOFENCE_CONFIG.OFFICE_LATITUDE, GEOFENCE_CONFIG.OFFICE_LONGITUDE);
+	if (dist > GEOFENCE_CONFIG.ALLOWED_RADIUS_METERS) {
+		throw new AttendanceValidationError('employee_cuid', 'You are outside the office zone');
+	}
+
 	const checkInTime = existing.check_in_time ? new Date(existing.check_in_time) : today;
 	const diffMs = today.getTime() - checkInTime.getTime();
 	const minutes = Math.round(diffMs / 1000 / 60);
@@ -119,7 +163,9 @@ export async function checkOut(employeeCuid: string, updatedBy?: string | null) 
 		check_out_time: today,
 		work_duration_minutes: Math.max(0, minutes),
 		updated_by: updatedBy,
-		updated_at: today
+		updated_at: today,
+		check_out_latitude: latitude,
+		check_out_longitude: longitude
 	});
 }
 
