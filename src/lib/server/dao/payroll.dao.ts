@@ -15,7 +15,7 @@ export async function create(data: CreatePayrollDto) {
 			gross_earnings: data.gross_earnings,
 			total_deduction: data.total_deduction,
 			net_salary: data.net_salary,
-			payroll_breakdown: data.payroll_breakdown,
+			breakdown: data.breakdown,
 			payroll_upload_cuid: data.payroll_upload_cuid ?? null,
 			created_by: data.created_by ?? null
 		}

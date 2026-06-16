@@ -61,7 +61,7 @@ function mockPayrollRecord(overrides = {}) {
 		gross_earnings: 50000,
 		total_deduction: 5000,
 		net_salary: 45000,
-		payroll_breakdown: { Basic: 30000, HRA: 12000, PF: 3600 },
+		breakdown: { Basic: 30000, HRA: 12000, PF: 3600 },
 		payroll_upload_cuid: 'upload_001',
 		uploaded_at: new Date(),
 		created_at: new Date(),

@@ -15,10 +15,10 @@ model SalaryComponent {
   /// Externally-exposed, non-guessable identifier — used in all API routes
   cuid           String   @unique @default(cuid(2)) @db.Text
 
-  component_name String   @db.VarChar(150)
+  name String   @db.VarChar(150)
 
   /// Stored as plain string: 'earning' | 'deduction' — validated at application layer
-  component_type String   @db.VarChar(20)
+  type String   @db.VarChar(20)
 
   is_taxable     Boolean  @default(false)
 
@@ -34,7 +34,7 @@ model SalaryComponent {
   /// cuid of the user who last updated this record
   updated_by     String?  @db.Text
 
-  @@unique([component_name])
+  @@unique([name])
 
   @@map("salary_components")
 }
@@ -477,7 +477,7 @@ model Payroll {
   net_salary Decimal @db.Decimal(15, 2)
 
   /// Full payroll component breakdown as JSON: { "Basic": 30000, "HRA": 12000, "PF": 1800 }
-  payroll_breakdown Json
+  breakdown Json
 
   /// CUID of the parent PayrollUpload batch (nullable for backwards-compat with records created before this refactor)
   payroll_upload_cuid String? @db.Text
@@ -496,7 +496,7 @@ model Payroll {
   @@index([year, month])
   @@index([payroll_upload_cuid])
   @@index([cuid])
-  @@map("payroll")
+  @@map("payrolls")
 }
 
 /// Represents one row-level failure in a payroll upload batch.

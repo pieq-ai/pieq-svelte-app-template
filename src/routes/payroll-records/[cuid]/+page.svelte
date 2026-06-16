@@ -35,7 +35,7 @@
 		gross_earnings: number;
 		total_deduction: number;
 		net_salary: number;
-		payroll_breakdown: Record<string, number>;
+		breakdown: Record<string, number>;
 		payroll_upload_cuid: string | null;
 	});
 
@@ -67,7 +67,7 @@
 	}
 
 	let breakdownEntries = $derived(
-		Object.entries(payroll.payroll_breakdown)
+		Object.entries(payroll.breakdown)
 			.filter(([, v]) => isMeaningful(v))
 			.sort(([, a], [, b]) => b - a)
 	);

@@ -374,7 +374,7 @@ export async function uploadPayroll(
 				gross_earnings,
 				total_deduction,
 				net_salary,
-				payroll_breakdown: row.components,
+				breakdown: row.components,
 				payroll_upload_cuid: uploadRecord.cuid,
 				created_by: created_by ?? null
 			});

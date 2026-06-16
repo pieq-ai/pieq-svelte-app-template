@@ -831,7 +831,7 @@
 												{...props}
 											>
 												{item.salary_component_cuid
-													? (activeComponents.find((c) => c.cuid === item.salary_component_cuid)?.component_name ?? item.salary_component_cuid)
+													? (activeComponents.find((c) => c.cuid === item.salary_component_cuid)?.name ?? item.salary_component_cuid)
 													: 'Select component...'}
 												<ChevronDownIcon class="ml-2 size-4 opacity-50" />
 											</Button>
@@ -849,7 +849,7 @@
 													disabled={usedCuids.has(comp.cuid)}
 													class="justify-between cursor-pointer {item.salary_component_cuid === comp.cuid ? 'bg-accent text-accent-foreground' : ''} {usedCuids.has(comp.cuid) ? 'opacity-40 cursor-not-allowed' : ''}"
 												>
-													<span class="truncate">{comp.component_name}</span>
+													<span class="truncate">{comp.name}</span>
 													{#if item.salary_component_cuid === comp.cuid}<CheckIcon class="size-4 shrink-0" />{/if}
 												</DropdownMenu.Item>
 											{/each}

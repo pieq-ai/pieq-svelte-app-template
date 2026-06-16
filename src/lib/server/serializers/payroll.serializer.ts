@@ -6,7 +6,7 @@ import type { Payroll } from '$lib/types/payroll.js';
  * - Strips internal BigInt `id`
  * - Converts Decimal fields to numbers
  * - Converts DateTime fields to ISO strings
- * - Casts `payroll_breakdown` Json to Record<string, number>
+ * - Casts `breakdown` Json to Record<string, number>
  */
 export function serializePayroll(record: PrismaPayroll): Payroll {
 	return {
@@ -19,7 +19,7 @@ export function serializePayroll(record: PrismaPayroll): Payroll {
 		gross_earnings: Number(record.gross_earnings),
 		total_deduction: Number(record.total_deduction),
 		net_salary: Number(record.net_salary),
-		payroll_breakdown: record.payroll_breakdown as Record<string, number>,
+		breakdown: record.breakdown as Record<string, number>,
 		payroll_upload_cuid: record.payroll_upload_cuid ?? null,
 		uploaded_at: record.uploaded_at.toISOString(),
 		created_at: record.created_at.toISOString()

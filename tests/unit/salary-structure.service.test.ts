@@ -77,7 +77,7 @@ function mockItemRecord(overrides = {}) {
 }
 
 function mockComponentRecord(overrides = {}) {
-	return { id: 1n, cuid: 'comp_abc', component_name: 'Basic', status: true, ...overrides };
+	return { id: 1n, cuid: 'comp_abc', name: 'Basic', status: true, ...overrides };
 }
 
 describe('Salary Structure Service', () => {

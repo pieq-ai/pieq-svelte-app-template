@@ -8,16 +8,16 @@ export interface ValidationError {
 
 // Keys that are allowed in the POST (create) body — no others may be present.
 const CREATE_ALLOWED_KEYS = new Set<string>([
-	'component_name',
-	'component_type',
+	'name',
+	'type',
 	'is_taxable',
 	'status'
 ]);
 
 // Keys that are allowed in the PUT (update) body — no others may be present.
 const UPDATE_ALLOWED_KEYS = new Set<string>([
-	'component_name',
-	'component_type',
+	'name',
+	'type',
 	'is_taxable',
 	'status'
 ]);
@@ -55,24 +55,24 @@ export function validateCreateSalaryComponent(data: unknown): {
 		};
 	}
 
-	// Validate component_name
-	const nameError = validateComponentName(body.component_name);
+	// Validate name
+	const nameError = validateComponentName(body.name);
 	if (nameError) {
-		errors.push({ field: 'component_name', message: nameError });
+		errors.push({ field: 'name', message: nameError });
 	}
 
-	// Validate component_type
-	const rawType = body.component_type;
-	let component_type = '';
+	// Validate type
+	const rawType = body.type;
+	let type = '';
 	if (rawType === undefined || rawType === null) {
-		errors.push({ field: 'component_type', message: 'Component type is required' });
+		errors.push({ field: 'type', message: 'Component type is required' });
 	} else if (typeof rawType !== 'string') {
-		errors.push({ field: 'component_type', message: 'Component type must be a string' });
+		errors.push({ field: 'type', message: 'Component type must be a string' });
 	} else {
-		component_type = rawType.trim();
-		if (component_type !== 'earning' && component_type !== 'deduction') {
+		type = rawType.trim();
+		if (type !== 'earning' && type !== 'deduction') {
 			errors.push({
-				field: 'component_type',
+				field: 'type',
 				message: 'Component type must be either "earning" or "deduction"'
 			});
 		}
@@ -101,8 +101,8 @@ export function validateCreateSalaryComponent(data: unknown): {
 	return {
 		errors,
 		validatedData: {
-			component_name: (body.component_name as string).trim(),
-			component_type: component_type as 'earning' | 'deduction',
+			name: (body.name as string).trim(),
+			type: type as 'earning' | 'deduction',
 			is_taxable: is_taxable as boolean,
 			status: status as boolean
 		}
@@ -143,32 +143,32 @@ export function validateUpdateSalaryComponent(data: unknown): {
 
 	const validatedData: UpdateSalaryComponentDto = {};
 
-	// Validate component_name if provided
-	if (body.component_name !== undefined) {
-		const nameError = validateComponentName(body.component_name);
+	// Validate name if provided
+	if (body.name !== undefined) {
+		const nameError = validateComponentName(body.name);
 		if (nameError) {
-			errors.push({ field: 'component_name', message: nameError });
-		} else if (body.component_name !== null) {
-			validatedData.component_name = (body.component_name as string).trim();
+			errors.push({ field: 'name', message: nameError });
+		} else if (body.name !== null) {
+			validatedData.name = (body.name as string).trim();
 		}
 	}
 
-	// Validate component_type if provided
-	if (body.component_type !== undefined) {
-		const rawType = body.component_type;
+	// Validate type if provided
+	if (body.type !== undefined) {
+		const rawType = body.type;
 		if (rawType === null) {
-			errors.push({ field: 'component_type', message: 'Component type cannot be null' });
+			errors.push({ field: 'type', message: 'Component type cannot be null' });
 		} else if (typeof rawType !== 'string') {
-			errors.push({ field: 'component_type', message: 'Component type must be a string' });
+			errors.push({ field: 'type', message: 'Component type must be a string' });
 		} else {
 			const trimmed = rawType.trim();
 			if (trimmed !== 'earning' && trimmed !== 'deduction') {
 				errors.push({
-					field: 'component_type',
+					field: 'type',
 					message: 'Component type must be either "earning" or "deduction"'
 				});
 			} else {
-				validatedData.component_type = trimmed;
+				validatedData.type = trimmed;
 			}
 		}
 	}

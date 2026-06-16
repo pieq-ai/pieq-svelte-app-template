@@ -7,7 +7,7 @@
  *   - "Month" / "Pay Month"                                        → month (text or numeric)
  *   - "Year"  / "Pay Year"                                         → year (4-digit)
  *
- * All other numeric columns are stored in payroll_breakdown.
+ * All other numeric columns are stored in breakdown.
  */
 
 import * as XLSX from 'xlsx';

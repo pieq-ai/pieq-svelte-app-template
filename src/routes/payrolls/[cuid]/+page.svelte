@@ -84,7 +84,7 @@
 
 	let selectedBreakdownEntries = $derived.by(() => {
 		if (!selectedRecord) return [];
-		return Object.entries(selectedRecord.payroll_breakdown)
+		return Object.entries(selectedRecord.breakdown)
 			.filter(([, v]) => isMeaningful(v))
 			.sort(([, a], [, b]) => b - a);
 	});

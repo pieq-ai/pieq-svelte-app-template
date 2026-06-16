@@ -92,7 +92,7 @@ async function assertComponentsValid(
 		if (!component || !component.status) {
 			throw new InvalidSalaryComponentError(cuid);
 		}
-		nameMap.set(cuid, component.component_name);
+		nameMap.set(cuid, component.name);
 	}
 
 	return nameMap;

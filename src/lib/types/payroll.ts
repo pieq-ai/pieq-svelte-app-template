@@ -41,7 +41,7 @@ export interface Payroll {
 	total_deduction: number;
 	net_salary: number;
 	/** Flat JSON: { "Basic": 30000, "HRA": 12000, "PF": 1800 } */
-	payroll_breakdown: Record<string, number>;
+	breakdown: Record<string, number>;
 	/** CUID of the parent PayrollUpload batch (null for legacy records) */
 	payroll_upload_cuid: string | null;
 	/** ISO timestamp string */
@@ -70,7 +70,7 @@ export interface CreatePayrollDto {
 	gross_earnings: number;
 	total_deduction: number;
 	net_salary: number;
-	payroll_breakdown: Record<string, number>;
+	breakdown: Record<string, number>;
 	payroll_upload_cuid?: string | null;
 	created_by?: string | null;
 }
@@ -126,4 +126,4 @@ export interface PayrollUploadResponse {
 
 export type PayrollOrFailure = 
 	| (Payroll & { isFailure?: false; status?: never; error_type?: never; error_message?: never; row_number?: never })
-	| (PayrollUploadFailure & { isFailure: true; status: 'Failed'; employee_name?: never; gross_earnings?: never; total_deduction?: never; net_salary?: never; payroll_breakdown?: never });
+	| (PayrollUploadFailure & { isFailure: true; status: 'Failed'; employee_name?: never; gross_earnings?: never; total_deduction?: never; net_salary?: never; breakdown?: never });

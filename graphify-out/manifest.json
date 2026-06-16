@@ -460,8 +460,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\dao\\salary-component.dao.ts": {
-    "mtime": 1781100775.0759363,
-    "ast_hash": "51198fd1e7b50d1477b9ff2cc408c879",
+    "mtime": 1781603171.8103364,
+    "ast_hash": "83c24c592bb4fc38670d5f5d91ab89b1",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\dao\\system-role.dao.ts": {
@@ -515,8 +515,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\services\\salary-component.service.ts": {
-    "mtime": 1781100844.6967978,
-    "ast_hash": "89a516b986b40ce874a76da0a9860d8f",
+    "mtime": 1781603306.6613238,
+    "ast_hash": "9ff3fe9ea80c4adc3b5dad6290cf8bd9",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\services\\system-role.service.ts": {
@@ -540,8 +540,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\validators\\salary-component.validator.ts": {
-    "mtime": 1781100915.3833716,
-    "ast_hash": "cb62d1a65ab3cc4b00545d9448f59cd4",
+    "mtime": 1781603211.6568637,
+    "ast_hash": "30510b04e8d926731be879562d537537",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\toast.svelte.ts": {
@@ -565,8 +565,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\types\\salary-component.ts": {
-    "mtime": 1781100727.735423,
-    "ast_hash": "bcaec47809e957a6e18e4665c9b15b5f",
+    "mtime": 1781603199.374258,
+    "ast_hash": "91f14179661f997169bb3b962eba4ab5",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\types\\user.ts": {
@@ -730,8 +730,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\salary-components\\+page.svelte": {
-    "mtime": 1781331537.6326332,
-    "ast_hash": "77ccb6db8e3343f4a5220d8fa437a9c1",
+    "mtime": 1781603233.1457887,
+    "ast_hash": "e3a72fe39ba9e7c56f04edc6b461eba7",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\settings\\+page.svelte": {
@@ -840,8 +840,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\salary-component.validator.test.ts": {
-    "mtime": 1781101357.8927507,
-    "ast_hash": "13b843a130f83a528092cabcc0452b6c",
+    "mtime": 1781603246.5901053,
+    "ast_hash": "aab15f436bfeae2abd6719a320ab3a5d",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\system-role.dao.test.ts": {
@@ -930,8 +930,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\services\\salary-structure.service.ts": {
-    "mtime": 1781329681.8846529,
-    "ast_hash": "77867c8f886f745af6e0806e1dc264a3",
+    "mtime": 1781603315.5397346,
+    "ast_hash": "786947370eb26b59f80a33e5ef0d0389",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\validators\\salary-structure.validator.ts": {
@@ -965,8 +965,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\salary-structures\\+page.svelte": {
-    "mtime": 1781329967.4935915,
-    "ast_hash": "86543bf90fa3093b998499903a69c2f8",
+    "mtime": 1781603323.82666,
+    "ast_hash": "28e4c3aebba22650066552db42759868",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\salary-structure.dao.test.ts": {
@@ -975,8 +975,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\salary-structure.service.test.ts": {
-    "mtime": 1781329834.3550534,
-    "ast_hash": "c5cbd8cbf3b058d834fa5179587d9c17",
+    "mtime": 1781603256.3286345,
+    "ast_hash": "4cd2ab3af60251bd79b31a0f4661b0e4",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\salary-structure.validator.test.ts": {
@@ -1030,8 +1030,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\salary-structures\\[cuid]\\+page.svelte": {
-    "mtime": 1781329956.0977738,
-    "ast_hash": "8bd6ad25402732ed1b40446faa2901f4",
+    "mtime": 1781603332.2655182,
+    "ast_hash": "b7637739821ba3c7f56b10dfd16ac4da",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\salary-structures\\[cuid]\\+page.ts": {
@@ -1045,23 +1045,23 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\dao\\payroll.dao.ts": {
-    "mtime": 1781247761.639251,
-    "ast_hash": "8ad9c4da12e72944720c444191baef18",
+    "mtime": 1781602235.5593007,
+    "ast_hash": "773c0381c6c793697856e456dddfedfd",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\serializers\\payroll.serializer.ts": {
-    "mtime": 1781247781.6682642,
-    "ast_hash": "1c86e900adb797923b5e786feb28c431",
+    "mtime": 1781602263.386388,
+    "ast_hash": "c646210e703e24a36be948f5a7f12405",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\services\\payroll.service.ts": {
-    "mtime": 1781592425.6912775,
-    "ast_hash": "c1d113b35c22fe5f8013c18372b11d75",
+    "mtime": 1781602269.5486479,
+    "ast_hash": "4ba85e502d44c4b87d4e6909f6f54dde",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\utils\\excel-parser.ts": {
-    "mtime": 1781592415.0679462,
-    "ast_hash": "2a9a3deffe0cdc2134eb851d521451a2",
+    "mtime": 1781602276.65986,
+    "ast_hash": "10ba6c63c121cfe4874fda8ad76a9266",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\validators\\payroll.validator.ts": {
@@ -1070,8 +1070,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\types\\payroll.ts": {
-    "mtime": 1781588385.6971421,
-    "ast_hash": "85663811dd9f2db2391752db851eba26",
+    "mtime": 1781602281.8654983,
+    "ast_hash": "e16a4f8eb184bf305bb82a802635f3b7",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\api\\payrolls\\+server.ts": {
@@ -1095,8 +1095,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\payrolls\\[cuid]\\+page.svelte": {
-    "mtime": 1781588313.711653,
-    "ast_hash": "a42a9217d076f4fc673011549da2bb15",
+    "mtime": 1781602297.3611221,
+    "ast_hash": "67e4cc5f521881865917d5e89e39fb67",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\payrolls\\[cuid]\\+page.ts": {
@@ -1105,8 +1105,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\payroll.service.test.ts": {
-    "mtime": 1781592447.3304782,
-    "ast_hash": "27d106a98a693b1ec8df5df9cd1dced3",
+    "mtime": 1781602389.5971444,
+    "ast_hash": "3ba2654a9f6ea31fe00d4c4b8daef3f4",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\payroll.validator.test.ts": {
@@ -1150,8 +1150,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\payroll-records\\[cuid]\\+page.svelte": {
-    "mtime": 1781588771.2772,
-    "ast_hash": "6d29d8e0277d6a7e38b288a45a9664dc",
+    "mtime": 1781602290.0199823,
+    "ast_hash": "55a29d38a7249e9afd54e26f87954fb4",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\payroll-records\\[cuid]\\+page.ts": {
@@ -1185,13 +1185,23 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\payroll-records\\[cuid]\\payslip\\+page.svelte": {
-    "mtime": 1781587409.6531959,
-    "ast_hash": "36e228a41a7a608ab79d07d34a8bc124",
+    "mtime": 1781602371.758899,
+    "ast_hash": "9a46813d7e9b1827b7b481a198546292",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\payroll-records\\[cuid]\\payslip\\+page.ts": {
     "mtime": 1781588403.4103236,
     "ast_hash": "4a04f42cec4e44e2c4407bb8dd929d4b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260616150000_rename_payroll_to_payrolls_and_payroll_breakdown_to_breakdown\\migration.sql": {
+    "mtime": 1781602200.4159625,
+    "ast_hash": "443d7d2e34ee7a50e89f31a2bb1896e1",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260616151500_rename_salary_component_columns\\migration.sql": {
+    "mtime": 1781603088.4503233,
+    "ast_hash": "43ba64a9a176f180ebbc8272c0c3cdf2",
     "semantic_hash": ""
   }
 }

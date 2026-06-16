@@ -55,13 +55,13 @@
 
 	// Split by component name first, then fall back to sign for unmapped entries
 	let earnings = $derived(
-		(Object.entries(payroll.payroll_breakdown) as [string, number][])
+		(Object.entries(payroll.breakdown) as [string, number][])
 			.filter(([k, v]) => isMeaningful(v) && !isDeductionComponent(k) && Number(v) > 0)
 			.sort(([, a], [, b]) => b - a)
 	);
 
 	let deductions = $derived(
-		(Object.entries(payroll.payroll_breakdown) as [string, number][])
+		(Object.entries(payroll.breakdown) as [string, number][])
 			.filter(([k, v]) => isMeaningful(v) && (isDeductionComponent(k) || Number(v) < 0))
 			.sort(([, a], [, b]) => Math.abs(b) - Math.abs(a))
 	);
