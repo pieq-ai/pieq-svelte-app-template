@@ -29,26 +29,6 @@
     "ast_hash": "2633c24dcf854c6db56cc17131477d65",
     "semantic_hash": ""
   },
-  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20250527000000_add_employees\\migration.sql": {
-    "mtime": 1780903543.5852025,
-    "ast_hash": "53c16411ede4810b7e06724eb853ddf0",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260527113307_employees\\migration.sql": {
-    "mtime": 1780903543.5889845,
-    "ast_hash": "ea440e7cc064e9076e3ed040f2b480d1",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260529142010_init\\migration.sql": {
-    "mtime": 1780903543.5889845,
-    "ast_hash": "f4b970e27977ce7e9d63e84a8824019b",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260608074303_system_roles\\migration.sql": {
-    "mtime": 1780999752.190568,
-    "ast_hash": "527f42fdb3bc4178d6be129d0d82f7fc",
-    "semantic_hash": ""
-  },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\app.d.ts": {
     "mtime": 1780999752.190568,
     "ast_hash": "b0188787f839f233cc5958d3073e6545",
@@ -909,11 +889,6 @@
     "ast_hash": "231158953131c094dfb5f3b7cc951a2d",
     "semantic_hash": ""
   },
-  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260609111410_salary_structures\\migration.sql": {
-    "mtime": 1781003650.419528,
-    "ast_hash": "979f7a0146a78f5c3f6a9ee5cbd20852",
-    "semantic_hash": ""
-  },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\dao\\salary-structure.dao.ts": {
     "mtime": 1781163014.9009998,
     "ast_hash": "a9a2f53a2f9494efdb2d19c33e45f2d7",
@@ -1014,11 +989,6 @@
     "ast_hash": "e9af3101b3de47e27a376b84e937ae2c",
     "semantic_hash": ""
   },
-  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260611072905_add_component_name_snapshot\\migration.sql": {
-    "mtime": 1781162945.741428,
-    "ast_hash": "36b51330de604b0d593325e524dd48a7",
-    "semantic_hash": ""
-  },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\api\\salary-components\\[cuid]\\+server.ts": {
     "mtime": 1781100931.6163938,
     "ast_hash": "cfda14785ae702178cfc9b94aa8201f9",
@@ -1037,11 +1007,6 @@
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\salary-structures\\[cuid]\\+page.ts": {
     "mtime": 1781163168.6830983,
     "ast_hash": "f1081f6be86db0d9a943758a47fb96fd",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260611134610_add_payroll_table\\migration.sql": {
-    "mtime": 1781185570.2034092,
-    "ast_hash": "325dcfffb741cc23eba7fd9e20257741",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\dao\\payroll.dao.ts": {
@@ -1095,8 +1060,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\payrolls\\[cuid]\\+page.svelte": {
-    "mtime": 1781602297.3611221,
-    "ast_hash": "67e4cc5f521881865917d5e89e39fb67",
+    "mtime": 1781605529.973145,
+    "ast_hash": "6ea4e24dc54387494a269b29f95f0bff",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\payrolls\\[cuid]\\+page.ts": {
@@ -1112,11 +1077,6 @@
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\payroll.validator.test.ts": {
     "mtime": 1781592435.9371717,
     "ast_hash": "d6afe4f394d481348ace1b470a5ba84f",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260612070208_add_payroll_upload\\migration.sql": {
-    "mtime": 1781247728.4206002,
-    "ast_hash": "fbde6c409db27b1201afd65df19db88c",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\dao\\payroll-upload.dao.ts": {
@@ -1159,11 +1119,6 @@
     "ast_hash": "27d36a855ea85fa9e7bbe8f4e25b4b4e",
     "semantic_hash": ""
   },
-  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260612135229_add_filename_to_payroll_upload\\migration.sql": {
-    "mtime": 1781272349.5531325,
-    "ast_hash": "a44196dd41ea45625f2630bc8dd528cc",
-    "semantic_hash": ""
-  },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\dao\\payroll-upload-failure.dao.ts": {
     "mtime": 1781344561.8190923,
     "ast_hash": "fa36e8511c24370f7dff35eece9c908d",
@@ -1179,11 +1134,6 @@
     "ast_hash": "48028db7062f37d5a28f68cf6e038139",
     "semantic_hash": ""
   },
-  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260613113500_add_payroll_upload_failures\\migration.sql": {
-    "mtime": 1781350571.6855073,
-    "ast_hash": "e928578edb7c08acc47862133bcc0111",
-    "semantic_hash": ""
-  },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\payroll-records\\[cuid]\\payslip\\+page.svelte": {
     "mtime": 1781602371.758899,
     "ast_hash": "9a46813d7e9b1827b7b481a198546292",
@@ -1194,14 +1144,14 @@
     "ast_hash": "4a04f42cec4e44e2c4407bb8dd929d4b",
     "semantic_hash": ""
   },
-  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260616150000_rename_payroll_to_payrolls_and_payroll_breakdown_to_breakdown\\migration.sql": {
-    "mtime": 1781602200.4159625,
-    "ast_hash": "443d7d2e34ee7a50e89f31a2bb1896e1",
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260616160000_other_tables\\migration.sql": {
+    "mtime": 1781608258.9994602,
+    "ast_hash": "534d97820e6feb20d7b62038942fe8d8",
     "semantic_hash": ""
   },
-  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260616151500_rename_salary_component_columns\\migration.sql": {
-    "mtime": 1781603088.4503233,
-    "ast_hash": "43ba64a9a176f180ebbc8272c0c3cdf2",
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260616161500_salary_tables\\migration.sql": {
+    "mtime": 1781608264.0410929,
+    "ast_hash": "bcb8b2fb443fdc945c89681467347e90",
     "semantic_hash": ""
   }
 }

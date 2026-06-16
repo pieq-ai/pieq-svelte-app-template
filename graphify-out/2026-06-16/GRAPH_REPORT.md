@@ -1,11 +1,11 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-16)
 
 ## Corpus Check
-- 234 files · ~74,816 words
+- 234 files · ~75,099 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1142 nodes · 1880 edges · 71 communities (57 shown, 14 thin omitted)
+- 1143 nodes · 1883 edges · 72 communities (58 shown, 14 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 11 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -78,6 +78,7 @@
 - [[_COMMUNITY_Community 68|Community 68]]
 - [[_COMMUNITY_Community 69|Community 69]]
 - [[_COMMUNITY_Community 70|Community 70]]
+- [[_COMMUNITY_Community 71|Community 71]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `$lib/utils.js` - 36 edges
@@ -106,19 +107,19 @@
 ## Import Cycles
 - None detected.
 
-## Communities (71 total, 14 thin omitted)
+## Communities (72 total, 14 thin omitted)
 
 ### Community 0 - "API Endpoints"
 Cohesion: 0.08
 Nodes (41): GET(), PUT(), POST(), GET(), PUT(), POST(), requireAdmin(), requireAuth() (+33 more)
 
 ### Community 1 - "Data Access Tests"
-Cohesion: 0.27
+Cohesion: 0.22
 Nodes (4): createClient(), db, getDb(), isValidClient()
 
 ### Community 2 - "UI Components Index"
-Cohesion: 0.16
-Nodes (6): $lib/components, $lib/components, @lucide/svelte/icons/more-vertical, @lucide/svelte/icons/pencil, @lucide/svelte/icons/search, @lucide/svelte/icons/x
+Cohesion: 0.14
+Nodes (10): $lib/components, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/components, $lib/master-data/master-config, $lib/permissions/mock-permissions, @lucide/svelte/icons/more-vertical, @lucide/svelte/icons/pencil (+2 more)
 
 ### Community 3 - "UI Components Core"
 Cohesion: 0.09
@@ -161,7 +162,7 @@ Cohesion: 0.12
 Nodes (16): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+8 more)
 
 ### Community 13 - "Permission Service"
-Cohesion: 0.29
+Cohesion: 0.26
 Nodes (11): createPermission(), CreatePermissionDto, deletePermission(), ensurePermissionKeyIsUnique(), getPermissionByCuid2(), getPermissionById(), toPublicPermission(), updatePermission() (+3 more)
 
 ### Community 14 - "System Role Service"
@@ -189,8 +190,8 @@ Cohesion: 0.10
 Nodes (20): Changes, Harden `pieq-svelte-app-template` based on initial review, High-priority fixes (in this PR), Motivation, Out of scope (tracked as follow-ups), `README.md`, Reviewer notes, Risk & rollback (+12 more)
 
 ### Community 34 - "Community 34"
-Cohesion: 0.14
-Nodes (18): ./$types, ./$types, CreateEmployeeData, actions, load(), GET(), getErrorStatus(), POST() (+10 more)
+Cohesion: 0.16
+Nodes (16): CreateEmployeeData, actions, load(), GET(), getErrorStatus(), POST(), createEmployee(), CreateEmployeeInput (+8 more)
 
 ### Community 35 - "Community 35"
 Cohesion: 0.24
@@ -205,12 +206,12 @@ Cohesion: 0.04
 Nodes (44): 1. Clone and install dependencies, 1. Project Overview, 2. Configure environment, 2. Implemented Modules, 3. Set up the database, 3. UI & Design System, 4. Start the dev server, 4. Tech Stack (+36 more)
 
 ### Community 45 - "Community 45"
-Cohesion: 0.06
-Nodes (26): @lucide/svelte/icons/alert-triangle, $lib/components/index.js, $lib/components/ui/dropdown-menu/index.js, @lucide/svelte/icons/check-circle, @lucide/svelte/icons/file-spreadsheet, @lucide/svelte/icons/filter, availableMonths, currentYear (+18 more)
+Cohesion: 0.07
+Nodes (23): @lucide/svelte/icons/alert-triangle, @lucide/svelte/icons/check-circle, @lucide/svelte/icons/file-spreadsheet, availableMonths, currentYear, dragOver, employeesProcessed, filteredPayrolls (+15 more)
 
 ### Community 46 - "Community 46"
-Cohesion: 0.13
-Nodes (11): $lib/components/ui/calendar/index.js, $lib/components/ui/popover/index.js, $lib/server/serializers/salary-component.serializer, $lib/types/salary-structure, $lib/validators/salary-structure, @lucide/svelte/icons/calendar, @internationalized/date, @lucide/svelte/icons/external-link (+3 more)
+Cohesion: 0.17
+Nodes (8): $lib/server/serializers/salary-component.serializer, $lib/types/salary-structure, $lib/validators/salary-structure, @lucide/svelte/icons/chevron-down, @lucide/svelte/icons/external-link, @lucide/svelte/icons/git-branch, svelte/reactivity, @lucide/svelte/icons/trash-2
 
 ### Community 47 - "Community 47"
 Cohesion: 0.09
@@ -229,8 +230,8 @@ Cohesion: 0.15
 Nodes (12): compilerOptions, allowJs, checkJs, esModuleInterop, forceConsistentCasingInFileNames, moduleResolution, resolveJsonModule, rewriteRelativeImportExtensions (+4 more)
 
 ### Community 51 - "Community 51"
-Cohesion: 0.22
-Nodes (20): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/toast, $lib/types/salary-component (+12 more)
+Cohesion: 0.30
+Nodes (15): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/toast, $lib/types/salary-component, $lib/utils, $lib/validators/salary-component (+7 more)
 
 ### Community 52 - "Community 52"
 Cohesion: 0.13
@@ -241,8 +242,8 @@ Cohesion: 0.15
 Nodes (16): POST(), POST(), PUT(), validateAmount(), validateEffectiveDateRange(), validateEffectiveFrom(), COMPONENT_ALLOWED_KEYS, CREATE_ALLOWED_KEYS (+8 more)
 
 ### Community 54 - "Community 54"
-Cohesion: 0.17
-Nodes (10): averageAge, filteredEmployees, formError, handleAddEmployee(), isSubmitting, loadEmployees(), maxAge, successMessage (+2 more)
+Cohesion: 0.14
+Nodes (12): ./$types, ./$types, averageAge, filteredEmployees, formError, handleAddEmployee(), isSubmitting, loadEmployees() (+4 more)
 
 ### Community 55 - "Community 55"
 Cohesion: 0.24
@@ -261,8 +262,8 @@ Cohesion: 0.33
 Nodes (3): findMany(), findManyByUploadCuid(), CreatePayrollDto
 
 ### Community 59 - "Community 59"
-Cohesion: 0.18
-Nodes (10): load(), ListPayrollResponse, ListPayrollUploadResponse, PayrollDetailResponse, PayrollUpload, PayrollUploadDetailResponse, PayrollUploadError, PayrollUploadFailure (+2 more)
+Cohesion: 0.14
+Nodes (14): load(), load(), load(), ListPayrollResponse, ListPayrollUploadResponse, Payroll, PayrollDetailResponse, PayrollOrFailure (+6 more)
 
 ### Community 60 - "Community 60"
 Cohesion: 0.17
@@ -277,8 +278,8 @@ Cohesion: 0.27
 Nodes (8): createDepartment(), CreateDepartmentDto, deleteDepartment(), getDepartmentByCuid2(), toPublicDepartment(), updateDepartment(), UpdateDepartmentDto, validateDepartmentName()
 
 ### Community 63 - "Community 63"
-Cohesion: 0.14
-Nodes (8): $lib/components/ui/button/index.js, $lib/types/payroll, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/chevron-right, @lucide/svelte/icons/chevrons-left, @lucide/svelte/icons/chevrons-right, @lucide/svelte/icons/eye, svelte/transition
+Cohesion: 0.15
+Nodes (10): $lib/components/ui/button/index.js, $lib/components/ui/calendar/index.js, $lib/components/ui/popover/index.js, @lucide/svelte/icons/calendar, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/chevron-right, @lucide/svelte/icons/chevrons-left, @lucide/svelte/icons/chevrons-right (+2 more)
 
 ### Community 65 - "Community 65"
 Cohesion: 0.33
@@ -289,8 +290,8 @@ Cohesion: 0.18
 Nodes (7): @lucide/svelte/icons/circle-check, @lucide/svelte/icons/info, @lucide/svelte/icons/loader-2, @lucide/svelte/icons/octagon-x, mode-watcher, svelte-sonner, @lucide/svelte/icons/triangle-alert
 
 ### Community 67 - "Community 67"
-Cohesion: 0.22
-Nodes (6): load(), load(), load(), load(), load(), Payroll
+Cohesion: 0.40
+Nodes (3): load(), load(), load()
 
 ### Community 68 - "Community 68"
 Cohesion: 0.29
@@ -304,6 +305,10 @@ Nodes (4): name, private, type, version
 Cohesion: 0.50
 Nodes (3): $app/environment, toast, $lib/components/ui/toaster.svelte
 
+### Community 71 - "Community 71"
+Cohesion: 0.20
+Nodes (5): $lib/components/index.js, $lib/components/ui/dropdown-menu/index.js, $lib/types/payroll, @lucide/svelte/icons/eye, @lucide/svelte/icons/filter
+
 ## Knowledge Gaps
 - **371 isolated node(s):** `$schema`, `css`, `baseColor`, `components`, `utils` (+366 more)
   These have ≤1 connection - possible missing edges or undocumented components.
@@ -313,16 +318,16 @@ Nodes (3): $app/environment, toast, $lib/components/ui/toaster.svelte
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `db` connect `Data Access Tests` to `Community 64`, `Community 34`, `Community 36`, `Master Data DAO`, `Community 37`, `Community 39`, `Community 40`, `Department Service DAO`, `Community 38`, `Community 55`, `Community 57`, `Community 58`?**
-  _High betweenness centrality (0.142) - this node is a cross-community bridge._
+  _High betweenness centrality (0.146) - this node is a cross-community bridge._
 - **Why does `User` connect `API Client Configuration` to `API Endpoints`?**
-  _High betweenness centrality (0.077) - this node is a cross-community bridge._
+  _High betweenness centrality (0.076) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `Dependencies & Icons` to `Community 66`, `Community 69`?**
   _High betweenness centrality (0.056) - this node is a cross-community bridge._
 - **What connects `$schema`, `css`, `baseColor` to the rest of the system?**
   _371 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `API Endpoints` be split into smaller, more focused modules?**
   _Cohesion score 0.07826546800634585 - nodes in this community are weakly interconnected._
+- **Should `UI Components Index` be split into smaller, more focused modules?**
+  _Cohesion score 0.13675213675213677 - nodes in this community are weakly interconnected._
 - **Should `UI Components Core` be split into smaller, more focused modules?**
   _Cohesion score 0.08525506638714186 - nodes in this community are weakly interconnected._
-- **Should `Dependencies & Icons` be split into smaller, more focused modules?**
-  _Cohesion score 0.06451612903225806 - nodes in this community are weakly interconnected._

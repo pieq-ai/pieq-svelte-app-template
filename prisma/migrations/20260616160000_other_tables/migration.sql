@@ -1,4 +1,14 @@
 -- CreateTable
+CREATE TABLE "employees" (
+    "id" SERIAL NOT NULL,
+    "uuid" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "age" INTEGER NOT NULL,
+
+    CONSTRAINT "employees_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "system_roles" (
     "id" SERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
@@ -219,6 +229,9 @@ CREATE TABLE "languages" (
 
     CONSTRAINT "languages_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "employees_uuid_key" ON "employees"("uuid");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "system_roles_cuid_key" ON "system_roles"("cuid");

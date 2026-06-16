@@ -218,7 +218,6 @@
 				<h1 class="text-2xl font-bold tracking-tight sm:text-3xl break-all">
 					{upload.file_name || `${monthName(upload.month)} ${upload.year}`}
 				</h1>
-				<p class="text-sm text-muted-foreground">Payroll Upload Batch</p>
 			</div>
 		</div>
 

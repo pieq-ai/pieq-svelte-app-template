@@ -1027,7 +1027,7 @@
       "source_file": "src/lib/components/common/DatePicker.svelte",
       "source_location": "L1",
       "id": "common_datepicker",
-      "community": 46,
+      "community": 63,
       "norm_label": "datepicker.svelte"
     },
     {
@@ -1036,7 +1036,7 @@
       "source_file": "src/lib/components/common/DatePicker.svelte",
       "source_location": "L49",
       "id": "common_datepicker_handleselect",
-      "community": 46,
+      "community": 63,
       "norm_label": "handleselect()"
     },
     {
@@ -1045,7 +1045,7 @@
       "source_file": "src/lib/components/ui/popover/index.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_components_ui_popover_index_js",
-      "community": 46,
+      "community": 63,
       "norm_label": "$lib/components/ui/popover/index.js"
     },
     {
@@ -1054,7 +1054,7 @@
       "source_file": "src/lib/components/ui/calendar/index.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_components_ui_calendar_index_js",
-      "community": 46,
+      "community": 63,
       "norm_label": "$lib/components/ui/calendar/index.js"
     },
     {
@@ -1072,7 +1072,7 @@
       "source_file": "@lucide/svelte/icons/calendar",
       "confidence": "EXTRACTED",
       "id": "calendar",
-      "community": 46,
+      "community": 63,
       "norm_label": "@lucide/svelte/icons/calendar"
     },
     {
@@ -1081,7 +1081,7 @@
       "source_file": "@internationalized/date",
       "confidence": "EXTRACTED",
       "id": "date",
-      "community": 46,
+      "community": 63,
       "norm_label": "@internationalized/date"
     },
     {
@@ -1099,7 +1099,7 @@
       "source_file": "src/lib/components/common/FilterDropdown.svelte",
       "source_location": "L1",
       "id": "common_filterdropdown",
-      "community": 45,
+      "community": 71,
       "norm_label": "filterdropdown.svelte"
     },
     {
@@ -1108,7 +1108,7 @@
       "source_file": "src/lib/components/ui/dropdown-menu/index.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_components_ui_dropdown_menu_index_js",
-      "community": 45,
+      "community": 71,
       "norm_label": "$lib/components/ui/dropdown-menu/index.js"
     },
     {
@@ -1117,7 +1117,7 @@
       "source_file": "@lucide/svelte/icons/filter",
       "confidence": "EXTRACTED",
       "id": "filter",
-      "community": 45,
+      "community": 71,
       "norm_label": "@lucide/svelte/icons/filter"
     },
     {
@@ -1135,7 +1135,7 @@
       "source_file": "src/lib/components/index.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_components_index_js",
-      "community": 45,
+      "community": 71,
       "norm_label": "$lib/components/index.js"
     },
     {
@@ -1144,7 +1144,7 @@
       "source_file": "src/lib/components/common/MasterDataDropdown.svelte",
       "source_location": "L1",
       "id": "common_masterdatadropdown",
-      "community": 51,
+      "community": 2,
       "norm_label": "masterdatadropdown.svelte"
     },
     {
@@ -1162,7 +1162,7 @@
       "source_file": "src/lib/master-data/master-config",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_master_data_master_config",
-      "community": 51,
+      "community": 2,
       "norm_label": "$lib/master-data/master-config"
     },
     {
@@ -1171,7 +1171,7 @@
       "source_file": "src/lib/permissions/mock-permissions",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_permissions_mock_permissions",
-      "community": 51,
+      "community": 2,
       "norm_label": "$lib/permissions/mock-permissions"
     },
     {
@@ -1181,7 +1181,7 @@
       "confidence": "EXTRACTED",
       "source_location": "L1",
       "id": "common_searchabledropdown",
-      "community": 51,
+      "community": 2,
       "norm_label": "searchabledropdown.svelte"
     },
     {
@@ -1280,7 +1280,7 @@
       "source_file": "@lucide/svelte/icons/chevron-down",
       "confidence": "EXTRACTED",
       "id": "chevron_down",
-      "community": 51,
+      "community": 46,
       "norm_label": "@lucide/svelte/icons/chevron-down"
     },
     {
@@ -5224,7 +5224,7 @@
       "source_file": "src/lib/types/payroll.ts",
       "source_location": "L31",
       "id": "types_payroll_payroll",
-      "community": 67,
+      "community": 59,
       "norm_label": "payroll"
     },
     {
@@ -5316,6 +5316,15 @@
       "id": "types_payroll_payrolluploadresponse",
       "community": 59,
       "norm_label": "payrolluploadresponse"
+    },
+    {
+      "label": "PayrollOrFailure",
+      "file_type": "code",
+      "source_file": "src/lib/types/payroll.ts",
+      "source_location": "L127",
+      "id": "types_payroll_payrollorfailure",
+      "community": 59,
+      "norm_label": "payrollorfailure"
     },
     {
       "label": "salary-component.ts",
@@ -6934,7 +6943,7 @@
       "source_file": "src/routes/employees/$types",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_routes_employees_types",
-      "community": 34,
+      "community": 54,
       "norm_label": "./$types"
     },
     {
@@ -6970,7 +6979,7 @@
       "source_file": "src/routes/payroll-records/[cuid]/+page.ts",
       "source_location": "L1",
       "id": "src_routes_payroll_records_cuid_page_ts_cuid_page",
-      "community": 67,
+      "community": 59,
       "norm_label": "+page.ts"
     },
     {
@@ -6979,7 +6988,7 @@
       "source_file": "src/routes/payroll-records/[cuid]/+page.ts",
       "source_location": "L5",
       "id": "src_routes_payroll_records_cuid_page_ts_cuid_page_load",
-      "community": 67,
+      "community": 59,
       "norm_label": "load()"
     },
     {
@@ -7024,16 +7033,16 @@
       "source_file": "src/routes/payroll-records/[cuid]/payslip/+page.ts",
       "source_location": "L1",
       "id": "src_routes_payroll_records_cuid_payslip_page_ts_payslip_page",
-      "community": 67,
+      "community": 59,
       "norm_label": "+page.ts"
     },
     {
       "label": "load()",
       "file_type": "code",
       "source_file": "src/routes/payroll-records/[cuid]/payslip/+page.ts",
-      "source_location": "L4",
+      "source_location": "L5",
       "id": "payslip_page_load",
-      "community": 67,
+      "community": 59,
       "norm_label": "load()"
     },
     {
@@ -7204,7 +7213,7 @@
       "source_file": "src/lib/types/payroll",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_types_payroll",
-      "community": 63,
+      "community": 71,
       "norm_label": "$lib/types/payroll"
     },
     {
@@ -7213,7 +7222,7 @@
       "source_file": "src/routes/payrolls/[cuid]/+page.svelte",
       "source_location": "L1",
       "id": "src_routes_payrolls_cuid_page_svelte_cuid_page",
-      "community": 63,
+      "community": 71,
       "norm_label": "+page.svelte"
     },
     {
@@ -7222,7 +7231,7 @@
       "source_file": "src/routes/payrolls/[cuid]/+page.svelte",
       "source_location": "L265",
       "id": "cuid_page_monthname",
-      "community": 63,
+      "community": 71,
       "norm_label": "monthname()"
     },
     {
@@ -7231,7 +7240,7 @@
       "source_file": "src/routes/payrolls/[cuid]/+page.svelte",
       "source_location": "L372",
       "id": "cuid_page_formatamount",
-      "community": 63,
+      "community": 71,
       "norm_label": "formatamount()"
     },
     {
@@ -7510,7 +7519,7 @@
       "source_file": "tests/unit/department.dao.test.ts",
       "source_location": "L1",
       "id": "unit_department_dao_test",
-      "community": 39,
+      "community": 1,
       "norm_label": "department.dao.test.ts"
     },
     {
@@ -7537,7 +7546,7 @@
       "source_file": "tests/unit/designation.dao.test.ts",
       "source_location": "L1",
       "id": "unit_designation_dao_test",
-      "community": 36,
+      "community": 1,
       "norm_label": "designation.dao.test.ts"
     },
     {
@@ -7690,7 +7699,7 @@
       "source_file": "tests/unit/permission.dao.test.ts",
       "source_location": "L1",
       "id": "unit_permission_dao_test",
-      "community": 37,
+      "community": 1,
       "norm_label": "permission.dao.test.ts"
     },
     {
@@ -7708,7 +7717,7 @@
       "source_file": "tests/unit/permission.service.test.ts",
       "source_location": "L1",
       "id": "unit_permission_service_test",
-      "community": 37,
+      "community": 13,
       "norm_label": "permission.service.test.ts"
     },
     {
@@ -7726,7 +7735,7 @@
       "source_file": "tests/unit/role-permission.service.test.ts",
       "source_location": "L1",
       "id": "unit_role_permission_service_test",
-      "community": 40,
+      "community": 37,
       "norm_label": "role-permission.service.test.ts"
     },
     {
@@ -7816,7 +7825,7 @@
       "source_file": "tests/unit/system-role.dao.test.ts",
       "source_location": "L1",
       "id": "unit_system_role_dao_test",
-      "community": 38,
+      "community": 1,
       "norm_label": "system-role.dao.test.ts"
     },
     {
@@ -8805,7 +8814,7 @@
       "file_type": "code",
       "source_file": "src/routes/payrolls/[cuid]/+page.svelte",
       "source_location": "L229",
-      "community": 63,
+      "community": 71,
       "norm_label": "monthname()",
       "id": "src_routes_payrolls_cuid_page_svelte_cuid_page_monthname"
     },
@@ -8814,7 +8823,7 @@
       "file_type": "code",
       "source_file": "@lucide/svelte/icons/eye",
       "confidence": "EXTRACTED",
-      "community": 63,
+      "community": 71,
       "norm_label": "@lucide/svelte/icons/eye",
       "id": "eye"
     },
@@ -9237,7 +9246,7 @@
       "file_type": "code",
       "source_file": "src/lib/master-data/master-config",
       "confidence": "EXTRACTED",
-      "community": 51,
+      "community": 2,
       "norm_label": "$lib/master-data/master-config",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_master_data_master_config"
     },
@@ -9246,7 +9255,7 @@
       "file_type": "code",
       "source_file": "src/lib/permissions/mock-permissions",
       "confidence": "EXTRACTED",
-      "community": 51,
+      "community": 2,
       "norm_label": "$lib/permissions/mock-permissions",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_permissions_mock_permissions"
     },
@@ -9300,7 +9309,7 @@
       "file_type": "code",
       "source_file": "src/routes/employees/$types",
       "confidence": "EXTRACTED",
-      "community": 34,
+      "community": 54,
       "norm_label": "./$types",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_routes_employees_types"
     },
@@ -16711,9 +16720,9 @@
       "source_file": "src/routes/api/payrolls/[cuid]/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_routes_api_payrolls_cuid_server_ts_cuid_server",
-      "target": "server_db",
-      "confidence_score": 1.0
+      "target": "server_db"
     },
     {
       "relation": "imports_from",
@@ -16821,9 +16830,9 @@
       "source_file": "src/routes/api/payrolls/[cuid]/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_routes_api_payrolls_cuid_server_ts_cuid_server",
-      "target": "server_db_db",
-      "confidence_score": 1.0
+      "target": "server_db_db"
     },
     {
       "relation": "imports",
@@ -23397,6 +23406,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/types/payroll.ts",
+      "source_location": "L127",
+      "weight": 1.0,
+      "source": "types_payroll",
+      "target": "types_payroll_payrollorfailure",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/types/payroll.ts",
       "source_location": "L9",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -23507,6 +23526,28 @@
       "confidence_score": 1.0,
       "source": "src_routes_payrolls_cuid_page_ts_cuid_page",
       "target": "types_payroll_payrolluploadfailure"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/payroll-records/[cuid]/+page.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "src_routes_payroll_records_cuid_page_ts_cuid_page",
+      "target": "types_payroll_payrollorfailure",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/payroll-records/[cuid]/payslip/+page.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "src_routes_payroll_records_cuid_payslip_page_ts_payslip_page",
+      "target": "types_payroll_payrollorfailure",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -26138,9 +26179,9 @@
       "source_file": "src/routes/payrolls/[cuid]/+page.svelte",
       "source_location": "L386",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_routes_payrolls_cuid_page_svelte_cuid_page",
-      "target": "cuid_page_formatamount",
-      "confidence_score": 1.0
+      "target": "cuid_page_formatamount"
     },
     {
       "relation": "contains",
