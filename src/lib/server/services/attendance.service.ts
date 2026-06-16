@@ -48,6 +48,14 @@ export async function checkIn(employeeCuid: string, attendanceSourceCuid?: strin
 	const today = new Date();
 	const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
 
+	// Check if today is a holiday
+	const isHoliday = await db.holidayCalendar.findFirst({
+		where: { holiday_date: todayUTC }
+	});
+	if (isHoliday) {
+		throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on holidays');
+	}
+
 	// Check if already checked in
 	const existing = await attendanceDao.findByEmployeeAndDate(employeeCuid, todayUTC);
 	if (existing) {
@@ -85,6 +93,14 @@ export async function checkOut(employeeCuid: string, updatedBy?: string | null) 
 
 	const today = new Date();
 	const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+
+	// Check if today is a holiday
+	const isHoliday = await db.holidayCalendar.findFirst({
+		where: { holiday_date: todayUTC }
+	});
+	if (isHoliday) {
+		throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on holidays');
+	}
 
 	const existing = await attendanceDao.findByEmployeeAndDate(employeeCuid, todayUTC);
 	if (!existing) {

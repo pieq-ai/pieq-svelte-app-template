@@ -1,16 +1,16 @@
-# Graph Report - pieq-svelte-app-template  (2026-06-15)
+# Graph Report - pieq-svelte-app-template  (2026-06-16)
 
 ## Corpus Check
-- 273 files · ~105,533 words
+- 273 files · ~105,664 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1284 nodes · 2365 edges · 98 communities (77 shown, 21 thin omitted)
+- 1284 nodes · 2365 edges · 99 communities (78 shown, 21 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 68 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `afdf60e6`
+- Built from commit: `b5acb9bb`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -103,6 +103,7 @@
 - [[_COMMUNITY_Community 95|Community 95]]
 - [[_COMMUNITY_Community 96|Community 96]]
 - [[_COMMUNITY_Community 97|Community 97]]
+- [[_COMMUNITY_Community 98|Community 98]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `$lib/utils.js` - 37 edges
@@ -131,7 +132,7 @@
 ## Import Cycles
 - 1-file cycle: `src/routes/leave-policies/+page.svelte -> src/routes/leave-policies/+page.svelte`
 
-## Communities (98 total, 21 thin omitted)
+## Communities (99 total, 21 thin omitted)
 
 ### Community 0 - "API Endpoints"
 Cohesion: 0.06
@@ -215,7 +216,7 @@ Nodes (11): Adding a new feature, Deployment, Keycloak client setup, pieq-svelte
 
 ### Community 32 - "Community 32"
 Cohesion: 0.15
-Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
+Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.10
@@ -266,8 +267,8 @@ Cohesion: 0.25
 Nodes (7): RoleCreateDTO, RoleUpdateDTO, rejectUnknownKeys(), sanitizeString(), validateCreatePayload(), validatePaginationParams(), validateUpdatePayload()
 
 ### Community 49 - "Community 49"
-Cohesion: 0.15
-Nodes (13): Code quality, Common workflows, Development, Other, Quick reference, Scripts, `yarn build`, `yarn check` (+5 more)
+Cohesion: 0.22
+Nodes (9): Common workflows, Other, Quick reference, Scripts, Testing, `yarn prepare`, `yarn test`, `yarn test:e2e` (+1 more)
 
 ### Community 50 - "Community 50"
 Cohesion: 0.10
@@ -347,7 +348,7 @@ Nodes (5): Database (Prisma), `yarn db:generate`, `yarn db:migrate`, `yarn db:pu
 
 ### Community 74 - "Community 74"
 Cohesion: 0.50
-Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
+Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
 
 ### Community 75 - "Community 75"
 Cohesion: 0.20
@@ -387,7 +388,7 @@ Nodes (5): CompanyLocationCreateDTO, CompanyLocationUpdateDTO, rejectUnknownKeys
 
 ### Community 89 - "Community 89"
 Cohesion: 0.50
-Nodes (4): Testing, `yarn test`, `yarn test:e2e`, `yarn test:unit`
+Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
 
 ### Community 91 - "Community 91"
 Cohesion: 0.29
@@ -400,6 +401,10 @@ Nodes (6): @lucide/svelte/icons/circle-check, @lucide/svelte/icons/info, @lucide
 ### Community 97 - "Community 97"
 Cohesion: 0.33
 Nodes (4): $app/environment, toast, svelte-sonner, $lib/components/ui/toaster.svelte
+
+### Community 98 - "Community 98"
+Cohesion: 0.50
+Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
 
 ## Knowledge Gaps
 - **355 isolated node(s):** `$schema`, `css`, `baseColor`, `components`, `utils` (+350 more)

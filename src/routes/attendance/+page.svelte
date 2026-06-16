@@ -154,6 +154,11 @@
 	}
 
 	function getDayStatus(dateStr: string) {
+		const isHoliday = data.holidays.some((h: any) => getISODateString(h.holiday_date) === dateStr);
+		if (isHoliday) {
+			return { status: 'Holiday', color: 'bg-blue-500/15 text-blue-800 dark:bg-blue-500/25 dark:text-blue-300 border border-blue-500/30 dark:border-blue-500/40' };
+		}
+
 		const record = historyRecords.find((rec) => rec.attendance_date === dateStr);
 		if (record) {
 			const status = record.attendance_status;
@@ -177,11 +182,6 @@
 			}
 		}
 
-		const isHoliday = data.holidays.some((h: any) => getISODateString(h.holiday_date) === dateStr);
-		if (isHoliday) {
-			return { status: 'Holiday', color: 'bg-blue-500/15 text-blue-800 dark:bg-blue-500/25 dark:text-blue-300 border border-blue-500/30 dark:border-blue-500/40' };
-		}
-
 		// Detect Week Off (Saturday & Sunday)
 		const parts = dateStr.split('-');
 		if (parts.length === 3) {
@@ -196,6 +196,19 @@
 		}
 
 		return null;
+	}
+
+	function getHolidayForDate(dateStr: string) {
+		return data.holidays.find((h: any) => getISODateString(h.holiday_date) === dateStr) || null;
+	}
+
+	function formatHolidayType(type: string): string {
+		if (!type) return '';
+		const lower = type.toLowerCase();
+		if (lower.includes('holiday')) {
+			return type;
+		}
+		return `${type} Holiday`;
 	}
 
 	// Dynamic stats cards metrics for the currently selected month
@@ -757,6 +770,7 @@
 					{#each calendarMonthDays as cell}
 						{@const record = historyRecords.find((rec) => rec.attendance_date === cell.dateStr)}
 						{@const dayStatus = getDayStatus(cell.dateStr)}
+						{@const holiday = getHolidayForDate(cell.dateStr)}
 						<div
 							class={cn(
 								"min-h-24 p-2.5 rounded-lg border border-border/50 flex flex-col justify-between transition-all relative",
@@ -766,24 +780,36 @@
 							)}
 						>
 							<div class="flex items-center justify-between w-full">
-								<span class="text-xs font-bold">{cell.day}</span>
+								<span class="text-base font-bold">{cell.day}</span>
 								{#if dayStatus}
-									<span class="text-[9px] font-bold tracking-tight uppercase line-clamp-1 opacity-90">{dayStatus.status}</span>
+									<span class="text-xs font-extrabold tracking-tight uppercase line-clamp-1">{dayStatus.status}</span>
 								{/if}
 							</div>
 
 							<div class="mt-1 flex-1 flex flex-col justify-end w-full">
-								{#if record && record.check_in_time}
-									<div class="space-y-0.5 text-[9px] font-medium leading-none text-left">
-										<div>IN: {formatDisplayTime(record.check_in_time)}</div>
-										{#if record.check_out_time}
-											<div>OUT: {formatDisplayTime(record.check_out_time)}</div>
-											<div class="text-[8px] opacity-75 font-semibold mt-0.5">DURATION: {formatCalDuration(record.work_duration_minutes)}</div>
-										{/if}
+								{#if holiday}
+									<!-- Holiday Info Mode -->
+									<div class="space-y-1 text-left w-full mt-1">
+										<div class="text-xs font-bold leading-tight line-clamp-2">
+											🏖️ {holiday.holiday_name}
+										</div>
+										<div class="text-[9.5px] opacity-90 font-bold leading-none">
+											🏷️ {formatHolidayType(holiday.holiday_type)}
+										</div>
 									</div>
+								{:else if record && record.check_in_time}
+									<div class="flex items-center justify-between w-full text-xs font-bold leading-tight">
+										<span>{formatDisplayTime(record.check_in_time)}</span>
+										<span>{record.check_out_time ? formatDisplayTime(record.check_out_time) : '--'}</span>
+									</div>
+									{#if record.check_out_time}
+										<div class="text-center text-xs font-bold mt-1">
+											{formatCalDuration(record.work_duration_minutes)}
+										</div>
+									{/if}
 								{/if}
 
-								{#if cell.isToday}
+								{#if cell.isToday && !holiday}
 									{#if !record}
 										<Button
 											size="sm"
