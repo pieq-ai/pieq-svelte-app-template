@@ -11,6 +11,7 @@
 		isSubmitting?: boolean;
 		onCancel: () => void;
 		onConfirm: () => void;
+		preventOutsideClickClose?: boolean;
 	}
 
 	let {
@@ -21,12 +22,13 @@
 		confirmLabel = 'Confirm',
 		isSubmitting = false,
 		onCancel,
-		onConfirm
+		onConfirm,
+		preventOutsideClickClose = false
 	}: Props = $props();
 
 </script>
 
-<CrudModal {open} {title} {description} onClose={onCancel}>
+<CrudModal {open} {title} {description} onClose={onCancel} {preventOutsideClickClose}>
 	<div class="flex justify-end gap-2">
 		<Button type="button" variant="outline" onclick={onCancel} disabled={isSubmitting}>{cancelLabel}</Button>
 		<Button

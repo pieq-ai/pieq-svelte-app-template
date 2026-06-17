@@ -7,37 +7,34 @@ export async function GET() {
     const count = await db.state.count();
     if (count === 0) {
       // Find country cuids
-      const india = await db.country.findFirst({ where: { country_name: 'India' } });
-      const usa = await db.country.findFirst({ where: { country_name: 'United States' } });
-      const uk = await db.country.findFirst({ where: { country_name: 'United Kingdom' } });
+      const india = await db.country.findFirst({ where: { name: 'India' } });
+      const usa = await db.country.findFirst({ where: { name: 'United States' } });
+      const uk = await db.country.findFirst({ where: { name: 'United Kingdom' } });
 
-      const statesToCreate = [];
+      const statesToCreate: { country_cuid: string; name: string }[] = [];
+
       if (india) {
-        statesToCreate.push(
-          { country_cuid: india.cuid, state_name: 'Tamil Nadu' },
-          { country_cuid: india.cuid, state_name: 'Karnataka' },
-          { country_cuid: india.cuid, state_name: 'Maharashtra' }
-        );
+        ['Maharashtra', 'Delhi', 'Karnataka', 'Tamil Nadu'].forEach(state => {
+          statesToCreate.push({ country_cuid: india.cuid, name: state });
+        });
       }
+
       if (usa) {
-        statesToCreate.push(
-          { country_cuid: usa.cuid, state_name: 'California' },
-          { country_cuid: usa.cuid, state_name: 'New York' },
-          { country_cuid: usa.cuid, state_name: 'Texas' }
-        );
+        ['California', 'Texas', 'New York', 'Florida'].forEach(state => {
+          statesToCreate.push({ country_cuid: usa.cuid, name: state });
+        });
       }
+
       if (uk) {
-        statesToCreate.push(
-          { country_cuid: uk.cuid, state_name: 'England' },
-          { country_cuid: uk.cuid, state_name: 'Scotland' },
-          { country_cuid: uk.cuid, state_name: 'Wales' }
-        );
+        ['England', 'Scotland', 'Wales', 'Northern Ireland'].forEach(state => {
+          statesToCreate.push({ country_cuid: uk.cuid, name: state });
+        });
       }
       if (statesToCreate.length > 0) {
         await db.state.createMany({ data: statesToCreate });
       }
     }
-    const states = await db.state.findMany({ orderBy: { state_name: 'asc' } });
+    const states = await db.state.findMany({ orderBy: { name: 'asc' } });
     const mapped = states.map(mapState);
     return sendList(mapped);
   } catch (err: any) {

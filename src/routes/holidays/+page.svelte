@@ -33,10 +33,9 @@
 		TableHead,
 		TableHeader,
 		TableRow,
-		toast,
-		DatePicker
+		toast
 	} from '$lib/components/ui';
-	import { ConfirmModal, CrudModal, Pagination, TableActions } from '$lib/components';
+	import { ConfirmModal, CrudModal, Pagination, TableActions, DatePicker } from '$lib/components';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -650,7 +649,7 @@
 								</Button>
 							{/snippet}
 						</DropdownMenu.Trigger>
-						<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
+						<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
 							<DropdownMenu.Group>
 								{#each filterTypeOptions as opt}
 									<DropdownMenu.Item onclick={() => { filterType = opt.value; currentPage = 1; }} class="justify-between cursor-pointer {filterType === opt.value ? 'bg-accent text-accent-foreground' : ''}">
@@ -803,7 +802,7 @@
 					}}
 					required={true}
 					max="2099-12-31"
-					hasError={!!errors.holiday_date}
+					isError={!!errors.holiday_date}
 				/>
 				{#if errors.holiday_date}
 					<p class="text-xs font-medium text-destructive mt-1">{errors.holiday_date}</p>
@@ -822,7 +821,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
 						<DropdownMenu.Group>
 							{#each holidayTypeOptions as opt}
 								<DropdownMenu.Item onclick={() => {

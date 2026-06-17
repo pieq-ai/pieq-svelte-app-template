@@ -21,7 +21,7 @@ export async function createLocation(payload: unknown): Promise<CompanyLocation>
   
   // Ensure unique active name
   const existing = await locationDao.getLocations();
-  if (existing.some((loc) => loc.location_name.toLowerCase() === valid.location_name.toLowerCase())) {
+  if (existing.some((loc) => loc.name.toLowerCase() === valid.name.toLowerCase())) {
     const err: any = new Error('Company Location name already exists');
     err.status = 409;
     throw err;
@@ -42,10 +42,10 @@ export async function updateLocation(cuid: string, payload: unknown): Promise<Co
   }
   
   // Duplicate name check if name provided
-  if (valid.location_name) {
-    const nameToCheck = valid.location_name.toLowerCase();
+  if (valid.name) {
+    const nameToCheck = valid.name.toLowerCase();
     const existing = await locationDao.getLocations();
-    if (existing.some((loc) => loc.location_name.toLowerCase() === nameToCheck && loc.cuid !== cuid)) {
+    if (existing.some((loc) => loc.name.toLowerCase() === nameToCheck && loc.cuid !== cuid)) {
       const err: any = new Error('Company Location name already exists');
       err.status = 409;
       throw err;

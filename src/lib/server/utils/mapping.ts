@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export function serialize(obj: any, stripId = true): any {
 	if (Array.isArray(obj)) return obj.map((v) => serialize(v, stripId));
 	if (typeof obj === 'bigint') return obj.toString();

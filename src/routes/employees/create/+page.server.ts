@@ -4,7 +4,8 @@ import { getMasterData } from '$lib/server/services/master-data.service.js';
 import { getDepartments } from '$lib/server/services/department.service.js';
 import { getDesignations } from '$lib/server/services/designation.service.js';
 
-// Need CompanyLocation service? Wait, do we have one?
+import { listRoles } from '$lib/server/services/role.service.js';
+import { listLocations } from '$lib/server/services/organization_location.service.js';
 import { db } from '$lib/server/db.js';
 
 export const load: PageServerLoad = async () => {
@@ -28,7 +29,7 @@ export const load: PageServerLoad = async () => {
 		] = await Promise.all([
 			getDepartments(),
 			getDesignations(),
-			db.role.findMany({ where: { status: true } }),
+			listRoles(),
 			getMasterData('blood-groups'),
 			getMasterData('nationalities'),
 			getMasterData('employment-types'),
@@ -39,14 +40,14 @@ export const load: PageServerLoad = async () => {
 			getMasterData('languages'),
 			getMasterData('countries'),
 			getMasterData('states'),
-            db.companyLocation.findMany({ where: { status: true } }),
+            listLocations(),
 			db.employee.findMany({ select: { cuid: true, first_name: true, last_name: true } })
 		]);
 
 		return {
 			departments,
 			designations,
-			roles: roles.map((r) => ({ cuid: r.cuid, name: r.name })),
+			roles: roles.data,
 			bloodGroups,
 			nationalities,
 			employmentTypes,
@@ -57,8 +58,7 @@ export const load: PageServerLoad = async () => {
 			languages,
 			countries,
 			states,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-            locations: locations.map((l: any) => ({ cuid: l.cuid, name: l.name })),
+            locations: locations.data,
 			employees
 		};
 	} catch (e) {

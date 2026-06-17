@@ -78,7 +78,7 @@
 
 	function handleBackdropClick(e: MouseEvent) {
 		if (preventOutsideClickClose) return;
-		if (e.target === e.currentTarget) {
+		if (e.target === e.currentTarget && modalStack.isTop(modalId)) {
 			handleCloseAttempt();
 		}
 	}
@@ -125,7 +125,8 @@
 		class="fixed inset-0 z-100 flex items-center justify-center bg-[rgba(15,11,10,0.4)] backdrop-blur-md px-4 py-6"
 		onclick={(e) => {
 			if (preventOutsideClickClose) return;
-			if (e.target === e.currentTarget) showUnsavedConfirm = false;
+			if (e.target === e.currentTarget &&
+		modalStack.isTop(confirmId)) showUnsavedConfirm = false;
 		}}
 	>
 		<div

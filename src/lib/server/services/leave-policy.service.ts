@@ -79,7 +79,7 @@ async function validateAndMapPolicyInput(
 			throw new LeaveValidationError('employment_type_cuids', `Employment type ${empTypeCuid} does not exist`);
 		}
 		if (!empType.status) {
-			throw new LeaveValidationError('employment_type_cuids', `Employment type '${empType.employment_name}' is inactive`);
+			throw new LeaveValidationError('employment_type_cuids', `Employment type '${empType.name}' is inactive`);
 		}
 	}
 

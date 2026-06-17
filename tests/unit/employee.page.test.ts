@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { load as loadCreate } from '../../src/routes/employees/create/+page.server.ts';
 import { load as loadEdit } from '../../src/routes/employees/[cuid]/+page.server.ts';
-import { db } from '$lib/server/db.js';
-import * as departmentService from '$lib/server/services/department.service.js';
-import * as designationService from '$lib/server/services/designation.service.js';
-import * as masterDataService from '$lib/server/services/master-data.service.js';
+import { db } from '$lib/server/db';
+import * as departmentService from '$lib/server/services/department.service';
+import * as designationService from '$lib/server/services/designation.service';
+import * as masterDataService from '$lib/server/services/master-data.service';
 
-vi.mock('$lib/server/db.js', () => ({
+vi.mock('$lib/server/db', () => ({
 	db: {
 		role: {
 			findMany: vi.fn()
@@ -24,15 +24,15 @@ vi.mock('$lib/server/db.js', () => ({
 	}
 }));
 
-vi.mock('$lib/server/services/department.service.js', () => ({
+vi.mock('$lib/server/services/department.service', () => ({
 	getDepartments: vi.fn()
 }));
 
-vi.mock('$lib/server/services/designation.service.js', () => ({
+vi.mock('$lib/server/services/designation.service', () => ({
 	getDesignations: vi.fn()
 }));
 
-vi.mock('$lib/server/services/master-data.service.js', () => ({
+vi.mock('$lib/server/services/master-data.service', () => ({
 	getMasterData: vi.fn()
 }));
 
@@ -91,8 +91,8 @@ describe('Employee Create Page Load', () => {
 		const result = await loadCreate({} as unknown as Parameters<typeof loadCreate>[0]) as unknown as CreateLoadResult;
 
 		expect(result).toHaveProperty('roles');
-		expect(result.roles).toEqual([{ cuid: 'role_1', name: 'HR Manager' }]);
-		expect(result.locations).toEqual([{ cuid: 'loc_1', name: 'Office 1' }]);
+		expect(result.roles).toEqual([{ id: 1n, cuid: 'role_1', name: 'HR Manager', status: true }]);
+		expect(result.locations).toEqual([{ id: 2n, cuid: 'loc_1', name: 'Office 1', status: true }]);
 		expect(result.employees).toEqual([{ cuid: 'emp_1', first_name: 'John', last_name: 'Doe' }]);
 	});
 });
@@ -136,8 +136,8 @@ describe('Employee Edit Page Load', () => {
 
 		expect(result.employee.first_name).toBe('John');
 		expect(result.employment.department_cuid).toBe('dept_1');
-		expect(result.roles).toEqual([{ cuid: 'role_1', name: 'Role 1' }]);
-		expect(result.locations).toEqual([{ cuid: 'loc_1', name: 'Location 1' }]);
+		expect(result.roles).toEqual([{ id: 3n, cuid: 'role_1', name: 'Role 1', status: true }]);
+		expect(result.locations).toEqual([{ id: 4n, cuid: 'loc_1', name: 'Location 1', status: true }]);
 		expect(result.employees).toEqual([{ cuid: 'emp_999', first_name: 'Manager', last_name: 'Bob' }]);
 	});
 });

@@ -159,7 +159,7 @@ describe('leave policy service', () => {
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
 				id: 1n,
 				cuid: 'emp-type-1',
-				employment_name: 'Part Time',
+				name: 'Part Time',
 				status: false, // inactive
 				...auditFields
 			} as unknown as EmploymentType);
@@ -188,7 +188,7 @@ describe('leave policy service', () => {
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
 				id: 1n,
 				cuid: 'emp-type-1',
-				employment_name: 'Part Time',
+				name: 'Part Time',
 				status: true,
 				...auditFields
 			} as unknown as EmploymentType);
@@ -235,7 +235,7 @@ describe('leave policy service', () => {
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
 				id: 1n,
 				cuid: 'emp-type-1',
-				employment_name: 'Part Time',
+				name: 'Part Time',
 				status: true,
 				...auditFields
 			} as unknown as EmploymentType);
@@ -275,7 +275,7 @@ describe('leave policy service', () => {
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
 				id: 1n,
 				cuid: 'emp-type-1',
-				employment_name: 'Part Time',
+				name: 'Part Time',
 				status: true,
 				...auditFields
 			} as unknown as EmploymentType);
@@ -348,7 +348,7 @@ describe('leave policy service', () => {
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
 				id: 1n,
 				cuid: 'emp-type-1',
-				employment_name: 'Part Time',
+				name: 'Part Time',
 				status: true,
 				...auditFields
 			} as unknown as EmploymentType);
@@ -400,7 +400,7 @@ describe('leave policy service', () => {
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
 				id: 1n,
 				cuid: 'emp-type-1',
-				employment_name: 'Part Time',
+				name: 'Part Time',
 				status: true,
 				...auditFields
 			} as unknown as EmploymentType);
@@ -440,7 +440,7 @@ describe('leave policy service', () => {
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
 				id: 1n,
 				cuid: 'emp-type-1',
-				employment_name: 'Part Time',
+				name: 'Part Time',
 				status: true,
 				...auditFields
 			} as unknown as EmploymentType);
@@ -471,7 +471,7 @@ describe('leave policy service', () => {
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
 				id: 1n,
 				cuid: 'emp-type-1',
-				employment_name: 'Part Time',
+				name: 'Part Time',
 				status: true,
 				...auditFields
 			} as unknown as EmploymentType);
@@ -513,7 +513,7 @@ describe('leave policy service', () => {
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
 				id: 1n,
 				cuid: 'emp-type-1',
-				employment_name: 'Part Time',
+				name: 'Part Time',
 				status: true,
 				...auditFields
 			} as unknown as EmploymentType);
@@ -561,7 +561,7 @@ describe('leave policy service', () => {
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
 				id: 1n,
 				cuid: 'emp-type-1',
-				employment_name: 'Part Time',
+				name: 'Part Time',
 				status: true,
 				...auditFields
 			} as unknown as EmploymentType);
@@ -605,7 +605,7 @@ describe('leave policy service', () => {
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
 				id: 1n,
 				cuid: 'emp-type-1',
-				employment_name: 'Part Time',
+				name: 'Part Time',
 				status: true,
 				...auditFields
 			} as unknown as EmploymentType);
@@ -703,7 +703,7 @@ describe('leave policy service', () => {
 			vi.mocked(db.employmentType.findUnique).mockResolvedValue({
 				id: 1n,
 				cuid: 'emp-type-1',
-				employment_name: 'Part Time',
+				name: 'Part Time',
 				status: true,
 				...auditFields
 			} as unknown as EmploymentType);

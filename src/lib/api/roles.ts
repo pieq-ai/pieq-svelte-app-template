@@ -21,15 +21,15 @@ export async function fetchAllRoles(): Promise<Role[]> {
 }
 
 /** Create a new role. */
-export async function createRole(role_name: string): Promise<Role> {
-  const res = await localApi.post<{ data: Role }>('/api/roles', { role_name });
+export async function createRole(name: string): Promise<Role> {
+  const res = await localApi.post<{ data: Role }>('/api/roles', { name });
   return res.data;
 }
 
 /** Update an existing role. */
 export async function updateRole(
   cuid: string,
-  payload: { role_name?: string; status?: boolean }
+  payload: { name?: string; status?: boolean }
 ): Promise<Role> {
   const res = await localApi.put<{ data: Role }>(`/api/roles/${cuid}`, payload);
   return res.data;

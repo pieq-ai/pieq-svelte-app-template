@@ -79,7 +79,7 @@
   let formLoading = $state(false);
 
   const dirtyChecker = createDirtyChecker<{
-    location_name: string;
+    name: string;
     address_line1: string;
     address_line2: string;
     city: string;
@@ -93,7 +93,7 @@
   let isDirty = $derived(
     showForm &&
     dirtyChecker.isDirty({
-      location_name: formName.trim(),
+      name: formName.trim(),
       address_line1: formAddress1.trim(),
       address_line2: formAddress2.trim(),
       city: formCity.trim(),
@@ -211,7 +211,7 @@
   let filteredLocations = $derived.by(() => {
     let list = locations;
     if (filterStatus !== "all") {
-      list = locations.filter((loc) => loc.is_active === filterStatus);
+      list = locations.filter((loc) => loc.status === filterStatus);
     }
 
     if (filterCountry !== "all") {
@@ -224,7 +224,7 @@
     if (searchQuery.trim() !== "") {
       const query = searchQuery.toLowerCase().trim();
       list = list.filter((loc) => {
-        const locName = (loc.location_name ?? "").toLowerCase();
+        const locName = (loc.name ?? "").toLowerCase();
         const city = (loc.city ?? "").toLowerCase();
         const stateName = getStateName(loc.state_cuid ?? "").toLowerCase();
         const countryName = getCountryName(
@@ -278,10 +278,10 @@
 
   let totalLocations = $derived(locations.length);
   let activeLocationsCount = $derived(
-    locations.filter((loc) => loc.is_active).length
+    locations.filter((loc) => loc.status).length
   );
   let inactiveLocationsCount = $derived(
-    locations.filter((loc) => !loc.is_active).length
+    locations.filter((loc) => !loc.status).length
   );
 
   $effect(() => {
@@ -331,7 +331,7 @@
     timezoneError = "";
     address2Error = "";
     dirtyChecker.snapshot({
-      location_name: "",
+      name: "",
       address_line1: "",
       address_line2: "",
       city: "",
@@ -346,7 +346,7 @@
 
   function openEdit(loc: CompanyLocation) {
     editLocation = loc;
-    formName = loc.location_name;
+    formName = loc.name;
     formAddress1 = loc.address_line1 ?? "";
     formAddress2 = loc.address_line2 ?? "";
     formCity = loc.city ?? "";
@@ -354,7 +354,7 @@
     formStateCuid = loc.state_cuid ?? "";
     formPinCode = loc.pin_code ?? "";
     formTimezone = loc.timezone ?? "UTC";
-    formStatus = loc.is_active;
+    formStatus = loc.status;
     formError = "";
     nameError = "";
     address1Error = "";
@@ -365,7 +365,7 @@
     timezoneError = "";
     address2Error = "";
     dirtyChecker.snapshot({
-      location_name: loc.location_name,
+      name: loc.name,
       address_line1: loc.address_line1 ?? "",
       address_line2: loc.address_line2 ?? "",
       city: loc.city ?? "",
@@ -373,7 +373,7 @@
       country_cuid: loc.country_cuid ?? "",
       pin_code: loc.pin_code ?? "",
       timezone: loc.timezone ?? "UTC",
-      status: loc.is_active
+      status: loc.status
     });
     showForm = true;
   }
@@ -525,7 +525,7 @@
     formError = "";
     try {
       const payload: any = {
-        location_name: nameTrimmed,
+        name: nameTrimmed,
         address_line1: address1Trimmed,
         address_line2: formAddress2 ? formAddress2.trim() : null,
         city: cityTrimmed,
@@ -535,7 +535,7 @@
         timezone: tzTrimmed,
       };
       if (editLocation) {
-        payload.is_active = formStatus;
+        payload.status = formStatus;
         await updateLocation(editLocation.cuid, payload);
       } else {
         await createLocation(payload);
@@ -810,11 +810,11 @@
         <TableHeader class="bg-muted">
           <TableRow>
             <TableHead class="font-bold text-foreground text-[15px]">
-              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('location_name')}>
+              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('name')}>
                 Location Name
-                {#if sortColumn === 'location_name' && sortDirection === 'asc'}
+                {#if sortColumn === 'name' && sortDirection === 'asc'}
                   <ArrowUpIcon class="ml-2 size-4" />
-                {:else if sortColumn === 'location_name' && sortDirection === 'desc'}
+                {:else if sortColumn === 'name' && sortDirection === 'desc'}
                   <ArrowDownIcon class="ml-2 size-4" />
                 {:else}
                   <ArrowUpDownIcon class="ml-2 size-4" />
@@ -894,11 +894,11 @@
               </Button>
             </TableHead>
             <TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
-              <Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('is_active')}>
+              <Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('status')}>
                 Status
-                {#if sortColumn === 'is_active' && sortDirection === 'asc'}
+                {#if sortColumn === 'status' && sortDirection === 'asc'}
                   <ArrowUpIcon class="ml-2 size-4" />
-                {:else if sortColumn === 'is_active' && sortDirection === 'desc'}
+                {:else if sortColumn === 'status' && sortDirection === 'desc'}
                   <ArrowDownIcon class="ml-2 size-4" />
                 {:else}
                   <ArrowUpDownIcon class="ml-2 size-4" />
@@ -932,7 +932,7 @@
                 class="cursor-pointer"
               >
                 <TableCell>
-                  <span class="font-semibold">{loc.location_name}</span>
+                  <span class="font-semibold">{loc.name}</span>
                 </TableCell>
                 <TableCell>
                   {loc.address_line1}{loc.address_line2 ? ", " + loc.address_line2 : ""}
@@ -943,7 +943,7 @@
                 <TableCell>{loc.pin_code}</TableCell>
                 <TableCell>{loc.timezone}</TableCell>
                 <TableCell class="text-center">
-                  <Badge variant={loc.is_active === true ? 'default' : 'secondary'}>{loc.is_active ? 'Active' : 'Inactive'}</Badge>
+                  <Badge variant={loc.status === true ? 'default' : 'secondary'}>{loc.status ? 'Active' : 'Inactive'}</Badge>
                 </TableCell>
                 <TableCell class="text-right">
                   <TableActions
@@ -971,10 +971,10 @@
   {#snippet children({ cancel })}
     <form class="space-y-4" onsubmit={submitForm}>
       <div class="space-y-2">
-        <Label for="location_name">Location Name <span class="text-destructive">*</span></Label>
+        <Label for="name">Location Name <span class="text-destructive">*</span></Label>
         <Input
-          id="location_name"
-          name="location_name"
+          id="name"
+          name="name"
           bind:value={formName}
           class={formError || nameError ? 'border-destructive' : ''}
           placeholder="e.g. Chennai - HQ"

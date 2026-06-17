@@ -3,6 +3,10 @@
 	import { Button } from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
+	import PencilIcon from '@lucide/svelte/icons/pencil';
+	import TrashIcon from '@lucide/svelte/icons/trash-2';
+	import FileTextIcon from '@lucide/svelte/icons/file-text';
+
 	export interface TableAction {
 		label: string;
 		onClick: () => void;
@@ -13,9 +17,45 @@
 
 	interface Props {
 		actions?: TableAction[];
+		customActions?: TableAction[];
+		canView?: boolean;
+		onView?: () => void;
+		viewLabel?: string;
+		canEdit?: boolean;
+		onEdit?: () => void;
+		editLabel?: string;
+		canDelete?: boolean;
+		onDelete?: () => void;
+		deleteLabel?: string;
 	}
 
-	let { actions = [] }: Props = $props();
+	let { 
+		actions = [],
+		customActions = [],
+		canView = false,
+		onView,
+		viewLabel = 'View',
+		canEdit = false,
+		onEdit,
+		editLabel = 'Edit',
+		canDelete = false,
+		onDelete,
+		deleteLabel = 'Delete'
+	}: Props = $props();
+
+	let finalActions = $derived.by(() => {
+		const arr = [...actions, ...customActions];
+		if (canView && onView) {
+			arr.push({ label: viewLabel, onClick: onView, icon: FileTextIcon });
+		}
+		if (canEdit && onEdit) {
+			arr.push({ label: editLabel, onClick: onEdit, icon: PencilIcon });
+		}
+		if (canDelete && onDelete) {
+			arr.push({ label: deleteLabel, onClick: onDelete, icon: TrashIcon, class: 'text-destructive focus:bg-destructive focus:text-destructive-foreground' });
+		}
+		return arr;
+	});
 </script>
 
 <DropdownMenu.Root>
@@ -34,7 +74,7 @@
 	</DropdownMenu.Trigger>
 
 	<DropdownMenu.Content align="end" preventScroll={false}>
-		{#each actions as action}
+		{#each finalActions as action}
 			<DropdownMenu.Item
 				onclick={action.onClick}
 				disabled={action.disabled}

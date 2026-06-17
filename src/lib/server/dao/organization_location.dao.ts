@@ -9,21 +9,21 @@ import type { CompanyLocation, CompanyLocationCreateDTO, CompanyLocationUpdateDT
 export async function createLocation(data: CompanyLocationCreateDTO): Promise<CompanyLocation> {
   return db.companyLocation.create({
     data: {
-      location_name: data.location_name.trim(),
-      address_line1: data.address_line1 !== undefined ? data.address_line1 : '123 Enterprise Way',
+      name: data.name.trim(),
+      address_line1: data.address_line1 !== undefined ? data.address_line1 : '',
       address_line2: data.address_line2,
-      city: data.city !== undefined ? data.city : 'Default City',
-      state_cuid: data.state_cuid !== undefined ? data.state_cuid : 'state-cuid-placeholder',
-      country_cuid: data.country_cuid !== undefined ? data.country_cuid : 'country-cuid-placeholder',
-      pin_code: data.pin_code !== undefined ? data.pin_code : '000000',
+      city: data.city !== undefined ? data.city : '',
+      state_cuid: data.state_cuid !== undefined ? data.state_cuid : '',
+      country_cuid: data.country_cuid !== undefined ? data.country_cuid : '',
+      pin_code: data.pin_code !== undefined ? data.pin_code : '',
       timezone: data.timezone !== undefined ? data.timezone : 'UTC',
-      is_active: true,
+      status: true,
       created_by: data.created_by ?? null,
       updated_by: data.updated_by ?? null
     },
     select: {
       cuid: true,
-      location_name: true,
+      name: true,
       address_line1: true,
       address_line2: true,
       city: true,
@@ -31,7 +31,7 @@ export async function createLocation(data: CompanyLocationCreateDTO): Promise<Co
       country_cuid: true,
       pin_code: true,
       timezone: true,
-      is_active: true,
+      status: true,
       created_by: true,
       updated_by: true,
       created_at: true,
@@ -45,11 +45,11 @@ export async function createLocation(data: CompanyLocationCreateDTO): Promise<Co
  */
 export async function getLocations(): Promise<CompanyLocation[]> {
   return db.companyLocation.findMany({
-    where: { is_active: true },
+    where: { status: true },
     orderBy: { id: 'asc' },
     select: {
       cuid: true,
-      location_name: true,
+      name: true,
       address_line1: true,
       address_line2: true,
       city: true,
@@ -57,7 +57,7 @@ export async function getLocations(): Promise<CompanyLocation[]> {
       country_cuid: true,
       pin_code: true,
       timezone: true,
-      is_active: true,
+      status: true,
       created_by: true,
       updated_by: true,
       created_at: true,
@@ -74,7 +74,7 @@ export async function getAllLocations(): Promise<CompanyLocation[]> {
     orderBy: { id: 'asc' },
     select: {
       cuid: true,
-      location_name: true,
+      name: true,
       address_line1: true,
       address_line2: true,
       city: true,
@@ -82,7 +82,7 @@ export async function getAllLocations(): Promise<CompanyLocation[]> {
       country_cuid: true,
       pin_code: true,
       timezone: true,
-      is_active: true,
+      status: true,
       created_by: true,
       updated_by: true,
       created_at: true,
@@ -102,7 +102,7 @@ export async function countAllLocations(): Promise<number> {
  * Count active locations.
  */
 export async function countLocations(): Promise<number> {
-  return db.companyLocation.count({ where: { is_active: true } });
+  return db.companyLocation.count({ where: { status: true } });
 }
 
 /**
@@ -113,7 +113,7 @@ export async function getLocationByCuid(cuid: string): Promise<CompanyLocation |
     where: { cuid },
     select: {
       cuid: true,
-      location_name: true,
+      name: true,
       address_line1: true,
       address_line2: true,
       city: true,
@@ -121,7 +121,7 @@ export async function getLocationByCuid(cuid: string): Promise<CompanyLocation |
       country_cuid: true,
       pin_code: true,
       timezone: true,
-      is_active: true,
+      status: true,
       created_by: true,
       updated_by: true,
       created_at: true,
@@ -135,8 +135,8 @@ export async function getLocationByCuid(cuid: string): Promise<CompanyLocation |
  */
 export async function updateLocation(cuid: string, data: CompanyLocationUpdateDTO): Promise<CompanyLocation> {
   const updateData: any = {};
-  if (data.location_name !== undefined) {
-    updateData.location_name = data.location_name.trim();
+  if (data.name !== undefined) {
+    updateData.name = data.name.trim();
   }
   if (data.address_line1 !== undefined) {
     updateData.address_line1 = data.address_line1;
@@ -159,8 +159,8 @@ export async function updateLocation(cuid: string, data: CompanyLocationUpdateDT
   if (data.timezone !== undefined) {
     updateData.timezone = data.timezone;
   }
-  if (data.is_active !== undefined) {
-    updateData.is_active = data.is_active;
+  if (data.status !== undefined) {
+    updateData.status = data.status;
   }
   if (data.updated_by !== undefined) {
     updateData.updated_by = data.updated_by;
@@ -171,7 +171,7 @@ export async function updateLocation(cuid: string, data: CompanyLocationUpdateDT
     data: updateData,
     select: {
       cuid: true,
-      location_name: true,
+      name: true,
       address_line1: true,
       address_line2: true,
       city: true,
@@ -179,7 +179,7 @@ export async function updateLocation(cuid: string, data: CompanyLocationUpdateDT
       country_cuid: true,
       pin_code: true,
       timezone: true,
-      is_active: true,
+      status: true,
       created_by: true,
       updated_by: true,
       created_at: true,
@@ -194,10 +194,10 @@ export async function updateLocation(cuid: string, data: CompanyLocationUpdateDT
 export async function deactivateLocation(cuid: string): Promise<CompanyLocation> {
   return db.companyLocation.update({
     where: { cuid },
-    data: { is_active: false },
+    data: { status: false },
     select: {
       cuid: true,
-      location_name: true,
+      name: true,
       address_line1: true,
       address_line2: true,
       city: true,
@@ -205,7 +205,7 @@ export async function deactivateLocation(cuid: string): Promise<CompanyLocation>
       country_cuid: true,
       pin_code: true,
       timezone: true,
-      is_active: true,
+      status: true,
       created_by: true,
       updated_by: true,
       created_at: true,
@@ -220,10 +220,10 @@ export async function deactivateLocation(cuid: string): Promise<CompanyLocation>
 export async function activateLocation(cuid: string): Promise<CompanyLocation> {
   return db.companyLocation.update({
     where: { cuid },
-    data: { is_active: true },
+    data: { status: true },
     select: {
       cuid: true,
-      location_name: true,
+      name: true,
       address_line1: true,
       address_line2: true,
       city: true,
@@ -231,7 +231,7 @@ export async function activateLocation(cuid: string): Promise<CompanyLocation> {
       country_cuid: true,
       pin_code: true,
       timezone: true,
-      is_active: true,
+      status: true,
       created_by: true,
       updated_by: true,
       created_at: true,

@@ -13,9 +13,27 @@
 		class?: string;
 		isError?: boolean;
 		disabled?: boolean;
+		id?: string;
+		name?: string;
+		min?: string;
+		max?: string;
+		required?: boolean;
+		onchange?: () => void;
 	}
 
-	let { value = $bindable(''), placeholder = "DD/MM/YYYY", class: className = "", isError = $bindable(false), disabled = false }: Props = $props();
+	let { 
+		value = $bindable(''), 
+		placeholder = "DD/MM/YYYY", 
+		class: className = "", 
+		isError = $bindable(false), 
+		disabled = false,
+		id,
+		name,
+		min,
+		max,
+		required,
+		onchange
+	}: Props = $props();
 
 	let open = $state(false);
 	let prevValue = $state(value);
@@ -78,6 +96,7 @@
 					prevTextValue = textValue;
 					isError = false;
 					open = false; 
+					if (onchange) onchange();
 				});
 			}
 		}
@@ -155,6 +174,7 @@
 				value = isoString;
 				prevValue = isoString;
 				isError = false;
+				if (onchange) onchange();
 			} catch {
 				// Internal parse failure
 			}
@@ -176,6 +196,7 @@
 			value = ''; // Clear value so required validation catches it
 			prevValue = '';
 			calendarValue = undefined;
+			if (onchange) onchange();
 		} else {
 			textValue = formatDate(isoString);
 			prevTextValue = textValue;
@@ -184,9 +205,14 @@
 </script>
 
 <div class="relative w-full group">
+	{#if name}
+		<input type="hidden" {name} {id} value={value ?? ''} />
+	{/if}
 	<Input
 		type="text"
+		id={name ? undefined : id}
 		{placeholder}
+		{required}
 		bind:value={textValue}
 		oninput={handleInput}
 		onblur={handleBlur}
