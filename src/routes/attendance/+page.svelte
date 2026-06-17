@@ -466,38 +466,117 @@
 		};
 	});
 
+	function parseLocalDate(dateStr: string): Date {
+		const [year, month, day] = dateStr.split('-').map(Number);
+		return new Date(year, month - 1, day);
+	}
+
+	function isInCurrentWeek(dateStr: string, todayStr: string): boolean {
+		const date = parseLocalDate(dateStr);
+		const today = parseLocalDate(todayStr);
+
+		// Find the Monday of today's week
+		const todayDay = today.getDay(); // 0 is Sunday, 1 is Monday, ...
+		const diffToMonday = todayDay === 0 ? -6 : 1 - todayDay;
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
+		const mondayOfTodayWeek = new Date(today);
+		mondayOfTodayWeek.setDate(today.getDate() + diffToMonday);
+		mondayOfTodayWeek.setHours(0, 0, 0, 0);
+
+		// Sunday of today's week
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
+		const sundayOfTodayWeek = new Date(mondayOfTodayWeek);
+		sundayOfTodayWeek.setDate(mondayOfTodayWeek.getDate() + 6);
+		sundayOfTodayWeek.setHours(23, 59, 59, 999);
+
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
+		const recordDate = new Date(date);
+		recordDate.setHours(0, 0, 0, 0);
+
+		return recordDate >= mondayOfTodayWeek && recordDate <= sundayOfTodayWeek;
+	}
+
+	function isInCurrentMonth(dateStr: string, todayStr: string): boolean {
+		const [rYear, rMonth] = dateStr.split('-');
+		const [tYear, tMonth] = todayStr.split('-');
+		return rYear === tYear && rMonth === tMonth;
+	}
+
+	let filterPeriod = $state<'week' | 'month' | 'overall'>('month');
+
+	let filterPeriodLabel = $derived(
+		filterPeriod === 'week' ? 'This Week' : filterPeriod === 'month' ? 'This Month' : 'Overall'
+	);
+
+	const filterPeriodOptions: { value: 'week' | 'month' | 'overall'; label: string }[] = [
+		{ value: 'week', label: 'This Week' },
+		{ value: 'month', label: 'This Month' },
+		{ value: 'overall', label: 'Overall' }
+	];
+
 	let averageWorkingHours = $derived.by(() => {
 		let totalMinutes = 0;
-		let validDaysCount = 0;
+		let totalWorkingDays = 0;
 
 		for (const r of historyRecords) {
 			if (!r.attendance_date) continue;
-			const [yStr, mStr] = r.attendance_date.split('-');
-			const rYear = parseInt(yStr, 10);
-			const rMonth = parseInt(mStr, 10) - 1;
 
-			if (rYear === currentYear && rMonth === currentMonth) {
-				const duration = r.work_duration_minutes;
-				if (duration !== null && duration !== undefined && duration > 0) {
-					const statusObj = getDayStatus(r.attendance_date);
-					if (statusObj) {
-						const status = statusObj.status;
-						if (status === 'Holiday' || status === 'Week Off' || status === 'Leave' || status === 'LOP') {
-							continue;
-						}
-					}
-					totalMinutes += duration;
-					validDaysCount++;
-				}
+			// Ignore future dates
+			if (r.attendance_date > data.todayStr) continue;
+
+			// Apply period filter
+			if (filterPeriod === 'week') {
+				if (!isInCurrentWeek(r.attendance_date, data.todayStr)) continue;
+			} else if (filterPeriod === 'month') {
+				if (!isInCurrentMonth(r.attendance_date, data.todayStr)) continue;
+			}
+
+			// Exclude weekends/week-offs entirely from both hours and days
+			const dateObj = parseLocalDate(r.attendance_date);
+			const dayOfWeek = dateObj.getDay();
+			if (dayOfWeek === 0 || dayOfWeek === 6) {
+				continue;
+			}
+
+			// Exclude holidays from both hours and days
+			const isHoliday = data.holidays.some((h: any) => getISODateString(h.holiday_date) === r.attendance_date);
+			if (isHoliday) {
+				continue;
+			}
+
+			// Exclude leaves and LOPs from both hours and days
+			const status = r.attendance_status;
+			if (status === 'Leave' || status === 'On Leave' || status === 'LOP' || status === 'Absent') {
+				continue;
+			}
+
+			// Ignore attendance entries without a completed check-out
+			if (!r.check_out_time || r.work_duration_minutes === null || r.work_duration_minutes === undefined) {
+				continue;
+			}
+
+			// Count only actual attendance duration from valid weekday attendance records
+			const duration = r.work_duration_minutes;
+			if (duration !== null && duration !== undefined && duration >= 0) {
+				totalMinutes += duration;
+			}
+
+			// Count working days:
+			// Present = 1 day, Half Day = 0.5 day
+			// WFH = 1 day
+			if (status === 'Present' || status === 'Late' || status === 'WFH') {
+				totalWorkingDays += 1;
+			} else if (status === 'Half Day') {
+				totalWorkingDays += 0.5;
 			}
 		}
 
-		if (validDaysCount === 0) return '0 hrs 00 min';
+		if (totalWorkingDays === 0) return '0h 00m';
 
-		const avgMinutes = Math.round(totalMinutes / validDaysCount);
+		const avgMinutes = Math.round(totalMinutes / totalWorkingDays);
 		const hrs = Math.floor(avgMinutes / 60);
 		const mins = avgMinutes % 60;
-		return `${hrs} hrs ${String(mins).padStart(2, '0')} min`;
+		return `${hrs}h ${String(mins).padStart(2, '0')}m`;
 	});
 
 	let attendancePercentage = $derived.by(() => {
@@ -832,24 +911,42 @@
 			</Card>
 		</div>
 
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+		<div>
 			<Card class="bg-card">
 				<CardContent class="p-6 flex items-center justify-between h-full">
-					<div class="space-y-1">
+					<div class="space-y-1.5">
 						<p class="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Average Working Hours</p>
 						<div class="text-3xl font-bold">{averageWorkingHours}</div>
+						<p class="text-xs text-muted-foreground font-medium">Filter: {filterPeriodLabel}</p>
 					</div>
-				</CardContent>
-			</Card>
-
-			<Card class="bg-card">
-				<CardContent class="p-6 flex flex-col justify-center h-full space-y-2">
-					<div class="flex items-center justify-between">
-						<p class="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Attendance Rate</p>
-						<span class="text-sm font-bold text-foreground">{attendancePercentage}%</span>
-					</div>
-					<div class="w-full bg-muted rounded-full h-2.5 overflow-hidden">
-						<div class="bg-[#F45310] h-2.5 rounded-full transition-all duration-300" style="width: {attendancePercentage}%"></div>
+					<div>
+						<DropdownMenu.Root>
+							<DropdownMenu.Trigger>
+								{#snippet child({ props })}
+									<Button variant="outline" class="h-9 justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
+										<span class="truncate pr-1">
+											{filterPeriodLabel}
+										</span>
+										<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
+									</Button>
+								{/snippet}
+							</DropdownMenu.Trigger>
+							<DropdownMenu.Content class="w-36">
+								<DropdownMenu.Group>
+									{#each filterPeriodOptions as opt}
+										<DropdownMenu.Item
+											onclick={() => filterPeriod = opt.value}
+											class="justify-between cursor-pointer {filterPeriod === opt.value ? 'bg-accent text-accent-foreground font-semibold' : ''}"
+										>
+											<span>{opt.label}</span>
+											{#if filterPeriod === opt.value}
+												<CheckIcon class="size-4 shrink-0 text-[#F45310]" />
+											{/if}
+										</DropdownMenu.Item>
+									{/each}
+								</DropdownMenu.Group>
+							</DropdownMenu.Content>
+						</DropdownMenu.Root>
 					</div>
 				</CardContent>
 			</Card>

@@ -29,36 +29,6 @@
     "ast_hash": "2633c24dcf854c6db56cc17131477d65",
     "semantic_hash": ""
   },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20250527000000_add_employees\\migration.sql": {
-    "mtime": 1781427037.4502637,
-    "ast_hash": "53c16411ede4810b7e06724eb853ddf0",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260527113307_employees\\migration.sql": {
-    "mtime": 1781427037.4630723,
-    "ast_hash": "ea440e7cc064e9076e3ed040f2b480d1",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260529142010_init\\migration.sql": {
-    "mtime": 1781427037.4704604,
-    "ast_hash": "f4b970e27977ce7e9d63e84a8824019b",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260608074303_system_roles\\migration.sql": {
-    "mtime": 1781427037.481101,
-    "ast_hash": "527f42fdb3bc4178d6be129d0d82f7fc",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260608111811_add_shift_role_location_table\\migration.sql": {
-    "mtime": 1781427037.4935055,
-    "ast_hash": "30a2b156d8feb12f76c04df71f089189",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260608135544_rename_tables_to_plural\\migration.sql": {
-    "mtime": 1781427037.5046036,
-    "ast_hash": "2c5584c738f6ab31152b3c3222e8510f",
-    "semantic_hash": ""
-  },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\app.d.ts": {
     "mtime": 1781427037.5391986,
     "ast_hash": "6b51286a3b20871b0f928cab02875d04",
@@ -1059,11 +1029,6 @@
     "ast_hash": "12c2651d8e06963a5cb460a534df4d0f",
     "semantic_hash": ""
   },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260609134622_id_to_bigint\\migration.sql": {
-    "mtime": 1781427037.515136,
-    "ast_hash": "c031b790cee0257dc682392038c2042d",
-    "semantic_hash": ""
-  },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\api\\departments\\[cuid]\\+server.ts": {
     "mtime": 1781427038.0985878,
     "ast_hash": "c98d3da19454ceef48518f6f6ff660fd",
@@ -1112,21 +1077,6 @@
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\api\\system-roles\\[cuid]\\+server.ts": {
     "mtime": 1781427038.27694,
     "ast_hash": "85e105510dba1a87acde4d9cf8edba39",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260610064500_rename_role_name\\migration.sql": {
-    "mtime": 1781427037.5235105,
-    "ast_hash": "4164e796d308667fd798af9cc4cf3d03",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260608212008_leave_holiday_tables\\migration.sql": {
-    "mtime": 1781427037.5106542,
-    "ast_hash": "30f6be5baecf96b844caaafc6010c30b",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260609134733_init_bigint\\migration.sql": {
-    "mtime": 1781427037.5235105,
-    "ast_hash": "13ac9772d7c11b77095ff7f9dbf04e29",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\components\\common\\StatusBadge.svelte": {
@@ -1319,11 +1269,6 @@
     "ast_hash": "db0d7938a113af83ef00839b66d8b713",
     "semantic_hash": ""
   },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260614094237_add_attendance_tables\\migration.sql": {
-    "mtime": 1781694812.4437568,
-    "ast_hash": "5dc7da70aace16e231e475601cbbfbcb",
-    "semantic_hash": ""
-  },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\dao\\attendance-record.dao.ts": {
     "mtime": 1781694812.6561635,
     "ast_hash": "1ae010708dfe0d5bca0e10df6eaf0f2a",
@@ -1375,18 +1320,13 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\attendance\\+page.svelte": {
-    "mtime": 1782129747.8703752,
-    "ast_hash": "256dbbd618d909287ec43433460c818b",
+    "mtime": 1781704024.7286506,
+    "ast_hash": "11dc9b8427fd54bcc0a17db2fd5ee460",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\attendance\\+page.ts": {
     "mtime": 1781694813.0277119,
     "ast_hash": "4d9b720b9698584a85305a97a98186de",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260616060019_add_gps_to_attendance\\migration.sql": {
-    "mtime": 1781694812.463001,
-    "ast_hash": "3cb8564f3c99ddad873802049fd00407",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\geofence.ts": {
@@ -1397,16 +1337,6 @@
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\api\\attendance\\[cuid]\\+server.ts": {
     "mtime": 1781694812.8433123,
     "ast_hash": "707f708b14216b15414630d3eb8e9cf6",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260617064005_remove_attendance_gps_accuracy\\migration.sql": {
-    "mtime": 1781694812.4901314,
-    "ast_hash": "9bb7df989a6759080b06733246cd9a9a",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260617080000_standardize_common_column_names\\migration.sql": {
-    "mtime": 1781694812.4986787,
-    "ast_hash": "86929813959ce055a242cdbf37627c88",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\tests\\unit\\attendance-record.api.test.ts": {
@@ -1457,6 +1387,11 @@
   "C:\\Users\\user\\pieq-svelte-app-template\\tests\\unit\\leave-type.api.test.ts": {
     "mtime": 1781694813.3931415,
     "ast_hash": "f6a73516e763fdffb03cc8d04a79eef3",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260617131559_added_hrms_table\\migration.sql": {
+    "mtime": 1781702159.4036632,
+    "ast_hash": "ad3c9a9eda02553947b9d4a54794f9f4",
     "semantic_hash": ""
   }
 }
