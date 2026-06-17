@@ -96,6 +96,120 @@ function calculateFractionalMonths(start: Date, end: Date): number {
 	return totalMonths;
 }
 
+export async function getPayrollCutoffDay(tx?: any): Promise<number> {
+	const client = tx || db;
+	try {
+		const setting = await client.systemSetting.findUnique({
+			where: { key: 'payroll_cutoff_day' }
+		});
+		return setting ? parseInt(setting.value, 10) : 25;
+	} catch {
+		return 25;
+	}
+}
+
+export async function getMonthlyUsedDays(employeeCuid: string, month: number, year: number, leaveCode: 'LOP' | 'LWP', tx?: any) {
+	const client = tx || db;
+	let cycleStart: Date;
+	let cycleEnd: Date;
+
+	if (leaveCode === 'LOP') {
+		const cutoffDay = await getPayrollCutoffDay(client);
+		cycleStart = new Date(year, month - 1, cutoffDay + 1);
+		cycleEnd = new Date(year, month, cutoffDay);
+	} else {
+		cycleStart = new Date(year, month, 1);
+		cycleEnd = new Date(year, month + 1, 0);
+	}
+
+	const requests = await client.leaveRequest.findMany({
+		where: {
+			employee_cuid: employeeCuid,
+			request_status: 'approved',
+			start_date: { lte: cycleEnd },
+			end_date: { gte: cycleStart }
+		}
+	});
+
+	let total = 0;
+	for (const req of requests) {
+		const start = new Date(req.start_date);
+		const end = new Date(req.end_date);
+		const daysFromPrimary = req.days_from_primary ? Number(req.days_from_primary) : 0;
+		const daysFromLwp = req.days_from_lwp ? Number(req.days_from_lwp) : 0;
+		const daysFromLop = req.days_from_lop ? Number(req.days_from_lop) : 0;
+
+		if (req.is_half_day) {
+			const belongsToPeriod = leaveCode === 'LOP'
+				? (start >= cycleStart && start <= cycleEnd)
+				: (start.getMonth() === month && start.getFullYear() === year);
+
+			if (belongsToPeriod) {
+				if (leaveCode === 'LOP') {
+					total += daysFromLop;
+				} else if (leaveCode === 'LWP') {
+					total += daysFromLwp;
+				}
+			}
+			continue;
+		}
+
+		// Cache leaveType lookup outside the date loop to avoid N+1 queries
+		const leaveType = await client.leaveType.findUnique({
+			where: { cuid: req.leave_type_cuid }
+		});
+		const reqLeaveCode = leaveType?.leave_code || '';
+
+		// Build list of working dates for this request
+		const dates: Date[] = [];
+		const curr = new Date(start);
+		while (curr <= end) {
+			dates.push(new Date(curr));
+			curr.setDate(curr.getDate() + 1);
+		}
+
+		const activeDates: Date[] = [];
+		for (const d of dates) {
+			if (reqLeaveCode !== 'ML' && reqLeaveCode !== 'LWP') {
+				if (isWeekend(d) || isHoliday(d)) {
+					continue;
+				}
+			}
+			activeDates.push(d);
+		}
+
+		// Map each active date to its type (primary / LWP / LOP) using the stored split counts.
+		// Convention: primary days come first chronologically, then LWP days, then LOP days.
+		for (let i = 0; i < activeDates.length; i++) {
+			const d = activeDates[i];
+			const belongsToPeriod = leaveCode === 'LOP'
+				? (d >= cycleStart && d <= cycleEnd)
+				: (d.getMonth() === month && d.getFullYear() === year);
+
+			if (belongsToPeriod) {
+				if (reqLeaveCode === 'LWP') {
+					// Pure LWP request: every active day is a LWP day
+					if (leaveCode === 'LWP') total += 1;
+				} else if (reqLeaveCode === 'LOP') {
+					// Pure LOP request: every active day is a LOP day
+					if (leaveCode === 'LOP') total += 1;
+				} else {
+					// Split request: first daysFromPrimary are primary, then LWP, then LOP
+					if (i < daysFromPrimary) {
+						// Primary leave day — not counted for LOP or LWP
+					} else if (i < daysFromPrimary + daysFromLwp) {
+						if (leaveCode === 'LWP') total += 1;
+					} else if (i < daysFromPrimary + daysFromLwp + daysFromLop) {
+						if (leaveCode === 'LOP') total += 1;
+					}
+				}
+			}
+		}
+	}
+
+	return total;
+}
+
 export async function accrueLeaves(employeeCuid: string, year: number) {
 	const activeTypes = await leaveDao.listLeaveTypes();
 	const { employee, employment } = await db.employee.findUnique({
@@ -140,6 +254,10 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 	}
 
 	for (const type of activeTypes) {
+		if (type.leave_code === 'LWP' || type.leave_code === 'LOP') {
+			continue;
+		}
+
 		const policy = await leaveDao.getLeavePolicyByLeaveType(type.cuid);
 		if (!policy) continue;
 
@@ -170,8 +288,6 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 			initialAllocated = employee.gender === 'Female' ? 168.0 : 0.0;
 		} else if (type.leave_code === 'PL') {
 			initialAllocated = employee.gender === 'Male' ? 5.0 : 0.0;
-		} else if (type.leave_code === 'LWP') {
-			initialAllocated = 365.0;
 		}
 
 		const existingBalance = await leaveDao.getLeaveBalance(employeeCuid, type.cuid, year);
@@ -237,6 +353,98 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 	}
 }
 
+export async function getAvailableBalanceForMonth(
+	employeeCuid: string,
+	leaveTypeCuid: string,
+	year: number,
+	targetMonth: number,
+	tx?: any
+) {
+	const client = tx || db;
+	const leaveType = await client.leaveType.findUnique({
+		where: { cuid: leaveTypeCuid }
+	});
+	if (!leaveType) {
+		return 0;
+	}
+
+	const balanceRow = await client.leaveBalance.findUnique({
+		where: {
+			employee_cuid_leave_type_cuid_year: {
+				employee_cuid: employeeCuid,
+				leave_type_cuid: leaveTypeCuid,
+				year
+			}
+		}
+	});
+
+	if (leaveType.leave_code !== 'CL' && leaveType.leave_code !== 'SL') {
+		return balanceRow ? Number(balanceRow.remaining_days) : 0;
+	}
+
+	// Dynamic calculation for CL and SL
+	const employment = await client.employment.findFirst({
+		where: { employee_cuid: employeeCuid }
+	});
+	if (!employment) return 0;
+
+	const joinDate = employment.date_of_joining ? new Date(employment.date_of_joining) : new Date();
+	joinDate.setHours(0, 0, 0, 0);
+
+	const relievingDate = employment.relieving_date ? new Date(employment.relieving_date) : null;
+	if (relievingDate) {
+		relievingDate.setHours(0, 0, 0, 0);
+	}
+
+	const now = new Date();
+	now.setHours(0, 0, 0, 0);
+	const currentYear = now.getFullYear();
+
+	const yearStart = new Date(year, 0, 1);
+
+	let effectiveMonthLimit = targetMonth;
+	if (year === currentYear) {
+		effectiveMonthLimit = Math.min(targetMonth, now.getMonth());
+	} else if (year > currentYear) {
+		effectiveMonthLimit = -1;
+	}
+
+	let accrued = 0;
+	if (effectiveMonthLimit >= 0) {
+		const serviceStart = joinDate > yearStart ? joinDate : yearStart;
+		const accrualEnd = new Date(year, effectiveMonthLimit + 1, 0);
+		const serviceEnd = relievingDate && relievingDate < accrualEnd ? relievingDate : accrualEnd;
+
+		if (serviceStart <= serviceEnd) {
+			const monthsAccrued = calculateFractionalMonths(serviceStart, serviceEnd);
+			accrued = Math.min(6.0, monthsAccrued * 0.5);
+		}
+	}
+
+	const carriedForward = balanceRow ? Number(balanceRow.carried_forward_days) : 0.0;
+	const totalAccrued = accrued + carriedForward;
+
+	// Sum actual CL/SL days deducted from balance up to targetMonth
+	const approvedRequests = await client.leaveRequest.findMany({
+		where: {
+			employee_cuid: employeeCuid,
+			leave_type_cuid: leaveTypeCuid,
+			request_status: 'approved',
+			start_date: {
+				gte: new Date(year, 0, 1),
+				lte: new Date(year, targetMonth + 1, 0)
+			}
+		}
+	});
+
+	const usedUpToMonth = approvedRequests.reduce(
+		(sum: number, req: any) => sum + (req.days_from_primary ? Number(req.days_from_primary) : 0),
+		0
+	);
+
+	return Math.max(0.0, totalAccrued - usedUpToMonth);
+}
+
 export async function getEmployeeLeaveDetails(email: string, year: number) {
 	const { employee, employment } = await resolveEmployee(email);
 	if (!employee) {
@@ -251,20 +459,117 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 	const activeTypes = await leaveDao.listLeaveTypes();
 	const activePolicies = await leaveDao.listLeavePolicies();
 
-	// Join types and request categories
-	const joinedBalances = balances.map((b) => {
+	// Dynamically calculate and append monthly LOP and LWP balances
+	const now = new Date();
+	const targetMonth = year === now.getFullYear() ? now.getMonth() : (year < now.getFullYear() ? 11 : 0);
+	const targetYear = year;
+
+	// Join types and request categories, filtering out LOP/LWP database rows
+	const filteredBalances = balances.filter((b) => {
 		const type = activeTypes.find((t) => t.cuid === b.leave_type_cuid);
-		return {
+		return type?.leave_code !== 'LOP' && type?.leave_code !== 'LWP';
+	});
+
+	const joinedBalances = [];
+	for (const b of filteredBalances) {
+		const type = activeTypes.find((t) => t.cuid === b.leave_type_cuid);
+		const leaveCode = type?.leave_code ?? 'N/A';
+
+		let allocated = Number(b.allocated_days);
+		let used = Number(b.used_days);
+		let remaining = Number(b.remaining_days);
+
+		if (leaveCode === 'CL' || leaveCode === 'SL') {
+			remaining = await getAvailableBalanceForMonth(employee.cuid, b.leave_type_cuid, targetYear, targetMonth);
+			
+			// Recalculate allocated (accrued) days up to targetMonth
+			const joinDate = employment?.date_of_joining ? new Date(employment.date_of_joining) : new Date();
+			joinDate.setHours(0, 0, 0, 0);
+			const yearStart = new Date(targetYear, 0, 1);
+
+			let effectiveMonthLimit = targetMonth;
+			if (targetYear === now.getFullYear()) {
+				effectiveMonthLimit = Math.min(targetMonth, now.getMonth());
+			} else if (targetYear > now.getFullYear()) {
+				effectiveMonthLimit = -1;
+			}
+
+			let accrued = 0;
+			if (effectiveMonthLimit >= 0) {
+				const serviceStart = joinDate > yearStart ? joinDate : yearStart;
+				const accrualEnd = new Date(targetYear, effectiveMonthLimit + 1, 0);
+				const serviceEnd = employment?.relieving_date && new Date(employment.relieving_date) < accrualEnd ? new Date(employment.relieving_date) : accrualEnd;
+				if (serviceStart <= serviceEnd) {
+					const monthsAccrued = calculateFractionalMonths(serviceStart, serviceEnd);
+					accrued = Math.min(6.0, monthsAccrued * 0.5);
+				}
+			}
+			const carriedForward = Number(b.carried_forward_days) || 0.0;
+			allocated = accrued + carriedForward;
+
+			// used up to targetMonth
+			const approvedRequests = await db.leaveRequest.findMany({
+				where: {
+					employee_cuid: employee.cuid,
+					leave_type_cuid: b.leave_type_cuid,
+					request_status: 'approved',
+					start_date: {
+						gte: new Date(targetYear, 0, 1),
+						lte: new Date(targetYear, targetMonth + 1, 0)
+					}
+				}
+			});
+			used = approvedRequests.reduce(
+				(sum, req) => sum + (req.days_from_primary ? Number(req.days_from_primary) : 0),
+				0
+			);
+		}
+
+		joinedBalances.push({
 			cuid: b.cuid,
 			leave_type_cuid: b.leave_type_cuid,
 			leave_name: type?.leave_name ?? 'Unknown',
-			leave_code: type?.leave_code ?? 'N/A',
-			allocated_days: Number(b.allocated_days),
-			used_days: Number(b.used_days),
-			remaining_days: Number(b.remaining_days),
+			leave_code: leaveCode,
+			allocated_days: allocated,
+			used_days: used,
+			remaining_days: remaining,
 			carried_forward_days: Number(b.carried_forward_days)
-		};
-	});
+		});
+	}
+
+	const lopUsed = await getMonthlyUsedDays(employee.cuid, targetMonth, targetYear, 'LOP');
+	const lwpUsed = await getMonthlyUsedDays(employee.cuid, targetMonth, targetYear, 'LWP');
+
+	const lopType = activeTypes.find((t) => t.leave_code === 'LOP');
+	const lwpType = activeTypes.find((t) => t.leave_code === 'LWP');
+
+	if (lopType) {
+		joinedBalances.push({
+			cuid: `mock-lop-${employee.cuid}`,
+			leave_type_cuid: lopType.cuid,
+			leave_name: lopType.leave_name,
+			leave_code: 'LOP',
+			allocated_days: 0.0,
+			used_days: lopUsed,
+			remaining_days: 0.0,
+			carried_forward_days: 0.0
+		});
+	}
+
+	if (lwpType) {
+		const lwpPolicy = activePolicies.find((p) => p.leave_type_cuid === lwpType.cuid);
+		const lwpAllocated = lwpPolicy ? Number(lwpPolicy.annual_limit) : 365.0;
+		joinedBalances.push({
+			cuid: `mock-lwp-${employee.cuid}`,
+			leave_type_cuid: lwpType.cuid,
+			leave_name: lwpType.leave_name,
+			leave_code: 'LWP',
+			allocated_days: lwpAllocated,
+			used_days: lwpUsed,
+			remaining_days: Math.max(0.0, lwpAllocated - lwpUsed),
+			carried_forward_days: 0.0
+		});
+	}
 
 	const joinedRequests = requests.map((r) => {
 		const type = activeTypes.find((t) => t.cuid === r.leave_type_cuid);
@@ -318,6 +623,8 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 		pendingApprovals = await getPendingApprovalsForManager(employee.cuid);
 	}
 
+	const payrollCutoffDay = await getPayrollCutoffDay();
+
 	return {
 		employee: {
 			cuid: employee.cuid,
@@ -325,13 +632,15 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 			first_name: employee.first_name,
 			last_name: employee.last_name,
 			gender: employee.gender,
-			date_of_joining: employment?.date_of_joining ?? null
+			date_of_joining: employment?.date_of_joining ?? null,
+			relieving_date: employment?.relieving_date ?? null
 		},
 		balances: joinedBalances,
 		requests: joinedRequests,
 		leaveTypes: joinedLeaveTypes,
 		isManager,
-		pendingApprovals
+		pendingApprovals,
+		payrollCutoffDay
 	};
 }
 
@@ -483,6 +792,28 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 		relievingDate.setHours(0, 0, 0, 0);
 	}
 
+	// CL/SL month validations
+	if (leaveType.leave_code === 'CL' || leaveType.leave_code === 'SL') {
+		const now = new Date();
+		const currentYear = now.getFullYear();
+		const currentMonth = now.getMonth();
+
+		const startYear = startDate.getFullYear();
+		const startMonth = startDate.getMonth();
+		const endYear = endDate.getFullYear();
+		const endMonth = endDate.getMonth();
+
+		const isStartFuture = startYear > currentYear || (startYear === currentYear && startMonth > currentMonth);
+		const isEndFuture = endYear > currentYear || (endYear === currentYear && endMonth > currentMonth);
+		if (isStartFuture || isEndFuture) {
+			throw new ValidationError('startDate', 'Casual Leave (CL) and Sick Leave (SL) cannot be applied for future months.');
+		}
+
+		if (startYear !== endYear || startMonth !== endMonth) {
+			throw new ValidationError('endDate', 'Casual Leave (CL) and Sick Leave (SL) requests cannot span multiple months.');
+		}
+	}
+
 	// CL specific validations
 	if (leaveType.leave_code === 'CL') {
 		if (totalDays > 2) {
@@ -617,7 +948,10 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 		}
 	}
 
-	// 6. Leave Balance and LWP Split calculations
+	// 6. Leave Balance and LOP Split calculations
+	// Rule: For LWP requests, all days are explicitly LWP.
+	// For ALL other leave types (CL, SL, EL, ML, PL ...), any days that exceed the
+	// available balance are automatically treated as Loss of Pay (LOP), never as LWP.
 	const targetYear = startDate.getFullYear();
 	await accrueLeaves(employee.cuid, targetYear);
 	const balance = await leaveDao.getLeaveBalance(employee.cuid, leaveType.cuid, targetYear);
@@ -627,34 +961,42 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 	let daysFromLop = 0;
 
 	if (leaveType.leave_code === 'LWP') {
+		// Explicit LWP request: employee chose to apply LWP directly
 		daysFromPrimary = 0.0;
 		daysFromLwp = totalDays;
-	} else if (leaveType.leave_code === 'CL' || leaveType.leave_code === 'SL') {
-		const remainingBalance = balance ? Number(balance.remaining_days) : 0;
+	} else {
+		// All other leave types: available balance first, excess → LOP
+		let remainingBalance = 0;
+		if (leaveType.leave_code === 'CL' || leaveType.leave_code === 'SL') {
+			const targetMonth = startDate.getMonth();
+			remainingBalance = await getAvailableBalanceForMonth(employee.cuid, leaveType.cuid, targetYear, targetMonth);
+		} else {
+			remainingBalance = balance ? Number(balance.remaining_days) : 0;
+		}
+
 		if (totalDays > remainingBalance) {
 			daysFromPrimary = Math.max(0, remainingBalance);
 			daysFromLop = totalDays - daysFromPrimary;
 		}
-	} else {
-		const remainingBalance = balance ? Number(balance.remaining_days) : 0;
-		if (totalDays > remainingBalance) {
-			daysFromPrimary = Math.max(0, remainingBalance);
-			daysFromLwp = totalDays - daysFromPrimary;
+	}
 
-			// Verify LWP balance
-			const lwpType = await db.leaveType.findFirst({ where: { leave_code: 'LWP' } });
-			if (!lwpType) {
-				throw new Error('LWP Leave Type not configured.');
-			}
-			let lwpBalance = await leaveDao.getLeaveBalance(employee.cuid, lwpType.cuid, targetYear);
-			if (!lwpBalance) {
-				await accrueLeaves(employee.cuid, targetYear);
-				lwpBalance = await leaveDao.getLeaveBalance(employee.cuid, lwpType.cuid, targetYear);
-			}
-			const lwpRemaining = lwpBalance ? Number(lwpBalance.remaining_days) : 0;
-			if (daysFromLwp > lwpRemaining) {
-				throw new ValidationError('leaveTypeCuid', `Requested leave exceeds available balance. Split requires ${daysFromLwp} LWP days, but you only have ${lwpRemaining} LWP days left.`);
-			}
+	// Monthly LWP cap check — only applies when the employee explicitly applies for LWP
+	if (leaveType.leave_code === 'LWP' && daysFromLwp > 0) {
+		const lwpType = await db.leaveType.findFirst({ where: { leave_code: 'LWP' } });
+		if (!lwpType) {
+			throw new Error('LWP Leave Type not configured.');
+		}
+		const lwpPolicy = await leaveDao.getLeavePolicyByLeaveType(lwpType.cuid);
+		const lwpAllocated = lwpPolicy ? Number(lwpPolicy.annual_limit) : 365.0;
+
+		const targetMonth = startDate.getMonth();
+		const targetYearForLwp = startDate.getFullYear();
+
+		const lwpUsed = await getMonthlyUsedDays(employee.cuid, targetMonth, targetYearForLwp, 'LWP');
+		const lwpRemaining = Math.max(0.0, lwpAllocated - lwpUsed);
+
+		if (daysFromLwp > lwpRemaining) {
+			throw new ValidationError('leaveTypeCuid', `Requested leave exceeds available balance. You can only take ${lwpRemaining} LWP day(s) this month (${daysFromLwp - lwpRemaining} day(s) would exceed the monthly cap).`);
 		}
 	}
 
@@ -779,17 +1121,25 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 		// Recheck leave balance sufficiency
 		const year = request.start_date.getFullYear();
 		if (request.days_from_primary && Number(request.days_from_primary) > 0) {
-			const primaryBalance = await tx.leaveBalance.findUnique({
-				where: {
-					employee_cuid_leave_type_cuid_year: {
-						employee_cuid: request.employee_cuid,
-						leave_type_cuid: request.leave_type_cuid,
-						year
+			let remainingBalance = 0;
+			if (leaveType.leave_code === 'CL' || leaveType.leave_code === 'SL') {
+				const targetMonth = request.start_date.getMonth();
+				remainingBalance = await getAvailableBalanceForMonth(request.employee_cuid, request.leave_type_cuid, year, targetMonth, tx);
+			} else {
+				const primaryBalance = await tx.leaveBalance.findUnique({
+					where: {
+						employee_cuid_leave_type_cuid_year: {
+							employee_cuid: request.employee_cuid,
+							leave_type_cuid: request.leave_type_cuid,
+							year
+						}
 					}
-				}
-			});
-			if (!primaryBalance || Number(primaryBalance.remaining_days) < Number(request.days_from_primary)) {
-				throw new Error(`Insufficient leave balance. Available: ${primaryBalance ? Number(primaryBalance.remaining_days) : 0} days. Required: ${Number(request.days_from_primary)} days.`);
+				});
+				remainingBalance = primaryBalance ? Number(primaryBalance.remaining_days) : 0;
+			}
+
+			if (remainingBalance < Number(request.days_from_primary)) {
+				throw new Error(`Insufficient leave balance. Available: ${remainingBalance} days. Required: ${Number(request.days_from_primary)} days.`);
 			}
 		}
 
@@ -798,17 +1148,17 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 			if (!lwpType) {
 				throw new Error('LWP Leave Type not configured.');
 			}
-			const lwpBalance = await tx.leaveBalance.findUnique({
-				where: {
-					employee_cuid_leave_type_cuid_year: {
-						employee_cuid: request.employee_cuid,
-						leave_type_cuid: lwpType.cuid,
-						year
-					}
-				}
-			});
-			if (!lwpBalance || Number(lwpBalance.remaining_days) < Number(request.days_from_lwp)) {
-				throw new Error(`Insufficient LWP balance. Available: ${lwpBalance ? Number(lwpBalance.remaining_days) : 0} days. Required: ${Number(request.days_from_lwp)} days.`);
+			const lwpPolicy = await tx.leavePolicy.findFirst({ where: { leave_type_cuid: lwpType.cuid, status: true } });
+			const lwpAllocated = lwpPolicy ? Number(lwpPolicy.annual_limit) : 365.0;
+
+			const targetMonth = request.start_date.getMonth();
+			const targetYearForLwp = request.start_date.getFullYear();
+
+			const lwpUsed = await getMonthlyUsedDays(request.employee_cuid, targetMonth, targetYearForLwp, 'LWP', tx);
+			const lwpRemaining = Math.max(0.0, lwpAllocated - lwpUsed);
+
+			if (lwpRemaining < Number(request.days_from_lwp)) {
+				throw new Error(`Insufficient LWP balance. Available: ${lwpRemaining} days. Required: ${Number(request.days_from_lwp)} days.`);
 			}
 		}
 
@@ -845,67 +1195,6 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 			}
 		}
 
-		if (request.days_from_lwp && Number(request.days_from_lwp) > 0) {
-			const lwpType = await tx.leaveType.findFirst({ where: { leave_code: 'LWP' } });
-			if (lwpType) {
-				const lwpBalance = await tx.leaveBalance.findUnique({
-					where: {
-						employee_cuid_leave_type_cuid_year: {
-							employee_cuid: request.employee_cuid,
-							leave_type_cuid: lwpType.cuid,
-							year
-						}
-					}
-				});
-				if (lwpBalance) {
-					await tx.leaveBalance.update({
-						where: { cuid: lwpBalance.cuid },
-						data: {
-							used_days: { increment: request.days_from_lwp },
-							remaining_days: { decrement: request.days_from_lwp }
-						}
-					});
-				}
-			}
-		}
-
-		if (request.days_from_lop && Number(request.days_from_lop) > 0) {
-			const lopType = await tx.leaveType.findFirst({ where: { leave_code: 'LOP' } });
-			if (lopType) {
-				const lopBalance = await tx.leaveBalance.findUnique({
-					where: {
-						employee_cuid_leave_type_cuid_year: {
-							employee_cuid: request.employee_cuid,
-							leave_type_cuid: lopType.cuid,
-							year
-						}
-					}
-				});
-				if (lopBalance) {
-					await tx.leaveBalance.update({
-						where: { cuid: lopBalance.cuid },
-						data: {
-							used_days: { increment: request.days_from_lop }
-						}
-					});
-				} else {
-					await tx.leaveBalance.create({
-						data: {
-							employee_cuid: request.employee_cuid,
-							leave_type_cuid: lopType.cuid,
-							year,
-							allocated_days: 0.0,
-							used_days: request.days_from_lop,
-							remaining_days: 0.0,
-							carried_forward_days: 0.0,
-							created_by: approverUserCuid,
-							updated_by: approverUserCuid
-						}
-					});
-				}
-			}
-		}
-
 		// 3. Create/update Attendance Records
 		const start = new Date(request.start_date);
 		const end = new Date(request.end_date);
@@ -918,6 +1207,14 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 		}
 
 		const attendanceStatus = request.is_half_day ? 'HalfDay' : 'Absent';
+
+		// Build split remark suffix if this request contains LOP or LWP split days
+		const lopDays = request.days_from_lop ? Number(request.days_from_lop) : 0;
+		const lwpSplitDays = request.days_from_lwp ? Number(request.days_from_lwp) : 0;
+		let splitSuffix = '';
+		if (lopDays > 0) splitSuffix = ` (incl. ${lopDays} LOP day${lopDays !== 1 ? 's' : ''})`;
+		else if (lwpSplitDays > 0 && leaveType.leave_code !== 'LWP') splitSuffix = ` (incl. ${lwpSplitDays} LWP day${lwpSplitDays !== 1 ? 's' : ''})`;
+		const attendanceRemark = `Approved Leave: ${leaveType.leave_name}${splitSuffix}`;
 
 		for (const d of dates) {
 			const code = leaveType.leave_code.toUpperCase();
@@ -954,13 +1251,13 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 					employee_cuid: request.employee_cuid,
 					attendance_date: d,
 					attendance_status: attendanceStatus,
-					remarks: `Approved Leave: ${leaveType.leave_name}`,
+					remarks: attendanceRemark,
 					created_by: approverUserCuid,
 					updated_by: approverUserCuid
 				},
 				update: {
 					attendance_status: attendanceStatus,
-					remarks: `Approved Leave: ${leaveType.leave_name}`,
+					remarks: attendanceRemark,
 					updated_by: approverUserCuid
 				}
 			});

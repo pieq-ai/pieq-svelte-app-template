@@ -99,6 +99,7 @@
 		last_name: string;
 		gender: string | null;
 		date_of_joining: string | null;
+		relieving_date: string | null;
 	}
 
 	// State
@@ -108,6 +109,10 @@
 	let employee = $state<Employee | null>(null);
 	let isLoading = $state(true);
 	let isSubmitting = $state(false);
+
+	let payrollCutoffDay = $state(25);
+	let selectedCutoff = $state(25);
+	let isSavingCutoff = $state(false);
 
 	let isManager = $state(false);
 	let pendingApprovals = $state<any[]>([]);
@@ -152,6 +157,143 @@
 	};
 	const todayLocalStr = $derived(getTodayLocalString());
 
+	const PUBLIC_HOLIDAYS_2026 = [
+		'2026-01-01', // New Year's Day
+		'2026-01-26', // Republic Day
+		'2026-04-03', // Good Friday
+		'2026-05-01', // May Day
+		'2026-08-15', // Independence Day
+		'2026-10-02', // Gandhi Jayanti
+		'2026-12-25'  // Christmas
+	];
+
+	function isWeekendUI(d: Date): boolean {
+		const day = d.getDay();
+		return day === 0 || day === 6;
+	}
+
+	function isHolidayUI(d: Date): boolean {
+		const yyyy = d.getFullYear();
+		const mm = String(d.getMonth() + 1).padStart(2, '0');
+		const dd = String(d.getDate()).padStart(2, '0');
+		const dateStr = `${yyyy}-${mm}-${dd}`;
+		return PUBLIC_HOLIDAYS_2026.includes(dateStr);
+	}
+
+	function getPayrollCycleForDate(d: Date, cutoff: number): string {
+		const dateVal = d.getDate();
+		let month = d.getMonth();
+		let year = d.getFullYear();
+
+		if (dateVal > cutoff) {
+			month += 1;
+			if (month > 11) {
+				month = 0;
+				year += 1;
+			}
+		}
+
+		const monthNames = [
+			'January', 'February', 'March', 'April', 'May', 'June',
+			'July', 'August', 'September', 'October', 'November', 'December'
+		];
+		return `${monthNames[month]} ${year} Payroll`;
+	}
+
+	let leaveImpactBreakdown = $derived.by(() => {
+		if (!formLeaveTypeCuid || !formStartDate) return null;
+		const start = new Date(formStartDate + 'T00:00:00');
+		const code = selectedLeaveType?.leave_code || '';
+
+		if (formIsHalfDay) {
+			const activeDates = [new Date(start)];
+			const totalActive = 0.5;
+			const remaining = getAvailableBalanceForMonth(formLeaveTypeCuid, code, formStartDate);
+
+			let primaryDays = 0.5;
+			let lopDays = 0;
+			let lwpDays = 0;
+
+			if (code === 'LWP') {
+				primaryDays = 0;
+				lwpDays = 0.5;
+			} else {
+				if (0.5 > remaining) {
+					primaryDays = 0;
+					lopDays = 0.5;
+				}
+			}
+
+			const cyclesBreakdown: Record<string, number> = {};
+			if (lopDays > 0) {
+				const cycle = getPayrollCycleForDate(activeDates[0], payrollCutoffDay);
+				cyclesBreakdown[cycle] = 0.5;
+			}
+
+			return {
+				totalActive,
+				primaryDays,
+				lopDays,
+				lwpDays,
+				cyclesBreakdown: Object.entries(cyclesBreakdown).map(([cycle, days]) => ({ cycle, days }))
+			};
+		}
+
+		if (!formEndDate) return null;
+		const end = new Date(formEndDate + 'T00:00:00');
+		if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) return null;
+
+		// Collect active dates
+		const activeDates: Date[] = [];
+		const curr = new Date(start);
+		while (curr <= end) {
+			if (code === 'ML' || code === 'LWP') {
+				activeDates.push(new Date(curr));
+			} else {
+				if (!isWeekendUI(curr) && !isHolidayUI(curr)) {
+					activeDates.push(new Date(curr));
+				}
+			}
+			curr.setDate(curr.getDate() + 1);
+		}
+
+		const totalActive = activeDates.length;
+		const remaining = getAvailableBalanceForMonth(formLeaveTypeCuid, code, formStartDate);
+
+		let primaryDays = totalActive;
+		let lopDays = 0;
+		let lwpDays = 0;
+
+		if (code === 'LWP') {
+			primaryDays = 0;
+			lwpDays = totalActive;
+		} else {
+			if (totalActive > remaining) {
+				primaryDays = Math.max(0, remaining);
+				lopDays = totalActive - primaryDays;
+			}
+		}
+
+		const cyclesBreakdown: Record<string, number> = {};
+		for (let i = 0; i < activeDates.length; i++) {
+			if (i >= primaryDays) {
+				if (code !== 'LWP') {
+					const cycle = getPayrollCycleForDate(activeDates[i], payrollCutoffDay);
+					cyclesBreakdown[cycle] = (cyclesBreakdown[cycle] || 0) + 1;
+				}
+			}
+		}
+
+		return {
+			totalActive,
+			primaryDays,
+			lopDays,
+			lwpDays,
+			cyclesBreakdown: Object.entries(cyclesBreakdown).map(([cycle, days]) => ({ cycle, days }))
+		};
+	});
+
+
 	// History Filters & Sorting
 	let searchQuery = $state('');
 	let statusFilter = $state<string>('all');
@@ -193,12 +335,38 @@
 				employee = res.data.employee || null;
 				isManager = res.data.isManager || false;
 				pendingApprovals = res.data.pendingApprovals || [];
+				payrollCutoffDay = res.data.payrollCutoffDay ?? 25;
+				selectedCutoff = payrollCutoffDay;
 			}
 		} catch (err: any) {
 			toast.error(err.message || 'Failed to load leave details.');
 			console.error(err);
 		} finally {
 			isLoading = false;
+		}
+	}
+
+	async function saveCutoffDay() {
+		isSavingCutoff = true;
+		try {
+			const res = await fetch('/api/leaves/settings', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ payrollCutoffDay: selectedCutoff })
+			});
+			const data = await res.json();
+			if (!res.ok) {
+				throw new Error(data.error || 'Failed to update cutoff setting');
+			}
+			payrollCutoffDay = data.data.payrollCutoffDay;
+			selectedCutoff = payrollCutoffDay;
+			toast.success(`Payroll cutoff day updated to ${payrollCutoffDay}th successfully.`);
+			await loadDetails();
+		} catch (err: any) {
+			toast.error(err.message || 'Failed to update cutoff setting.');
+			console.error(err);
+		} finally {
+			isSavingCutoff = false;
 		}
 	}
 
@@ -350,6 +518,38 @@
 		return Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
 	});
 
+	let start_date_max = $derived.by(() => {
+		if (selectedLeaveType?.leave_code === 'CL' || selectedLeaveType?.leave_code === 'SL') {
+			const d = new Date();
+			const year = d.getFullYear();
+			const month = d.getMonth();
+			const lastDay = new Date(year, month + 1, 0).getDate();
+			const monthStr = String(month + 1).padStart(2, '0');
+			return `${year}-${monthStr}-${lastDay}`;
+		}
+		return '';
+	});
+
+	let end_date_max = $derived.by(() => {
+		if (selectedLeaveType?.leave_code === 'CL' || selectedLeaveType?.leave_code === 'SL') {
+			if (formStartDate) {
+				const start = new Date(formStartDate + 'T00:00:00');
+				const year = start.getFullYear();
+				const month = start.getMonth();
+				const lastDay = new Date(year, month + 1, 0).getDate();
+				const monthStr = String(month + 1).padStart(2, '0');
+				return `${year}-${monthStr}-${lastDay}`;
+			}
+			const d = new Date();
+			const year = d.getFullYear();
+			const month = d.getMonth();
+			const lastDay = new Date(year, month + 1, 0).getDate();
+			const monthStr = String(month + 1).padStart(2, '0');
+			return `${year}-${monthStr}-${lastDay}`;
+		}
+		return '';
+	});
+
 	// Check if document is required for selected leave duration
 	let isDocRequired = $derived.by(() => {
 		if (!selectedLeaveType || !selectedLeaveType.policy) return false;
@@ -358,6 +558,113 @@
 		const reqAfter = p.document_required_after_days ?? 0;
 		return computedDuration >= reqAfter;
 	});
+
+	function getDaysInMonth(year: number, month: number): number {
+		return new Date(year, month + 1, 0).getDate();
+	}
+
+	function calculateFractionalMonths(start: Date, end: Date): number {
+		if (start > end) return 0;
+
+		let totalMonths = 0;
+		let current = new Date(start);
+
+		while (current <= end) {
+			const year = current.getFullYear();
+			const month = current.getMonth();
+
+			const startOfMonth = new Date(year, month, 1);
+			const endOfMonth = new Date(year, month + 1, 0);
+
+			const activeStart = current > startOfMonth ? current : startOfMonth;
+			const activeEnd = end < endOfMonth ? end : endOfMonth;
+
+			activeStart.setHours(0, 0, 0, 0);
+			activeEnd.setHours(0, 0, 0, 0);
+
+			const activeDays = Math.ceil((activeEnd.getTime() - activeStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+			const monthDays = getDaysInMonth(year, month);
+
+			totalMonths += activeDays / monthDays;
+
+			current = new Date(year, month + 1, 1);
+		}
+
+		return totalMonths;
+	}
+
+	function getAvailableBalanceForMonth(
+		leaveTypeCuid: string,
+		leaveCode: string,
+		startDateStr: string
+	): number {
+		const balance = balances.find((b) => b.leave_type_cuid === leaveTypeCuid);
+		if (!balance) return 0;
+
+		if (leaveCode !== 'CL' && leaveCode !== 'SL') {
+			return balance.remaining_days;
+		}
+
+		if (!employee || !employee.date_of_joining || !startDateStr) return 0;
+
+		const requestDate = new Date(startDateStr);
+		if (isNaN(requestDate.getTime())) return 0;
+
+		const targetYear = requestDate.getFullYear();
+		const targetMonth = requestDate.getMonth();
+
+		const joinDate = new Date(employee.date_of_joining);
+		joinDate.setHours(0, 0, 0, 0);
+
+		const relievingDate = employee.relieving_date ? new Date(employee.relieving_date) : null;
+		if (relievingDate) {
+			relievingDate.setHours(0, 0, 0, 0);
+		}
+
+		const now = new Date();
+		now.setHours(0, 0, 0, 0);
+		const currentYear = now.getFullYear();
+
+		const yearStart = new Date(targetYear, 0, 1);
+
+		let effectiveMonthLimit = targetMonth;
+		if (targetYear === currentYear) {
+			effectiveMonthLimit = Math.min(targetMonth, now.getMonth());
+		} else if (targetYear > currentYear) {
+			effectiveMonthLimit = -1;
+		}
+
+		let accrued = 0;
+		if (effectiveMonthLimit >= 0) {
+			const serviceStart = joinDate > yearStart ? joinDate : yearStart;
+			const accrualEnd = new Date(targetYear, effectiveMonthLimit + 1, 0);
+			const serviceEnd = relievingDate && relievingDate < accrualEnd ? relievingDate : accrualEnd;
+
+			if (serviceStart <= serviceEnd) {
+				const monthsAccrued = calculateFractionalMonths(serviceStart, serviceEnd);
+				accrued = Math.min(6.0, monthsAccrued * 0.5);
+			}
+		}
+
+		const carriedForward = balance.carried_forward_days || 0;
+		const totalAccrued = accrued + carriedForward;
+
+		// Sum actual CL/SL days deducted from balance up to targetMonth
+		const targetMonthEnd = new Date(targetYear, targetMonth + 1, 0);
+		const yearStartGte = new Date(targetYear, 0, 1);
+
+		const usedUpToMonth = requests
+			.filter((r) => {
+				if (r.leave_code !== leaveCode || r.request_status !== 'approved') {
+					return false;
+				}
+				const rStart = new Date(r.start_date);
+				return rStart >= yearStartGte && rStart <= targetMonthEnd;
+			})
+			.reduce((sum, r) => sum + (r.days_from_primary || 0), 0);
+
+		return Math.max(0.0, totalAccrued - usedUpToMonth);
+	}
 
 	// Client-side validations
 	function validateForm(): boolean {
@@ -370,13 +677,6 @@
 
 		if (!formStartDate) {
 			errors.startDate = 'Start date is required';
-		} else {
-			const startLocal = new Date(formStartDate + 'T00:00:00');
-			const today = new Date();
-			today.setHours(0, 0, 0, 0);
-			if (startLocal < today) {
-				errors.startDate = 'Start date cannot be in the past';
-			}
 		}
 
 		if (!formIsHalfDay && !formEndDate) {
@@ -441,6 +741,37 @@
 		if (selectedLeaveType?.leave_code === 'CL') {
 			if (computedDuration > 2) {
 				errors.leaveTypeCuid = 'Maximum 2 days can be applied in a single Casual Leave request. For longer leaves, please apply using Sick Leave (SL) or Earned Leave (EL) instead.';
+			}
+		}
+
+		// CL/SL month validations
+		if (selectedLeaveType?.leave_code === 'CL' || selectedLeaveType?.leave_code === 'SL') {
+			const now = new Date();
+			const currentYear = now.getFullYear();
+			const currentMonth = now.getMonth();
+
+			if (formStartDate) {
+				const start = new Date(formStartDate + 'T00:00:00');
+				const isStartFuture = start.getFullYear() > currentYear || (start.getFullYear() === currentYear && start.getMonth() > currentMonth);
+				if (isStartFuture) {
+					errors.startDate = 'Casual Leave (CL) and Sick Leave (SL) cannot be applied for future months';
+				}
+			}
+
+			if (formEndDate && !formIsHalfDay) {
+				const end = new Date(formEndDate + 'T00:00:00');
+				const isEndFuture = end.getFullYear() > currentYear || (end.getFullYear() === currentYear && end.getMonth() > currentMonth);
+				if (isEndFuture) {
+					errors.endDate = 'Casual Leave (CL) and Sick Leave (SL) cannot be applied for future months';
+				}
+			}
+
+			if (formStartDate && formEndDate && !formIsHalfDay) {
+				const start = new Date(formStartDate + 'T00:00:00');
+				const end = new Date(formEndDate + 'T00:00:00');
+				if (start.getFullYear() !== end.getFullYear() || start.getMonth() !== end.getMonth()) {
+					errors.endDate = 'Casual Leave (CL) and Sick Leave (SL) requests cannot span multiple months';
+				}
 			}
 		}
 
@@ -794,6 +1125,71 @@
 				</Card>
 			</div>
 
+			<!-- Payroll Cutoff Configuration Card -->
+			<Card class="shadow-sm border border-border/80">
+				<CardHeader class="pb-3 border-b border-border/50 bg-muted/20">
+					<CardTitle class="text-base font-bold text-foreground flex items-center gap-2">
+						<ClockIcon class="size-4 text-[#F45310]" />
+						Payroll Cutoff Configuration
+					</CardTitle>
+					<CardDescription class="text-xs">
+						Monthly payroll cutoff day configuration for Loss of Pay (LOP) calculations. LOP days on/before this date belong to the current payroll cycle; LOP days after this date belong to the next payroll cycle.
+					</CardDescription>
+				</CardHeader>
+				<CardContent class="pt-4 px-4 pb-4">
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+						<div class="space-y-1">
+							<div class="text-sm font-semibold text-foreground">
+								Current Cutoff: <span class="text-[#F45310] font-extrabold">{payrollCutoffDay}th</span> of every month
+							</div>
+							<p class="text-xs text-muted-foreground">
+								LOP Payroll Cycle:
+								{#if payrollCutoffDay === 28}
+									1st to 28th of every month.
+								{:else}
+									{payrollCutoffDay + 1}th of previous month to {payrollCutoffDay}th of current month.
+								{/if}
+							</p>
+						</div>
+
+						{#if isManager}
+							<div class="flex items-center gap-2">
+								<div class="relative w-28">
+									<select
+										id="payroll_cutoff_select"
+										bind:value={selectedCutoff}
+										disabled={isSavingCutoff}
+										class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer font-semibold"
+									>
+										{#each Array.from({ length: 28 }, (_, i) => i + 1) as day}
+											<option value={day}>{day}th</option>
+										{/each}
+									</select>
+								</div>
+								<Button
+									type="button"
+									onclick={saveCutoffDay}
+									disabled={isSavingCutoff}
+									class="bg-[#F45310] text-white hover:bg-[#F45310]/90 font-bold"
+								>
+									{#if isSavingCutoff}
+										<LoaderCircleIcon class="mr-2 size-4 animate-spin" />
+										Saving
+									{:else}
+										Save
+									{/if}
+								</Button>
+							</div>
+						{:else}
+							<div class="inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/40 px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
+								<CheckIcon class="size-3 text-emerald-600" />
+								Read-only View (Manager Access Required)
+							</div>
+						{/if}
+					</div>
+				</CardContent>
+			</Card>
+
 			<!-- Leave Balance Table (EL, CL, SL only) -->
 			<Card class="shadow-sm border border-border/80">
 				<CardHeader class="pb-3 border-b border-border/50 bg-muted/20">
@@ -942,12 +1338,12 @@
 										<div class="font-medium">{req.leave_name}</div>
 										{#if req.leave_code !== 'LWP' && req.days_from_lwp > 0}
 											<span class="text-[9px] text-orange-600 bg-orange-50 border border-orange-200 rounded px-1 py-0.5 inline-block mt-0.5">
-												Split: {req.days_from_primary} Type / {req.days_from_lwp} LWP
+												Split: {req.days_from_primary} {req.leave_code} / {req.days_from_lwp} LWP
 											</span>
 										{/if}
 										{#if req.leave_code !== 'LOP' && req.days_from_lop > 0}
 											<span class="text-[9px] text-red-600 bg-red-50 border border-red-200 rounded px-1 py-0.5 inline-block mt-0.5 font-semibold">
-												Split: {req.days_from_primary} Type / {req.days_from_lop} LOP
+												Split: {req.days_from_primary} {req.leave_code} / {req.days_from_lop} LOP
 											</span>
 										{/if}
 									</TableCell>
@@ -1153,12 +1549,12 @@
 										<div class="font-medium">{app.leave_name}</div>
 										{#if app.leave_code !== 'LWP' && app.days_from_lwp > 0}
 											<span class="text-[9px] text-orange-600 bg-orange-50 border border-orange-200 rounded px-1 py-0.5 inline-block mt-0.5">
-												Split: {app.days_from_primary} Type / {app.days_from_lwp} LWP
+												Split: {app.days_from_primary} {app.leave_code} / {app.days_from_lwp} LWP
 											</span>
 										{/if}
 										{#if app.leave_code !== 'LOP' && app.days_from_lop > 0}
 											<span class="text-[9px] text-red-600 bg-red-50 border border-red-200 rounded px-1 py-0.5 inline-block mt-0.5 font-semibold">
-												Split: {app.days_from_primary} Type / {app.days_from_lop} LOP
+												Split: {app.days_from_primary} {app.leave_code} / {app.days_from_lop} LOP
 											</span>
 										{/if}
 									</TableCell>
@@ -1366,7 +1762,7 @@
 						type="date"
 						id="start_date"
 						bind:value={formStartDate}
-						min={todayLocalStr}
+						max={start_date_max || undefined}
 						oninput={() => {
 							if (!formStartDate || (formEndDate && formStartDate > formEndDate)) {
 								formEndDate = '';
@@ -1390,6 +1786,7 @@
 						id="end_date"
 						bind:value={formEndDate}
 						min={formStartDate}
+						max={end_date_max || undefined}
 						class={formIsTouched && formValidationErrors.endDate ? 'border-destructive' : ''}
 						disabled={isSubmitting || formIsHalfDay || !formStartDate}
 					/>
@@ -1501,35 +1898,59 @@
 			</div>
 
 			<!-- Leave Impact Preview Section (Requirement 5) -->
-			{#if formLeaveTypeCuid && computedDuration > 0}
-				{@const balance = balances.find((b) => b.leave_type_cuid === formLeaveTypeCuid)}
-				{@const remaining = balance ? balance.remaining_days : 0}
-				{@const isExceeded = selectedLeaveType?.leave_code !== 'LWP' && computedDuration > remaining}
-				{@const lopDays = isExceeded ? computedDuration - remaining : 0}
-				{@const primaryDays = isExceeded ? remaining : computedDuration}
-				{@const isCLSL = ['CL', 'SL'].includes(selectedLeaveType?.leave_code || '')}
-				{@const splitType = isCLSL ? 'Loss of Pay (LOP)' : 'Leave Without Pay (LWP)'}
+			{#if formLeaveTypeCuid && formStartDate && leaveImpactBreakdown && leaveImpactBreakdown.totalActive > 0}
+				{@const remaining = getAvailableBalanceForMonth(formLeaveTypeCuid, selectedLeaveType?.leave_code || '', formStartDate)}
+				{@const isExceeded = selectedLeaveType?.leave_code !== 'LWP' && leaveImpactBreakdown.totalActive > remaining}
+				{@const splitType = selectedLeaveType?.leave_code === 'LWP' ? 'Leave Without Pay (LWP)' : 'Loss of Pay (LOP)'}
 
 				<div class="rounded-lg border border-border bg-accent/20 p-3.5 space-y-2.5">
 					<p class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Leave Impact Preview</p>
 					{#if isExceeded}
-						<div class="text-xs text-[#F45310] font-semibold space-y-1.5">
+						<div class="text-xs text-[#F45310] font-semibold space-y-1.5 border-b border-border/50 pb-2 mb-1">
 							<p class="flex items-start gap-1.5">
 								<AlertCircleIcon class="size-4 shrink-0 text-[#F45310]" />
-								<span>You have {remaining.toFixed(1)} available leave days. This request exceeds your balance by {lopDays.toFixed(1)} day(s) and will result in {splitType} for the excess days.</span>
+								<span>You have {remaining.toFixed(1)} available leave days. This request exceeds your balance by {leaveImpactBreakdown.lopDays.toFixed(1)} day(s) and will result in {splitType} for the excess days.</span>
 							</p>
+						</div>
+						<div class="grid grid-cols-2 gap-2 text-xs">
+							<div class="text-muted-foreground">Requested Duration (Working Days):</div>
+							<div class="font-bold text-right">{leaveImpactBreakdown.totalActive.toFixed(1)} days</div>
+							
+							<div class="text-muted-foreground">Deducted from {selectedLeaveType?.leave_code}:</div>
+							<div class="font-semibold text-right">{leaveImpactBreakdown.primaryDays.toFixed(1)} days</div>
+
+							<div class="text-muted-foreground">{splitType}:</div>
+							<div class="font-bold text-right text-red-600">{leaveImpactBreakdown.lopDays.toFixed(1)} days</div>
+
+							{#if leaveImpactBreakdown.cyclesBreakdown.length > 0}
+								<div class="col-span-2 border-t border-border/50 mt-1.5 pt-1.5 space-y-1">
+									<p class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Estimated LOP Payroll Cycle Assignment:</p>
+									{#each leaveImpactBreakdown.cyclesBreakdown as { cycle, days }}
+										<div class="flex justify-between text-xs font-semibold">
+											<span class="text-muted-foreground">{cycle}:</span>
+											<span class="text-red-600">{days.toFixed(1)} day(s)</span>
+										</div>
+									{/each}
+								</div>
+							{/if}
 						</div>
 					{:else}
 						<div class="grid grid-cols-2 gap-2 text-xs">
-							<div class="text-muted-foreground">Requested Duration:</div>
-							<div class="font-bold text-right">{computedDuration.toFixed(1)} days</div>
+							<div class="text-muted-foreground">Requested Duration (Working Days):</div>
+							<div class="font-bold text-right">{leaveImpactBreakdown.totalActive.toFixed(1)} days</div>
 							
 							<div class="text-muted-foreground">Deducted from {selectedLeaveType?.leave_code}:</div>
-							<div class="font-semibold text-right">{primaryDays.toFixed(1)} days</div>
+							<div class="font-semibold text-right">{leaveImpactBreakdown.primaryDays.toFixed(1)} days</div>
+							
+							{#if selectedLeaveType?.leave_code === 'LWP'}
+								<div class="text-muted-foreground">Deducted from LWP:</div>
+								<div class="font-bold text-right text-amber-700">{leaveImpactBreakdown.lwpDays.toFixed(1)} days</div>
+							{/if}
 						</div>
 					{/if}
 				</div>
 			{/if}
+
 
 			<div class="flex items-center justify-end gap-3 pt-4 border-t border-border/50">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
@@ -1613,14 +2034,14 @@
 					{#if selectedApproval.leave_code !== 'LWP' && selectedApproval.days_from_lwp > 0}
 						<div class="text-muted-foreground">Deduction Breakdown:</div>
 						<div class="font-semibold text-right text-xs">
-							{selectedApproval.days_from_primary} CL/SL | {selectedApproval.days_from_lwp} LWP
+							{selectedApproval.days_from_primary} {selectedApproval.leave_code} | {selectedApproval.days_from_lwp} LWP
 						</div>
 					{/if}
 
 					{#if selectedApproval.leave_code !== 'LOP' && selectedApproval.days_from_lop > 0}
 						<div class="text-muted-foreground">Deduction Breakdown:</div>
 						<div class="font-semibold text-right text-xs text-red-600">
-							{selectedApproval.days_from_primary} CL/SL | {selectedApproval.days_from_lop} LOP
+							{selectedApproval.days_from_primary} {selectedApproval.leave_code} | {selectedApproval.days_from_lop} LOP
 						</div>
 					{/if}
 
