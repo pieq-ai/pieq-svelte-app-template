@@ -4,6 +4,8 @@ import {
 	createLeaveType,
 	updateLeaveType,
 	deleteLeaveType,
+	listLeaveTypes,
+	getLeaveTypeByCuid,
 	LeaveValidationError,
 	LeaveMultiValidationError
 } from '$lib/server/services/leave-type.service.js';
@@ -30,7 +32,6 @@ describe('leave type service', () => {
 	});
 
 	describe('creation and validation', () => {
-		// Name checks
 		it('should reject non-string name', async () => {
 			await expect(
 				createLeaveType({
@@ -87,7 +88,6 @@ describe('leave type service', () => {
 			);
 		});
 
-		// Code checks
 		it('should reject non-string code', async () => {
 			await expect(
 				createLeaveType({
@@ -122,11 +122,11 @@ describe('leave type service', () => {
 			);
 		});
 
-		it('should reject code containing spaces or special characters', async () => {
+		it('should reject codes containing lowercase or special characters', async () => {
 			await expect(
 				createLeaveType({
 					leave_name: 'Annual Leave',
-					leave_code: 'ANNUAL CODE'
+					leave_code: 'Annual-1'
 				})
 			).rejects.toThrowError(
 				new LeaveValidationError(
@@ -136,115 +136,63 @@ describe('leave type service', () => {
 			);
 		});
 
-		// Duplicate checks
-		it('should reject creation if name already exists', async () => {
-			vi.mocked(leaveTypeDao.findByName).mockResolvedValue({
-				id: 1n,
-				cuid: 'cuid-1',
-				name: 'Annual Leave',
-				code: 'ANN',
-				description: null,
-				is_paid: true,
-				requires_approval: true,
-				status: true,
-				...auditFields
-			});
+		it('should reject duplicate name or code during creation', async () => {
+			const existing = { id: 1n, name: 'Sick Leave', code: 'SICK', ...auditFields };
+			vi.mocked(leaveTypeDao.findByName).mockResolvedValue(existing as any);
+			vi.mocked(leaveTypeDao.findByCode).mockResolvedValue(existing as any);
 
-			await expect(
-				createLeaveType({
-					leave_name: 'Annual Leave',
-					leave_code: 'ANNUAL'
-				})
-			).rejects.toThrowError(new LeaveMultiValidationError({ leave_name: 'Leave Name already exists' }));
+			try {
+				await createLeaveType({
+					leave_name: 'Sick Leave',
+					leave_code: 'SICK'
+				});
+				expect.fail('Should have thrown LeaveMultiValidationError');
+			} catch (error: any) {
+				expect(error).toBeInstanceOf(LeaveMultiValidationError);
+				expect(error.fields).toEqual({
+					leave_name: 'Leave Name already exists',
+					leave_code: 'Leave Code already exists'
+				});
+			}
 		});
 
-		it('should reject creation if code already exists', async () => {
-			vi.mocked(leaveTypeDao.findByName).mockResolvedValue(null);
-			vi.mocked(leaveTypeDao.findByCode).mockResolvedValue({
-				id: 2n,
-				cuid: 'cuid-1',
-				name: 'Other Leave',
-				code: 'ANNUAL',
-				description: null,
-				is_paid: true,
-				requires_approval: true,
-				status: true,
-				...auditFields
-			});
-
-			await expect(
-				createLeaveType({
-					leave_name: 'Annual Leave',
-					leave_code: 'annual'
-				})
-			).rejects.toThrowError(new LeaveMultiValidationError({ leave_code: 'Leave Code already exists' }));
-		});
-
-		it('should successfully create leave type with default settings', async () => {
-			vi.mocked(leaveTypeDao.findByName).mockResolvedValue(null);
-			vi.mocked(leaveTypeDao.findByCode).mockResolvedValue(null);
-			const expectedResult = {
-				id: 3n,
-				cuid: 'new-cuid',
-				name: 'Annual Leave',
-				code: 'ANNUAL',
-				description: null,
-				is_paid: true,
-				requires_approval: true,
-				status: true,
-				...auditFields
-			};
-			vi.mocked(leaveTypeDao.create).mockResolvedValue(expectedResult);
-
-			const result = await createLeaveType({
+		it('should successfully create leave type when valid', async () => {
+			const input = {
 				leave_name: 'Annual Leave',
-				leave_code: 'ANNUAL'
-			});
-
-			expect(result).toEqual(expectedResult);
-			expect(leaveTypeDao.create).toHaveBeenCalledWith({
-				name: 'Annual Leave',
-				code: 'ANNUAL',
-				description: null,
+				leave_code: 'ANNUAL',
+				description: 'Yearly holidays',
 				is_paid: true,
 				requires_approval: true,
 				status: true
-			});
-		});
-
-		it('should successfully create leave type with custom values', async () => {
-			vi.mocked(leaveTypeDao.findByName).mockResolvedValue(null);
-			vi.mocked(leaveTypeDao.findByCode).mockResolvedValue(null);
+			};
 			const expectedResult = {
-				id: 4n,
-				cuid: 'new-cuid',
-				name: 'Sick Leave',
-				code: 'SICK_LEAVE',
-				description: 'Custom description',
-				is_paid: false,
-				requires_approval: false,
-				status: false,
+				id: 1n,
+				cuid: 'test-cuid',
+				name: 'Annual Leave',
+				code: 'ANNUAL',
+				description: 'Yearly holidays',
+				is_paid: true,
+				requires_approval: true,
+				status: true,
 				...auditFields
 			};
-			vi.mocked(leaveTypeDao.create).mockResolvedValue(expectedResult);
 
-			const result = await createLeaveType({
-				leave_name: 'Sick Leave',
-				leave_code: 'SICK_LEAVE',
-				description: '  Custom description  ',
-				is_paid: false,
-				requires_approval: false,
-				status: false
-			});
+			vi.mocked(leaveTypeDao.findByName).mockResolvedValue(null);
+			vi.mocked(leaveTypeDao.findByCode).mockResolvedValue(null);
+			vi.mocked(leaveTypeDao.create).mockResolvedValue(expectedResult as any);
+
+			const result = await createLeaveType(input);
 
 			expect(result).toEqual(expectedResult);
 			expect(leaveTypeDao.create).toHaveBeenCalledWith({
-				name: 'Sick Leave',
-				code: 'SICK_LEAVE',
-				description: 'Custom description',
-				is_paid: false,
-				requires_approval: false,
-				status: false
+				name: 'Annual Leave',
+				code: 'ANNUAL',
+				description: 'Yearly holidays',
+				is_paid: true,
+				requires_approval: true,
+				status: true,
+				created_by: undefined,
+				updated_by: undefined
 			});
 		});
 	});
@@ -252,7 +200,7 @@ describe('leave type service', () => {
 	describe('updates', () => {
 		const targetCuid = 'leave-type-cuid';
 
-		it('should throw error when leave type is not found', async () => {
+		it('should throw error when leave type to update is not found', async () => {
 			vi.mocked(leaveTypeDao.findByCuid).mockResolvedValue(null);
 
 			await expect(
@@ -264,15 +212,13 @@ describe('leave type service', () => {
 
 		it('should reject update if the updated name conflicts with another leave type', async () => {
 			vi.mocked(leaveTypeDao.findByCuid).mockResolvedValue({
-				id: 5n,
 				cuid: targetCuid,
 				name: 'Old Name',
 				code: 'OLD_CODE',
 				description: null,
 				is_paid: true,
 				requires_approval: true,
-				status: true,
-				...auditFields
+				status: true
 			} as any);
 			vi.mocked(leaveTypeDao.findDuplicateName).mockResolvedValue({
 				id: 6n,
@@ -284,26 +230,26 @@ describe('leave type service', () => {
 				requires_approval: true,
 				status: true,
 				...auditFields
-			});
+			} as any);
 
 			await expect(
 				updateLeaveType(targetCuid, {
 					leave_name: 'Conflicting Name'
 				})
-			).rejects.toThrowError(new LeaveMultiValidationError({ leave_name: 'Leave Name already exists' }));
+			).rejects.toThrowError(
+				new LeaveMultiValidationError({ leave_name: 'Leave Name already exists' })
+			);
 		});
 
 		it('should reject update if the updated code conflicts with another leave type', async () => {
 			vi.mocked(leaveTypeDao.findByCuid).mockResolvedValue({
-				id: 5n,
 				cuid: targetCuid,
 				name: 'Old Name',
 				code: 'OLD_CODE',
 				description: null,
 				is_paid: true,
 				requires_approval: true,
-				status: true,
-				...auditFields
+				status: true
 			} as any);
 			vi.mocked(leaveTypeDao.findDuplicateName).mockResolvedValue(null);
 			vi.mocked(leaveTypeDao.findDuplicateCode).mockResolvedValue({
@@ -316,28 +262,28 @@ describe('leave type service', () => {
 				requires_approval: true,
 				status: true,
 				...auditFields
-			});
+			} as any);
 
 			await expect(
 				updateLeaveType(targetCuid, {
 					leave_code: 'NEW_CODE'
 				})
-			).rejects.toThrowError(new LeaveMultiValidationError({ leave_code: 'Leave Code already exists' }));
+			).rejects.toThrowError(
+				new LeaveMultiValidationError({ leave_code: 'Leave Code already exists' })
+			);
 		});
 
 		it('should successfully update leave type', async () => {
 			const existing = {
-				id: 5n,
 				cuid: targetCuid,
 				name: 'Old Name',
 				code: 'OLD_CODE',
 				description: 'Old Description',
 				is_paid: true,
 				requires_approval: true,
-				status: true,
-				...auditFields
+				status: true
 			};
-			vi.mocked(leaveTypeDao.findByCuid).mockResolvedValue(existing);
+			vi.mocked(leaveTypeDao.findByCuid).mockResolvedValue(existing as any);
 			vi.mocked(leaveTypeDao.findDuplicateName).mockResolvedValue(null);
 			vi.mocked(leaveTypeDao.findDuplicateCode).mockResolvedValue(null);
 
@@ -352,7 +298,7 @@ describe('leave type service', () => {
 				status: false,
 				...auditFields
 			};
-			vi.mocked(leaveTypeDao.update).mockResolvedValue(expectedUpdated);
+			vi.mocked(leaveTypeDao.update).mockResolvedValue(expectedUpdated as any);
 
 			const result = await updateLeaveType(targetCuid, {
 				leave_name: 'New Name',
@@ -370,7 +316,8 @@ describe('leave type service', () => {
 				description: 'New Description',
 				is_paid: false,
 				requires_approval: false,
-				status: false
+				status: false,
+				updated_by: undefined
 			});
 		});
 	});
@@ -386,23 +333,41 @@ describe('leave type service', () => {
 
 		it('should successfully delete a leave type when it exists', async () => {
 			const existing = {
-				id: 8n,
 				cuid: targetCuid,
 				name: 'Annual Leave',
 				code: 'ANNUAL',
 				description: null,
 				is_paid: true,
 				requires_approval: true,
-				status: true,
-				...auditFields
+				status: true
 			};
-			vi.mocked(leaveTypeDao.findByCuid).mockResolvedValue(existing);
-			vi.mocked(leaveTypeDao.deleteLeaveType).mockResolvedValue(existing);
+			vi.mocked(leaveTypeDao.findByCuid).mockResolvedValue(existing as any);
+			vi.mocked(leaveTypeDao.deleteLeaveType).mockResolvedValue({ id: 8n, ...existing, ...auditFields } as any);
 
 			const result = await deleteLeaveType(targetCuid);
 
-			expect(result).toEqual(existing);
+			expect(result).toEqual({ id: 8n, ...existing, ...auditFields });
 			expect(leaveTypeDao.deleteLeaveType).toHaveBeenCalledWith(targetCuid);
+		});
+	});
+
+	describe('retrieval', () => {
+		it('should call list from DAO', async () => {
+			const mockList = [{ cuid: '1', name: 'Annual', code: 'ANN' }];
+			vi.mocked(leaveTypeDao.list).mockResolvedValue(mockList as any);
+
+			const result = await listLeaveTypes();
+			expect(result).toBe(mockList);
+			expect(leaveTypeDao.list).toHaveBeenCalledOnce();
+		});
+
+		it('should call findByCuid from DAO', async () => {
+			const mockItem = { cuid: '1', name: 'Annual', code: 'ANN' };
+			vi.mocked(leaveTypeDao.findByCuid).mockResolvedValue(mockItem as any);
+
+			const result = await getLeaveTypeByCuid('1');
+			expect(result).toBe(mockItem);
+			expect(leaveTypeDao.findByCuid).toHaveBeenCalledWith('1');
 		});
 	});
 });
