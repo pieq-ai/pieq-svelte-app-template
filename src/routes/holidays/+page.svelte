@@ -14,7 +14,6 @@
 	import FilterIcon from '@lucide/svelte/icons/filter';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
-	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import {
 		Alert,
@@ -65,12 +64,6 @@
 			sortDirection = null;
 		}
 	}
-
-	// Confirm Modal states
-	let isConfirmOpen = $state(false);
-	let confirmTitle = $state('');
-	let confirmMessage = $state('');
-	let activeDeleteCuid = $state<string | null>(null);
 
 	function openAddModal() {
 		holidayName = '';
@@ -169,27 +162,6 @@
 		} catch (error) {
 			console.error('Submit failed:', error);
 			errors.general = 'An unexpected error occurred.';
-		} finally {
-			isSubmitting = false;
-		}
-	}
-
-	async function handleDelete(cuid: string) {
-		isSubmitting = true;
-		try {
-			const res = await fetch(`/api/holidays/${cuid}`, {
-				method: 'DELETE'
-			});
-			const result = await res.json();
-			if (res.ok && result.data) {
-				toast.success(result.data.message);
-				await invalidate('/api/holidays');
-			} else {
-				toast.error(result.data?.error || 'Action failed');
-			}
-		} catch (error) {
-			console.error('Delete failed:', error);
-			toast.error('An unexpected error occurred.');
 		} finally {
 			isSubmitting = false;
 		}
@@ -730,19 +702,6 @@
 								<TableCell class="text-right">
 									<TableActions
 										onEdit={() => goto(resolve(('/holidays?edit=' + holiday.cuid) as '/holidays'))}
-										customActions={[
-											{
-												label: 'Delete',
-												icon: Trash2Icon,
-												class: 'focus:bg-[#800020]/10',
-												onClick: () => {
-													activeDeleteCuid = holiday.cuid;
-													confirmTitle = 'Delete Holiday';
-													confirmMessage = 'Are you sure you want to delete this holiday?';
-													isConfirmOpen = true;
-												}
-											}
-										]}
 										showIcons={false}
 									/>
 								</TableCell>
@@ -875,22 +834,6 @@
 		</form>
 	{/snippet}
 </CrudModal>
-
-<ConfirmModal
-	open={isConfirmOpen}
-	title={confirmTitle}
-	description={confirmMessage}
-	confirmLabel="Delete"
-	isSubmitting={isSubmitting}
-	onCancel={() => (isConfirmOpen = false)}
-	onConfirm={async () => {
-		if (activeDeleteCuid) {
-			await handleDelete(activeDeleteCuid);
-		}
-		isConfirmOpen = false;
-	}}
-	preventOutsideClickClose={true}
-/>
 
 <ConfirmModal
 	open={isDiscardModalOpen}
