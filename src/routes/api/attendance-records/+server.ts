@@ -33,9 +33,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 			work_duration_minutes: rec.work_duration_minutes,
 			attendance_status: rec.attendance_status,
 			attendance_source_cuid: rec.attendance_source_cuid,
-			remarks: rec.remarks,
-			created_at: rec.created_at.toISOString(),
-			updated_at: rec.updated_at.toISOString()
+			remarks: rec.remarks
 		}));
 
 		return successResponse(formattedRecords);

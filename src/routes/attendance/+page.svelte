@@ -515,7 +515,7 @@
 
 		isLoadingHistory = true;
 		try {
-			const res = await fetch(`/api/attendance?employee_cuid=${employeeUuid}`);
+			const res = await fetch(`/api/attendance/${employeeUuid}`);
 			const body = await res.json();
 			if (res.ok) {
 				historyRecords = body.data || [];
@@ -644,7 +644,7 @@
 
 		try {
 			const res = await fetch('/api/attendance/check-out', {
-				method: 'POST',
+				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					employee_cuid: selectedEmployeeUuid,

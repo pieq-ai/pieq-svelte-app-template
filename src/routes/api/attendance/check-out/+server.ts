@@ -7,7 +7,7 @@ import {
 import { validatePayloadKeys, trimStringFields } from '$lib/server/validation.js';
 import { errorResponse, successResponse } from '$lib/server/response.js';
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const PUT: RequestHandler = async ({ request, locals }) => {
 	let body: unknown;
 
 	try {
@@ -46,7 +46,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			return json({ data: { error: { [error.field]: error.message } } }, { status: 400 });
 		}
 
-		console.error('POST /api/attendance/check-out failed', error);
+		console.error('PUT /api/attendance/check-out failed', error);
 		return errorResponse('Failed to check out', 500);
 	}
 };

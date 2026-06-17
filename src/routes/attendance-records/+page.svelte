@@ -604,8 +604,6 @@
 					attendance_status: 'Not Logged In',
 					attendance_source_cuid: null,
 					remarks: null,
-					created_at: new Date(summaryDate).toISOString(),
-					updated_at: new Date(summaryDate).toISOString(),
 					isVirtual: true
 				});
 			}

@@ -32,9 +32,7 @@ export const GET: RequestHandler = async ({ params }) => {
 			work_duration_minutes: record.work_duration_minutes,
 			attendance_status: record.attendance_status,
 			attendance_source_cuid: record.attendance_source_cuid,
-			remarks: record.remarks,
-			created_at: record.created_at.toISOString(),
-			updated_at: record.updated_at.toISOString()
+			remarks: record.remarks
 		};
 		return successResponse(formatted);
 	} catch (error) {
