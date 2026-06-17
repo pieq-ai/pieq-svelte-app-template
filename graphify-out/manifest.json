@@ -70,8 +70,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\hooks.server.js": {
-    "mtime": 1781588127.2430897,
-    "ast_hash": "bf4f5a80e8c326551c44d6e32b408116",
+    "mtime": 1781678654.9453444,
+    "ast_hash": "770a11cd62e1a15e142c5bf5847591aa",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\instrumentation.server.js": {
@@ -455,13 +455,13 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\auth.js": {
-    "mtime": 1781588294.733419,
-    "ast_hash": "45f5c9e4734527faa29bc64d74c99eb3",
+    "mtime": 1781678675.9981563,
+    "ast_hash": "4bddcb63073cc1d69de1021e15c08bd2",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\config.js": {
-    "mtime": 1781531295.3256936,
-    "ast_hash": "2020bbbb08b2e9cc3a857951ae8ef04c",
+    "mtime": 1781678683.3972452,
+    "ast_hash": "0c2d1683dd1fc808da2d3df10b1cae12",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\dao\\department.dao.ts": {
@@ -560,8 +560,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\services\\organization_location.service.ts": {
-    "mtime": 1781510770.227511,
-    "ast_hash": "557b36f9e0442a2e9fcc4c49d3aa5e15",
+    "mtime": 1781681861.512441,
+    "ast_hash": "2fa2bbb57e9a5f472ec15e84eda5af92",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\services\\permission.service.ts": {
@@ -585,8 +585,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\services\\shift.service.ts": {
-    "mtime": 1781163206.2936301,
-    "ast_hash": "d0c4734b4e791ab2d90c5bc31d9b097a",
+    "mtime": 1781681828.9624588,
+    "ast_hash": "19b599d836517ffca5f1cfe29e8ea0c6",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\services\\system-role.service.ts": {
@@ -775,8 +775,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\auth\\signin\\+page.svelte": {
-    "mtime": 1781587514.1250238,
-    "ast_hash": "0654b944c6a97a92664dd6477090b1c1",
+    "mtime": 1781678691.4065301,
+    "ast_hash": "1772b1d18512b5ab2ee9e4b7880cd65b",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\dashboard\\+page.server.ts": {
@@ -1172,11 +1172,6 @@
   "C:\\Users\\user\\pieq-svelte-app-template\\scratch\\test_oidc.js": {
     "mtime": 1781530903.2665696,
     "ast_hash": "5e658da46b825655f5a8ebce3e7f4304",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\auth\\signin\\+page.server.ts": {
-    "mtime": 1781588279.4366615,
-    "ast_hash": "68b4d3542ee3faaf85410d95d5850b10",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\static\\uploads\\dab88539-9f6d-4ede-ac8e-de903abc78b4-LOGIN-FORM-REACT.pdf": {

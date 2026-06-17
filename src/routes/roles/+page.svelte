@@ -81,10 +81,6 @@
 		if (!regex.test(trimmed)) {
 			return 'Only letters and spaces are allowed';
 		}
-		const lowerName = trimmed.toLowerCase();
-		if (rolesList.some((r) => r.name.trim().toLowerCase() === lowerName && (editingRole ? r.cuid !== editingRole.cuid : true))) {
-			return 'Role name already exists';
-		}
 		return '';
 	}
 

@@ -70,9 +70,10 @@ export async function listAllShifts(query?: Record<string, unknown>): Promise<{ 
 export async function createShift(payload: unknown): Promise<Shift> {
   const valid = validateCreatePayload(payload);
   
-  // Ensure unique active name
-  const existing = await shiftDao.getShifts();
-  if (existing.some((s) => s.shift_name.toLowerCase() === valid.shift_name.toLowerCase())) {
+  // Ensure unique name across active and inactive shifts
+  const nameToCheck = valid.shift_name.trim().toLowerCase();
+  const existing = await shiftDao.getAllShifts();
+  if (existing.some((s) => s.shift_name.trim().toLowerCase() === nameToCheck)) {
     const err: any = new Error('Shift name already exists');
     err.status = 409;
     throw err;
@@ -123,9 +124,9 @@ export async function updateShift(cuid: string, payload: unknown): Promise<Shift
   
   // Duplicate name check if name provided
   if (valid.shift_name) {
-    const nameToCheck = valid.shift_name.toLowerCase();
-    const existing = await shiftDao.getShifts();
-    if (existing.some((s) => s.shift_name.toLowerCase() === nameToCheck && s.cuid !== cuid)) {
+    const nameToCheck = valid.shift_name.trim().toLowerCase();
+    const existing = await shiftDao.getAllShifts();
+    if (existing.some((s) => s.shift_name.trim().toLowerCase() === nameToCheck && s.cuid !== cuid)) {
       const err: any = new Error('Shift name already exists');
       err.status = 409;
       throw err;
