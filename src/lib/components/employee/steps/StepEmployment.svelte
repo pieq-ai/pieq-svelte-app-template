@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Label, Input, SearchableDropdown, MasterDataDropdown, DatePicker, Button } from '$lib/components';
-	import DepartmentDropdown from '$lib/components/common/DepartmentDropdown.svelte';
-	import DesignationDropdown from '$lib/components/common/DesignationDropdown.svelte';
+	import AsyncDropdown from '$lib/components/common/AsyncDropdown.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
@@ -190,14 +189,16 @@
 
 <div class="space-y-4">
 	<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-		<DepartmentDropdown
+		<AsyncDropdown
+			apiEndpoint="/api/departments"
 			label="Department *"
 			value={employment.department_cuid}
 			onSelect={(val) => employment.department_cuid = val as string}
 			disabled={mode === 'view'}
 			class={(isTouched && errors.department_cuid) ? 'border-destructive' : ''}
 		/>
-		<DesignationDropdown
+		<AsyncDropdown
+			apiEndpoint="/api/designations"
 			label="Designation *"
 			value={employment.designation_cuid}
 			onSelect={(val) => employment.designation_cuid = val as string}

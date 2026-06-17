@@ -10,11 +10,10 @@
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
-	import PlusIcon from '@lucide/svelte/icons/plus';
+	
 	import FilterIcon from '@lucide/svelte/icons/filter';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
-	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import {
 		Alert,
@@ -566,7 +565,6 @@
 			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
 			onclick={openAddModal}
 		>
-			<PlusIcon class="size-4" />
 			Add Holiday
 		</Button>
 	</div>
@@ -733,7 +731,6 @@
 										customActions={[
 											{
 												label: 'Delete',
-												icon: Trash2Icon,
 												class: 'focus:bg-[#800020]/10',
 												onClick: () => {
 													activeDeleteCuid = holiday.cuid;

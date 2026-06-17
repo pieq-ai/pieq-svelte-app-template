@@ -9,7 +9,7 @@
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
-	import PlusIcon from '@lucide/svelte/icons/plus';
+	
 	import {
 		Alert,
 		AlertDescription,
@@ -487,7 +487,6 @@
 			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
 			onclick={openAddModal}
 		>
-			<PlusIcon class="size-4" />
 			Add Leave Type
 		</Button>
 	</div>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
-	import PlusIcon from '@lucide/svelte/icons/plus';
+	
 
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
@@ -423,7 +423,6 @@
 			class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
 			onclick={openCreateModal}
 		>
-			<PlusIcon class="size-4" />
 			Add Shift
 		</Button>
 	</div>

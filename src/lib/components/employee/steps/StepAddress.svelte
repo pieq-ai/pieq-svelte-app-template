@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Label, Input, SearchableDropdown, MasterDataDropdown, Button } from '$lib/components';
 	import { toast } from 'svelte-sonner';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 
 	let { mode, cuid, onNext, onPrev, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit' | 'view';
@@ -22,9 +22,55 @@
 	let addresses = $state<AddressItem[]>([]);
 	let originalData = $state('[]');
 
+	let isPermSameAsComm = $state(false);
+
 	function addAddress() {
-		addresses = [...addresses, emptyAddress()];
+		if (addresses.length >= 2) {
+			toast.error('You can only add a maximum of 2 addresses.');
+			return;
+		}
+		const hasComm = addresses.some(a => a.address_type === 'communication');
+		const hasPerm = addresses.some(a => a.address_type === 'permanent');
+		
+		if (!hasComm) {
+			addresses = [...addresses, { ...emptyAddress(), address_type: 'communication' }];
+		} else if (!hasPerm) {
+			addresses = [...addresses, { ...emptyAddress(), address_type: 'permanent' }];
+		} else {
+			toast.error('Only Communication and Permanent addresses are allowed.');
+		}
 	}
+
+	$effect(() => {
+		if (isPermSameAsComm) {
+			const comm = addresses.find(a => a.address_type === 'communication');
+			if (comm) {
+				const door_no = comm.door_no;
+				const address_line1 = comm.address_line1;
+				const address_line2 = comm.address_line2;
+				const city = comm.city;
+				const state_cuid = comm.state_cuid;
+				const country_cuid = comm.country_cuid;
+				const pin_code = comm.pin_code;
+
+				untrack(() => {
+					let permIndex = addresses.findIndex(a => a.address_type === 'permanent');
+					if (permIndex === -1) {
+						addresses = [...addresses, { ...comm, address_type: 'permanent' }];
+					} else {
+						const perm = addresses[permIndex];
+						perm.door_no = door_no;
+						perm.address_line1 = address_line1;
+						perm.address_line2 = address_line2;
+						perm.city = city;
+						perm.state_cuid = state_cuid;
+						perm.country_cuid = country_cuid;
+						perm.pin_code = pin_code;
+					}
+				});
+			}
+		}
+	});
 
 	function normalizeAddressItem(item: Partial<AddressItem>): AddressItem {
 		return {
@@ -49,13 +95,24 @@
 				const body = await res.json();
 				if (res.ok && body.data) {
 					addresses = body.data;
+
+					const comm = addresses.find((a: AddressItem) => a.address_type === 'communication');
+					const perm = addresses.find((a: AddressItem) => a.address_type === 'permanent');
+					if (comm && perm) {
+						isPermSameAsComm = 
+							comm.address_line1 === perm.address_line1 &&
+							comm.city === perm.city &&
+							comm.state_cuid === perm.state_cuid &&
+							comm.country_cuid === perm.country_cuid &&
+							comm.pin_code === perm.pin_code;
+					}
 				}
 			} catch (e) {
 				console.error('Failed to fetch addresses', e);
 			}
 		}
 		if (addresses.length === 0 && mode !== 'view') {
-			addAddress();
+			addresses = [{ ...emptyAddress(), address_type: 'communication' }];
 		}
 		originalData = JSON.stringify(normalizeAddresses(addresses));
 	});
@@ -129,7 +186,7 @@
 <div class="space-y-4">
 	{#if mode !== 'view'}
 		<div class="flex justify-end">
-			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={addAddress} disabled={isSubmitting}>
+			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={addAddress} disabled={isSubmitting || addresses.length >= 2}>
 				Add Address
 			</Button>
 		</div>
@@ -143,9 +200,14 @@
 		<div class="rounded-lg border border-border p-4 relative">
 			{#if mode !== 'view'}
 				<div class="flex justify-end mb-2">
-					<Button variant="ghost" size="sm" class="h-7 px-2 text-destructive hover:bg-destructive/10" onclick={() => addresses = addresses.filter((_, i) => i !== index)}>
-						Delete
-					</Button>
+					{#if address.address_type !== 'communication'}
+						<Button variant="ghost" size="sm" class="h-7 px-2 text-destructive hover:bg-destructive/10" onclick={() => {
+							addresses = addresses.filter((_, i) => i !== index);
+							if (address.address_type === 'permanent') isPermSameAsComm = false;
+						}}>
+							Delete
+						</Button>
+					{/if}
 				</div>
 			{/if}
 			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -157,25 +219,25 @@
 						{ id: 'permanent', label: 'Permanent' }
 					]}
 					onSelect={(val) => address.address_type = val as string}
-					disabled={mode === 'view'}
+					disabled={true}
 					class={(isTouched && validateRequired(address.address_type)) ? 'border-destructive' : ''}
 				/>
 				<div class="space-y-2">
 					<Label>Door No</Label>
-					<Input bind:value={address.door_no} placeholder="Flat/Door No" readonly={mode === 'view'} />
+					<Input bind:value={address.door_no} placeholder="Flat/Door No" readonly={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)} />
 				</div>
 				<div class="space-y-2 xl:col-span-2">
 					<Label>Address Line 1 <span class="text-destructive">*</span></Label>
-					<Input bind:value={address.address_line1} placeholder="123 Main St" class={(isTouched && validateRequired(address.address_line1)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
+					<Input bind:value={address.address_line1} placeholder="123 Main St" class={(isTouched && validateRequired(address.address_line1)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)} />
 					{#if isTouched && validateRequired(address.address_line1)}<p class="text-xs text-destructive">{validateRequired(address.address_line1)}</p>{/if}
 				</div>
 				<div class="space-y-2 xl:col-span-2">
 					<Label>Address Line 2</Label>
-					<Input bind:value={address.address_line2} placeholder="Landmark/Area" readonly={mode === 'view'} />
+					<Input bind:value={address.address_line2} placeholder="Landmark/Area" readonly={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)} />
 				</div>
 				<div class="space-y-2">
 					<Label>City <span class="text-destructive">*</span></Label>
-					<Input bind:value={address.city} placeholder="City Name" class={(isTouched && validateRequired(address.city)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
+					<Input bind:value={address.city} placeholder="City Name" class={(isTouched && validateRequired(address.city)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)} />
 					{#if isTouched && validateRequired(address.city)}<p class="text-xs text-destructive">{validateRequired(address.city)}</p>{/if}
 				</div>
 				<MasterDataDropdown
@@ -183,7 +245,7 @@
 					label="Country *"
 					value={address.country_cuid}
 					onSelect={(val) => address.country_cuid = val as string}
-					disabled={mode === 'view'}
+					disabled={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)}
 					class={(isTouched && validateRequired(address.country_cuid)) ? 'border-destructive' : ''}
 				/>
 				<MasterDataDropdown
@@ -191,15 +253,27 @@
 					label="State *"
 					value={address.state_cuid}
 					onSelect={(val) => address.state_cuid = val as string}
-					disabled={mode === 'view'}
+					disabled={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)}
 					class={(isTouched && validateRequired(address.state_cuid)) ? 'border-destructive' : ''}
 				/>
 				<div class="space-y-2">
 					<Label>Pin Code <span class="text-destructive">*</span></Label>
-					<Input bind:value={address.pin_code} placeholder="123456" class={(isTouched && validatePinCode(address.pin_code)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
+					<Input bind:value={address.pin_code} placeholder="123456" class={(isTouched && validatePinCode(address.pin_code)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)} />
 					{#if isTouched && validatePinCode(address.pin_code)}<p class="text-xs text-destructive">{validatePinCode(address.pin_code)}</p>{/if}
 				</div>
 			</div>
+			
+			{#if address.address_type === 'communication' && mode !== 'view'}
+				<div class="xl:col-span-4 flex items-center gap-2 mt-6 pt-4 border-t border-border">
+					<input 
+						type="checkbox" 
+						id="same_as_comm_{index}" 
+						bind:checked={isPermSameAsComm} 
+						class="rounded border-border text-[#F45310] focus:ring-[#F45310] size-4 cursor-pointer" 
+					/>
+					<Label for="same_as_comm_{index}" class="cursor-pointer font-medium">Permanent address is same as communication address</Label>
+				</div>
+			{/if}
 		</div>
 	{/each}
 

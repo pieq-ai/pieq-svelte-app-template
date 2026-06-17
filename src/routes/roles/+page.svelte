@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-
+	
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import { toast } from '$lib/toast';
 	import { createDirtyChecker } from '$lib/utils';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { UI_CONSTANTS } from '$lib/constants';
+	import { localApi, ApiError } from '$lib/api/local';
 
 	import {
 		Badge,
@@ -33,9 +34,12 @@
 		Pagination,
 		SearchInput
 	} from '$lib/components';
-	import type { Role } from '$lib/types/role';
-	import { fetchAllRoles, createRole, updateRole, deleteRole } from '$lib/api/roles';
-	import { ApiError } from '$lib/api/local';
+
+	interface Role {
+		cuid: string;
+		name: string;
+		status: boolean;
+	}
 
 	let rolesList = $state<Role[]>([]);
 	let isLoading = $state(true);
@@ -43,7 +47,7 @@
 
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
-	let sortColumn = $state('role_name');
+	let sortColumn = $state('name');
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -51,8 +55,8 @@
 
 	// Shared Form State
 	let editingRole = $state<Role | null>(null);
-	let roleName = $state('');
-	let roleStatus = $state<boolean>(true);
+	let formRoleName = $state('');
+	let formRoleStatus = $state<boolean>(true);
 	let isSubmitting = $state(false);
 	let isModalOpen = $state(false);
 	let isNameTouched = $state(false);
@@ -60,7 +64,10 @@
 	let roleNameInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
-	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ name: roleName.trim(), status: roleStatus }));
+	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ name: formRoleName.trim(), status: formRoleStatus }));
+	$effect(() => {
+		$globalIsDirty = isDirty;
+	});
 
 	// Deletion State
 	let itemToDelete = $state<Role | null>(null);
@@ -68,23 +75,17 @@
 
 	function getValidationError(name: string): string {
 		const trimmed = name.trim();
-		if (trimmed === '') {
-			return 'Role name is required';
-		}
-		if (trimmed.length < 2) {
-			return 'Minimum 2 characters required';
-		}
-		if (trimmed.length > 255) {
-			return 'Maximum 255 characters allowed';
-		}
-		const regex = /^[A-Za-z\s]+$/;
+		if (trimmed === '') return 'Role name is required';
+		if (trimmed.length < 2) return 'Minimum 2 characters required';
+		if (trimmed.length > 100) return 'Maximum 100 characters allowed';
+		const regex = /^[A-Za-z0-9\s-]+$/;
 		if (!regex.test(trimmed)) {
-			return 'Only letters and spaces are allowed';
+			return 'Only letters, numbers, spaces, and hyphens are allowed';
 		}
 		return '';
 	}
 
-	let nameValidationError = $derived(isNameTouched ? getValidationError(roleName) : '');
+	let nameValidationError = $derived(isNameTouched ? getValidationError(formRoleName) : '');
 
 	let filteredRoles = $derived.by(() => {
 		let result = [...rolesList];
@@ -107,9 +108,7 @@
 				if (valB === null || valB === undefined) return sortDirection === 'asc' ? -1 : 1;
 
 				if (typeof valA === 'string' && typeof valB === 'string') {
-					return sortDirection === 'asc'
-						? valA.localeCompare(valB)
-						: valB.localeCompare(valA);
+					return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
 				}
 				if (typeof valA === 'boolean' && typeof valB === 'boolean') {
 					const numA = valA ? 1 : 0;
@@ -125,14 +124,15 @@
 
 	let totalCount = $derived(rolesList.length);
 	let paginatedRoles = $derived(filteredRoles.slice((currentPage - 1) * pageSize, currentPage * pageSize));
-	let activeCount = $derived(rolesList.filter((r) => r.status === true).length);
-	let inactiveCount = $derived(rolesList.filter((r) => r.status === false).length);
+	let activeCount = $derived(rolesList.filter((d) => d.status === true).length);
+	let inactiveCount = $derived(rolesList.filter((d) => d.status === false).length);
 
 	async function loadRoles() {
 		isLoading = true;
 		loadError = '';
 		try {
-			rolesList = await fetchAllRoles();
+			const res = await localApi.get<{ data: Role[] }>('/api/roles?includeInactive=true');
+			rolesList = res.data ?? [];
 		} catch (err) {
 			loadError = err instanceof ApiError ? err.message : 'Failed to load roles.';
 			toast.error(loadError);
@@ -159,8 +159,8 @@
 
 	function openCreateModal() {
 		editingRole = null;
-		roleName = '';
-		roleStatus = true;
+		formRoleName = '';
+		formRoleStatus = true;
 		isNameTouched = false;
 		backendError = '';
 		dirtyChecker.snapshot({ name: '', status: true });
@@ -169,8 +169,8 @@
 
 	function openEditModal(role: Role) {
 		editingRole = role;
-		roleName = role.name;
-		roleStatus = role.status;
+		formRoleName = role.name;
+		formRoleStatus = role.status;
 		isNameTouched = false;
 		backendError = '';
 		dirtyChecker.snapshot({ name: role.name, status: role.status });
@@ -182,7 +182,7 @@
 		if (editingRole && !isDirty) return;
 		isNameTouched = true;
 
-		const validationError = getValidationError(roleName);
+		const validationError = getValidationError(formRoleName);
 		if (validationError) {
 			roleNameInput?.focus();
 			return;
@@ -191,17 +191,24 @@
 		isSubmitting = true;
 
 		try {
+			const payload = { name: formRoleName.trim(), status: formRoleStatus };
 			if (editingRole) {
-				await updateRole(editingRole.cuid, { name: roleName.trim(), status: roleStatus });
+				await localApi.put(`/api/roles/${editingRole.cuid}`, payload);
 			} else {
-				await createRole(roleName.trim());
+				await localApi.post('/api/roles', payload);
 			}
+
 			await loadRoles();
 			toast.success(editingRole ? 'Role updated successfully' : 'Role created successfully');
 			isModalOpen = false;
+			$globalIsDirty = false;
 		} catch (err) {
 			backendError = err instanceof ApiError ? err.message : 'Something went wrong.';
-			toast.error(backendError);
+			if (err instanceof ApiError && err.status === 409) {
+				roleNameInput?.focus();
+			} else {
+				toast.error(backendError);
+			}
 			console.error(err);
 		} finally {
 			isSubmitting = false;
@@ -212,7 +219,7 @@
 		if (!itemToDelete) return;
 		isDeleting = true;
 		try {
-			await deleteRole(itemToDelete.cuid);
+			await localApi.delete(`/api/roles/${itemToDelete.cuid}`);
 			await loadRoles();
 			toast.success('Role deactivated successfully');
 			itemToDelete = null;
@@ -226,20 +233,19 @@
 </script>
 
 <svelte:head>
-	<title>Roles</title>
+	<title>HRMS Role</title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Roles</h1>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Role</h1>
 		</div>
 		<Button
 			type="button"
 			class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
 			onclick={openCreateModal}
 		>
-			<PlusIcon class="size-4" />
 			Add Role
 		</Button>
 	</div>
@@ -268,8 +274,20 @@
 
 	<div class="space-y-3">
 		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-			<SearchInput id="search_roles" name="search_roles" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by role name..." />
-			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
+			<SearchInput
+				id="search_roles"
+				name="search_roles"
+				bind:value={searchQuery}
+				oninput={() => (currentPage = 1)}
+				placeholder="Search by role name..."
+			/>
+			<FilterDropdown
+				value={statusFilter}
+				onChange={(value) => {
+					statusFilter = value;
+					currentPage = 1;
+				}}
+			/>
 		</div>
 
 		<Card class="py-0">
@@ -338,6 +356,7 @@
 									<TableActions
 										canEdit={true}
 										onEdit={() => openEditModal(role)}
+										onDelete={() => { itemToDelete = role; }}
 									/>
 								</TableCell>
 							</TableRow>
@@ -355,7 +374,7 @@
 	title={editingRole ? 'Edit Role' : 'Create Role'}
 	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => (isModalOpen = false)}
+	onClose={() => { isModalOpen = false; $globalIsDirty = false; }}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={handleSaveRole}>
@@ -365,7 +384,7 @@
 					id="name"
 					name="name"
 					bind:ref={roleNameInput}
-					bind:value={roleName}
+					bind:value={formRoleName}
 					class={nameValidationError || backendError ? 'border-destructive' : ''}
 					placeholder="e.g. HR Manager"
 					oninput={() => { backendError = ''; }}
@@ -375,7 +394,7 @@
 				{/if}
 			</div>
 			{#if editingRole}
-				<StatusDropdown id="role_status" name="role_status" value={roleStatus} onChange={(val) => (roleStatus = val)} />
+				<StatusDropdown id="role_status" name="role_status" value={formRoleStatus} onChange={(val) => (formRoleStatus = val)} />
 			{/if}
 			<div class="flex items-center justify-end gap-3 pt-4">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>

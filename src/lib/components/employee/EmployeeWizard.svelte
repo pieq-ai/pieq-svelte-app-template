@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button, Card, CardContent } from '$lib/components';
-	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
+	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import { toast } from 'svelte-sonner';
 
 	import StepPersonal from './steps/StepPersonal.svelte';
@@ -150,7 +150,8 @@
 		<div class="flex flex-col space-y-2">
 			<div class="flex items-center justify-between">
 				<Button variant="ghost" class="pl-0 text-muted-foreground hover:text-foreground" onclick={requestExit}>
-					<ArrowLeftIcon class="mr-2 size-4" /> Back to Employees
+					<ArrowLeftIcon class="mr-2 size-4" />
+					Back to Employees
 				</Button>
 				{#if internalMode === 'view'}
 					<Button variant="outline" size="sm" onclick={() => internalMode = 'edit'}>

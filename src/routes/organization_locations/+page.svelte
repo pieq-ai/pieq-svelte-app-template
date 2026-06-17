@@ -724,7 +724,6 @@
       class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
       onclick={openCreate}
     >
-      <PlusIcon class="size-4" />
       Add Location
     </Button>
   </div>
@@ -1086,7 +1085,6 @@
                 onclick={openAddCountryModal}
                 class="cursor-pointer font-medium text-[#F45310] hover:text-[#F45310]/90 focus:text-[#F45310]"
               >
-                <PlusIcon class="mr-2 size-4" />
                 Add Country
               </DropdownMenu.Item>
             </DropdownMenu.Content>
@@ -1136,7 +1134,6 @@
                 disabled={!formCountryCuid}
                 class="cursor-pointer font-medium text-[#F45310] hover:text-[#F45310]/90 focus:text-[#F45310] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <PlusIcon class="mr-2 size-4" />
                 Add State
               </DropdownMenu.Item>
             </DropdownMenu.Content>

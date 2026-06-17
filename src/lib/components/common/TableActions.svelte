@@ -3,14 +3,9 @@
 	import { Button } from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
-	import PencilIcon from '@lucide/svelte/icons/pencil';
-	import TrashIcon from '@lucide/svelte/icons/trash-2';
-	import FileTextIcon from '@lucide/svelte/icons/file-text';
-
 	export interface TableAction {
 		label: string;
 		onClick: () => void;
-		icon?: any;
 		class?: string;
 		disabled?: boolean;
 	}
@@ -46,13 +41,13 @@
 	let finalActions = $derived.by(() => {
 		const arr = [...actions, ...customActions];
 		if (canView && onView) {
-			arr.push({ label: viewLabel, onClick: onView, icon: FileTextIcon });
+			arr.push({ label: viewLabel, onClick: onView });
 		}
 		if (canEdit && onEdit) {
-			arr.push({ label: editLabel, onClick: onEdit, icon: PencilIcon });
+			arr.push({ label: editLabel, onClick: onEdit });
 		}
 		if (canDelete && onDelete) {
-			arr.push({ label: deleteLabel, onClick: onDelete, icon: TrashIcon, class: 'text-destructive focus:bg-destructive focus:text-destructive-foreground' });
+			arr.push({ label: deleteLabel, onClick: onDelete, class: 'text-destructive focus:bg-destructive focus:text-destructive-foreground' });
 		}
 		return arr;
 	});
@@ -64,7 +59,7 @@
 			<Button
 				variant="ghost"
 				size="icon-sm"
-				class="h-7 w-7 text-muted-foreground hover:text-foreground"
+				class="kebab-dropdown-menu h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:ring-ring/50 focus-visible:ring-3 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground data-[state=open]:ring-ring/50 data-[state=open]:ring-3 transition-[color,box-shadow] outline-none"
 				aria-label="Actions"
 				{...props}
 			>
@@ -80,11 +75,6 @@
 				disabled={action.disabled}
 				class="cursor-pointer {action.class ?? ''}"
 			>
-				{#if action.icon}
-					{@const Icon = action.icon}
-					<Icon class="mr-2 size-4" />
-				{/if}
-
 				{action.label}
 			</DropdownMenu.Item>
 		{/each}

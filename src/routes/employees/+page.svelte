@@ -123,6 +123,33 @@
 			sortDirection = 'asc';
 		}
 	}
+
+	function isInteractive(target: HTMLElement | null, rowElement: HTMLElement): boolean {
+		let curr = target;
+		while (curr && curr !== rowElement) {
+			const tagName = curr.tagName.toLowerCase();
+			if (
+				tagName === 'a' ||
+				tagName === 'button' ||
+				tagName === 'input' ||
+				tagName === 'select' ||
+				tagName === 'textarea' ||
+				curr.getAttribute('role') === 'button' ||
+				curr.classList.contains('kebab-dropdown-menu')
+			) {
+				return true;
+			}
+			curr = curr.parentElement;
+		}
+		return false;
+	}
+
+	function handleRowClick(cuid: string, event: MouseEvent) {
+		const target = event.target as HTMLElement;
+		const row = event.currentTarget as HTMLElement;
+		if (isInteractive(target, row)) return;
+		goto(`/employees/${cuid}?mode=edit`);
+	}
 </script>
 
 <svelte:head>
@@ -253,7 +280,7 @@
 						</TableRow>
 					{:else}
 						{#each paginatedEmployees as emp (emp.cuid)}
-							<TableRow>
+							<TableRow onclick={(e) => handleRowClick(emp.cuid, e)} class="cursor-pointer">
 								<TableCell class="font-medium text-xs">#{emp.emp_code}</TableCell>
 								<TableCell class="font-semibold">{emp.first_name}</TableCell>
 								<TableCell class="font-semibold">{emp.last_name || '-'}</TableCell>
