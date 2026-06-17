@@ -509,10 +509,8 @@ model AttendanceRecord {
 
   check_in_latitude Float?
   check_in_longitude Float?
-  check_in_gps_accuracy Float?
   check_out_latitude Float?
   check_out_longitude Float?
-  check_out_gps_accuracy Float?
 
   @@unique([employee_cuid, attendance_date])
   @@index([employee_cuid])

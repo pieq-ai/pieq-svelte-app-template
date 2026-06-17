@@ -13,7 +13,6 @@ export interface CreateAttendanceInput {
 	updated_by?: string | null;
 	check_in_latitude?: number | null;
 	check_in_longitude?: number | null;
-	check_in_gps_accuracy?: number | null;
 }
 
 export interface UpdateAttendanceInput {
@@ -23,7 +22,6 @@ export interface UpdateAttendanceInput {
 	updated_at?: Date;
 	check_out_latitude?: number | null;
 	check_out_longitude?: number | null;
-	check_out_gps_accuracy?: number | null;
 }
 
 export async function findByEmployeeAndDate(employee_cuid: string, attendance_date: Date) {
@@ -59,8 +57,7 @@ export async function create(data: CreateAttendanceInput) {
 			created_by: data.created_by ?? null,
 			updated_by: data.updated_by ?? null,
 			check_in_latitude: data.check_in_latitude ?? null,
-			check_in_longitude: data.check_in_longitude ?? null,
-			check_in_gps_accuracy: data.check_in_gps_accuracy ?? null
+			check_in_longitude: data.check_in_longitude ?? null
 		}
 	});
 }
