@@ -113,7 +113,10 @@ export async function createLeaveRequest(data: {
 	is_half_day?: boolean;
 	half_day_session?: string | null;
 	reason?: string | null;
-	document_url?: string | null;
+	file_name?: string | null;
+	mime_type?: string | null;
+	file_size?: number | null;
+	document_data?: Buffer | Uint8Array | null;
 	request_status?: string;
 	days_from_primary?: number | string | any;
 	days_from_lwp?: number | string | any;
@@ -130,7 +133,10 @@ export async function createLeaveRequest(data: {
 			is_half_day: data.is_half_day ?? false,
 			half_day_session: data.half_day_session ?? null,
 			reason: data.reason ?? null,
-			document_url: data.document_url ?? null,
+			file_name: data.file_name ?? null,
+			mime_type: data.mime_type ?? null,
+			file_size: data.file_size ?? null,
+			document_data: data.document_data ?? null,
 			request_status: data.request_status ?? 'pending',
 			days_from_primary: data.days_from_primary ?? null,
 			days_from_lwp: data.days_from_lwp ?? null,

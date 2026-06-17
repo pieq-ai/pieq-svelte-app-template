@@ -671,6 +671,9 @@ model CompanyLocation {
   state_cuid String
   country_cuid String
 
+  latitude     Decimal? @db.Decimal(10, 8)
+  longitude    Decimal? @db.Decimal(11, 8)
+
   pin_code String @db.VarChar(15)
 
   timezone String @db.VarChar(100)
@@ -797,7 +800,11 @@ model LeaveRequest {
   half_day_session      String?  @db.VarChar(10) // FN / AN
 
   reason                String?  @db.Text
-  document_url          String?  @db.Text
+  file_name     String?  @db.VarChar(255)
+  mime_type     String?  @db.VarChar(100)
+  file_size     Int?
+  document_data Bytes?
+
 
   request_status        String   @default("pending") @db.VarChar(30)
 

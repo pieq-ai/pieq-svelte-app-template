@@ -9,6 +9,8 @@ export interface CompanyLocation {
   country_cuid: string;
   pin_code: string;
   timezone: string;
+  latitude?: number | null;
+  longitude?: number | null;
   status: boolean;
   created_by?: string | null;
   updated_by?: string | null;
@@ -25,6 +27,8 @@ export interface CompanyLocationCreateDTO {
   country_cuid?: string;
   pin_code?: string;
   timezone?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   created_by?: string | null;
   updated_by?: string | null;
 }
@@ -38,6 +42,8 @@ export interface CompanyLocationUpdateDTO {
   country_cuid?: string;
   pin_code?: string;
   timezone?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   status?: boolean;
   created_by?: string | null;
   updated_by?: string | null;

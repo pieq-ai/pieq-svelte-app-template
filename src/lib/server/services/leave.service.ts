@@ -10,7 +10,11 @@ export interface ApplyLeaveInput {
 	isHalfDay: boolean;
 	halfDaySession?: string | null;
 	reason?: string | null;
-	documentUrl?: string | null;
+	document?: {
+		fileName: string;
+		mimeType: string;
+		base64Data: string;
+	} | null;
 	expectedDeliveryDate?: string | null;
 	isMiscarriage?: boolean | null;
 	childBirthDate?: string | null;
@@ -583,7 +587,10 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 			is_half_day: r.is_half_day,
 			half_day_session: r.half_day_session,
 			reason: r.reason,
-			document_url: r.document_url,
+			document_url: r.file_name ? `/api/leaves/${r.cuid}/document` : null,
+			file_name: r.file_name,
+			mime_type: r.mime_type,
+			file_size: r.file_size,
 			request_status: r.request_status,
 			days_from_primary: r.days_from_primary ? Number(r.days_from_primary) : 0,
 			days_from_lwp: r.days_from_lwp ? Number(r.days_from_lwp) : 0,
@@ -677,7 +684,10 @@ export async function getPendingApprovalsForManager(managerEmployeeCuid: string)
 			is_half_day: r.is_half_day,
 			half_day_session: r.half_day_session,
 			reason: r.reason,
-			document_url: r.document_url,
+			document_url: r.file_name ? `/api/leaves/${r.cuid}/document` : null,
+			file_name: r.file_name,
+			mime_type: r.mime_type,
+			file_size: r.file_size,
 			request_status: r.request_status,
 			days_from_primary: r.days_from_primary ? Number(r.days_from_primary) : 0,
 			days_from_lwp: r.days_from_lwp ? Number(r.days_from_lwp) : 0,
@@ -914,7 +924,7 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 		}
 
 		// Medical certificate is mandatory
-		if (!input.documentUrl) {
+		if (!input.document) {
 			throw new ValidationError('documentUrl', 'A supporting medical certificate is mandatory for Maternity Leave.');
 		}
 	}
@@ -1003,7 +1013,7 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 	// 7. Document Required validation
 	if (leaveType.leave_code !== 'ML' && policy.document_required) {
 		const reqAfter = policy.document_required_after_days ?? 0;
-		if (totalDays >= reqAfter && !input.documentUrl) {
+		if (totalDays >= reqAfter && !input.document) {
 			throw new ValidationError('documentUrl', 'A supporting document is required for leave requests of ' + reqAfter + ' days or more.');
 		}
 	}
@@ -1016,6 +1026,19 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 		finalReason = `[Child Birth Date: ${input.childBirthDate}] ${finalReason}`;
 	}
 
+	// Decode base64 to Buffer
+	let file_name: string | null = null;
+	let mime_type: string | null = null;
+	let file_size: number | null = null;
+	let document_data: Buffer | null = null;
+
+	if (input.document) {
+		file_name = input.document.fileName;
+		mime_type = input.document.mimeType;
+		document_data = Buffer.from(input.document.base64Data, 'base64');
+		file_size = document_data.length;
+	}
+
 	// Create request
 	return leaveDao.createLeaveRequest({
 		employee_cuid: employee.cuid,
@@ -1026,7 +1049,10 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 		is_half_day: input.isHalfDay,
 		half_day_session: input.isHalfDay ? input.halfDaySession : null,
 		reason: finalReason,
-		document_url: input.documentUrl,
+		file_name,
+		mime_type,
+		file_size,
+		document_data,
 		request_status: 'pending',
 		days_from_primary: daysFromPrimary,
 		days_from_lwp: daysFromLwp,

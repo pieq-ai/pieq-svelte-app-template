@@ -28,26 +28,6 @@ export async function POST(event: RequestEvent) {
 		const email = event.locals.user?.email || '';
 
 		const body = await event.request.json();
-		let documentUrl: string | null = null;
-
-		// Handle file upload if present in standard JSON payload (base64)
-		if (body.document) {
-			const { fileName, base64Data } = body.document;
-			if (fileName && base64Data) {
-				const buffer = Buffer.from(base64Data, 'base64');
-				const uploadsDir = join(process.cwd(), 'static', 'uploads');
-				
-				if (!existsSync(uploadsDir)) {
-					mkdirSync(uploadsDir, { recursive: true });
-				}
-				
-				const safeName = `${randomUUID()}-${fileName.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
-				const fullPath = join(uploadsDir, safeName);
-				
-				writeFileSync(fullPath, buffer);
-				documentUrl = `/uploads/${safeName}`;
-			}
-		}
 
 		const newRequest = await leaveService.applyLeave(email, {
 			leaveTypeCuid: body.leaveTypeCuid,
@@ -56,7 +36,7 @@ export async function POST(event: RequestEvent) {
 			isHalfDay: body.isHalfDay,
 			halfDaySession: body.halfDaySession,
 			reason: body.reason,
-			documentUrl,
+			document: body.document || null,
 			expectedDeliveryDate: body.expectedDeliveryDate,
 			isMiscarriage: body.isMiscarriage,
 			childBirthDate: body.childBirthDate

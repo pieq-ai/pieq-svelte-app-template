@@ -90,8 +90,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\api\\locations.ts": {
-    "mtime": 1781510787.6037395,
-    "ast_hash": "aae24bc92d5593a2325abb89f92c40de",
+    "mtime": 1781696386.946558,
+    "ast_hash": "f7072ae3c9c87c1542b8bafbab9dab15",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\api\\roles.ts": {
@@ -485,8 +485,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\dao\\organization_location.dao.ts": {
-    "mtime": 1781510762.7152534,
-    "ast_hash": "889d6102fe1779c53ade8b90064622fa",
+    "mtime": 1781696529.9892418,
+    "ast_hash": "3a49a012bb09639899a1108b02212696",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\dao\\permission.dao.ts": {
@@ -530,8 +530,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\response.ts": {
-    "mtime": 1781510821.3110332,
-    "ast_hash": "5334362d3d433733d17c3d53f6110728",
+    "mtime": 1781696497.7713048,
+    "ast_hash": "892d403a865ae80b631ef607759a69a7",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\serializers\\salary-component.serializer.ts": {
@@ -610,8 +610,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\validators\\organization_location.validator.ts": {
-    "mtime": 1781510779.9936388,
-    "ast_hash": "6b3716000aa038e3c1f5a0f6d86728d1",
+    "mtime": 1781697823.6257217,
+    "ast_hash": "412d0574e7550efbd17fd5e466656e46",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\validators\\role.validator.ts": {
@@ -650,8 +650,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\types\\organization_location.ts": {
-    "mtime": 1781510753.0066817,
-    "ast_hash": "24b62f7a694bf82cb43458f677a4347c",
+    "mtime": 1781696377.243529,
+    "ast_hash": "a0541ad281acdb6c92e760e51dd67407",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\types\\role.ts": {
@@ -820,8 +820,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\organization_locations\\+page.svelte": {
-    "mtime": 1781510798.3268037,
-    "ast_hash": "0c463a27e4fec6e73d8d997673464cf1",
+    "mtime": 1781697159.3404477,
+    "ast_hash": "0b93272955c50f4e1e8ef9a4b8521288",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\permissions\\+page.svelte": {
@@ -835,8 +835,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\roles\\+page.svelte": {
-    "mtime": 1781510690.6214645,
-    "ast_hash": "89b8269ffd49f5034ac51b6f92d3cee6",
+    "mtime": 1781692613.8149862,
+    "ast_hash": "8f083bd241bb99faf8109ca38dd7492e",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\salary-components\\+page.svelte": {
@@ -975,8 +975,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\tests\\unit\\services.test.ts": {
-    "mtime": 1781513609.9308202,
-    "ast_hash": "3400e8d4a671e3b07523c4a6f59885ff",
+    "mtime": 1781697885.84168,
+    "ast_hash": "aabbcd69da6d71f363bcf42be7628657",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\tests\\unit\\shifts_duplicate.test.ts": {
@@ -1130,18 +1130,18 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\dao\\leave.dao.ts": {
-    "mtime": 1781517358.711305,
-    "ast_hash": "78bd91e67e117aa70e892c1e58f20fe2",
+    "mtime": 1781697202.6940098,
+    "ast_hash": "e9eeae2cf073531511e327c33b102271",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\lib\\server\\services\\leave.service.ts": {
-    "mtime": 1781671245.3397427,
-    "ast_hash": "18330214d37833ec42ea76f27c687edf",
+    "mtime": 1781697281.1642015,
+    "ast_hash": "3ec632a81c6240d9753a8d5074496f07",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\api\\leaves\\+server.ts": {
-    "mtime": 1781507454.237592,
-    "ast_hash": "e7a089c2b89492caed4f6e62dec1afca",
+    "mtime": 1781697393.4628148,
+    "ast_hash": "e0745fdf653ddc20f61ea2dd9c5b5778",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\api\\leaves\\[cuid]\\+server.ts": {
@@ -1187,6 +1187,11 @@
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\api\\leaves\\settings\\+server.ts": {
     "mtime": 1781671114.0560672,
     "ast_hash": "c1abcd95b767ec70c85f0c11bc1bd5ac",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\api\\leaves\\[cuid]\\document\\+server.ts": {
+    "mtime": 1781697334.0998714,
+    "ast_hash": "c3ae1219b33b79ff3dff0d06a09cd6d5",
     "semantic_hash": ""
   }
 }

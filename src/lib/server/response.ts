@@ -71,6 +71,8 @@ export function mapLocation(loc: any) {
     country_cuid: loc.country_cuid,
     pin_code: loc.pin_code,
     timezone: loc.timezone,
+    latitude: loc.latitude ? Number(loc.latitude) : null,
+    longitude: loc.longitude ? Number(loc.longitude) : null,
     status: loc.status,
     created_by: loc.created_by ?? null,
     updated_by: loc.updated_by ?? null

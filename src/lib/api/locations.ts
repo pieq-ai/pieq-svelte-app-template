@@ -34,6 +34,8 @@ export interface LocationCreatePayload {
   country_cuid: string;
   pin_code: string;
   timezone: string;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface LocationUpdatePayload extends Partial<LocationCreatePayload> {
