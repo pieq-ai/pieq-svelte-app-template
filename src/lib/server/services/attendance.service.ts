@@ -56,7 +56,7 @@ export async function checkIn(
 
 	// Check if today is a holiday
 	const isHoliday = await db.holidayCalendar.findFirst({
-		where: { holiday_date: todayUTC }
+		where: { date: todayUTC }
 	});
 	if (isHoliday) {
 		throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on holidays');
@@ -124,7 +124,7 @@ export async function checkOut(
 
 	// Check if today is a holiday
 	const isHoliday = await db.holidayCalendar.findFirst({
-		where: { holiday_date: todayUTC }
+		where: { date: todayUTC }
 	});
 	if (isHoliday) {
 		throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on holidays');

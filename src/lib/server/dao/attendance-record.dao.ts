@@ -41,11 +41,11 @@ export async function list(filters: AttendanceRecordFilters = {}) {
 	}
 
 	if (filters.attendance_date) {
-		whereClause.attendance_date = filters.attendance_date;
+		whereClause.date = filters.attendance_date;
 	}
 
 	if (filters.attendance_status) {
-		whereClause.attendance_status = filters.attendance_status;
+		whereClause.status = filters.attendance_status;
 	}
 
 	if (filters.attendance_source_cuid) {
@@ -55,7 +55,7 @@ export async function list(filters: AttendanceRecordFilters = {}) {
 	return db.attendanceRecord.findMany({
 		where: whereClause,
 		orderBy: [
-			{ attendance_date: 'desc' },
+			{ date: 'desc' },
 			{ created_at: 'desc' }
 		]
 	});
@@ -71,7 +71,7 @@ export async function findByEmployeeAndDate(employee_cuid: string, attendance_da
 	return db.attendanceRecord.findFirst({
 		where: {
 			employee_cuid,
-			attendance_date
+			date: attendance_date
 		}
 	});
 }
@@ -80,11 +80,11 @@ export async function create(data: CreateAttendanceRecordInput) {
 	return db.attendanceRecord.create({
 		data: {
 			employee_cuid: data.employee_cuid,
-			attendance_date: data.attendance_date,
+			date: data.attendance_date,
 			check_in_time: data.check_in_time ?? null,
 			check_out_time: data.check_out_time ?? null,
 			work_duration_minutes: data.work_duration_minutes ?? null,
-			attendance_status: data.attendance_status,
+			status: data.attendance_status,
 			attendance_source_cuid: data.attendance_source_cuid ?? null,
 			remarks: data.remarks ?? null,
 			created_by: data.created_by ?? null,
@@ -94,9 +94,19 @@ export async function create(data: CreateAttendanceRecordInput) {
 }
 
 export async function update(cuid: string, data: UpdateAttendanceRecordInput) {
+	const updateData: any = { ...data };
+	if (data.attendance_date !== undefined) {
+		updateData.date = data.attendance_date;
+		delete updateData.attendance_date;
+	}
+	if (data.attendance_status !== undefined) {
+		updateData.status = data.attendance_status;
+		delete updateData.attendance_status;
+	}
+
 	return db.attendanceRecord.update({
 		where: { cuid },
-		data
+		data: updateData
 	});
 }
 

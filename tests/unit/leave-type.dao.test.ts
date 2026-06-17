@@ -14,7 +14,7 @@ vi.mock('$lib/server/db.js', () => {
 	};
 	return {
 		db: {
-			$transaction: vi.fn((callback) => callback(mockTx)),
+			$transaction: vi.fn((callback: (tx: any) => any) => callback(mockTx)),
 			leaveType: mockTx.leaveType,
 			leavePolicy: mockTx.leavePolicy
 		}
@@ -34,7 +34,7 @@ describe('leave-type DAO', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		const dbMock = vi.mocked(db);
-		dbMock.$transaction.mockImplementation(async (callback) => {
+		dbMock.$transaction.mockImplementation(async (callback: (tx: PrismaClient) => Promise<any>) => {
 			mockTx = {
 				leaveType: {
 					update: vi.fn().mockResolvedValue({ cuid: 'test-cuid', status: true })
@@ -48,11 +48,11 @@ describe('leave-type DAO', () => {
 	});
 
 	it('should update leave type status and set deactivated_by_leave_type flag to true when deactivated', async () => {
-		await update('test-cuid', { status: false, leave_name: 'Sick Leave', leave_code: 'SICK', is_paid: true, requires_approval: true });
+		await update('test-cuid', { status: false, name: 'Sick Leave', code: 'SICK', is_paid: true, requires_approval: true });
 
 		expect(mockTx.leaveType.update).toHaveBeenCalledWith({
 			where: { cuid: 'test-cuid' },
-			data: { status: false, leave_name: 'Sick Leave', leave_code: 'SICK', is_paid: true, requires_approval: true }
+			data: { status: false, name: 'Sick Leave', code: 'SICK', is_paid: true, requires_approval: true }
 		});
 
 		expect(mockTx.leavePolicy.updateMany).toHaveBeenCalledWith({
@@ -68,11 +68,11 @@ describe('leave-type DAO', () => {
 	});
 
 	it('should update leave type status and restore policies when reactivated', async () => {
-		await update('test-cuid', { status: true, leave_name: 'Sick Leave', leave_code: 'SICK', is_paid: true, requires_approval: true });
+		await update('test-cuid', { status: true, name: 'Sick Leave', code: 'SICK', is_paid: true, requires_approval: true });
 
 		expect(mockTx.leaveType.update).toHaveBeenCalledWith({
 			where: { cuid: 'test-cuid' },
-			data: { status: true, leave_name: 'Sick Leave', leave_code: 'SICK', is_paid: true, requires_approval: true }
+			data: { status: true, name: 'Sick Leave', code: 'SICK', is_paid: true, requires_approval: true }
 		});
 
 		expect(mockTx.leavePolicy.updateMany).toHaveBeenCalledWith({
@@ -88,11 +88,11 @@ describe('leave-type DAO', () => {
 	});
 
 	it('should not update leave policies if status is not changed', async () => {
-		await update('test-cuid', { leave_name: 'Sick Leave' });
+		await update('test-cuid', { name: 'Sick Leave' });
 
 		expect(mockTx.leaveType.update).toHaveBeenCalledWith({
 			where: { cuid: 'test-cuid' },
-			data: { leave_name: 'Sick Leave' }
+			data: { name: 'Sick Leave' }
 		});
 
 		expect(mockTx.leavePolicy.updateMany).not.toHaveBeenCalled();

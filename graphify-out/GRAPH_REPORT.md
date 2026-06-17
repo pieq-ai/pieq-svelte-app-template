@@ -1,7 +1,7 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-17)
 
 ## Corpus Check
-- 276 files · ~107,999 words
+- 277 files · ~108,210 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0996d045`
+- Built from commit: `27f4feed`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -64,6 +64,7 @@
 - [[_COMMUNITY_Community 53|Community 53]]
 - [[_COMMUNITY_Community 54|Community 54]]
 - [[_COMMUNITY_Community 55|Community 55]]
+- [[_COMMUNITY_Community 56|Community 56]]
 - [[_COMMUNITY_Community 57|Community 57]]
 - [[_COMMUNITY_Community 58|Community 58]]
 - [[_COMMUNITY_Community 60|Community 60]]
@@ -89,7 +90,6 @@
 - [[_COMMUNITY_Community 83|Community 83]]
 - [[_COMMUNITY_Community 85|Community 85]]
 - [[_COMMUNITY_Community 86|Community 86]]
-- [[_COMMUNITY_Community 87|Community 87]]
 - [[_COMMUNITY_Community 90|Community 90]]
 - [[_COMMUNITY_Community 91|Community 91]]
 - [[_COMMUNITY_Community 92|Community 92]]
@@ -112,6 +112,8 @@
 
 ## Surprising Connections (you probably didn't know these)
 - `GET()` --calls--> `successResponse()`  [INFERRED]
+  src/routes/api/attendance/[cuid]/+server.ts → src/lib/server/response.ts
+- `GET()` --calls--> `successResponse()`  [INFERRED]
   src/routes/api/attendance-records/[cuid]/+server.ts → src/lib/server/response.ts
 - `GET()` --calls--> `successResponse()`  [INFERRED]
   src/routes/api/holidays/[cuid]/+server.ts → src/lib/server/response.ts
@@ -119,8 +121,6 @@
   src/routes/api/leave/policies/[cuid]/+server.ts → src/lib/server/response.ts
 - `GET()` --calls--> `successResponse()`  [INFERRED]
   src/routes/api/leave/types/[cuid]/+server.ts → src/lib/server/response.ts
-- `GET()` --calls--> `errorResponse()`  [INFERRED]
-  src/routes/api/attendance/[cuid]/+server.ts → src/lib/server/response.ts
 
 ## Import Cycles
 - 1-file cycle: `src/routes/leave-policies/+page.svelte -> src/routes/leave-policies/+page.svelte`
@@ -136,8 +136,8 @@ Cohesion: 0.20
 Nodes (4): createClient(), db, getDb(), isValidClient()
 
 ### Community 2 - "UI Components Index"
-Cohesion: 0.20
-Nodes (22): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/toast, $lib/types/salary-component, $lib/utils, $lib/validators/salary-component (+14 more)
+Cohesion: 0.16
+Nodes (25): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/toast, $lib/types/salary-component (+17 more)
 
 ### Community 3 - "UI Components Core"
 Cohesion: 0.08
@@ -180,8 +180,8 @@ Cohesion: 0.12
 Nodes (16): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+8 more)
 
 ### Community 13 - "Permission Service"
-Cohesion: 0.36
-Nodes (8): createAttendanceRecord(), CreateAttendanceRecordDto, listAttendanceRecords(), parseDateOnly(), parseDateTime(), updateAttendanceRecord(), UpdateAttendanceRecordDto, validateRecordFields()
+Cohesion: 0.23
+Nodes (14): updateSuccessResponse(), createAttendanceRecord(), CreateAttendanceRecordDto, deleteAttendanceRecord(), getAttendanceRecordByCuid(), listAttendanceRecords(), parseDateOnly(), parseDateTime() (+6 more)
 
 ### Community 14 - "System Role Service"
 Cohesion: 0.17
@@ -200,8 +200,8 @@ Cohesion: 0.25
 Nodes (3): load(), Toast, ToastStore
 
 ### Community 23 - "Dashboard Routes"
-Cohesion: 0.18
-Nodes (17): GET(), formatHoliday(), createHoliday(), CreateHolidayInput, deleteHoliday(), getHolidayByCuid(), HolidayMultiValidationError, HolidayValidationError (+9 more)
+Cohesion: 0.15
+Nodes (21): GET(), POST(), deleteSuccessResponse(), formatHoliday(), createHoliday(), CreateHolidayInput, deleteHoliday(), getHolidayByCuid() (+13 more)
 
 ### Community 31 - "Community 31"
 Cohesion: 0.17
@@ -209,7 +209,7 @@ Nodes (11): Adding a new feature, Deployment, Keycloak client setup, pieq-svelte
 
 ### Community 32 - "Community 32"
 Cohesion: 0.15
-Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
+Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.10
@@ -220,16 +220,16 @@ Cohesion: 0.17
 Nodes (16): ./$types, ./$types, actions, load(), GET(), getErrorStatus(), POST(), createEmployee() (+8 more)
 
 ### Community 35 - "Community 35"
-Cohesion: 0.26
-Nodes (11): formatLeavePolicy(), createLeavePolicy(), CreateLeavePolicyInput, deleteLeavePolicy(), getLeavePolicyByCuid(), updateLeavePolicy(), UpdateLeavePolicyInput, validateAndMapPolicyInput() (+3 more)
+Cohesion: 0.25
+Nodes (12): formatLeavePolicy(), createLeavePolicy(), CreateLeavePolicyInput, deleteLeavePolicy(), getLeavePolicyByCuid(), updateLeavePolicy(), UpdateLeavePolicyInput, validateAndMapPolicyInput() (+4 more)
 
 ### Community 37 - "Community 37"
-Cohesion: 0.17
-Nodes (10): $lib/components, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/components, $lib/master-data/master-config, $lib/permissions/mock-permissions, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/chevron-right (+2 more)
+Cohesion: 0.22
+Nodes (6): $lib/components, $lib/components, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/chevron-right, @lucide/svelte/icons/more-vertical, @lucide/svelte/icons/pencil
 
 ### Community 38 - "Community 38"
-Cohesion: 0.50
-Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
+Cohesion: 0.26
+Nodes (7): calculateDistance(), GEOFENCE_CONFIG, AttendanceMultiValidationError, checkIn(), getEmployeeHistory(), getOrCreateWebSource(), GET()
 
 ### Community 40 - "Community 40"
 Cohesion: 0.10
@@ -248,8 +248,8 @@ Cohesion: 0.17
 Nodes (11): Adding a new feature, Deployment, Keycloak client setup, pieq-svelte-app-template, Prerequisites, Project structure, Roadmap, Service worker (+3 more)
 
 ### Community 46 - "Community 46"
-Cohesion: 0.17
-Nodes (18): deleteSuccessResponse(), formatLeaveType(), createLeaveType(), CreateLeaveTypeInput, deleteLeaveType(), getLeaveTypeByCuid(), LeaveMultiValidationError, LeaveValidationError (+10 more)
+Cohesion: 0.18
+Nodes (19): errorResponse(), formatLeaveType(), createLeaveType(), CreateLeaveTypeInput, deleteLeaveType(), getLeaveTypeByCuid(), LeaveMultiValidationError, LeaveValidationError (+11 more)
 
 ### Community 47 - "Community 47"
 Cohesion: 0.09
@@ -261,7 +261,7 @@ Nodes (9): RoleListResponse, Role, RoleCreateDTO, RoleUpdateDTO, rejectUnknownKe
 
 ### Community 49 - "Community 49"
 Cohesion: 0.15
-Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
+Nodes (13): Code quality, Common workflows, Development, Other, Quick reference, Scripts, `yarn build`, `yarn check` (+5 more)
 
 ### Community 50 - "Community 50"
 Cohesion: 0.10
@@ -277,7 +277,11 @@ Nodes (13): sendDeleted(), sendUpdated(), DELETE(), parseCuid(), PATCH(), PUT(),
 
 ### Community 55 - "Community 55"
 Cohesion: 0.50
-Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
+Nodes (4): Testing, `yarn test`, `yarn test:e2e`, `yarn test:unit`
+
+### Community 56 - "Community 56"
+Cohesion: 0.50
+Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
 
 ### Community 58 - "Community 58"
 Cohesion: 0.17
@@ -336,12 +340,12 @@ Cohesion: 0.40
 Nodes (5): Database (Prisma), `yarn db:generate`, `yarn db:migrate`, `yarn db:push`, `yarn db:studio`
 
 ### Community 75 - "Community 75"
-Cohesion: 0.14
-Nodes (17): POST(), POST(), PUT(), calculateDistance(), GEOFENCE_CONFIG, successResponse(), AttendanceMultiValidationError, AttendanceValidationError (+9 more)
+Cohesion: 0.20
+Nodes (18): GET(), POST(), POST(), POST(), PUT(), GET(), POST(), createSuccessResponse() (+10 more)
 
 ### Community 76 - "Community 76"
 Cohesion: 0.21
-Nodes (7): ./$types.js, getCodeClientError(), getNameClientError(), handleRowClick(), handleSubmit(), isInteractive(), @lucide/svelte/icons/search
+Nodes (7): ./$types.js, getCodeClientError(), getNameClientError(), handleRowClick(), handleSubmit(), isInteractive(), $app/paths
 
 ### Community 78 - "Community 78"
 Cohesion: 0.67
@@ -353,7 +357,7 @@ Nodes (3): API reference — Employees, GET — list employees, POST — create 
 
 ### Community 81 - "Community 81"
 Cohesion: 0.13
-Nodes (6): @lucide/svelte/icons/alert-triangle, $lib/confirmation.svelte.js, modalStack, stack, svelte/transition, @lucide/svelte/icons/x
+Nodes (7): @lucide/svelte/icons/alert-triangle, $lib/confirmation.svelte.js, modalStack, stack, @lucide/svelte/icons/loader-circle, svelte/transition, @lucide/svelte/icons/x
 
 ### Community 83 - "Community 83"
 Cohesion: 0.20
@@ -362,10 +366,6 @@ Nodes (3): AttendanceRecordFilters, CreateAttendanceRecordInput, UpdateAttendanc
 ### Community 86 - "Community 86"
 Cohesion: 0.05
 Nodes (32): CreatePermissionInput, UpdatePermissionInput, CreateSystemRoleInput, UpdateSystemRoleInput, DELETE(), getStatus(), createPermission(), CreatePermissionDto (+24 more)
-
-### Community 87 - "Community 87"
-Cohesion: 0.24
-Nodes (20): GET(), POST(), POST(), GET(), POST(), createSuccessResponse(), errorResponse(), updateSuccessResponse() (+12 more)
 
 ### Community 93 - "Community 93"
 Cohesion: 0.22
@@ -383,7 +383,7 @@ Nodes (4): $app/environment, toast, svelte-sonner, $lib/components/ui/toaster.sv
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `db` connect `Data Access Tests` to `Master Data DAO`, `Department Service DAO`, `Permission Service`, `Community 35`, `Community 36`, `Community 39`, `Community 40`, `Community 44`, `Community 47`, `Community 48`, `Community 54`, `Community 57`, `Community 60`, `Community 75`, `Community 83`, `Community 86`, `Community 90`, `Community 91`, `Community 92`?**
+- **Why does `db` connect `Data Access Tests` to `Master Data DAO`, `Department Service DAO`, `Permission Service`, `Community 35`, `Community 36`, `Community 38`, `Community 39`, `Community 40`, `Community 44`, `Community 47`, `Community 48`, `Community 54`, `Community 57`, `Community 60`, `Community 83`, `Community 86`, `Community 90`, `Community 91`, `Community 92`?**
   _High betweenness centrality (0.082) - this node is a cross-community bridge._
 - **Why does `$lib/utils.js` connect `UI Components Core` to `Community 81`, `Designation Service DAO`, `System Role Service`?**
   _High betweenness centrality (0.060) - this node is a cross-community bridge._

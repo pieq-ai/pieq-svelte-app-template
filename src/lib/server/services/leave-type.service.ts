@@ -142,8 +142,8 @@ export async function createLeaveType(input: CreateLeaveTypeInput) {
 	}
 
 	return leaveTypeDao.create({
-		leave_name,
-		leave_code,
+		name: leave_name,
+		code: leave_code,
 		description,
 		is_paid,
 		requires_approval,
@@ -163,8 +163,8 @@ export async function updateLeaveType(cuid: string, input: UpdateLeaveTypeInput)
 		throw new Error('Leave type not found');
 	}
 
-	const leave_name = input.leave_name !== undefined ? validateLeaveName(input.leave_name) : existingType.leave_name;
-	const leave_code = input.leave_code !== undefined ? validateLeaveCode(input.leave_code) : existingType.leave_code;
+	const leave_name = input.leave_name !== undefined ? validateLeaveName(input.leave_name) : existingType.name;
+	const leave_code = input.leave_code !== undefined ? validateLeaveCode(input.leave_code) : existingType.code;
 	const description = input.description !== undefined ? (typeof input.description === 'string' ? input.description.trim() || null : null) : existingType.description;
 	const is_paid = input.is_paid !== undefined ? Boolean(input.is_paid) : existingType.is_paid;
 	const requires_approval = input.requires_approval !== undefined ? Boolean(input.requires_approval) : existingType.requires_approval;
@@ -191,8 +191,8 @@ export async function updateLeaveType(cuid: string, input: UpdateLeaveTypeInput)
 	}
 
 	return leaveTypeDao.update(cuid, {
-		leave_name,
-		leave_code,
+		name: leave_name,
+		code: leave_code,
 		description,
 		is_paid,
 		requires_approval,

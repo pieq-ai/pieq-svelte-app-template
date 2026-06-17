@@ -37,13 +37,13 @@ describe('Permission DAO', () => {
 
 	describe('findById', () => {
 		it('should call db.permissions.findUnique with correct id', async () => {
-			const mockData = { id: 1, permission_key: 'admin.read' };
+			const mockData = { id: 1n, permission_key: 'admin.read' };
 			vi.mocked(db.permissions.findUnique).mockResolvedValue(mockData as any);
 
-			const result = await permissionDao.findById(1);
+			const result = await permissionDao.findById(1n);
 
 			expect(db.permissions.findUnique).toHaveBeenCalledWith({
-				where: { id: 1 }
+				where: { id: 1n }
 			});
 			expect(result).toBe(mockData);
 		});
@@ -98,13 +98,13 @@ describe('Permission DAO', () => {
 	describe('update', () => {
 		it('should update permission with provided data by id', async () => {
 			const data = { permission_key: 'admin.delete', status: false };
-			const mockResult = { id: 1, ...data };
+			const mockResult = { id: 1n, ...data };
 			vi.mocked(db.permissions.update).mockResolvedValue(mockResult as any);
 
-			const result = await permissionDao.update(1, data);
+			const result = await permissionDao.update(1n, data);
 
 			expect(db.permissions.update).toHaveBeenCalledWith({
-				where: { id: 1 },
+				where: { id: 1n },
 				data
 			});
 			expect(result).toBe(mockResult);

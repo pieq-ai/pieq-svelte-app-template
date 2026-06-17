@@ -141,8 +141,8 @@ describe('leave type service', () => {
 			vi.mocked(leaveTypeDao.findByName).mockResolvedValue({
 				id: 1n,
 				cuid: 'cuid-1',
-				leave_name: 'Annual Leave',
-				leave_code: 'ANN',
+				name: 'Annual Leave',
+				code: 'ANN',
 				description: null,
 				is_paid: true,
 				requires_approval: true,
@@ -163,8 +163,8 @@ describe('leave type service', () => {
 			vi.mocked(leaveTypeDao.findByCode).mockResolvedValue({
 				id: 2n,
 				cuid: 'cuid-1',
-				leave_name: 'Other Leave',
-				leave_code: 'ANNUAL',
+				name: 'Other Leave',
+				code: 'ANNUAL',
 				description: null,
 				is_paid: true,
 				requires_approval: true,
@@ -186,8 +186,8 @@ describe('leave type service', () => {
 			const expectedResult = {
 				id: 3n,
 				cuid: 'new-cuid',
-				leave_name: 'Annual Leave',
-				leave_code: 'ANNUAL',
+				name: 'Annual Leave',
+				code: 'ANNUAL',
 				description: null,
 				is_paid: true,
 				requires_approval: true,
@@ -203,8 +203,8 @@ describe('leave type service', () => {
 
 			expect(result).toEqual(expectedResult);
 			expect(leaveTypeDao.create).toHaveBeenCalledWith({
-				leave_name: 'Annual Leave',
-				leave_code: 'ANNUAL',
+				name: 'Annual Leave',
+				code: 'ANNUAL',
 				description: null,
 				is_paid: true,
 				requires_approval: true,
@@ -218,8 +218,8 @@ describe('leave type service', () => {
 			const expectedResult = {
 				id: 4n,
 				cuid: 'new-cuid',
-				leave_name: 'Sick Leave',
-				leave_code: 'SICK_LEAVE',
+				name: 'Sick Leave',
+				code: 'SICK_LEAVE',
 				description: 'Custom description',
 				is_paid: false,
 				requires_approval: false,
@@ -239,8 +239,8 @@ describe('leave type service', () => {
 
 			expect(result).toEqual(expectedResult);
 			expect(leaveTypeDao.create).toHaveBeenCalledWith({
-				leave_name: 'Sick Leave',
-				leave_code: 'SICK_LEAVE',
+				name: 'Sick Leave',
+				code: 'SICK_LEAVE',
 				description: 'Custom description',
 				is_paid: false,
 				requires_approval: false,
@@ -266,19 +266,19 @@ describe('leave type service', () => {
 			vi.mocked(leaveTypeDao.findByCuid).mockResolvedValue({
 				id: 5n,
 				cuid: targetCuid,
-				leave_name: 'Old Name',
-				leave_code: 'OLD_CODE',
+				name: 'Old Name',
+				code: 'OLD_CODE',
 				description: null,
 				is_paid: true,
 				requires_approval: true,
 				status: true,
 				...auditFields
-			});
+			} as any);
 			vi.mocked(leaveTypeDao.findDuplicateName).mockResolvedValue({
 				id: 6n,
 				cuid: 'another-cuid',
-				leave_name: 'Conflicting Name',
-				leave_code: 'CONF',
+				name: 'Conflicting Name',
+				code: 'CONF',
 				description: null,
 				is_paid: true,
 				requires_approval: true,
@@ -297,20 +297,20 @@ describe('leave type service', () => {
 			vi.mocked(leaveTypeDao.findByCuid).mockResolvedValue({
 				id: 5n,
 				cuid: targetCuid,
-				leave_name: 'Old Name',
-				leave_code: 'OLD_CODE',
+				name: 'Old Name',
+				code: 'OLD_CODE',
 				description: null,
 				is_paid: true,
 				requires_approval: true,
 				status: true,
 				...auditFields
-			});
+			} as any);
 			vi.mocked(leaveTypeDao.findDuplicateName).mockResolvedValue(null);
 			vi.mocked(leaveTypeDao.findDuplicateCode).mockResolvedValue({
 				id: 7n,
 				cuid: 'another-cuid',
-				leave_name: 'Conflicting Code Type',
-				leave_code: 'NEW_CODE',
+				name: 'Conflicting Code Type',
+				code: 'NEW_CODE',
 				description: null,
 				is_paid: true,
 				requires_approval: true,
@@ -329,8 +329,8 @@ describe('leave type service', () => {
 			const existing = {
 				id: 5n,
 				cuid: targetCuid,
-				leave_name: 'Old Name',
-				leave_code: 'OLD_CODE',
+				name: 'Old Name',
+				code: 'OLD_CODE',
 				description: 'Old Description',
 				is_paid: true,
 				requires_approval: true,
@@ -344,8 +344,8 @@ describe('leave type service', () => {
 			const expectedUpdated = {
 				id: 5n,
 				cuid: targetCuid,
-				leave_name: 'New Name',
-				leave_code: 'NEW_CODE',
+				name: 'New Name',
+				code: 'NEW_CODE',
 				description: 'New Description',
 				is_paid: false,
 				requires_approval: false,
@@ -365,8 +365,8 @@ describe('leave type service', () => {
 
 			expect(result).toEqual(expectedUpdated);
 			expect(leaveTypeDao.update).toHaveBeenCalledWith(targetCuid, {
-				leave_name: 'New Name',
-				leave_code: 'NEW_CODE',
+				name: 'New Name',
+				code: 'NEW_CODE',
 				description: 'New Description',
 				is_paid: false,
 				requires_approval: false,
@@ -388,8 +388,8 @@ describe('leave type service', () => {
 			const existing = {
 				id: 8n,
 				cuid: targetCuid,
-				leave_name: 'Annual Leave',
-				leave_code: 'ANNUAL',
+				name: 'Annual Leave',
+				code: 'ANNUAL',
 				description: null,
 				is_paid: true,
 				requires_approval: true,

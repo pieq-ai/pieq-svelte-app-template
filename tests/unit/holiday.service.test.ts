@@ -181,9 +181,9 @@ describe('holiday service', () => {
 			vi.mocked(holidayDao.create).mockResolvedValue({
 				id: 99n,
 				cuid: 'today-cuid',
-				holiday_name: 'Today Holiday',
-				holiday_date: new Date(Date.UTC(2026, 4, 29)),
-				holiday_type: 'National',
+				name: 'Today Holiday',
+				date: new Date(Date.UTC(2026, 4, 29)),
+				type: 'National',
 				...auditFields
 			});
 
@@ -216,9 +216,9 @@ describe('holiday service', () => {
 			vi.mocked(holidayDao.findByDate).mockResolvedValue({
 				id: 1n,
 				cuid: 'cuid-1',
-				holiday_name: 'Existing Holiday',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National',
+				name: 'Existing Holiday',
+				date: new Date(Date.UTC(2026, 5, 1)),
+				type: 'National',
 				...auditFields
 			});
 
@@ -242,9 +242,9 @@ describe('holiday service', () => {
 			vi.mocked(holidayDao.findByNameAndYear).mockResolvedValue({
 				id: 2n,
 				cuid: 'cuid-2',
-				holiday_name: 'New Year Day',
-				holiday_date: new Date(Date.UTC(2026, 0, 1)),
-				holiday_type: 'National',
+				name: 'New Year Day',
+				date: new Date(Date.UTC(2026, 0, 1)),
+				type: 'National',
 				...auditFields
 			});
 
@@ -269,9 +269,9 @@ describe('holiday service', () => {
 			const expectedHoliday = {
 				id: 3n,
 				cuid: 'new-cuid',
-				holiday_name: 'New Year Day',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National',
+				name: 'New Year Day',
+				date: new Date(Date.UTC(2026, 5, 1)),
+				type: 'National',
 				...auditFields
 			};
 			vi.mocked(holidayDao.create).mockResolvedValue(expectedHoliday);
@@ -284,9 +284,9 @@ describe('holiday service', () => {
 
 			expect(result).toEqual(expectedHoliday);
 			expect(holidayDao.create).toHaveBeenCalledWith({
-				holiday_name: 'New Year Day',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National'
+				name: 'New Year Day',
+				date: new Date(Date.UTC(2026, 5, 1)),
+				type: 'National'
 			});
 		});
 
@@ -294,17 +294,17 @@ describe('holiday service', () => {
 			vi.mocked(holidayDao.findByDate).mockResolvedValue({
 				id: 1n,
 				cuid: 'cuid-1',
-				holiday_name: 'Existing Holiday',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National',
+				name: 'Existing Holiday',
+				date: new Date(Date.UTC(2026, 5, 1)),
+				type: 'National',
 				...auditFields
 			});
 			vi.mocked(holidayDao.findByNameAndYear).mockResolvedValue({
 				id: 2n,
 				cuid: 'cuid-2',
-				holiday_name: 'New Year Day',
-				holiday_date: new Date(Date.UTC(2026, 0, 1)),
-				holiday_type: 'National',
+				name: 'New Year Day',
+				date: new Date(Date.UTC(2026, 0, 1)),
+				type: 'National',
 				...auditFields
 			});
 
@@ -344,17 +344,17 @@ describe('holiday service', () => {
 			vi.mocked(holidayDao.findByCuid).mockResolvedValue({
 				id: 4n,
 				cuid: targetCuid,
-				holiday_name: 'Old Name',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National',
+				name: 'Old Name',
+				date: new Date(Date.UTC(2026, 5, 1)),
+				type: 'National',
 				...auditFields
-			});
+			} as any);
 			vi.mocked(holidayDao.findByDateExcludingCuid).mockResolvedValue({
 				id: 5n,
 				cuid: 'another-cuid',
-				holiday_name: 'Conflicting Holiday',
-				holiday_date: new Date(Date.UTC(2026, 5, 2)),
-				holiday_type: 'Regional',
+				name: 'Conflicting Holiday',
+				date: new Date(Date.UTC(2026, 5, 2)),
+				type: 'Regional',
 				...auditFields
 			});
 
@@ -377,18 +377,18 @@ describe('holiday service', () => {
 			vi.mocked(holidayDao.findByCuid).mockResolvedValue({
 				id: 4n,
 				cuid: targetCuid,
-				holiday_name: 'Old Name',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National',
+				name: 'Old Name',
+				date: new Date(Date.UTC(2026, 5, 1)),
+				type: 'National',
 				...auditFields
-			});
+			} as any);
 			vi.mocked(holidayDao.findByDateExcludingCuid).mockResolvedValue(null);
 			vi.mocked(holidayDao.findByNameAndYearExcludingCuid).mockResolvedValue({
 				id: 5n,
 				cuid: 'another-cuid',
-				holiday_name: 'Conflicting Name',
-				holiday_date: new Date(Date.UTC(2026, 8, 1)),
-				holiday_type: 'Regional',
+				name: 'Conflicting Name',
+				date: new Date(Date.UTC(2026, 8, 1)),
+				type: 'Regional',
 				...auditFields
 			});
 
@@ -411,9 +411,9 @@ describe('holiday service', () => {
 			const existing = {
 				id: 4n,
 				cuid: targetCuid,
-				holiday_name: 'Old Name',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National',
+				name: 'Old Name',
+				date: new Date(Date.UTC(2026, 5, 1)),
+				type: 'National',
 				...auditFields
 			};
 			vi.mocked(holidayDao.findByCuid).mockResolvedValue(existing);
@@ -422,8 +422,8 @@ describe('holiday service', () => {
 			
 			const updated = {
 				...existing,
-				holiday_name: 'Updated Name',
-				holiday_date: new Date(Date.UTC(2026, 5, 2)),
+				name: 'Updated Name',
+				date: new Date(Date.UTC(2026, 5, 2)),
 				...auditFields
 			};
 			vi.mocked(holidayDao.update).mockResolvedValue(updated);
@@ -436,9 +436,9 @@ describe('holiday service', () => {
 
 			expect(result).toEqual(updated);
 			expect(holidayDao.update).toHaveBeenCalledWith(targetCuid, {
-				holiday_name: 'Updated Name',
-				holiday_date: new Date(Date.UTC(2026, 5, 2)),
-				holiday_type: 'National'
+				name: 'Updated Name',
+				date: new Date(Date.UTC(2026, 5, 2)),
+				type: 'National'
 			});
 		});
 
@@ -446,25 +446,25 @@ describe('holiday service', () => {
 			vi.mocked(holidayDao.findByCuid).mockResolvedValue({
 				id: 4n,
 				cuid: targetCuid,
-				holiday_name: 'Old Name',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National',
+				name: 'Old Name',
+				date: new Date(Date.UTC(2026, 5, 1)),
+				type: 'National',
 				...auditFields
-			});
+			} as any);
 			vi.mocked(holidayDao.findByDateExcludingCuid).mockResolvedValue({
 				id: 5n,
 				cuid: 'another-cuid-1',
-				holiday_name: 'Conflicting Holiday',
-				holiday_date: new Date(Date.UTC(2026, 5, 2)),
-				holiday_type: 'Regional',
+				name: 'Conflicting Holiday',
+				date: new Date(Date.UTC(2026, 5, 2)),
+				type: 'Regional',
 				...auditFields
 			});
 			vi.mocked(holidayDao.findByNameAndYearExcludingCuid).mockResolvedValue({
 				id: 6n,
 				cuid: 'another-cuid-2',
-				holiday_name: 'Conflicting Name',
-				holiday_date: new Date(Date.UTC(2026, 8, 1)),
-				holiday_type: 'Regional',
+				name: 'Conflicting Name',
+				date: new Date(Date.UTC(2026, 8, 1)),
+				type: 'Regional',
 				...auditFields
 			});
 
@@ -498,9 +498,9 @@ describe('holiday service', () => {
 			const existing = {
 				id: 6n,
 				cuid: targetCuid,
-				holiday_name: 'New Year Day',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National',
+				name: 'New Year Day',
+				date: new Date(Date.UTC(2026, 5, 1)),
+				type: 'National',
 				...auditFields
 			};
 			vi.mocked(holidayDao.findByCuid).mockResolvedValue(existing);

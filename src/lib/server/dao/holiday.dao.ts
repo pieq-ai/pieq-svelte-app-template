@@ -1,9 +1,9 @@
 import { db } from '$lib/server/db.js';
 
 export interface CreateHolidayData {
-	holiday_name: string;
-	holiday_date: Date;
-	holiday_type: string;
+	name: string;
+	date: Date;
+	type: string;
 	created_by?: string | null;
 	updated_by?: string | null;
 }
@@ -12,9 +12,9 @@ export async function list() {
 	return db.holidayCalendar.findMany({
 		select: {
 			cuid: true,
-			holiday_name: true,
-			holiday_date: true,
-			holiday_type: true
+			name: true,
+			date: true,
+			type: true
 		},
 		orderBy: { created_at: 'desc' }
 	});
@@ -23,9 +23,9 @@ export async function list() {
 export async function create(data: CreateHolidayData) {
 	return db.holidayCalendar.create({
 		data: {
-			holiday_name: data.holiday_name,
-			holiday_date: data.holiday_date,
-			holiday_type: data.holiday_type,
+			name: data.name,
+			date: data.date,
+			type: data.type,
 			created_by: data.created_by,
 			updated_by: data.updated_by
 		}
@@ -33,9 +33,16 @@ export async function create(data: CreateHolidayData) {
 }
 
 export async function update(cuid: string, data: Partial<CreateHolidayData>) {
+	const updateData: any = {};
+	if (data.name !== undefined) updateData.name = data.name;
+	if (data.date !== undefined) updateData.date = data.date;
+	if (data.type !== undefined) updateData.type = data.type;
+	if (data.created_by !== undefined) updateData.created_by = data.created_by;
+	if (data.updated_by !== undefined) updateData.updated_by = data.updated_by;
+
 	return db.holidayCalendar.update({
 		where: { cuid },
-		data
+		data: updateData
 	});
 }
 
@@ -50,9 +57,9 @@ export async function findByCuid(cuid: string) {
 		where: { cuid },
 		select: {
 			cuid: true,
-			holiday_name: true,
-			holiday_date: true,
-			holiday_type: true
+			name: true,
+			date: true,
+			type: true
 		}
 	});
 }
@@ -60,8 +67,8 @@ export async function findByCuid(cuid: string) {
 export async function findByNameAndDate(holiday_name: string, holiday_date: Date) {
 	return db.holidayCalendar.findFirst({
 		where: {
-			holiday_name,
-			holiday_date
+			name: holiday_name,
+			date: holiday_date
 		}
 	});
 }
@@ -73,8 +80,8 @@ export async function findDuplicateExcludingCuid(
 ) {
 	return db.holidayCalendar.findFirst({
 		where: {
-			holiday_name,
-			holiday_date,
+			name: holiday_name,
+			date: holiday_date,
 			NOT: { cuid }
 		}
 	});
@@ -82,14 +89,14 @@ export async function findDuplicateExcludingCuid(
 
 export async function findByDate(holiday_date: Date) {
 	return db.holidayCalendar.findFirst({
-		where: { holiday_date }
+		where: { date: holiday_date }
 	});
 }
 
 export async function findByDateExcludingCuid(holiday_date: Date, cuid: string) {
 	return db.holidayCalendar.findFirst({
 		where: {
-			holiday_date,
+			date: holiday_date,
 			NOT: { cuid }
 		}
 	});
@@ -100,11 +107,11 @@ export async function findByNameAndYear(holiday_name: string, year: number) {
 	const endOfYear = new Date(Date.UTC(year, 11, 31, 23, 59, 59, 999));
 	return db.holidayCalendar.findFirst({
 		where: {
-			holiday_name: {
+			name: {
 				equals: holiday_name,
 				mode: 'insensitive'
 			},
-			holiday_date: {
+			date: {
 				gte: startOfYear,
 				lte: endOfYear
 			}
@@ -121,11 +128,11 @@ export async function findByNameAndYearExcludingCuid(
 	const endOfYear = new Date(Date.UTC(year, 11, 31, 23, 59, 59, 999));
 	return db.holidayCalendar.findFirst({
 		where: {
-			holiday_name: {
+			name: {
 				equals: holiday_name,
 				mode: 'insensitive'
 			},
-			holiday_date: {
+			date: {
 				gte: startOfYear,
 				lte: endOfYear
 			},

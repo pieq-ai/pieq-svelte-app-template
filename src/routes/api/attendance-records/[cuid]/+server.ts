@@ -26,11 +26,11 @@ export const GET: RequestHandler = async ({ params }) => {
 		const formatted = {
 			cuid: record.cuid,
 			employee_cuid: record.employee_cuid,
-			attendance_date: record.attendance_date.toISOString().split('T')[0],
+			attendance_date: record.date.toISOString().split('T')[0],
 			check_in_time: record.check_in_time ? record.check_in_time.toISOString() : null,
 			check_out_time: record.check_out_time ? record.check_out_time.toISOString() : null,
 			work_duration_minutes: record.work_duration_minutes,
-			attendance_status: record.attendance_status,
+			attendance_status: record.status,
 			attendance_source_cuid: record.attendance_source_cuid,
 			remarks: record.remarks
 		};

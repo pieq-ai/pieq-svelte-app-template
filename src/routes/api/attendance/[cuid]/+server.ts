@@ -14,11 +14,11 @@ export const GET: RequestHandler = async ({ params }) => {
 
 		const formattedRecords = records.map((rec) => ({
 			cuid: rec.cuid,
-			attendance_date: rec.attendance_date.toISOString().split('T')[0],
+			attendance_date: rec.date.toISOString().split('T')[0],
 			check_in_time: rec.check_in_time ? rec.check_in_time.toISOString() : null,
 			check_out_time: rec.check_out_time ? rec.check_out_time.toISOString() : null,
 			work_duration_minutes: rec.work_duration_minutes,
-			attendance_status: rec.attendance_status
+			attendance_status: rec.status
 		}));
 
 		return successResponse(formattedRecords);

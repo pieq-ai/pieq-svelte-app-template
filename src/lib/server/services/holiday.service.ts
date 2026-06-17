@@ -172,7 +172,7 @@ export async function createHoliday(input: CreateHolidayInput) {
 		throw new HolidayMultiValidationError(errors);
 	}
 
-	return holidayDao.create({ holiday_name, holiday_date, holiday_type, created_by: input.created_by, updated_by: input.updated_by });
+	return holidayDao.create({ name: holiday_name, date: holiday_date, type: holiday_type, created_by: input.created_by, updated_by: input.updated_by });
 }
 
 export async function updateHoliday(cuid: string, input: UpdateHolidayInput) {
@@ -210,7 +210,7 @@ export async function updateHoliday(cuid: string, input: UpdateHolidayInput) {
 		throw new HolidayMultiValidationError(errors);
 	}
 
-	return holidayDao.update(cuid, { holiday_name, holiday_date, holiday_type, updated_by: input.updated_by });
+	return holidayDao.update(cuid, { name: holiday_name, date: holiday_date, type: holiday_type, updated_by: input.updated_by });
 }
 
 export async function deleteHoliday(cuid: string) {

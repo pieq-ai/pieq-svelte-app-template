@@ -176,11 +176,11 @@ async function validateRecordFields(
 
 	// Duplicate employee + date check
 	const finalEmployee = employee_cuid ?? (isUpdate ? (await db.attendanceRecord.findUnique({ where: { cuid: excludeCuid } }))?.employee_cuid : undefined);
-	const finalDate = attendance_date ?? (isUpdate ? (await db.attendanceRecord.findUnique({ where: { cuid: excludeCuid } }))?.attendance_date : undefined);
+	const finalDate = attendance_date ?? (isUpdate ? (await db.attendanceRecord.findUnique({ where: { cuid: excludeCuid } }))?.date : undefined);
 
 	if (finalDate) {
 		const isHoliday = await db.holidayCalendar.findFirst({
-			where: { holiday_date: finalDate }
+			where: { date: finalDate }
 		});
 		if (isHoliday) {
 			errors.attendance_date = 'Attendance cannot be marked on holidays';

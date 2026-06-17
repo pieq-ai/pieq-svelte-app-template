@@ -1,7 +1,7 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-17)
 
 ## Corpus Check
-- 275 files · ~107,959 words
+- 276 files · ~107,999 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d002babd`
+- Built from commit: `0996d045`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -136,8 +136,8 @@ Cohesion: 0.20
 Nodes (4): createClient(), db, getDb(), isValidClient()
 
 ### Community 2 - "UI Components Index"
-Cohesion: 0.16
-Nodes (25): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/toast, $lib/types/salary-component (+17 more)
+Cohesion: 0.20
+Nodes (22): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/toast, $lib/types/salary-component, $lib/utils, $lib/validators/salary-component (+14 more)
 
 ### Community 3 - "UI Components Core"
 Cohesion: 0.08
@@ -224,12 +224,12 @@ Cohesion: 0.26
 Nodes (11): formatLeavePolicy(), createLeavePolicy(), CreateLeavePolicyInput, deleteLeavePolicy(), getLeavePolicyByCuid(), updateLeavePolicy(), UpdateLeavePolicyInput, validateAndMapPolicyInput() (+3 more)
 
 ### Community 37 - "Community 37"
-Cohesion: 0.22
-Nodes (6): $lib/components, $lib/components, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/chevron-right, @lucide/svelte/icons/more-vertical, @lucide/svelte/icons/pencil
+Cohesion: 0.17
+Nodes (10): $lib/components, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/components, $lib/master-data/master-config, $lib/permissions/mock-permissions, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/chevron-right (+2 more)
 
 ### Community 38 - "Community 38"
 Cohesion: 0.50
-Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
+Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
 
 ### Community 40 - "Community 40"
 Cohesion: 0.10
@@ -261,7 +261,7 @@ Nodes (9): RoleListResponse, Role, RoleCreateDTO, RoleUpdateDTO, rejectUnknownKe
 
 ### Community 49 - "Community 49"
 Cohesion: 0.15
-Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
+Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
 
 ### Community 50 - "Community 50"
 Cohesion: 0.10
@@ -353,7 +353,7 @@ Nodes (3): API reference — Employees, GET — list employees, POST — create 
 
 ### Community 81 - "Community 81"
 Cohesion: 0.13
-Nodes (7): @lucide/svelte/icons/alert-triangle, $lib/confirmation.svelte.js, modalStack, stack, @lucide/svelte/icons/loader-circle, svelte/transition, @lucide/svelte/icons/x
+Nodes (6): @lucide/svelte/icons/alert-triangle, $lib/confirmation.svelte.js, modalStack, stack, svelte/transition, @lucide/svelte/icons/x
 
 ### Community 83 - "Community 83"
 Cohesion: 0.20

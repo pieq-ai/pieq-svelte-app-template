@@ -15,7 +15,7 @@ import {
 const mockedDao = vi.mocked(employeeDao);
 
 const sampleEmployee = {
-	id: 1,
+	id: 1n,
 	uuid: '11111111-1111-4111-8111-111111111111',
 	name: 'Ada Lovelace',
 	age: 36
