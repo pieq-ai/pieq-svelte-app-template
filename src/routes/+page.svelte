@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { signInWithKeycloak } from '$lib/auth';
-	import { Button, Card, CardContent, CardHeader, CardTitle } from '$lib/components';
 	import { resolve } from '$app/paths';
+	import LogInIcon from '@lucide/svelte/icons/log-in';
+	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
+	import { Button } from '$lib/components';
 
 	let { data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);
@@ -12,7 +14,8 @@
 </script>
 
 <svelte:head>
-	<title>Pieq Svelte App Template</title>
+	<title>PieQ HRMS – Enterprise HR Management</title>
+	<meta name="description" content="PieQ HRMS — Manage roles, shifts, locations, and more in one enterprise-grade platform." />
 </svelte:head>
 
 <div class="space-y-4">
@@ -28,21 +31,20 @@
 		{#if authenticatedUser}
 			<Button href={resolve('/dashboard')}>Go to dashboard</Button>
 		{:else}
-			<Button onclick={handleSignIn}>Sign in with Keycloak</Button>
+			<button
+				onclick={handleSignIn}
+				class="inline-flex items-center gap-2 bg-pieq-primary text-white text-sm font-semibold px-7 py-3 rounded-[10px] no-underline transition-[background-color,transform] duration-200 hover:bg-[#d8470a] hover:-translate-y-0.5 shadow-[0_4px_16px_rgba(244,83,16,0.18)] border-none cursor-pointer"
+			>
+				<LogInIcon size={17} />
+				Sign in with Keycloak
+			</button>
 		{/if}
-	</div>
 
-	<Card>
-		<CardHeader>
-			<CardTitle>Architecture</CardTitle>
-		</CardHeader>
-		<CardContent>
-			<ul class="space-y-2 text-sm text-muted-foreground">
-				<li><strong class="text-foreground">DAO</strong> — Prisma data access in <code>$lib/server/dao</code></li>
-				<li><strong class="text-foreground">Service</strong> — business logic in <code>$lib/server/services</code></li>
-				<li><strong class="text-foreground">Controller</strong> — route loaders/actions in <code>+page.server.ts</code></li>
-				<li><strong class="text-foreground">View</strong> — UI in Svelte components and routes</li>
-			</ul>
-		</CardContent>
-	</Card>
+		<!-- Feature pills -->
+		<div class="flex flex-wrap gap-2 justify-center mt-10">
+			{#each ['Role-Based Access', 'Shift Management', 'Locations Configuration', 'Secure Auth'] as feat}
+				<span class="px-3.5 py-1.25 border border-border rounded-full text-xs text-muted-foreground bg-card">{feat}</span>
+			{/each}
+		</div>
+	</div>
 </div>

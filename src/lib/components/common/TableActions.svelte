@@ -3,23 +3,19 @@
 	import { Button } from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
-	interface Props {
-		editLabel?: string;
-		canEdit?: boolean;
-		onEdit?: () => void;
-		viewLabel?: string;
-		canView?: boolean;
-		onView?: () => void;
+	export interface TableAction {
+		label: string;
+		onClick: () => void;
+		icon?: any;
+		class?: string;
+		disabled?: boolean;
 	}
 
-	let {
-		editLabel = 'Edit',
-		canEdit = true,
-		onEdit,
-		viewLabel = 'View',
-		canView = false,
-		onView
-	}: Props = $props();
+	interface Props {
+		actions?: TableAction[];
+	}
+
+	let { actions = [] }: Props = $props();
 </script>
 
 <DropdownMenu.Root>
@@ -28,7 +24,7 @@
 			<Button
 				variant="ghost"
 				size="icon-sm"
-				class="h-7 w-7 text-muted-foreground hover:text-foreground focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none"
+				class="h-7 w-7 text-muted-foreground hover:text-foreground"
 				aria-label="Actions"
 				{...props}
 			>
@@ -36,16 +32,21 @@
 			</Button>
 		{/snippet}
 	</DropdownMenu.Trigger>
+
 	<DropdownMenu.Content align="end" preventScroll={false}>
-		{#if canView}
-			<DropdownMenu.Item onclick={onView} class="cursor-pointer">
-				{viewLabel}
+		{#each actions as action}
+			<DropdownMenu.Item
+				onclick={action.onClick}
+				disabled={action.disabled}
+				class="cursor-pointer {action.class ?? ''}"
+			>
+				{#if action.icon}
+					{@const Icon = action.icon}
+					<Icon class="mr-2 size-4" />
+				{/if}
+
+				{action.label}
 			</DropdownMenu.Item>
-		{/if}
-		{#if canEdit}
-			<DropdownMenu.Item onclick={onEdit} class="cursor-pointer">
-				{editLabel}
-			</DropdownMenu.Item>
-		{/if}
+		{/each}
 	</DropdownMenu.Content>
 </DropdownMenu.Root>

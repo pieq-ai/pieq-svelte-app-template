@@ -2,7 +2,7 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg'
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
-	import { Button } from '$lib/components';
+	import { Button, ConfirmationModal } from '$lib/components';
 	import Toaster from '$lib/components/ui/toaster.svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
@@ -21,6 +21,11 @@
 	import UserRoundIcon from '@lucide/svelte/icons/user-round';
 	import UsersRoundIcon from '@lucide/svelte/icons/users-round';
 	import WalletIcon from '@lucide/svelte/icons/wallet';
+	import UserCheckIcon from '@lucide/svelte/icons/user-check';
+	import MapPinIcon from '@lucide/svelte/icons/map-pin';
+	import ClockIcon from '@lucide/svelte/icons/clock';
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
+	import CalendarCogIcon from '@lucide/svelte/icons/calendar-cog';
 
 	let { children, data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);
@@ -49,10 +54,16 @@
 
 	const protectedNavItems = [
 		{ label: 'Dashboard', href: resolve('/dashboard'), icon: LayoutDashboardIcon },
-		{ label: 'Employee', href: resolve('/employees'), icon: UsersRoundIcon },
-		{ label: 'Department', href: resolve('/departments'), icon: Building2Icon },
-		{ label: 'Designation', href: resolve('/designations'), icon: UserRoundIcon },
+		{ label: 'Employees', href: resolve('/employees'), icon: UsersRoundIcon },
+		{ label: 'Departments', href: resolve('/departments'), icon: Building2Icon },
+		{ label: 'Designations', href: resolve('/designations'), icon: UserRoundIcon },
+		{ label: 'Roles', href: resolve('/roles'), icon: UserCheckIcon },
+		{ label: 'Shifts', href: resolve('/shifts'), icon: ClockIcon },
+		{ label: 'Locations', href: resolve('/organization_locations'), icon: MapPinIcon },
 		{ label: 'Salary Components', href: resolve('/salary-components'), icon: WalletIcon },
+		{ label: 'Leave Types', href: resolve('/leave-types'), icon: CalendarCogIcon },
+		{ label: 'Leave Policies', href: resolve('/leave-policies'), icon: ShieldCheckIcon },
+		{ label: 'Holiday Calendar', href: resolve('/holidays'), icon: CalendarIcon },
 		{ label: 'System Roles', href: resolve('/system-roles'), icon: ShieldCheckIcon },
 		{ label: 'Permissions', href: resolve('/permissions'), icon: KeyRoundIcon },
 		{ label: 'Role Permissions', href: resolve('/role-permissions'), icon: LinkIcon }
@@ -79,13 +90,17 @@
 	});
 </script>
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<svelte:head>
+	<link rel="icon" href={favicon} />
+	<title>PieQ HRMS</title>
+</svelte:head>
 
 <div class="flex min-h-screen bg-background text-foreground">
 	<Toaster />
 	<aside
 		class={`sticky top-0 h-screen z-30 flex shrink-0 flex-col border-r border-[#737373]/25 bg-[#262626] text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
 		aria-label="Primary navigation"
+		data-sveltekit-preload-data="off"
 	>
 		<div class={`flex h-16 items-center border-b border-white/10 transition-all ${isSidebarCollapsed ? 'justify-center gap-2 px-2' : 'justify-between px-6'}`}>
 			{#if !isSidebarCollapsed}

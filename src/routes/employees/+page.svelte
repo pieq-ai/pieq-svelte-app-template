@@ -72,8 +72,8 @@
 		loadEmployees();
 	});
 
-	let filteredEmployees = $derived.by(() => {
-		let result = [...employees];
+  let filteredEmployees = $derived.by(() => {
+    let result = [...employees];
 
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
@@ -105,8 +105,8 @@
 			});
 		}
 
-		return result;
-	});
+    return result;
+  });
 
 	let totalEmployees = $derived(employees.length);
 	let completedCount = $derived(employees.filter((e) => e.profile_completion_status === 'completed').length);
@@ -126,7 +126,7 @@
 </script>
 
 <svelte:head>
-	<title>Employees Directory</title>
+	<title>Employees</title>
 </svelte:head>
 
 <div class="w-full space-y-4 px-1 py-0">

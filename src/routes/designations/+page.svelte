@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
+  import { onMount } from "svelte";
+  import LoaderCircleIcon from "@lucide/svelte/icons/loader-circle";
 
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
@@ -10,29 +10,29 @@
 	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { UI_CONSTANTS } from '$lib/constants';
 
-	import {
-		Badge,
-		Button,
-		Card,
-		CardHeader,
-		CardTitle,
-		CardDescription,
-		Input,
-		Label,
-		Table,
-		TableBody,
-		TableCell,
-		TableHead,
-		TableHeader,
-		TableRow,
-		ConfirmModal,
-		CrudModal,
-		TableActions,
-		FilterDropdown,
-		StatusDropdown,
-		Pagination,
-		SearchInput
-	} from '$lib/components';
+  import {
+    Badge,
+    Button,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    Input,
+    Label,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+    ConfirmModal,
+    CrudModal,
+    TableActions,
+    FilterDropdown,
+    StatusDropdown,
+    Pagination,
+    SearchInput,
+  } from "$lib/components";
 
 	interface Designation {
 		cuid: string;
@@ -40,52 +40,54 @@
 		status: boolean;
 	}
 
-	let designationsList = $state<Designation[]>([]);
-	let isLoading = $state(true);
-	let loadError = $state('');
+  let designationsList = $state<Designation[]>([]);
+  let isLoading = $state(true);
+  let loadError = $state("");
 
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
 	let sortColumn = $state('name');
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
-	let currentPage = $state(1);
-	let pageSize = $state(10);
+  let currentPage = $state(1);
+  let pageSize = $state(10);
 
-	// Shared Form State
-	let editingDesignation = $state<Designation | null>(null);
-	let formDesignationName = $state('');
-	let formDesignationStatus = $state<boolean>(true);
-	let isSubmitting = $state(false);
-	let isModalOpen = $state(false);
-	let isNameTouched = $state(false);
-	let backendError = $state('');
-	let designationNameInput = $state<HTMLInputElement | null>(null);
+  // Shared Form State
+  let editingDesignation = $state<Designation | null>(null);
+  let formDesignationName = $state("");
+  let formDesignationStatus = $state<boolean>(true);
+  let isSubmitting = $state(false);
+  let isModalOpen = $state(false);
+  let isNameTouched = $state(false);
+  let backendError = $state("");
+  let designationNameInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ name: formDesignationName.trim(), status: formDesignationStatus }));
 	$effect(() => { $globalIsDirty = isDirty; });
 
-	// Deletion State
-	let itemToDelete = $state<Designation | null>(null);
-	let isDeleting = $state(false);
+  // Deletion State
+  let itemToDelete = $state<Designation | null>(null);
+  let isDeleting = $state(false);
 
-	function getValidationError(name: string): string {
-		const trimmed = name.trim();
-		if (trimmed === '') {
-			return 'Designation name is required';
-		}
-		const regex = /^[A-Za-z0-9]+(?:\s[A-Za-z0-9]+)*$/;
-		if (!regex.test(trimmed)) {
-			return 'Designation can contain only letters, numbers, and spaces. Special characters are not allowed.';
-		}
-		return '';
-	}
+  function getValidationError(name: string): string {
+    const trimmed = name.trim();
+    if (trimmed === "") {
+      return "Designation name is required";
+    }
+    const regex = /^[A-Za-z0-9]+(?:\s[A-Za-z0-9]+)*$/;
+    if (!regex.test(trimmed)) {
+      return "Designation can contain only letters, numbers, and spaces. Special characters are not allowed.";
+    }
+    return "";
+  }
 
-	let nameValidationError = $derived(isNameTouched ? getValidationError(formDesignationName) : '');
+  let nameValidationError = $derived(
+    isNameTouched ? getValidationError(formDesignationName) : "",
+  );
 
-	let filteredDesignations = $derived.by(() => {
-		let result = [...designationsList];
+  let filteredDesignations = $derived.by(() => {
+    let result = [...designationsList];
 
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
@@ -95,55 +97,66 @@
 			);
 		}
 
-		if (statusFilter !== 'all') {
-			result = result.filter((designation) => designation.status === statusFilter);
-		}
+    if (statusFilter !== "all") {
+      result = result.filter(
+        (designation) => designation.status === statusFilter,
+      );
+    }
 
-		if (sortDirection && sortColumn) {
-			result.sort((a, b) => {
-				const valA = a[sortColumn as keyof typeof a];
-				const valB = b[sortColumn as keyof typeof b];
+    if (sortDirection && sortColumn) {
+      result.sort((a, b) => {
+        const valA = a[sortColumn as keyof typeof a];
+        const valB = b[sortColumn as keyof typeof b];
 
-				return sortDirection === 'asc'
-					? String(valA).localeCompare(String(valB))
-					: String(valB).localeCompare(String(valA));
-			});
-		}
+        return sortDirection === "asc"
+          ? String(valA).localeCompare(String(valB))
+          : String(valB).localeCompare(String(valA));
+      });
+    }
 
-		return result;
-	});
+    return result;
+  });
 
-	let totalCount = $derived(designationsList.length);
-	let paginatedDesignations = $derived(filteredDesignations.slice((currentPage - 1) * pageSize, currentPage * pageSize));
-	let activeCount = $derived(designationsList.filter((d) => d.status === true).length);
-	let inactiveCount = $derived(designationsList.filter((d) => d.status === false).length);
+  let totalCount = $derived(designationsList.length);
+  let paginatedDesignations = $derived(
+    filteredDesignations.slice(
+      (currentPage - 1) * pageSize,
+      currentPage * pageSize,
+    ),
+  );
+  let activeCount = $derived(
+    designationsList.filter((d) => d.status === true).length,
+  );
+  let inactiveCount = $derived(
+    designationsList.filter((d) => d.status === false).length,
+  );
 
-	async function loadDesignations() {
-		isLoading = true;
-		loadError = '';
+  async function loadDesignations() {
+    isLoading = true;
+    loadError = "";
 
-		try {
-			const response = await fetch('/api/designations');
-			const resData = await response.json();
+    try {
+      const response = await fetch("/api/designations");
+      const resData = await response.json();
 
-			if (response.ok) {
-				designationsList = resData.data ?? [];
-			} else {
-				loadError = resData.error || 'Failed to load designations.';
-				toast.error(loadError);
-			}
-		} catch (err) {
-			loadError = 'An error occurred while loading designations.';
-			toast.error(loadError);
-			console.error(err);
-		} finally {
-			isLoading = false;
-		}
-	}
+      if (response.ok) {
+        designationsList = resData.data ?? [];
+      } else {
+        loadError = resData.error || "Failed to load designations.";
+        toast.error(loadError);
+      }
+    } catch (err) {
+      loadError = "An error occurred while loading designations.";
+      toast.error(loadError);
+      console.error(err);
+    } finally {
+      isLoading = false;
+    }
+  }
 
-	onMount(() => {
-		loadDesignations();
-	});
+  onMount(() => {
+    loadDesignations();
+  });
 
 	function handleSort(column: string) {
 		if (sortColumn === column) {
@@ -178,18 +191,18 @@
 		isModalOpen = true;
 	}
 
-	async function handleSaveDesignation(e: Event) {
-		e.preventDefault();
-		if (editingDesignation && !isDirty) return;
-		isNameTouched = true;
+  async function handleSaveDesignation(e: Event) {
+    e.preventDefault();
+    if (editingDesignation && !isDirty) return;
+    isNameTouched = true;
 
-		const validationError = getValidationError(formDesignationName);
-		if (validationError) {
-			designationNameInput?.focus();
-			return;
-		}
+    const validationError = getValidationError(formDesignationName);
+    if (validationError) {
+      designationNameInput?.focus();
+      return;
+    }
 
-		isSubmitting = true;
+    isSubmitting = true;
 
 		try {
 			const response = await fetch(
@@ -221,9 +234,9 @@
 		}
 	}
 
-	async function confirmDelete() {
-		if (!itemToDelete) return;
-		isDeleting = true;
+  async function confirmDelete() {
+    if (!itemToDelete) return;
+    isDeleting = true;
 
 		try {
 			const response = await fetch(`/api/designations/${itemToDelete.cuid}`, {
@@ -231,20 +244,20 @@
 			});
 			const resData = await response.json();
 
-			if (response.ok && resData.data) {
-				await loadDesignations();
-				toast.success('Designation deactivated successfully');
-				itemToDelete = null;
-			} else {
-				toast.error(resData.error || 'Failed to deactivate designation.');
-			}
-		} catch (err) {
-			console.error(err);
-			toast.error('An error occurred while deactivating the designation.');
-		} finally {
-			isDeleting = false;
-		}
-	}
+      if (response.ok && resData.data) {
+        await loadDesignations();
+        toast.success("Designation deactivated successfully");
+        itemToDelete = null;
+      } else {
+        toast.error(resData.error || "Failed to deactivate designation.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("An error occurred while deactivating the designation.");
+    } finally {
+      isDeleting = false;
+    }
+  }
 </script>
 
 <svelte:head>
@@ -265,32 +278,50 @@
 		</Button>
 	</div>
 
-	<div class="grid gap-4 sm:grid-cols-3">
-		<Card>
-			<CardHeader class="pb-2">
-				<CardDescription>Total Designations</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalCount}</CardTitle>
-			</CardHeader>
-		</Card>
-		<Card>
-			<CardHeader class="pb-2">
-				<CardDescription>Active Designations</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{activeCount}</CardTitle>
-			</CardHeader>
-		</Card>
-		<Card>
-			<CardHeader class="pb-2">
-				<CardDescription>Inactive Designations</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{inactiveCount}</CardTitle>
-			</CardHeader>
-		</Card>
-	</div>
+  <div class="grid gap-4 sm:grid-cols-3">
+    <Card>
+      <CardHeader class="pb-2">
+        <CardDescription>Total Designations</CardDescription>
+        <CardTitle class="text-4xl font-bold text-[#262626] tabular-nums"
+          >{totalCount}</CardTitle
+        >
+      </CardHeader>
+    </Card>
+    <Card>
+      <CardHeader class="pb-2">
+        <CardDescription>Active Designations</CardDescription>
+        <CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums"
+          >{activeCount}</CardTitle
+        >
+      </CardHeader>
+    </Card>
+    <Card>
+      <CardHeader class="pb-2">
+        <CardDescription>Inactive Designations</CardDescription>
+        <CardTitle class="text-4xl font-bold text-[#800020] tabular-nums"
+          >{inactiveCount}</CardTitle
+        >
+      </CardHeader>
+    </Card>
+  </div>
 
-	<div class="space-y-3">
-		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-			<SearchInput id="search_designations" name="search_designations" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by designation name..." />
-			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
-		</div>
+  <div class="space-y-3">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <SearchInput
+        id="search_designations"
+        name="search_designations"
+        bind:value={searchQuery}
+        oninput={() => (currentPage = 1)}
+        placeholder="Search by designation name..."
+      />
+      <FilterDropdown
+        value={statusFilter}
+        onChange={(value) => {
+          statusFilter = value;
+          currentPage = 1;
+        }}
+      />
+    </div>
 
 		<Card class="py-0">
 			<Table>

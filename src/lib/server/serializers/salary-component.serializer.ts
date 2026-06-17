@@ -15,7 +15,7 @@ export type SalaryComponentDto = Omit<
  * before sending it across the wire. Clients always identify records by `cuid`.
  */
 export function serializeSalaryComponent(record: PrismaSalaryComponent): SalaryComponentDto {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	 
 	const { id: _id, created_at: _ca, created_by: _cb, updated_at: _ua, updated_by: _ub, ...rest } = record;
 	return rest;
 }

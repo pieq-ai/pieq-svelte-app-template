@@ -23,6 +23,7 @@
 		onCancel,
 		onConfirm
 	}: Props = $props();
+
 </script>
 
 <CrudModal {open} {title} {description} onClose={onCancel}>
