@@ -1029,7 +1029,7 @@
 									{/if}
 								{/if}
 
-								{#if cell.isToday && !holiday && dayStatus?.status !== 'Leave'}
+								{#if cell.isToday && !holiday && !['Leave', 'LOP'].includes(dayStatus?.status ?? '')}
 									{#if !record}
 										<Button
 											size="sm"

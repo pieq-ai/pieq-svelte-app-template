@@ -1,7 +1,7 @@
-# Graph Report - pieq-svelte-app-template  (2026-06-22)
+# Graph Report - pieq-svelte-app-template  (2026-06-17)
 
 ## Corpus Check
-- 287 files · ~113,063 words
+- 287 files · ~112,915 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f0d663e0`
+- Built from commit: `ddd93a46`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -147,8 +147,8 @@ Cohesion: 0.13
 Nodes (7): CreateDepartmentInput, UpdateDepartmentInput, CreateEmployeeData, createClient(), db, getDb(), isValidClient()
 
 ### Community 2 - "UI Components Index"
-Cohesion: 0.16
-Nodes (27): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/toast, $lib/types/salary-component (+19 more)
+Cohesion: 0.17
+Nodes (26): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/toast, $lib/types/salary-component (+18 more)
 
 ### Community 3 - "UI Components Core"
 Cohesion: 0.08
@@ -180,7 +180,7 @@ Nodes (23): POST(), SalaryComponentDto, serializeSalaryComponent(), BusinessVali
 
 ### Community 10 - "Designation Service DAO"
 Cohesion: 0.11
-Nodes (15): $lib/components/index.js, $lib/components/ui, $lib/components/ui/dropdown-menu/index.js, $lib/validators/employment-type.js, ./$types, ./$types.js, @lucide/svelte/icons/check, @lucide/svelte/icons/filter (+7 more)
+Nodes (16): $lib/components/index.js, $lib/components/ui, $lib/components/ui/dropdown-menu/index.js, $lib/validators/employment-type.js, ./$types, ./$types.js, @lucide/svelte/icons/check, @lucide/svelte/icons/chevron-down (+8 more)
 
 ### Community 11 - "Server Authentication"
 Cohesion: 0.15

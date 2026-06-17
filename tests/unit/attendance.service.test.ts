@@ -78,10 +78,27 @@ describe('attendance service', () => {
 		it('should reject if employee is already checked in for today', async () => {
 			vi.mocked(db.employee.findUnique).mockResolvedValue({ uuid: employeeCuid } as any);
 			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue(null);
-			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({ cuid: 'existing-rec' } as any);
+			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({ cuid: 'existing-rec', status: 'Present' } as any);
 
 			await expect(checkIn(employeeCuid, null, null, validGps)).rejects.toThrowError(
 				new AttendanceValidationError('employee_cuid', 'Already checked in for today')
+			);
+		});
+
+		it('should reject if check-in is on a leave or LOP day', async () => {
+			vi.mocked(db.employee.findUnique).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue(null);
+
+			// Leave status check
+			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({ cuid: 'existing-rec', status: 'Leave' } as any);
+			await expect(checkIn(employeeCuid, null, null, validGps)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on leave or LOP days')
+			);
+
+			// LOP status check
+			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({ cuid: 'existing-rec', status: 'LOP' } as any);
+			await expect(checkIn(employeeCuid, null, null, validGps)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on leave or LOP days')
 			);
 		});
 
@@ -183,12 +200,35 @@ describe('attendance service', () => {
 			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue(null);
 			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({
 				cuid: 'record-1',
+				status: 'Present',
 				check_in_time: new Date(Date.UTC(2026, 5, 1, 9, 0, 0)),
 				check_out_time: new Date(Date.UTC(2026, 5, 1, 17, 0, 0))
 			} as any);
 
 			await expect(checkOut(employeeCuid, null, validGps)).rejects.toThrowError(
 				new AttendanceValidationError('employee_cuid', 'Already checked out for today')
+			);
+		});
+
+		it('should reject if check-out is on a leave or LOP day', async () => {
+			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue(null);
+
+			// Leave status check
+			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({
+				cuid: 'record-1',
+				status: 'Leave'
+			} as any);
+			await expect(checkOut(employeeCuid, null, validGps)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on leave or LOP days')
+			);
+
+			// LOP status check
+			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({
+				cuid: 'record-1',
+				status: 'LOP'
+			} as any);
+			await expect(checkOut(employeeCuid, null, validGps)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on leave or LOP days')
 			);
 		});
 
