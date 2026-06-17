@@ -419,16 +419,29 @@
 		}
 
 		// Sort behavior
+		const now = new Date();
+		const todayUTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+
 		if (sortKey && sortDirection) {
 			result.sort((a, b) => {
+				if (sortKey === 'holiday_date') {
+					const dateA = new Date(a.holiday_date);
+					const dateB = new Date(b.holiday_date);
+					const isUpcomingA = dateA >= todayUTC;
+					const isUpcomingB = dateB >= todayUTC;
+
+					if (isUpcomingA && !isUpcomingB) {
+						return sortDirection === 'asc' ? -1 : 1;
+					}
+					if (!isUpcomingA && isUpcomingB) {
+						return sortDirection === 'asc' ? 1 : -1;
+					}
+					const diff = dateA.getTime() - dateB.getTime();
+					return sortDirection === 'asc' ? diff : -diff;
+				}
+
 				const valA = a[sortKey as keyof typeof a];
 				const valB = b[sortKey as keyof typeof b];
-
-				if (sortKey === 'holiday_date') {
-					const timeA = new Date(valA as string).getTime();
-					const timeB = new Date(valB as string).getTime();
-					return sortDirection === 'asc' ? timeA - timeB : timeB - timeA;
-				}
 
 				if (typeof valA === 'string' && typeof valB === 'string') {
 					return sortDirection === 'asc'
@@ -440,9 +453,18 @@
 			});
 		} else {
 			result.sort((a, b) => {
-				const timeA = new Date(a.holiday_date).getTime();
-				const timeB = new Date(b.holiday_date).getTime();
-				return timeA - timeB;
+				const dateA = new Date(a.holiday_date);
+				const dateB = new Date(b.holiday_date);
+				const isUpcomingA = dateA >= todayUTC;
+				const isUpcomingB = dateB >= todayUTC;
+
+				if (isUpcomingA && !isUpcomingB) {
+					return -1;
+				}
+				if (!isUpcomingA && isUpcomingB) {
+					return 1;
+				}
+				return dateA.getTime() - dateB.getTime();
 			});
 		}
 
