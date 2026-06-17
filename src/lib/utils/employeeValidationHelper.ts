@@ -1,4 +1,10 @@
 // Validation helpers
+export function isDuplicateEntry<T>(list: T[], index: number, keyFn: (item: T) => string): boolean {
+	if (!list || !list[index]) return false;
+	const currentKey = keyFn(list[index])?.trim().toLowerCase();
+	if (!currentKey) return false;
+	return list.findIndex((item, i) => i !== index && keyFn(item)?.trim().toLowerCase() === currentKey) !== -1;
+}
 export function validateName(val: string | undefined | null) {
 	if (!val) return 'Required';
 	const trimmed = val.trim();

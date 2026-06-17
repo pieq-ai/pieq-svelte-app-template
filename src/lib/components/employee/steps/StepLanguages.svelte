@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Button, MasterDataDropdown, SearchableDropdown } from '$lib/components';
 	import { toast } from 'svelte-sonner';
+	import { isDuplicateEntry } from '$lib/utils/employeeValidationHelper';
 	import { onMount } from 'svelte';
 
 	let { mode, cuid, onNext, onPrev, onDirtyChange , onCancel} = $props<{
@@ -80,9 +81,10 @@
 	}
 
 	let hasErrors = $derived(
-		languages.some(l =>
+		languages.some((l, i) =>
 			validateRequired(l.language_cuid) ||
-			validateRequired(l.proficiency_level)
+			validateRequired(l.proficiency_level) ||
+			isDuplicateEntry(languages, i, x => x.language_cuid)
 		)
 	);
 
@@ -156,9 +158,10 @@
 							value={lang.language_cuid}
 							onSelect={(val) => lang.language_cuid = val as string}
 							disabled={mode === 'view'}
-							class={(isTouched && validateRequired(lang.language_cuid)) ? 'border-destructive' : ''}
+							class={(isTouched && (validateRequired(lang.language_cuid) || isDuplicateEntry(languages, index, x => x.language_cuid))) ? 'border-destructive' : ''}
 						/>
 						{#if isTouched && validateRequired(lang.language_cuid)}<p class="text-xs text-destructive mt-1">{validateRequired(lang.language_cuid)}</p>{/if}
+						{#if isTouched && isDuplicateEntry(languages, index, x => x.language_cuid)}<p class="text-xs text-destructive mt-1">This entry already exists</p>{/if}
 					</div>
 					<div class="flex-1 w-full">
 						<SearchableDropdown

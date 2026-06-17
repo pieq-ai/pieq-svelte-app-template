@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Label, Input, SearchableDropdown, DatePicker, Button } from '$lib/components';
 	import { toast } from 'svelte-sonner';
+	import { isDuplicateEntry } from '$lib/utils/employeeValidationHelper';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { onMount } from 'svelte';
 
@@ -94,13 +95,14 @@
 	}
 
 	let hasErrors = $derived(
-		educations.some(e =>
+		educations.some((e, i) =>
 			validateRequired(e.education_level) ||
 			validateRequired(e.specialization) ||
 			validateRequired(e.institution) ||
 			validateRequired(e.university_board) ||
 			validatePercentage(e.percentage?.toString()) ||
-			validatePastDate(e.completed_at)
+			validatePastDate(e.completed_at) ||
+			isDuplicateEntry(educations, i, x => x.education_level)
 		)
 	);
 
@@ -179,8 +181,11 @@
 					]}
 					onSelect={(val) => edu.education_level = val as string}
 					disabled={mode === 'view'}
-					class={(isTouched && validateRequired(edu.education_level)) ? 'border-destructive' : ''}
+					class={(isTouched && (validateRequired(edu.education_level) || isDuplicateEntry(educations, index, x => x.education_level))) ? 'border-destructive' : ''}
 				/>
+				{#if isTouched && isDuplicateEntry(educations, index, x => x.education_level)}
+					<p class="text-xs text-destructive mt-1 -mb-2 col-span-full">This entry already exists</p>
+				{/if}
 				<div class="space-y-2">
 					<Label>Specialization/Major <span class="text-destructive">*</span></Label>
 					<Input bind:value={edu.specialization} placeholder="e.g. Computer Science" class={(isTouched && validateRequired(edu.specialization)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />

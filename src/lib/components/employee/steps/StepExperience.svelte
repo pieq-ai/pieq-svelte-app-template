@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Label, Input, DatePicker, Button, Textarea } from '$lib/components';
 	import { toast } from 'svelte-sonner';
+	import { isDuplicateEntry } from '$lib/utils/employeeValidationHelper';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { onMount } from 'svelte';
 
@@ -86,10 +87,11 @@
 	}
 
 	let hasErrors = $derived(
-		experiences.some(e =>
+		experiences.some((e, i) =>
 			validateRequired(e.company_name) ||
 			validateRequired(e.role) ||
-			validateDates(e.from_date, e.to_date)
+			validateDates(e.from_date, e.to_date) ||
+			isDuplicateEntry(experiences, i, x => `${x.company_name}|${x.role}`)
 		)
 	);
 
@@ -157,14 +159,17 @@
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 				<div class="space-y-2">
 					<Label>Company Name <span class="text-destructive">*</span></Label>
-					<Input bind:value={exp.company_name} placeholder="Company Name" class={(isTouched && validateRequired(exp.company_name)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
+					<Input bind:value={exp.company_name} placeholder="Company Name" class={(isTouched && (validateRequired(exp.company_name) || isDuplicateEntry(experiences, index, x => `${x.company_name}|${x.role}`))) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
 					{#if isTouched && validateRequired(exp.company_name)}<p class="text-xs text-destructive">{validateRequired(exp.company_name)}</p>{/if}
 				</div>
 				<div class="space-y-2">
 					<Label>Role/Designation <span class="text-destructive">*</span></Label>
-					<Input bind:value={exp.role} placeholder="e.g. Software Engineer" class={(isTouched && validateRequired(exp.role)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
+					<Input bind:value={exp.role} placeholder="e.g. Software Engineer" class={(isTouched && (validateRequired(exp.role) || isDuplicateEntry(experiences, index, x => `${x.company_name}|${x.role}`))) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
 					{#if isTouched && validateRequired(exp.role)}<p class="text-xs text-destructive">{validateRequired(exp.role)}</p>{/if}
 				</div>
+				{#if isTouched && isDuplicateEntry(experiences, index, x => `${x.company_name}|${x.role}`)}
+					<p class="text-xs text-destructive sm:col-span-2 -mt-2">This entry already exists</p>
+				{/if}
 				<div class="space-y-2">
 					<Label>From Date <span class="text-destructive">*</span></Label>
 					<DatePicker bind:value={exp.from_date} class={(isTouched && validateDates(exp.from_date, exp.to_date)) ? 'border-destructive' : ''} disabled={mode === 'view'} />

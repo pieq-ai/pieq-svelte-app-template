@@ -11,7 +11,8 @@
 		validateSkills,
 		validateLanguages,
 		validateDocuments,
-		validateBankDetails
+		validateBankDetails,
+		isDuplicateEntry
 	} from '$lib/utils/employeeValidationHelper';
 
 	let { mode, cuid, onPrev, onDirtyChange , onCancel} = $props<{
@@ -93,11 +94,12 @@
 	}
 
 	let hasErrors = $derived(
-		bankDetails.some(b => 
+		bankDetails.some((b, i) => 
 			validateRequired(b.account_holder_name) || 
 			validateRequired(b.account_number) || 
 			validateRequired(b.bank_name) || 
-			validateIfsc(b.ifsc_code)
+			validateIfsc(b.ifsc_code) ||
+			isDuplicateEntry(bankDetails, i, x => `${x.ifsc_code}|${x.account_number}`)
 		)
 	);
 
@@ -293,14 +295,17 @@
 					</div>
 					<div class="space-y-2">
 						<Label>Account Number <span class="text-destructive">*</span></Label>
-						<Input bind:value={bank.account_number} placeholder="000123456789" class={(isTouched && validateRequired(bank.account_number)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
+						<Input bind:value={bank.account_number} placeholder="000123456789" class={(isTouched && (validateRequired(bank.account_number) || isDuplicateEntry(bankDetails, index, x => `${x.ifsc_code}|${x.account_number}`))) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
 						{#if isTouched && validateRequired(bank.account_number)}<p class="text-xs text-destructive">{validateRequired(bank.account_number)}</p>{/if}
 					</div>
 					<div class="space-y-2">
 						<Label>Routing / IFSC Code <span class="text-destructive">*</span></Label>
-						<Input bind:value={bank.ifsc_code} oninput={(e) => bank.ifsc_code = e.currentTarget.value.toUpperCase()} placeholder="IFSC/Routing" class={(isTouched && validateIfsc(bank.ifsc_code)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
+						<Input bind:value={bank.ifsc_code} oninput={(e) => bank.ifsc_code = e.currentTarget.value.toUpperCase()} placeholder="IFSC/Routing" class={(isTouched && (validateIfsc(bank.ifsc_code) || isDuplicateEntry(bankDetails, index, x => `${x.ifsc_code}|${x.account_number}`))) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
 						{#if isTouched && validateIfsc(bank.ifsc_code)}<p class="text-xs text-destructive">{validateIfsc(bank.ifsc_code)}</p>{/if}
 					</div>
+					{#if isTouched && isDuplicateEntry(bankDetails, index, x => `${x.ifsc_code}|${x.account_number}`)}
+						<p class="text-xs text-destructive sm:col-span-2 md:col-span-3 -mt-2">This bank account (IFSC + Account Number) already exists.</p>
+					{/if}
 					<div class="space-y-2 flex items-end pb-2">
 						<label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" bind:checked={bank.is_primary} disabled={mode === 'view'} /> Primary Account</label>
 					</div>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Label, Input, MasterDataDropdown, Button } from '$lib/components';
 	import { toast } from 'svelte-sonner';
+	import { isDuplicateEntry } from '$lib/utils/employeeValidationHelper';
 	import { onMount } from 'svelte';
 
 	let { mode, cuid, onNext, onPrev, onDirtyChange , onCancel} = $props<{
@@ -77,9 +78,10 @@
 	}
 
 	let hasErrors = $derived(
-		documents.some(d => 
+		documents.some((d, i) => 
 			validateRequired(d.document_type_cuid) || 
-			validateRequired(d.file_name)
+			validateRequired(d.file_name) ||
+			isDuplicateEntry(documents, i, x => x.document_type_cuid)
 		)
 	);
 
@@ -200,14 +202,19 @@
 					</div>
 				{/if}
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-					<MasterDataDropdown 
-						master="document-types" 
-						label="Document Type *" 
-						value={doc.document_type_cuid} 
-						onSelect={(val) => doc.document_type_cuid = val as string} 
-						disabled={mode === 'view'}
-						class={(isTouched && validateRequired(doc.document_type_cuid)) ? 'border-destructive' : ''}
-					/>
+					<div class="space-y-2">
+						<MasterDataDropdown 
+							master="document-types" 
+							label="Document Type *" 
+							value={doc.document_type_cuid} 
+							onSelect={(val) => doc.document_type_cuid = val as string} 
+							disabled={mode === 'view'}
+							class={(isTouched && (validateRequired(doc.document_type_cuid) || isDuplicateEntry(documents, index, x => x.document_type_cuid))) ? 'border-destructive' : ''}
+						/>
+						{#if isTouched && isDuplicateEntry(documents, index, x => x.document_type_cuid)}
+							<p class="text-xs text-destructive mt-1">This entry already exists</p>
+						{/if}
+					</div>
 					<div class="space-y-2">
 						{#if mode !== 'view'}
 							<Label>File Upload <span class="text-destructive">*</span></Label>

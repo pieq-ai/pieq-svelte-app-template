@@ -296,19 +296,19 @@
 			{/if}
 		</div>
 		<div class="space-y-2">
-			<SearchableDropdown label="Gender" value={emp.gender} options={[{ id: 'male', label: 'Male' }, { id: 'female', label: 'Female' }, { id: 'other', label: 'Other' }]} onSelect={(val) => emp.gender = val as string} disabled={mode === 'view'} class={(isTouched && errors.gender) ? 'border-destructive' : ''} />
+			<SearchableDropdown label="Gender *" value={emp.gender} options={[{ id: 'male', label: 'Male' }, { id: 'female', label: 'Female' }, { id: 'other', label: 'Other' }]} onSelect={(val) => emp.gender = val as string} disabled={mode === 'view'} class={(isTouched && errors.gender) ? 'border-destructive' : ''} />
 			{#if isTouched && errors.gender}<p class="text-xs text-destructive">{errors.gender}</p>{/if}
 		</div>
 		<div class="space-y-2">
-			<SearchableDropdown label="Marital Status" value={emp.marital_status} options={[{ id: 'single', label: 'Single' }, { id: 'married', label: 'Married' }, { id: 'divorced', label: 'Divorced' }, { id: 'widowed', label: 'Widowed' }]} onSelect={(val) => emp.marital_status = val as string} disabled={mode === 'view'} class={(isTouched && errors.marital_status) ? 'border-destructive' : ''} />
+			<SearchableDropdown label="Marital Status *" value={emp.marital_status} options={[{ id: 'single', label: 'Single' }, { id: 'married', label: 'Married' }, { id: 'divorced', label: 'Divorced' }, { id: 'widowed', label: 'Widowed' }]} onSelect={(val) => emp.marital_status = val as string} disabled={mode === 'view'} class={(isTouched && errors.marital_status) ? 'border-destructive' : ''} />
 			{#if isTouched && errors.marital_status}<p class="text-xs text-destructive">{errors.marital_status}</p>{/if}
 		</div>
 		<div class="space-y-2">
-			<MasterDataDropdown master="blood-groups" label="Blood Group" value={emp.blood_group_cuid} onSelect={(val) => emp.blood_group_cuid = val as string} disabled={mode === 'view'} class={(isTouched && errors.blood_group_cuid) ? 'border-destructive' : ''} />
+			<MasterDataDropdown master="blood-groups" label="Blood Group *" value={emp.blood_group_cuid} onSelect={(val) => emp.blood_group_cuid = val as string} disabled={mode === 'view'} class={(isTouched && errors.blood_group_cuid) ? 'border-destructive' : ''} />
 			{#if isTouched && errors.blood_group_cuid}<p class="text-xs text-destructive">{errors.blood_group_cuid}</p>{/if}
 		</div>
 		<div class="space-y-2">
-			<MasterDataDropdown master="nationalities" label="Nationality" value={emp.nationality_cuid} onSelect={(val) => emp.nationality_cuid = val as string} disabled={mode === 'view'} class={(isTouched && errors.nationality_cuid) ? 'border-destructive' : ''} />
+			<MasterDataDropdown master="nationalities" label="Nationality *" value={emp.nationality_cuid} onSelect={(val) => emp.nationality_cuid = val as string} disabled={mode === 'view'} class={(isTouched && errors.nationality_cuid) ? 'border-destructive' : ''} />
 			{#if isTouched && errors.nationality_cuid}<p class="text-xs text-destructive">{errors.nationality_cuid}</p>{/if}
 		</div>
 		<div class="space-y-2">
@@ -350,7 +350,7 @@
 			{#if isTouched && errors.emergency_contact_no}<p class="text-xs text-destructive">{errors.emergency_contact_no}</p>{/if}
 		</div>
 		<div class="space-y-2">
-			<MasterDataDropdown master="relation-types" label="Relation" value={emp.relation_cuid} onSelect={(val) => emp.relation_cuid = val as string} disabled={mode === 'view'} class={(isTouched && errors.relation_cuid) ? 'border-destructive' : ''} />
+			<MasterDataDropdown master="relation-types" label="Relation *" value={emp.relation_cuid} onSelect={(val) => emp.relation_cuid = val as string} disabled={mode === 'view'} class={(isTouched && errors.relation_cuid) ? 'border-destructive' : ''} />
 			{#if isTouched && errors.relation_cuid}<p class="text-xs text-destructive">{errors.relation_cuid}</p>{/if}
 		</div>
 	</div>
