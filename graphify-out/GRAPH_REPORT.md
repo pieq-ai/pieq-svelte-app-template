@@ -1,16 +1,16 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-18)
 
 ## Corpus Check
-- 339 files · ~115,623 words
+- 339 files · ~115,694 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1395 nodes · 2660 edges · 99 communities (82 shown, 17 thin omitted)
+- 1395 nodes · 2660 edges · 98 communities (81 shown, 17 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 55 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3f5631df`
+- Built from commit: `45ead3e9`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -94,7 +94,6 @@
 - [[_COMMUNITY_Community 80|Community 80]]
 - [[_COMMUNITY_Community 81|Community 81]]
 - [[_COMMUNITY_Community 82|Community 82]]
-- [[_COMMUNITY_Community 83|Community 83]]
 - [[_COMMUNITY_Community 85|Community 85]]
 - [[_COMMUNITY_Community 86|Community 86]]
 - [[_COMMUNITY_Community 88|Community 88]]
@@ -132,7 +131,7 @@
 - 1-file cycle: `src/routes/leave-policies/+page.svelte -> src/routes/leave-policies/+page.svelte`
 - 3-file cycle: `src/lib/components/ui/calendar/calendar-caption.svelte -> src/lib/components/ui/calendar/calendar.svelte -> src/lib/components/ui/calendar/index.ts -> src/lib/components/ui/calendar/calendar-caption.svelte`
 
-## Communities (99 total, 17 thin omitted)
+## Communities (98 total, 17 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.05
@@ -155,8 +154,8 @@ Cohesion: 0.09
 Nodes (19): ShiftCreatePayload, ShiftListResponse, ShiftUpdatePayload, createShift(), getShiftByCuid(), parseTimeToDate(), updateShift(), activateShift() (+11 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.09
-Nodes (21): @lucide/svelte/icons/alert-triangle, $lib/components/index.js, $lib/components/ui, $lib/components/ui/checkbox/index.js, $lib/components/ui/dropdown-menu/index.js, $lib/validators/employment-type.js, ./$types, ./$types.js (+13 more)
+Cohesion: 0.10
+Nodes (18): @lucide/svelte/icons/alert-triangle, $lib/components/index.js, $lib/components/ui, $lib/components/ui/dropdown-menu/index.js, $lib/validators/employment-type.js, ./$types, ./$types.js, @lucide/svelte/icons/check (+10 more)
 
 ### Community 6 - "Community 6"
 Cohesion: 0.07
@@ -183,12 +182,12 @@ Cohesion: 0.18
 Nodes (20): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/api/local, $lib/api/locations, $lib/api/roles, $lib/api/shifts, $lib/confirmation.svelte.js (+12 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.08
-Nodes (22): @lucide/svelte/icons/building-2, $lib/assets/favicon.svg, $lib/auth, ./layout.css, @lucide/svelte/icons/calendar-cog, @lucide/svelte/icons/clock, @lucide/svelte/icons/key-round, @lucide/svelte/icons/layout-dashboard (+14 more)
+Cohesion: 0.07
+Nodes (24): @lucide/svelte/icons/building-2, $lib/assets/favicon.svg, $lib/auth, ./$types, ./layout.css, @lucide/svelte/icons/calendar-cog, @lucide/svelte/icons/clock, @lucide/svelte/icons/key-round (+16 more)
 
 ### Community 13 - "Community 13"
-Cohesion: 0.19
-Nodes (12): @lucide/svelte/icons/arrow-left, $lib/components, $lib/master-data/master-config, $lib/stores/navigationGuard, $lib/utils/employeeValidationHelper, ./$types, $lib/components/common/ConfirmModal.svelte, $lib/components/employee/EmployeeWizard.svelte (+4 more)
+Cohesion: 0.31
+Nodes (7): @lucide/svelte/icons/arrow-left, $lib/stores/navigationGuard, $lib/utils/employeeValidationHelper, $lib/components/employee/EmployeeWizard.svelte, $app/navigation, svelte/reactivity, $lib/components/ui/toaster.svelte
 
 ### Community 15 - "Community 15"
 Cohesion: 0.15
@@ -255,8 +254,8 @@ Cohesion: 0.16
 Nodes (18): ./$types, load(), load(), load(), employmentSchema, getDepartments(), getDesignations(), getEmployeeByCuid2() (+10 more)
 
 ### Community 34 - "Community 34"
-Cohesion: 0.22
-Nodes (9): Common workflows, Other, Quick reference, Scripts, Testing, `yarn prepare`, `yarn test`, `yarn test:e2e` (+1 more)
+Cohesion: 0.15
+Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
 
 ### Community 35 - "Community 35"
 Cohesion: 0.29
@@ -406,13 +405,9 @@ Nodes (3): getMaster(), getStatus(), PUT()
 Cohesion: 0.67
 Nodes (3): findByEmployeeCuid(), upsert(), UpsertEmploymentInput
 
-### Community 83 - "Community 83"
-Cohesion: 0.50
-Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
-
 ### Community 85 - "Community 85"
-Cohesion: 0.21
-Nodes (6): $lib/permissions/mock-permissions, $lib/components/common/AsyncDropdown.svelte, errorMessage, isLoading, modalStack, stack
+Cohesion: 0.13
+Nodes (12): $lib/components, $lib/components/ui/checkbox/index.js, $lib/master-data/master-config, $lib/permissions/mock-permissions, @lucide/svelte/icons/chevron-down, @lucide/svelte/icons/chevron-up, $lib/components/common/AsyncDropdown.svelte, errorMessage (+4 more)
 
 ### Community 89 - "Community 89"
 Cohesion: 0.67

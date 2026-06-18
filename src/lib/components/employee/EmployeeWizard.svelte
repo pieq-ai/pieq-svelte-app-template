@@ -156,20 +156,36 @@
 	let tabRefs = $state<HTMLElement[]>([]);
 	let activeTabLeft = $state(0);
 	let activeTabWidth = $state(0);
+	let isInitialized = $state(false);
+	let isResizing = $state(true);
+	let resizeTimeout: ReturnType<typeof setTimeout>;
 
 	function updatePillPosition() {
+		if (tabRefs.length < steps.length) return;
 		const activeItem = tabRefs[currentStep - 1];
 		if (activeItem) {
 			activeTabLeft = activeItem.offsetLeft;
 			activeTabWidth = activeItem.offsetWidth;
+			if (!isInitialized && activeTabWidth > 0) {
+				isInitialized = true;
+			}
 		}
+	}
+
+	function handleResize() {
+		isResizing = true;
+		updatePillPosition();
+		clearTimeout(resizeTimeout);
+		resizeTimeout = setTimeout(() => {
+			isResizing = false;
+		}, 100);
 	}
 
 	$effect(() => {
 		if (navElement && currentStep) {
 			updatePillPosition();
 			const activeItem = tabRefs[currentStep - 1];
-			if (activeItem) {
+			if (activeItem && isInitialized) {
 				activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 			}
 		}
@@ -178,14 +194,14 @@
 	$effect(() => {
 		if (navElement) {
 			const resizeObserver = new ResizeObserver(() => {
-				updatePillPosition();
+				handleResize();
 			});
 			resizeObserver.observe(navElement);
-			window.addEventListener('resize', updatePillPosition);
+			window.addEventListener('resize', handleResize);
 			
 			return () => {
 				resizeObserver.disconnect();
-				window.removeEventListener('resize', updatePillPosition);
+				window.removeEventListener('resize', handleResize);
 			};
 		}
 	});
@@ -215,10 +231,14 @@
 			<div bind:this={navElement} class="relative flex flex-nowrap items-stretch justify-between w-full min-w-max gap-x-1 text-sm font-medium text-muted-foreground">
 				
 				<!-- Animated Active Pill -->
-				{#if activeTabWidth > 0}
+				{#if isInitialized && activeTabWidth > 0}
 					<div 
-						class="absolute top-0 bottom-0 bg-[#f43510] rounded-xl shadow-md transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] z-0 pointer-events-none"
-						style="transform: translateX({activeTabLeft}px); width: {activeTabWidth}px;"
+						class="absolute top-0 bottom-0 bg-[#f43510] rounded-xl shadow-md z-0 pointer-events-none {isResizing ? '' : 'transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]'}"
+						style="
+							transform: translate3d({activeTabLeft}px, 0, 0); 
+							width: {activeTabWidth}px;
+							will-change: transform, width;
+						"
 					></div>
 				{/if}
 
@@ -230,7 +250,7 @@
 						type="button"
 						role="tab"
 						aria-selected={isCurrent}
-						class="relative flex-1 z-10 flex items-center justify-center cursor-pointer px-4 py-2 rounded-xl transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f43510] focus-visible:ring-offset-2 {isCurrent ? 'text-primary-foreground font-semibold shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}"
+						class="relative flex-1 z-10 flex items-center justify-center cursor-pointer px-4 py-2 rounded-xl transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f43510] focus-visible:ring-offset-2 {isCurrent ? 'text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}"
 						onclick={() => requestNavigate(stepNum)}
 					>
 						<span class="text-sm whitespace-nowrap">
