@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import { page } from '$app/state';
-	import { resolve } from '$app/paths';
 	import { goto, invalidate, beforeNavigate } from '$app/navigation';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
@@ -60,12 +58,18 @@
 
 
 	function openAddModal() {
+		editCuid = null;
 		leaveName = '';
 		leaveCode = '';
 		description = '';
 		isPaid = true;
 		requiresApproval = true;
 		status = true;
+		isFormModalOpen = true;
+	}
+
+	function openEditModal(cuid: string) {
+		editCuid = cuid;
 		isFormModalOpen = true;
 	}
 
@@ -111,16 +115,6 @@
 			if (res.ok && result.data) {
 				toast.success(result.data.message);
 				isFormModalOpen = false;
-				if (editCuid) {
-					await goto(resolve('/leave-types'), { replaceState: true });
-				} else {
-					leaveName = '';
-					leaveCode = '';
-					description = '';
-					isPaid = true;
-					requiresApproval = true;
-					status = true;
-				}
 				await invalidate('/api/leave/types');
 			} else {
 				if (result.data?.error && typeof result.data.error === 'object') {
@@ -172,8 +166,8 @@
 
 
 
-	// Active Edit Mode Detection from URL query parameter
-	let editCuid = $derived(page.url.searchParams.get('edit'));
+	// Active Edit Mode Detection (local state – no longer URL-driven)
+	let editCuid = $state<string | null>(null);
 	let editingType = $derived(data.leaveTypes.find((t) => t.cuid === editCuid));
 
 	// Form local state
@@ -249,10 +243,8 @@
 			const target = pendingNavigation.to?.url;
 			pendingNavigation = null;
 			if (target) {
-				await goto(resolve((target.pathname + target.search) as '/leave-types'));
+				await goto(target.pathname + target.search);
 			}
-		} else if (editCuid) {
-			await goto(resolve('/leave-types'), { replaceState: true });
 		}
 		
 		isNavigatingProgrammatically = false;
@@ -320,14 +312,7 @@
 		}
 	});
 
-	// Sync isFormModalOpen with editCuid
-	$effect(() => {
-		if (editCuid) {
-			isFormModalOpen = true;
-		}
-	});
-
-	// Reset form state and clear query parameter on modal close
+	// Reset form state on modal close
 	$effect(() => {
 		if (!isFormModalOpen) {
 			form = null;
@@ -342,9 +327,7 @@
 			submissionAttempted = false;
 			hasSynchronized = false;
 			isDiscardModalOpen = false;
-			if (editCuid) {
-				goto(resolve('/leave-types'), { replaceState: true });
-			}
+			editCuid = null;
 		}
 	});
 
@@ -468,7 +451,7 @@
 		const target = event.target as HTMLElement;
 		const row = event.currentTarget as HTMLElement;
 		if (isInteractive(target, row)) return;
-		goto(resolve(('/leave-types?edit=' + cuid) as '/leave-types'));
+		openEditModal(cuid);
 	}
 </script>
 
@@ -644,7 +627,7 @@
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
-										onEdit={() => goto(resolve(('/leave-types?edit=' + type.cuid) as '/leave-types'))}
+										onEdit={() => openEditModal(type.cuid)}
 										showIcons={false}
 									/>
 								</TableCell>

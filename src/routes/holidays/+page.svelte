@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import { page } from '$app/state';
-	import { resolve } from '$app/paths';
 	import { goto, invalidate, beforeNavigate } from '$app/navigation';
 	import { SvelteDate } from 'svelte/reactivity';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
@@ -66,9 +64,15 @@
 	}
 
 	function openAddModal() {
+		editCuid = null;
 		holidayName = '';
 		holidayDate = '';
 		holidayType = 'National';
+		isFormModalOpen = true;
+	}
+
+	function openEditModal(cuid: string) {
+		editCuid = cuid;
 		isFormModalOpen = true;
 	}
 
@@ -111,13 +115,6 @@
 			if (res.ok && result.data) {
 				toast.success(result.data.message);
 				isFormModalOpen = false;
-				if (editCuid) {
-					await goto(resolve('/holidays'), { replaceState: true });
-				} else {
-					holidayName = '';
-					holidayDate = '';
-					holidayType = 'National';
-				}
 				await invalidate('/api/holidays');
 			} else {
 				if (result.data?.error && typeof result.data.error === 'object') {
@@ -168,8 +165,8 @@
 	}
 
 
-	// Active Edit Mode Detection from URL query parameter
-	let editCuid = $derived(page.url.searchParams.get('edit'));
+	// Active Edit Mode Detection (local state – no longer URL-driven)
+	let editCuid = $state<string | null>(null);
 	let editingHoliday = $derived(data.holidays.find((h) => h.cuid === editCuid));
 
 	// Form local state
@@ -291,10 +288,8 @@
 			const target = pendingNavigation.to?.url;
 			pendingNavigation = null;
 			if (target) {
-				await goto(resolve((target.pathname + target.search) as '/holidays'));
+				await goto(target.pathname + target.search);
 			}
-		} else if (editCuid) {
-			await goto(resolve('/holidays'), { replaceState: true });
 		}
 		
 		isNavigatingProgrammatically = false;
@@ -360,14 +355,7 @@
 		}
 	});
 
-	// Sync isFormModalOpen with editCuid
-	$effect(() => {
-		if (editCuid) {
-			isFormModalOpen = true;
-		}
-	});
-
-	// Reset form state and clear query parameter on modal close
+	// Reset form state on modal close
 	$effect(() => {
 		if (!isFormModalOpen) {
 			form = null;
@@ -379,9 +367,7 @@
 			submissionAttempted = false;
 			hasSynchronized = false;
 			isDiscardModalOpen = false;
-			if (editCuid) {
-				goto(resolve('/holidays'), { replaceState: true });
-			}
+			editCuid = null;
 		}
 	});
 
@@ -542,7 +528,7 @@
 		const target = event.target as HTMLElement;
 		const row = event.currentTarget as HTMLElement;
 		if (isInteractive(target, row)) return;
-		goto(resolve(('/holidays?edit=' + cuid) as '/holidays'));
+		openEditModal(cuid);
 	}
 </script>
 
@@ -723,7 +709,7 @@
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
-										onEdit={() => goto(resolve(('/holidays?edit=' + holiday.cuid) as '/holidays'))}
+										onEdit={() => openEditModal(holiday.cuid)}
 										showIcons={false}
 									/>
 								</TableCell>

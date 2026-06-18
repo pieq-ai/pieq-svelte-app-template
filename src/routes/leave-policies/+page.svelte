@@ -2,8 +2,6 @@
 	import { validateEmploymentTypeName } from '$lib/validators/employment-type.js';
 	import { slide } from 'svelte/transition';
 	import { untrack } from 'svelte';
-	import { page } from '$app/state';
-	import { resolve } from '$app/paths';
 	import { goto, invalidate, beforeNavigate } from '$app/navigation';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
@@ -91,6 +89,7 @@
 
 
 	function openAddModal() {
+		editUuid = null;
 		leaveTypeId = '';
 		selectedEmploymentTypes = [];
 		annualLimit = '';
@@ -104,6 +103,11 @@
 		genderSpecific = false;
 		applicableGender = '';
 		status = true;
+		isFormModalOpen = true;
+	}
+
+	function openEditModal(uuid: string) {
+		editUuid = uuid;
 		isFormModalOpen = true;
 	}
 
@@ -177,23 +181,6 @@
 			if (res.ok && result.data) {
 				toast.success(result.data.message);
 				isFormModalOpen = false;
-				if (editUuid) {
-					await goto(resolve('/leave-policies'), { replaceState: true });
-				} else {
-					leaveTypeId = '';
-					selectedEmploymentTypes = [];
-					annualLimit = '';
-					maxPerMonth = '';
-					carryForwardAllowed = false;
-					maxCarryForwardDays = '';
-					documentRequired = false;
-					documentRequiredAfterDays = '';
-					minServiceDays = '0';
-					allowHalfDay = false;
-					genderSpecific = false;
-					applicableGender = '';
-					status = true;
-				}
 				await invalidate('/api/leave/policies');
 			} else {
 				if (result.data?.error && typeof result.data.error === 'object') {
@@ -245,8 +232,8 @@
 
 
 
-	// Active Edit Mode Detection from URL query parameter
-	let editUuid = $derived(page.url.searchParams.get('edit'));
+	// Active Edit Mode Detection (local state – no longer URL-driven)
+	let editUuid = $state<string | null>(null);
 	let editingPolicy = $derived(data.policies.find((p) => p.cuid === editUuid));
 
 	// Form local state
@@ -442,10 +429,8 @@
 			const target = pendingNavigation.to?.url;
 			pendingNavigation = null;
 			if (target) {
-				await goto(resolve((target.pathname + target.search) as '/leave-policies'));
+				await goto(target.pathname + target.search);
 			}
-		} else if (editUuid) {
-			await goto(resolve('/leave-policies'), { replaceState: true });
 		}
 		
 		isNavigatingProgrammatically = false;
@@ -527,14 +512,7 @@
 		}
 	});
 
-	// Sync isFormModalOpen with editUuid
-	$effect(() => {
-		if (editUuid) {
-			isFormModalOpen = true;
-		}
-	});
-
-	// Reset form state and clear query parameter on modal close
+	// Reset form state on modal close
 	$effect(() => {
 		if (!isFormModalOpen) {
 			form = null;
@@ -556,9 +534,7 @@
 			submissionAttempted = false;
 			hasSynchronized = false;
 			isDiscardModalOpen = false;
-			if (editUuid) {
-				goto(resolve('/leave-policies'), { replaceState: true });
-			}
+			editUuid = null;
 		}
 	});
 
@@ -790,7 +766,7 @@
 		const target = event.target as HTMLElement;
 		const row = event.currentTarget as HTMLElement;
 		if (isInteractive(target, row)) return;
-		goto(resolve(('/leave-policies?edit=' + cuid) as '/leave-policies'));
+		openEditModal(cuid);
 	}
 </script>
 
@@ -1043,7 +1019,7 @@
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
-										onEdit={() => goto(resolve(('/leave-policies?edit=' + policy.cuid) as '/leave-policies'))}
+										onEdit={() => openEditModal(policy.cuid)}
 										showIcons={false}
 									/>
 								</TableCell>

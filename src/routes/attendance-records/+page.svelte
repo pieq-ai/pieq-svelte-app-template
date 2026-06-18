@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import { invalidateAll, beforeNavigate, goto } from '$app/navigation';
-	import { page } from '$app/state';
-	import { resolve } from '$app/paths';
+	import { invalidate, goto, beforeNavigate } from '$app/navigation';
+
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
@@ -261,16 +260,14 @@
 			const target = pendingNavigation.to?.url;
 			pendingNavigation = null;
 			if (target) {
-				await goto(resolve((target.pathname + target.search) as '/attendance-records'));
+				await goto(target.pathname + target.search);
 			}
-		} else if (editCuid) {
-			await goto(resolve('/attendance-records'), { replaceState: true });
 		}
 		
 		isNavigatingProgrammatically = false;
 	}
 
-	beforeNavigate((navigation) => {
+	beforeNavigate((navigation: any) => {
 		if (!isFormModalOpen || !hasUnsavedChanges) {
 			return;
 		}
@@ -501,7 +498,7 @@
 			if (res.ok) {
 				toast.success(body.data?.message || 'Attendance record saved');
 				isFormModalOpen = false;
-				await invalidateAll();
+				await invalidate('/api/attendance-records');
 			} else {
 				if (body.data?.error && typeof body.data.error === 'object') {
 					errors = body.data.error;
@@ -531,7 +528,7 @@
 				toast.success(body.data?.message || 'Record deleted successfully');
 				isConfirmOpen = false;
 				activeDeleteCuid = null;
-				await invalidateAll();
+				await invalidate('/api/attendance-records');
 			} else {
 				toast.error(body.data?.error || 'Failed to delete record');
 			}

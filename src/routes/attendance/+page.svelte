@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { invalidateAll } from '$app/navigation';
+
 	import { toast } from '$lib/toast';
 	import {
 		Badge,
@@ -702,7 +702,6 @@
 			if (res.ok) {
 				toast.success('Checked in successfully!');
 				await loadEmployeeData(selectedEmployeeUuid);
-				await invalidateAll(); // Keep background state fresh
 			} else {
 				const errorMsg = body.data?.error 
 					? (typeof body.data.error === 'object' ? Object.values(body.data.error).join(', ') : body.data.error)
@@ -736,7 +735,6 @@
 			if (res.ok) {
 				toast.success('Checked out successfully!');
 				await loadEmployeeData(selectedEmployeeUuid);
-				await invalidateAll();
 			} else {
 				const errorMsg = body.data?.error 
 					? (typeof body.data.error === 'object' ? Object.values(body.data.error).join(', ') : body.data.error)
