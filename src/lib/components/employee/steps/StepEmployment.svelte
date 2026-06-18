@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { Label, Input, SearchableDropdown, MasterDataDropdown, DatePicker, Button } from '$lib/components';
 	import AsyncDropdown from '$lib/components/common/AsyncDropdown.svelte';
+	import DepartmentModal from '$lib/components/departments/DepartmentModal.svelte';
+	import DesignationModal from '$lib/components/designations/DesignationModal.svelte';
+	import RoleModal from '$lib/components/roles/RoleModal.svelte';
+	import LocationModal from '$lib/components/organization_locations/LocationModal.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { toast } from 'svelte-sonner';
 	import { goto, invalidateAll } from '$app/navigation';
@@ -24,6 +28,16 @@
 
 	let isSubmitting = $state(false);
 	let isTouched = $state(false);
+
+	let isDeptModalOpen = $state(false);
+	let isDesignationModalOpen = $state(false);
+	let isRoleModalOpen = $state(false);
+	let isLocationModalOpen = $state(false);
+	
+	let deptDropdown = $state<ReturnType<typeof AsyncDropdown>>();
+	let desigDropdown = $state<ReturnType<typeof AsyncDropdown>>();
+	let roleDropdown = $state<ReturnType<typeof AsyncDropdown>>();
+	let locationDropdown = $state<ReturnType<typeof AsyncDropdown>>();
 
 	const defaultEmployment = {
 		department_cuid: '',
@@ -192,28 +206,36 @@
 <div class="space-y-4">
 	<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
 		<AsyncDropdown
+			bind:this={deptDropdown}
 			apiEndpoint="/api/departments"
 			label="Department *"
 			value={employment.department_cuid}
 			loadingText="Loading departments..."
 			errorText="Unable to load departments."
 			onSelect={(val) => employment.department_cuid = val as string}
+			onAdd={() => isDeptModalOpen = true}
 			class={(isTouched && errors.department_cuid) ? 'border-destructive' : ''}
 		/>
 		<AsyncDropdown
+			bind:this={desigDropdown}
 			apiEndpoint="/api/designations"
 			label="Designation *"
 			value={employment.designation_cuid}
 			loadingText="Loading designations..."
 			errorText="Unable to load designations."
 			onSelect={(val) => employment.designation_cuid = val as string}
+			onAdd={() => isDesignationModalOpen = true}
 			class={(isTouched && errors.designation_cuid) ? 'border-destructive' : ''}
 		/>
-		<SearchableDropdown
+		<AsyncDropdown
+			bind:this={roleDropdown}
+			apiEndpoint="/api/roles"
 			label="Role *"
 			value={employment.role_cuid}
-			options={Array.isArray(data?.roles) ? data.roles.map((r: { cuid: string, name: string }) => ({id: r.cuid, label: r.name})) : []}
+			loadingText="Loading roles..."
+			errorText="Unable to load roles."
 			onSelect={(val) => employment.role_cuid = val as string}
+			onAdd={() => isRoleModalOpen = true}
 			class={(isTouched && errors.role_cuid) ? 'border-destructive' : ''}
 		/>
 		<MasterDataDropdown
@@ -244,11 +266,15 @@
 			onSelect={(val) => employment.employment_status = val as string}
 			class={(isTouched && errors.employment_status) ? 'border-destructive' : ''}
 		/>
-		<SearchableDropdown
+		<AsyncDropdown
+			bind:this={locationDropdown}
+			apiEndpoint="/api/organization_location"
 			label="Company Location *"
 			value={employment.location_cuid}
-			options={Array.isArray(data?.locations) ? data.locations.map((l: { cuid: string, name: string }) => ({id: l.cuid, label: l.name})) : []}
+			loadingText="Loading locations..."
+			errorText="Unable to load locations."
 			onSelect={(val) => employment.location_cuid = val as string}
+			onAdd={() => isLocationModalOpen = true}
 			class={(isTouched && errors.location_cuid) ? 'border-destructive' : ''}
 		/>
 		<SearchableDropdown
@@ -305,3 +331,35 @@
 		</div>
 	</div>
 </div>
+
+<DepartmentModal 
+	bind:open={isDeptModalOpen} 
+	onSuccess={async (dept) => {
+		if (deptDropdown) await deptDropdown.loadOptions();
+		employment.department_cuid = dept.cuid;
+	}}
+/>
+
+<DesignationModal 
+	bind:open={isDesignationModalOpen} 
+	onSuccess={async (desig) => {
+		if (desigDropdown) await desigDropdown.loadOptions();
+		employment.designation_cuid = desig.cuid;
+	}}
+/>
+
+<RoleModal 
+	bind:open={isRoleModalOpen} 
+	onSuccess={async (role) => {
+		if (roleDropdown) await roleDropdown.loadOptions();
+		employment.role_cuid = role.cuid;
+	}}
+/>
+
+<LocationModal 
+	bind:open={isLocationModalOpen} 
+	onSuccess={async (loc) => {
+		if (locationDropdown) await locationDropdown.loadOptions();
+		employment.location_cuid = loc.cuid;
+	}}
+/>

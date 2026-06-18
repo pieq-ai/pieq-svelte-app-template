@@ -15,6 +15,7 @@
 		loadingText?: string;
 		errorText?: string;
 		onSelect: (id: string | string[]) => void;
+		onAdd?: () => void;
 	}
 
 	let {
@@ -28,14 +29,15 @@
 		apiEndpoint,
 		loadingText = 'Loading options...',
 		errorText,
-		onSelect
+		onSelect,
+		onAdd
 	}: Props = $props();
 
 	let options = $state<{id: string; label: string}[]>([]);
 	let isLoading = $state(false);
 	let currentErrorMessage = $state('');
 
-	async function loadOptions() {
+	export async function loadOptions() {
 		isLoading = true;
 		currentErrorMessage = '';
 		try {
@@ -70,6 +72,7 @@
 		class={className}
 		{permissions}
 		{onSelect}
+		{onAdd}
 	/>
 	{#if isLoading}
 		<p class="text-xs text-muted-foreground">{loadingText}</p>
