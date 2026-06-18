@@ -2,7 +2,7 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
-import { validateEmail } from '$lib/server/validators/employee.validator.js';
+import { employmentSchema } from '$lib/schemas/employee.schema.js';
 
 export interface UpsertEmploymentDto {
     department_cuid: string;
@@ -20,11 +20,9 @@ export interface UpsertEmploymentDto {
     updated_by?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toPublicEmployment(emp: any) {
     if (!emp) return null;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, ...rest } = emp;
+    const { id, employee_cuid, created_at, updated_at, ...rest } = emp;
     return rest;
 }
 
@@ -39,51 +37,31 @@ export async function upsertEmployment(employee_cuid: string, dto: UpsertEmploym
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
-    if (!dto.department_cuid) throw new ValidationError("employment", "Department is required");
-    if (!dto.designation_cuid) throw new ValidationError("employment", "Designation is required");
+    const validated = employmentSchema.parse(dto);
 
-    const official_email = validateEmail(dto.official_email);
-    // Relaxed date validation: date of joining can be in the future, so we don't use validateDob exactly.
-    // Let's manually parse.
-    const date_of_joining = dto.date_of_joining ? new Date(dto.date_of_joining) : null;
-    const confirmation_date = dto.confirmation_date ? new Date(dto.confirmation_date) : null;
-    const relieving_date = dto.relieving_date ? new Date(dto.relieving_date) : null;
-
-    if (date_of_joining && isNaN(date_of_joining.getTime())) throw new ValidationError("employment", "Invalid date of joining");
-    if (confirmation_date && isNaN(confirmation_date.getTime())) throw new ValidationError("employment", "Invalid confirmation date");
-    if (relieving_date && isNaN(relieving_date.getTime())) throw new ValidationError("employment", "Invalid relieving date");
-
-    if (employee.dob && date_of_joining) {
-        if (date_of_joining < new Date(employee.dob)) {
+    if (employee.dob && validated.date_of_joining) {
+        if (validated.date_of_joining < new Date(employee.dob)) {
             throw new ValidationError("employment", "Joining date cannot be before date of birth");
         }
     }
 
-    if (confirmation_date && date_of_joining) {
-        if (confirmation_date < date_of_joining) {
-            throw new ValidationError("employment", "Confirmation date cannot be earlier than joining date");
-        }
-    }
-
-    if (relieving_date && date_of_joining) {
-        if (relieving_date < date_of_joining) {
-            throw new ValidationError("employment", "Relieving date cannot be earlier than joining date");
-        }
+    if (validated.reporting_manager_cuid && validated.reporting_manager_cuid === employee_cuid) {
+        throw new ValidationError("reporting_manager_cuid", "Employee cannot be their own reporting manager");
     }
 
     const payload: employmentDao.UpsertEmploymentInput = {
-        department_cuid: dto.department_cuid,
-        role_cuid: dto.role_cuid,
-        designation_cuid: dto.designation_cuid,
-        pay_grade_cuid: dto.pay_grade_cuid,
-        employment_type_cuid: dto.employment_type_cuid,
-        location_cuid: dto.location_cuid,
-        reporting_manager_cuid: dto.reporting_manager_cuid,
-        employment_status: dto.employment_status,
-        date_of_joining,
-        confirmation_date,
-        relieving_date,
-        official_email,
+        department_cuid: validated.department_cuid,
+        role_cuid: validated.role_cuid,
+        designation_cuid: validated.designation_cuid,
+        pay_grade_cuid: validated.pay_grade_cuid,
+        employment_type_cuid: validated.employment_type_cuid,
+        location_cuid: validated.location_cuid,
+        reporting_manager_cuid: validated.reporting_manager_cuid,
+        employment_status: validated.employment_status ?? undefined,
+        date_of_joining: validated.date_of_joining,
+        confirmation_date: validated.confirmation_date,
+        relieving_date: validated.relieving_date,
+        official_email: validated.official_email,
         created_by: dto.updated_by,
         updated_by: dto.updated_by
     };

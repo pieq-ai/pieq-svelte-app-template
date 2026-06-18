@@ -30,19 +30,20 @@ export interface UpdateEmployeeInput extends Partial<CreateEmployeeInput> {
 
 export async function list() {
 	return db.employee.findMany({
+        where: { is_deleted: false },
 		orderBy: { emp_code: 'asc' }
 	});
 }
 
 export async function findByCuid2(cuid: string) {
-	return db.employee.findUnique({
-		where: { cuid }
+	return db.employee.findFirst({
+		where: { cuid, is_deleted: false }
 	});
 }
 
 export async function findByEmpCode(emp_code: string) {
-	return db.employee.findUnique({
-		where: { emp_code }
+	return db.employee.findFirst({
+		where: { emp_code, is_deleted: false }
 	});
 }
 
@@ -52,6 +53,7 @@ export async function getLatestEmployeeCode() {
             emp_code: {
                 startsWith: 'PQ'
             }
+            // we do NOT filter by is_deleted here because we don't want to reuse deleted codes
         },
         orderBy: {
             emp_code: 'desc'
@@ -65,25 +67,25 @@ export async function getLatestEmployeeCode() {
 
 export async function findByEmail(email: string) {
 	return db.employee.findFirst({
-		where: { personal_email: email }
+		where: { personal_email: email, is_deleted: false }
 	});
 }
 
 export async function findByMobile(mobile_no: string) {
 	return db.employee.findFirst({
-		where: { mobile_no }
+		where: { mobile_no, is_deleted: false }
 	});
 }
 
 export async function findByAadhar(aadhar_no: string) {
 	return db.employee.findFirst({
-		where: { aadhar_no }
+		where: { aadhar_no, is_deleted: false }
 	});
 }
 
 export async function findByPan(pan_no: string) {
 	return db.employee.findFirst({
-		where: { pan_no }
+		where: { pan_no, is_deleted: false }
 	});
 }
 
@@ -104,7 +106,8 @@ export async function update(cuid: string, data: UpdateEmployeeInput) {
 }
 
 export async function remove(cuid: string) {
-    return db.employee.delete({
-        where: { cuid }
+    return db.employee.update({
+        where: { cuid },
+        data: { is_deleted: true }
     });
 }

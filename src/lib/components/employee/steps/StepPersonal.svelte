@@ -3,6 +3,8 @@
 	import { SvelteDate } from 'svelte/reactivity';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
+	import { goto, invalidateAll } from '$app/navigation';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 
 	let { mode, cuid, onNext, data, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit' | 'view';
@@ -84,7 +86,7 @@
 			emp = { ...defaultEmp, ...serverEmp } as typeof emp;
 		} else if (mode === 'create' && !cuid) {
 			try {
-				const res = await fetch('/api/employees/next-code');
+				const res = await fetch('/api/employees/next-code', { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
 				const body = await res.json();
 				if (res.ok && body.data) emp.emp_code = body.data;
 			} catch (e) {
@@ -92,7 +94,7 @@
 			}
 		} else if (cuid) {
 			try {
-				const res = await fetch(`/api/employees/${cuid}`);
+				const res = await fetch(`/api/employees/${cuid}`, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
 				const body = await res.json();
 				if (res.ok && body.data) {
 					emp = { ...defaultEmp, ...body.data };
@@ -151,7 +153,7 @@
 		return '';
 	}
 	function validateEmail(val: string | undefined | null) {
-		if (!val) return 'Required';
+		if (!val || !val.trim()) return 'Required';
 		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim())) return 'Invalid email format.';
 		return '';
 	}
@@ -182,22 +184,22 @@
 		first_name: backendErrors.first_name || validateName(emp.first_name),
 		last_name: backendErrors.last_name || validateName(emp.last_name),
 		father_name: backendErrors.father_name || validateName(emp.father_name),
-		dob: validateDob(emp.dob),
-		gender: validateDropdown(emp.gender),
-		marital_status: validateDropdown(emp.marital_status),
-		blood_group_cuid: validateDropdown(emp.blood_group_cuid),
-		nationality_cuid: validateDropdown(emp.nationality_cuid),
+		dob: backendErrors.dob || validateDob(emp.dob),
+		gender: backendErrors.gender || validateDropdown(emp.gender),
+		marital_status: backendErrors.marital_status || validateDropdown(emp.marital_status),
+		blood_group_cuid: backendErrors.blood_group_cuid || validateDropdown(emp.blood_group_cuid),
+		nationality_cuid: backendErrors.nationality_cuid || validateDropdown(emp.nationality_cuid),
 		mobile_no: backendErrors.mobile_no || validateMobileRule(emp.mobile_no),
 		personal_email: backendErrors.personal_email || validateEmail(emp.personal_email),
 		aadhar_no: backendErrors.aadhar_no || validateAadharRule(emp.aadhar_no),
 		pan_no: backendErrors.pan_no || validatePanRule(emp.pan_no),
 		emergency_contact_name: backendErrors.emergency_contact_name || validateName(emp.emergency_contact_name),
 		emergency_contact_no: backendErrors.emergency_contact_no || validateMobileRule(emp.emergency_contact_no),
-		relation_cuid: validateDropdown(emp.relation_cuid)
+		relation_cuid: backendErrors.relation_cuid || validateDropdown(emp.relation_cuid)
 	});
 
 	let hasErrors = $derived(
-		Object.values(errors).some(err => !!err) || dateErrors.dob
+		Object.values(errors).some(err => !!err)
 	);
 
 	function inputErrorClass(val: string | undefined | null) {
@@ -234,15 +236,20 @@
 				const body = await res.json();
 				if (body.data?.field && body.data?.message) {
 					backendErrors = { [body.data.field]: body.data.message };
+					toast.error('Validation failed');
 					return { success: false };
 				}
-				throw new Error(body.data?.message || body.error || 'Failed to save personal details');
+				throw new Error(body.data?.message || body.error || (cuid ? 'Failed to update employee' : 'Failed to create employee'));
 			}
 
 			const result = await res.json();
 			const savedCuid = result.data?.cuid || cuid;
 
 			originalData = JSON.stringify(normalizePersonal(emp));
+
+			toast.success(cuid ? 'Updated successfully' : 'Employee created successfully');
+
+			await invalidateAll();
 
 			return { success: true, cuid: savedCuid ?? undefined };
 		} catch (e: unknown) {
@@ -253,22 +260,17 @@
 		}
 	}
 
-	async function save(shouldExit: boolean) {
+	async function save() {
 		const result = await saveOnly();
 		if (!result.success) return;
-
-		if (shouldExit) {
-			window.location.href = '/employees';
-		} else {
-			onNext(result.cuid);
-		}
+		onNext(result.cuid);
 	}
 </script>
 
 <div class="space-y-4">
 	<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
 		<div class="space-y-2">
-			<Label>Employee Code <span class="text-destructive">*</span></Label>
+			<Label>Employee Code</Label>
 			<Input bind:value={emp.emp_code} placeholder="Auto-generated" class="bg-muted {inputErrorClass(emp.emp_code)}" readonly required />
 		</div>
 		<div class="space-y-2">
@@ -283,7 +285,7 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Father's Name <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.father_name} oninput={() => clearBackendError('father_name')} onblur={() => emp.father_name = emp.father_name.trim()} placeholder="Father's Name" class={(isTouched && errors.father_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
+			<Input bind:value={emp.father_name} oninput={() => clearBackendError('father_name')} onblur={() => emp.father_name = emp.father_name.trim()} placeholder="Father's Name" class={(isTouched && errors.father_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
 			{#if isTouched && errors.father_name}<p class="text-xs text-destructive">{errors.father_name}</p>{/if}
 		</div>
 		<div class="space-y-2">
@@ -341,12 +343,12 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Emergency Contact Name <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.emergency_contact_name} onblur={() => emp.emergency_contact_name = emp.emergency_contact_name.trim()} placeholder="Emergency Contact Name" class={(isTouched && errors.emergency_contact_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
+			<Input bind:value={emp.emergency_contact_name} onblur={() => emp.emergency_contact_name = emp.emergency_contact_name.trim()} placeholder="Emergency Contact Name" class={(isTouched && errors.emergency_contact_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
 			{#if isTouched && errors.emergency_contact_name}<p class="text-xs text-destructive">{errors.emergency_contact_name}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Emergency Contact Number <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.emergency_contact_no} oninput={(e) => emp.emergency_contact_no = formatMobile(e.currentTarget.value)} placeholder="1234567890" class={(isTouched && errors.emergency_contact_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
+			<Input bind:value={emp.emergency_contact_no} oninput={(e) => emp.emergency_contact_no = formatMobile(e.currentTarget.value)} placeholder="1234567890" class={(isTouched && errors.emergency_contact_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
 			{#if isTouched && errors.emergency_contact_no}<p class="text-xs text-destructive">{errors.emergency_contact_no}</p>{/if}
 		</div>
 		<div class="space-y-2">
@@ -369,7 +371,7 @@
 				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
 					Cancel
 				</Button>
-				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save(false)} disabled={isSubmitting}>
+				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save()} disabled={isSubmitting}>
 					Save
 				</Button>
 			{:else}

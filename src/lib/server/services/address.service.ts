@@ -2,6 +2,8 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 import * as addressDao from '$lib/server/dao/address.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
+import { z } from 'zod';
+import { addressSchema } from '$lib/schemas/employee.schema.js';
 
 export interface UpsertAddressDto {
     cuid?: string;
@@ -16,11 +18,9 @@ export interface UpsertAddressDto {
     updated_by?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function toPublicAddress(addr: any) {
-    if (!addr) return null;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, ...rest } = addr;
+function toPublicAddress(address: any) {
+    if (!address) return null;
+    const { id, employee_cuid, created_at, updated_at, ...rest } = address;
     return rest;
 }
 
@@ -35,18 +35,9 @@ export async function replaceAddresses(employee_cuid: string, dtos: UpsertAddres
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
-    if (!Array.isArray(dtos)) {
-        throw new ValidationError("address", "Addresses must be an array");
-    }
+    const validatedDtos = z.array(addressSchema).parse(dtos);
 
-    // Basic validation
-    for (const dto of dtos) {
-        if (!dto.address_line1 || !dto.city || !dto.state_cuid || !dto.country_cuid) {
-            throw new ValidationError("address", "Address line 1, city, state, and country are required for all addresses");
-        }
-    }
-
-    const payload = dtos.map(dto => ({
+    const payload = validatedDtos.map((dto: any) => ({
         ...dto,
         created_by: dto.updated_by,
         updated_by: dto.updated_by

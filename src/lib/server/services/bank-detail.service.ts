@@ -1,7 +1,8 @@
 import * as bankDetailDao from '$lib/server/dao/bank-detail.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
-import { ValidationError } from '$lib/server/utils/errors.js';
+import { z } from 'zod';
+import { bankDetailSchema } from '$lib/schemas/employee.schema.js';
 
 export interface UpsertBankDetailDto {
     cuid?: string;
@@ -14,11 +15,9 @@ export interface UpsertBankDetailDto {
     updated_by?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toPublicBankDetail(bank: any) {
     if (!bank) return null;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, ...rest } = bank;
+    const { id, employee_cuid, created_at, updated_at, ...rest } = bank;
     return rest;
 }
 
@@ -28,7 +27,6 @@ export async function getBankDetailsByEmployeeCuid(employee_cuid: string) {
     return records.map(toPublicBankDetail);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseBool(val: any): boolean {
     if (typeof val === 'boolean') return val;
     if (typeof val === 'string') return val.toLowerCase() === 'true';
@@ -40,22 +38,24 @@ export async function replaceBankDetails(employee_cuid: string, dtos: UpsertBank
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
-    if (!Array.isArray(dtos)) throw new ValidationError("bank_details", "Bank details must be an array");
+    const validatedDtos = z.array(bankDetailSchema)
+        .refine(items => {
+            const accountNumbers = items.map(i => i.account_number);
+            return new Set(accountNumbers).size === accountNumbers.length;
+        }, { message: "Duplicate account numbers are not allowed", path: ["root"] })
+        .refine(items => {
+            return items.filter(i => parseBool(i.is_primary)).length <= 1;
+        }, { message: "Only one bank account can be marked as primary", path: ["root"] })
+        .parse(dtos);
 
-    for (const dto of dtos) {
-        if (!dto.account_holder_name || !dto.account_number || !dto.bank_name || !dto.ifsc_code) {
-            throw new ValidationError("bank_details", "Account holder name, account number, bank name, and IFSC code are required");
-        }
-    }
-
-    const payload = dtos.map(dto => ({
+    const payload = validatedDtos.map((dto: any) => ({
         cuid: dto.cuid,
         account_holder_name: dto.account_holder_name,
         account_number: dto.account_number,
         bank_name: dto.bank_name,
         branch_name: dto.branch_name,
         ifsc_code: dto.ifsc_code,
-        is_primary: parseBool(dto.is_primary),
+        is_primary: dto.is_primary,
         created_by: dto.updated_by,
         updated_by: dto.updated_by
     }));

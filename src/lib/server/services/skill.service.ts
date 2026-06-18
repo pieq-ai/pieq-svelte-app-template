@@ -2,6 +2,8 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 import * as skillDao from '$lib/server/dao/skill.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
+import { z } from 'zod';
+import { skillSchema } from '$lib/schemas/employee.schema.js';
 
 export interface UpsertSkillDto {
     cuid?: string;
@@ -11,12 +13,10 @@ export interface UpsertSkillDto {
     updated_by?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toPublicSkill(skill: any) {
     if (!skill) return null;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, years_of_experience, ...rest } = skill;
-    return { ...rest, years_of_experience: years_of_experience ? Number(years_of_experience) : null };
+    const { id, employee_cuid, created_at, updated_at, ...rest } = skill;
+    return { ...rest, years_of_experience: rest.years_of_experience ? Number(rest.years_of_experience) : null };
 }
 
 export async function getSkillsByEmployeeCuid(employee_cuid: string) {
@@ -30,13 +30,14 @@ export async function replaceSkills(employee_cuid: string, dtos: UpsertSkillDto[
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
-    if (!Array.isArray(dtos)) throw new ValidationError("skill", "Skills must be an array");
+    const validatedDtos = z.array(skillSchema)
+        .refine(items => {
+            const skillCuids = items.map(i => i.skill_cuid);
+            return new Set(skillCuids).size === skillCuids.length;
+        }, { message: "Duplicate skills are not allowed", path: ["root"] })
+        .parse(dtos);
 
-    for (const dto of dtos) {
-        if (!dto.skill_cuid) throw new ValidationError("skill", "Skill reference is required");
-    }
-
-    const payload = dtos.map(dto => ({
+    const payload = validatedDtos.map((dto: any) => ({
         cuid: dto.cuid,
         skill_cuid: dto.skill_cuid,
         proficiency_level: dto.proficiency_level,

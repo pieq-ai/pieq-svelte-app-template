@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Label, Input, DatePicker, Button, Textarea } from '$lib/components';
 	import { toast } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { isDuplicateEntry } from '$lib/utils/employeeValidationHelper';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { onMount } from 'svelte';
@@ -51,7 +53,7 @@
 	onMount(async () => {
 		if (cuid) {
 			try {
-				const res = await fetch(`/api/employees/${cuid}/experiences`);
+				const res = await fetch(`/api/employees/${cuid}/experiences`, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
 				const body = await res.json();
 				if (res.ok && body.data) {
 					experiences = body.data;
@@ -77,11 +79,14 @@
 		return val && val.trim().length > 0 ? '' : 'Required';
 	}
 	function validateDates(from: string, to: string) {
-		if (!from || !to) return 'Required';
+		// Both dates are optional in Prisma
+		if (!from && !to) return ''; // both empty is fine
+		if (from && !to) return ''; // from without to is fine
+		if (!from && to) return ''; // to without from is fine
 		const dFrom = new SvelteDate(from);
 		const dTo = new SvelteDate(to);
 		if (isNaN(dFrom.getTime()) || isNaN(dTo.getTime())) return 'Invalid date.';
-		if (dTo > new SvelteDate()) return 'Cannot be a future date.';
+		if (dTo > new SvelteDate()) return 'To Date cannot be a future date.';
 		if (dFrom > dTo) return 'From Date cannot be after To Date.';
 		return '';
 	}
@@ -114,6 +119,7 @@
 				throw new Error(body.data?.message || body.error || 'Failed to save experiences');
 			}
 			originalData = JSON.stringify(normalizeExperiences(experiences));
+			toast.success('Updated successfully');
 			return { success: true };
 		} catch (e: unknown) {
 			toast.error((e as Error).message);
@@ -123,14 +129,10 @@
 		}
 	}
 
-	async function save(shouldExit: boolean) {
+	async function save() {
 		const result = await saveOnly();
 		if (!result.success) return;
-		if (shouldExit) {
-			window.location.href = '/employees';
-		} else {
-			onNext();
-		}
+		onNext();
 	}
 </script>
 
@@ -196,7 +198,7 @@
 				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
 					Cancel
 				</Button>
-				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save(false)} disabled={isSubmitting}>
+				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save()} disabled={isSubmitting}>
 					Save
 				</Button>
 			{:else}

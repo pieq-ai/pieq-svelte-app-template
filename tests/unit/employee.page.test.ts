@@ -1,28 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { load as loadCreate } from '../../src/routes/employees/create/+page.server.ts';
 import { load as loadEdit } from '../../src/routes/employees/[cuid]/+page.server.ts';
-import { db } from '$lib/server/db';
 import * as departmentService from '$lib/server/services/department.service';
 import * as designationService from '$lib/server/services/designation.service';
 import * as masterDataService from '$lib/server/services/master-data.service';
-
-vi.mock('$lib/server/db', () => ({
-	db: {
-		role: {
-			findMany: vi.fn()
-		},
-		companyLocation: {
-			findMany: vi.fn()
-		},
-		employee: {
-			findMany: vi.fn(),
-			findUnique: vi.fn()
-		},
-		employment: {
-			findFirst: vi.fn()
-		}
-	}
-}));
+import * as employeeService from '$lib/server/services/employee.service';
+import * as employmentService from '$lib/server/services/employment.service';
+import * as roleService from '$lib/server/services/role.service';
+import * as locationService from '$lib/server/services/organization_location.service';
 
 vi.mock('$lib/server/services/department.service', () => ({
 	getDepartments: vi.fn()
@@ -34,6 +19,23 @@ vi.mock('$lib/server/services/designation.service', () => ({
 
 vi.mock('$lib/server/services/master-data.service', () => ({
 	getMasterData: vi.fn()
+}));
+
+vi.mock('$lib/server/services/employee.service', () => ({
+	getEmployeeByCuid2: vi.fn(),
+	getEmployees: vi.fn()
+}));
+
+vi.mock('$lib/server/services/employment.service', () => ({
+	getEmploymentByEmployeeCuid: vi.fn()
+}));
+
+vi.mock('$lib/server/services/role.service', () => ({
+	listRoles: vi.fn()
+}));
+
+vi.mock('$lib/server/services/organization_location.service', () => ({
+	listLocations: vi.fn()
 }));
 
 interface CreateLoadResult {
@@ -77,15 +79,14 @@ describe('Employee Create Page Load', () => {
 		);
 		vi.mocked(masterDataService.getMasterData).mockResolvedValue([]);
 
-		// Mock prisma client
-		vi.mocked(db.role.findMany).mockResolvedValue(
-			[{ id: 1n, cuid: 'role_1', name: 'HR Manager', status: true }] as unknown as Awaited<ReturnType<typeof db.role.findMany>>
+		vi.mocked(roleService.listRoles).mockResolvedValue(
+			{ data: [{ id: 1n, cuid: 'role_1', name: 'HR Manager', status: true }] } as unknown as Awaited<ReturnType<typeof roleService.listRoles>>
 		);
-		vi.mocked(db.companyLocation.findMany).mockResolvedValue(
-			[{ id: 2n, cuid: 'loc_1', name: 'Office 1', status: true }] as unknown as Awaited<ReturnType<typeof db.companyLocation.findMany>>
+		vi.mocked(locationService.listLocations).mockResolvedValue(
+			{ data: [{ id: 2n, cuid: 'loc_1', name: 'Office 1', status: true }] } as unknown as Awaited<ReturnType<typeof locationService.listLocations>>
 		);
-		vi.mocked(db.employee.findMany).mockResolvedValue(
-			[{ cuid: 'emp_1', first_name: 'John', last_name: 'Doe' }] as unknown as Awaited<ReturnType<typeof db.employee.findMany>>
+		vi.mocked(employeeService.getEmployees).mockResolvedValue(
+			[{ cuid: 'emp_1', first_name: 'John', last_name: 'Doe' }] as unknown as Awaited<ReturnType<typeof employeeService.getEmployees>>
 		);
 
 		const result = await loadCreate({} as unknown as Parameters<typeof loadCreate>[0]) as unknown as CreateLoadResult;
@@ -103,7 +104,7 @@ describe('Employee Edit Page Load', () => {
 	});
 
 	it('should throw 404 error if employee not found', async () => {
-		vi.mocked(db.employee.findUnique).mockResolvedValue(null);
+		vi.mocked(employeeService.getEmployeeByCuid2).mockRejectedValue(new Error('Employee not found'));
 
 		try {
 			await loadEdit({ params: { cuid: 'invalid' } } as unknown as Parameters<typeof loadEdit>[0]);
@@ -116,20 +117,20 @@ describe('Employee Edit Page Load', () => {
 	});
 
 	it('should load employee, employment, and dropdown dependencies', async () => {
-		vi.mocked(db.employee.findUnique).mockResolvedValue(
-			{ id: 1n, cuid: 'emp_123', first_name: 'John', last_name: 'Doe' } as unknown as Awaited<ReturnType<typeof db.employee.findUnique>>
+		vi.mocked(employeeService.getEmployeeByCuid2).mockResolvedValue(
+			{ id: 1n, cuid: 'emp_123', first_name: 'John', last_name: 'Doe' } as unknown as Awaited<ReturnType<typeof employeeService.getEmployeeByCuid2>>
 		);
-		vi.mocked(db.employment.findFirst).mockResolvedValue(
-			{ id: 2n, employee_cuid: 'emp_123', department_cuid: 'dept_1' } as unknown as Awaited<ReturnType<typeof db.employment.findFirst>>
+		vi.mocked(employmentService.getEmploymentByEmployeeCuid).mockResolvedValue(
+			{ id: 2n, employee_cuid: 'emp_123', department_cuid: 'dept_1' } as unknown as Awaited<ReturnType<typeof employmentService.getEmploymentByEmployeeCuid>>
 		);
-		vi.mocked(db.role.findMany).mockResolvedValue(
-			[{ id: 3n, cuid: 'role_1', name: 'Role 1', status: true }] as unknown as Awaited<ReturnType<typeof db.role.findMany>>
+		vi.mocked(roleService.listRoles).mockResolvedValue(
+			{ data: [{ id: 3n, cuid: 'role_1', name: 'Role 1', status: true }] } as unknown as Awaited<ReturnType<typeof roleService.listRoles>>
 		);
-		vi.mocked(db.companyLocation.findMany).mockResolvedValue(
-			[{ id: 4n, cuid: 'loc_1', name: 'Location 1', status: true }] as unknown as Awaited<ReturnType<typeof db.companyLocation.findMany>>
+		vi.mocked(locationService.listLocations).mockResolvedValue(
+			{ data: [{ id: 4n, cuid: 'loc_1', name: 'Location 1', status: true }] } as unknown as Awaited<ReturnType<typeof locationService.listLocations>>
 		);
-		vi.mocked(db.employee.findMany).mockResolvedValue(
-			[{ cuid: 'emp_999', first_name: 'Manager', last_name: 'Bob' }] as unknown as Awaited<ReturnType<typeof db.employee.findMany>>
+		vi.mocked(employeeService.getEmployees).mockResolvedValue(
+			[{ cuid: 'emp_999', first_name: 'Manager', last_name: 'Bob' }] as unknown as Awaited<ReturnType<typeof employeeService.getEmployees>>
 		);
 
 		const result = await loadEdit({ params: { cuid: 'emp_123' } } as unknown as Parameters<typeof loadEdit>[0]) as unknown as EditLoadResult;

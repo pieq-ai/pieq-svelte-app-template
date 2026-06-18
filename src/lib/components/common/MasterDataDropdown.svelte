@@ -8,6 +8,7 @@
 
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
+	import { toast } from 'svelte-sonner';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import { Alert, AlertDescription, Button, CrudModal, Input, Label, SearchableDropdown } from '$lib/components';
 	import { getMasterConfig, type MasterKey } from '$lib/master-data/master-config';
@@ -173,6 +174,7 @@
 			);
 			const body = await response.json();
 			if (response.ok) {
+				toast.success(editingOption ? `${config.label} updated successfully.` : `${config.label} created successfully.`);
 				const cacheKey = countryCuid ? `${master}-${countryCuid}` : master;
 				masterCache.delete(cacheKey);
 

@@ -2,6 +2,8 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 import * as experienceDao from '$lib/server/dao/experience.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
+import { z } from 'zod';
+import { experienceSchema } from '$lib/schemas/employee.schema.js';
 
 export interface UpsertExperienceDto {
     cuid?: string;
@@ -13,11 +15,9 @@ export interface UpsertExperienceDto {
     updated_by?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toPublicExperience(exp: any) {
     if (!exp) return null;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, ...rest } = exp;
+    const { id, employee_cuid, created_at, updated_at, ...rest } = exp;
     return rest;
 }
 
@@ -32,34 +32,23 @@ export async function replaceExperiences(employee_cuid: string, dtos: UpsertExpe
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
-    if (!Array.isArray(dtos)) throw new ValidationError("experience", "Experiences must be an array");
+    const validatedDtos = z.array(experienceSchema)
+        .refine(items => {
+            const keys = items.map(i => `${i.company_name}|${i.role}`);
+            return new Set(keys).size === keys.length;
+        }, { message: "Duplicate experience entries are not allowed", path: ["root"] })
+        .parse(dtos);
 
-    for (const dto of dtos) {
-        if (!dto.company_name) throw new ValidationError("experience", "Company name is required");
-    }
-
-    const payload = dtos.map(dto => {
-        const from_date = dto.from_date ? new Date(dto.from_date) : null;
-        const to_date = dto.to_date ? new Date(dto.to_date) : null;
-        
-        if (from_date && to_date && from_date > to_date) {
-            throw new ValidationError("experience", "Experience from_date cannot be after to_date");
-        }
-        if (to_date && to_date > new Date()) {
-            throw new ValidationError("experience", "Experience to_date cannot be in the future");
-        }
-
-        return {
-            cuid: dto.cuid,
-            company_name: dto.company_name,
-            role: dto.role,
-            description: dto.description,
-            from_date,
-            to_date,
-            created_by: dto.updated_by,
-            updated_by: dto.updated_by
-        };
-    });
+    const payload = validatedDtos.map((dto: any) => ({
+        cuid: dto.cuid,
+        company_name: dto.company_name,
+        role: dto.role,
+        description: dto.description,
+        from_date: dto.from_date,
+        to_date: dto.to_date,
+        created_by: dto.updated_by,
+        updated_by: dto.updated_by
+    }));
 
     const results = await experienceDao.replaceExperiences(employee_cuid, payload);
     await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);

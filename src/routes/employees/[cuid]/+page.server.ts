@@ -1,28 +1,26 @@
 import { error } from '@sveltejs/kit';
-import { db } from '$lib/server/db.js';
 import type { PageServerLoad } from './$types';
 import { serialize } from '$lib/server/utils/mapping.js';
 import { listRoles } from '$lib/server/services/role.service.js';
 import { listLocations } from '$lib/server/services/organization_location.service.js';
+import { getEmployeeByCuid2, getEmployees } from '$lib/server/services/employee.service.js';
+import { getEmploymentByEmployeeCuid } from '$lib/server/services/employment.service.js';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const employeeCuid = params.cuid;
 
-	const employee = await db.employee.findUnique({
-		where: { cuid: employeeCuid }
-	});
-
-	if (!employee) {
+	let employee;
+	try {
+		employee = await getEmployeeByCuid2(employeeCuid);
+	} catch (err) {
 		throw error(404, 'Employee not found');
 	}
 
 	const [employment, roles, locations, employees] = await Promise.all([
-		db.employment.findFirst({
-			where: { employee_cuid: employeeCuid }
-		}),
+		getEmploymentByEmployeeCuid(employeeCuid),
 		listRoles(),
 		listLocations(),
-		db.employee.findMany({ select: { cuid: true, first_name: true, last_name: true } })
+		getEmployees()
 	]);
 
 	return {

@@ -12,9 +12,23 @@ export function validateName(val: string | undefined | null) {
 	return '';
 }
 
+export function validateOptionalName(val: string | undefined | null) {
+	if (!val || !val.trim()) return ''; // optional
+	const trimmed = val.trim();
+	if (trimmed.length < 3) return "Min 3 characters.";
+	return '';
+}
+
 export function validateMobileRule(val: string | undefined | null) {
 	if (!val) return 'Required';
 	if (val.length > 0 && val.length < 10) return "Must be exactly 10 digits.";
+	return '';
+}
+
+export function validateOptionalMobile(val: string | undefined | null) {
+	if (!val || !val.trim()) return ''; // optional
+	const digits = val.replace(/\D/g, '');
+	if (digits.length !== 10) return "Must be exactly 10 digits.";
 	return '';
 }
 
@@ -32,8 +46,8 @@ export function validateAadharRule(val: string | undefined | null) {
 }
 
 export function validateEmail(val: string | undefined | null) {
-	if (!val) return 'Required';
-	if (val.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return "Invalid email.";
+	if (!val || !val.trim()) return ''; // optional — format-only when present
+	if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return "Invalid email.";
 	return '';
 }
 
@@ -43,7 +57,7 @@ export function validateDropdown(val: string | undefined | null) {
 }
 
 export function validateDob(dob: string) {
-	if (!dob) return 'Required';
+	if (!dob) return ''; // optional in Prisma
 	const date = new Date(dob);
 	if (isNaN(date.getTime())) return "Invalid date format.";
 	const today = new Date();
@@ -61,7 +75,7 @@ export function validateDob(dob: string) {
 }
 
 export function validateDoj(doj: string) {
-	if (!doj) return 'Required';
+	if (!doj) return ''; // optional in Prisma
 	const date = new Date(doj);
 	if (isNaN(date.getTime())) return "Invalid date.";
 	if (date > new Date()) return "Cannot be a future date.";
@@ -85,13 +99,13 @@ export function validateRequired(val: string | undefined | null) {
 }
 
 export function validatePinCode(val: string | undefined | null) {
-	if (!val) return 'Required';
+	if (!val || !val.trim()) return ''; // optional in Prisma
 	if (!/^[0-9]{6}$/.test(val)) return 'Must be 6 digits';
 	return '';
 }
 
 export function validatePercentage(val: string | undefined | null) {
-	if (!val) return 'Required';
+	if (!val || !val.trim()) return 'Required';
 	const num = parseFloat(val);
 	if (isNaN(num) || num < 0 || num > 100) return 'Must be 0-100';
 	return '';
@@ -106,11 +120,14 @@ export function validatePastDate(date: string) {
 }
 
 export function validateDates(from: string, to: string) {
-	if (!from || !to) return 'Required';
+	// Both dates are optional in Prisma — only validate format/ordering when provided
+	if (!from && !to) return '';
+	if (from && !to) return '';
+	if (!from && to) return '';
 	const dFrom = new Date(from);
 	const dTo = new Date(to);
 	if (isNaN(dFrom.getTime()) || isNaN(dTo.getTime())) return "Invalid date.";
-	if (dTo > new Date()) return "Cannot be a future date.";
+	if (dTo > new Date()) return "To Date cannot be a future date.";
 	if (dFrom > dTo) return "From Date cannot be after To Date.";
 	return '';
 }
@@ -206,23 +223,36 @@ export interface BankData {
 	ifsc_code?: string | null;
 }
 
+// ─── Full-profile completion validators (used on final submit) ─────────────────
+// These match Prisma schema source of truth:
+//   - first_name, last_name: REQUIRED (String in Prisma)
+//   - mobile_no, aadhar_no, pan_no: business-required (kept as required)
+//   - department_cuid, designation_cuid: REQUIRED (String in Prisma)
+//   - All other fields: optional
+
 export function validatePersonal(emp: PersonalDetailsData): string[] {
 	const errors: string[] = [];
+	// Required fields
 	if (validateName(emp.first_name)) errors.push(`First Name: ${validateName(emp.first_name)}`);
 	if (validateName(emp.last_name)) errors.push(`Last Name: ${validateName(emp.last_name)}`);
-	if (validateName(emp.father_name)) errors.push(`Father's Name: ${validateName(emp.father_name)}`);
+	// Business-required
+	if (validateMobileRule(emp.mobile_no)) errors.push(`Mobile Number: ${validateMobileRule(emp.mobile_no)}`);
+	if (validateAadharRule(emp.aadhar_no)) errors.push(`Aadhar Number: ${validateAadharRule(emp.aadhar_no)}`);
+	if (validatePanRule(emp.pan_no)) errors.push(`PAN Number: ${validatePanRule(emp.pan_no)}`);
+	// Optional — validate format only when present
 	if (validateDob(emp.dob || '')) errors.push(`Date of Birth: ${validateDob(emp.dob || '')}`);
+	if (validateEmail(emp.personal_email)) errors.push(`Personal Email: ${validateEmail(emp.personal_email)}`);
+	if (validateOptionalName(emp.father_name)) errors.push(`Father's Name: ${validateOptionalName(emp.father_name)}`);
+
 	if (validateDropdown(emp.gender)) errors.push(`Gender: ${validateDropdown(emp.gender)}`);
 	if (validateDropdown(emp.marital_status)) errors.push(`Marital Status: ${validateDropdown(emp.marital_status)}`);
 	if (validateDropdown(emp.blood_group_cuid)) errors.push(`Blood Group: ${validateDropdown(emp.blood_group_cuid)}`);
 	if (validateDropdown(emp.nationality_cuid)) errors.push(`Nationality: ${validateDropdown(emp.nationality_cuid)}`);
-	if (validateMobileRule(emp.mobile_no)) errors.push(`Mobile Number: ${validateMobileRule(emp.mobile_no)}`);
-	if (validateEmail(emp.personal_email)) errors.push(`Personal Email: ${validateEmail(emp.personal_email)}`);
-	if (validateAadharRule(emp.aadhar_no)) errors.push(`Aadhar Number: ${validateAadharRule(emp.aadhar_no)}`);
-	if (validatePanRule(emp.pan_no)) errors.push(`PAN Number: ${validatePanRule(emp.pan_no)}`);
+	
 	if (validateName(emp.emergency_contact_name)) errors.push(`Emergency Contact Name: ${validateName(emp.emergency_contact_name)}`);
 	if (validateMobileRule(emp.emergency_contact_no)) errors.push(`Emergency Contact Number: ${validateMobileRule(emp.emergency_contact_no)}`);
 	if (validateDropdown(emp.relation_cuid)) errors.push(`Relation: ${validateDropdown(emp.relation_cuid)}`);
+	
 	return errors;
 }
 
@@ -232,17 +262,14 @@ export function validateEmployment(emp: EmploymentDetailsData): string[] {
 		errors.push("Employment details are missing.");
 		return errors;
 	}
+	// Required in Prisma
 	if (validateDropdown(emp.department_cuid)) errors.push(`Department: ${validateDropdown(emp.department_cuid)}`);
 	if (validateDropdown(emp.designation_cuid)) errors.push(`Designation: ${validateDropdown(emp.designation_cuid)}`);
-	if (validateDropdown(emp.role_cuid)) errors.push(`Role: ${validateDropdown(emp.role_cuid)}`);
-	if (validateDropdown(emp.pay_grade_cuid)) errors.push(`Pay Grade: ${validateDropdown(emp.pay_grade_cuid)}`);
-	if (validateDropdown(emp.employment_type_cuid)) errors.push(`Employment Type: ${validateDropdown(emp.employment_type_cuid)}`);
-	if (validateDropdown(emp.employment_status)) errors.push(`Employment Status: ${validateDropdown(emp.employment_status)}`);
-	if (validateDropdown(emp.location_cuid)) errors.push(`Company Location: ${validateDropdown(emp.location_cuid)}`);
-	if (validateEmail(emp.official_email)) errors.push(`Official Email: ${validateEmail(emp.official_email)}`);
+	// Optional — validate format when present
 	if (validateDoj(emp.date_of_joining || '')) errors.push(`Date of Joining: ${validateDoj(emp.date_of_joining || '')}`);
 	if (validateConfirmation(emp.date_of_joining || '', emp.confirmation_date || '')) errors.push(`Confirmation Date: ${validateConfirmation(emp.date_of_joining || '', emp.confirmation_date || '')}`);
 	if (validateRelieving(emp.date_of_joining || '', emp.relieving_date || '')) errors.push(`Relieving Date: ${validateRelieving(emp.date_of_joining || '', emp.relieving_date || '')}`);
+	if (validateEmail(emp.official_email)) errors.push(`Official Email: ${validateEmail(emp.official_email)}`);
 	return errors;
 }
 
@@ -259,6 +286,7 @@ export function validateAddresses(addresses: AddressData[]): string[] {
 		if (validateRequired(a.city)) errors.push(`${prefix} City: Required`);
 		if (validateRequired(a.state_cuid)) errors.push(`${prefix} State: Required`);
 		if (validateRequired(a.country_cuid)) errors.push(`${prefix} Country: Required`);
+		// pin_code is optional — only validate format when present
 		if (validatePinCode(a.pin_code)) errors.push(`${prefix} PIN Code: ${validatePinCode(a.pin_code)}`);
 	});
 	return errors;
@@ -266,16 +294,13 @@ export function validateAddresses(addresses: AddressData[]): string[] {
 
 export function validateEducations(educations: EducationData[]): string[] {
 	const errors: string[] = [];
-	if (!educations || educations.length === 0) {
-		errors.push("At least one education entry is required.");
-		return errors;
-	}
+	// educations section is optional overall — skip if empty
+	if (!educations || educations.length === 0) return errors;
 	educations.forEach((e, index) => {
 		const prefix = `Education #${index + 1}`;
+		// Only education_level is required when an entry exists
 		if (validateRequired(e.education_level)) errors.push(`${prefix} Level: Required`);
-		if (validateRequired(e.specialization)) errors.push(`${prefix} Specialization: Required`);
-		if (validateRequired(e.institution)) errors.push(`${prefix} Institution: Required`);
-		if (validateRequired(e.university_board)) errors.push(`${prefix} University/Board: Required`);
+		// All other fields are optional — validate format only
 		if (validatePercentage(e.percentage?.toString())) errors.push(`${prefix} Percentage: ${validatePercentage(e.percentage?.toString())}`);
 		if (validatePastDate(e.completed_at || '')) errors.push(`${prefix} Completed At: ${validatePastDate(e.completed_at || '')}`);
 	});
@@ -284,14 +309,13 @@ export function validateEducations(educations: EducationData[]): string[] {
 
 export function validateExperiences(experiences: ExperienceData[]): string[] {
 	const errors: string[] = [];
-	if (!experiences || experiences.length === 0) {
-		errors.push("At least one experience entry is required.");
-		return errors;
-	}
+	// experiences section is optional overall — skip if empty
+	if (!experiences || experiences.length === 0) return errors;
 	experiences.forEach((e, index) => {
 		const prefix = `Experience #${index + 1}`;
+		// Only company_name is required when an entry exists
 		if (validateRequired(e.company_name)) errors.push(`${prefix} Company Name: Required`);
-		if (validateRequired(e.role)) errors.push(`${prefix} Role: Required`);
+		// Date ordering only when both present
 		if (validateDates(e.from_date || '', e.to_date || '')) errors.push(`${prefix} Dates: ${validateDates(e.from_date || '', e.to_date || '')}`);
 	});
 	return errors;
@@ -299,28 +323,24 @@ export function validateExperiences(experiences: ExperienceData[]): string[] {
 
 export function validateSkills(skills: SkillData[]): string[] {
 	const errors: string[] = [];
-	if (!skills || skills.length === 0) {
-		errors.push("At least one skill entry is required.");
-		return errors;
-	}
+	// skills section is optional overall — skip if empty
+	if (!skills || skills.length === 0) return errors;
 	skills.forEach((s, index) => {
 		const prefix = `Skill #${index + 1}`;
 		if (validateRequired(s.skill_cuid)) errors.push(`${prefix} Skill Name: Required`);
-		if (validateRequired(s.proficiency_level)) errors.push(`${prefix} Proficiency Level: Required`);
+		// proficiency_level is optional
 	});
 	return errors;
 }
 
 export function validateLanguages(languages: LanguageData[]): string[] {
 	const errors: string[] = [];
-	if (!languages || languages.length === 0) {
-		errors.push("At least one language entry is required.");
-		return errors;
-	}
+	// languages section is optional overall — skip if empty
+	if (!languages || languages.length === 0) return errors;
 	languages.forEach((l, index) => {
 		const prefix = `Language #${index + 1}`;
 		if (validateRequired(l.language_cuid)) errors.push(`${prefix} Language: Required`);
-		if (validateRequired(l.proficiency_level)) errors.push(`${prefix} Proficiency Level: Required`);
+		// proficiency_level is optional
 	});
 	return errors;
 }

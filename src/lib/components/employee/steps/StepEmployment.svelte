@@ -3,6 +3,8 @@
 	import AsyncDropdown from '$lib/components/common/AsyncDropdown.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { toast } from 'svelte-sonner';
+	import { goto, invalidateAll } from '$app/navigation';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { onMount } from 'svelte';
 
 	let { mode, cuid, data, onNext, onPrev, onDirtyChange , onCancel} = $props<{
@@ -78,7 +80,7 @@
 			employment = { ...defaultEmployment, ...serverEmp } as typeof employment;
 		} else if (cuid) {
 			try {
-				const res = await fetch(`/api/employees/${cuid}/employment`);
+				const res = await fetch(`/api/employees/${cuid}/employment`, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
 				const body = await res.json();
 				if (res.ok && body.data) {
 					employment = { ...defaultEmployment, ...body.data };
@@ -102,8 +104,8 @@
 		return '';
 	}
 	function validateEmail(val: string | undefined | null) {
-		if (!val) return 'Required';
-		if (val.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return 'Invalid email.';
+		if (!val || !val.length) return 'Required';
+		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return 'Invalid email.';
 		return '';
 	}
 	function validateDoj(doj: string) {
@@ -127,11 +129,11 @@
 	let errors = $derived({
 		department_cuid: validateDropdown(employment.department_cuid),
 		designation_cuid: validateDropdown(employment.designation_cuid),
-		role_cuid: validateDropdown(employment.role_cuid),
-		pay_grade_cuid: validateDropdown(employment.pay_grade_cuid),
-		employment_type_cuid: validateDropdown(employment.employment_type_cuid),
-		location_cuid: validateDropdown(employment.location_cuid),
-		employment_status: validateDropdown(employment.employment_status),
+		role_cuid: '', // optional
+		pay_grade_cuid: '', // optional
+		employment_type_cuid: '', // optional
+		location_cuid: '', // optional
+		employment_status: '', // optional — defaults to 'onboarding' in DB
 		official_email: validateEmail(employment.official_email),
 		date_of_joining: validateDoj(employment.date_of_joining),
 		confirmation_date: validateConfirmation(employment.date_of_joining, employment.confirmation_date),
@@ -166,6 +168,10 @@
 				throw new Error(body.data?.message || body.error || 'Failed to save employment details');
 			}
 			originalData = JSON.stringify(normalizeEmployment(employment));
+			toast.success('Updated successfully');
+
+			await invalidateAll();
+
 			return { success: true };
 		} catch (e: unknown) {
 			toast.error((e as Error).message);
@@ -176,14 +182,10 @@
 	}
 
 	// Save + navigate
-	async function save(shouldExit: boolean) {
+	async function save() {
 		const result = await saveOnly();
 		if (!result.success) return;
-		if (shouldExit) {
-			window.location.href = '/employees';
-		} else {
-			onNext();
-		}
+		onNext();
 	}
 </script>
 
@@ -255,7 +257,7 @@
 		<SearchableDropdown
 			label="Reporting Manager"
 			value={employment.reporting_manager_cuid}
-			options={Array.isArray(data?.employees) ? data.employees.map((e: { cuid: string, first_name: string, last_name: string }) => ({id: e.cuid, label: e.first_name + ' ' + e.last_name})) : []}
+			options={Array.isArray(data?.employees) ? data.employees.filter((e: any) => e.cuid !== cuid).map((e: { cuid: string, first_name: string, last_name: string }) => ({id: e.cuid, label: e.first_name + ' ' + e.last_name})) : []}
 			onSelect={(val) => employment.reporting_manager_cuid = val as string}
 			disabled={mode === 'view'}
 		/>
@@ -302,7 +304,7 @@
 				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
 					Cancel
 				</Button>
-				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save(false)} disabled={isSubmitting}>
+				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save()} disabled={isSubmitting}>
 					Save
 				</Button>
 			{:else}

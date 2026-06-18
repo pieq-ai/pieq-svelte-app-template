@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Label, Input, MasterDataDropdown, Button } from '$lib/components';
 	import { toast } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { isDuplicateEntry } from '$lib/utils/employeeValidationHelper';
 	import { onMount } from 'svelte';
 
@@ -49,7 +51,7 @@
 	onMount(async () => {
 		if (cuid) {
 			try {
-				const res = await fetch(`/api/employees/${cuid}/documents`);
+				const res = await fetch(`/api/employees/${cuid}/documents`, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
 				const body = await res.json();
 				if (res.ok && body.data) {
 					documents = body.data;
@@ -151,6 +153,7 @@
 			}
 
 			originalData = JSON.stringify(normalizeDocs(documents));
+			toast.success('Updated successfully');
 			return { success: true };
 		} catch (e: unknown) {
 			toast.error((e as Error).message);
@@ -160,14 +163,10 @@
 		}
 	}
 
-	async function save(shouldExit: boolean) {
+	async function save() {
 		const result = await saveOnly();
 		if (!result.success) return;
-		if (shouldExit) {
-			window.location.href = '/employees';
-		} else {
-			onNext();
-		}
+		onNext();
 	}
 </script>
 
@@ -218,9 +217,19 @@
 					<div class="space-y-2">
 						{#if mode !== 'view'}
 							<Label>File Upload <span class="text-destructive">*</span></Label>
-							<Input type="file" onchange={(e) => {
+							<Input type="file" accept=".pdf,application/pdf" onchange={(e) => {
 								const file = e.currentTarget.files?.[0];
 								if (file) {
+									if (file.type !== 'application/pdf') {
+										toast.error('Only PDF files are allowed');
+										e.currentTarget.value = '';
+										return;
+									}
+									if (file.size > 2 * 1024 * 1024) {
+										toast.error('PDF file size must not exceed 2 MB.');
+										e.currentTarget.value = '';
+										return;
+									}
 									doc.file_name = file.name;
 									doc.mime_type = file.type;
 									doc.file_size = file.size;
@@ -261,7 +270,7 @@
 				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
 					Cancel
 				</Button>
-				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save(false)} disabled={isSubmitting}>
+				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save()} disabled={isSubmitting}>
 					Save
 				</Button>
 			{:else}

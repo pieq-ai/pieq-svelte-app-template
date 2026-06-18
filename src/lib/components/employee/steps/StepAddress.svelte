@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Label, Input, SearchableDropdown, MasterDataDropdown, Button } from '$lib/components';
 	import { toast } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { onMount, untrack } from 'svelte';
 
 	let { mode, cuid, onNext, onPrev, onDirtyChange , onCancel} = $props<{
@@ -91,7 +93,7 @@
 	onMount(async () => {
 		if (cuid) {
 			try {
-				const res = await fetch(`/api/employees/${cuid}/addresses`);
+				const res = await fetch(`/api/employees/${cuid}/addresses`, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
 				const body = await res.json();
 				if (res.ok && body.data) {
 					addresses = body.data;
@@ -128,7 +130,7 @@
 		return val && val.trim().length > 0 ? '' : 'Required';
 	}
 	function validatePinCode(val: string | undefined | null) {
-		if (!val) return 'Required';
+		if (!val || !val.trim()) return ''; // optional in Prisma
 		if (!/^[0-9]{6}$/.test(val)) return 'Must be 6 digits';
 		return '';
 	}
@@ -138,8 +140,8 @@
 			validateRequired(a.address_type) ||
 			validateRequired(a.address_line1) ||
 			validateRequired(a.city) ||
-			validateRequired(a.state_cuid) ||
 			validateRequired(a.country_cuid) ||
+			validateRequired(a.state_cuid) ||
 			validatePinCode(a.pin_code)
 		)
 	);
@@ -163,6 +165,7 @@
 				throw new Error(body.data?.message || body.error || 'Failed to save addresses');
 			}
 			originalData = JSON.stringify(normalizeAddresses(addresses));
+			toast.success('Updated successfully');
 			return { success: true };
 		} catch (e: unknown) {
 			toast.error((e as Error).message);
@@ -172,14 +175,10 @@
 		}
 	}
 
-	async function save(shouldExit: boolean) {
+	async function save() {
 		const result = await saveOnly();
 		if (!result.success) return;
-		if (shouldExit) {
-			window.location.href = '/employees';
-		} else {
-			onNext();
-		}
+		onNext();
 	}
 </script>
 
@@ -257,7 +256,7 @@
 					class={(isTouched && validateRequired(address.state_cuid)) ? 'border-destructive' : ''}
 				/>
 				<div class="space-y-2">
-					<Label>Pin Code <span class="text-destructive">*</span></Label>
+					<Label>Pin Code</Label>
 					<Input bind:value={address.pin_code} placeholder="123456" class={(isTouched && validatePinCode(address.pin_code)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)} />
 					{#if isTouched && validatePinCode(address.pin_code)}<p class="text-xs text-destructive">{validatePinCode(address.pin_code)}</p>{/if}
 				</div>
@@ -286,7 +285,7 @@
 				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
 					Cancel
 				</Button>
-				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save(false)} disabled={isSubmitting}>
+				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save()} disabled={isSubmitting}>
 					Save
 				</Button>
 			{:else}

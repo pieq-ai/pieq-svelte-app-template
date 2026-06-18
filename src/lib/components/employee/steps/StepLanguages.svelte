@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Button, MasterDataDropdown, SearchableDropdown } from '$lib/components';
 	import { toast } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { isDuplicateEntry } from '$lib/utils/employeeValidationHelper';
 	import { onMount } from 'svelte';
 
@@ -54,7 +56,7 @@
 	onMount(async () => {
 		if (cuid) {
 			try {
-				const res = await fetch(`/api/employees/${cuid}/languages`);
+				const res = await fetch(`/api/employees/${cuid}/languages`, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
 				const body = await res.json();
 				if (res.ok && body.data) {
 					languages = body.data;
@@ -83,7 +85,6 @@
 	let hasErrors = $derived(
 		languages.some((l, i) =>
 			validateRequired(l.language_cuid) ||
-			validateRequired(l.proficiency_level) ||
 			isDuplicateEntry(languages, i, x => x.language_cuid)
 		)
 	);
@@ -107,6 +108,7 @@
 				throw new Error(body.data?.message || body.error || 'Failed to save languages');
 			}
 			originalData = JSON.stringify(normalizeLanguages(languages));
+			toast.success('Updated successfully');
 			return { success: true };
 		} catch (e: unknown) {
 			toast.error((e as Error).message);
@@ -116,14 +118,10 @@
 		}
 	}
 
-	async function save(shouldExit: boolean) {
+	async function save() {
 		const result = await saveOnly();
 		if (!result.success) return;
-		if (shouldExit) {
-			window.location.href = '/employees';
-		} else {
-			onNext();
-		}
+		onNext();
 	}
 </script>
 
@@ -174,9 +172,7 @@
 							]}
 							onSelect={(val) => lang.proficiency_level = val as string}
 							disabled={mode === 'view'}
-							class={(isTouched && validateRequired(lang.proficiency_level)) ? 'border-destructive' : ''}
 						/>
-						{#if isTouched && validateRequired(lang.proficiency_level)}<p class="text-xs text-destructive mt-1">{validateRequired(lang.proficiency_level)}</p>{/if}
 					</div>
 				</div>
 				<div class="flex gap-4 mt-2">
@@ -197,7 +193,7 @@
 				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
 					Cancel
 				</Button>
-				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save(false)} disabled={isSubmitting}>
+				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save()} disabled={isSubmitting}>
 					Save
 				</Button>
 			{:else}

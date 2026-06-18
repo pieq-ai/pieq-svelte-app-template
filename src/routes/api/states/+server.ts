@@ -1,41 +1,43 @@
 import { json } from '@sveltejs/kit';
-import { db } from '$lib/server/db.js';
 import { sendList, mapState } from '$lib/server/response.js';
+import { getMasterData } from '$lib/server/services/master-data.service.js';
+import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 
 export async function GET() {
   try {
-    const count = await db.state.count();
-    if (count === 0) {
+    const statesData = await getMasterData('states');
+    if (statesData.length === 0) {
       // Find country cuids
-      const india = await db.country.findFirst({ where: { name: 'India' } });
-      const usa = await db.country.findFirst({ where: { name: 'United States' } });
-      const uk = await db.country.findFirst({ where: { name: 'United Kingdom' } });
-
-      const statesToCreate: { country_cuid: string; name: string }[] = [];
+      const countries = await getMasterData('countries');
+      const india = countries.find(c => c.label === 'India');
+      const usa = countries.find(c => c.label === 'United States');
+      const uk = countries.find(c => c.label === 'United Kingdom');
 
       if (india) {
-        ['Maharashtra', 'Delhi', 'Karnataka', 'Tamil Nadu'].forEach(state => {
-          statesToCreate.push({ country_cuid: india.cuid, name: state });
-        });
+        for (const state of ['Maharashtra', 'Delhi', 'Karnataka', 'Tamil Nadu']) {
+          await masterDataDao.create('states', { country_cuid: india.id, name: state });
+        }
       }
 
       if (usa) {
-        ['California', 'Texas', 'New York', 'Florida'].forEach(state => {
-          statesToCreate.push({ country_cuid: usa.cuid, name: state });
-        });
+        for (const state of ['California', 'Texas', 'New York', 'Florida']) {
+          await masterDataDao.create('states', { country_cuid: usa.id, name: state });
+        }
       }
 
       if (uk) {
-        ['England', 'Scotland', 'Wales', 'Northern Ireland'].forEach(state => {
-          statesToCreate.push({ country_cuid: uk.cuid, name: state });
-        });
-      }
-      if (statesToCreate.length > 0) {
-        await db.state.createMany({ data: statesToCreate });
+        for (const state of ['England', 'Scotland', 'Wales', 'Northern Ireland']) {
+          await masterDataDao.create('states', { country_cuid: uk.id, name: state });
+        }
       }
     }
-    const states = await db.state.findMany({ orderBy: { name: 'asc' } });
-    const mapped = states.map(mapState);
+    const states = await getMasterData('states');
+    // We mock mapState since getMasterData already returns an option format
+    const mapped = states.map(s => ({
+       cuid: s.id,
+       name: s.label,
+       country_cuid: s.meta?.country_cuid || ''
+    }));
     return sendList(mapped);
   } catch (err: any) {
     return json({ error: err.message }, { status: 500 });

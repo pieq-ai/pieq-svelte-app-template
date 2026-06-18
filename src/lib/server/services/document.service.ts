@@ -2,6 +2,8 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 import * as documentDao from '$lib/server/dao/document.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
+import { z } from 'zod';
+import { documentSchema } from '$lib/schemas/employee.schema.js';
 
 export interface UpsertDocumentDto {
     cuid?: string;
@@ -13,13 +15,11 @@ export interface UpsertDocumentDto {
     updated_by?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toPublicDocument(doc: any) {
     if (!doc) return null;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, document, file_size, ...rest } = doc;
+    const { id, employee_cuid, created_at, updated_at, buffer, ...rest } = doc;
     // Don't send the raw binary buffer back to the client in the list
-    return { ...rest, file_size: file_size ? Number(file_size) : null };
+    return { ...rest, file_size: rest.file_size ? Number(rest.file_size) : null };
 }
 
 export async function getDocumentsByEmployeeCuid(employee_cuid: string) {
@@ -33,19 +33,45 @@ export async function replaceDocuments(employee_cuid: string, dtos: UpsertDocume
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
-    if (!Array.isArray(dtos)) throw new ValidationError("document", "Documents must be an array");
+    console.log('Documents Payload:', dtos);
 
-    for (const dto of dtos) {
-        if (!dto.document_type_cuid) throw new ValidationError("document", "Document type reference is required");
+    const schema = z.array(documentSchema)
+        .refine(items => {
+            const documentTypeCuids = items.map(i => i.document_type_cuid);
+            return new Set(documentTypeCuids).size === documentTypeCuids.length;
+        }, { message: "Duplicate document types are not allowed", path: ["root"] });
+        
+    const parsed = schema.safeParse(dtos);
+    console.log('Zod validation result:', JSON.stringify(parsed, null, 2));
+
+    if (!parsed.success) {
+        throw parsed.error;
     }
 
-    const payload = dtos.map(dto => {
+    const validatedDtos = parsed.data;
+    console.log('Parsed payload:', validatedDtos);
+
+    const payload = validatedDtos.map((dto: any) => {
         let buffer: Buffer | null | undefined = undefined;
         if (dto.document_base64 !== undefined) {
             if (dto.document_base64) {
                 // Handle data URI scheme if present e.g. data:image/png;base64,iVBOR...
                 const b64Data = dto.document_base64.includes(',') ? dto.document_base64.split(',')[1] : dto.document_base64;
                 buffer = Buffer.from(b64Data, 'base64');
+                
+                    // Magic number validation
+                    if (buffer.length > 4) {
+                        const magic = buffer.toString('hex', 0, 4);
+                        // PDF: 25504446
+                        const isPdf = magic === '25504446';
+                        
+                        if (!isPdf) {
+                            throw new ValidationError("file", "Only PDF files are allowed");
+                        }
+                    }
+                    if (buffer.length > 2 * 1024 * 1024) {
+                        throw new ValidationError("file", "PDF file size must not exceed 2 MB.");
+                    }
             } else {
                 buffer = null;
             }

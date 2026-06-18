@@ -1,4 +1,5 @@
-import { db } from '$lib/server/db.js';
+import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
+import * as leaveTypeDao from '$lib/server/dao/leave-type.dao.js';
 import * as leavePolicyDao from '$lib/server/dao/leave-policy.dao.js';
 import { LeaveValidationError, LeaveMultiValidationError } from './leave-type.service.js';
 
@@ -46,7 +47,7 @@ async function validateAndMapPolicyInput(
 	}
 	const leave_type_cuid = String(input.leave_type_cuid).trim();
 
-	const leaveType = await db.leaveType.findUnique({ where: { cuid: leave_type_cuid } });
+	const leaveType = await leaveTypeDao.findByCuid(leave_type_cuid);
 	if (!leaveType) {
 		throw new LeaveValidationError('leave_type_cuid', 'Selected leave type does not exist');
 	}
@@ -74,11 +75,11 @@ async function validateAndMapPolicyInput(
 	}
 
 	for (const empTypeCuid of employmentTypeCuids) {
-		const empType = await db.employmentType.findUnique({ where: { cuid: empTypeCuid } });
+		const empType = await masterDataDao.findByCuid2('employment-types', empTypeCuid);
 		if (!empType) {
 			throw new LeaveValidationError('employment_type_cuids', `Employment type ${empTypeCuid} does not exist`);
 		}
-		if (!empType.status) {
+		if ('status' in empType && !empType.status) {
 			throw new LeaveValidationError('employment_type_cuids', `Employment type '${empType.name}' is inactive`);
 		}
 	}

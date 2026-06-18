@@ -1,5 +1,6 @@
 import type { RequestEvent } from '@sveltejs/kit';
 import * as bankDetailService from '$lib/server/services/bank-detail.service.js';
+import * as employeeService from '$lib/server/services/employee.service.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import { sendList, sendUpdated, handleError } from '$lib/server/utils/response.js';
 
@@ -32,6 +33,7 @@ export async function PUT(event: RequestEvent) {
         body = body.map((bank: any) => ({ ...bank, updated_by: user_id }));
 
 		await bankDetailService.replaceBankDetails(employee_cuid, body);
+        await employeeService.checkAndSetProfileCompletionStatus(employee_cuid);
 		return sendUpdated(employee_cuid, 'Successfully updated bank details');
 	} catch (error) {
 		return handleError(error);

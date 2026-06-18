@@ -2,6 +2,8 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 import * as languageDao from '$lib/server/dao/language.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
+import { z } from 'zod';
+import { languageSchema } from '$lib/schemas/employee.schema.js';
 
 export interface UpsertLanguageDto {
     cuid?: string;
@@ -13,11 +15,9 @@ export interface UpsertLanguageDto {
     updated_by?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toPublicLanguage(lang: any) {
     if (!lang) return null;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, ...rest } = lang;
+    const { id, employee_cuid, created_at, updated_at, ...rest } = lang;
     return rest;
 }
 
@@ -27,7 +27,6 @@ export async function getLanguagesByEmployeeCuid(employee_cuid: string) {
     return records.map(toPublicLanguage);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseBool(val: any): boolean {
     if (typeof val === 'boolean') return val;
     if (typeof val === 'string') return val.toLowerCase() === 'true';
@@ -39,19 +38,20 @@ export async function replaceLanguages(employee_cuid: string, dtos: UpsertLangua
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
-    if (!Array.isArray(dtos)) throw new ValidationError("language", "Languages must be an array");
+    const validatedDtos = z.array(languageSchema)
+        .refine(items => {
+            const languageCuids = items.map(i => i.language_cuid);
+            return new Set(languageCuids).size === languageCuids.length;
+        }, { message: "Duplicate languages are not allowed", path: ["root"] })
+        .parse(dtos);
 
-    for (const dto of dtos) {
-        if (!dto.language_cuid) throw new ValidationError("language", "Language reference is required");
-    }
-
-    const payload = dtos.map(dto => ({
+    const payload = validatedDtos.map((dto: any) => ({
         cuid: dto.cuid,
         language_cuid: dto.language_cuid,
         proficiency_level: dto.proficiency_level,
-        can_read: parseBool(dto.can_read),
-        can_write: parseBool(dto.can_write),
-        can_speak: parseBool(dto.can_speak),
+        can_read: dto.can_read,
+        can_write: dto.can_write,
+        can_speak: dto.can_speak,
         created_by: dto.updated_by,
         updated_by: dto.updated_by
     }));

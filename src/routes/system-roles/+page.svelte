@@ -184,7 +184,7 @@
 				{
 					method: editingRole ? 'PUT' : 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ name: roleName.trim(), status: roleStatus })
+					body: JSON.stringify(editingRole ? { name: roleName.trim(), status: roleStatus } : { name: roleName.trim() })
 				}
 			);
 			const body = await response.json();

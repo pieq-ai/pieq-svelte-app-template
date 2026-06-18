@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Button, Card, CardContent } from '$lib/components';
-	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import { toast } from 'svelte-sonner';
 
@@ -48,12 +47,7 @@
 		'Bank Details'
 	];
 
-	// ── Wizard-level unsaved-changes state ──────────────────────────────────
 	let stepIsDirty = $state(false);
-	let pendingStep = $state<number | null>(null);
-	let pendingExit = $state(false);
-	let showUnsavedModal = $state(false);
-
 
 	/** Called by the active step whenever its dirty state changes. */
 	function handleDirtyChange(dirty: boolean) {
@@ -75,42 +69,12 @@
 			return;
 		}
 
-		if (internalMode === 'view' || !stepIsDirty) {
-			currentStep = targetStep;
-		} else {
-			pendingStep = targetStep;
-			showUnsavedModal = true;
-		}
+		currentStep = targetStep;
 	}
 
 	function requestExit() {
-		if (internalMode === 'view' || !stepIsDirty) {
-			goto('/employees');
-		} else {
-			pendingExit = true;
-			showUnsavedModal = true;
-		}
-	}
-
-	function finalizePendingNavigation() {
-		showUnsavedModal = false;
 		$globalIsDirty = false;
-		if (pendingExit) {
-			goto('/employees');
-			return;
-		}
-		if (pendingStep !== null) {
-			currentStep = pendingStep;
-			pendingStep = null;
-		}
-	}
-
-
-
-	function handleModalCancel() {
-		showUnsavedModal = false;
-		pendingStep = null;
-		pendingExit = false;
+		goto('/employees');
 	}
 
 	// ── Standard next/prev ──────────
@@ -124,6 +88,9 @@
 		}
 		if (currentStep < steps.length) {
 			requestNavigate(currentStep + 1);
+		} else {
+			$globalIsDirty = false;
+			goto('/employees');
 		}
 	}
 
@@ -240,16 +207,7 @@
 	</div>
 </div>
 
-<!-- Wizard-level Unsaved Changes Modal -->
-<ConfirmModal
-	open={showUnsavedModal}
-	title="Cancel Changes"
-	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	cancelLabel="Keep Editing"
-	confirmLabel="Cancel"
-	onCancel={() => handleModalCancel()}
-	onConfirm={() => finalizePendingNavigation()}
-/>
+
 
 <style>
 	.custom-scrollbar {

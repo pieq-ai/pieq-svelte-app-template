@@ -6,7 +6,7 @@ import { getDesignations } from '$lib/server/services/designation.service.js';
 
 import { listRoles } from '$lib/server/services/role.service.js';
 import { listLocations } from '$lib/server/services/organization_location.service.js';
-import { db } from '$lib/server/db.js';
+import { getEmployees } from '$lib/server/services/employee.service.js';
 
 export const load: PageServerLoad = async () => {
 	try {
@@ -41,7 +41,7 @@ export const load: PageServerLoad = async () => {
 			getMasterData('countries'),
 			getMasterData('states'),
             listLocations(),
-			db.employee.findMany({ select: { cuid: true, first_name: true, last_name: true } })
+			getEmployees()
 		]);
 
 		return {
@@ -59,7 +59,7 @@ export const load: PageServerLoad = async () => {
 			countries,
 			states,
             locations: locations.data,
-			employees
+			employees: employees.map((e) => ({ cuid: e.cuid, first_name: e.first_name, last_name: e.last_name }))
 		};
 	} catch (e) {
 		console.error('Failed to load employee dependencies:', e);

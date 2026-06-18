@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as documentService from '$lib/server/services/document.service.js';
 import * as documentDao from '$lib/server/dao/document.dao.js';
@@ -64,7 +63,7 @@ describe('Document Service', () => {
 					file_name: 'test.pdf',
 					file_size: 100,
 					mime_type: 'application/pdf',
-					document_base64: 'data:application/pdf;base64,aGVsbG8='
+					document_base64: 'data:application/pdf;base64,JVBERi0xLjQK'
 				}
 			];
 
@@ -78,7 +77,7 @@ describe('Document Service', () => {
 					file_name: 'test.pdf',
 					file_size: 100n,
 					mime_type: 'application/pdf',
-					document: Buffer.from('hello'),
+					document: Buffer.from('%PDF-1.4\n'),
 					created_by: undefined,
 					updated_by: undefined
 				}

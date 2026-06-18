@@ -2,6 +2,8 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 import * as educationDao from '$lib/server/dao/education.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
+import { z } from 'zod';
+import { educationSchema } from '$lib/schemas/employee.schema.js';
 
 export interface UpsertEducationDto {
     cuid?: string;
@@ -14,11 +16,9 @@ export interface UpsertEducationDto {
     updated_by?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toPublicEducation(edu: any) {
     if (!edu) return null;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, percentage, ...rest } = edu;
+    const { id, employee_cuid, created_at, updated_at, percentage, ...rest } = edu;
     return { ...rest, percentage: percentage ? Number(percentage) : null };
 }
 
@@ -33,30 +33,24 @@ export async function replaceEducations(employee_cuid: string, dtos: UpsertEduca
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
-    if (!Array.isArray(dtos)) throw new ValidationError("education", "Educations must be an array");
+    const validatedDtos = z.array(educationSchema)
+        .refine(items => {
+            const keys = items.map(i => `${i.education_level}|${i.specialization}|${i.institution}`);
+            return new Set(keys).size === keys.length;
+        }, { message: "Duplicate education entries are not allowed", path: ["root"] })
+        .parse(dtos);
 
-    for (const dto of dtos) {
-        if (!dto.education_level) throw new ValidationError("education", "Education level is required");
-    }
-
-    const payload = dtos.map(dto => {
-        const completed_at = dto.completed_at ? new Date(dto.completed_at) : null;
-        if (completed_at && completed_at > new Date()) {
-            throw new ValidationError("education", "Education completion date cannot be in the future");
-        }
-
-        return {
-            cuid: dto.cuid,
-            education_level: dto.education_level,
-            specialization: dto.specialization,
-            institution: dto.institution,
-            university_board: dto.university_board,
-            percentage: dto.percentage ? Number(dto.percentage) : null,
-            completed_at,
-            created_by: dto.updated_by,
-            updated_by: dto.updated_by
-        };
-    });
+    const payload = validatedDtos.map((dto: any) => ({
+        cuid: dto.cuid,
+        education_level: dto.education_level,
+        specialization: dto.specialization,
+        institution: dto.institution,
+        university_board: dto.university_board,
+        percentage: dto.percentage ? Number(dto.percentage) : null,
+        completed_at: dto.completed_at,
+        created_by: dto.updated_by,
+        updated_by: dto.updated_by
+    }));
 
     const results = await educationDao.replaceEducations(employee_cuid, payload);
     await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);

@@ -191,10 +191,11 @@
 		isSubmitting = true;
 
 		try {
-			const payload = { name: formRoleName.trim(), status: formRoleStatus };
 			if (editingRole) {
+				const payload = { name: formRoleName.trim(), status: formRoleStatus };
 				await localApi.put(`/api/roles/${editingRole.cuid}`, payload);
 			} else {
+				const payload = { name: formRoleName.trim() };
 				await localApi.post('/api/roles', payload);
 			}
 

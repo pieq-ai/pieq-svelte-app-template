@@ -35,42 +35,19 @@
 		profile_completion_status: string;
 	}
 
-	let employees = $state<Employee[]>([]);
-	let isLoading = $state(true);
+	let { data } = $props<{ data: { employees: Employee[] } }>();
+
+	let employees = $derived<Employee[]>(data.employees);
+	let isLoading = $state(false);
 	let loadError = $state('');
 
 	let searchQuery = $state('');
-	let statusFilter = $state<'all' | boolean>('all');
+	let statusFilter = $state<'all' | 'pending' | 'completed'>('all');
 	let sortColumn = $state('emp_code');
 	let sortDirection = $state<'asc' | 'desc' | null>('asc');
 
 	let currentPage = $state(1);
 	let pageSize = $state(10);
-
-	async function loadEmployees() {
-		isLoading = true;
-		loadError = '';
-		try {
-			const response = await fetch('/api/employees');
-			const resData = await response.json();
-			if (response.ok) {
-				employees = resData.data ?? [];
-			} else {
-				loadError = resData.error || 'Failed to load employees.';
-				toast.error(loadError);
-			}
-		} catch (err) {
-			loadError = 'An error occurred while loading employees.';
-			toast.error(loadError);
-			console.error(err);
-		} finally {
-			isLoading = false;
-		}
-	}
-
-	onMount(() => {
-		loadEmployees();
-	});
 
   let filteredEmployees = $derived.by(() => {
     let result = [...employees];
@@ -88,9 +65,7 @@
 
 		if (statusFilter !== 'all') {
 			result = result.filter(
-				(emp) =>
-					(statusFilter === true && emp.profile_completion_status === 'completed') ||
-					(statusFilter === false && emp.profile_completion_status === 'pending')
+				(emp) => emp.profile_completion_status === statusFilter
 			);
 		}
 
@@ -194,7 +169,7 @@
 	<div class="space-y-3">
 		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
 			<SearchInput id="search_employees" name="search_employees" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by code, name, email..." />
-			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
+			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} options={[{ label: 'All Status', value: 'all' }, { label: 'Pending', value: 'pending' }, { label: 'Completed', value: 'completed' }]} />
 		</div>
 
 		<Card class="py-0">

@@ -140,12 +140,12 @@
 
   function getCountryName(countryCuid: string): string {
     const country = countries.find((c) => c.cuid === countryCuid);
-    return country ? country.country_name : countryCuid;
+    return country ? country.name : countryCuid;
   }
 
   function getStateName(stateCuid: string): string {
     const state = states.find((s) => s.cuid === stateCuid);
-    return state ? state.state_name : stateCuid;
+    return state ? state.name : stateCuid;
   }
 
   // Filter
@@ -156,14 +156,14 @@
   let selectedCountryLabel = $derived(
     filterCountry === "all"
       ? "All Countries"
-      : countries.find((c) => c.cuid === filterCountry)?.country_name ||
+      : countries.find((c) => c.cuid === filterCountry)?.name ||
           "All Countries"
   );
 
   let selectedStateLabel = $derived(
     filterState === "all"
       ? "All States"
-      : states.find((s) => s.cuid === filterState)?.state_name || "All States"
+      : states.find((s) => s.cuid === filterState)?.name || "All States"
   );
 
   function handleCountrySelect(val: string) {
@@ -772,7 +772,7 @@
             </DropdownMenu.Item>
             {#each countries as c}
               <DropdownMenu.Item onclick={() => handleCountrySelect(c.cuid)} class="justify-between cursor-pointer {filterCountry === c.cuid ? 'bg-accent font-semibold' : ''}">
-                {c.country_name}
+                {c.name}
               </DropdownMenu.Item>
             {/each}
           </DropdownMenu.Group>
@@ -796,7 +796,7 @@
             </DropdownMenu.Item>
             {#each filterCountry === 'all' ? states : states.filter((s) => s.country_cuid === filterCountry) as s}
               <DropdownMenu.Item onclick={() => handleStateSelect(s.cuid)} class="justify-between cursor-pointer {filterState === s.cuid ? 'bg-accent font-semibold' : ''}">
-                {s.state_name}
+                {s.name}
               </DropdownMenu.Item>
             {/each}
           </DropdownMenu.Group>
@@ -1057,7 +1057,7 @@
                   class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none {countryError ? 'border-destructive' : ''}"
                   {...props}
                 >
-                  <span class="truncate">{countries.find((c) => c.cuid === formCountryCuid)?.country_name || "Select Country"}</span>
+                  <span class="truncate">{countries.find((c) => c.cuid === formCountryCuid)?.name || "Select Country"}</span>
                   <ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
                 </Button>
               {/snippet}
@@ -1075,7 +1075,7 @@
                     onclick={() => { formCountryCuid = country.cuid; formStateCuid = ''; countryError = ''; }}
                     class="cursor-pointer justify-between {formCountryCuid === country.cuid ? 'bg-accent font-semibold' : ''}"
                   >
-                    {country.country_name}
+                    {country.name}
                     {#if formCountryCuid === country.cuid}<CheckIcon class="size-4" />{/if}
                   </DropdownMenu.Item>
                 {/each}
@@ -1105,7 +1105,7 @@
                   class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none disabled:opacity-50 disabled:cursor-not-allowed {stateError ? 'border-destructive' : ''}"
                   {...props}
                 >
-                  <span class="truncate">{filteredStates.find((s) => s.cuid === formStateCuid)?.state_name || "Select State"}</span>
+                  <span class="truncate">{filteredStates.find((s) => s.cuid === formStateCuid)?.name || "Select State"}</span>
                   <ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
                 </Button>
               {/snippet}
@@ -1123,7 +1123,7 @@
                     onclick={() => { formStateCuid = state.cuid; stateError = ''; }}
                     class="cursor-pointer justify-between {formStateCuid === state.cuid ? 'bg-accent font-semibold' : ''}"
                   >
-                    {state.state_name}
+                    {state.name}
                     {#if formStateCuid === state.cuid}<CheckIcon class="size-4" />{/if}
                   </DropdownMenu.Item>
                 {/each}
