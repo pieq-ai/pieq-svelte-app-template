@@ -1,5 +1,7 @@
 import * as attendanceDao from '$lib/server/dao/attendance.dao.js';
-import { db } from '$lib/server/db.js';
+import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as holidayDao from '$lib/server/dao/holiday.dao.js';
+import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import { GEOFENCE_CONFIG, calculateDistance } from '$lib/geofence.js';
 
 export class AttendanceValidationError extends Error {
@@ -21,15 +23,11 @@ export class AttendanceMultiValidationError extends Error {
 }
 
 async function getOrCreateWebSource(): Promise<string> {
-	const existing = await db.attendanceSource.findFirst({
-		where: { attendance_source_name: { equals: 'Web', mode: 'insensitive' } }
-	});
+	const existing = await masterDataDao.findAttendanceSourceByName('Web');
 	if (existing) {
 		return existing.cuid;
 	}
-	const created = await db.attendanceSource.create({
-		data: { attendance_source_name: 'Web' }
-	});
+	const created = await masterDataDao.createAttendanceSource('Web');
 	return created.cuid;
 }
 
@@ -44,9 +42,7 @@ export async function checkIn(
 	}
 
 	// Verify employee exists
-	const empExists = await db.employee.findUnique({
-		where: { uuid: employeeCuid }
-	});
+	const empExists = await employeeDao.findUniqueByUuid(employeeCuid);
 	if (!empExists) {
 		throw new AttendanceValidationError('employee_cuid', 'Selected employee does not exist');
 	}
@@ -55,9 +51,7 @@ export async function checkIn(
 	const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
 
 	// Check if today is a holiday
-	const isHoliday = await db.holidayCalendar.findFirst({
-		where: { date: todayUTC }
-	});
+	const isHoliday = await holidayDao.findByDate(todayUTC);
 	if (isHoliday) {
 		throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on holidays');
 	}
@@ -92,9 +86,7 @@ export async function checkIn(
 		sourceCuid = await getOrCreateWebSource();
 	} else {
 		// Verify source if provided
-		const sourceExists = await db.attendanceSource.findUnique({
-			where: { cuid: sourceCuid }
-		});
+		const sourceExists = await masterDataDao.findByCuid2('attendance-sources', sourceCuid);
 		if (!sourceExists) {
 			throw new AttendanceValidationError('attendance_source_cuid', 'Selected source does not exist');
 		}
@@ -126,9 +118,7 @@ export async function checkOut(
 	const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
 
 	// Check if today is a holiday
-	const isHoliday = await db.holidayCalendar.findFirst({
-		where: { date: todayUTC }
-	});
+	const isHoliday = await holidayDao.findByDate(todayUTC);
 	if (isHoliday) {
 		throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on holidays');
 	}

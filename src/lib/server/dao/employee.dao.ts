@@ -19,3 +19,9 @@ export async function create(data: CreateEmployeeData) {
 		}
 	});
 }
+
+export async function findUniqueByUuid(uuid: string) {
+	return db.employee.findUnique({
+		where: { uuid }
+	});
+}

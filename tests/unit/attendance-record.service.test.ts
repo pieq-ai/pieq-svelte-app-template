@@ -158,7 +158,7 @@ describe('attendance-record service', () => {
 		});
 
 		it('should successfully update record', async () => {
-			vi.mocked(db.attendanceRecord.findUnique).mockResolvedValue({
+			vi.mocked(attendanceRecordDao.findByCuid).mockResolvedValue({
 				cuid: targetCuid,
 				employee_cuid: employeeCuid,
 				date: new Date(Date.UTC(2026, 5, 1)),

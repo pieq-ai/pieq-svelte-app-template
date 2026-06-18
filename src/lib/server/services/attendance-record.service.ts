@@ -1,5 +1,7 @@
 import * as attendanceRecordDao from '$lib/server/dao/attendance-record.dao.js';
-import { db } from '$lib/server/db.js';
+import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as holidayDao from '$lib/server/dao/holiday.dao.js';
+import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 
 export class AttendanceValidationError extends Error {
 	readonly field: string;
@@ -102,9 +104,7 @@ async function validateRecordFields(
 		} else {
 			employee_cuid = dto.employee_cuid.trim();
 			// Verify employee exists
-			const empExists = await db.employee.findUnique({
-				where: { uuid: employee_cuid }
-			});
+			const empExists = await employeeDao.findUniqueByUuid(employee_cuid);
 			if (!empExists) {
 				errors.employee_cuid = 'Selected employee does not exist';
 			}
@@ -137,9 +137,7 @@ async function validateRecordFields(
 			errors.attendance_source_cuid = 'Attendance source must be a string';
 		} else {
 			attendance_source_cuid = dto.attendance_source_cuid.trim();
-			const sourceExists = await db.attendanceSource.findUnique({
-				where: { cuid: attendance_source_cuid }
-			});
+			const sourceExists = await masterDataDao.findByCuid2('attendance-sources', attendance_source_cuid);
 			if (!sourceExists) {
 				errors.attendance_source_cuid = 'Selected attendance source does not exist';
 			}
@@ -175,13 +173,12 @@ async function validateRecordFields(
 	}
 
 	// Duplicate employee + date check
-	const finalEmployee = employee_cuid ?? (isUpdate ? (await db.attendanceRecord.findUnique({ where: { cuid: excludeCuid } }))?.employee_cuid : undefined);
-	const finalDate = attendance_date ?? (isUpdate ? (await db.attendanceRecord.findUnique({ where: { cuid: excludeCuid } }))?.date : undefined);
+	const existingRecord = isUpdate && excludeCuid ? await attendanceRecordDao.findByCuid(excludeCuid) : null;
+	const finalEmployee = employee_cuid ?? (isUpdate ? existingRecord?.employee_cuid : undefined);
+	const finalDate = attendance_date ?? (isUpdate ? existingRecord?.date : undefined);
 
 	if (finalDate) {
-		const isHoliday = await db.holidayCalendar.findFirst({
-			where: { date: finalDate }
-		});
+		const isHoliday = await holidayDao.findByDate(finalDate);
 		if (isHoliday) {
 			errors.attendance_date = 'Attendance cannot be marked on holidays';
 			throw new AttendanceMultiValidationError(errors);
@@ -197,10 +194,10 @@ async function validateRecordFields(
 	}
 
 	// Calculate duration if check_in and check_out are present
-	let work_duration_minutes: number | null | undefined = undefined;
-	const finalCheckIn = check_in_time !== undefined ? check_in_time : (isUpdate ? (await db.attendanceRecord.findUnique({ where: { cuid: excludeCuid } }))?.check_in_time : null);
-	const finalCheckOut = check_out_time !== undefined ? check_out_time : (isUpdate ? (await db.attendanceRecord.findUnique({ where: { cuid: excludeCuid } }))?.check_out_time : null);
+	const finalCheckIn = check_in_time !== undefined ? check_in_time : (isUpdate ? existingRecord?.check_in_time : null);
+	const finalCheckOut = check_out_time !== undefined ? check_out_time : (isUpdate ? existingRecord?.check_out_time : null);
 
+	let work_duration_minutes: number | null | undefined = undefined;
 	if (finalCheckIn && finalCheckOut) {
 		if (finalCheckOut < finalCheckIn) {
 			errors.check_out_time = 'Check out time cannot be before check in time';
