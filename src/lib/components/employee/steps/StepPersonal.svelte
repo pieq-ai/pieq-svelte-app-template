@@ -5,6 +5,7 @@
 	import { onMount } from 'svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { globalIsDirty } from '$lib/stores/navigationGuard';
+	import { parseBackendErrors } from '$lib/utils/errors.js';
 
 	let { mode, cuid, onNext, data, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit';
@@ -181,6 +182,7 @@
 	}
 
 	let errors = $derived({
+		emp_code: backendErrors.emp_code || '',
 		first_name: backendErrors.first_name || validateName(emp.first_name),
 		last_name: backendErrors.last_name || validateName(emp.last_name),
 		father_name: backendErrors.father_name || validateName(emp.father_name),
@@ -234,12 +236,12 @@
 
 			if (!res.ok) {
 				const body = await res.json();
-				if (body.data?.field && body.data?.message) {
-					backendErrors = { [body.data.field]: body.data.message };
-					toast.error('Validation failed');
-					return { success: false };
+				const parsed = parseBackendErrors(body);
+				if (parsed.field) {
+					backendErrors = { [parsed.field]: parsed.message };
 				}
-				throw new Error(body.data?.message || body.error || (cuid ? 'Failed to update employee' : 'Failed to create employee'));
+				toast.error(parsed.message);
+				return { success: false };
 			}
 
 			const result = await res.json();
@@ -271,7 +273,8 @@
 	<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
 		<div class="space-y-2">
 			<Label>Employee Code</Label>
-			<Input bind:value={emp.emp_code} placeholder="Auto-generated" class="bg-muted {inputErrorClass(emp.emp_code)}" readonly required />
+			<Input bind:value={emp.emp_code} placeholder="Auto-generated" class="bg-muted {inputErrorClass(emp.emp_code)} {(isTouched && errors.emp_code) ? 'border-destructive focus-visible:ring-destructive/50' : ''}" readonly required />
+			{#if isTouched && errors.emp_code}<p class="text-xs text-destructive">{errors.emp_code}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>First Name <span class="text-destructive">*</span></Label>

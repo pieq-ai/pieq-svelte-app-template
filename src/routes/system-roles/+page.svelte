@@ -68,6 +68,7 @@
 	let isNameTouched = $state(false);
 	let backendError = $state('');
 	let roleNameInput = $state<HTMLInputElement | null>(null);
+	let showConfirmClose = $state(false);
 
 	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ name: roleName.trim(), status: roleStatus }));
@@ -165,6 +166,15 @@
 		backendError = '';
 		dirtyChecker.snapshot({ name: role.name, status: role.status });
 		isModalOpen = true;
+	}
+
+	function handleClose() {
+		if (isDirty) {
+			showConfirmClose = true;
+		} else {
+			isModalOpen = false;
+			$globalIsDirty = false;
+		}
 	}
 
 	async function saveRole(event: Event) {
@@ -342,9 +352,8 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingRole ? 'Edit System Role' : 'Create System Role'}
-	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => { isModalOpen = false; $globalIsDirty = false; }}
+	onClose={handleClose}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={saveRole}>
@@ -384,4 +393,20 @@
 	isSubmitting={isDeleting}
 	onCancel={() => (itemToDelete = null)}
 	onConfirm={confirmDelete}
+/>
+
+<ConfirmModal
+	open={showConfirmClose}
+	title="Unsaved Changes"
+	description="You have unsaved changes. Are you sure you want to close this modal?"
+	confirmLabel="Cancel"
+	cancelLabel="Keep Editing"
+	onConfirm={() => {
+		showConfirmClose = false;
+		isModalOpen = false;
+		$globalIsDirty = false;
+	}}
+	onCancel={() => {
+		showConfirmClose = false;
+	}}
 />

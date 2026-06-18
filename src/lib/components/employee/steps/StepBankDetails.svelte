@@ -3,6 +3,7 @@
   import { toast } from "svelte-sonner";
   import { goto } from "$app/navigation";
   import { globalIsDirty } from "$lib/stores/navigationGuard";
+  import { parseBackendErrors } from "$lib/utils/errors.js";
   import { onMount } from "svelte";
   import {
     validatePersonal,
@@ -141,9 +142,8 @@
       });
       if (!res.ok) {
         const body = await res.json();
-        throw new Error(
-          body.data?.message || body.error || "Failed to save bank details",
-        );
+        const parsed = parseBackendErrors(body);
+        throw new Error(parsed.message || "Failed to save bank details");
       }
 
       originalData = JSON.stringify(normalizeBankDetails(bankDetails));

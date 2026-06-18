@@ -77,7 +77,7 @@
 
 	beforeNavigate(({ to, cancel, type }) => {
 		if (stepIsDirty) {
-			if (type === 'unload') {
+			if (type === 'leave') {
 				// Browser Handles this via beforeunload listener
 				return;
 			}

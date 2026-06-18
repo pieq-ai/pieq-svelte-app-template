@@ -8,6 +8,7 @@
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import { toast } from '$lib/toast';
 	import { createDirtyChecker } from '$lib/utils';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { UI_CONSTANTS } from '$lib/constants';
 
 	import {
@@ -30,7 +31,8 @@
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
-		SearchInput
+		SearchInput,
+		ConfirmModal
 	} from '$lib/components';
 	import type { Shift } from '$lib/types/shift';
 	import {
@@ -42,6 +44,17 @@
 	} from '$lib/api/shifts';
 	import { ApiError } from '$lib/api/local';
 	import { confirmation } from '$lib/confirmation.svelte.js';
+
+	let showConfirmClose = $state(false);
+
+	function handleClose() {
+		if (isDirty) {
+			showConfirmClose = true;
+		} else {
+			isModalOpen = false;
+			$globalIsDirty = false;
+		}
+	}
 
 	let shiftsList = $state<Shift[]>([]);
 	let isLoading = $state(true);
@@ -540,9 +553,8 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingShift ? 'Edit Shift' : 'Create Shift'}
-	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => (isModalOpen = false)}
+	onClose={handleClose}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={handleSaveShift}>
@@ -626,3 +638,19 @@
 		</form>
 	{/snippet}
 </CrudModal>
+
+<ConfirmModal
+	open={showConfirmClose}
+	title="Unsaved Changes"
+	description="You have unsaved changes. Are you sure you want to close this modal?"
+	confirmLabel="Cancel"
+	cancelLabel="Keep Editing"
+	onConfirm={() => {
+		showConfirmClose = false;
+		isModalOpen = false;
+		$globalIsDirty = false;
+	}}
+	onCancel={() => {
+		showConfirmClose = false;
+	}}
+/>

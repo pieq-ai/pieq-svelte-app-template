@@ -63,6 +63,7 @@
 	let isKeyTouched = $state(false);
 	let backendError = $state('');
 	let permissionKeyInput = $state<HTMLInputElement | null>(null);
+	let showConfirmClose = $state(false);
 
 	const dirtyChecker = createDirtyChecker<{ permission_key: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ permission_key: permissionKey.trim(), status: permissionStatus }));
@@ -164,6 +165,15 @@
 		backendError = '';
 		dirtyChecker.snapshot({ permission_key: permission.permission_key, status: permission.status });
 		isModalOpen = true;
+	}
+
+	function handleClose() {
+		if (isDirty) {
+			showConfirmClose = true;
+		} else {
+			isModalOpen = false;
+			$globalIsDirty = false;
+		}
 	}
 
 	async function savePermission(event: Event) {
@@ -343,9 +353,8 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingPermission ? 'Edit Permission' : 'Create Permission'}
-	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => { isModalOpen = false; $globalIsDirty = false; }}
+	onClose={handleClose}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={savePermission}>
@@ -385,4 +394,20 @@
 	isSubmitting={isDeleting}
 	onCancel={() => (itemToDelete = null)}
 	onConfirm={confirmDelete}
+/>
+
+<ConfirmModal
+	open={showConfirmClose}
+	title="Unsaved Changes"
+	description="You have unsaved changes. Are you sure you want to close this modal?"
+	confirmLabel="Cancel"
+	cancelLabel="Keep Editing"
+	onConfirm={() => {
+		showConfirmClose = false;
+		isModalOpen = false;
+		$globalIsDirty = false;
+	}}
+	onCancel={() => {
+		showConfirmClose = false;
+	}}
 />

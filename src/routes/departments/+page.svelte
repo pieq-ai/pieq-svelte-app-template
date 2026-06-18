@@ -62,6 +62,7 @@
 	let isNameTouched = $state(false);
 	let backendError = $state('');
 	let deptNameInput = $state<HTMLInputElement | null>(null);
+	let showConfirmClose = $state(false);
 
 	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ name: formDeptName.trim(), status: formDeptStatus }));
@@ -175,6 +176,15 @@
 		backendError = '';
 		dirtyChecker.snapshot({ name: dept.name, status: dept.status });
 		isModalOpen = true;
+	}
+
+	function handleClose() {
+		if (isDirty) {
+			showConfirmClose = true;
+		} else {
+			isModalOpen = false;
+			$globalIsDirty = false;
+		}
 	}
 
 	async function handleSaveDepartment(e: Event) {
@@ -372,9 +382,8 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingDept ? 'Edit Department' : 'Create Department'}
-	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => { isModalOpen = false; $globalIsDirty = false; }}
+	onClose={handleClose}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={handleSaveDepartment}>
@@ -414,4 +423,20 @@
 	isSubmitting={isDeleting}
 	onCancel={() => (itemToDelete = null)}
 	onConfirm={confirmDelete}
+/>
+
+<ConfirmModal
+	open={showConfirmClose}
+	title="Unsaved Changes"
+	description="You have unsaved changes. Are you sure you want to close this modal?"
+	confirmLabel="Cancel"
+	cancelLabel="Keep Editing"
+	onConfirm={() => {
+		showConfirmClose = false;
+		isModalOpen = false;
+		$globalIsDirty = false;
+	}}
+	onCancel={() => {
+		showConfirmClose = false;
+	}}
 />

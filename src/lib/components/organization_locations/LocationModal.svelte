@@ -10,14 +10,17 @@
     createState,
   } from "$lib/api/locations";
   import { ApiError } from "$lib/api/local";
+  import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
+  import CheckIcon from "@lucide/svelte/icons/check";
   import { toast } from "$lib/toast";
   import { createDirtyChecker } from "$lib/utils";
   import { UI_CONSTANTS } from "$lib/constants";
   import { globalIsDirty } from "$lib/stores/navigationGuard";
+  import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import {
+    Button,
     Input,
     Label,
-    Button,
     CrudModal,
     StatusDropdown,
     ConfirmModal
@@ -40,7 +43,7 @@
   let formStateCuid = $state("");
   let formCountryCuid = $state("");
   let formPinCode = $state("");
-  let formTimezone = $state("UTC");
+  let formTimezone = $state("");
   let formStatus = $state(true);
   let formError = $state("");
   let nameError = $state("");
@@ -147,7 +150,16 @@
     }
   });
 
-  // Dropdown choices
+  let isCreateEnabled = $derived(
+    formName.trim() !== "" &&
+      formAddress1.trim() !== "" &&
+      formCity.trim() !== "" &&
+      formCountryCuid !== "" &&
+      formStateCuid !== "" &&
+      formPinCode.trim() !== "" &&
+      formTimezone.trim() !== ""
+  );
+
   let countries = $state<any[]>([]);
   let states = $state<any[]>([]);
 
@@ -172,17 +184,6 @@
   onMount(() => {
     fetchDropdowns();
   });
-
-  // Create enablement
-  let isCreateEnabled = $derived(
-    formName.trim() !== "" &&
-      formAddress1.trim() !== "" &&
-      formCity.trim() !== "" &&
-      formCountryCuid !== "" &&
-      formStateCuid !== "" &&
-      formPinCode.trim() !== "" &&
-      formTimezone.trim() !== ""
-  );
 
   async function submitForm(e: Event) {
     e.preventDefault();
@@ -313,14 +314,13 @@
         pin_code: pinTrimmed,
         timezone: tzTrimmed,
       };
-      let res;
+      let res: any;
       if (editLocation) {
         payload.status = formStatus;
         res = await updateLocation(editLocation.cuid, payload);
       } else {
         res = await createLocation(payload);
       }
-      
       open = false;
       $globalIsDirty = false;
       toast.success(
@@ -346,7 +346,6 @@
     }
   }
 
-  // Add Country / State Modal states
   let showAddCountry = $state(false);
   let showAddState = $state(false);
   let newCountryName = $state("");
@@ -454,118 +453,210 @@
 
 <CrudModal
   {open}
-  title={editLocation ? "Edit Location" : "Create Location"}
+  title={editLocation ? 'Edit Location' : 'Create Location'}
   isSubmitting={formLoading}
-  isDirty={isDirty}
   onClose={handleClose}
 >
   {#snippet children({ cancel })}
     <form class="space-y-4" onsubmit={submitForm}>
-      {#if formError}
-        <div class="rounded-md bg-destructive/15 p-3 text-sm text-destructive font-medium border border-destructive/20">{formError}</div>
-      {/if}
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="space-y-2">
+        <Label for="name">Location Name <span class="text-destructive">*</span></Label>
+        <Input
+          id="name"
+          name="name"
+          bind:value={formName}
+          class={formError || nameError ? 'border-destructive' : ''}
+          placeholder="e.g. Chennai - HQ"
+          oninput={() => { formError = ''; nameError = ''; }}
+        />
+        {#if nameError || formError}
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameError || formError}</p>
+        {/if}
+      </div>
+
+      <div class="space-y-2">
+        <Label for="location_address1">Address Line 1 <span class="text-destructive">*</span></Label>
+        <Input
+          id="location_address1"
+          name="location_address1"
+          bind:value={formAddress1}
+          class={address1Error ? 'border-destructive' : ''}
+          placeholder="e.g. 123 Enterprise Way"
+          oninput={() => { address1Error = ''; }}
+        />
+        {#if address1Error}
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{address1Error}</p>
+        {/if}
+      </div>
+
+      <div class="space-y-2">
+        <Label for="location_address2">Address Line 2 (Optional)</Label>
+        <Input
+          id="location_address2"
+          name="location_address2"
+          bind:value={formAddress2}
+          class={address2Error ? 'border-destructive' : ''}
+          placeholder="e.g. Suite 400"
+          oninput={() => { address2Error = ''; }}
+        />
+        {#if address2Error}
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{address2Error}</p>
+        {/if}
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
         <div class="space-y-2">
-          <Label for="name" class="font-medium">Company Location Name <span class="text-destructive">*</span></Label>
-          <Input id="name" name="name" bind:value={formName} placeholder="e.g. New York Headquarters" class={nameError ? 'border-destructive focus-visible:ring-destructive' : ''} />
-          {#if nameError}<p class="text-xs text-destructive mt-1">{nameError}</p>{/if}
+          <Label for="location_city">City <span class="text-destructive">*</span></Label>
+          <Input
+            id="location_city"
+            name="location_city"
+            bind:value={formCity}
+            class={cityError ? 'border-destructive' : ''}
+            placeholder="e.g. Chennai"
+            oninput={() => { cityError = ''; }}
+          />
+          {#if cityError}
+            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{cityError}</p>
+          {/if}
         </div>
         <div class="space-y-2">
-          <Label for="timezone" class="font-medium">Timezone <span class="text-destructive">*</span></Label>
-          <Input id="timezone" name="timezone" bind:value={formTimezone} placeholder="e.g. UTC, America/New_York" class={timezoneError ? 'border-destructive focus-visible:ring-destructive' : ''} />
-          {#if timezoneError}<p class="text-xs text-destructive mt-1">{timezoneError}</p>{/if}
+          <Label for="location_pincode">Pin Code <span class="text-destructive">*</span></Label>
+          <Input
+            id="location_pincode"
+            name="location_pincode"
+            bind:value={formPinCode}
+            class={pinCodeError ? 'border-destructive' : ''}
+            placeholder="e.g. 600001"
+            oninput={() => { pinCodeError = ''; }}
+          />
+          {#if pinCodeError}
+            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{pinCodeError}</p>
+          {/if}
         </div>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="space-y-2">
-          <Label for="address_line1" class="font-medium">Address Line 1 <span class="text-destructive">*</span></Label>
-          <Input id="address_line1" name="address_line1" bind:value={formAddress1} placeholder="e.g. 123 Business Rd." class={address1Error ? 'border-destructive focus-visible:ring-destructive' : ''} />
-          {#if address1Error}<p class="text-xs text-destructive mt-1">{address1Error}</p>{/if}
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-2 flex flex-col justify-end">
+          <Label for="location_country" class="mb-2">Country <span class="text-destructive">*</span></Label>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
+              {#snippet child({ props })}
+                <Button
+                  id="location_country"
+                  variant="outline"
+                  class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none {countryError ? 'border-destructive' : ''}"
+                  {...props}
+                >
+                  <span class="truncate">{countries.find((c) => c.cuid === formCountryCuid)?.name || "Select Country"}</span>
+                  <ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
+                </Button>
+              {/snippet}
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content class="max-h-56 overflow-y-auto w-[200px]">
+              <DropdownMenu.Group>
+                <DropdownMenu.Item
+                  onclick={() => { formCountryCuid = ''; formStateCuid = ''; countryError = ''; }}
+                  class="cursor-pointer justify-between {!formCountryCuid ? 'bg-accent font-semibold' : ''}"
+                >
+                  Select Country
+                </DropdownMenu.Item>
+                {#each countries as country}
+                  <DropdownMenu.Item
+                    onclick={() => { formCountryCuid = country.cuid; formStateCuid = ''; countryError = ''; }}
+                    class="cursor-pointer justify-between {formCountryCuid === country.cuid ? 'bg-accent font-semibold' : ''}"
+                  >
+                    {country.name}
+                    {#if formCountryCuid === country.cuid}<CheckIcon class="size-4" />{/if}
+                  </DropdownMenu.Item>
+                {/each}
+              </DropdownMenu.Group>
+              <DropdownMenu.Separator />
+              <DropdownMenu.Item
+                onclick={openAddCountryModal}
+                class="cursor-pointer font-medium text-[#F45310] hover:text-[#F45310]/90 focus:text-[#F45310]"
+              >
+                Add Country
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+          {#if countryError}
+            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{countryError}</p>
+          {/if}
         </div>
-        <div class="space-y-2">
-          <Label for="address_line2" class="font-medium">Address Line 2</Label>
-          <Input id="address_line2" name="address_line2" bind:value={formAddress2} placeholder="e.g. Suite 400" class={address2Error ? 'border-destructive focus-visible:ring-destructive' : ''} />
-          {#if address2Error}<p class="text-xs text-destructive mt-1">{address2Error}</p>{/if}
+        <div class="space-y-2 flex flex-col justify-end">
+          <Label for="location_state" class="mb-2">State <span class="text-destructive">*</span></Label>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
+              {#snippet child({ props })}
+                <Button
+                  id="location_state"
+                  variant="outline"
+                  disabled={!formCountryCuid}
+                  class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none disabled:opacity-50 disabled:cursor-not-allowed {stateError ? 'border-destructive' : ''}"
+                  {...props}
+                >
+                  <span class="truncate">{filteredStates.find((s) => s.cuid === formStateCuid)?.name || "Select State"}</span>
+                  <ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
+                </Button>
+              {/snippet}
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content class="max-h-56 overflow-y-auto w-[200px]">
+              <DropdownMenu.Group>
+                <DropdownMenu.Item
+                  onclick={() => { formStateCuid = ''; stateError = ''; }}
+                  class="cursor-pointer justify-between {!formStateCuid ? 'bg-accent font-semibold' : ''}"
+                >
+                  Select State
+                </DropdownMenu.Item>
+                {#each filteredStates as state}
+                  <DropdownMenu.Item
+                    onclick={() => { formStateCuid = state.cuid; stateError = ''; }}
+                    class="cursor-pointer justify-between {formStateCuid === state.cuid ? 'bg-accent font-semibold' : ''}"
+                  >
+                    {state.name}
+                    {#if formStateCuid === state.cuid}<CheckIcon class="size-4" />{/if}
+                  </DropdownMenu.Item>
+                {/each}
+              </DropdownMenu.Group>
+              <DropdownMenu.Separator />
+              <DropdownMenu.Item
+                onclick={openAddStateModal}
+                disabled={!formCountryCuid}
+                class="cursor-pointer font-medium text-[#F45310] hover:text-[#F45310]/90 focus:text-[#F45310] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Add State
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+          {#if stateError}
+            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{stateError}</p>
+          {/if}
         </div>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="space-y-2">
-          <Label for="country_cuid" class="font-medium">Country <span class="text-destructive">*</span></Label>
-          <div class="flex gap-2">
-            <select
-              id="country_cuid"
-              name="country_cuid"
-              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 {countryError ? 'border-destructive focus-visible:ring-destructive' : ''}"
-              bind:value={formCountryCuid}
-              onchange={() => (formStateCuid = "")}
-            >
-              <option value="" disabled selected>Select a country</option>
-              {#each countries as c}
-                <option value={c.cuid}>{c.name}</option>
-              {/each}
-            </select>
-            <Button
-              type="button"
-              variant="outline"
-              class="shrink-0 px-3 border-dashed hover:border-solid hover:bg-accent hover:text-accent-foreground group"
-              onclick={openAddCountryModal}
-              title="Add New Country"
-            >
-              <span class="font-bold text-lg text-muted-foreground group-hover:text-foreground transition-colors">+</span>
-            </Button>
-          </div>
-          {#if countryError}<p class="text-xs text-destructive mt-1">{countryError}</p>{/if}
-        </div>
-        <div class="space-y-2">
-          <Label for="state_cuid" class="font-medium">State/Province <span class="text-destructive">*</span></Label>
-          <div class="flex gap-2">
-            <select
-              id="state_cuid"
-              name="state_cuid"
-              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 {stateError ? 'border-destructive focus-visible:ring-destructive' : ''}"
-              bind:value={formStateCuid}
-              disabled={!formCountryCuid}
-            >
-              <option value="" disabled selected>Select a state</option>
-              {#each filteredStates as s}
-                <option value={s.cuid}>{s.name}</option>
-              {/each}
-            </select>
-            <Button
-              type="button"
-              variant="outline"
-              class="shrink-0 px-3 border-dashed hover:border-solid hover:bg-accent hover:text-accent-foreground group disabled:opacity-50"
-              onclick={openAddStateModal}
-              disabled={!formCountryCuid}
-              title={!formCountryCuid ? "Select a country first" : "Add New State"}
-            >
-              <span class="font-bold text-lg text-muted-foreground group-hover:text-foreground transition-colors">+</span>
-            </Button>
-          </div>
-          {#if stateError}<p class="text-xs text-destructive mt-1">{stateError}</p>{/if}
-        </div>
+
+      <div class="space-y-2">
+        <Label for="location_timezone">Timezone <span class="text-destructive">*</span></Label>
+        <Input
+          id="location_timezone"
+          name="location_timezone"
+          bind:value={formTimezone}
+          class={timezoneError ? 'border-destructive' : ''}
+          placeholder="e.g. Asia/Kolkata or UTC"
+          oninput={() => { timezoneError = ''; }}
+        />
+        {#if timezoneError}
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{timezoneError}</p>
+        {/if}
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="space-y-2">
-          <Label for="city" class="font-medium">City <span class="text-destructive">*</span></Label>
-          <Input id="city" name="city" bind:value={formCity} placeholder="e.g. Manhattan" class={cityError ? 'border-destructive focus-visible:ring-destructive' : ''} />
-          {#if cityError}<p class="text-xs text-destructive mt-1">{cityError}</p>{/if}
-        </div>
-        <div class="space-y-2">
-          <Label for="pin_code" class="font-medium">Pin Code / Zip <span class="text-destructive">*</span></Label>
-          <Input id="pin_code" name="pin_code" bind:value={formPinCode} placeholder="e.g. 10001" class={pinCodeError ? 'border-destructive focus-visible:ring-destructive' : ''} />
-          {#if pinCodeError}<p class="text-xs text-destructive mt-1">{pinCodeError}</p>{/if}
-        </div>
-      </div>
+
       {#if editLocation}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <StatusDropdown id="loc_status" name="loc_status" value={formStatus} onChange={(val) => (formStatus = val)} />
-        </div>
+        <StatusDropdown id="location_status" name="location_status" value={formStatus} onChange={(val) => (formStatus = val)} />
       {/if}
-      <div class="flex items-center justify-end gap-3 pt-4 border-t border-border mt-6">
+
+      <div class="flex items-center justify-end gap-3 pt-4">
         <Button type="button" variant="outline" onclick={cancel} disabled={formLoading}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={formLoading || !isCreateEnabled || (!!editLocation && !isDirty)}>
-          {formLoading ? UI_CONSTANTS.BUTTON_SAVING : editLocation ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE}
+        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={formLoading || (!!editLocation && !isDirty) || (!editLocation && !isCreateEnabled)}>
+          {formLoading ? UI_CONSTANTS.BUTTON_SAVING : (editLocation ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
         </Button>
       </div>
     </form>
@@ -578,7 +669,6 @@
   description="You have unsaved changes. Are you sure you want to close this modal?"
   confirmLabel="Cancel"
   cancelLabel="Keep Editing"
-  variant="destructive"
   onConfirm={() => {
     showConfirmClose = false;
     open = false;
@@ -589,43 +679,66 @@
   }}
 />
 
-<!-- Mini modal for adding a new Country -->
-{#if showAddCountry}
-<div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-  <div class="w-full max-w-sm rounded-xl bg-background p-6 shadow-lg border border-border">
-    <h3 class="mb-4 text-lg font-semibold text-foreground">Add New Country</h3>
-    <form onsubmit={handleAddCountrySubmit} class="space-y-4">
+<CrudModal
+  open={showAddCountry}
+  title="Add Country"
+  isSubmitting={addCountryLoading}
+  onClose={() => { showAddCountry = false; newCountryName = ""; addCountryError = ""; }}
+>
+  {#snippet children({ cancel })}
+    <form class="space-y-4" onsubmit={handleAddCountrySubmit}>
       <div class="space-y-2">
         <Label for="new_country_name">Country Name <span class="text-destructive">*</span></Label>
-        <Input id="new_country_name" name="new_country_name" bind:value={newCountryName} placeholder="e.g. United States" class={addCountryError ? 'border-destructive focus-visible:ring-destructive' : ''} />
-        {#if addCountryError}<p class="text-xs text-destructive mt-1">{addCountryError}</p>{/if}
+        <Input
+          id="new_country_name"
+          name="new_country_name"
+          bind:value={newCountryName}
+          class={addCountryError ? 'border-destructive' : ''}
+          placeholder="Enter country name"
+          oninput={() => { addCountryError = ''; }}
+        />
+        {#if addCountryError}
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{addCountryError}</p>
+        {/if}
       </div>
-      <div class="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onclick={() => (showAddCountry = false)} disabled={addCountryLoading}>Cancel</Button>
-        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={addCountryLoading || newCountryName.trim() === ''}>{addCountryLoading ? 'Saving...' : 'Save'}</Button>
+      <div class="flex items-center justify-end gap-3 pt-4">
+        <Button type="button" variant="outline" onclick={cancel} disabled={addCountryLoading}>Cancel</Button>
+        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={addCountryLoading || !newCountryName.trim()}>
+          {addCountryLoading ? 'Saving...' : 'Save'}
+        </Button>
       </div>
     </form>
-  </div>
-</div>
-{/if}
+  {/snippet}
+</CrudModal>
 
-<!-- Mini modal for adding a new State -->
-{#if showAddState}
-<div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-  <div class="w-full max-w-sm rounded-xl bg-background p-6 shadow-lg border border-border">
-    <h3 class="mb-4 text-lg font-semibold text-foreground">Add New State</h3>
-    <p class="text-sm text-muted-foreground mb-4">Adding state to {countries.find((c) => c.cuid === formCountryCuid)?.name || 'selected country'}</p>
-    <form onsubmit={handleAddStateSubmit} class="space-y-4">
+<CrudModal
+  open={showAddState}
+  title="Add State"
+  isSubmitting={addStateLoading}
+  onClose={() => { showAddState = false; newStateName = ""; addStateError = ""; }}
+>
+  {#snippet children({ cancel })}
+    <form class="space-y-4" onsubmit={handleAddStateSubmit}>
       <div class="space-y-2">
-        <Label for="new_state_name">State/Province Name <span class="text-destructive">*</span></Label>
-        <Input id="new_state_name" name="new_state_name" bind:value={newStateName} placeholder="e.g. New York" class={addStateError ? 'border-destructive focus-visible:ring-destructive' : ''} />
-        {#if addStateError}<p class="text-xs text-destructive mt-1">{addStateError}</p>{/if}
+        <Label for="new_state_name">State Name <span class="text-destructive">*</span></Label>
+        <Input
+          id="new_state_name"
+          name="new_state_name"
+          bind:value={newStateName}
+          class={addStateError ? 'border-destructive' : ''}
+          placeholder="Enter state name"
+          oninput={() => { addStateError = ''; }}
+        />
+        {#if addStateError}
+          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{addStateError}</p>
+        {/if}
       </div>
-      <div class="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onclick={() => (showAddState = false)} disabled={addStateLoading}>Cancel</Button>
-        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={addStateLoading || newStateName.trim() === ''}>{addStateLoading ? 'Saving...' : 'Save'}</Button>
+      <div class="flex items-center justify-end gap-3 pt-4">
+        <Button type="button" variant="outline" onclick={cancel} disabled={addStateLoading}>Cancel</Button>
+        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={addStateLoading || !newStateName.trim()}>
+          {addStateLoading ? 'Saving...' : 'Save'}
+        </Button>
       </div>
     </form>
-  </div>
-</div>
-{/if}
+  {/snippet}
+</CrudModal>

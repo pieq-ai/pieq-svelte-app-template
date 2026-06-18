@@ -81,7 +81,7 @@
 		isSubmitting = true;
 
 		try {
-			let res;
+			let res: any;
 			if (editingRole) {
 				const payload = { name: formRoleName.trim(), status: formRoleStatus };
 				res = await localApi.put(`/api/roles/${editingRole.cuid}`, payload);
@@ -120,7 +120,6 @@
 <CrudModal
 	{open}
 	title={editingRole ? 'Edit Role' : 'Create Role'}
-	{isDirty}
 	{isSubmitting}
 	onClose={handleClose}
 >
@@ -160,7 +159,6 @@
 	description="You have unsaved changes. Are you sure you want to close this modal?"
 	confirmLabel="Cancel"
 	cancelLabel="Keep Editing"
-	variant="destructive"
 	onConfirm={() => {
 		showConfirmClose = false;
 		open = false;

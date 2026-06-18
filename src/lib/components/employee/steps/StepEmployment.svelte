@@ -10,6 +10,7 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { onMount } from 'svelte';
+	import { parseBackendErrors } from '$lib/utils/errors.js';
 
 	let { mode, cuid, data, onNext, onPrev, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit';
@@ -28,6 +29,7 @@
 
 	let isSubmitting = $state(false);
 	let isTouched = $state(false);
+	let backendErrors = $state<Record<string, string>>({});
 
 	let isDeptModalOpen = $state(false);
 	let isDesignationModalOpen = $state(false);
@@ -112,6 +114,12 @@
 		onDirtyChange?.(isDirty);
 	});
 
+	function clearBackendError(field: string) {
+		if (backendErrors[field]) {
+			backendErrors = { ...backendErrors, [field]: '' };
+		}
+	}
+
 	// Validations
 	function validateDropdown(val: string | undefined | null) {
 		if (!val) return 'Required';
@@ -141,17 +149,17 @@
 	}
 
 	let errors = $derived({
-		department_cuid: validateDropdown(employment.department_cuid),
-		designation_cuid: validateDropdown(employment.designation_cuid),
-		role_cuid: '', // optional
-		pay_grade_cuid: '', // optional
-		employment_type_cuid: '', // optional
-		location_cuid: '', // optional
-		employment_status: '', // optional — defaults to 'onboarding' in DB
-		official_email: validateEmail(employment.official_email),
-		date_of_joining: validateDoj(employment.date_of_joining),
-		confirmation_date: validateConfirmation(employment.date_of_joining, employment.confirmation_date),
-		relieving_date: validateRelieving(employment.date_of_joining, employment.relieving_date)
+		department_cuid: backendErrors.department_cuid || validateDropdown(employment.department_cuid),
+		designation_cuid: backendErrors.designation_cuid || validateDropdown(employment.designation_cuid),
+		role_cuid: backendErrors.role_cuid || '', // optional
+		pay_grade_cuid: backendErrors.pay_grade_cuid || '', // optional
+		employment_type_cuid: backendErrors.employment_type_cuid || '', // optional
+		location_cuid: backendErrors.location_cuid || '', // optional
+		employment_status: backendErrors.employment_status || '', // optional
+		official_email: backendErrors.official_email || validateEmail(employment.official_email),
+		date_of_joining: backendErrors.date_of_joining || validateDoj(employment.date_of_joining),
+		confirmation_date: backendErrors.confirmation_date || validateConfirmation(employment.date_of_joining, employment.confirmation_date),
+		relieving_date: backendErrors.relieving_date || validateRelieving(employment.date_of_joining, employment.relieving_date)
 	});
 
 	let hasErrors = $derived(
@@ -161,6 +169,7 @@
 	// Core save (no navigation) — registered with wizard
 	async function saveOnly(): Promise<{ success: boolean }> {
 		isTouched = true;
+		backendErrors = {};
 		if (hasErrors) {
 			return { success: false };
 		}
@@ -179,7 +188,12 @@
 			});
 			if (!res.ok) {
 				const body = await res.json();
-				throw new Error(body.data?.message || body.error || 'Failed to save employment details');
+				const parsed = parseBackendErrors(body);
+				if (parsed.field) {
+					backendErrors = { [parsed.field]: parsed.message };
+				}
+				toast.error(parsed.message);
+				return { success: false };
 			}
 			originalData = JSON.stringify(normalizeEmployment(employment));
 			toast.success('Updated successfully');
@@ -312,7 +326,7 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Official Email <span class="text-destructive">*</span></Label>
-			<Input type="email" bind:value={employment.official_email} placeholder="john.doe@company.com" class={(isTouched && errors.official_email) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
+			<Input type="email" bind:value={employment.official_email} oninput={() => clearBackendError('official_email')} placeholder="john.doe@company.com" class={(isTouched && errors.official_email) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
 			{#if isTouched && errors.official_email}<p class="text-xs text-destructive">{errors.official_email}</p>{/if}
 		</div>
 	</div>

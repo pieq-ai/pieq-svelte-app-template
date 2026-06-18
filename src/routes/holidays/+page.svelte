@@ -756,8 +756,7 @@
 <CrudModal
 	open={isFormModalOpen}
 	title={editCuid ? 'Edit Holiday' : 'Create Holiday'}
-	isDirty={hasUnsavedChanges}
-	onClose={confirmDiscard}
+	onClose={handleCloseRequest}
 	preventOutsideClickClose={true}
 >
 	{#snippet children({ cancel })}
@@ -893,8 +892,9 @@
 	open={isDiscardModalOpen}
 	title="Cancel Changes"
 	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Keep Editing"
-	onCancel={confirmDiscard}
-	onConfirm={() => (isDiscardModalOpen = false)}
+	confirmLabel="Discard Changes"
+	cancelLabel="Keep Editing"
+	onConfirm={confirmDiscard}
+	onCancel={() => (isDiscardModalOpen = false)}
 	preventOutsideClickClose={true}
 />

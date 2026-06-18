@@ -82,7 +82,7 @@
 
 		try {
 			const payload = { name: formDesignationName.trim(), status: formDesignationStatus };
-			let res;
+			let res: any;
 			if (editingDesignation) {
 				res = await localApi.put(`/api/designations/${editingDesignation.cuid}`, payload);
 			} else {
@@ -119,7 +119,6 @@
 <CrudModal
 	{open}
 	title={editingDesignation ? 'Edit Designation' : 'Create Designation'}
-	{isDirty}
 	{isSubmitting}
 	onClose={handleClose}
 >
@@ -159,7 +158,6 @@
 	description="You have unsaved changes. Are you sure you want to close this modal?"
 	confirmLabel="Cancel"
 	cancelLabel="Keep Editing"
-	variant="destructive"
 	onConfirm={() => {
 		showConfirmClose = false;
 		open = false;

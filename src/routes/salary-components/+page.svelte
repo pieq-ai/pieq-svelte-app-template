@@ -33,7 +33,8 @@
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
-		SearchInput
+		SearchInput,
+		ConfirmModal
 	} from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
@@ -42,6 +43,17 @@
 		SalaryComponentType
 	} from '$lib/types/salary-component';
 	import { validateComponentName } from '$lib/validators/salary-component';
+
+	let showConfirmClose = $state(false);
+
+	function handleClose() {
+		if (isDirty) {
+			showConfirmClose = true;
+		} else {
+			isModalOpen = false;
+			$globalIsDirty = false;
+		}
+	}
 
 	let componentsList = $state<SalaryComponent[]>([]);
 	let isLoading = $state(true);
@@ -423,9 +435,8 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingComp ? 'Edit Salary Component' : 'Create Salary Component'}
-	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => { isModalOpen = false; $globalIsDirty = false; }}
+	onClose={handleClose}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-4" onsubmit={handleSaveComponent}>
@@ -498,3 +509,19 @@
 		</form>
 	{/snippet}
 </CrudModal>
+
+<ConfirmModal
+	open={showConfirmClose}
+	title="Unsaved Changes"
+	description="You have unsaved changes. Are you sure you want to close this modal?"
+	confirmLabel="Cancel"
+	cancelLabel="Keep Editing"
+	onConfirm={() => {
+		showConfirmClose = false;
+		isModalOpen = false;
+		$globalIsDirty = false;
+	}}
+	onCancel={() => {
+		showConfirmClose = false;
+	}}
+/>

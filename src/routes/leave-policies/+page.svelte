@@ -568,6 +568,7 @@
 	let submissionAttempted = $state(false);
 
 	$effect(() => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 		selectedEmploymentTypes;
 		untrack(() => {
 			errors.employment_type_cuids = '';
@@ -1060,8 +1061,7 @@
 <CrudModal
 	open={isFormModalOpen}
 	title={editUuid ? 'Edit Leave Policy' : 'Create Leave Policy'}
-	isDirty={hasUnsavedChanges}
-	onClose={confirmDiscard}
+	onClose={handleCloseRequest}
 	preventOutsideClickClose={true}
 >
 	{#snippet children({ cancel })}
@@ -1368,9 +1368,10 @@
 	open={isDiscardModalOpen}
 	title="Cancel Changes"
 	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Keep Editing"
-	onCancel={confirmDiscard}
-	onConfirm={() => (isDiscardModalOpen = false)}
+	confirmLabel="Discard Changes"
+	cancelLabel="Keep Editing"
+	onConfirm={confirmDiscard}
+	onCancel={() => (isDiscardModalOpen = false)}
 	preventOutsideClickClose={true}
 />
 
@@ -1378,7 +1379,6 @@
 	open={isAddEmpModalOpen}
 	title="Add Employment Type"
 	description="Create a new employment type master record."
-	isDirty={newEmpName.trim() !== ''}
 	onClose={() => {
 		isAddEmpModalOpen = false;
 		newEmpName = '';

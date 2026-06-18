@@ -31,6 +31,18 @@
 	$effect(() => {
 		if (open) {
 			modalStack.push(modalId);
+			const handleDocKeydown = (e: KeyboardEvent) => {
+				if (e.key === 'Escape' && modalStack.isTop(modalId)) {
+					handleCloseAttempt();
+					e.preventDefault();
+					e.stopPropagation();
+				}
+			};
+			window.addEventListener('keydown', handleDocKeydown);
+			return () => {
+				window.removeEventListener('keydown', handleDocKeydown);
+				modalStack.pop(modalId);
+			};
 		} else {
 			modalStack.pop(modalId);
 		}
@@ -45,15 +57,6 @@
 		onClose();
 	}
 
-	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'Escape' && open) {
-			if (modalStack.isTop(modalId)) {
-				handleCloseAttempt();
-				e.preventDefault();
-			}
-		}
-	}
-
 	function handleBackdropClick(e: MouseEvent) {
 		if (preventOutsideClickClose) return;
 		if (e.target === e.currentTarget && modalStack.isTop(modalId)) {
@@ -61,8 +64,6 @@
 		}
 	}
 </script>
-
-<svelte:window onkeydown={handleKeydown} />
 
 {#if open}
 	<!-- svelte-ignore a11y_no_static_element_interactions -->

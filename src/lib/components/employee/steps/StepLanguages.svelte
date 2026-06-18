@@ -8,6 +8,7 @@
   import { goto } from "$app/navigation";
   import { globalIsDirty } from "$lib/stores/navigationGuard";
   import { isDuplicateEntry } from "$lib/utils/employeeValidationHelper";
+  import { parseBackendErrors } from "$lib/utils/errors.js";
   import { onMount } from "svelte";
 
   let { mode, cuid, onNext, onPrev, onDirtyChange, onCancel } = $props<{
@@ -114,9 +115,8 @@
       });
       if (!res.ok) {
         const body = await res.json();
-        throw new Error(
-          body.data?.message || body.error || "Failed to save languages",
-        );
+        const parsed = parseBackendErrors(body);
+        throw new Error(parsed.message || "Failed to save languages");
       }
       originalData = JSON.stringify(normalizeLanguages(languages));
       toast.success("Updated successfully");

@@ -5,6 +5,7 @@
   import { globalIsDirty } from "$lib/stores/navigationGuard";
   import { isDuplicateEntry } from "$lib/utils/employeeValidationHelper";
   import { SvelteDate } from "svelte/reactivity";
+  import { parseBackendErrors } from "$lib/utils/errors.js";
   import { onMount } from "svelte";
 
   let { mode, cuid, onNext, onPrev, onDirtyChange, onCancel } = $props<{
@@ -133,9 +134,8 @@
       });
       if (!res.ok) {
         const body = await res.json();
-        throw new Error(
-          body.data?.message || body.error || "Failed to save experiences",
-        );
+        const parsed = parseBackendErrors(body);
+        throw new Error(parsed.message || "Failed to save experiences");
       }
       originalData = JSON.stringify(normalizeExperiences(experiences));
       toast.success("Updated successfully");

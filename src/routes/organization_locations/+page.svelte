@@ -13,6 +13,7 @@
     createState,
   } from "$lib/api/locations";
   import { ApiError } from "$lib/api/local";
+  import LocationModal from "$lib/components/organization_locations/LocationModal.svelte";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import LoaderCircleIcon from "@lucide/svelte/icons/loader-circle";
   import ArrowUpIcon from "@lucide/svelte/icons/arrow-up";
@@ -963,7 +964,6 @@
 <CrudModal
   open={showForm}
   title={editLocation ? 'Edit Location' : 'Create Location'}
-  isDirty={isDirty}
   isSubmitting={formLoading}
   onClose={attemptCloseForm}
 >
@@ -1176,7 +1176,6 @@
 <CrudModal
   open={showAddCountry}
   title="Add Country"
-  isDirty={newCountryName.trim() !== ""}
   isSubmitting={addCountryLoading}
   onClose={() => { showAddCountry = false; newCountryName = ""; addCountryError = ""; }}
 >
@@ -1189,7 +1188,7 @@
           name="new_country_name"
           bind:value={newCountryName}
           class={addCountryError ? 'border-destructive' : ''}
-          placeholder="e.g. India"
+          placeholder="Enter country name"
           oninput={() => { addCountryError = ''; }}
         />
         {#if addCountryError}
@@ -1209,7 +1208,6 @@
 <CrudModal
   open={showAddState}
   title="Add State"
-  isDirty={newStateName.trim() !== ""}
   isSubmitting={addStateLoading}
   onClose={() => { showAddState = false; newStateName = ""; addStateError = ""; }}
 >
@@ -1222,7 +1220,7 @@
           name="new_state_name"
           bind:value={newStateName}
           class={addStateError ? 'border-destructive' : ''}
-          placeholder="e.g. Tamil Nadu"
+          placeholder="Enter state name"
           oninput={() => { addStateError = ''; }}
         />
         {#if addStateError}
@@ -1238,211 +1236,5 @@
     </form>
   {/snippet}
 </CrudModal>
-        <DropdownMenu.Trigger>
-          {#snippet child({ props })}
-            <Button variant="outline" class="h-9 w-[180px] justify-between border-input bg-background shadow-xs hover:bg-accent outline-none" {...props}>
-              <span class="truncate">{selectedCountryLabel}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="ml-2 size-4 opacity-50 shrink-0"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>
-            </Button>
-          {/snippet}
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content class="w-[180px] max-h-56 overflow-y-auto">
-          <DropdownMenu.Group>
-            <DropdownMenu.Item onclick={() => handleCountrySelect('all')} class="justify-between cursor-pointer {filterCountry === 'all' ? 'bg-accent font-semibold' : ''}">
-              All Countries
-            </DropdownMenu.Item>
-            {#each countries as c}
-              <DropdownMenu.Item onclick={() => handleCountrySelect(c.cuid)} class="justify-between cursor-pointer {filterCountry === c.cuid ? 'bg-accent font-semibold' : ''}">
-                {c.name}
-              </DropdownMenu.Item>
-            {/each}
-          </DropdownMenu.Group>
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
 
-      <!-- State Filter using DropdownMenu -->
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger>
-          {#snippet child({ props })}
-            <Button variant="outline" class="h-9 w-[180px] justify-between border-input bg-background shadow-xs hover:bg-accent outline-none" {...props}>
-              <span class="truncate">{selectedStateLabel}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="ml-2 size-4 opacity-50 shrink-0"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>
-            </Button>
-          {/snippet}
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content class="w-[180px] max-h-56 overflow-y-auto">
-          <DropdownMenu.Group>
-            <DropdownMenu.Item onclick={() => handleStateSelect('all')} class="justify-between cursor-pointer {filterState === 'all' ? 'bg-accent font-semibold' : ''}">
-              All States
-            </DropdownMenu.Item>
-            {#each filterCountry === 'all' ? states : states.filter((s) => s.country_cuid === filterCountry) as s}
-              <DropdownMenu.Item onclick={() => handleStateSelect(s.cuid)} class="justify-between cursor-pointer {filterState === s.cuid ? 'bg-accent font-semibold' : ''}">
-                {s.name}
-              </DropdownMenu.Item>
-            {/each}
-          </DropdownMenu.Group>
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
-    </div>
-
-    <Card class="py-0">
-      <Table>
-        <TableHeader class="bg-muted">
-          <TableRow>
-            <TableHead class="font-bold text-foreground text-[15px]">
-              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('name')}>
-                Location Name
-                {#if sortColumn === 'name' && sortDirection === 'asc'}
-                  <ArrowUpIcon class="ml-2 size-4" />
-                {:else if sortColumn === 'name' && sortDirection === 'desc'}
-                  <ArrowDownIcon class="ml-2 size-4" />
-                {:else}
-                  <ArrowUpDownIcon class="ml-2 size-4" />
-                {/if}
-              </Button>
-            </TableHead>
-            <TableHead class="font-bold text-foreground text-[15px]">
-              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('address_line1')}>
-                Address
-                {#if sortColumn === 'address_line1' && sortDirection === 'asc'}
-                  <ArrowUpIcon class="ml-2 size-4" />
-                {:else if sortColumn === 'address_line1' && sortDirection === 'desc'}
-                  <ArrowDownIcon class="ml-2 size-4" />
-                {:else}
-                  <ArrowUpDownIcon class="ml-2 size-4" />
-                {/if}
-              </Button>
-            </TableHead>
-            <TableHead class="font-bold text-foreground text-[15px]">
-              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('city')}>
-                City
-                {#if sortColumn === 'city' && sortDirection === 'asc'}
-                  <ArrowUpIcon class="ml-2 size-4" />
-                {:else if sortColumn === 'city' && sortDirection === 'desc'}
-                  <ArrowDownIcon class="ml-2 size-4" />
-                {:else}
-                  <ArrowUpDownIcon class="ml-2 size-4" />
-                {/if}
-              </Button>
-            </TableHead>
-            <TableHead class="font-bold text-foreground text-[15px]">
-              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('state_cuid')}>
-                State
-                {#if sortColumn === 'state_cuid' && sortDirection === 'asc'}
-                  <ArrowUpIcon class="ml-2 size-4" />
-                {:else if sortColumn === 'state_cuid' && sortDirection === 'desc'}
-                  <ArrowDownIcon class="ml-2 size-4" />
-                {:else}
-                  <ArrowUpDownIcon class="ml-2 size-4" />
-                {/if}
-              </Button>
-            </TableHead>
-            <TableHead class="font-bold text-foreground text-[15px]">
-              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('country_cuid')}>
-                Country
-                {#if sortColumn === 'country_cuid' && sortDirection === 'asc'}
-                  <ArrowUpIcon class="ml-2 size-4" />
-                {:else if sortColumn === 'country_cuid' && sortDirection === 'desc'}
-                  <ArrowDownIcon class="ml-2 size-4" />
-                {:else}
-                  <ArrowUpDownIcon class="ml-2 size-4" />
-                {/if}
-              </Button>
-            </TableHead>
-            <TableHead class="font-bold text-foreground text-[15px]">
-              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('pin_code')}>
-                Pin Code
-                {#if sortColumn === 'pin_code' && sortDirection === 'asc'}
-                  <ArrowUpIcon class="ml-2 size-4" />
-                {:else if sortColumn === 'pin_code' && sortDirection === 'desc'}
-                  <ArrowDownIcon class="ml-2 size-4" />
-                {:else}
-                  <ArrowUpDownIcon class="ml-2 size-4" />
-                {/if}
-              </Button>
-            </TableHead>
-            <TableHead class="font-bold text-foreground text-[15px]">
-              <Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('timezone')}>
-                Timezone
-                {#if sortColumn === 'timezone' && sortDirection === 'asc'}
-                  <ArrowUpIcon class="ml-2 size-4" />
-                {:else if sortColumn === 'timezone' && sortDirection === 'desc'}
-                  <ArrowDownIcon class="ml-2 size-4" />
-                {:else}
-                  <ArrowUpDownIcon class="ml-2 size-4" />
-                {/if}
-              </Button>
-            </TableHead>
-            <TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
-              <Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('status')}>
-                Status
-                {#if sortColumn === 'status' && sortDirection === 'asc'}
-                  <ArrowUpIcon class="ml-2 size-4" />
-                {:else if sortColumn === 'status' && sortDirection === 'desc'}
-                  <ArrowDownIcon class="ml-2 size-4" />
-                {:else}
-                  <ArrowUpDownIcon class="ml-2 size-4" />
-                {/if}
-              </Button>
-            </TableHead>
-            <TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {#if loading}
-            <TableRow>
-              <TableCell colspan={9} class="py-8 text-center text-muted-foreground">
-                <LoaderCircleIcon class="mx-auto mb-2 size-6 animate-spin" />
-                Loading locations...
-              </TableCell>
-            </TableRow>
-          {:else if filteredLocations.length === 0}
-            <TableRow>
-              <TableCell colspan={9} class="py-8 text-center text-muted-foreground">
-                {UI_CONSTANTS.EMPTY_STATE_MESSAGE}
-              </TableCell>
-            </TableRow>
-          {:else}
-            {#each paginatedLocations as loc (loc.cuid)}
-              <TableRow 
-                onclick={(e) => {
-                  if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
-                  openEdit(loc);
-                }} 
-                class="cursor-pointer"
-              >
-                <TableCell>
-                  <span class="font-semibold">{loc.name}</span>
-                </TableCell>
-                <TableCell>
-                  {loc.address_line1}{loc.address_line2 ? ", " + loc.address_line2 : ""}
-                </TableCell>
-                <TableCell>{loc.city}</TableCell>
-                <TableCell>{getStateName(loc.state_cuid)}</TableCell>
-                <TableCell>{getCountryName(loc.country_cuid)}</TableCell>
-                <TableCell>{loc.pin_code}</TableCell>
-                <TableCell>{loc.timezone}</TableCell>
-                <TableCell class="text-center">
-                  <Badge variant={loc.status === true ? 'default' : 'secondary'}>{loc.status ? 'Active' : 'Inactive'}</Badge>
-                </TableCell>
-                <TableCell class="text-right">
-                  <TableActions
-                    canEdit={true}
-                    onEdit={() => openEdit(loc)}
-                  />
-                </TableCell>
-              </TableRow>
-            {/each}
-          {/if}
-        </TableBody>
-      </Table>
-    </Card>
-    <Pagination bind:currentPage={page} pageSize={limit} totalItems={filteredLocations.length} />
-  </div>
-</div>
-
-<LocationModal 
-  bind:open={showForm}
-  {editLocation}
-  onSuccess={fetchLocations}
-/>
+<LocationModal bind:open={showForm} {editLocation} onSuccess={fetchLocations} />
