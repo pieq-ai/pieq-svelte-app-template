@@ -15,11 +15,12 @@
   import { UI_CONSTANTS } from "$lib/constants";
   import { globalIsDirty } from "$lib/stores/navigationGuard";
   import {
-    Button,
     Input,
     Label,
+    Button,
     CrudModal,
-    StatusDropdown
+    StatusDropdown,
+    ConfirmModal
   } from "$lib/components";
 
   let { 
@@ -51,6 +52,7 @@
   let pinCodeError = $state("");
   let timezoneError = $state("");
   let formLoading = $state(false);
+  let showConfirmClose = $state(false);
 
   const dirtyChecker = createDirtyChecker<{
     name: string;
@@ -89,27 +91,38 @@
 
   $effect(() => {
     if (open) {
+      let initName = "";
+      let initAddress1 = "";
+      let initAddress2 = "";
+      let initCity = "";
+      let initCountry = "";
+      let initState = "";
+      let initPinCode = "";
+      let initTimezone = "UTC";
+      let initStatus = true;
+
       if (editLocation) {
-        formName = editLocation.name;
-        formAddress1 = editLocation.address_line1 ?? "";
-        formAddress2 = editLocation.address_line2 ?? "";
-        formCity = editLocation.city ?? "";
-        formCountryCuid = editLocation.country_cuid ?? "";
-        formStateCuid = editLocation.state_cuid ?? "";
-        formPinCode = editLocation.pin_code ?? "";
-        formTimezone = editLocation.timezone ?? "UTC";
-        formStatus = editLocation.status;
-      } else {
-        formName = "";
-        formAddress1 = "";
-        formAddress2 = "";
-        formCity = "";
-        formCountryCuid = "";
-        formStateCuid = "";
-        formPinCode = "";
-        formTimezone = "UTC";
-        formStatus = true;
+        initName = editLocation.name;
+        initAddress1 = editLocation.address_line1 ?? "";
+        initAddress2 = editLocation.address_line2 ?? "";
+        initCity = editLocation.city ?? "";
+        initCountry = editLocation.country_cuid ?? "";
+        initState = editLocation.state_cuid ?? "";
+        initPinCode = editLocation.pin_code ?? "";
+        initTimezone = editLocation.timezone ?? "UTC";
+        initStatus = editLocation.status;
       }
+
+      formName = initName;
+      formAddress1 = initAddress1;
+      formAddress2 = initAddress2;
+      formCity = initCity;
+      formCountryCuid = initCountry;
+      formStateCuid = initState;
+      formPinCode = initPinCode;
+      formTimezone = initTimezone;
+      formStatus = initStatus;
+
       formError = "";
       nameError = "";
       address1Error = "";
@@ -121,15 +134,15 @@
       timezoneError = "";
       
       dirtyChecker.snapshot({
-        name: formName,
-        address_line1: formAddress1,
-        address_line2: formAddress2,
-        city: formCity,
-        state_cuid: formStateCuid,
-        country_cuid: formCountryCuid,
-        pin_code: formPinCode,
-        timezone: formTimezone,
-        status: formStatus
+        name: initName,
+        address_line1: initAddress1,
+        address_line2: initAddress2,
+        city: initCity,
+        state_cuid: initState,
+        country_cuid: initCountry,
+        pin_code: initPinCode,
+        timezone: initTimezone,
+        status: initStatus
       });
     }
   });
@@ -324,6 +337,15 @@
     }
   }
 
+  function handleClose() {
+    if (isDirty) {
+      showConfirmClose = true;
+    } else {
+      open = false;
+      $globalIsDirty = false;
+    }
+  }
+
   // Add Country / State Modal states
   let showAddCountry = $state(false);
   let showAddState = $state(false);
@@ -435,7 +457,7 @@
   title={editLocation ? "Edit Location" : "Create Location"}
   isSubmitting={formLoading}
   isDirty={isDirty}
-  onClose={() => { open = false; $globalIsDirty = false; }}
+  onClose={handleClose}
 >
   {#snippet children({ cancel })}
     <form class="space-y-4" onsubmit={submitForm}>
@@ -549,6 +571,23 @@
     </form>
   {/snippet}
 </CrudModal>
+
+<ConfirmModal
+  open={showConfirmClose}
+  title="Unsaved Changes"
+  description="You have unsaved changes. Are you sure you want to close this modal?"
+  confirmLabel="Cancel"
+  cancelLabel="Keep Editing"
+  variant="destructive"
+  onConfirm={() => {
+    showConfirmClose = false;
+    open = false;
+    $globalIsDirty = false;
+  }}
+  onCancel={() => {
+    showConfirmClose = false;
+  }}
+/>
 
 <!-- Mini modal for adding a new Country -->
 {#if showAddCountry}

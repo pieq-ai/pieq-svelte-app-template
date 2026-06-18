@@ -68,7 +68,7 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<div 
-		class="fixed inset-0 z-50 flex items-center justify-center bg-[#262626]/70 px-4 py-6"
+		class="fixed inset-0 z-50 flex items-center justify-center bg-[#262626]/70 px-4 py-6 pointer-events-auto"
 		onclick={handleBackdropClick}
 	>
 		<Card class="relative max-h-[90vh] w-full max-w-lg overflow-y-auto custom-scrollbar" onclick={(e) => e.stopPropagation()}>

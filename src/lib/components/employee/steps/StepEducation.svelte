@@ -1,236 +1,341 @@
 <script lang="ts">
-	import { Label, Input, SearchableDropdown, DatePicker, Button } from '$lib/components';
-	import { toast } from 'svelte-sonner';
-	import { goto } from '$app/navigation';
-	import { globalIsDirty } from '$lib/stores/navigationGuard';
-	import { isDuplicateEntry } from '$lib/utils/employeeValidationHelper';
-	import { SvelteDate } from 'svelte/reactivity';
-	import { onMount } from 'svelte';
+  import {
+    Label,
+    Input,
+    SearchableDropdown,
+    DatePicker,
+    Button,
+  } from "$lib/components";
+  import { toast } from "svelte-sonner";
+  import { goto } from "$app/navigation";
+  import { globalIsDirty } from "$lib/stores/navigationGuard";
+  import { isDuplicateEntry } from "$lib/utils/employeeValidationHelper";
+  import { SvelteDate } from "svelte/reactivity";
+  import { onMount } from "svelte";
 
-	let { mode, cuid, onNext, onPrev, onDirtyChange , onCancel} = $props<{
-		mode: 'create' | 'edit';
-		cuid: string | null;
-		onNext: () => void;
-		onPrev: () => void;
-		onDirtyChange?: (dirty: boolean) => void;
-		onCancel: () => void;
-	}>();
+  let { mode, cuid, onNext, onPrev, onDirtyChange, onCancel } = $props<{
+    mode: "create" | "edit";
+    cuid: string | null;
+    onNext: () => void;
+    onPrev: () => void;
+    onDirtyChange?: (dirty: boolean) => void;
+    onCancel: () => void;
+  }>();
 
-	let isSubmitting = $state(false);
-	let isTouched = $state(false);
+  let isSubmitting = $state(false);
+  let isTouched = $state(false);
 
-	type EduItem = { education_level: string; specialization: string; institution: string; university_board: string; percentage: string; completed_at: string };
+  type EduItem = {
+    education_level: string;
+    specialization: string;
+    institution: string;
+    university_board: string;
+    percentage: string;
+    completed_at: string;
+  };
 
-	const emptyEdu = (): EduItem => ({ education_level: '', specialization: '', institution: '', university_board: '', percentage: '', completed_at: '' });
+  const emptyEdu = (): EduItem => ({
+    education_level: "",
+    specialization: "",
+    institution: "",
+    university_board: "",
+    percentage: "",
+    completed_at: "",
+  });
 
-	let educations = $state<EduItem[]>([]);
-	let originalData = $state('[]');
+  let educations = $state<EduItem[]>([]);
+  let originalData = $state("[]");
 
-	function addEducation() {
-		educations = [...educations, emptyEdu()];
-	}
+  function addEducation() {
+    educations = [...educations, emptyEdu()];
+  }
 
-	function normalizeEduItem(item: Partial<EduItem>): EduItem {
-		let completedAt = item.completed_at || '';
-		if (completedAt) {
-			completedAt = String(completedAt).split('T')[0];
-		}
-		let percentage = item.percentage;
-		if (percentage !== null && percentage !== undefined) {
-			percentage = String(parseFloat(String(percentage)));
-		} else {
-			percentage = '';
-		}
-		return {
-			education_level: item.education_level || '',
-			specialization: item.specialization || '',
-			institution: item.institution || '',
-			university_board: item.university_board || '',
-			percentage,
-			completed_at: completedAt
-		};
-	}
-	function normalizeEducations(list: Partial<EduItem>[]): EduItem[] {
-		return (list || []).map(normalizeEduItem);
-	}
+  function normalizeEduItem(item: Partial<EduItem>): EduItem {
+    let completedAt = item.completed_at || "";
+    if (completedAt) {
+      completedAt = String(completedAt).split("T")[0];
+    }
+    let percentage = item.percentage;
+    if (percentage !== null && percentage !== undefined) {
+      percentage = String(parseFloat(String(percentage)));
+    } else {
+      percentage = "";
+    }
+    return {
+      education_level: item.education_level || "",
+      specialization: item.specialization || "",
+      institution: item.institution || "",
+      university_board: item.university_board || "",
+      percentage,
+      completed_at: completedAt,
+    };
+  }
+  function normalizeEducations(list: Partial<EduItem>[]): EduItem[] {
+    return (list || []).map(normalizeEduItem);
+  }
 
-	onMount(async () => {
-		if (cuid) {
-			try {
-				const res = await fetch(`/api/employees/${cuid}/educations`, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
-				const body = await res.json();
-				if (res.ok && body.data) {
-					educations = body.data;
-				}
-			} catch (e) {
-				console.error('Failed to fetch educations', e);
-			}
-		}
-		if (educations.length === 0) {
-			addEducation();
-		}
-		originalData = JSON.stringify(normalizeEducations(educations));
-	});
+  onMount(async () => {
+    if (cuid) {
+      try {
+        const res = await fetch(`/api/employees/${cuid}/educations`, {
+          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+        });
+        const body = await res.json();
+        if (res.ok && body.data) {
+          educations = body.data;
+        }
+      } catch (e) {
+        console.error("Failed to fetch educations", e);
+      }
+    }
+    if (educations.length === 0) {
+      addEducation();
+    }
+    originalData = JSON.stringify(normalizeEducations(educations));
+  });
 
-	let isDirty = $derived(JSON.stringify(normalizeEducations(educations)) !== originalData);
+  let isDirty = $derived(
+    JSON.stringify(normalizeEducations(educations)) !== originalData,
+  );
 
-	$effect(() => {
-		onDirtyChange?.(isDirty);
-	});
+  $effect(() => {
+    onDirtyChange?.(isDirty);
+  });
 
-	// Validations
-	function validateRequired(val: string | undefined | null) {
-		return val && val.trim().length > 0 ? '' : 'Required';
-	}
-	function validatePercentage(val: string | undefined | null) {
-		if (!val) return 'Required';
-		const num = parseFloat(val);
-		if (isNaN(num) || num < 0 || num > 100) return 'Must be 0–100';
-		return '';
-	}
-	function validatePastDate(date: string) {
-		if (!date) return 'Required';
-		const dt = new SvelteDate(date);
-		if (isNaN(dt.getTime())) return 'Invalid date.';
-		if (dt > new SvelteDate()) return 'Cannot be a future date.';
-		return '';
-	}
+  // Validations
+  function validateRequired(val: string | undefined | null) {
+    return val && val.trim().length > 0 ? "" : "Required";
+  }
+  function validatePercentage(val: string | undefined | null) {
+    if (!val) return "Required";
+    const num = parseFloat(val);
+    if (isNaN(num) || num < 0 || num > 100) return "Must be 0–100";
+    return "";
+  }
+  function validatePastDate(date: string) {
+    if (!date) return "Required";
+    const dt = new SvelteDate(date);
+    if (isNaN(dt.getTime())) return "Invalid date.";
+    if (dt > new SvelteDate()) return "Cannot be a future date.";
+    return "";
+  }
 
-	let hasErrors = $derived(
-		educations.some((e, i) =>
-			validateRequired(e.education_level) ||
-			validateRequired(e.specialization) ||
-			validateRequired(e.institution) ||
-			validateRequired(e.university_board) ||
-			validatePercentage(e.percentage?.toString()) ||
-			validatePastDate(e.completed_at) ||
-			isDuplicateEntry(educations, i, x => x.education_level)
-		)
-	);
+  let hasErrors = $derived(
+    educations.some(
+      (e, i) =>
+        validateRequired(e.education_level) ||
+        validateRequired(e.specialization) ||
+        validateRequired(e.institution) ||
+        validateRequired(e.university_board) ||
+        validatePercentage(e.percentage?.toString()) ||
+        validatePastDate(e.completed_at) ||
+        isDuplicateEntry(educations, i, (x) => x.education_level),
+    ),
+  );
 
-	async function saveOnly(): Promise<{ success: boolean }> {
-		isTouched = true;
-		if (hasErrors) {
-			return { success: false };
-		}
-		if (!cuid) return { success: false };
+  async function saveOnly(): Promise<{ success: boolean }> {
+    isTouched = true;
+    if (hasErrors) {
+      return { success: false };
+    }
+    if (!cuid) return { success: false };
 
-		try {
-			isSubmitting = true;
-			const res = await fetch(`/api/employees/${cuid}/educations`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(educations)
-			});
-			if (!res.ok) {
-				const body = await res.json();
-				throw new Error(body.data?.message || body.error || 'Failed to save educations');
-			}
-			originalData = JSON.stringify(normalizeEducations(educations));
-			toast.success('Updated successfully');
-			return { success: true };
-		} catch (e: unknown) {
-			toast.error((e as Error).message);
-			return { success: false };
-		} finally {
-			isSubmitting = false;
-		}
-	}
+    try {
+      isSubmitting = true;
+      const res = await fetch(`/api/employees/${cuid}/educations`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(educations),
+      });
+      if (!res.ok) {
+        const body = await res.json();
+        throw new Error(
+          body.data?.message || body.error || "Failed to save educations",
+        );
+      }
+      originalData = JSON.stringify(normalizeEducations(educations));
+      toast.success("Updated successfully");
+      return { success: true };
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
+      return { success: false };
+    } finally {
+      isSubmitting = false;
+    }
+  }
 
-	async function save() {
-		const result = await saveOnly();
-		if (!result.success) return;
-		onNext();
-	}
+  async function save() {
+    const result = await saveOnly();
+    if (!result.success) return;
+    onNext();
+  }
 </script>
 
-<div class="space-y-4">
-	{#if mode !== 'view'}
-		<div class="flex justify-end">
-			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={addEducation} disabled={isSubmitting}>
-				Add Education
-			</Button>
-		</div>
-	{/if}
+<div class="space-y-4 -mt-6">
+  {#if mode !== "view"}
+    <div class="flex justify-end">
+      <Button
+        class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+        onclick={addEducation}
+        disabled={isSubmitting}
+      >
+        Add Education
+      </Button>
+    </div>
+  {/if}
 
-	{#if educations.length === 0 && mode === 'view'}
-		<p class="text-sm text-muted-foreground text-center py-4">No education records found.</p>
-	{/if}
+  {#if educations.length === 0 && mode === "view"}
+    <p class="text-sm text-muted-foreground text-center py-4">
+      No education records found.
+    </p>
+  {/if}
 
-	{#each educations as edu, index (index)}
-		<div class="rounded-lg border border-border p-4 relative">
-			{#if mode !== 'view'}
-				<div class="flex justify-end mb-2">
-					<Button variant="ghost" size="sm" class="h-7 px-2 text-destructive hover:bg-destructive/10" onclick={() => educations = educations.filter((_, i) => i !== index)}>
-						Delete
-					</Button>
-				</div>
-			{/if}
-			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-				<SearchableDropdown
-					label="Education Level *"
-					value={edu.education_level}
-					options={[
-						{ id: '10th', label: '10th Standard' },
-						{ id: '12th', label: '12th Standard' },
-						{ id: 'diploma', label: 'Diploma' },
-						{ id: 'bachelors', label: 'Bachelors Degree' },
-						{ id: 'masters', label: 'Masters Degree' },
-						{ id: 'doctorate', label: 'Doctorate (Ph.D)' }
-					]}
-					onSelect={(val) => edu.education_level = val as string}
-					disabled={mode === 'view'}
-					class={(isTouched && (validateRequired(edu.education_level) || isDuplicateEntry(educations, index, x => x.education_level))) ? 'border-destructive' : ''}
-				/>
-				{#if isTouched && isDuplicateEntry(educations, index, x => x.education_level)}
-					<p class="text-xs text-destructive mt-1 -mb-2 col-span-full">This entry already exists</p>
-				{/if}
-				<div class="space-y-2">
-					<Label>Specialization/Major <span class="text-destructive">*</span></Label>
-					<Input bind:value={edu.specialization} placeholder="e.g. Computer Science" class={(isTouched && validateRequired(edu.specialization)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
-					{#if isTouched && validateRequired(edu.specialization)}<p class="text-xs text-destructive">{validateRequired(edu.specialization)}</p>{/if}
-				</div>
-				<div class="space-y-2 xl:col-span-2">
-					<Label>Institution/School <span class="text-destructive">*</span></Label>
-					<Input bind:value={edu.institution} placeholder="Institution Name" class={(isTouched && validateRequired(edu.institution)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
-					{#if isTouched && validateRequired(edu.institution)}<p class="text-xs text-destructive">{validateRequired(edu.institution)}</p>{/if}
-				</div>
-				<div class="space-y-2 xl:col-span-2">
-					<Label>University/Board <span class="text-destructive">*</span></Label>
-					<Input bind:value={edu.university_board} placeholder="University/Board Name" class={(isTouched && validateRequired(edu.university_board)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
-					{#if isTouched && validateRequired(edu.university_board)}<p class="text-xs text-destructive">{validateRequired(edu.university_board)}</p>{/if}
-				</div>
-				<div class="space-y-2">
-					<Label>Percentage/CGPA <span class="text-destructive">*</span></Label>
-					<Input type="number" step="0.01" bind:value={edu.percentage} placeholder="e.g. 85.5" class={(isTouched && validatePercentage(edu.percentage?.toString())) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
-					{#if isTouched && validatePercentage(edu.percentage?.toString())}<p class="text-xs text-destructive">{validatePercentage(edu.percentage?.toString())}</p>{/if}
-				</div>
-				<div class="space-y-2">
-					<Label>Completion Date <span class="text-destructive">*</span></Label>
-					<DatePicker bind:value={edu.completed_at} class={(isTouched && validatePastDate(edu.completed_at)) ? 'border-destructive' : ''} />
-					{#if isTouched && validatePastDate(edu.completed_at)}<p class="text-xs text-destructive">{validatePastDate(edu.completed_at)}</p>{/if}
-				</div>
-			</div>
-		</div>
-	{/each}
+  {#each educations as edu, index (index)}
+    <div class="rounded-lg border border-border p-4 relative">
+      {#if mode !== "view"}
+        <div class="flex justify-end mb-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            class="h-7 px-2 text-destructive hover:bg-destructive/10"
+            onclick={() =>
+              (educations = educations.filter((_, i) => i !== index))}
+          >
+            Delete
+          </Button>
+        </div>
+      {/if}
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"
+      >
+        <SearchableDropdown
+          label="Education Level *"
+          value={edu.education_level}
+          options={[
+            { id: "10th", label: "10th Standard" },
+            { id: "12th", label: "12th Standard" },
+            { id: "diploma", label: "Diploma" },
+            { id: "bachelors", label: "Bachelors Degree" },
+            { id: "masters", label: "Masters Degree" },
+            { id: "doctorate", label: "Doctorate (Ph.D)" },
+          ]}
+          onSelect={(val) => (edu.education_level = val as string)}
+          disabled={mode === "view"}
+          class={isTouched &&
+          (validateRequired(edu.education_level) ||
+            isDuplicateEntry(educations, index, (x) => x.education_level))
+            ? "border-destructive"
+            : ""}
+        />
+        {#if isTouched && isDuplicateEntry(educations, index, (x) => x.education_level)}
+          <p class="text-xs text-destructive mt-1 -mb-2 col-span-full">
+            This entry already exists
+          </p>
+        {/if}
+        <div class="space-y-2">
+          <Label
+            >Specialization/Major <span class="text-destructive">*</span></Label
+          >
+          <Input
+            bind:value={edu.specialization}
+            placeholder="e.g. Computer Science"
+            class={isTouched && validateRequired(edu.specialization)
+              ? "border-destructive focus-visible:ring-destructive/50"
+              : ""}
+          />
+          {#if isTouched && validateRequired(edu.specialization)}<p
+              class="text-xs text-destructive"
+            >
+              {validateRequired(edu.specialization)}
+            </p>{/if}
+        </div>
+        <div class="space-y-2 xl:col-span-2">
+          <Label
+            >Institution/School <span class="text-destructive">*</span></Label
+          >
+          <Input
+            bind:value={edu.institution}
+            placeholder="Institution Name"
+            class={isTouched && validateRequired(edu.institution)
+              ? "border-destructive focus-visible:ring-destructive/50"
+              : ""}
+          />
+          {#if isTouched && validateRequired(edu.institution)}<p
+              class="text-xs text-destructive"
+            >
+              {validateRequired(edu.institution)}
+            </p>{/if}
+        </div>
+        <div class="space-y-2 xl:col-span-2">
+          <Label>University/Board <span class="text-destructive">*</span></Label
+          >
+          <Input
+            bind:value={edu.university_board}
+            placeholder="University/Board Name"
+            class={isTouched && validateRequired(edu.university_board)
+              ? "border-destructive focus-visible:ring-destructive/50"
+              : ""}
+          />
+          {#if isTouched && validateRequired(edu.university_board)}<p
+              class="text-xs text-destructive"
+            >
+              {validateRequired(edu.university_board)}
+            </p>{/if}
+        </div>
+        <div class="space-y-2">
+          <Label>Percentage/CGPA <span class="text-destructive">*</span></Label>
+          <Input
+            type="number"
+            step="0.01"
+            bind:value={edu.percentage}
+            placeholder="e.g. 85.5"
+            class={isTouched && validatePercentage(edu.percentage?.toString())
+              ? "border-destructive focus-visible:ring-destructive/50"
+              : ""}
+          />
+          {#if isTouched && validatePercentage(edu.percentage?.toString())}<p
+              class="text-xs text-destructive"
+            >
+              {validatePercentage(edu.percentage?.toString())}
+            </p>{/if}
+        </div>
+        <div class="space-y-2">
+          <Label>Completion Date <span class="text-destructive">*</span></Label>
+          <DatePicker
+            bind:value={edu.completed_at}
+            class={isTouched && validatePastDate(edu.completed_at)
+              ? "border-destructive"
+              : ""}
+          />
+          {#if isTouched && validatePastDate(edu.completed_at)}<p
+              class="text-xs text-destructive"
+            >
+              {validatePastDate(edu.completed_at)}
+            </p>{/if}
+        </div>
+      </div>
+    </div>
+  {/each}
 
-	<div class="flex items-center justify-between pt-6 border-t border-border">
-		<Button variant="outline" onclick={onPrev} disabled={isSubmitting}>
-			Previous
-		</Button>
-		<div class="space-x-2">
-			{#if mode !== 'view'}
-				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
-					Cancel
-				</Button>
-				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save()} disabled={isSubmitting}>
-					Save
-				</Button>
-			{:else}
-				<Button onclick={() => onNext()}>
-					Next
-				</Button>
-			{/if}
-		</div>
-	</div>
+  <div class="flex items-center justify-between pt-6 border-t border-border">
+    <Button variant="outline" onclick={onPrev} disabled={isSubmitting}>
+      Previous
+    </Button>
+    <div class="space-x-2">
+      {#if mode !== "view"}
+        <Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
+          Cancel
+        </Button>
+        <Button
+          class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+          onclick={() => save()}
+          disabled={isSubmitting}
+        >
+          Save
+        </Button>
+      {:else}
+        <Button onclick={() => onNext()}>Next</Button>
+      {/if}
+    </div>
+  </div>
 </div>

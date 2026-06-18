@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Input, Label, Button, CrudModal, StatusDropdown } from '$lib/components';
+	import { Input, Label, Button, CrudModal, StatusDropdown, ConfirmModal } from '$lib/components';
 	import { toast } from '$lib/toast';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import { localApi, ApiError } from '$lib/api/local';
@@ -28,17 +28,20 @@
 	let isNameTouched = $state(false);
 	let backendError = $state('');
 	let roleNameInput = $state<HTMLInputElement | null>(null);
+	let showConfirmClose = $state(false);
 
 	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
 	let isDirty = $derived(open && dirtyChecker.isDirty({ name: formRoleName.trim(), status: formRoleStatus }));
 
 	$effect(() => {
 		if (open) {
-			formRoleName = editingRole ? editingRole.name : '';
-			formRoleStatus = editingRole ? editingRole.status : true;
+			const initialName = editingRole ? editingRole.name : '';
+			const initialStatus = editingRole ? editingRole.status : true;
+			formRoleName = initialName;
+			formRoleStatus = initialStatus;
 			isNameTouched = false;
 			backendError = '';
-			dirtyChecker.snapshot({ name: formRoleName, status: formRoleStatus });
+			dirtyChecker.snapshot({ name: initialName, status: initialStatus });
 		}
 	});
 
@@ -103,6 +106,15 @@
 			isSubmitting = false;
 		}
 	}
+
+	function handleClose() {
+		if (isDirty) {
+			showConfirmClose = true;
+		} else {
+			open = false;
+			$globalIsDirty = false;
+		}
+	}
 </script>
 
 <CrudModal
@@ -110,7 +122,7 @@
 	title={editingRole ? 'Edit Role' : 'Create Role'}
 	{isDirty}
 	{isSubmitting}
-	onClose={() => { open = false; $globalIsDirty = false; }}
+	onClose={handleClose}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={handleSaveRole}>
@@ -141,3 +153,20 @@
 		</form>
 	{/snippet}
 </CrudModal>
+
+<ConfirmModal
+	open={showConfirmClose}
+	title="Unsaved Changes"
+	description="You have unsaved changes. Are you sure you want to close this modal?"
+	confirmLabel="Cancel"
+	cancelLabel="Keep Editing"
+	variant="destructive"
+	onConfirm={() => {
+		showConfirmClose = false;
+		open = false;
+		$globalIsDirty = false;
+	}}
+	onCancel={() => {
+		showConfirmClose = false;
+	}}
+/>
