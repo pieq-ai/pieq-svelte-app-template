@@ -8,7 +8,7 @@
 	import { onMount } from 'svelte';
 
 	let { mode, cuid, onNext, onPrev, onDirtyChange , onCancel} = $props<{
-		mode: 'create' | 'edit' | 'view';
+		mode: 'create' | 'edit';
 		cuid: string | null;
 		onNext: () => void;
 		onPrev: () => void;
@@ -66,7 +66,7 @@
 				console.error('Failed to fetch educations', e);
 			}
 		}
-		if (educations.length === 0 && mode !== 'view') {
+		if (educations.length === 0) {
 			addEducation();
 		}
 		originalData = JSON.stringify(normalizeEducations(educations));
@@ -187,27 +187,27 @@
 				{/if}
 				<div class="space-y-2">
 					<Label>Specialization/Major <span class="text-destructive">*</span></Label>
-					<Input bind:value={edu.specialization} placeholder="e.g. Computer Science" class={(isTouched && validateRequired(edu.specialization)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
+					<Input bind:value={edu.specialization} placeholder="e.g. Computer Science" class={(isTouched && validateRequired(edu.specialization)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
 					{#if isTouched && validateRequired(edu.specialization)}<p class="text-xs text-destructive">{validateRequired(edu.specialization)}</p>{/if}
 				</div>
 				<div class="space-y-2 xl:col-span-2">
 					<Label>Institution/School <span class="text-destructive">*</span></Label>
-					<Input bind:value={edu.institution} placeholder="Institution Name" class={(isTouched && validateRequired(edu.institution)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
+					<Input bind:value={edu.institution} placeholder="Institution Name" class={(isTouched && validateRequired(edu.institution)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
 					{#if isTouched && validateRequired(edu.institution)}<p class="text-xs text-destructive">{validateRequired(edu.institution)}</p>{/if}
 				</div>
 				<div class="space-y-2 xl:col-span-2">
 					<Label>University/Board <span class="text-destructive">*</span></Label>
-					<Input bind:value={edu.university_board} placeholder="University/Board Name" class={(isTouched && validateRequired(edu.university_board)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
+					<Input bind:value={edu.university_board} placeholder="University/Board Name" class={(isTouched && validateRequired(edu.university_board)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
 					{#if isTouched && validateRequired(edu.university_board)}<p class="text-xs text-destructive">{validateRequired(edu.university_board)}</p>{/if}
 				</div>
 				<div class="space-y-2">
 					<Label>Percentage/CGPA <span class="text-destructive">*</span></Label>
-					<Input type="number" step="0.01" bind:value={edu.percentage} placeholder="e.g. 85.5" class={(isTouched && validatePercentage(edu.percentage?.toString())) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
+					<Input type="number" step="0.01" bind:value={edu.percentage} placeholder="e.g. 85.5" class={(isTouched && validatePercentage(edu.percentage?.toString())) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
 					{#if isTouched && validatePercentage(edu.percentage?.toString())}<p class="text-xs text-destructive">{validatePercentage(edu.percentage?.toString())}</p>{/if}
 				</div>
 				<div class="space-y-2">
 					<Label>Completion Date <span class="text-destructive">*</span></Label>
-					<DatePicker bind:value={edu.completed_at} class={(isTouched && validatePastDate(edu.completed_at)) ? 'border-destructive' : ''} disabled={mode === 'view'} />
+					<DatePicker bind:value={edu.completed_at} class={(isTouched && validatePastDate(edu.completed_at)) ? 'border-destructive' : ''} />
 					{#if isTouched && validatePastDate(edu.completed_at)}<p class="text-xs text-destructive">{validatePastDate(edu.completed_at)}</p>{/if}
 				</div>
 			</div>

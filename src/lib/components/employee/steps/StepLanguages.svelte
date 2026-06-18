@@ -7,7 +7,7 @@
 	import { onMount } from 'svelte';
 
 	let { mode, cuid, onNext, onPrev, onDirtyChange , onCancel} = $props<{
-		mode: 'create' | 'edit' | 'view';
+		mode: 'create' | 'edit';
 		cuid: string | null;
 		onNext: (cuid?: string) => void;
 		onPrev: () => void;
@@ -65,7 +65,7 @@
 				console.error('Failed to fetch languages', e);
 			}
 		}
-		if (languages.length === 0 && mode !== 'view') {
+		if (languages.length === 0) {
 			addLanguage();
 		}
 		originalData = JSON.stringify(normalizeLanguages(languages));
@@ -176,9 +176,9 @@
 					</div>
 				</div>
 				<div class="flex gap-4 mt-2">
-					<label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" bind:checked={lang.can_read} disabled={mode === 'view'} /> Read</label>
-					<label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" bind:checked={lang.can_write} disabled={mode === 'view'} /> Write</label>
-					<label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" bind:checked={lang.can_speak} disabled={mode === 'view'} /> Speak</label>
+					<label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" bind:checked={lang.can_read} /> Read</label>
+					<label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" bind:checked={lang.can_write} /> Write</label>
+					<label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" bind:checked={lang.can_speak} /> Speak</label>
 				</div>
 			</div>
 		{/each}

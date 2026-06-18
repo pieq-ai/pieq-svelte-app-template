@@ -18,7 +18,7 @@
 	} from '$lib/utils/employeeValidationHelper';
 
 	let { mode, cuid, onPrev, onDirtyChange , onCancel} = $props<{
-		mode: 'create' | 'edit' | 'view';
+		mode: 'create' | 'edit';
 		cuid: string | null;
 		onPrev: () => void;
 		onDirtyChange?: (dirty: boolean) => void;
@@ -73,7 +73,7 @@
 				console.error('Failed to fetch bank details', e);
 			}
 		}
-		if (bankDetails.length === 0 && mode !== 'view') {
+		if (bankDetails.length === 0) {
 			addBank();
 		}
 		originalData = JSON.stringify(normalizeBankDetails(bankDetails));
@@ -169,26 +169,26 @@
 				<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
 					<div class="space-y-2">
 						<Label>Bank Name <span class="text-destructive">*</span></Label>
-						<Input bind:value={bank.bank_name} placeholder="e.g. Chase Bank" class={(isTouched && validateRequired(bank.bank_name)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
+						<Input bind:value={bank.bank_name} placeholder="e.g. Chase Bank" class={(isTouched && validateRequired(bank.bank_name)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
 						{#if isTouched && validateRequired(bank.bank_name)}<p class="text-xs text-destructive">{validateRequired(bank.bank_name)}</p>{/if}
 					</div>
 					<div class="space-y-2">
 						<Label>Branch Name</Label>
-						<Input bind:value={bank.branch_name} placeholder="Downtown Branch" readonly={mode === 'view'} />
+						<Input bind:value={bank.branch_name} placeholder="Downtown Branch" />
 					</div>
 					<div class="space-y-2">
 						<Label>Account Holder Name <span class="text-destructive">*</span></Label>
-						<Input bind:value={bank.account_holder_name} placeholder="John Doe" class={(isTouched && validateRequired(bank.account_holder_name)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
+						<Input bind:value={bank.account_holder_name} placeholder="John Doe" class={(isTouched && validateRequired(bank.account_holder_name)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
 						{#if isTouched && validateRequired(bank.account_holder_name)}<p class="text-xs text-destructive">{validateRequired(bank.account_holder_name)}</p>{/if}
 					</div>
 					<div class="space-y-2">
 						<Label>Account Number <span class="text-destructive">*</span></Label>
-						<Input bind:value={bank.account_number} placeholder="000123456789" class={(isTouched && (validateRequired(bank.account_number) || isDuplicateEntry(bankDetails, index, x => `${x.ifsc_code}|${x.account_number}`))) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
+						<Input bind:value={bank.account_number} placeholder="000123456789" class={(isTouched && (validateRequired(bank.account_number) || isDuplicateEntry(bankDetails, index, x => `${x.ifsc_code}|${x.account_number}`))) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
 						{#if isTouched && validateRequired(bank.account_number)}<p class="text-xs text-destructive">{validateRequired(bank.account_number)}</p>{/if}
 					</div>
 					<div class="space-y-2">
 						<Label>Routing / IFSC Code <span class="text-destructive">*</span></Label>
-						<Input bind:value={bank.ifsc_code} oninput={(e) => bank.ifsc_code = e.currentTarget.value.toUpperCase()} placeholder="IFSC/Routing" class={(isTouched && (validateIfsc(bank.ifsc_code) || isDuplicateEntry(bankDetails, index, x => `${x.ifsc_code}|${x.account_number}`))) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
+						<Input bind:value={bank.ifsc_code} oninput={(e) => bank.ifsc_code = e.currentTarget.value.toUpperCase()} placeholder="IFSC/Routing" class={(isTouched && (validateIfsc(bank.ifsc_code) || isDuplicateEntry(bankDetails, index, x => `${x.ifsc_code}|${x.account_number}`))) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
 						{#if isTouched && validateIfsc(bank.ifsc_code)}<p class="text-xs text-destructive">{validateIfsc(bank.ifsc_code)}</p>{/if}
 					</div>
 					{#if isTouched && isDuplicateEntry(bankDetails, index, x => `${x.ifsc_code}|${x.account_number}`)}
@@ -202,7 +202,7 @@
 								} else {
 									bank.is_primary = false;
 								}
-							}} disabled={mode === 'view'} /> Primary Account
+							}} /> Primary Account
 						</label>
 					</div>
 				</div>

@@ -7,7 +7,7 @@
 	import { globalIsDirty } from '$lib/stores/navigationGuard';
 
 	let { mode, cuid, onNext, data, onDirtyChange , onCancel} = $props<{
-		mode: 'create' | 'edit' | 'view';
+		mode: 'create' | 'edit';
 		cuid: string | null;
 		onNext: (cuid?: string) => void;
 		data?: Record<string, unknown>;
@@ -275,22 +275,22 @@
 		</div>
 		<div class="space-y-2">
 			<Label>First Name <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.first_name} oninput={() => clearBackendError('first_name')} onblur={() => emp.first_name = emp.first_name.trim()} placeholder="John" class={(isTouched && errors.first_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
+			<Input bind:value={emp.first_name} oninput={() => clearBackendError('first_name')} onblur={() => emp.first_name = emp.first_name.trim()} placeholder="John" class={(isTouched && errors.first_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
 			{#if isTouched && errors.first_name}<p class="text-xs text-destructive">{errors.first_name}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Last Name <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.last_name} oninput={() => clearBackendError('last_name')} onblur={() => emp.last_name = emp.last_name.trim()} placeholder="Doe" class={(isTouched && errors.last_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
+			<Input bind:value={emp.last_name} oninput={() => clearBackendError('last_name')} onblur={() => emp.last_name = emp.last_name.trim()} placeholder="Doe" class={(isTouched && errors.last_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
 			{#if isTouched && errors.last_name}<p class="text-xs text-destructive">{errors.last_name}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Father's Name <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.father_name} oninput={() => clearBackendError('father_name')} onblur={() => emp.father_name = emp.father_name.trim()} placeholder="Father's Name" class={(isTouched && errors.father_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
+			<Input bind:value={emp.father_name} oninput={() => clearBackendError('father_name')} onblur={() => emp.father_name = emp.father_name.trim()} placeholder="Father's Name" class={(isTouched && errors.father_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
 			{#if isTouched && errors.father_name}<p class="text-xs text-destructive">{errors.father_name}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Date of Birth <span class="text-destructive">*</span></Label>
-			<DatePicker bind:value={emp.dob} bind:isError={dateErrors.dob} class={(isTouched && errors.dob) || dateErrors.dob ? 'border-destructive' : ''} disabled={mode === 'view'} />
+			<DatePicker bind:value={emp.dob} bind:isError={dateErrors.dob} class={(isTouched && errors.dob) || dateErrors.dob ? 'border-destructive' : ''} />
 			{#if isTouched && errors.dob}
 				<p class="text-xs text-destructive">{errors.dob}</p>
 			{:else if isTouched && dateErrors.dob}
@@ -298,68 +298,68 @@
 			{/if}
 		</div>
 		<div class="space-y-2">
-			<SearchableDropdown label="Gender *" value={emp.gender} options={[{ id: 'male', label: 'Male' }, { id: 'female', label: 'Female' }, { id: 'other', label: 'Other' }]} onSelect={(val) => emp.gender = val as string} disabled={mode === 'view'} class={(isTouched && errors.gender) ? 'border-destructive' : ''} />
+			<SearchableDropdown label="Gender *" value={emp.gender} options={[{ id: 'male', label: 'Male' }, { id: 'female', label: 'Female' }, { id: 'other', label: 'Other' }]} onSelect={(val) => emp.gender = val as string} class={(isTouched && errors.gender) ? 'border-destructive' : ''} />
 			{#if isTouched && errors.gender}<p class="text-xs text-destructive">{errors.gender}</p>{/if}
 		</div>
 		<div class="space-y-2">
-			<SearchableDropdown label="Marital Status *" value={emp.marital_status} options={[{ id: 'single', label: 'Single' }, { id: 'married', label: 'Married' }, { id: 'divorced', label: 'Divorced' }, { id: 'widowed', label: 'Widowed' }]} onSelect={(val) => emp.marital_status = val as string} disabled={mode === 'view'} class={(isTouched && errors.marital_status) ? 'border-destructive' : ''} />
+			<SearchableDropdown label="Marital Status *" value={emp.marital_status} options={[{ id: 'single', label: 'Single' }, { id: 'married', label: 'Married' }, { id: 'divorced', label: 'Divorced' }, { id: 'widowed', label: 'Widowed' }]} onSelect={(val) => emp.marital_status = val as string} class={(isTouched && errors.marital_status) ? 'border-destructive' : ''} />
 			{#if isTouched && errors.marital_status}<p class="text-xs text-destructive">{errors.marital_status}</p>{/if}
 		</div>
 		<div class="space-y-2">
-			<MasterDataDropdown master="blood-groups" label="Blood Group *" value={emp.blood_group_cuid} onSelect={(val) => emp.blood_group_cuid = val as string} disabled={mode === 'view'} class={(isTouched && errors.blood_group_cuid) ? 'border-destructive' : ''} />
+			<MasterDataDropdown master="blood-groups" label="Blood Group *" value={emp.blood_group_cuid} onSelect={(val) => emp.blood_group_cuid = val as string} class={(isTouched && errors.blood_group_cuid) ? 'border-destructive' : ''} />
 			{#if isTouched && errors.blood_group_cuid}<p class="text-xs text-destructive">{errors.blood_group_cuid}</p>{/if}
 		</div>
 		<div class="space-y-2">
-			<MasterDataDropdown master="nationalities" label="Nationality *" value={emp.nationality_cuid} onSelect={(val) => emp.nationality_cuid = val as string} disabled={mode === 'view'} class={(isTouched && errors.nationality_cuid) ? 'border-destructive' : ''} />
+			<MasterDataDropdown master="nationalities" label="Nationality *" value={emp.nationality_cuid} onSelect={(val) => emp.nationality_cuid = val as string} class={(isTouched && errors.nationality_cuid) ? 'border-destructive' : ''} />
 			{#if isTouched && errors.nationality_cuid}<p class="text-xs text-destructive">{errors.nationality_cuid}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Mobile Number <span class="text-destructive">*</span></Label>
-			<Input type="tel" bind:value={emp.mobile_no} oninput={(e) => { emp.mobile_no = formatMobile(e.currentTarget.value); clearBackendError('mobile_no'); }} placeholder="1234567890" class={(isTouched && errors.mobile_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
+			<Input type="tel" bind:value={emp.mobile_no} oninput={(e) => { emp.mobile_no = formatMobile(e.currentTarget.value); clearBackendError('mobile_no'); }} placeholder="1234567890" class={(isTouched && errors.mobile_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
 			{#if isTouched && errors.mobile_no}<p class="text-xs text-destructive">{errors.mobile_no}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Personal Email <span class="text-destructive">*</span></Label>
-			<Input type="email" bind:value={emp.personal_email} oninput={() => clearBackendError('personal_email')} onblur={() => emp.personal_email = emp.personal_email.trim().toLowerCase()} placeholder="john@example.com" class={(isTouched && errors.personal_email) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
+			<Input type="email" bind:value={emp.personal_email} oninput={() => clearBackendError('personal_email')} onblur={() => emp.personal_email = emp.personal_email.trim().toLowerCase()} placeholder="john@example.com" class={(isTouched && errors.personal_email) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
 			{#if isTouched && errors.personal_email}<p class="text-xs text-destructive">{errors.personal_email}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Aadhar Number <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.aadhar_no} oninput={(e) => { emp.aadhar_no = formatAadharUan(e.currentTarget.value); clearBackendError('aadhar_no'); }} placeholder="0000 0000 0000" class={(isTouched && errors.aadhar_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
+			<Input bind:value={emp.aadhar_no} oninput={(e) => { emp.aadhar_no = formatAadharUan(e.currentTarget.value); clearBackendError('aadhar_no'); }} placeholder="0000 0000 0000" class={(isTouched && errors.aadhar_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
 			{#if isTouched && errors.aadhar_no}<p class="text-xs text-destructive">{errors.aadhar_no}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>PAN Number <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.pan_no} oninput={(e) => { emp.pan_no = formatPan(e.currentTarget.value); clearBackendError('pan_no'); }} placeholder="ABCDE1234F" class={(isTouched && errors.pan_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} required />
+			<Input bind:value={emp.pan_no} oninput={(e) => { emp.pan_no = formatPan(e.currentTarget.value); clearBackendError('pan_no'); }} placeholder="ABCDE1234F" class={(isTouched && errors.pan_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
 			{#if isTouched && errors.pan_no}<p class="text-xs text-destructive">{errors.pan_no}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>UAN Number</Label>
-			<Input bind:value={emp.uan_no} oninput={(e) => emp.uan_no = formatAadharUan(e.currentTarget.value)} placeholder="1234 5678 9012" readonly={mode === 'view'} />
+			<Input bind:value={emp.uan_no} oninput={(e) => emp.uan_no = formatAadharUan(e.currentTarget.value)} placeholder="1234 5678 9012" />
 		</div>
 		<div class="space-y-2">
 			<Label>ESI Number</Label>
-			<Input bind:value={emp.esi_no} oninput={(e) => emp.esi_no = formatEsi(e.currentTarget.value)} placeholder="ESI Number" readonly={mode === 'view'} />
+			<Input bind:value={emp.esi_no} oninput={(e) => emp.esi_no = formatEsi(e.currentTarget.value)} placeholder="ESI Number" />
 		</div>
 		<div class="space-y-2">
 			<Label>Emergency Contact Name <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.emergency_contact_name} onblur={() => emp.emergency_contact_name = emp.emergency_contact_name.trim()} placeholder="Emergency Contact Name" class={(isTouched && errors.emergency_contact_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
+			<Input bind:value={emp.emergency_contact_name} onblur={() => emp.emergency_contact_name = emp.emergency_contact_name.trim()} placeholder="Emergency Contact Name" class={(isTouched && errors.emergency_contact_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
 			{#if isTouched && errors.emergency_contact_name}<p class="text-xs text-destructive">{errors.emergency_contact_name}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Emergency Contact Number <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.emergency_contact_no} oninput={(e) => emp.emergency_contact_no = formatMobile(e.currentTarget.value)} placeholder="1234567890" class={(isTouched && errors.emergency_contact_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
+			<Input bind:value={emp.emergency_contact_no} oninput={(e) => emp.emergency_contact_no = formatMobile(e.currentTarget.value)} placeholder="1234567890" class={(isTouched && errors.emergency_contact_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
 			{#if isTouched && errors.emergency_contact_no}<p class="text-xs text-destructive">{errors.emergency_contact_no}</p>{/if}
 		</div>
 		<div class="space-y-2">
-			<MasterDataDropdown master="relation-types" label="Relation *" value={emp.relation_cuid} onSelect={(val) => emp.relation_cuid = val as string} disabled={mode === 'view'} class={(isTouched && errors.relation_cuid) ? 'border-destructive' : ''} />
+			<MasterDataDropdown master="relation-types" label="Relation *" value={emp.relation_cuid} onSelect={(val) => emp.relation_cuid = val as string} class={(isTouched && errors.relation_cuid) ? 'border-destructive' : ''} />
 			{#if isTouched && errors.relation_cuid}<p class="text-xs text-destructive">{errors.relation_cuid}</p>{/if}
 		</div>
 	</div>
 
 	<div class="space-y-2">
 		<Label>Remarks</Label>
-		<Textarea bind:value={emp.remarks} onblur={() => emp.remarks = emp.remarks.trim()} placeholder="Any additional notes..." readonly={mode === 'view'} rows={3} />
+		<Textarea bind:value={emp.remarks} onblur={() => emp.remarks = emp.remarks.trim()} placeholder="Any additional notes..." rows={3} />
 	</div>
 
 	<div class="flex items-center justify-between pt-6 border-t border-border">
@@ -367,18 +367,12 @@
 			Previous
 		</Button>
 		<div class="space-x-2">
-			{#if mode !== 'view'}
-				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
-					Cancel
-				</Button>
-				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save()} disabled={isSubmitting}>
-					Save
-				</Button>
-			{:else}
-				<Button onclick={() => onNext()}>
-					Next
-				</Button>
-			{/if}
+			<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
+				Cancel
+			</Button>
+			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save()} disabled={isSubmitting}>
+				Save
+			</Button>
 		</div>
 	</div>
 </div>

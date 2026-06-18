@@ -129,6 +129,7 @@
 				{/snippet}
 			</Popover.Trigger>
 			<Popover.Content style="min-width: {triggerWidth}px; max-width: 90vw;" class="p-0 border border-border rounded-md shadow-md bg-popover text-popover-foreground w-auto" align="start" sideOffset={4}>
+				<div onclick={(e) => e.stopPropagation()} onpointerdown={(e) => e.stopPropagation()} role="presentation">
 				<div class="flex items-center border-b px-3">
 					<SearchIcon class="mr-2 size-4 shrink-0 opacity-50" />
 					<input
@@ -183,6 +184,7 @@
 						</Button>
 					</div>
 				{/if}
+				</div>
 			</Popover.Content>
 		</Popover.Root>
 	</div>

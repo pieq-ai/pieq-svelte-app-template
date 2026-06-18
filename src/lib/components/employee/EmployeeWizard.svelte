@@ -12,12 +12,12 @@
 	import StepLanguages from './steps/StepLanguages.svelte';
 	import StepDocuments from './steps/StepDocuments.svelte';
 	import StepBankDetails from './steps/StepBankDetails.svelte';
-	import { replaceState, goto } from '$app/navigation';
+	import { replaceState, goto, beforeNavigate } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { untrack } from 'svelte';
-	import { globalIsDirty } from '$lib/stores/navigationGuard';
+	import { untrack, onMount } from 'svelte';
+	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 
-	let { mode = 'create', employeeCuid = null, data } = $props<{ mode?: 'create' | 'edit' | 'view'; employeeCuid?: string | null; data?: Record<string, unknown> }>();
+	let { mode = 'create', employeeCuid = null, data } = $props<{ mode?: 'create' | 'edit'; employeeCuid?: string | null; data?: Record<string, any> }>();
 
 	let currentStep = $state(1);
 	let cuid = $state(untrack(() => employeeCuid));
@@ -48,18 +48,45 @@
 	];
 
 	let stepIsDirty = $state(false);
+	let showUnsavedModal = $state(false);
+	let pendingStep = $state<number | null>(null);
+	let pendingExitUrl = $state<string | null>(null);
 
 	/** Called by the active step whenever its dirty state changes. */
 	function handleDirtyChange(dirty: boolean) {
 		stepIsDirty = dirty;
-		$globalIsDirty = dirty;
 	}
 
 	/** Reset wizard dirty/save tracking when the active step changes. */
 	$effect(() => {
 		void currentStep;
 		stepIsDirty = false;
-		$globalIsDirty = false;
+	});
+
+	function handleBeforeUnload(e: BeforeUnloadEvent) {
+		if (stepIsDirty) {
+			e.preventDefault();
+			e.returnValue = '';
+		}
+	}
+
+	onMount(() => {
+		window.addEventListener('beforeunload', handleBeforeUnload);
+		return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+	});
+
+	beforeNavigate(({ to, cancel, type }) => {
+		if (stepIsDirty) {
+			if (type === 'unload') {
+				// Browser Handles this via beforeunload listener
+				return;
+			}
+			cancel();
+			if (to?.url) {
+				pendingExitUrl = to.url.pathname + to.url.search;
+				showUnsavedModal = true;
+			}
+		}
 	});
 
 	/** Single entry-point for ALL navigation (tabs, prev, next). */
@@ -69,16 +96,42 @@
 			return;
 		}
 
-		currentStep = targetStep;
+		if (stepIsDirty) {
+			pendingStep = targetStep;
+			showUnsavedModal = true;
+		} else {
+			currentStep = targetStep;
+		}
 	}
 
 	function requestExit() {
-		$globalIsDirty = false;
+		// Relay entirely on the beforeNavigate guard to catch it
 		goto('/employees');
+	}
+
+	function finalizePendingNavigation() {
+		showUnsavedModal = false;
+		stepIsDirty = false;
+		if (pendingExitUrl) {
+			goto(pendingExitUrl);
+			pendingExitUrl = null;
+			return;
+		}
+		if (pendingStep !== null) {
+			currentStep = pendingStep;
+			pendingStep = null;
+		}
+	}
+
+	function handleModalCancel() {
+		showUnsavedModal = false;
+		pendingStep = null;
+		pendingExitUrl = null;
 	}
 
 	// ── Standard next/prev ──────────
 	function handleNext(newCuid?: string) {
+		stepIsDirty = false; // We just saved, so force clear any async dirty state
 		if (newCuid && newCuid !== cuid) {
 			cuid = newCuid;
 			if (internalMode === 'create') {
@@ -89,7 +142,6 @@
 		if (currentStep < steps.length) {
 			requestNavigate(currentStep + 1);
 		} else {
-			$globalIsDirty = false;
 			goto('/employees');
 		}
 	}
@@ -120,20 +172,13 @@
 					<ArrowLeftIcon class="mr-2 size-4" />
 					Back to Employees
 				</Button>
-				{#if internalMode === 'view'}
-					<Button variant="outline" size="sm" onclick={() => internalMode = 'edit'}>
-						Edit Employee
-					</Button>
-				{/if}
 			</div>
 			
 			<h1 class="text-2xl font-bold tracking-tight">
 				{#if internalMode === 'create'}
 					Add New Employee
-				{:else if internalMode === 'edit'}
-					Edit Employee
 				{:else}
-					View Employee
+					{#if data?.employee}{data.employee.emp_code} {data.employee.first_name} {data.employee.last_name || ''}{/if}
 				{/if}
 			</h1>
 		</div>
@@ -206,6 +251,17 @@
 		</Card>
 	</div>
 </div>
+
+<!-- Wizard-level Unsaved Changes Modal -->
+<ConfirmModal
+	open={showUnsavedModal}
+	title="Cancel Changes"
+	description="Are you sure you want to cancel? All unsaved changes will be lost."
+	cancelLabel="Keep Editing"
+	confirmLabel="Cancel"
+	onCancel={() => handleModalCancel()}
+	onConfirm={() => finalizePendingNavigation()}
+/>
 
 
 

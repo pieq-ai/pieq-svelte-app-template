@@ -8,7 +8,7 @@
 	import { onMount } from 'svelte';
 
 	let { mode, cuid, data, onNext, onPrev, onDirtyChange , onCancel} = $props<{
-		mode: 'create' | 'edit' | 'view';
+		mode: 'create' | 'edit';
 		cuid: string | null;
 		data?: {
 			roles?: { cuid: string; name: string }[];
@@ -196,7 +196,6 @@
 			label="Department *"
 			value={employment.department_cuid}
 			onSelect={(val) => employment.department_cuid = val as string}
-			disabled={mode === 'view'}
 			class={(isTouched && errors.department_cuid) ? 'border-destructive' : ''}
 		/>
 		<AsyncDropdown
@@ -204,7 +203,6 @@
 			label="Designation *"
 			value={employment.designation_cuid}
 			onSelect={(val) => employment.designation_cuid = val as string}
-			disabled={mode === 'view'}
 			class={(isTouched && errors.designation_cuid) ? 'border-destructive' : ''}
 		/>
 		<SearchableDropdown
@@ -212,7 +210,6 @@
 			value={employment.role_cuid}
 			options={Array.isArray(data?.roles) ? data.roles.map((r: { cuid: string, name: string }) => ({id: r.cuid, label: r.name})) : []}
 			onSelect={(val) => employment.role_cuid = val as string}
-			disabled={mode === 'view'}
 			class={(isTouched && errors.role_cuid) ? 'border-destructive' : ''}
 		/>
 		<MasterDataDropdown
@@ -220,7 +217,6 @@
 			label="Pay Grade *"
 			value={employment.pay_grade_cuid}
 			onSelect={(val) => employment.pay_grade_cuid = val as string}
-			disabled={mode === 'view'}
 			class={(isTouched && errors.pay_grade_cuid) ? 'border-destructive' : ''}
 		/>
 		<MasterDataDropdown
@@ -228,7 +224,6 @@
 			label="Employment Type *"
 			value={employment.employment_type_cuid}
 			onSelect={(val) => employment.employment_type_cuid = val as string}
-			disabled={mode === 'view'}
 			class={(isTouched && errors.employment_type_cuid) ? 'border-destructive' : ''}
 		/>
 		<SearchableDropdown
@@ -243,7 +238,6 @@
 				{ id: 'resigned', label: 'Resigned' }
 			]}
 			onSelect={(val) => employment.employment_status = val as string}
-			disabled={mode === 'view'}
 			class={(isTouched && errors.employment_status) ? 'border-destructive' : ''}
 		/>
 		<SearchableDropdown
@@ -251,7 +245,6 @@
 			value={employment.location_cuid}
 			options={Array.isArray(data?.locations) ? data.locations.map((l: { cuid: string, name: string }) => ({id: l.cuid, label: l.name})) : []}
 			onSelect={(val) => employment.location_cuid = val as string}
-			disabled={mode === 'view'}
 			class={(isTouched && errors.location_cuid) ? 'border-destructive' : ''}
 		/>
 		<SearchableDropdown
@@ -259,11 +252,10 @@
 			value={employment.reporting_manager_cuid}
 			options={Array.isArray(data?.employees) ? data.employees.filter((e: any) => e.cuid !== cuid).map((e: { cuid: string, first_name: string, last_name: string }) => ({id: e.cuid, label: e.first_name + ' ' + e.last_name})) : []}
 			onSelect={(val) => employment.reporting_manager_cuid = val as string}
-			disabled={mode === 'view'}
 		/>
 		<div class="space-y-2">
 			<Label>Date of Joining <span class="text-destructive">*</span></Label>
-			<DatePicker bind:value={employment.date_of_joining} bind:isError={dateErrors.doj} class={(isTouched && errors.date_of_joining) || dateErrors.doj ? 'border-destructive' : ''} disabled={mode === 'view'} />
+			<DatePicker bind:value={employment.date_of_joining} bind:isError={dateErrors.doj} class={(isTouched && errors.date_of_joining) || dateErrors.doj ? 'border-destructive' : ''} />
 			{#if isTouched && errors.date_of_joining}
 				<p class="text-xs text-destructive">{errors.date_of_joining}</p>
 			{:else if isTouched && dateErrors.doj}
@@ -272,7 +264,7 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Confirmation Date</Label>
-			<DatePicker bind:value={employment.confirmation_date} bind:isError={dateErrors.conf} class={(isTouched && errors.confirmation_date) || dateErrors.conf ? 'border-destructive' : ''} disabled={mode === 'view'} />
+			<DatePicker bind:value={employment.confirmation_date} bind:isError={dateErrors.conf} class={(isTouched && errors.confirmation_date) || dateErrors.conf ? 'border-destructive' : ''} />
 			{#if isTouched && errors.confirmation_date}
 				<p class="text-xs text-destructive">{errors.confirmation_date}</p>
 			{:else if isTouched && dateErrors.conf}
@@ -281,7 +273,7 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Relieving Date</Label>
-			<DatePicker bind:value={employment.relieving_date} bind:isError={dateErrors.rel} class={(isTouched && errors.relieving_date) || dateErrors.rel ? 'border-destructive' : ''} disabled={mode === 'view'} />
+			<DatePicker bind:value={employment.relieving_date} bind:isError={dateErrors.rel} class={(isTouched && errors.relieving_date) || dateErrors.rel ? 'border-destructive' : ''} />
 			{#if isTouched && errors.relieving_date}
 				<p class="text-xs text-destructive">{errors.relieving_date}</p>
 			{:else if isTouched && dateErrors.rel}
@@ -290,7 +282,7 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Official Email <span class="text-destructive">*</span></Label>
-			<Input type="email" bind:value={employment.official_email} placeholder="john.doe@company.com" class={(isTouched && errors.official_email) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view'} />
+			<Input type="email" bind:value={employment.official_email} placeholder="john.doe@company.com" class={(isTouched && errors.official_email) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
 			{#if isTouched && errors.official_email}<p class="text-xs text-destructive">{errors.official_email}</p>{/if}
 		</div>
 	</div>
@@ -300,18 +292,12 @@
 			Previous
 		</Button>
 		<div class="space-x-2">
-			{#if mode !== 'view'}
-				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
-					Cancel
-				</Button>
-				<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save()} disabled={isSubmitting}>
-					Save
-				</Button>
-			{:else}
-				<Button onclick={() => onNext()}>
-					Next
-				</Button>
-			{/if}
+			<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
+				Cancel
+			</Button>
+			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save()} disabled={isSubmitting}>
+				Save
+			</Button>
 		</div>
 	</div>
 </div>

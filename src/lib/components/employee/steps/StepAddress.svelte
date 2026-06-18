@@ -6,7 +6,7 @@
 	import { onMount, untrack } from 'svelte';
 
 	let { mode, cuid, onNext, onPrev, onDirtyChange , onCancel} = $props<{
-		mode: 'create' | 'edit' | 'view';
+		mode: 'create' | 'edit';
 		cuid: string | null;
 		onNext: (cuid?: string) => void;
 		onPrev: () => void;
@@ -113,7 +113,7 @@
 				console.error('Failed to fetch addresses', e);
 			}
 		}
-		if (addresses.length === 0 && mode !== 'view') {
+		if (addresses.length === 0) {
 			addresses = [{ ...emptyAddress(), address_type: 'communication' }];
 		}
 		originalData = JSON.stringify(normalizeAddresses(addresses));
@@ -223,20 +223,20 @@
 				/>
 				<div class="space-y-2">
 					<Label>Door No</Label>
-					<Input bind:value={address.door_no} placeholder="Flat/Door No" readonly={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)} />
+					<Input bind:value={address.door_no} placeholder="Flat/Door No" readonly={address.address_type === 'permanent' && isPermSameAsComm} />
 				</div>
 				<div class="space-y-2 xl:col-span-2">
 					<Label>Address Line 1 <span class="text-destructive">*</span></Label>
-					<Input bind:value={address.address_line1} placeholder="123 Main St" class={(isTouched && validateRequired(address.address_line1)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)} />
+					<Input bind:value={address.address_line1} placeholder="123 Main St" class={(isTouched && validateRequired(address.address_line1)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={address.address_type === 'permanent' && isPermSameAsComm} />
 					{#if isTouched && validateRequired(address.address_line1)}<p class="text-xs text-destructive">{validateRequired(address.address_line1)}</p>{/if}
 				</div>
 				<div class="space-y-2 xl:col-span-2">
 					<Label>Address Line 2</Label>
-					<Input bind:value={address.address_line2} placeholder="Landmark/Area" readonly={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)} />
+					<Input bind:value={address.address_line2} placeholder="Landmark/Area" readonly={address.address_type === 'permanent' && isPermSameAsComm} />
 				</div>
 				<div class="space-y-2">
 					<Label>City <span class="text-destructive">*</span></Label>
-					<Input bind:value={address.city} placeholder="City Name" class={(isTouched && validateRequired(address.city)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)} />
+					<Input bind:value={address.city} placeholder="City Name" class={(isTouched && validateRequired(address.city)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={address.address_type === 'permanent' && isPermSameAsComm} />
 					{#if isTouched && validateRequired(address.city)}<p class="text-xs text-destructive">{validateRequired(address.city)}</p>{/if}
 				</div>
 				<MasterDataDropdown
@@ -257,12 +257,12 @@
 				/>
 				<div class="space-y-2">
 					<Label>Pin Code</Label>
-					<Input bind:value={address.pin_code} placeholder="123456" class={(isTouched && validatePinCode(address.pin_code)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)} />
+					<Input bind:value={address.pin_code} placeholder="123456" class={(isTouched && validatePinCode(address.pin_code)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={address.address_type === 'permanent' && isPermSameAsComm} />
 					{#if isTouched && validatePinCode(address.pin_code)}<p class="text-xs text-destructive">{validatePinCode(address.pin_code)}</p>{/if}
 				</div>
 			</div>
 			
-			{#if address.address_type === 'communication' && mode !== 'view'}
+			{#if address.address_type === 'communication'}
 				<div class="xl:col-span-4 flex items-center gap-2 mt-6 pt-4 border-t border-border">
 					<input 
 						type="checkbox" 

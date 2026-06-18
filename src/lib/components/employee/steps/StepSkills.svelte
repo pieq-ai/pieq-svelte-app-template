@@ -7,7 +7,7 @@
 	import { onMount } from 'svelte';
 
 	let { mode, cuid, onNext, onPrev, onDirtyChange , onCancel} = $props<{
-		mode: 'create' | 'edit' | 'view';
+		mode: 'create' | 'edit';
 		cuid: string | null;
 		onNext: (cuid?: string) => void;
 		onPrev: () => void;
@@ -51,7 +51,7 @@
 				console.error('Failed to fetch skills', e);
 			}
 		}
-		if (skills.length === 0 && mode !== 'view') {
+		if (skills.length === 0) {
 			addSkill();
 		}
 		originalData = JSON.stringify(normalizeSkills(skills));
@@ -159,7 +159,7 @@
 				</div>
 				<div class="space-y-2 w-full sm:w-32">
 					<Label>Years of Exp</Label>
-					<Input type="number" step="0.1" bind:value={skill.years_of_experience} placeholder="0.0" readonly={mode === 'view'} />
+					<Input type="number" step="0.1" bind:value={skill.years_of_experience} placeholder="0.0" />
 				</div>
 			</div>
 		{/each}

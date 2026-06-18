@@ -7,7 +7,7 @@
 	import { onMount } from 'svelte';
 
 	let { mode, cuid, onNext, onPrev, onDirtyChange , onCancel} = $props<{
-		mode: 'create' | 'edit' | 'view';
+		mode: 'create' | 'edit';
 		cuid: string | null;
 		onNext: (cuid?: string) => void;
 		onPrev: () => void;
@@ -60,7 +60,7 @@
 				console.error('Failed to fetch documents', e);
 			}
 		}
-		if (documents.length === 0 && mode !== 'view') {
+		if (documents.length === 0) {
 			addDocument();
 		}
 		originalData = JSON.stringify(normalizeDocs(documents));
