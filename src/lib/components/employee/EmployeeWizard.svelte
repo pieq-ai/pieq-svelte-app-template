@@ -153,13 +153,40 @@
 	}
 
 	let navElement = $state<HTMLElement | null>(null);
+	let tabRefs = $state<HTMLElement[]>([]);
+	let activeTabLeft = $state(0);
+	let activeTabWidth = $state(0);
+
+	function updatePillPosition() {
+		const activeItem = tabRefs[currentStep - 1];
+		if (activeItem) {
+			activeTabLeft = activeItem.offsetLeft;
+			activeTabWidth = activeItem.offsetWidth;
+		}
+	}
 
 	$effect(() => {
 		if (navElement && currentStep) {
-			const activeItem = navElement.children[currentStep - 1] as HTMLElement;
+			updatePillPosition();
+			const activeItem = tabRefs[currentStep - 1];
 			if (activeItem) {
 				activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 			}
+		}
+	});
+
+	$effect(() => {
+		if (navElement) {
+			const resizeObserver = new ResizeObserver(() => {
+				updatePillPosition();
+			});
+			resizeObserver.observe(navElement);
+			window.addEventListener('resize', updatePillPosition);
+			
+			return () => {
+				resizeObserver.disconnect();
+				window.removeEventListener('resize', updatePillPosition);
+			};
 		}
 	});
 </script>
@@ -184,27 +211,34 @@
 		</div>
 
 		<!-- Wizard Navigation Header -->
-		<div class="bg-background border border-border rounded-lg p-3 sm:p-4 shadow-sm overflow-x-auto overflow-y-hidden custom-scrollbar">
-			<ol bind:this={navElement} class="flex flex-nowrap items-center justify-center min-w-full w-max mx-auto gap-x-2 sm:gap-x-4 text-sm font-medium text-muted-foreground">
+		<div class="bg-muted/20 border border-border rounded-2xl p-1.5 shadow-sm overflow-x-auto overflow-y-hidden custom-scrollbar max-w-[1400px] mx-auto w-full" role="tablist" aria-orientation="horizontal">
+			<div bind:this={navElement} class="relative flex flex-nowrap items-stretch justify-between w-full min-w-max gap-x-1 text-sm font-medium text-muted-foreground">
+				
+				<!-- Animated Active Pill -->
+				{#if activeTabWidth > 0}
+					<div 
+						class="absolute top-0 bottom-0 bg-[#f43510] rounded-xl shadow-md transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] z-0 pointer-events-none"
+						style="transform: translateX({activeTabLeft}px); width: {activeTabWidth}px;"
+					></div>
+				{/if}
+
 				{#each steps as step, index (step)}
 					{@const stepNum = index + 1}
 					{@const isCurrent = stepNum === currentStep}
-					<li class="flex items-center">
-						<button
-							type="button"
-							class="flex items-center cursor-pointer hover:opacity-80 transition-colors px-2 py-1 rounded-md"
-							onclick={() => requestNavigate(stepNum)}
-						>
-							<span class="text-sm whitespace-nowrap {isCurrent ? 'text-primary font-semibold' : 'text-muted-foreground hover:text-foreground'}">
-								{step}
-							</span>
-						</button>
-						{#if index < steps.length - 1}
-							<div class="w-3 sm:w-5 h-px bg-border mx-1"></div>
-						{/if}
-					</li>
+					<button
+						bind:this={tabRefs[index]}
+						type="button"
+						role="tab"
+						aria-selected={isCurrent}
+						class="relative flex-1 z-10 flex items-center justify-center cursor-pointer px-4 py-2 rounded-xl transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f43510] focus-visible:ring-offset-2 {isCurrent ? 'text-primary-foreground font-semibold shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}"
+						onclick={() => requestNavigate(stepNum)}
+					>
+						<span class="text-sm whitespace-nowrap">
+							{step}
+						</span>
+					</button>
 				{/each}
-			</ol>
+			</div>
 		</div>
 
 		<Card class="w-full shadow-sm">
