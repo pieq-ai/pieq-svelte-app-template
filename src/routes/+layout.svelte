@@ -148,7 +148,7 @@
 				{/each}
 			{:else}
 				<Button
-					href={resolve('/auth/signin')}
+					href={resolve('/')}
 					variant="ghost"
 					class={`h-10 justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 					title={isSidebarCollapsed ? 'Sign in' : undefined}
