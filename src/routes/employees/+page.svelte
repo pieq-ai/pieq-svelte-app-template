@@ -256,7 +256,7 @@
 					{:else}
 						{#each paginatedEmployees as emp (emp.cuid)}
 							<TableRow onclick={(e) => handleRowClick(emp.cuid, e)} class="cursor-pointer">
-								<TableCell class="font-medium text-xs">#{emp.emp_code}</TableCell>
+								<TableCell class="font-medium text-xs">{emp.emp_code}</TableCell>
 								<TableCell class="font-semibold">{emp.first_name}</TableCell>
 								<TableCell class="font-semibold">{emp.last_name || '-'}</TableCell>
 								<TableCell class="text-muted-foreground">

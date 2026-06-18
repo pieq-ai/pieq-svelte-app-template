@@ -195,6 +195,8 @@
 			apiEndpoint="/api/departments"
 			label="Department *"
 			value={employment.department_cuid}
+			loadingText="Loading departments..."
+			errorText="Unable to load departments."
 			onSelect={(val) => employment.department_cuid = val as string}
 			class={(isTouched && errors.department_cuid) ? 'border-destructive' : ''}
 		/>
@@ -202,6 +204,8 @@
 			apiEndpoint="/api/designations"
 			label="Designation *"
 			value={employment.designation_cuid}
+			loadingText="Loading designations..."
+			errorText="Unable to load designations."
 			onSelect={(val) => employment.designation_cuid = val as string}
 			class={(isTouched && errors.designation_cuid) ? 'border-destructive' : ''}
 		/>

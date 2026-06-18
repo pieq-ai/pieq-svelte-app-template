@@ -218,10 +218,10 @@
 			</div>
 			
 			<h1 class="text-2xl font-bold tracking-tight">
-				{#if internalMode === 'create'}
+				{#if internalMode === 'create' && !cuid}
 					Add New Employee
 				{:else}
-					{#if data?.employee}{data.employee.emp_code} {data.employee.first_name} {data.employee.last_name || ''}{/if}
+					{#if data?.employee}{data.employee.emp_code} — {data.employee.first_name} {data.employee.last_name || ''}{/if}
 				{/if}
 			</h1>
 		</div>

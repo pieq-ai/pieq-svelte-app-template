@@ -26,22 +26,7 @@
 
 	let isPermSameAsComm = $state(false);
 
-	function addAddress() {
-		if (addresses.length >= 2) {
-			toast.error('You can only add a maximum of 2 addresses.');
-			return;
-		}
-		const hasComm = addresses.some(a => a.address_type === 'communication');
-		const hasPerm = addresses.some(a => a.address_type === 'permanent');
-		
-		if (!hasComm) {
-			addresses = [...addresses, { ...emptyAddress(), address_type: 'communication' }];
-		} else if (!hasPerm) {
-			addresses = [...addresses, { ...emptyAddress(), address_type: 'permanent' }];
-		} else {
-			toast.error('Only Communication and Permanent addresses are allowed.');
-		}
-	}
+	// Both addresses are always present; no need to dynamically add them.
 
 	$effect(() => {
 		if (isPermSameAsComm) {
@@ -114,7 +99,17 @@
 			}
 		}
 		if (addresses.length === 0) {
-			addresses = [{ ...emptyAddress(), address_type: 'communication' }];
+			addresses = [
+				{ ...emptyAddress(), address_type: 'communication' },
+				{ ...emptyAddress(), address_type: 'permanent' }
+			];
+		} else {
+			const hasComm = addresses.some(a => a.address_type === 'communication');
+			const hasPerm = addresses.some(a => a.address_type === 'permanent');
+			if (!hasComm) addresses = [{ ...emptyAddress(), address_type: 'communication' }, ...addresses];
+			if (!hasPerm) addresses = [...addresses, { ...emptyAddress(), address_type: 'permanent' }];
+			
+			addresses.sort((a, b) => a.address_type === 'communication' ? -1 : 1);
 		}
 		originalData = JSON.stringify(normalizeAddresses(addresses));
 	});
@@ -182,45 +177,18 @@
 	}
 </script>
 
-<div class="space-y-4">
-	{#if mode !== 'view'}
-		<div class="flex justify-end">
-			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={addAddress} disabled={isSubmitting || addresses.length >= 2}>
-				Add Address
-			</Button>
-		</div>
-	{/if}
-
+<div class="space-y-6">
 	{#if addresses.length === 0 && mode === 'view'}
 		<p class="text-sm text-muted-foreground text-center py-4">No address records found.</p>
 	{/if}
 
-	{#each addresses as address, index (index)}
-		<div class="rounded-lg border border-border p-4 relative">
-			{#if mode !== 'view'}
-				<div class="flex justify-end mb-2">
-					{#if address.address_type !== 'communication'}
-						<Button variant="ghost" size="sm" class="h-7 px-2 text-destructive hover:bg-destructive/10" onclick={() => {
-							addresses = addresses.filter((_, i) => i !== index);
-							if (address.address_type === 'permanent') isPermSameAsComm = false;
-						}}>
-							Delete
-						</Button>
-					{/if}
-				</div>
-			{/if}
+	{#each addresses as address, index (address.address_type)}
+		<div class="space-y-4">
+			<h2 class="text-lg font-semibold tracking-tight border-b border-border pb-2">
+				{address.address_type === 'communication' ? 'Communication Address' : 'Permanent Address'}
+			</h2>
+			
 			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-				<SearchableDropdown
-					label="Address Type *"
-					value={address.address_type}
-					options={[
-						{ id: 'communication', label: 'Communication' },
-						{ id: 'permanent', label: 'Permanent' }
-					]}
-					onSelect={(val) => address.address_type = val as string}
-					disabled={true}
-					class={(isTouched && validateRequired(address.address_type)) ? 'border-destructive' : ''}
-				/>
 				<div class="space-y-2">
 					<Label>Door No</Label>
 					<Input bind:value={address.door_no} placeholder="Flat/Door No" readonly={address.address_type === 'permanent' && isPermSameAsComm} />
@@ -263,14 +231,14 @@
 			</div>
 			
 			{#if address.address_type === 'communication'}
-				<div class="xl:col-span-4 flex items-center gap-2 mt-6 pt-4 border-t border-border">
+				<div class="flex items-center gap-2 mt-4 pt-2">
 					<input 
 						type="checkbox" 
-						id="same_as_comm_{index}" 
+						id="same_as_comm" 
 						bind:checked={isPermSameAsComm} 
 						class="rounded border-border text-[#F45310] focus:ring-[#F45310] size-4 cursor-pointer" 
 					/>
-					<Label for="same_as_comm_{index}" class="cursor-pointer font-medium">Permanent address is same as communication address</Label>
+					<Label for="same_as_comm" class="cursor-pointer font-medium">Permanent address is same as communication address</Label>
 				</div>
 			{/if}
 		</div>

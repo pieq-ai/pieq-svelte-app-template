@@ -12,6 +12,8 @@
 		disabled?: boolean;
 		class?: string;
 		apiEndpoint: string;
+		loadingText?: string;
+		errorText?: string;
 		onSelect: (id: string | string[]) => void;
 	}
 
@@ -24,24 +26,30 @@
 		disabled = false,
 		class: className = '',
 		apiEndpoint,
+		loadingText = 'Loading options...',
+		errorText,
 		onSelect
 	}: Props = $props();
 
 	let options = $state<{id: string; label: string}[]>([]);
 	let isLoading = $state(false);
-	let errorMessage = $state('');
+	let currentErrorMessage = $state('');
 
 	async function loadOptions() {
 		isLoading = true;
-		errorMessage = '';
+		currentErrorMessage = '';
 		try {
 			const response = await fetch(apiEndpoint);
 			const body = await response.json();
 			if (response.ok) {
 				options = (body.data ?? []).filter((d: any) => d.status || d.is_active || d.status === undefined).map((d: any) => ({ id: d.cuid, label: d.name }));
 			} else {
-				errorMessage = body.error || `Failed to load options.`;
+				currentErrorMessage = errorText || body.error || `Failed to load options.`;
+				console.error(`[AsyncDropdown] API Error for ${apiEndpoint}:`, body.error || body);
 			}
+		} catch (e) {
+			currentErrorMessage = errorText || `Failed to load options.`;
+			console.error(`[AsyncDropdown] Network Error for ${apiEndpoint}:`, e);
 		} finally {
 			isLoading = false;
 		}
@@ -64,9 +72,9 @@
 		{onSelect}
 	/>
 	{#if isLoading}
-		<p class="text-xs text-muted-foreground">Loading options...</p>
+		<p class="text-xs text-muted-foreground">{loadingText}</p>
 	{/if}
-	{#if errorMessage}
-		<Alert variant="destructive"><AlertDescription>{errorMessage}</AlertDescription></Alert>
+	{#if currentErrorMessage}
+		<Alert variant="destructive"><AlertDescription>{currentErrorMessage}</AlertDescription></Alert>
 	{/if}
 </div>
