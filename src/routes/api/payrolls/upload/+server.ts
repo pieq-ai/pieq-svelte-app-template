@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import { parsePayrollExcel } from '$lib/server/utils/excel-parser.js';
 import type { ParsedPayrollRow, ParseResult } from '$lib/server/utils/excel-parser.js';
 import { uploadPayroll } from '$lib/server/services/payroll.service.js';
-import { validateExcelExtension } from '$lib/server/validators/payroll.validator.js';
+import { validateExcelExtension, validateExcelMimeType } from '$lib/server/validators/payroll.validator.js';
 
 /**
  * POST /api/payrolls/upload
@@ -23,10 +23,26 @@ export async function POST({ request }) {
 			return json({ message: 'No file provided. Send a multipart/form-data request with a "file" field.' }, { status: 400 });
 		}
 
+		// Validate file size (max 2 MB)
+		if (file.size > 2 * 1024 * 1024) {
+			return json(
+				{ message: 'File size exceeds the 2 MB limit.' },
+				{ status: 400 }
+			);
+		}
+
 		// Validate file extension
 		if (!validateExcelExtension(file.name)) {
 			return json(
 				{ message: `Invalid file type. Only .xlsx and .xls files are accepted. Received: "${file.name}".` },
+				{ status: 400 }
+			);
+		}
+
+		// Validate file MIME type
+		if (!validateExcelMimeType(file.type)) {
+			return json(
+				{ message: `Invalid file type. Only Excel files (.xlsx, .xls) are accepted. Received: "${file.type}".` },
 				{ status: 400 }
 			);
 		}

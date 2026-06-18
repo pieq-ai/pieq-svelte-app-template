@@ -28,3 +28,11 @@ export async function findManyByUploadCuid(payroll_upload_cuid: string) {
 		orderBy: [{ row_number: 'asc' }]
 	});
 }
+
+/** Fetch a single failure record by its external cuid. */
+export async function findByCuid(cuid: string) {
+	return db.payrollUploadFailure.findUnique({
+		where: { cuid }
+	});
+}
+

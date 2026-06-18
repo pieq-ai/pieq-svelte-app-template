@@ -262,6 +262,12 @@
 			return;
 		}
 
+		if (file.size > 2 * 1024 * 1024) {
+			uploadError = 'File size exceeds the 2 MB limit.';
+			selectedFile = null;
+			return;
+		}
+
 		selectedFile = file;
 	}
 

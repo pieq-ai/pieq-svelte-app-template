@@ -5,6 +5,8 @@ import { findEmployeeByCode } from '$lib/server/providers/employee.provider.js';
 import { serializePayroll, serializePayrollList } from '$lib/server/serializers/payroll.serializer.js';
 import type { ParsedPayrollRow } from '$lib/server/utils/excel-parser.js';
 import type { PayrollUploadResult } from '$lib/types/payroll.js';
+import { Prisma } from '$lib/generated/prisma/client.js';
+import { validatePayrollRow } from '$lib/server/validators/payroll.validator.js';
 
 // ─── Custom error classes ─────────────────────────────────────────────────────
 
@@ -25,15 +27,6 @@ export class DuplicatePayrollError extends Error {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function isNumeric(raw: unknown): boolean {
-	if (raw === null || raw === undefined || raw === '') return true;
-	if (typeof raw === 'number') return !isNaN(raw);
-	const str = String(raw).replace(/,/g, '').trim();
-	if (str === '') return true;
-	const n = Number(str);
-	return !isNaN(n) && isFinite(n);
-}
 
 /**
  * Compute gross earnings, total deduction, and net salary from a breakdown.
@@ -193,28 +186,30 @@ export async function uploadPayroll(
 			seenKeys.add(duplicateKey);
 		}
 
-		// Validation order:
-		// 1. Employee Code exists.
+		// 1. Row-level structure and type validation (via centralized validator)
+		const validation = validatePayrollRow(row);
 		const empCode = (row.employee_code || '').trim();
-		if (!empCode) {
+
+		// 1. Employee Code presence check
+		const missingEmpCodeErr = validation.errors.find(e => e.error_type === 'Missing Employee Code');
+		if (missingEmpCodeErr) {
 			skipped++;
-			const reason = 'Employee code is required';
 			errors.push({
-				row: row.rowIndex,
+				row: missingEmpCodeErr.row,
 				employee_code: '(empty)',
-				reason
+				reason: missingEmpCodeErr.reason
 			});
 			await failureDao.create({
 				payroll_upload_cuid: uploadRecord.cuid,
-				row_number: row.rowIndex,
+				row_number: missingEmpCodeErr.row,
 				employee_code: null,
-				error_type: 'Missing Employee Code',
-				error_message: reason
+				error_type: missingEmpCodeErr.error_type,
+				error_message: missingEmpCodeErr.reason
 			});
 			continue;
 		}
 
-		// 2. Employee exists.
+		// 2. Employee existence check (takes precedence over month/year/component validation errors)
 		const employee = findEmployeeByCode(empCode);
 		if (!employee) {
 			skipped++;
@@ -234,81 +229,34 @@ export async function uploadPayroll(
 			continue;
 		}
 
-		// (Check if month and year are valid before duplicate DB check)
-		if (row.month === null || row.month === undefined) {
+		// 3. Format/type validation checks (month, year, components)
+		const formatErrors = validation.errors.filter(e => e.error_type === 'Validation Error');
+		if (formatErrors.length > 0) {
 			skipped++;
-			const reason = 'Month is missing or cannot be parsed.';
-			errors.push({
-				row: row.rowIndex,
-				employee_code: empCode,
-				reason
-			});
-			await failureDao.create({
-				payroll_upload_cuid: uploadRecord.cuid,
-				row_number: row.rowIndex,
-				employee_code: empCode,
-				error_type: 'Validation Error',
-				error_message: reason
-			});
-			continue;
-		}
-		if (row.month < 1 || row.month > 12) {
-			skipped++;
-			const reason = `Month value ${row.month} is out of range (must be 1-12).`;
-			errors.push({
-				row: row.rowIndex,
-				employee_code: empCode,
-				reason
-			});
-			await failureDao.create({
-				payroll_upload_cuid: uploadRecord.cuid,
-				row_number: row.rowIndex,
-				employee_code: empCode,
-				error_type: 'Validation Error',
-				error_message: reason
-			});
-			continue;
-		}
-		if (row.year === null || row.year === undefined) {
-			skipped++;
-			const reason = 'Year is missing or cannot be parsed.';
-			errors.push({
-				row: row.rowIndex,
-				employee_code: empCode,
-				reason
-			});
-			await failureDao.create({
-				payroll_upload_cuid: uploadRecord.cuid,
-				row_number: row.rowIndex,
-				employee_code: empCode,
-				error_type: 'Validation Error',
-				error_message: reason
-			});
-			continue;
-		}
-		if (row.year < 2000 || row.year > 9999) {
-			skipped++;
-			const reason = `Year value ${row.year} is not a valid 4-digit year.`;
-			errors.push({
-				row: row.rowIndex,
-				employee_code: empCode,
-				reason
-			});
-			await failureDao.create({
-				payroll_upload_cuid: uploadRecord.cuid,
-				row_number: row.rowIndex,
-				employee_code: empCode,
-				error_type: 'Validation Error',
-				error_message: reason
-			});
+			for (const err of formatErrors) {
+				errors.push({
+					row: err.row,
+					employee_code: err.employee_code,
+					reason: err.reason
+				});
+				await failureDao.create({
+					payroll_upload_cuid: uploadRecord.cuid,
+					row_number: err.row,
+					employee_code: err.employee_code,
+					error_type: err.error_type,
+					error_message: err.reason
+				});
+			}
 			continue;
 		}
 
-		// 3. Payroll does not already exist for Employee + Month + Year.
+		const validated = validation.validatedData!;
+
+		// 4. Payroll does not already exist for Employee + Month + Year in DB.
 		const existing = await dao.findByEmployeeMonthYear(
 			employee.cuid,
-			row.month,
-			row.year
+			validated.month,
+			validated.year
 		);
 		if (existing) {
 			skipped++;
@@ -328,61 +276,34 @@ export async function uploadPayroll(
 			continue;
 		}
 
-		// 4. Any populated salary component value is numeric.
-		let hasComponentError = false;
-		if (row.rawComponents) {
-			for (const [componentName, rawValue] of Object.entries(row.rawComponents)) {
-				if (!isNumeric(rawValue)) {
-					skipped++;
-					hasComponentError = true;
-					const reason = `${componentName} must be numeric.`;
-					errors.push({
-						row: row.rowIndex,
-						employee_code: empCode,
-						reason
-					});
-					await failureDao.create({
-						payroll_upload_cuid: uploadRecord.cuid,
-						row_number: row.rowIndex,
-						employee_code: empCode,
-						error_type: 'Validation Error',
-						error_message: reason
-					});
-					break;
-				}
-			}
-		}
-		if (hasComponentError) {
-			continue;
-		}
-
-		// 5. Payroll record creation succeeds.
+		// 5. Compute gross/deductions/net summary.
 		const { gross_earnings, total_deduction, net_salary } = computeSummary(
-			row.components,
-			row.gross_earnings,
-			row.total_deduction,
-			row.net_salary
+			validated.components,
+			validated.gross_earnings,
+			validated.total_deduction,
+			validated.net_salary
 		);
 
+		// 6. Create payroll record.
 		try {
 			await dao.create({
 				employee_cuid: employee.cuid,
 				employee_code: empCode,
-				employee_name: row.employee_name.trim() || employee.name,
-				month: row.month,
-				year: row.year,
+				employee_name: validated.employee_name || employee.name,
+				month: validated.month,
+				year: validated.year,
 				gross_earnings,
 				total_deduction,
 				net_salary,
-				breakdown: row.components,
+				breakdown: validated.components,
 				payroll_upload_cuid: uploadRecord.cuid,
 				created_by: created_by ?? null
 			});
 			created++;
 		} catch (err) {
-			// Catch unique constraint violations at DB level as a safety net
+			// Catch unique constraint violations at DB level as a safety net (e.g. concurrent upload)
 			const message = err instanceof Error ? err.message : String(err);
-			if (message.includes('Unique constraint')) {
+			if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
 				skipped++;
 				const errorMessage = 'Payroll already exists';
 				errors.push({

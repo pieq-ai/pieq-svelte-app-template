@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/payroll.service.js';
-import { db } from '$lib/server/db.js';
+import * as failureService from '$lib/server/services/payroll-upload-failure.service.js';
 
 export async function GET({ params }) {
 	try {
@@ -9,9 +9,7 @@ export async function GET({ params }) {
 	} catch (error) {
 		if ((error as Error).name === 'PayrollNotFoundError') {
 			try {
-				const failure = await db.payrollUploadFailure.findUnique({
-					where: { cuid: params.cuid }
-				});
+				const failure = await failureService.getFailureByCuid(params.cuid);
 				if (failure) {
 					return json({
 						data: {
