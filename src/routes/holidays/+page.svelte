@@ -33,7 +33,8 @@
 		toast,
 		DatePicker
 	} from '$lib/components/ui';
-	import { ConfirmModal, CrudModal, Pagination, TableActions } from '$lib/components';
+	import { ConfirmModal, CrudModal, Pagination, TableActions, SearchInput } from '$lib/components';
+	import { UI_CONSTANTS } from '$lib/constants';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -504,32 +505,7 @@
 		});
 	}
 
-	function isInteractive(target: HTMLElement | null, rowElement: HTMLElement): boolean {
-		let curr = target;
-		while (curr && curr !== rowElement) {
-			const tagName = curr.tagName.toLowerCase();
-			if (
-				tagName === 'a' ||
-				tagName === 'button' ||
-				tagName === 'input' ||
-				tagName === 'select' ||
-				tagName === 'textarea' ||
-				curr.getAttribute('role') === 'button' ||
-				curr.classList.contains('kebab-dropdown-menu')
-			) {
-				return true;
-			}
-			curr = curr.parentElement;
-		}
-		return false;
-	}
 
-	function handleRowClick(cuid: string, event: MouseEvent) {
-		const target = event.target as HTMLElement;
-		const row = event.currentTarget as HTMLElement;
-		if (isInteractive(target, row)) return;
-		openEditModal(cuid);
-	}
 </script>
 
 <svelte:head>
@@ -582,28 +558,8 @@
 
 	<div class="space-y-3">
 		<!-- Search & Filter controls -->
-		<div class="flex flex-col gap-4 lg:flex-row lg:items-center">
-			<div class="relative flex-1 min-w-0">
-				<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-				<Input
-					type="search"
-					placeholder="Search by holiday name..."
-					bind:value={searchQuery}
-					class="pl-9 pr-9"
-				/>
-				{#if searchQuery}
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon-sm"
-						class="absolute top-1/2 right-1 -translate-y-1/2"
-						aria-label="Clear search"
-						onclick={() => (searchQuery = '')}
-					>
-						<XIcon class="size-4" />
-					</Button>
-				{/if}
-			</div>
+		<div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+			<SearchInput id="search_holidays" name="search_holidays" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by holiday name..." />
 			<div class="flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full lg:w-auto">
 				<div class="w-full sm:w-40">
 					<DatePicker
@@ -645,12 +601,12 @@
 		</div>
 
 		<!-- Holidays List Card -->
-		<Card>
+		<Card class="py-0">
 			<Table>
-				<TableHeader>
+				<TableHeader class="bg-muted">
 					<TableRow>
-						<TableHead class="w-32 font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('holiday_date')}>
+						<TableHead class="w-32 font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('holiday_date')}>
 								Date
 							{#if sortKey === 'holiday_date' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -661,8 +617,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('holiday_name')}>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('holiday_name')}>
 								Holiday Name
 							{#if sortKey === 'holiday_name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -673,8 +629,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-32 font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('holiday_type')}>
+						<TableHead class="w-32 font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('holiday_type')}>
 								Category
 							{#if sortKey === 'holiday_type' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -685,19 +641,25 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-right font-bold">Actions</TableHead>
+						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{#if filteredHolidays.length === 0}
 						<TableRow>
-							<TableCell colspan={4} class="py-12 text-center text-muted-foreground">
-								No records found
+							<TableCell colspan={4} class="py-8 text-center text-muted-foreground">
+								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 							</TableCell>
 						</TableRow>
 					{:else}
 						{#each paginatedHolidays as holiday (holiday.cuid)}
-							<TableRow onclick={(e) => handleRowClick(holiday.cuid, e)} class="cursor-pointer">
+							<TableRow 
+								onclick={(e) => {
+									if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
+									openEditModal(holiday.cuid);
+								}} 
+								class="cursor-pointer"
+							>
 								<TableCell class="font-normal">
 									{formatDate(holiday.holiday_date)}
 								</TableCell>

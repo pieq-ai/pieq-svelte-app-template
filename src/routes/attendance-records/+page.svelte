@@ -33,7 +33,9 @@
 		ConfirmModal,
 		CrudModal,
 		Pagination,
-		TableActions
+		TableActions,
+		CardContent,
+		SearchInput
 	} from '$lib/components';
 	import { toast } from '$lib/toast';
 	import { UI_CONSTANTS } from '$lib/constants';
@@ -765,72 +767,66 @@
 	<!-- Summary Cards Section -->
 	<div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
 		<!-- Total Employees Card -->
-		<div class="flex flex-col p-4 rounded-xl border border-border bg-card text-left shadow-xs">
-			<span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total</span>
-			<span class="text-2xl font-bold text-foreground mt-1">{summaryCounts.total}</span>
-		</div>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Total</CardDescription>
+				<CardTitle class="text-2xl font-bold text-foreground mt-1 tabular-nums">{summaryCounts.total}</CardTitle>
+			</CardHeader>
+		</Card>
 		
 		<!-- Present Card -->
-		<div class="flex flex-col p-4 rounded-xl border border-border bg-card text-left shadow-xs">
-			<span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Present</span>
-			<span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{summaryCounts.present}</span>
-		</div>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Present</CardDescription>
+				<CardTitle class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 tabular-nums">{summaryCounts.present}</CardTitle>
+			</CardHeader>
+		</Card>
 
 		<!-- Leave Card -->
-		<div class="flex flex-col p-4 rounded-xl border border-border bg-card text-left shadow-xs">
-			<span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Leave</span>
-			<span class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{summaryCounts.leave}</span>
-		</div>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Leave</CardDescription>
+				<CardTitle class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1 tabular-nums">{summaryCounts.leave}</CardTitle>
+			</CardHeader>
+		</Card>
 
 		<!-- WFH Card -->
-		<div class="flex flex-col p-4 rounded-xl border border-border bg-card text-left shadow-xs">
-			<span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">WFH</span>
-			<span class="text-2xl font-bold text-cyan-600 dark:text-cyan-400 mt-1">{summaryCounts.wfh}</span>
-		</div>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>WFH</CardDescription>
+				<CardTitle class="text-2xl font-bold text-cyan-600 dark:text-cyan-400 mt-1 tabular-nums">{summaryCounts.wfh}</CardTitle>
+			</CardHeader>
+		</Card>
 
 		<!-- Half Day Card -->
-		<div class="flex flex-col p-4 rounded-xl border border-border bg-card text-left shadow-xs">
-			<span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Half Day</span>
-			<span class="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1">{summaryCounts.halfDay}</span>
-		</div>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Half Day</CardDescription>
+				<CardTitle class="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1 tabular-nums">{summaryCounts.halfDay}</CardTitle>
+			</CardHeader>
+		</Card>
 
 		<!-- LOP Card -->
-		<div class="flex flex-col p-4 rounded-xl border border-border bg-card text-left shadow-xs">
-			<span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">LOP</span>
-			<span class="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">{summaryCounts.lop}</span>
-		</div>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>LOP</CardDescription>
+				<CardTitle class="text-2xl font-bold text-red-600 dark:text-red-400 mt-1 tabular-nums">{summaryCounts.lop}</CardTitle>
+			</CardHeader>
+		</Card>
 
 		<!-- Not Logged In Card -->
-		<div class="flex flex-col p-4 rounded-xl border border-border bg-card text-left shadow-xs">
-			<span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Not Logged In</span>
-			<span class="text-2xl font-bold text-neutral-600 dark:text-neutral-400 mt-1">{summaryCounts.notLoggedIn}</span>
-		</div>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Not Logged In</CardDescription>
+				<CardTitle class="text-2xl font-bold text-neutral-600 dark:text-neutral-400 mt-1 tabular-nums">{summaryCounts.notLoggedIn}</CardTitle>
+			</CardHeader>
+		</Card>
 	</div>
 
 	<!-- Filters & Search -->
 	<div class="space-y-3">
-		<div class="flex flex-col gap-4 lg:flex-row lg:items-center">
-			<div class="relative flex-1 min-w-0">
-				<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-				<Input
-					type="search"
-					placeholder="Search by employee name..."
-					bind:value={searchQuery}
-					class="pl-9 pr-9"
-				/>
-				{#if searchQuery}
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon-sm"
-						class="absolute top-1/2 right-1 -translate-y-1/2"
-						aria-label="Clear search"
-						onclick={() => (searchQuery = '')}
-					>
-						<XIcon class="size-4" />
-					</Button>
-				{/if}
-			</div>
+		<div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+			<SearchInput id="search_attendance_records" name="search_attendance_records" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by employee name..." />
 
 			<div class="grid grid-cols-2 md:grid-cols-3 gap-3 w-full lg:w-auto shrink-0">
 				<!-- Date Filter -->
@@ -892,12 +888,12 @@
 		</div>
 
 		<!-- Table Card -->
-		<Card>
+		<Card class="py-0">
 			<Table>
-				<TableHeader>
+				<TableHeader class="bg-muted">
 					<TableRow>
-						<TableHead class="font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('employee_name')}>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('employee_name')}>
 								Employee
 								{#if sortKey === 'employee_name' && sortDirection === 'asc'}
 									<ArrowUpIcon class="ml-1 size-3.5" />
@@ -908,9 +904,9 @@
 								{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="font-bold">Date</TableHead>
-						<TableHead class="font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('check_in_time')}>
+						<TableHead class="font-bold text-foreground text-[15px]">Date</TableHead>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('check_in_time')}>
 								Check In
 								{#if sortKey === 'check_in_time' && sortDirection === 'asc'}
 									<ArrowUpIcon class="ml-1 size-3.5" />
@@ -921,8 +917,8 @@
 								{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('check_out_time')}>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('check_out_time')}>
 								Check Out
 								{#if sortKey === 'check_out_time' && sortDirection === 'asc'}
 									<ArrowUpIcon class="ml-1 size-3.5" />
@@ -933,8 +929,8 @@
 								{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('work_duration_minutes')}>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('work_duration_minutes')}>
 								Work Duration
 								{#if sortKey === 'work_duration_minutes' && sortDirection === 'asc'}
 									<ArrowUpIcon class="ml-1 size-3.5" />
@@ -945,8 +941,8 @@
 								{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('attendance_status')}>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('attendance_status')}>
 								Status
 								{#if sortKey === 'attendance_status' && sortDirection === 'asc'}
 									<ArrowUpIcon class="ml-1 size-3.5" />
@@ -957,25 +953,24 @@
 								{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="font-bold">Source</TableHead>
-						<TableHead class="text-right font-bold">Actions</TableHead>
+						<TableHead class="font-bold text-foreground text-[15px]">Source</TableHead>
+						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{#if filteredRecords.length === 0}
 						<TableRow>
-							<TableCell colspan={8} class="py-12 text-center text-muted-foreground font-medium">
-								No attendance records found
+							<TableCell colspan={8} class="py-8 text-center text-muted-foreground">
+								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 							</TableCell>
 						</TableRow>
 					{:else}
 						{#each paginatedRecords as rec (rec.cuid)}
 							<TableRow 
-								class={rec.isVirtual ? "" : "hover:bg-muted/50 cursor-pointer"} 
+								class={rec.isVirtual ? "" : "cursor-pointer"} 
 								onclick={(e) => {
 									if (rec.isVirtual) return;
-									const target = e.target as HTMLElement;
-									if (target.closest('button') || target.closest('a')) return;
+									if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
 									openEditModal(rec);
 								}}
 							>

@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 
 	import { toast } from '$lib/toast';
+	import { UI_CONSTANTS } from '$lib/constants';
 	import {
 		Badge,
 		Button,
@@ -1207,12 +1208,12 @@
 							</div>
 						</div>
 
-						<div class="border rounded-md">
+						<Card class="py-0">
 							<Table>
-								<TableHeader>
+								<TableHeader class="bg-muted">
 									<TableRow>
-										<TableHead class="font-bold">
-											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleHistorySort('attendance_date')}>
+										<TableHead class="font-bold text-foreground text-[15px]">
+											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleHistorySort('attendance_date')}>
 												Date
 											{#if historySortKey === 'attendance_date' && historySortDirection === 'asc'}
 												<ArrowUpIcon class="ml-2 size-4" />
@@ -1223,8 +1224,8 @@
 											{/if}
 											</Button>
 										</TableHead>
-										<TableHead class="font-bold">
-											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleHistorySort('check_in_time')}>
+										<TableHead class="font-bold text-foreground text-[15px]">
+											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleHistorySort('check_in_time')}>
 												Check In
 											{#if historySortKey === 'check_in_time' && historySortDirection === 'asc'}
 												<ArrowUpIcon class="ml-2 size-4" />
@@ -1235,8 +1236,8 @@
 											{/if}
 											</Button>
 										</TableHead>
-										<TableHead class="font-bold">
-											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleHistorySort('check_out_time')}>
+										<TableHead class="font-bold text-foreground text-[15px]">
+											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleHistorySort('check_out_time')}>
 												Check Out
 											{#if historySortKey === 'check_out_time' && historySortDirection === 'asc'}
 												<ArrowUpIcon class="ml-2 size-4" />
@@ -1247,8 +1248,8 @@
 											{/if}
 											</Button>
 										</TableHead>
-										<TableHead class="font-bold">
-											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleHistorySort('work_duration_minutes')}>
+										<TableHead class="font-bold text-foreground text-[15px]">
+											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleHistorySort('work_duration_minutes')}>
 												Duration
 											{#if historySortKey === 'work_duration_minutes' && historySortDirection === 'asc'}
 												<ArrowUpIcon class="ml-2 size-4" />
@@ -1259,8 +1260,8 @@
 											{/if}
 											</Button>
 										</TableHead>
-										<TableHead class="font-bold">
-											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleHistorySort('attendance_status')}>
+										<TableHead class="font-bold text-foreground text-[15px]">
+											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleHistorySort('attendance_status')}>
 												Status
 											{#if historySortKey === 'attendance_status' && historySortDirection === 'asc'}
 												<ArrowUpIcon class="ml-2 size-4" />
@@ -1276,8 +1277,8 @@
 								<TableBody>
 									{#if filteredHistory.length === 0}
 										<TableRow>
-											<TableCell colspan={5} class="text-center py-8 text-muted-foreground font-medium">
-												No attendance records found.
+											<TableCell colspan={5} class="text-center py-8 text-muted-foreground">
+												{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 											</TableCell>
 										</TableRow>
 									{:else}
@@ -1297,7 +1298,7 @@
 									{/if}
 								</TableBody>
 							</Table>
-						</div>
+						</Card>
 						<Pagination totalItems={filteredHistory.length} bind:currentPage={historyCurrentPage} pageSize={10} showIcons={false} />
 					</div>
 				{/if}

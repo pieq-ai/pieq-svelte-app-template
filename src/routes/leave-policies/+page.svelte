@@ -34,7 +34,8 @@
 		toast,
 		MultiSelect
 	} from '$lib/components/ui';
-	import { ConfirmModal, CrudModal, Pagination, TableActions, FilterDropdown, StatusDropdown, StatusBadge } from '$lib/components';
+	import { ConfirmModal, CrudModal, Pagination, TableActions, FilterDropdown, StatusDropdown, StatusBadge, SearchInput } from '$lib/components';
+	import { UI_CONSTANTS } from '$lib/constants';
 	import type { PageData } from './$types.js';
 	import type { EmploymentType } from './+page.js';
 
@@ -742,32 +743,7 @@
 	let activePoliciesCount = $derived(data.policies.filter((p) => p.status).length);
 	let inactivePoliciesCount = $derived(data.policies.filter((p) => !p.status).length);
 
-	function isInteractive(target: HTMLElement | null, rowElement: HTMLElement): boolean {
-		let curr = target;
-		while (curr && curr !== rowElement) {
-			const tagName = curr.tagName.toLowerCase();
-			if (
-				tagName === 'a' ||
-				tagName === 'button' ||
-				tagName === 'input' ||
-				tagName === 'select' ||
-				tagName === 'textarea' ||
-				curr.getAttribute('role') === 'button' ||
-				curr.classList.contains('kebab-dropdown-menu')
-			) {
-				return true;
-			}
-			curr = curr.parentElement;
-		}
-		return false;
-	}
 
-	function handleRowClick(cuid: string, event: MouseEvent) {
-		const target = event.target as HTMLElement;
-		const row = event.currentTarget as HTMLElement;
-		if (isInteractive(target, row)) return;
-		openEditModal(cuid);
-	}
 </script>
 
 <svelte:head>
@@ -813,28 +789,8 @@
 
 	<div class="space-y-3">
 		<!-- Search & Filter controls -->
-		<div class="flex flex-col gap-4 md:flex-row md:items-center w-full">
-			<div class="relative flex-1">
-				<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-				<Input
-					type="search"
-					placeholder="Search by leave type or employment type..."
-					bind:value={searchQuery}
-					class="pl-9 pr-9"
-				/>
-				{#if searchQuery}
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon-sm"
-						class="absolute top-1/2 right-1 -translate-y-1/2"
-						aria-label="Clear search"
-						onclick={() => (searchQuery = '')}
-					>
-						<XIcon class="size-4" />
-					</Button>
-				{/if}
-			</div>
+		<div class="flex flex-col gap-3 md:flex-row md:items-center w-full">
+			<SearchInput id="search_leave_policies" name="search_leave_policies" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by leave type or employment type..." />
 
 			<!-- Leave Type Filter -->
 			<div class="w-full md:w-48 shrink-0">
@@ -889,12 +845,12 @@
 		</div>
 
 		<!-- Table Card -->
-		<Card>
+		<Card class="py-0">
 			<Table>
-				<TableHeader>
+				<TableHeader class="bg-muted">
 					<TableRow>
-						<TableHead class="font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('leave_type_cuid')}>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('leave_type_cuid')}>
 								Leave Type
 							{#if sortKey === 'leave_type_cuid' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -905,8 +861,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('employment_type_cuids')}>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('employment_type_cuids')}>
 								Employment Types
 							{#if sortKey === 'employment_type_cuids' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -917,8 +873,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-24 text-right font-bold">
-							<Button variant="ghost" size="sm" class="-mr-2.5 h-8 ml-auto font-bold" onclick={() => handleSort('annual_limit')}>
+						<TableHead class="w-24 text-right font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-mr-2.5 h-8 ml-auto font-bold text-foreground text-[15px]" onclick={() => handleSort('annual_limit')}>
 								Annual Limit
 							{#if sortKey === 'annual_limit' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -929,8 +885,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-24 text-center font-bold">
-							<Button variant="ghost" size="sm" class="h-8 font-bold" onclick={() => handleSort('carry_forward_allowed')}>
+						<TableHead class="w-24 text-center font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('carry_forward_allowed')}>
 								Carry Fwd
 							{#if sortKey === 'carry_forward_allowed' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -941,8 +897,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-24 text-center font-bold">
-							<Button variant="ghost" size="sm" class="h-8 font-bold" onclick={() => handleSort('allow_half_day')}>
+						<TableHead class="w-24 text-center font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('allow_half_day')}>
 								Half Day
 							{#if sortKey === 'allow_half_day' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -953,8 +909,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-24 text-center font-bold">
-							<Button variant="ghost" size="sm" class="h-8 font-bold" onclick={() => handleSort('gender_specific')}>
+						<TableHead class="w-24 text-center font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('gender_specific')}>
 								Gender
 							{#if sortKey === 'gender_specific' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -965,8 +921,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-24 text-center font-bold">
-							<Button variant="ghost" size="sm" class="h-8 font-bold" onclick={() => handleSort('status')}>
+						<TableHead class="w-24 text-center font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
 								Status
 							{#if sortKey === 'status' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -977,19 +933,25 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-right font-bold">Actions</TableHead>
+						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{#if filteredPolicies.length === 0}
 						<TableRow>
-							<TableCell colspan={8} class="py-12 text-center text-muted-foreground">
-								No records found
+							<TableCell colspan={8} class="py-8 text-center text-muted-foreground">
+								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 							</TableCell>
 						</TableRow>
 					{:else}
 						{#each paginatedPolicies as policy (policy.cuid)}
-							<TableRow onclick={(e) => handleRowClick(policy.cuid, e)} class="cursor-pointer">
+							<TableRow 
+								onclick={(e) => {
+									if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
+									openEditModal(policy.cuid);
+								}} 
+								class="cursor-pointer"
+							>
 								<TableCell class="font-normal">{getLeaveTypeName(policy.leave_type_cuid)}</TableCell>
 								<TableCell class="font-normal">{getEmploymentTypeNames(policy.employment_type_cuids)}</TableCell>
 								<TableCell class="text-right font-normal">{policy.annual_limit}</TableCell>
