@@ -48,7 +48,11 @@
     SearchInput
   } from "$lib/components";
 
-  let locations = $state<CompanyLocation[]>([]);
+  import type { PageData } from "./$types";
+
+  let { data }: { data: PageData } = $props();
+
+  let locations = $state<CompanyLocation[]>(data.locations);
   let page = $state(1);
   let limit = $state(10);
   let loading = $state(false);
@@ -125,8 +129,8 @@
   );
 
   // Dropdown choices
-  let countries = $state<any[]>([]);
-  let states = $state<any[]>([]);
+  let countries = $state<any[]>(data.countries);
+  let states = $state<any[]>(data.states);
 
   let filteredStates = $derived(
     states.filter((s) => s.country_cuid === formCountryCuid)
@@ -821,8 +825,7 @@
   }
 
   onMount(async () => {
-    await fetchLocations();
-    await fetchDropdowns();
+    // Initial load provided via SSR (+page.server.ts)
   });
 </script>
 

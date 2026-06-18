@@ -29,7 +29,8 @@ vi.mock('$lib/server/db.js', () => {
 		leaveRequest: {
 			findUnique: vi.fn(),
 			update: vi.fn(),
-			findMany: vi.fn()
+			findMany: vi.fn(),
+			create: vi.fn()
 		},
 		attendanceRecord: {
 			findUnique: vi.fn(),
@@ -57,7 +58,17 @@ vi.mock('$lib/server/dao/leave.dao.js', () => {
 		updateLeaveRequest: vi.fn(),
 		getOverlappingRequests: vi.fn(),
 		upsertAttendanceRecord: vi.fn(),
-		getSubordinates: vi.fn()
+		getSubordinates: vi.fn(),
+		getEmploymentByEmployeeCuid: vi.fn(),
+		getActiveEmploymentByEmployeeCuid: vi.fn(),
+		getApprovedRequestsInPeriod: vi.fn(),
+		getApprovedRequestsBeforeDate: vi.fn(),
+		getApprovedRequestsInMonthRange: vi.fn(),
+		getApprovedRequestsOverlapping: vi.fn(),
+		getLeaveTypeByCode: vi.fn(),
+		getAttendanceRecord: vi.fn(),
+		getLeaveRequestsForEmployees: vi.fn(),
+		runTransaction: vi.fn((action: any) => action(db))
 	};
 });
 
@@ -149,16 +160,146 @@ describe('Leave Service Unit Tests', () => {
 			{ leave_policy_cuid: 'p-lop', employment_type_cuid: 'perm-type-cuid' }
 		] as any);
 		vi.mocked(leaveDao.getOverlappingRequests).mockResolvedValue([]);
-		vi.mocked(leaveDao.getLeaveRequests).mockResolvedValue([]);
-		vi.mocked(leaveDao.getLeaveBalances).mockResolvedValue([]);
-		vi.mocked(leaveDao.getLeaveBalance).mockResolvedValue(null);
-		vi.mocked(leaveDao.createLeaveBalance).mockResolvedValue({} as any);
-		vi.mocked(leaveDao.updateLeaveBalance).mockResolvedValue({} as any);
-		vi.mocked(leaveDao.getLeaveRequestByCuid).mockResolvedValue(null);
-		vi.mocked(leaveDao.createLeaveRequest).mockResolvedValue({} as any);
-		vi.mocked(leaveDao.updateLeaveRequest).mockResolvedValue({} as any);
-		vi.mocked(leaveDao.upsertAttendanceRecord).mockResolvedValue({} as any);
-		vi.mocked(leaveDao.getSubordinates).mockResolvedValue([]);
+		vi.mocked(leaveDao.getLeaveRequests).mockImplementation(async (employeeCuid: string, tx?: any) => {
+			const client = tx || db;
+			return client.leaveRequest.findMany({
+				where: { employee_cuid: employeeCuid },
+				orderBy: { created_at: 'desc' }
+			});
+		});
+		vi.mocked(leaveDao.getLeaveBalances).mockImplementation(async (employeeCuid: string, year: number, tx?: any) => {
+			const client = tx || db;
+			return client.leaveBalance.findMany({
+				where: { employee_cuid: employeeCuid, year },
+				orderBy: { id: 'asc' }
+			});
+		});
+		vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (employeeCuid: string, leaveTypeCuid: string, year: number, tx?: any) => {
+			const client = tx || db;
+			return client.leaveBalance.findUnique({
+				where: {
+					employee_cuid_leave_type_cuid_year: {
+						employee_cuid: employeeCuid,
+						leave_type_cuid: leaveTypeCuid,
+						year
+					}
+				}
+			});
+		});
+		vi.mocked(leaveDao.createLeaveBalance).mockImplementation(async (data: any, tx?: any) => {
+			const client = tx || db;
+			return client.leaveBalance.create({ data });
+		});
+		vi.mocked(leaveDao.updateLeaveBalance).mockImplementation(async (cuid: string, data: any, tx?: any) => {
+			const client = tx || db;
+			return client.leaveBalance.update({ where: { cuid }, data });
+		});
+		vi.mocked(leaveDao.getLeaveRequestByCuid).mockImplementation(async (cuid: string, tx?: any) => {
+			const client = tx || db;
+			return client.leaveRequest.findUnique({ where: { cuid } });
+		});
+		vi.mocked(leaveDao.createLeaveRequest).mockImplementation(async (data: any, tx?: any) => {
+			const client = tx || db;
+			return client.leaveRequest.create({ data });
+		});
+		vi.mocked(leaveDao.updateLeaveRequest).mockImplementation(async (cuid: string, data: any, tx?: any) => {
+			const client = tx || db;
+			return client.leaveRequest.update({ where: { cuid }, data });
+		});
+		vi.mocked(leaveDao.upsertAttendanceRecord).mockImplementation(async (data: any, tx?: any) => {
+			const client = tx || db;
+			return client.attendanceRecord.upsert({
+				where: {
+					employee_cuid_attendance_date: {
+						employee_cuid: data.employee_cuid,
+						attendance_date: data.attendance_date
+					}
+				},
+				create: data,
+				update: data
+			});
+		});
+		vi.mocked(leaveDao.getSubordinates).mockImplementation(async (managerEmployeeCuid: string, tx?: any) => {
+			const client = tx || db;
+			return client.employment.findMany({
+				where: { reporting_manager_cuid: managerEmployeeCuid },
+				select: { employee_cuid: true }
+			});
+		});
+		vi.mocked(leaveDao.getEmploymentByEmployeeCuid).mockImplementation(async (cuid: string, tx?: any) => {
+			const client = tx || db;
+			const res = await client.employment.findFirst({ where: { employee_cuid: cuid } });
+			return res ? { ...res, reporting_manager_cuid: res.reporting_manager_cuid ?? 'emp-cuid' } : null;
+		});
+		vi.mocked(leaveDao.getActiveEmploymentByEmployeeCuid).mockImplementation(async (cuid: string, tx?: any) => {
+			const client = tx || db;
+			return client.employment.findFirst({ where: { employee_cuid: cuid, employment_status: 'active' } });
+		});
+		vi.mocked(leaveDao.getLeaveTypeByCode).mockImplementation(async (code: string, tx?: any) => {
+			const client = tx || db;
+			return client.leaveType.findFirst({ where: { leave_code: code } });
+		});
+		vi.mocked(leaveDao.getAttendanceRecord).mockImplementation(async (employeeCuid: string, attendanceDate: Date, tx?: any) => {
+			const client = tx || db;
+			return client.attendanceRecord.findUnique({
+				where: {
+					employee_cuid_attendance_date: {
+						employee_cuid: employeeCuid,
+						attendance_date: attendanceDate
+					}
+				}
+			});
+		});
+		vi.mocked(leaveDao.getApprovedRequestsInMonthRange).mockImplementation(async (employeeCuid: string, leaveTypeCuid: string, start: Date, end: Date, tx?: any) => {
+			const client = tx || db;
+			return client.leaveRequest.findMany({
+				where: {
+					employee_cuid: employeeCuid,
+					leave_type_cuid: leaveTypeCuid,
+					request_status: 'approved',
+					start_date: { gte: start, lte: end }
+				}
+			});
+		});
+		vi.mocked(leaveDao.getApprovedRequestsInPeriod).mockImplementation(async (employeeCuid: string, cycleStart: Date, cycleEnd: Date, tx?: any) => {
+			const client = tx || db;
+			return client.leaveRequest.findMany({
+				where: {
+					employee_cuid: employeeCuid,
+					request_status: 'approved',
+					start_date: { lte: cycleEnd },
+					end_date: { gte: cycleStart }
+				}
+			});
+		});
+		vi.mocked(leaveDao.getApprovedRequestsBeforeDate).mockImplementation(async (employeeCuid: string, leaveTypeCuid: string, endOfYear: Date, tx?: any) => {
+			const client = tx || db;
+			return client.leaveRequest.findMany({
+				where: {
+					employee_cuid: employeeCuid,
+					leave_type_cuid: leaveTypeCuid,
+					request_status: 'approved',
+					start_date: { lte: endOfYear }
+				}
+			});
+		});
+		vi.mocked(leaveDao.getApprovedRequestsOverlapping).mockImplementation(async (start: Date, end: Date, tx?: any) => {
+			const client = tx || db;
+			return client.leaveRequest.findMany({
+				where: {
+					request_status: 'approved',
+					start_date: { lte: end },
+					end_date: { gte: start }
+				}
+			});
+		});
+		vi.mocked(leaveDao.getLeaveRequestsForEmployees).mockImplementation(async (employeeCuids: string[], tx?: any) => {
+			const client = tx || db;
+			return client.leaveRequest.findMany({
+				where: { employee_cuid: { in: employeeCuids } },
+				orderBy: { created_at: 'desc' }
+			});
+		});
 	});
 
 	afterEach(() => {

@@ -1,5 +1,5 @@
 import * as leaveDao from '$lib/server/dao/leave.dao.js';
-import { db } from '$lib/server/db.js';
+import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
 import { calculateLeaveDays, isWeekend, isHoliday } from '$lib/server/config/leave.config.js';
 
@@ -26,39 +26,27 @@ export interface ApplyLeaveInput {
  */
 export async function resolveEmployee(email: string) {
 	if (email) {
-		const employment = await db.employment.findFirst({
-			where: { official_email: email, employment_status: 'active' }
-		});
+		const employment = await employeeDao.getActiveEmploymentByOfficialEmail(email);
 		if (employment) {
-			const employee = await db.employee.findUnique({
-				where: { cuid: employment.employee_cuid }
-			});
+			const employee = await employeeDao.getEmployeeByCuid(employment.employee_cuid);
 			if (employee) {
 				return { employee, employment };
 			}
 		}
 
-		const employeeByPersonal = await db.employee.findFirst({
-			where: { personal_email: email }
-		});
+		const employeeByPersonal = await employeeDao.getEmployeeByPersonalEmail(email);
 		if (employeeByPersonal) {
-			const employment = await db.employment.findFirst({
-				where: { employee_cuid: employeeByPersonal.cuid, employment_status: 'active' }
-			});
+			const employment = await leaveDao.getActiveEmploymentByEmployeeCuid(employeeByPersonal.cuid);
 			return { employee: employeeByPersonal, employment: employment ?? null };
 		}
 	}
 
 	// Fallback during local development if SSO is not configured or mapped
-	const firstEmp = await db.employee.findFirst({
-		orderBy: { id: 'asc' }
-	});
+	const firstEmp = await employeeDao.getFirstEmployee();
 	if (!firstEmp) {
 		throw new Error('No employees found in the database. Please run seeding first.');
 	}
-	const firstEmployment = await db.employment.findFirst({
-		where: { employee_cuid: firstEmp.cuid }
-	});
+	const firstEmployment = await leaveDao.getEmploymentByEmployeeCuid(firstEmp.cuid);
 	return { employee: firstEmp, employment: firstEmployment };
 }
 
@@ -111,12 +99,11 @@ export function setPayrollCutoffDay(value: number) {
 }
 
 export async function getMonthlyUsedDays(employeeCuid: string, month: number, year: number, leaveCode: 'LOP' | 'LWP', tx?: any) {
-	const client = tx || db;
 	let cycleStart: Date;
 	let cycleEnd: Date;
 
 	if (leaveCode === 'LOP') {
-		const cutoffDay = await getPayrollCutoffDay(client);
+		const cutoffDay = await getPayrollCutoffDay(tx);
 		cycleStart = new Date(year, month - 1, cutoffDay + 1);
 		cycleEnd = new Date(year, month, cutoffDay);
 	} else {
@@ -124,14 +111,7 @@ export async function getMonthlyUsedDays(employeeCuid: string, month: number, ye
 		cycleEnd = new Date(year, month + 1, 0);
 	}
 
-	const requests = await client.leaveRequest.findMany({
-		where: {
-			employee_cuid: employeeCuid,
-			request_status: 'approved',
-			start_date: { lte: cycleEnd },
-			end_date: { gte: cycleStart }
-		}
-	});
+	const requests = await leaveDao.getApprovedRequestsInPeriod(employeeCuid, cycleStart, cycleEnd, tx);
 
 	let total = 0;
 	for (const req of requests) {
@@ -157,9 +137,7 @@ export async function getMonthlyUsedDays(employeeCuid: string, month: number, ye
 		}
 
 		// Cache leaveType lookup outside the date loop to avoid N+1 queries
-		const leaveType = await client.leaveType.findUnique({
-			where: { cuid: req.leave_type_cuid }
-		});
+		const leaveType = await leaveDao.getLeaveTypeByCuid(req.leave_type_cuid, tx);
 		const reqLeaveCode = leaveType?.leave_code || '';
 
 		// Build list of working dates for this request
@@ -214,13 +192,8 @@ export async function getMonthlyUsedDays(employeeCuid: string, month: number, ye
 
 export async function accrueLeaves(employeeCuid: string, year: number) {
 	const activeTypes = await leaveDao.listLeaveTypes();
-	const { employee, employment } = await db.employee.findUnique({
-		where: { cuid: employeeCuid }
-	}).then(async (emp) => {
-		if (!emp) return { employee: null, employment: null };
-		const empl = await db.employment.findFirst({ where: { employee_cuid: emp.cuid } });
-		return { employee: emp, employment: empl };
-	});
+	const employee = await employeeDao.getEmployeeByCuid(employeeCuid);
+	const employment = employee ? await leaveDao.getEmploymentByEmployeeCuid(employee.cuid) : null;
 
 	if (!employee || !employment) return;
 
@@ -265,7 +238,7 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 
 		if (employment.employment_type_cuid) {
 			const mappings = await leaveDao.getLeavePolicyEmploymentTypes(policy.cuid);
-			const isMapped = mappings.some(m => m.employment_type_cuid === employment.employment_type_cuid);
+			const isMapped = mappings.some((m: any) => m.employment_type_cuid === employment.employment_type_cuid);
 			if (!isMapped && type.leave_code !== 'LWP') continue;
 		}
 
@@ -298,12 +271,12 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 		if (type.leave_code === 'EL' && year > joinYear) {
 			const prevBalance = await leaveDao.getLeaveBalance(employeeCuid, type.cuid, year - 1);
 			if (prevBalance) {
-				const prevAllocated = Number(prevBalance.allocated_days);
-				const prevCarried = Number(prevBalance.carried_forward_days);
+				const prevAllocated = Number(prevBalance.allocated_days) || 0.0;
+				const prevCarried = Number(prevBalance.carried_forward_days) || 0.0;
 				
 				// Scoping check: prevBalance.used_days represents only the usage in year (year - 1).
 				// It is reset yearly (scoped per calendar year) and is not a lifetime cumulative value.
-				const prevUsed = Number(prevBalance.used_days);
+				const prevUsed = Number(prevBalance.used_days) || 0.0;
 
 				// EL Consumption Priority Rule:
 				// Leave usage in the previous year (prevUsed) is deducted from that year's allocated_days (prevAllocated) first.
@@ -339,7 +312,7 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 				created_by: 'system'
 			});
 		} else {
-			const used = Number(existingBalance.used_days);
+			const used = Number(existingBalance.used_days) || 0.0;
 			let remaining = type.leave_code === 'EL'
 				? Math.min(24.0, initialAllocated + carriedForward) - used
 				: initialAllocated + carriedForward - used;
@@ -362,32 +335,19 @@ export async function getAvailableBalanceForMonth(
 	targetMonth: number,
 	tx?: any
 ) {
-	const client = tx || db;
-	const leaveType = await client.leaveType.findUnique({
-		where: { cuid: leaveTypeCuid }
-	});
+	const leaveType = await leaveDao.getLeaveTypeByCuid(leaveTypeCuid, tx);
 	if (!leaveType) {
 		return 0;
 	}
 
-	const balanceRow = await client.leaveBalance.findUnique({
-		where: {
-			employee_cuid_leave_type_cuid_year: {
-				employee_cuid: employeeCuid,
-				leave_type_cuid: leaveTypeCuid,
-				year
-			}
-		}
-	});
+	const balanceRow = await leaveDao.getLeaveBalance(employeeCuid, leaveTypeCuid, year, tx);
 
 	if (leaveType.leave_code !== 'CL' && leaveType.leave_code !== 'SL') {
 		return balanceRow ? Number(balanceRow.remaining_days) : 0;
 	}
 
 	// Dynamic calculation for CL and SL
-	const employment = await client.employment.findFirst({
-		where: { employee_cuid: employeeCuid }
-	});
+	const employment = await leaveDao.getEmploymentByEmployeeCuid(employeeCuid, tx);
 	if (!employment) return 0;
 
 	const joinDate = employment.date_of_joining ? new Date(employment.date_of_joining) : new Date();
@@ -423,21 +383,17 @@ export async function getAvailableBalanceForMonth(
 		}
 	}
 
-	const carriedForward = balanceRow ? Number(balanceRow.carried_forward_days) : 0.0;
+	const carriedForward = balanceRow ? (Number(balanceRow.carried_forward_days) || 0.0) : 0.0;
 	const totalAccrued = accrued + carriedForward;
 
 	// Sum actual CL/SL days deducted from balance up to targetMonth
-	const approvedRequests = await client.leaveRequest.findMany({
-		where: {
-			employee_cuid: employeeCuid,
-			leave_type_cuid: leaveTypeCuid,
-			request_status: 'approved',
-			start_date: {
-				gte: new Date(year, 0, 1),
-				lte: new Date(year, targetMonth + 1, 0)
-			}
-		}
-	});
+	const approvedRequests = await leaveDao.getApprovedRequestsInMonthRange(
+		employeeCuid,
+		leaveTypeCuid,
+		new Date(year, 0, 1),
+		new Date(year, targetMonth + 1, 0),
+		tx
+	);
 
 	const usedUpToMonth = approvedRequests.reduce(
 		(sum: number, req: any) => sum + (req.days_from_primary ? Number(req.days_from_primary) : 0),
@@ -467,19 +423,19 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 	const targetYear = year;
 
 	// Join types and request categories, filtering out LOP/LWP database rows
-	const filteredBalances = balances.filter((b) => {
-		const type = activeTypes.find((t) => t.cuid === b.leave_type_cuid);
+	const filteredBalances = balances.filter((b: any) => {
+		const type = activeTypes.find((t: any) => t.cuid === b.leave_type_cuid);
 		return type?.leave_code !== 'LOP' && type?.leave_code !== 'LWP';
 	});
 
 	const joinedBalances = [];
 	for (const b of filteredBalances) {
-		const type = activeTypes.find((t) => t.cuid === b.leave_type_cuid);
+		const type = activeTypes.find((t: any) => t.cuid === b.leave_type_cuid);
 		const leaveCode = type?.leave_code ?? 'N/A';
 
-		let allocated = Number(b.allocated_days);
-		let used = Number(b.used_days);
-		let remaining = Number(b.remaining_days);
+		let allocated = Number(b.allocated_days) || 0.0;
+		let used = Number(b.used_days) || 0.0;
+		let remaining = Number(b.remaining_days) || 0.0;
 
 		if (leaveCode === 'CL' || leaveCode === 'SL') {
 			remaining = await getAvailableBalanceForMonth(employee.cuid, b.leave_type_cuid, targetYear, targetMonth);
@@ -510,19 +466,14 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 			allocated = accrued + carriedForward;
 
 			// used up to targetMonth
-			const approvedRequests = await db.leaveRequest.findMany({
-				where: {
-					employee_cuid: employee.cuid,
-					leave_type_cuid: b.leave_type_cuid,
-					request_status: 'approved',
-					start_date: {
-						gte: new Date(targetYear, 0, 1),
-						lte: new Date(targetYear, targetMonth + 1, 0)
-					}
-				}
-			});
+			const approvedRequests = await leaveDao.getApprovedRequestsInMonthRange(
+				employee.cuid,
+				b.leave_type_cuid,
+				new Date(targetYear, 0, 1),
+				new Date(targetYear, targetMonth + 1, 0)
+			);
 			used = approvedRequests.reduce(
-				(sum, req) => sum + (req.days_from_primary ? Number(req.days_from_primary) : 0),
+				(sum: number, req: any) => sum + (req.days_from_primary ? Number(req.days_from_primary) : 0),
 				0
 			);
 		}
@@ -535,15 +486,15 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 			allocated_days: allocated,
 			used_days: used,
 			remaining_days: remaining,
-			carried_forward_days: Number(b.carried_forward_days)
+			carried_forward_days: Number(b.carried_forward_days) || 0.0
 		});
 	}
 
 	const lopUsed = await getMonthlyUsedDays(employee.cuid, targetMonth, targetYear, 'LOP');
 	const lwpUsed = await getMonthlyUsedDays(employee.cuid, targetMonth, targetYear, 'LWP');
 
-	const lopType = activeTypes.find((t) => t.leave_code === 'LOP');
-	const lwpType = activeTypes.find((t) => t.leave_code === 'LWP');
+	const lopType = activeTypes.find((t: any) => t.leave_code === 'LOP');
+	const lwpType = activeTypes.find((t: any) => t.leave_code === 'LWP');
 
 	if (lopType) {
 		joinedBalances.push({
@@ -559,7 +510,7 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 	}
 
 	if (lwpType) {
-		const lwpPolicy = activePolicies.find((p) => p.leave_type_cuid === lwpType.cuid);
+		const lwpPolicy = activePolicies.find((p: any) => p.leave_type_cuid === lwpType.cuid);
 		const lwpAllocated = lwpPolicy ? Number(lwpPolicy.annual_limit) : 365.0;
 		joinedBalances.push({
 			cuid: `mock-lwp-${employee.cuid}`,
@@ -573,8 +524,8 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 		});
 	}
 
-	const joinedRequests = requests.map((r) => {
-		const type = activeTypes.find((t) => t.cuid === r.leave_type_cuid);
+	const joinedRequests = requests.map((r: any) => {
+		const type = activeTypes.find((t: any) => t.cuid === r.leave_type_cuid);
 		return {
 			cuid: r.cuid,
 			leave_name: type?.leave_name ?? 'Unknown',
@@ -597,8 +548,8 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 		};
 	});
 
-	const joinedLeaveTypes = activeTypes.map((t) => {
-		const p = activePolicies.find((x) => x.leave_type_cuid === t.cuid);
+	const joinedLeaveTypes = activeTypes.map((t: any) => {
+		const p = activePolicies.find((x: any) => x.leave_type_cuid === t.cuid);
 		return {
 			cuid: t.cuid,
 			leave_name: t.leave_name,
@@ -651,24 +602,17 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 
 export async function getPendingApprovalsForManager(managerEmployeeCuid: string) {
 	const subordinates = await leaveDao.getSubordinates(managerEmployeeCuid);
-	const subordinateCuids = subordinates.map(e => e.employee_cuid);
+	const subordinateCuids = subordinates.map((e: any) => e.employee_cuid);
 	if (subordinateCuids.length === 0) return [];
 
-	const requests = await db.leaveRequest.findMany({
-		where: {
-			employee_cuid: { in: subordinateCuids }
-		},
-		orderBy: { created_at: 'desc' }
-	});
+	const requests = await leaveDao.getLeaveRequestsForEmployees(subordinateCuids);
 
 	const activeTypes = await leaveDao.listLeaveTypes();
-	const activeEmployees = await db.employee.findMany({
-		where: { cuid: { in: subordinateCuids } }
-	});
+	const activeEmployees = await employeeDao.getEmployeesByCuids(subordinateCuids);
 
-	return requests.map((r) => {
-		const emp = activeEmployees.find((e) => e.cuid === r.employee_cuid);
-		const type = activeTypes.find((t) => t.cuid === r.leave_type_cuid);
+	return requests.map((r: any) => {
+		const emp = activeEmployees.find((e: any) => e.cuid === r.employee_cuid);
+		const type = activeTypes.find((t: any) => t.cuid === r.leave_type_cuid);
 		return {
 			cuid: r.cuid,
 			employee_cuid: r.employee_cuid,
@@ -714,7 +658,7 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 	// 1. Employment Type Mapping validation
 	if (employment?.employment_type_cuid) {
 		const mappings = await leaveDao.getLeavePolicyEmploymentTypes(policy.cuid);
-		const isMapped = mappings.some(m => m.employment_type_cuid === employment.employment_type_cuid);
+		const isMapped = mappings.some((m: any) => m.employment_type_cuid === employment.employment_type_cuid);
 		if (!isMapped && leaveType.leave_code !== 'LWP') {
 			throw new ValidationError('leaveTypeCuid', 'This leave type is not applicable to your employment type.');
 		}
@@ -793,7 +737,7 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 
 	// Fetch existing requests for CL contiguous validations
 	const existingRequests = await leaveDao.getLeaveRequests(employee.cuid);
-	const activeRequests = existingRequests.filter(r => r.request_status === 'pending' || r.request_status === 'approved');
+	const activeRequests = existingRequests.filter((r: any) => r.request_status === 'pending' || r.request_status === 'approved');
 
 	const relievingDate = employment?.relieving_date ? new Date(employment.relieving_date) : null;
 	if (relievingDate) {
@@ -950,7 +894,7 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 			throw new ValidationError('startDate', 'Paternity Leave must be availed within 1 month of the child\'s birth.');
 		}
 
-		const existingPL = activeRequests.some(r => r.leave_type_cuid === leaveType.cuid);
+		const existingPL = activeRequests.some((r: any) => r.leave_type_cuid === leaveType.cuid);
 		if (existingPL) {
 			throw new ValidationError('leaveTypeCuid', 'Paternity Leave is a one-time entitlement per childbirth and has already been applied for or approved.');
 		}
@@ -990,7 +934,7 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 
 	// Monthly LWP cap check — only applies when the employee explicitly applies for LWP
 	if (leaveType.leave_code === 'LWP' && daysFromLwp > 0) {
-		const lwpType = await db.leaveType.findFirst({ where: { leave_code: 'LWP' } });
+		const lwpType = await leaveDao.getLeaveTypeByCode('LWP');
 		if (!lwpType) {
 			throw new Error('LWP Leave Type not configured.');
 		}
@@ -1090,10 +1034,8 @@ export async function withdrawLeave(email: string, requestCuid: string) {
  * Updates leave balances and writes to attendance_records.
  */
 export async function approveLeaveRequest(requestCuid: string, approverUserCuid: string) {
-	return db.$transaction(async (tx) => {
-		const request = await tx.leaveRequest.findUnique({
-			where: { cuid: requestCuid }
-		});
+	return leaveDao.runTransaction(async (tx) => {
+		const request = await leaveDao.getLeaveRequestByCuid(requestCuid, tx);
 
 		if (!request) {
 			throw new Error('Leave request not found.');
@@ -1103,29 +1045,32 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 			throw new Error('Leave request is not in pending status.');
 		}
 
-		const leaveType = await tx.leaveType.findUnique({
-			where: { cuid: request.leave_type_cuid }
-		});
+		const leaveType = await leaveDao.getLeaveTypeByCuid(request.leave_type_cuid, tx);
 
 		if (!leaveType) {
 			throw new Error('Leave type not found.');
 		}
 
+		// Verify subordinate relationship
+		const targetEmployment = await leaveDao.getEmploymentByEmployeeCuid(request.employee_cuid, tx);
+		let approver = await employeeDao.getEmployeeByCuid(approverUserCuid, tx);
+		if (!approver) {
+			approver = await employeeDao.getEmployeeByEmpCode(approverUserCuid, tx);
+		}
+		if (!approver) {
+			throw new Error('Approver employee record not found.');
+		}
+		if (!targetEmployment || targetEmployment.reporting_manager_cuid !== approver.cuid) {
+			throw new Error('Unauthorized: You can only approve/reject requests from your direct reports.');
+		}
+
 		// Validate all leave rules already implemented
-		const employee = await tx.employee.findUnique({
-			where: { cuid: request.employee_cuid }
-		});
+		const employee = await employeeDao.getEmployeeByCuid(request.employee_cuid, tx);
 		if (!employee) {
 			throw new Error('Employee record not found.');
 		}
 
-		const employment = await tx.employment.findFirst({
-			where: { employee_cuid: request.employee_cuid }
-		});
-
-		const policy = await tx.leavePolicy.findFirst({
-			where: { leave_type_cuid: request.leave_type_cuid, status: true }
-		});
+		const policy = await leaveDao.getLeavePolicyByLeaveType(request.leave_type_cuid, tx);
 
 		if (policy) {
 			// Gender check
@@ -1135,7 +1080,7 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 				}
 			}
 			// Service days check
-			const joinDate = employment?.date_of_joining ? new Date(employment.date_of_joining) : new Date();
+			const joinDate = targetEmployment?.date_of_joining ? new Date(targetEmployment.date_of_joining) : new Date();
 			const serviceDays = (request.start_date.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24);
 			if (serviceDays < policy.min_service_days) {
 				throw new Error('Employee does not meet the minimum service days required for this leave type.');
@@ -1150,15 +1095,7 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 				const targetMonth = request.start_date.getMonth();
 				remainingBalance = await getAvailableBalanceForMonth(request.employee_cuid, request.leave_type_cuid, year, targetMonth, tx);
 			} else {
-				const primaryBalance = await tx.leaveBalance.findUnique({
-					where: {
-						employee_cuid_leave_type_cuid_year: {
-							employee_cuid: request.employee_cuid,
-							leave_type_cuid: request.leave_type_cuid,
-							year
-						}
-					}
-				});
+				const primaryBalance = await leaveDao.getLeaveBalance(request.employee_cuid, request.leave_type_cuid, year, tx);
 				remainingBalance = primaryBalance ? Number(primaryBalance.remaining_days) : 0;
 			}
 
@@ -1168,11 +1105,11 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 		}
 
 		if (request.days_from_lwp && Number(request.days_from_lwp) > 0) {
-			const lwpType = await tx.leaveType.findFirst({ where: { leave_code: 'LWP' } });
+			const lwpType = await leaveDao.getLeaveTypeByCode('LWP', tx);
 			if (!lwpType) {
 				throw new Error('LWP Leave Type not configured.');
 			}
-			const lwpPolicy = await tx.leavePolicy.findFirst({ where: { leave_type_cuid: lwpType.cuid, status: true } });
+			const lwpPolicy = await leaveDao.getLeavePolicyByLeaveType(lwpType.cuid, tx);
 			const lwpAllocated = lwpPolicy ? Number(lwpPolicy.annual_limit) : 365.0;
 
 			const targetMonth = request.start_date.getMonth();
@@ -1187,35 +1124,21 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 		}
 
 		// 1. Update status
-		const updatedRequest = await tx.leaveRequest.update({
-			where: { cuid: requestCuid },
-			data: {
-				request_status: 'approved',
-				approved_by: approverUserCuid,
-				approved_at: new Date(),
-				updated_by: approverUserCuid
-			}
-		});
+		const updatedRequest = await leaveDao.updateLeaveRequest(requestCuid, {
+			request_status: 'approved',
+			approved_by: approverUserCuid,
+			approved_at: new Date(),
+			updated_by: approverUserCuid
+		}, tx);
 
 		// 2. Deduct leave balance
 		if (request.days_from_primary && Number(request.days_from_primary) > 0) {
-			const primaryBalance = await tx.leaveBalance.findUnique({
-				where: {
-					employee_cuid_leave_type_cuid_year: {
-						employee_cuid: request.employee_cuid,
-						leave_type_cuid: request.leave_type_cuid,
-						year
-					}
-				}
-			});
+			const primaryBalance = await leaveDao.getLeaveBalance(request.employee_cuid, request.leave_type_cuid, year, tx);
 			if (primaryBalance) {
-				await tx.leaveBalance.update({
-					where: { cuid: primaryBalance.cuid },
-					data: {
-						used_days: { increment: request.days_from_primary },
-						remaining_days: { decrement: request.days_from_primary }
-					}
-				});
+				await leaveDao.updateLeaveBalance(primaryBalance.cuid, {
+					used_days: { increment: request.days_from_primary },
+					remaining_days: { decrement: request.days_from_primary }
+				}, tx);
 			}
 		}
 
@@ -1248,14 +1171,7 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 				}
 			}
 
-			const existing = await tx.attendanceRecord.findUnique({
-				where: {
-					employee_cuid_attendance_date: {
-						employee_cuid: request.employee_cuid,
-						attendance_date: d
-					}
-				}
-			});
+			const existing = await leaveDao.getAttendanceRecord(request.employee_cuid, d, tx);
 
 			if (existing) {
 				const status = existing.attendance_status;
@@ -1264,27 +1180,13 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 				}
 			}
 
-			await tx.attendanceRecord.upsert({
-				where: {
-					employee_cuid_attendance_date: {
-						employee_cuid: request.employee_cuid,
-						attendance_date: d
-					}
-				},
-				create: {
-					employee_cuid: request.employee_cuid,
-					attendance_date: d,
-					attendance_status: attendanceStatus,
-					remarks: attendanceRemark,
-					created_by: approverUserCuid,
-					updated_by: approverUserCuid
-				},
-				update: {
-					attendance_status: attendanceStatus,
-					remarks: attendanceRemark,
-					updated_by: approverUserCuid
-				}
-			});
+			await leaveDao.upsertAttendanceRecord({
+				employee_cuid: request.employee_cuid,
+				attendance_date: d,
+				attendance_status: attendanceStatus,
+				remarks: attendanceRemark,
+				created_by: approverUserCuid
+			}, tx);
 		}
 
 		return updatedRequest;
@@ -1305,10 +1207,55 @@ export async function rejectLeaveRequest(requestCuid: string, rejectorUserCuid: 
 		throw new Error('Leave request is not in pending status.');
 	}
 
+	// Verify subordinate relationship
+	const targetEmployment = await leaveDao.getEmploymentByEmployeeCuid(request.employee_cuid);
+	let rejector = await employeeDao.getEmployeeByCuid(rejectorUserCuid);
+	if (!rejector) {
+		rejector = await employeeDao.getEmployeeByEmpCode(rejectorUserCuid);
+	}
+	if (!rejector) {
+		throw new Error('Rejector employee record not found.');
+	}
+	if (!targetEmployment || targetEmployment.reporting_manager_cuid !== rejector.cuid) {
+		throw new Error('Unauthorized: You can only approve/reject requests from your direct reports.');
+	}
+
 	return leaveDao.updateLeaveRequest(requestCuid, {
 		request_status: 'rejected',
 		rejected_by: rejectorUserCuid,
 		rejected_at: new Date(),
 		updated_by: rejectorUserCuid
 	});
+}
+
+export async function getLeaveDocument(cuid: string, currentUserEmail: string) {
+	const request = await leaveDao.getLeaveRequestByCuid(cuid);
+	if (!request || !request.file_name || !request.document_data) {
+		throw new Error('Document not found');
+	}
+
+	const { employee: currentUser } = await resolveEmployee(currentUserEmail);
+	if (!currentUser) {
+		throw new Error('Unauthorized');
+	}
+
+	let isAuthorized = false;
+	if (request.employee_cuid === currentUser.cuid) {
+		isAuthorized = true;
+	} else {
+		const targetEmployment = await leaveDao.getEmploymentByEmployeeCuid(request.employee_cuid);
+		if (targetEmployment && targetEmployment.reporting_manager_cuid === currentUser.cuid) {
+			isAuthorized = true;
+		}
+	}
+
+	if (!isAuthorized) {
+		throw new Error('Forbidden');
+	}
+
+	return {
+		documentData: request.document_data,
+		mimeType: request.mime_type,
+		fileName: request.file_name
+	};
 }

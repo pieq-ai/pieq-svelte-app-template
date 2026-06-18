@@ -99,24 +99,28 @@
 		first_name: string;
 		last_name: string;
 		gender: string | null;
-		date_of_joining: string | null;
-		relieving_date: string | null;
+		date_of_joining: string | Date | null;
+		relieving_date: string | Date | null;
 	}
 
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
+
 	// State
-	let balances = $state<LeaveBalance[]>([]);
-	let requests = $state<LeaveRequest[]>([]);
-	let leaveTypes = $state<LeaveType[]>([]);
-	let employee = $state<Employee | null>(null);
-	let isLoading = $state(true);
+	let balances = $state<LeaveBalance[]>(data.details.balances || []);
+	let requests = $state<LeaveRequest[]>(data.details.requests || []);
+	let leaveTypes = $state<LeaveType[]>(data.details.leaveTypes || []);
+	let employee = $state<Employee | null>(data.details.employee || null);
+	let isLoading = $state(false);
 	let isSubmitting = $state(false);
 
-	let payrollCutoffDay = $state(25);
-	let selectedCutoff = $state(25);
+	let payrollCutoffDay = $state(data.details.payrollCutoffDay ?? 25);
+	let selectedCutoff = $state(data.details.payrollCutoffDay ?? 25);
 	let isSavingCutoff = $state(false);
 
-	let isManager = $state(false);
-	let pendingApprovals = $state<any[]>([]);
+	let isManager = $state(data.details.isManager || false);
+	let pendingApprovals = $state<any[]>(data.details.pendingApprovals || []);
 
 	// Views state
 	let activeTab = $state<'dashboard' | 'requests' | 'approvals'>('dashboard');
@@ -372,7 +376,7 @@
 	}
 
 	onMount(() => {
-		loadDetails();
+		// Initial load provided via SSR (+page.server.ts)
 	});
 
 	// Sort Approvals

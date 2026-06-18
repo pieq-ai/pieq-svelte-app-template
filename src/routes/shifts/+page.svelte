@@ -42,9 +42,12 @@
 	} from '$lib/api/shifts';
 	import { ApiError } from '$lib/api/local';
 	import { confirmation } from '$lib/confirmation.svelte.js';
+	import type { PageData } from './$types';
 
-	let shiftsList = $state<Shift[]>([]);
-	let isLoading = $state(true);
+	let { data }: { data: PageData } = $props();
+
+	let shiftsList = $state<Shift[]>(data.shifts);
+	let isLoading = $state(false);
 	let loadError = $state('');
 
 	let searchQuery = $state('');
@@ -225,7 +228,7 @@
 	}
 
 	onMount(() => {
-		loadShifts();
+		// Initial load provided via SSR (+page.server.ts)
 	});
 
 	function handleSort(column: string) {

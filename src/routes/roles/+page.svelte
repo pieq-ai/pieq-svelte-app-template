@@ -36,9 +36,12 @@
 	import type { Role } from '$lib/types/role';
 	import { fetchAllRoles, createRole, updateRole, deleteRole } from '$lib/api/roles';
 	import { ApiError } from '$lib/api/local';
+	import type { PageData } from './$types';
 
-	let rolesList = $state<Role[]>([]);
-	let isLoading = $state(true);
+	let { data }: { data: PageData } = $props();
+
+	let rolesList = $state<Role[]>(data.roles);
+	let isLoading = $state(false);
 	let loadError = $state('');
 
 	let searchQuery = $state('');
@@ -143,7 +146,7 @@
 	}
 
 	onMount(() => {
-		loadRoles();
+		// Initial load provided via SSR (+page.server.ts)
 	});
 
 	function handleSort(column: string) {

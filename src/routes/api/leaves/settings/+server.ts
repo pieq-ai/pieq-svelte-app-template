@@ -1,6 +1,5 @@
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import { db } from '$lib/server/db.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import * as leaveService from '$lib/server/services/leave.service.js';
 

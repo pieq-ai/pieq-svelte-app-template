@@ -46,11 +46,13 @@ describe('Employee DAO', () => {
 			});
 			expect(result).toHaveLength(2);
 			expect(result[0]).toEqual({
+				id: 1,
 				uuid: 'emp123',
 				name: 'John Doe',
 				age: 25
 			});
 			expect(result[1]).toEqual({
+				id: 2,
 				uuid: 'emp456',
 				name: 'Jane Smith',
 				age: 30
@@ -85,6 +87,7 @@ describe('Employee DAO', () => {
 			});
 
 			expect(result).toEqual({
+				id: 3,
 				uuid: 'newemp1',
 				name: 'Alice Wonderland',
 				age: 30

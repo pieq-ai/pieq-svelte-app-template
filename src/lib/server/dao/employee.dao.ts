@@ -9,6 +9,7 @@ export interface EmployeeCompatibility {
 	uuid: string;
 	name: string;
 	age: number;
+	id: bigint;
 }
 
 function calculateAge(dob: Date | null): number {
@@ -27,6 +28,7 @@ export async function list(): Promise<EmployeeCompatibility[]> {
 		orderBy: { id: 'asc' }
 	});
 	return dbEmployees.map((emp) => ({
+		id: emp.id,
 		uuid: emp.cuid,
 		name: `${emp.first_name} ${emp.last_name}`.trim(),
 		age: calculateAge(emp.dob)
@@ -54,8 +56,74 @@ export async function create(data: CreateEmployeeData): Promise<EmployeeCompatib
 	});
 
 	return {
+		id: created.id,
 		uuid: created.cuid,
 		name: `${created.first_name} ${created.last_name}`.trim(),
 		age: calculateAge(created.dob)
 	};
 }
+
+export async function getEmployeeByCuid(cuid: string, tx?: any): Promise<any> {
+	const client = tx || db;
+	return client.employee.findUnique({
+		where: { cuid }
+	});
+}
+
+export async function getEmployeeByPersonalEmail(email: string, tx?: any): Promise<any> {
+	const client = tx || db;
+	return client.employee.findFirst({
+		where: { personal_email: email }
+	});
+}
+
+export async function getFirstEmployee(tx?: any): Promise<any> {
+	const client = tx || db;
+	return client.employee.findFirst({
+		orderBy: { id: 'asc' }
+	});
+}
+
+export async function getActiveEmploymentByOfficialEmail(email: string, tx?: any): Promise<any> {
+	const client = tx || db;
+	return client.employment.findFirst({
+		where: { official_email: email, employment_status: 'active' }
+	});
+}
+
+export async function getFirstEmployment(tx?: any): Promise<any> {
+	const client = tx || db;
+	return client.employment.findFirst({
+		orderBy: { id: 'asc' }
+	});
+}
+
+export async function getActiveEmployeesWithEmployment(tx?: any): Promise<any[]> {
+	const client = tx || db;
+	return client.employee.findMany({
+		where: {
+			employments: {
+				some: { employment_status: 'active' }
+			}
+		},
+		include: {
+			employments: {
+				where: { employment_status: 'active' }
+			}
+		}
+	});
+}
+
+export async function getEmployeesByCuids(cuids: string[], tx?: any): Promise<any[]> {
+	const client = tx || db;
+	return client.employee.findMany({
+		where: { cuid: { in: cuids } }
+	});
+}
+
+export async function getEmployeeByEmpCode(empCode: string, tx?: any): Promise<any> {
+	const client = tx || db;
+	return client.employee.findFirst({
+		where: { emp_code: empCode }
+	});
+}

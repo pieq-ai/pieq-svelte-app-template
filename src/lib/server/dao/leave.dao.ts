@@ -1,45 +1,52 @@
 import { db } from '$lib/server/db.js';
 
-export async function listLeaveTypes() {
-	return db.leaveType.findMany({
+export async function listLeaveTypes(tx?: any) {
+	const client = tx || db;
+	return client.leaveType.findMany({
 		where: { status: true },
 		orderBy: { leave_name: 'asc' }
 	});
 }
 
-export async function getLeaveTypeByCuid(cuid: string) {
-	return db.leaveType.findUnique({
+export async function getLeaveTypeByCuid(cuid: string, tx?: any) {
+	const client = tx || db;
+	return client.leaveType.findUnique({
 		where: { cuid }
 	});
 }
 
-export async function listLeavePolicies() {
-	return db.leavePolicy.findMany({
+export async function listLeavePolicies(tx?: any) {
+	const client = tx || db;
+	return client.leavePolicy.findMany({
 		where: { status: true }
 	});
 }
 
-export async function getLeavePolicyByLeaveType(leaveTypeCuid: string) {
-	return db.leavePolicy.findFirst({
+export async function getLeavePolicyByLeaveType(leaveTypeCuid: string, tx?: any) {
+	const client = tx || db;
+	return client.leavePolicy.findFirst({
 		where: { leave_type_cuid: leaveTypeCuid, status: true }
 	});
 }
 
-export async function getLeavePolicyEmploymentTypes(policyCuid: string) {
-	return db.leavePolicyEmploymentType.findMany({
+export async function getLeavePolicyEmploymentTypes(policyCuid: string, tx?: any) {
+	const client = tx || db;
+	return client.leavePolicyEmploymentType.findMany({
 		where: { leave_policy_cuid: policyCuid }
 	});
 }
 
-export async function getLeaveBalances(employeeCuid: string, year: number) {
-	return db.leaveBalance.findMany({
+export async function getLeaveBalances(employeeCuid: string, year: number, tx?: any) {
+	const client = tx || db;
+	return client.leaveBalance.findMany({
 		where: { employee_cuid: employeeCuid, year },
 		orderBy: { id: 'asc' }
 	});
 }
 
-export async function getLeaveBalance(employeeCuid: string, leaveTypeCuid: string, year: number) {
-	return db.leaveBalance.findUnique({
+export async function getLeaveBalance(employeeCuid: string, leaveTypeCuid: string, year: number, tx?: any) {
+	const client = tx || db;
+	return client.leaveBalance.findUnique({
 		where: {
 			employee_cuid_leave_type_cuid_year: {
 				employee_cuid: employeeCuid,
@@ -59,8 +66,9 @@ export async function createLeaveBalance(data: {
 	remaining_days: number | string | any;
 	carried_forward_days?: number | string | any;
 	created_by?: string;
-}) {
-	return db.leaveBalance.create({
+}, tx?: any) {
+	const client = tx || db;
+	return client.leaveBalance.create({
 		data: {
 			employee_cuid: data.employee_cuid,
 			leave_type_cuid: data.leave_type_cuid,
@@ -83,23 +91,27 @@ export async function updateLeaveBalance(
 		remaining_days?: number | string | any;
 		carried_forward_days?: number | string | any;
 		updated_by?: string;
-	}
+	},
+	tx?: any
 ) {
-	return db.leaveBalance.update({
+	const client = tx || db;
+	return client.leaveBalance.update({
 		where: { cuid },
 		data
 	});
 }
 
-export async function getLeaveRequests(employeeCuid: string) {
-	return db.leaveRequest.findMany({
+export async function getLeaveRequests(employeeCuid: string, tx?: any) {
+	const client = tx || db;
+	return client.leaveRequest.findMany({
 		where: { employee_cuid: employeeCuid },
 		orderBy: { created_at: 'desc' }
 	});
 }
 
-export async function getLeaveRequestByCuid(cuid: string) {
-	return db.leaveRequest.findUnique({
+export async function getLeaveRequestByCuid(cuid: string, tx?: any) {
+	const client = tx || db;
+	return client.leaveRequest.findUnique({
 		where: { cuid }
 	});
 }
@@ -122,8 +134,9 @@ export async function createLeaveRequest(data: {
 	days_from_lwp?: number | string | any;
 	days_from_lop?: number | string | any;
 	created_by?: string;
-}) {
-	return db.leaveRequest.create({
+}, tx?: any) {
+	const client = tx || db;
+	return client.leaveRequest.create({
 		data: {
 			employee_cuid: data.employee_cuid,
 			leave_type_cuid: data.leave_type_cuid,
@@ -157,16 +170,19 @@ export async function updateLeaveRequest(
 		rejected_at?: Date | null;
 		withdrawn_at?: Date | null;
 		updated_by?: string;
-	}
+	},
+	tx?: any
 ) {
-	return db.leaveRequest.update({
+	const client = tx || db;
+	return client.leaveRequest.update({
 		where: { cuid },
 		data
 	});
 }
 
-export async function getOverlappingRequests(employeeCuid: string, startDate: Date, endDate: Date) {
-	return db.leaveRequest.findMany({
+export async function getOverlappingRequests(employeeCuid: string, startDate: Date, endDate: Date, tx?: any) {
+	const client = tx || db;
+	return client.leaveRequest.findMany({
 		where: {
 			employee_cuid: employeeCuid,
 			request_status: { in: ['pending', 'approved'] },
@@ -182,8 +198,9 @@ export async function upsertAttendanceRecord(data: {
 	attendance_status: string;
 	remarks?: string | null;
 	created_by?: string;
-}) {
-	return db.attendanceRecord.upsert({
+}, tx?: any) {
+	const client = tx || db;
+	return client.attendanceRecord.upsert({
 		where: {
 			employee_cuid_attendance_date: {
 				employee_cuid: data.employee_cuid,
@@ -206,9 +223,107 @@ export async function upsertAttendanceRecord(data: {
 	});
 }
 
-export async function getSubordinates(managerEmployeeCuid: string) {
-	return db.employment.findMany({
+export async function getSubordinates(managerEmployeeCuid: string, tx?: any) {
+	const client = tx || db;
+	return client.employment.findMany({
 		where: { reporting_manager_cuid: managerEmployeeCuid },
 		select: { employee_cuid: true }
 	});
+}
+
+export async function getEmploymentByEmployeeCuid(employeeCuid: string, tx?: any) {
+	const client = tx || db;
+	return client.employment.findFirst({
+		where: { employee_cuid: employeeCuid }
+	});
+}
+
+export async function getActiveEmploymentByEmployeeCuid(employeeCuid: string, tx?: any) {
+	const client = tx || db;
+	return client.employment.findFirst({
+		where: { employee_cuid: employeeCuid, employment_status: 'active' }
+	});
+}
+
+export async function getApprovedRequestsInPeriod(employeeCuid: string, cycleStart: Date, cycleEnd: Date, tx?: any) {
+	const client = tx || db;
+	return client.leaveRequest.findMany({
+		where: {
+			employee_cuid: employeeCuid,
+			request_status: 'approved',
+			start_date: { lte: cycleEnd },
+			end_date: { gte: cycleStart }
+		}
+	});
+}
+
+export async function getApprovedRequestsBeforeDate(employeeCuid: string, leaveTypeCuid: string, endOfYear: Date, tx?: any) {
+	const client = tx || db;
+	return client.leaveRequest.findMany({
+		where: {
+			employee_cuid: employeeCuid,
+			leave_type_cuid: leaveTypeCuid,
+			request_status: 'approved',
+			start_date: { lte: endOfYear }
+		}
+	});
+}
+
+export async function getApprovedRequestsInMonthRange(employeeCuid: string, leaveTypeCuid: string, start: Date, end: Date, tx?: any) {
+	const client = tx || db;
+	return client.leaveRequest.findMany({
+		where: {
+			employee_cuid: employeeCuid,
+			leave_type_cuid: leaveTypeCuid,
+			request_status: 'approved',
+			start_date: {
+				gte: start,
+				lte: end
+			}
+		}
+	});
+}
+
+export async function getApprovedRequestsOverlapping(start: Date, end: Date, tx?: any) {
+	const client = tx || db;
+	return client.leaveRequest.findMany({
+		where: {
+			request_status: 'approved',
+			start_date: { lte: end },
+			end_date: { gte: start }
+		}
+	});
+}
+
+export async function getLeaveTypeByCode(leaveCode: string, tx?: any) {
+	const client = tx || db;
+	return client.leaveType.findFirst({
+		where: { leave_code: leaveCode }
+	});
+}
+
+export async function getAttendanceRecord(employeeCuid: string, attendanceDate: Date, tx?: any) {
+	const client = tx || db;
+	return client.attendanceRecord.findUnique({
+		where: {
+			employee_cuid_attendance_date: {
+				employee_cuid: employeeCuid,
+				attendance_date: attendanceDate
+			}
+		}
+	});
+}
+
+export async function getLeaveRequestsForEmployees(employeeCuids: string[], tx?: any) {
+	const client = tx || db;
+	return client.leaveRequest.findMany({
+		where: {
+			employee_cuid: { in: employeeCuids }
+		},
+		orderBy: { created_at: 'desc' }
+	});
+}
+
+export async function runTransaction<T>(action: (tx: any) => Promise<T>): Promise<T> {
+	return db.$transaction(action);
 }

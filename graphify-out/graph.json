@@ -999,7 +999,7 @@
       "source_file": "src/lib/api/leaves.ts",
       "source_location": "L1",
       "id": "api_leaves",
-      "community": 48,
+      "community": 44,
       "norm_label": "leaves.ts"
     },
     {
@@ -1008,7 +1008,7 @@
       "source_file": "src/lib/api/leaves.ts",
       "source_location": "L3",
       "id": "api_leaves_applyleavepayload",
-      "community": 48,
+      "community": 44,
       "norm_label": "applyleavepayload"
     },
     {
@@ -1017,7 +1017,7 @@
       "source_file": "src/lib/api/leaves.ts",
       "source_location": "L17",
       "id": "api_leaves_leavesapi",
-      "community": 48,
+      "community": 44,
       "norm_label": "leavesapi"
     },
     {
@@ -1026,7 +1026,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L1",
       "id": "api_local",
-      "community": 48,
+      "community": 44,
       "norm_label": "local.ts"
     },
     {
@@ -1035,7 +1035,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L8",
       "id": "api_local_apierror",
-      "community": 48,
+      "community": 44,
       "norm_label": "apierror"
     },
     {
@@ -1044,7 +1044,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L9",
       "id": "api_local_apierror_constructor",
-      "community": 48,
+      "community": 44,
       "norm_label": ".constructor()"
     },
     {
@@ -1053,7 +1053,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L19",
       "id": "api_local_extracterrormessage",
-      "community": 48,
+      "community": 44,
       "norm_label": "extracterrormessage()"
     },
     {
@@ -1062,7 +1062,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L28",
       "id": "api_local_localrequest",
-      "community": 48,
+      "community": 44,
       "norm_label": "localrequest()"
     },
     {
@@ -1071,7 +1071,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L52",
       "id": "api_local_localapi",
-      "community": 48,
+      "community": 44,
       "norm_label": "localapi"
     },
     {
@@ -1395,7 +1395,7 @@
       "source_file": "src/lib/confirmation.svelte.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_confirmation_svelte_js",
-      "community": 40,
+      "community": 14,
       "norm_label": "$lib/confirmation.svelte.js"
     },
     {
@@ -1467,7 +1467,7 @@
       "source_file": "src/lib/components",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_components",
-      "community": 14,
+      "community": 39,
       "norm_label": "$lib/components"
     },
     {
@@ -1476,7 +1476,7 @@
       "source_file": "src/lib/components/common/FilterDropdown.svelte",
       "source_location": "L1",
       "id": "common_filterdropdown",
-      "community": 14,
+      "community": 37,
       "norm_label": "filterdropdown.svelte"
     },
     {
@@ -1485,7 +1485,7 @@
       "source_file": "src/lib/components/ui/dropdown-menu/index.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_components_ui_dropdown_menu_index_js",
-      "community": 14,
+      "community": 37,
       "norm_label": "$lib/components/ui/dropdown-menu/index.js"
     },
     {
@@ -1494,7 +1494,7 @@
       "source_file": "@lucide/svelte/icons/filter",
       "confidence": "EXTRACTED",
       "id": "filter",
-      "community": 2,
+      "community": 37,
       "norm_label": "@lucide/svelte/icons/filter"
     },
     {
@@ -1503,7 +1503,7 @@
       "source_file": "@lucide/svelte/icons/check",
       "confidence": "EXTRACTED",
       "id": "check",
-      "community": 14,
+      "community": 37,
       "norm_label": "@lucide/svelte/icons/check"
     },
     {
@@ -1512,7 +1512,7 @@
       "source_file": "src/lib/components/index.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_components_index_js",
-      "community": 14,
+      "community": 37,
       "norm_label": "$lib/components/index.js"
     },
     {
@@ -1521,7 +1521,7 @@
       "source_file": "src/lib/components/common/MasterDataDropdown.svelte",
       "source_location": "L1",
       "id": "common_masterdatadropdown",
-      "community": 2,
+      "community": 39,
       "norm_label": "masterdatadropdown.svelte"
     },
     {
@@ -1539,7 +1539,7 @@
       "source_file": "src/lib/master-data/master-config",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_master_data_master_config",
-      "community": 2,
+      "community": 39,
       "norm_label": "$lib/master-data/master-config"
     },
     {
@@ -1548,7 +1548,7 @@
       "source_file": "src/lib/permissions/mock-permissions",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_permissions_mock_permissions",
-      "community": 2,
+      "community": 39,
       "norm_label": "$lib/permissions/mock-permissions"
     },
     {
@@ -1558,7 +1558,7 @@
       "confidence": "EXTRACTED",
       "source_location": "L1",
       "id": "common_searchabledropdown",
-      "community": 2,
+      "community": 39,
       "norm_label": "searchabledropdown.svelte"
     },
     {
@@ -1567,7 +1567,7 @@
       "source_file": "src/lib/components/common/Pagination.svelte",
       "source_location": "L1",
       "id": "common_pagination",
-      "community": 14,
+      "community": 39,
       "norm_label": "pagination.svelte"
     },
     {
@@ -1576,7 +1576,7 @@
       "source_file": "@lucide/svelte/icons/chevron-left",
       "confidence": "EXTRACTED",
       "id": "chevron_left",
-      "community": 14,
+      "community": 39,
       "norm_label": "@lucide/svelte/icons/chevron-left"
     },
     {
@@ -1585,7 +1585,7 @@
       "source_file": "@lucide/svelte/icons/chevron-right",
       "confidence": "EXTRACTED",
       "id": "chevron_right",
-      "community": 3,
+      "community": 39,
       "norm_label": "@lucide/svelte/icons/chevron-right"
     },
     {
@@ -1594,7 +1594,7 @@
       "source_file": "src/lib/components/common/PermissionMatrixCell.svelte",
       "source_location": "L1",
       "id": "common_permissionmatrixcell",
-      "community": 14,
+      "community": 37,
       "norm_label": "permissionmatrixcell.svelte"
     },
     {
@@ -1612,7 +1612,7 @@
       "source_file": "@lucide/svelte/icons/search",
       "confidence": "EXTRACTED",
       "id": "search",
-      "community": 38,
+      "community": 14,
       "norm_label": "@lucide/svelte/icons/search"
     },
     {
@@ -1621,7 +1621,7 @@
       "source_file": "@lucide/svelte/icons/pencil",
       "confidence": "EXTRACTED",
       "id": "pencil",
-      "community": 14,
+      "community": 37,
       "norm_label": "@lucide/svelte/icons/pencil"
     },
     {
@@ -1639,7 +1639,7 @@
       "source_file": "src/lib/components/common/StatusDropdown.svelte",
       "source_location": "L1",
       "id": "common_statusdropdown",
-      "community": 14,
+      "community": 37,
       "norm_label": "statusdropdown.svelte"
     },
     {
@@ -1648,7 +1648,7 @@
       "source_file": "@lucide/svelte/icons/chevron-down",
       "confidence": "EXTRACTED",
       "id": "chevron_down",
-      "community": 40,
+      "community": 37,
       "norm_label": "@lucide/svelte/icons/chevron-down"
     },
     {
@@ -1657,7 +1657,7 @@
       "source_file": "src/lib/components/common/TableActions.svelte",
       "source_location": "L1",
       "id": "common_tableactions",
-      "community": 14,
+      "community": 37,
       "norm_label": "tableactions.svelte"
     },
     {
@@ -1666,7 +1666,7 @@
       "source_file": "@lucide/svelte/icons/more-vertical",
       "confidence": "EXTRACTED",
       "id": "more_vertical",
-      "community": 14,
+      "community": 37,
       "norm_label": "@lucide/svelte/icons/more-vertical"
     },
     {
@@ -1675,7 +1675,7 @@
       "source_file": "src/lib/components/index.ts",
       "source_location": "L1",
       "id": "components_index",
-      "community": 14,
+      "community": 37,
       "norm_label": "index.ts"
     },
     {
@@ -1765,7 +1765,7 @@
       "source_file": "src/lib/components/ui/badge/index.ts",
       "source_location": "L1",
       "id": "badge_index",
-      "community": 3,
+      "community": 37,
       "norm_label": "index.ts"
     },
     {
@@ -1783,7 +1783,7 @@
       "source_file": "src/lib/components/ui/button/index.ts",
       "source_location": "L1",
       "id": "button_index",
-      "community": 3,
+      "community": 37,
       "norm_label": "index.ts"
     },
     {
@@ -2045,7 +2045,7 @@
       "source_file": "src/lib/components/ui/input/index.ts",
       "source_location": "L1",
       "id": "input_index",
-      "community": 3,
+      "community": 37,
       "norm_label": "index.ts"
     },
     {
@@ -2063,7 +2063,7 @@
       "source_file": "src/lib/components/ui/label/index.ts",
       "source_location": "L1",
       "id": "label_index",
-      "community": 3,
+      "community": 37,
       "norm_label": "index.ts"
     },
     {
@@ -2451,7 +2451,7 @@
       "source_file": "src/lib/index.ts",
       "source_location": "L1",
       "id": "lib_index",
-      "community": 14,
+      "community": 37,
       "norm_label": "index.ts"
     },
     {
@@ -2890,7 +2890,7 @@
       "label": "calculateAge()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employee.dao.ts",
-      "source_location": "L14",
+      "source_location": "L15",
       "id": "dao_employee_dao_calculateage",
       "community": 34,
       "norm_label": "calculateage()"
@@ -2899,7 +2899,7 @@
       "label": "list()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employee.dao.ts",
-      "source_location": "L25",
+      "source_location": "L26",
       "id": "dao_employee_dao_list",
       "community": 34,
       "norm_label": "list()"
@@ -2908,10 +2908,82 @@
       "label": "create()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employee.dao.ts",
-      "source_location": "L36",
+      "source_location": "L38",
       "id": "dao_employee_dao_create",
       "community": 34,
       "norm_label": "create()"
+    },
+    {
+      "label": "getEmployeeByCuid()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L66",
+      "id": "dao_employee_dao_getemployeebycuid",
+      "community": 34,
+      "norm_label": "getemployeebycuid()"
+    },
+    {
+      "label": "getEmployeeByPersonalEmail()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L73",
+      "id": "dao_employee_dao_getemployeebypersonalemail",
+      "community": 34,
+      "norm_label": "getemployeebypersonalemail()"
+    },
+    {
+      "label": "getFirstEmployee()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L80",
+      "id": "dao_employee_dao_getfirstemployee",
+      "community": 34,
+      "norm_label": "getfirstemployee()"
+    },
+    {
+      "label": "getActiveEmploymentByOfficialEmail()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L87",
+      "id": "dao_employee_dao_getactiveemploymentbyofficialemail",
+      "community": 34,
+      "norm_label": "getactiveemploymentbyofficialemail()"
+    },
+    {
+      "label": "getFirstEmployment()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L94",
+      "id": "dao_employee_dao_getfirstemployment",
+      "community": 34,
+      "norm_label": "getfirstemployment()"
+    },
+    {
+      "label": "getActiveEmployeesWithEmployment()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L101",
+      "id": "dao_employee_dao_getactiveemployeeswithemployment",
+      "community": 34,
+      "norm_label": "getactiveemployeeswithemployment()"
+    },
+    {
+      "label": "getEmployeesByCuids()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L117",
+      "id": "dao_employee_dao_getemployeesbycuids",
+      "community": 34,
+      "norm_label": "getemployeesbycuids()"
+    },
+    {
+      "label": "getEmployeeByEmpCode()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L124",
+      "id": "dao_employee_dao_getemployeebyempcode",
+      "community": 34,
+      "norm_label": "getemployeebyempcode()"
     },
     {
       "label": "leave.dao.ts",
@@ -2935,7 +3007,7 @@
       "label": "getLeaveTypeByCuid()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L10",
+      "source_location": "L11",
       "id": "dao_leave_dao_getleavetypebycuid",
       "community": 36,
       "norm_label": "getleavetypebycuid()"
@@ -2944,7 +3016,7 @@
       "label": "listLeavePolicies()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L16",
+      "source_location": "L18",
       "id": "dao_leave_dao_listleavepolicies",
       "community": 36,
       "norm_label": "listleavepolicies()"
@@ -2953,7 +3025,7 @@
       "label": "getLeavePolicyByLeaveType()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L22",
+      "source_location": "L25",
       "id": "dao_leave_dao_getleavepolicybyleavetype",
       "community": 36,
       "norm_label": "getleavepolicybyleavetype()"
@@ -2962,7 +3034,7 @@
       "label": "getLeavePolicyEmploymentTypes()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L28",
+      "source_location": "L32",
       "id": "dao_leave_dao_getleavepolicyemploymenttypes",
       "community": 36,
       "norm_label": "getleavepolicyemploymenttypes()"
@@ -2971,7 +3043,7 @@
       "label": "getLeaveBalances()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L34",
+      "source_location": "L39",
       "id": "dao_leave_dao_getleavebalances",
       "community": 36,
       "norm_label": "getleavebalances()"
@@ -2980,7 +3052,7 @@
       "label": "getLeaveBalance()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L41",
+      "source_location": "L47",
       "id": "dao_leave_dao_getleavebalance",
       "community": 36,
       "norm_label": "getleavebalance()"
@@ -2989,7 +3061,7 @@
       "label": "createLeaveBalance()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L53",
+      "source_location": "L60",
       "id": "dao_leave_dao_createleavebalance",
       "community": 36,
       "norm_label": "createleavebalance()"
@@ -2998,7 +3070,7 @@
       "label": "updateLeaveBalance()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L78",
+      "source_location": "L86",
       "id": "dao_leave_dao_updateleavebalance",
       "community": 36,
       "norm_label": "updateleavebalance()"
@@ -3007,7 +3079,7 @@
       "label": "getLeaveRequests()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L94",
+      "source_location": "L104",
       "id": "dao_leave_dao_getleaverequests",
       "community": 36,
       "norm_label": "getleaverequests()"
@@ -3016,7 +3088,7 @@
       "label": "getLeaveRequestByCuid()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L101",
+      "source_location": "L112",
       "id": "dao_leave_dao_getleaverequestbycuid",
       "community": 36,
       "norm_label": "getleaverequestbycuid()"
@@ -3025,7 +3097,7 @@
       "label": "createLeaveRequest()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L107",
+      "source_location": "L119",
       "id": "dao_leave_dao_createleaverequest",
       "community": 36,
       "norm_label": "createleaverequest()"
@@ -3034,7 +3106,7 @@
       "label": "updateLeaveRequest()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L150",
+      "source_location": "L163",
       "id": "dao_leave_dao_updateleaverequest",
       "community": 36,
       "norm_label": "updateleaverequest()"
@@ -3043,7 +3115,7 @@
       "label": "getOverlappingRequests()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L168",
+      "source_location": "L183",
       "id": "dao_leave_dao_getoverlappingrequests",
       "community": 36,
       "norm_label": "getoverlappingrequests()"
@@ -3052,7 +3124,7 @@
       "label": "upsertAttendanceRecord()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L179",
+      "source_location": "L195",
       "id": "dao_leave_dao_upsertattendancerecord",
       "community": 36,
       "norm_label": "upsertattendancerecord()"
@@ -3061,10 +3133,100 @@
       "label": "getSubordinates()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/leave.dao.ts",
-      "source_location": "L209",
+      "source_location": "L226",
       "id": "dao_leave_dao_getsubordinates",
       "community": 36,
       "norm_label": "getsubordinates()"
+    },
+    {
+      "label": "getEmploymentByEmployeeCuid()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L234",
+      "id": "dao_leave_dao_getemploymentbyemployeecuid",
+      "community": 36,
+      "norm_label": "getemploymentbyemployeecuid()"
+    },
+    {
+      "label": "getActiveEmploymentByEmployeeCuid()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L241",
+      "id": "dao_leave_dao_getactiveemploymentbyemployeecuid",
+      "community": 36,
+      "norm_label": "getactiveemploymentbyemployeecuid()"
+    },
+    {
+      "label": "getApprovedRequestsInPeriod()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L248",
+      "id": "dao_leave_dao_getapprovedrequestsinperiod",
+      "community": 36,
+      "norm_label": "getapprovedrequestsinperiod()"
+    },
+    {
+      "label": "getApprovedRequestsBeforeDate()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L260",
+      "id": "dao_leave_dao_getapprovedrequestsbeforedate",
+      "community": 36,
+      "norm_label": "getapprovedrequestsbeforedate()"
+    },
+    {
+      "label": "getApprovedRequestsInMonthRange()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L272",
+      "id": "dao_leave_dao_getapprovedrequestsinmonthrange",
+      "community": 36,
+      "norm_label": "getapprovedrequestsinmonthrange()"
+    },
+    {
+      "label": "getApprovedRequestsOverlapping()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L287",
+      "id": "dao_leave_dao_getapprovedrequestsoverlapping",
+      "community": 36,
+      "norm_label": "getapprovedrequestsoverlapping()"
+    },
+    {
+      "label": "getLeaveTypeByCode()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L298",
+      "id": "dao_leave_dao_getleavetypebycode",
+      "community": 36,
+      "norm_label": "getleavetypebycode()"
+    },
+    {
+      "label": "getAttendanceRecord()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L305",
+      "id": "dao_leave_dao_getattendancerecord",
+      "community": 36,
+      "norm_label": "getattendancerecord()"
+    },
+    {
+      "label": "getLeaveRequestsForEmployees()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L317",
+      "id": "dao_leave_dao_getleaverequestsforemployees",
+      "community": 36,
+      "norm_label": "getleaverequestsforemployees()"
+    },
+    {
+      "label": "runTransaction()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L327",
+      "id": "dao_leave_dao_runtransaction",
+      "community": 36,
+      "norm_label": "runtransaction()"
     },
     {
       "label": "master-data.dao.ts",
@@ -3144,7 +3306,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L1",
       "id": "dao_organization_location_dao",
-      "community": 44,
+      "community": 52,
       "norm_label": "organization_location.dao.ts"
     },
     {
@@ -3153,7 +3315,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L9",
       "id": "dao_organization_location_dao_createlocation",
-      "community": 44,
+      "community": 52,
       "norm_label": "createlocation()"
     },
     {
@@ -3162,7 +3324,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L50",
       "id": "dao_organization_location_dao_getlocations",
-      "community": 44,
+      "community": 52,
       "norm_label": "getlocations()"
     },
     {
@@ -3171,7 +3333,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L78",
       "id": "dao_organization_location_dao_getalllocations",
-      "community": 44,
+      "community": 52,
       "norm_label": "getalllocations()"
     },
     {
@@ -3180,7 +3342,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L105",
       "id": "dao_organization_location_dao_countalllocations",
-      "community": 44,
+      "community": 52,
       "norm_label": "countalllocations()"
     },
     {
@@ -3189,7 +3351,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L112",
       "id": "dao_organization_location_dao_countlocations",
-      "community": 44,
+      "community": 52,
       "norm_label": "countlocations()"
     },
     {
@@ -3198,7 +3360,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L119",
       "id": "dao_organization_location_dao_getlocationbycuid",
-      "community": 44,
+      "community": 52,
       "norm_label": "getlocationbycuid()"
     },
     {
@@ -3207,7 +3369,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L146",
       "id": "dao_organization_location_dao_updatelocation",
-      "community": 44,
+      "community": 52,
       "norm_label": "updatelocation()"
     },
     {
@@ -3216,7 +3378,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L212",
       "id": "dao_organization_location_dao_deactivatelocation",
-      "community": 44,
+      "community": 52,
       "norm_label": "deactivatelocation()"
     },
     {
@@ -3225,7 +3387,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L240",
       "id": "dao_organization_location_dao_activatelocation",
-      "community": 44,
+      "community": 52,
       "norm_label": "activatelocation()"
     },
     {
@@ -3234,7 +3396,7 @@
       "source_file": "src/lib/server/dao/permission.dao.ts",
       "source_location": "L1",
       "id": "dao_permission_dao",
-      "community": 57,
+      "community": 13,
       "norm_label": "permission.dao.ts"
     },
     {
@@ -3243,7 +3405,7 @@
       "source_file": "src/lib/server/dao/permission.dao.ts",
       "source_location": "L3",
       "id": "dao_permission_dao_createpermissioninput",
-      "community": 57,
+      "community": 13,
       "norm_label": "createpermissioninput"
     },
     {
@@ -3252,7 +3414,7 @@
       "source_file": "src/lib/server/dao/permission.dao.ts",
       "source_location": "L11",
       "id": "dao_permission_dao_updatepermissioninput",
-      "community": 57,
+      "community": 13,
       "norm_label": "updatepermissioninput"
     },
     {
@@ -3261,7 +3423,7 @@
       "source_file": "src/lib/server/dao/permission.dao.ts",
       "source_location": "L18",
       "id": "dao_permission_dao_list",
-      "community": 57,
+      "community": 13,
       "norm_label": "list()"
     },
     {
@@ -3270,7 +3432,7 @@
       "source_file": "src/lib/server/dao/permission.dao.ts",
       "source_location": "L26",
       "id": "dao_permission_dao_findbyid",
-      "community": 57,
+      "community": 13,
       "norm_label": "findbyid()"
     },
     {
@@ -3279,7 +3441,7 @@
       "source_file": "src/lib/server/dao/permission.dao.ts",
       "source_location": "L34",
       "id": "dao_permission_dao_findbycuid2",
-      "community": 57,
+      "community": 13,
       "norm_label": "findbycuid2()"
     },
     {
@@ -3288,7 +3450,7 @@
       "source_file": "src/lib/server/dao/permission.dao.ts",
       "source_location": "L42",
       "id": "dao_permission_dao_create",
-      "community": 57,
+      "community": 13,
       "norm_label": "create()"
     },
     {
@@ -3297,7 +3459,7 @@
       "source_file": "src/lib/server/dao/permission.dao.ts",
       "source_location": "L55",
       "id": "dao_permission_dao_update",
-      "community": 57,
+      "community": 13,
       "norm_label": "update()"
     },
     {
@@ -3738,7 +3900,7 @@
       "source_file": "src/lib/server/guards/permission.guard.ts",
       "source_location": "L1",
       "id": "guards_permission_guard",
-      "community": 0,
+      "community": 62,
       "norm_label": "permission.guard.ts"
     },
     {
@@ -3747,7 +3909,7 @@
       "source_file": "src/lib/server/guards/permission.guard.ts",
       "source_location": "L8",
       "id": "guards_permission_guard_requireauth",
-      "community": 0,
+      "community": 62,
       "norm_label": "requireauth()"
     },
     {
@@ -3756,7 +3918,7 @@
       "source_file": "src/lib/server/guards/permission.guard.ts",
       "source_location": "L17",
       "id": "guards_permission_guard_requireadmin",
-      "community": 0,
+      "community": 62,
       "norm_label": "requireadmin()"
     },
     {
@@ -3765,7 +3927,7 @@
       "source_file": "src/lib/server/guards/permission.guard.ts",
       "source_location": "L24",
       "id": "guards_permission_guard_requirepermission",
-      "community": 0,
+      "community": 62,
       "norm_label": "requirepermission()"
     },
     {
@@ -4195,7 +4357,7 @@
       "label": "getDaysInMonth()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L69",
+      "source_location": "L57",
       "id": "services_leave_service_getdaysinmonth",
       "community": 54,
       "norm_label": "getdaysinmonth()"
@@ -4204,7 +4366,7 @@
       "label": "calculateFractionalMonths()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L73",
+      "source_location": "L61",
       "id": "services_leave_service_calculatefractionalmonths",
       "community": 54,
       "norm_label": "calculatefractionalmonths()"
@@ -4213,7 +4375,7 @@
       "label": "getPayrollCutoffDay()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L105",
+      "source_location": "L93",
       "id": "services_leave_service_getpayrollcutoffday",
       "community": 54,
       "norm_label": "getpayrollcutoffday()"
@@ -4222,7 +4384,7 @@
       "label": "setPayrollCutoffDay()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L109",
+      "source_location": "L97",
       "id": "services_leave_service_setpayrollcutoffday",
       "community": 54,
       "norm_label": "setpayrollcutoffday()"
@@ -4231,7 +4393,7 @@
       "label": "getMonthlyUsedDays()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L113",
+      "source_location": "L101",
       "id": "services_leave_service_getmonthlyuseddays",
       "community": 54,
       "norm_label": "getmonthlyuseddays()"
@@ -4240,7 +4402,7 @@
       "label": "accrueLeaves()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L215",
+      "source_location": "L193",
       "id": "services_leave_service_accrueleaves",
       "community": 54,
       "norm_label": "accrueleaves()"
@@ -4249,7 +4411,7 @@
       "label": "getAvailableBalanceForMonth()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L358",
+      "source_location": "L331",
       "id": "services_leave_service_getavailablebalanceformonth",
       "community": 54,
       "norm_label": "getavailablebalanceformonth()"
@@ -4258,7 +4420,7 @@
       "label": "getEmployeeLeaveDetails()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L450",
+      "source_location": "L406",
       "id": "services_leave_service_getemployeeleavedetails",
       "community": 54,
       "norm_label": "getemployeeleavedetails()"
@@ -4267,7 +4429,7 @@
       "label": "getPendingApprovalsForManager()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L652",
+      "source_location": "L603",
       "id": "services_leave_service_getpendingapprovalsformanager",
       "community": 54,
       "norm_label": "getpendingapprovalsformanager()"
@@ -4276,7 +4438,7 @@
       "label": "applyLeave()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L698",
+      "source_location": "L642",
       "id": "services_leave_service_applyleave",
       "community": 54,
       "norm_label": "applyleave()"
@@ -4285,7 +4447,7 @@
       "label": "withdrawLeave()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L1062",
+      "source_location": "L1006",
       "id": "services_leave_service_withdrawleave",
       "community": 54,
       "norm_label": "withdrawleave()"
@@ -4294,7 +4456,7 @@
       "label": "approveLeaveRequest()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L1092",
+      "source_location": "L1036",
       "id": "services_leave_service_approveleaverequest",
       "community": 54,
       "norm_label": "approveleaverequest()"
@@ -4303,7 +4465,7 @@
       "label": "getLeaveRequestByCuid()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L1294",
+      "source_location": "L1196",
       "id": "services_leave_service_getleaverequestbycuid",
       "community": 54,
       "norm_label": "getleaverequestbycuid()"
@@ -4312,10 +4474,19 @@
       "label": "rejectLeaveRequest()",
       "file_type": "code",
       "source_file": "src/lib/server/services/leave.service.ts",
-      "source_location": "L1298",
+      "source_location": "L1200",
       "id": "services_leave_service_rejectleaverequest",
       "community": 54,
       "norm_label": "rejectleaverequest()"
+    },
+    {
+      "label": "getLeaveDocument()",
+      "file_type": "code",
+      "source_file": "src/lib/server/services/leave.service.ts",
+      "source_location": "L1231",
+      "id": "services_leave_service_getleavedocument",
+      "community": 54,
+      "norm_label": "getleavedocument()"
     },
     {
       "label": "master-data.service.ts",
@@ -4433,6 +4604,24 @@
       "id": "services_master_data_service_updatemasterdata",
       "community": 5,
       "norm_label": "updatemasterdata()"
+    },
+    {
+      "label": "getCountries()",
+      "file_type": "code",
+      "source_file": "src/lib/server/services/master-data.service.ts",
+      "source_location": "L192",
+      "id": "services_master_data_service_getcountries",
+      "community": 5,
+      "norm_label": "getcountries()"
+    },
+    {
+      "label": "getStates()",
+      "file_type": "code",
+      "source_file": "src/lib/server/services/master-data.service.ts",
+      "source_location": "L206",
+      "id": "services_master_data_service_getstates",
+      "community": 5,
+      "norm_label": "getstates()"
     },
     {
       "label": "organization_location.service.ts",
@@ -5061,7 +5250,7 @@
       "source_file": "src/lib/server/utils/errors.ts",
       "source_location": "L1",
       "id": "utils_errors",
-      "community": 39,
+      "community": 40,
       "norm_label": "errors.ts"
     },
     {
@@ -5070,7 +5259,7 @@
       "source_file": "src/lib/server/utils/errors.ts",
       "source_location": "L1",
       "id": "utils_errors_validationerror",
-      "community": 39,
+      "community": 40,
       "norm_label": "validationerror"
     },
     {
@@ -5079,7 +5268,7 @@
       "source_file": "src/lib/server/utils/errors.ts",
       "source_location": "L2",
       "id": "utils_errors_validationerror_constructor",
-      "community": 39,
+      "community": 40,
       "norm_label": ".constructor()"
     },
     {
@@ -5142,7 +5331,7 @@
       "source_file": "src/lib/server/utils/mapping.ts",
       "source_location": "L61",
       "id": "utils_mapping_topermissiondto",
-      "community": 0,
+      "community": 60,
       "norm_label": "topermissiondto()"
     },
     {
@@ -5151,7 +5340,7 @@
       "source_file": "src/lib/server/utils/mapping.ts",
       "source_location": "L70",
       "id": "utils_mapping_tosystemroledto",
-      "community": 0,
+      "community": 61,
       "norm_label": "tosystemroledto()"
     },
     {
@@ -5169,7 +5358,7 @@
       "source_file": "src/lib/server/utils/mapping.ts",
       "source_location": "L88",
       "id": "utils_mapping_tomasterdatadto",
-      "community": 0,
+      "community": 57,
       "norm_label": "tomasterdatadto()"
     },
     {
@@ -5961,7 +6150,7 @@
       "source_file": "$app/stores",
       "confidence": "EXTRACTED",
       "id": "stores",
-      "community": 14,
+      "community": 39,
       "norm_label": "$app/stores"
     },
     {
@@ -6042,7 +6231,7 @@
       "source_file": "@lucide/svelte/icons/settings",
       "confidence": "EXTRACTED",
       "id": "settings",
-      "community": 14,
+      "community": 39,
       "norm_label": "@lucide/svelte/icons/settings"
     },
     {
@@ -6312,7 +6501,7 @@
       "source_file": "src/routes/api/leaves/+server.ts",
       "source_location": "L1",
       "id": "leaves_server",
-      "community": 39,
+      "community": 40,
       "norm_label": "+server.ts"
     },
     {
@@ -6321,7 +6510,7 @@
       "source_file": "src/routes/api/leaves/+server.ts",
       "source_location": "L10",
       "id": "leaves_server_get",
-      "community": 39,
+      "community": 40,
       "norm_label": "get()"
     },
     {
@@ -6330,7 +6519,7 @@
       "source_file": "src/routes/api/leaves/+server.ts",
       "source_location": "L25",
       "id": "leaves_server_post",
-      "community": 39,
+      "community": 40,
       "norm_label": "post()"
     },
     {
@@ -6339,7 +6528,7 @@
       "source_file": "src/routes/api/leaves/[cuid]/+server.ts",
       "source_location": "L1",
       "id": "src_routes_api_leaves_cuid_server_ts_cuid_server",
-      "community": 0,
+      "community": 54,
       "norm_label": "+server.ts"
     },
     {
@@ -6348,7 +6537,7 @@
       "source_file": "src/routes/api/leaves/[cuid]/+server.ts",
       "source_location": "L6",
       "id": "src_routes_api_leaves_cuid_server_ts_cuid_server_post",
-      "community": 0,
+      "community": 54,
       "norm_label": "post()"
     },
     {
@@ -6357,7 +6546,7 @@
       "source_file": "src/routes/api/leaves/[cuid]/+server.ts",
       "source_location": "L21",
       "id": "src_routes_api_leaves_cuid_server_ts_cuid_server_delete",
-      "community": 0,
+      "community": 54,
       "norm_label": "delete()"
     },
     {
@@ -6384,16 +6573,16 @@
       "source_file": "src/routes/api/leaves/approvals/[cuid]/+server.ts",
       "source_location": "L1",
       "id": "src_routes_api_leaves_approvals_cuid_server_ts_cuid_server",
-      "community": 39,
+      "community": 59,
       "norm_label": "+server.ts"
     },
     {
       "label": "POST()",
       "file_type": "code",
       "source_file": "src/routes/api/leaves/approvals/[cuid]/+server.ts",
-      "source_location": "L8",
+      "source_location": "L7",
       "id": "src_routes_api_leaves_approvals_cuid_server_ts_cuid_server_post",
-      "community": 39,
+      "community": 59,
       "norm_label": "post()"
     },
     {
@@ -6402,25 +6591,25 @@
       "source_file": "src/routes/api/leaves/settings/+server.ts",
       "source_location": "L1",
       "id": "settings_server",
-      "community": 52,
+      "community": 59,
       "norm_label": "+server.ts"
     },
     {
       "label": "GET()",
       "file_type": "code",
       "source_file": "src/routes/api/leaves/settings/+server.ts",
-      "source_location": "L7",
+      "source_location": "L6",
       "id": "settings_server_get",
-      "community": 52,
+      "community": 59,
       "norm_label": "get()"
     },
     {
       "label": "POST()",
       "file_type": "code",
       "source_file": "src/routes/api/leaves/settings/+server.ts",
-      "source_location": "L19",
+      "source_location": "L18",
       "id": "settings_server_post",
-      "community": 52,
+      "community": 59,
       "norm_label": "post()"
     },
     {
@@ -6429,7 +6618,7 @@
       "source_file": "src/routes/api/master-data/[master]/+server.ts",
       "source_location": "L1",
       "id": "master_server",
-      "community": 0,
+      "community": 57,
       "norm_label": "+server.ts"
     },
     {
@@ -6438,7 +6627,7 @@
       "source_file": "src/routes/api/master-data/[master]/+server.ts",
       "source_location": "L8",
       "id": "master_server_getstatus",
-      "community": 0,
+      "community": 57,
       "norm_label": "getstatus()"
     },
     {
@@ -6447,7 +6636,7 @@
       "source_file": "src/routes/api/master-data/[master]/+server.ts",
       "source_location": "L15",
       "id": "master_server_getmaster",
-      "community": 0,
+      "community": 57,
       "norm_label": "getmaster()"
     },
     {
@@ -6456,7 +6645,7 @@
       "source_file": "src/routes/api/master-data/[master]/+server.ts",
       "source_location": "L19",
       "id": "master_server_get",
-      "community": 0,
+      "community": 57,
       "norm_label": "get()"
     },
     {
@@ -6465,7 +6654,7 @@
       "source_file": "src/routes/api/master-data/[master]/+server.ts",
       "source_location": "L38",
       "id": "master_server_post",
-      "community": 0,
+      "community": 57,
       "norm_label": "post()"
     },
     {
@@ -6474,7 +6663,7 @@
       "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
       "source_location": "L1",
       "id": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
-      "community": 0,
+      "community": 40,
       "norm_label": "+server.ts"
     },
     {
@@ -6483,7 +6672,7 @@
       "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
       "source_location": "L8",
       "id": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_getstatus",
-      "community": 0,
+      "community": 40,
       "norm_label": "getstatus()"
     },
     {
@@ -6492,7 +6681,7 @@
       "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
       "source_location": "L15",
       "id": "cuid_server_getmaster",
-      "community": 0,
+      "community": 40,
       "norm_label": "getmaster()"
     },
     {
@@ -6501,7 +6690,7 @@
       "source_file": "src/routes/api/master-data/[master]/[cuid]/+server.ts",
       "source_location": "L19",
       "id": "src_routes_api_master_data_master_cuid_server_ts_cuid_server_put",
-      "community": 0,
+      "community": 40,
       "norm_label": "put()"
     },
     {
@@ -6582,7 +6771,7 @@
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L1",
       "id": "permissions_server",
-      "community": 0,
+      "community": 63,
       "norm_label": "+server.ts"
     },
     {
@@ -6591,7 +6780,7 @@
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L8",
       "id": "permissions_server_getstatus",
-      "community": 0,
+      "community": 63,
       "norm_label": "getstatus()"
     },
     {
@@ -6600,7 +6789,7 @@
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L14",
       "id": "permissions_server_get",
-      "community": 0,
+      "community": 63,
       "norm_label": "get()"
     },
     {
@@ -6609,7 +6798,7 @@
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L28",
       "id": "permissions_server_post",
-      "community": 0,
+      "community": 63,
       "norm_label": "post()"
     },
     {
@@ -6618,7 +6807,7 @@
       "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
       "source_location": "L1",
       "id": "src_routes_api_permissions_cuid_server_ts_cuid_server",
-      "community": 0,
+      "community": 60,
       "norm_label": "+server.ts"
     },
     {
@@ -6627,7 +6816,7 @@
       "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
       "source_location": "L8",
       "id": "src_routes_api_permissions_cuid_server_ts_cuid_server_getstatus",
-      "community": 0,
+      "community": 60,
       "norm_label": "getstatus()"
     },
     {
@@ -6636,7 +6825,7 @@
       "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
       "source_location": "L14",
       "id": "src_routes_api_permissions_cuid_server_ts_cuid_server_get",
-      "community": 0,
+      "community": 60,
       "norm_label": "get()"
     },
     {
@@ -6645,7 +6834,7 @@
       "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
       "source_location": "L29",
       "id": "src_routes_api_permissions_cuid_server_ts_cuid_server_put",
-      "community": 0,
+      "community": 60,
       "norm_label": "put()"
     },
     {
@@ -6654,7 +6843,7 @@
       "source_file": "src/routes/api/permissions/[cuid]/+server.ts",
       "source_location": "L48",
       "id": "src_routes_api_permissions_cuid_server_ts_cuid_server_delete",
-      "community": 0,
+      "community": 60,
       "norm_label": "delete()"
     },
     {
@@ -6942,7 +7131,7 @@
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L1",
       "id": "system_roles_server",
-      "community": 0,
+      "community": 64,
       "norm_label": "+server.ts"
     },
     {
@@ -6951,7 +7140,7 @@
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L8",
       "id": "system_roles_server_getstatus",
-      "community": 0,
+      "community": 64,
       "norm_label": "getstatus()"
     },
     {
@@ -6960,7 +7149,7 @@
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L14",
       "id": "system_roles_server_get",
-      "community": 0,
+      "community": 64,
       "norm_label": "get()"
     },
     {
@@ -6969,7 +7158,7 @@
       "source_file": "src/routes/api/system-roles/+server.ts",
       "source_location": "L28",
       "id": "system_roles_server_post",
-      "community": 0,
+      "community": 64,
       "norm_label": "post()"
     },
     {
@@ -6978,7 +7167,7 @@
       "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
       "source_location": "L1",
       "id": "src_routes_api_system_roles_cuid_server_ts_cuid_server",
-      "community": 0,
+      "community": 61,
       "norm_label": "+server.ts"
     },
     {
@@ -6987,7 +7176,7 @@
       "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
       "source_location": "L8",
       "id": "src_routes_api_system_roles_cuid_server_ts_cuid_server_getstatus",
-      "community": 0,
+      "community": 61,
       "norm_label": "getstatus()"
     },
     {
@@ -6996,7 +7185,7 @@
       "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
       "source_location": "L14",
       "id": "src_routes_api_system_roles_cuid_server_ts_cuid_server_get",
-      "community": 0,
+      "community": 61,
       "norm_label": "get()"
     },
     {
@@ -7005,7 +7194,7 @@
       "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
       "source_location": "L29",
       "id": "src_routes_api_system_roles_cuid_server_ts_cuid_server_put",
-      "community": 0,
+      "community": 61,
       "norm_label": "put()"
     },
     {
@@ -7014,26 +7203,8 @@
       "source_file": "src/routes/api/system-roles/[cuid]/+server.ts",
       "source_location": "L48",
       "id": "src_routes_api_system_roles_cuid_server_ts_cuid_server_delete",
-      "community": 0,
+      "community": 61,
       "norm_label": "delete()"
-    },
-    {
-      "label": "+server.ts",
-      "file_type": "code",
-      "source_file": "src/routes/api/test-db/+server.ts",
-      "source_location": "L1",
-      "id": "test_db_server",
-      "community": 59,
-      "norm_label": "+server.ts"
-    },
-    {
-      "label": "GET()",
-      "file_type": "code",
-      "source_file": "src/routes/api/test-db/+server.ts",
-      "source_location": "L6",
-      "id": "test_db_server_get",
-      "community": 59,
-      "norm_label": "get()"
     },
     {
       "label": "+page.svelte",
@@ -7041,7 +7212,7 @@
       "source_file": "src/routes/auth/signin/+page.svelte",
       "source_location": "L1",
       "id": "signin_page",
-      "community": 37,
+      "community": 38,
       "norm_label": "+page.svelte"
     },
     {
@@ -7050,7 +7221,7 @@
       "source_file": "src/routes/auth/signin/+page.svelte",
       "source_location": "L20",
       "id": "signin_page_redirectto",
-      "community": 37,
+      "community": 38,
       "norm_label": "redirectto"
     },
     {
@@ -7059,7 +7230,7 @@
       "source_file": "src/routes/auth/signin/+page.svelte",
       "source_location": "L21",
       "id": "signin_page_devmode",
-      "community": 37,
+      "community": 38,
       "norm_label": "devmode"
     },
     {
@@ -7068,7 +7239,7 @@
       "source_file": "src/routes/auth/signin/+page.svelte",
       "source_location": "L23",
       "id": "signin_page_handlesignin",
-      "community": 37,
+      "community": 38,
       "norm_label": "handlesignin()"
     },
     {
@@ -7077,7 +7248,7 @@
       "source_file": "src/routes/auth/signin/+page.svelte",
       "source_location": "L27",
       "id": "signin_page_handlemocksignin",
-      "community": 37,
+      "community": 38,
       "norm_label": "handlemocksignin()"
     },
     {
@@ -7086,7 +7257,7 @@
       "source_file": "$app/state",
       "confidence": "EXTRACTED",
       "id": "state",
-      "community": 37,
+      "community": 38,
       "norm_label": "$app/state"
     },
     {
@@ -7122,7 +7293,7 @@
       "source_file": "src/routes/dashboard/+page.svelte",
       "source_location": "L1",
       "id": "dashboard_page",
-      "community": 14,
+      "community": 39,
       "norm_label": "+page.svelte"
     },
     {
@@ -7149,7 +7320,7 @@
       "source_file": "src/routes/dashboard/[cuid=cuid]/+page.svelte",
       "source_location": "L1",
       "id": "cuid_cuid_page",
-      "community": 14,
+      "community": 39,
       "norm_label": "+page.svelte"
     },
     {
@@ -7329,7 +7500,7 @@
       "source_file": "$app/forms",
       "confidence": "EXTRACTED",
       "id": "forms",
-      "community": 37,
+      "community": 38,
       "norm_label": "$app/forms"
     },
     {
@@ -7338,8 +7509,26 @@
       "source_file": "src/routes/employees/$types",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_routes_employees_types",
-      "community": 38,
+      "community": 34,
       "norm_label": "./$types"
+    },
+    {
+      "label": "+page.server.ts",
+      "file_type": "code",
+      "source_file": "src/routes/leaves/+page.server.ts",
+      "source_location": "L1",
+      "id": "leaves_page_server",
+      "community": 54,
+      "norm_label": "+page.server.ts"
+    },
+    {
+      "label": "load()",
+      "file_type": "code",
+      "source_file": "src/routes/leaves/+page.server.ts",
+      "source_location": "L5",
+      "id": "leaves_page_server_load",
+      "community": 54,
+      "norm_label": "load()"
     },
     {
       "label": "+page.svelte",
@@ -7354,7 +7543,7 @@
       "label": "if()",
       "file_type": "code",
       "source_file": "src/routes/leaves/+page.svelte",
-      "source_location": "L222",
+      "source_location": "L226",
       "id": "leaves_page_if",
       "community": 1,
       "norm_label": "if()"
@@ -7432,21 +7621,48 @@
       "norm_label": "$lib/api/leaves"
     },
     {
+      "label": "./$types",
+      "file_type": "code",
+      "source_file": "src/routes/leaves/$types",
+      "confidence": "EXTRACTED",
+      "id": "c_users_user_pieq_svelte_app_template_src_routes_leaves_types",
+      "community": 54,
+      "norm_label": "./$types"
+    },
+    {
+      "label": "+page.server.ts",
+      "file_type": "code",
+      "source_file": "src/routes/organization_locations/+page.server.ts",
+      "source_location": "L1",
+      "id": "organization_locations_page_server",
+      "community": 46,
+      "norm_label": "+page.server.ts"
+    },
+    {
+      "label": "load()",
+      "file_type": "code",
+      "source_file": "src/routes/organization_locations/+page.server.ts",
+      "source_location": "L6",
+      "id": "organization_locations_page_server_load",
+      "community": 46,
+      "norm_label": "load()"
+    },
+    {
       "label": "+page.svelte",
       "file_type": "code",
       "source_file": "src/routes/organization_locations/+page.svelte",
       "source_location": "L1",
       "id": "organization_locations_page",
-      "community": 40,
+      "community": 2,
       "norm_label": "+page.svelte"
     },
     {
       "label": "if()",
       "file_type": "code",
       "source_file": "src/routes/organization_locations/+page.svelte",
-      "source_location": "L205",
+      "source_location": "L209",
       "id": "organization_locations_page_if",
-      "community": 40,
+      "community": 2,
       "norm_label": "if()"
     },
     {
@@ -7455,7 +7671,7 @@
       "source_file": "src/lib/types/organization_location",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_types_organization_location",
-      "community": 40,
+      "community": 2,
       "norm_label": "$lib/types/organization_location"
     },
     {
@@ -7464,7 +7680,7 @@
       "source_file": "src/lib/api/locations",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_api_locations",
-      "community": 40,
+      "community": 2,
       "norm_label": "$lib/api/locations"
     },
     {
@@ -7473,8 +7689,17 @@
       "source_file": "src/lib/api/local",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_api_local",
-      "community": 40,
+      "community": 2,
       "norm_label": "$lib/api/local"
+    },
+    {
+      "label": "./$types",
+      "file_type": "code",
+      "source_file": "src/routes/organization_locations/$types",
+      "confidence": "EXTRACTED",
+      "id": "c_users_user_pieq_svelte_app_template_src_routes_organization_locations_types",
+      "community": 46,
+      "norm_label": "./$types"
     },
     {
       "label": "+page.svelte",
@@ -7493,6 +7718,24 @@
       "id": "role_permissions_page",
       "community": 2,
       "norm_label": "+page.svelte"
+    },
+    {
+      "label": "+page.server.ts",
+      "file_type": "code",
+      "source_file": "src/routes/roles/+page.server.ts",
+      "source_location": "L1",
+      "id": "roles_page_server",
+      "community": 46,
+      "norm_label": "+page.server.ts"
+    },
+    {
+      "label": "load()",
+      "file_type": "code",
+      "source_file": "src/routes/roles/+page.server.ts",
+      "source_location": "L5",
+      "id": "roles_page_server_load",
+      "community": 46,
+      "norm_label": "load()"
     },
     {
       "label": "+page.svelte",
@@ -7520,6 +7763,15 @@
       "id": "c_users_user_pieq_svelte_app_template_src_lib_api_roles",
       "community": 2,
       "norm_label": "$lib/api/roles"
+    },
+    {
+      "label": "./$types",
+      "file_type": "code",
+      "source_file": "src/routes/roles/$types",
+      "confidence": "EXTRACTED",
+      "id": "c_users_user_pieq_svelte_app_template_src_routes_roles_types",
+      "community": 46,
+      "norm_label": "./$types"
     },
     {
       "label": "+page.svelte",
@@ -7554,8 +7806,26 @@
       "source_file": "src/routes/settings/+page.svelte",
       "source_location": "L1",
       "id": "settings_page",
-      "community": 14,
+      "community": 39,
       "norm_label": "+page.svelte"
+    },
+    {
+      "label": "+page.server.ts",
+      "file_type": "code",
+      "source_file": "src/routes/shifts/+page.server.ts",
+      "source_location": "L1",
+      "id": "shifts_page_server",
+      "community": 46,
+      "norm_label": "+page.server.ts"
+    },
+    {
+      "label": "load()",
+      "file_type": "code",
+      "source_file": "src/routes/shifts/+page.server.ts",
+      "source_location": "L5",
+      "id": "shifts_page_server_load",
+      "community": 46,
+      "norm_label": "load()"
     },
     {
       "label": "+page.svelte",
@@ -7583,6 +7853,15 @@
       "id": "c_users_user_pieq_svelte_app_template_src_lib_api_shifts",
       "community": 2,
       "norm_label": "$lib/api/shifts"
+    },
+    {
+      "label": "./$types",
+      "file_type": "code",
+      "source_file": "src/routes/shifts/$types",
+      "confidence": "EXTRACTED",
+      "id": "c_users_user_pieq_svelte_app_template_src_routes_shifts_types",
+      "community": 46,
+      "norm_label": "./$types"
     },
     {
       "label": "+page.svelte",
@@ -7770,7 +8049,7 @@
       "source_file": "tests/unit/endpoints.test.ts",
       "source_location": "L1",
       "id": "unit_endpoints_test",
-      "community": 59,
+      "community": 46,
       "norm_label": "endpoints.test.ts"
     },
     {
@@ -7779,16 +8058,16 @@
       "source_file": "tests/unit/leave.service.test.ts",
       "source_location": "L1",
       "id": "unit_leave_service_test",
-      "community": 39,
+      "community": 40,
       "norm_label": "leave.service.test.ts"
     },
     {
       "label": "buildRequest()",
       "file_type": "code",
       "source_file": "tests/unit/leave.service.test.ts",
-      "source_location": "L1105",
+      "source_location": "L1246",
       "id": "unit_leave_service_test_buildrequest",
-      "community": 39,
+      "community": 40,
       "norm_label": "buildrequest()"
     },
     {
@@ -7869,7 +8148,7 @@
       "source_file": "tests/unit/permission.guard.test.ts",
       "source_location": "L1",
       "id": "unit_permission_guard_test",
-      "community": 0,
+      "community": 62,
       "norm_label": "permission.guard.test.ts"
     },
     {
@@ -7950,7 +8229,7 @@
       "source_file": "tests/unit/validation.test.ts",
       "source_location": "L1",
       "id": "unit_validation_test",
-      "community": 44,
+      "community": 47,
       "norm_label": "validation.test.ts"
     },
     {
@@ -8939,7 +9218,7 @@
       "file_type": "code",
       "source_file": "src/routes/auth/signin/+page.svelte",
       "source_location": "L25",
-      "community": 37,
+      "community": 38,
       "norm_label": "devemail",
       "id": "signin_page_devemail"
     },
@@ -8948,7 +9227,7 @@
       "file_type": "code",
       "source_file": "src/routes/auth/signin/+page.svelte",
       "source_location": "L26",
-      "community": 37,
+      "community": 38,
       "norm_label": "devpassword",
       "id": "signin_page_devpassword"
     },
@@ -8957,7 +9236,7 @@
       "file_type": "code",
       "source_file": "src/routes/auth/signin/+page.svelte",
       "source_location": "L27",
-      "community": 37,
+      "community": 38,
       "norm_label": "deverror",
       "id": "signin_page_deverror"
     },
@@ -8966,7 +9245,7 @@
       "file_type": "code",
       "source_file": "src/routes/api/leaves/[cuid]/+server.ts",
       "source_location": "L6",
-      "community": 0,
+      "community": 54,
       "norm_label": "post()",
       "id": "cuid_server_post"
     },
@@ -9146,7 +9425,7 @@
       "file_type": "code",
       "source_file": "src/lib/components",
       "confidence": "EXTRACTED",
-      "community": 14,
+      "community": 39,
       "norm_label": "$lib/components",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_components"
     },
@@ -9164,7 +9443,7 @@
       "file_type": "code",
       "source_file": "src/lib/master-data/master-config",
       "confidence": "EXTRACTED",
-      "community": 2,
+      "community": 39,
       "norm_label": "$lib/master-data/master-config",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_master_data_master_config"
     },
@@ -9173,7 +9452,7 @@
       "file_type": "code",
       "source_file": "src/lib/permissions/mock-permissions",
       "confidence": "EXTRACTED",
-      "community": 2,
+      "community": 39,
       "norm_label": "$lib/permissions/mock-permissions",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_permissions_mock_permissions"
     },
@@ -9227,7 +9506,7 @@
       "file_type": "code",
       "source_file": "src/routes/employees/$types",
       "confidence": "EXTRACTED",
-      "community": 38,
+      "community": 34,
       "norm_label": "./$types",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_routes_employees_types"
     },
@@ -15778,6 +16057,86 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L101",
+      "weight": 1.0,
+      "source": "dao_employee_dao",
+      "target": "dao_employee_dao_getactiveemployeeswithemployment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L87",
+      "weight": 1.0,
+      "source": "dao_employee_dao",
+      "target": "dao_employee_dao_getactiveemploymentbyofficialemail",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L66",
+      "weight": 1.0,
+      "source": "dao_employee_dao",
+      "target": "dao_employee_dao_getemployeebycuid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L124",
+      "weight": 1.0,
+      "source": "dao_employee_dao",
+      "target": "dao_employee_dao_getemployeebyempcode",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L73",
+      "weight": 1.0,
+      "source": "dao_employee_dao",
+      "target": "dao_employee_dao_getemployeebypersonalemail",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L117",
+      "weight": 1.0,
+      "source": "dao_employee_dao",
+      "target": "dao_employee_dao_getemployeesbycuids",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L80",
+      "weight": 1.0,
+      "source": "dao_employee_dao",
+      "target": "dao_employee_dao_getfirstemployee",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L94",
+      "weight": 1.0,
+      "source": "dao_employee_dao",
+      "target": "dao_employee_dao_getfirstemployment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
       "source_location": "L11",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -15832,6 +16191,17 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/leave.service.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "services_leave_service",
+      "target": "dao_employee_dao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "tests/unit/employee.dao.test.ts",
       "source_location": "L3",
       "weight": 1.0,
@@ -15880,6 +16250,76 @@
       "confidence_score": 1.0,
       "source": "dao_leave_dao",
       "target": "dao_leave_dao_createleaverequest"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L241",
+      "weight": 1.0,
+      "source": "dao_leave_dao",
+      "target": "dao_leave_dao_getactiveemploymentbyemployeecuid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L260",
+      "weight": 1.0,
+      "source": "dao_leave_dao",
+      "target": "dao_leave_dao_getapprovedrequestsbeforedate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L272",
+      "weight": 1.0,
+      "source": "dao_leave_dao",
+      "target": "dao_leave_dao_getapprovedrequestsinmonthrange",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L248",
+      "weight": 1.0,
+      "source": "dao_leave_dao",
+      "target": "dao_leave_dao_getapprovedrequestsinperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L287",
+      "weight": 1.0,
+      "source": "dao_leave_dao",
+      "target": "dao_leave_dao_getapprovedrequestsoverlapping",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L305",
+      "weight": 1.0,
+      "source": "dao_leave_dao",
+      "target": "dao_leave_dao_getattendancerecord",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L234",
+      "weight": 1.0,
+      "source": "dao_leave_dao",
+      "target": "dao_leave_dao_getemploymentbyemployeecuid",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -15945,6 +16385,26 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L317",
+      "weight": 1.0,
+      "source": "dao_leave_dao",
+      "target": "dao_leave_dao_getleaverequestsforemployees",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L298",
+      "weight": 1.0,
+      "source": "dao_leave_dao",
+      "target": "dao_leave_dao_getleavetypebycode",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
       "source_location": "L10",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -15990,6 +16450,16 @@
       "confidence_score": 1.0,
       "source": "dao_leave_dao",
       "target": "dao_leave_dao_listleavetypes"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/leave.dao.ts",
+      "source_location": "L327",
+      "weight": 1.0,
+      "source": "dao_leave_dao",
+      "target": "dao_leave_dao_runtransaction",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -17325,6 +17795,17 @@
       "target": "server_db"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/organization_locations/+page.server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "organization_locations_page_server",
+      "target": "server_db"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/server/db.ts",
@@ -17406,17 +17887,6 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "states_server",
-      "target": "server_db"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/test-db/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "test_db_server",
       "target": "server_db"
     },
     {
@@ -17588,6 +18058,17 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/organization_locations/+page.server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "organization_locations_page_server",
+      "target": "server_db_db"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/lib/server/services/leave.service.ts",
       "source_location": "L2",
       "weight": 1.0,
@@ -17626,17 +18107,6 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "states_server",
-      "target": "server_db_db"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/test-db/+server.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "test_db_server",
       "target": "server_db_db"
     },
     {
@@ -17860,6 +18330,17 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/leaves/+page.server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leaves_page_server",
+      "target": "guards_permission_guard"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/leaves/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
@@ -18069,6 +18550,28 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/organization_locations/+page.server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "organization_locations_page_server",
+      "target": "server_response"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/roles/+page.server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "roles_page_server",
+      "target": "server_response"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/roles/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
@@ -18175,6 +18678,17 @@
       "confidence_score": 1.0,
       "source": "server_response",
       "target": "server_response_sendupdated"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/shifts/+page.server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "shifts_page_server",
+      "target": "server_response"
     },
     {
       "relation": "imports_from",
@@ -18565,12 +19079,34 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/roles/+page.server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "roles_page_server",
+      "target": "server_response_maprole"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/roles/+server.ts",
       "source_location": "L4",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "roles_server",
       "target": "server_response_maprole"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/shifts/+page.server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "shifts_page_server",
+      "target": "server_response_mapshift"
     },
     {
       "relation": "imports",
@@ -18598,12 +19134,45 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/organization_locations/+page.server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "organization_locations_page_server",
+      "target": "server_response_maplocation"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/countries/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "countries_server",
       "target": "server_response_mapcountry"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/organization_locations/+page.server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "organization_locations_page_server",
+      "target": "server_response_mapcountry"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/organization_locations/+page.server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "organization_locations_page_server",
+      "target": "server_response_mapstate"
     },
     {
       "relation": "imports",
@@ -19504,6 +20073,28 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/leaves/[cuid]/document/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "document_server",
+      "target": "services_leave_service",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/leaves/+page.server.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leaves_page_server",
+      "target": "services_leave_service"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/leaves/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
@@ -19590,6 +20181,16 @@
       "confidence_score": 1.0,
       "source": "services_leave_service",
       "target": "services_leave_service_getemployeeleavedetails"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/leave.service.ts",
+      "source_location": "L1231",
+      "weight": 1.0,
+      "source": "services_leave_service",
+      "target": "services_leave_service_getleavedocument",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -19775,6 +20376,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/server/services/leave.service.ts",
+      "source_location": "L1237",
+      "weight": 1.0,
+      "source": "services_leave_service_getleavedocument",
+      "target": "services_leave_service_resolveemployee",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/leave.service.ts",
       "source_location": "L414",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -19940,11 +20552,33 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/server/services/leave.service.ts",
+      "source_location": "L1232",
+      "weight": 1.0,
+      "source": "services_leave_service_getleavedocument",
+      "target": "services_leave_service_getleaverequestbycuid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/leave.service.ts",
       "source_location": "L702",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "services_leave_service_rejectleaverequest",
       "target": "services_leave_service_getleaverequestbycuid"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/countries/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "countries_server",
+      "target": "services_master_data_service",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -19956,6 +20590,17 @@
       "confidence_score": 1.0,
       "source": "master_server",
       "target": "services_master_data_service"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/organization_locations/+page.server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "organization_locations_page_server",
+      "target": "services_master_data_service",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -19981,11 +20626,31 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/server/services/master-data.service.ts",
+      "source_location": "L192",
+      "weight": 1.0,
+      "source": "services_master_data_service",
+      "target": "services_master_data_service_getcountries",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/master-data.service.ts",
       "source_location": "L109",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "services_master_data_service",
       "target": "services_master_data_service_getmasterdata"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/master-data.service.ts",
+      "source_location": "L206",
+      "weight": 1.0,
+      "source": "services_master_data_service",
+      "target": "services_master_data_service_getstates",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -20109,6 +20774,17 @@
       "confidence_score": 1.0,
       "source": "src_routes_api_master_data_master_cuid_server_ts_cuid_server",
       "target": "services_master_data_service"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/api/states/+server.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "states_server",
+      "target": "services_master_data_service",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -20254,6 +20930,17 @@
       "target": "services_master_data_service_ensureunique"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/services/master-data.service.ts",
+      "source_location": "L209",
+      "weight": 1.0,
+      "source": "services_master_data_service_getstates",
+      "target": "services_master_data_service_getcountries",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -20262,6 +20949,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "organization_location_server",
+      "target": "services_organization_location_service"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/organization_locations/+page.server.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "organization_locations_page_server",
       "target": "services_organization_location_service"
     },
     {
@@ -20826,6 +21524,17 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/routes/roles/+page.server.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "roles_page_server",
+      "target": "services_role_service"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/routes/api/roles/+server.ts",
       "source_location": "L3",
       "weight": 1.0,
@@ -21346,6 +22055,17 @@
       "confidence_score": 1.0,
       "source": "services_shift_service",
       "target": "validators_shift_validator_validateupdatepayload"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/shifts/+page.server.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "shifts_page_server",
+      "target": "services_shift_service"
     },
     {
       "relation": "imports_from",
@@ -25300,16 +26020,6 @@
       "target": "src_routes_api_system_roles_cuid_server_ts_cuid_server_getstatus"
     },
     {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/api/test-db/+server.ts",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "test_db_server",
-      "target": "test_db_server_get"
-    },
-    {
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/auth/signin/+page.svelte",
@@ -26081,6 +26791,27 @@
     },
     {
       "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/leaves/+page.server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leaves_page_server",
+      "target": "c_users_user_pieq_svelte_app_template_src_routes_leaves_types"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/leaves/+page.server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "leaves_page_server",
+      "target": "leaves_page_server_load"
+    },
+    {
+      "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/leaves/+page.svelte",
       "confidence_score": 1.0,
@@ -26094,6 +26825,14 @@
       "confidence_score": 1.0,
       "source": "leaves_page",
       "target": "c_users_user_pieq_svelte_app_template_src_lib_api_leaves"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/leaves/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "leaves_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_routes_leaves_types"
     },
     {
       "relation": "imports_from",
@@ -26155,6 +26894,27 @@
     },
     {
       "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/organization_locations/+page.server.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "organization_locations_page_server",
+      "target": "c_users_user_pieq_svelte_app_template_src_routes_organization_locations_types"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/organization_locations/+page.server.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "organization_locations_page_server",
+      "target": "organization_locations_page_server_load"
+    },
+    {
+      "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/organization_locations/+page.svelte",
       "confidence_score": 1.0,
@@ -26176,6 +26936,14 @@
       "confidence_score": 1.0,
       "source": "organization_locations_page",
       "target": "c_users_user_pieq_svelte_app_template_src_lib_types_organization_location"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/organization_locations/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "organization_locations_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_routes_organization_locations_types"
     },
     {
       "relation": "contains",
@@ -26269,6 +27037,27 @@
     },
     {
       "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/roles/+page.server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "roles_page_server",
+      "target": "c_users_user_pieq_svelte_app_template_src_routes_roles_types"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/roles/+page.server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "roles_page_server",
+      "target": "roles_page_server_load"
+    },
+    {
+      "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/roles/+page.svelte",
       "confidence_score": 1.0,
@@ -26282,6 +27071,14 @@
       "confidence_score": 1.0,
       "source": "roles_page",
       "target": "c_users_user_pieq_svelte_app_template_src_lib_types_role"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/roles/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "roles_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_routes_roles_types"
     },
     {
       "relation": "imports_from",
@@ -26357,6 +27154,27 @@
     },
     {
       "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/shifts/+page.server.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "shifts_page_server",
+      "target": "c_users_user_pieq_svelte_app_template_src_routes_shifts_types"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/shifts/+page.server.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "shifts_page_server",
+      "target": "shifts_page_server_load"
+    },
+    {
+      "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src/routes/shifts/+page.svelte",
       "confidence_score": 1.0,
@@ -26370,6 +27188,14 @@
       "confidence_score": 1.0,
       "source": "shifts_page",
       "target": "c_users_user_pieq_svelte_app_template_src_lib_types_shift"
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/shifts/+page.svelte",
+      "confidence_score": 1.0,
+      "source": "shifts_page",
+      "target": "c_users_user_pieq_svelte_app_template_src_routes_shifts_types"
     },
     {
       "relation": "imports_from",
@@ -28594,5 +29420,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "a45aa8b4e4d14a439e8ead314a7c6b751787ea43"
+  "built_at_commit": "7708bffc9546848bec8d645c15b67b2aa3eeba35"
 }
