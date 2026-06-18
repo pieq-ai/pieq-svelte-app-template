@@ -11,6 +11,7 @@
 	import { toast } from 'svelte-sonner';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import { Alert, AlertDescription, Button, CrudModal, Input, Label, SearchableDropdown } from '$lib/components';
+	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 	import { getMasterConfig, type MasterKey } from '$lib/master-data/master-config';
 	import { getMasterPermissions, type MasterPermissionConfig } from '$lib/permissions/mock-permissions';
 
@@ -48,9 +49,12 @@
 	let isSubmitting = $state(false);
 	let editingOption = $state<DropdownOption | null>(null);
 	let masterValue = $state('');
+	let originalValue = $state('');
 	let isValueTouched = $state(false);
 	let backendError = $state('');
 	let masterInput = $state<HTMLInputElement | null>(null);
+	let showUnsavedModal = $state(false);
+	let isDirty = $derived(masterValue !== originalValue);
 
 	function getValidationError(input: string) {
 		const trimmed = input.trim();
@@ -133,6 +137,7 @@
 	function openCreateModal() {
 		editingOption = null;
 		masterValue = '';
+		originalValue = '';
 		errorMessage = '';
 		backendError = '';
 		isValueTouched = false;
@@ -144,10 +149,25 @@
 		if (!option) return;
 		editingOption = option;
 		masterValue = option.label;
+		originalValue = option.label;
 		errorMessage = '';
 		backendError = '';
 		isValueTouched = false;
 		isModalOpen = true;
+	}
+
+	function handleModalCloseAttempt() {
+		if (isSubmitting) return;
+		if (isDirty) {
+			showUnsavedModal = true;
+		} else {
+			isModalOpen = false;
+		}
+	}
+
+	function handleConfirmCancel() {
+		showUnsavedModal = false;
+		isModalOpen = false;
 	}
 
 	async function saveMasterValue(event: Event) {
@@ -220,7 +240,7 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingOption ? `Edit ${config.label}` : `Add ${config.label}`}
-	onClose={() => (isModalOpen = false)}
+	onClose={handleModalCloseAttempt}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-4" onsubmit={saveMasterValue}>
@@ -247,3 +267,13 @@
 		</form>
 	{/snippet}
 </CrudModal>
+
+<ConfirmModal
+	open={showUnsavedModal}
+	title="Cancel Changes"
+	description="Are you sure you want to cancel? All unsaved changes will be lost."
+	cancelLabel="Keep Editing"
+	confirmLabel="Cancel"
+	onCancel={() => (showUnsavedModal = false)}
+	onConfirm={handleConfirmCancel}
+/>

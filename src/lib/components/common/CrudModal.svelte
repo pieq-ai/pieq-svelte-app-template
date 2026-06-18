@@ -9,7 +9,6 @@
 		title: string;
 		description?: string;
 		closeLabel?: string;
-		isDirty?: boolean;
 		isSubmitting?: boolean;
 		onClose: () => void;
 		children?: import('svelte').Snippet<[{ cancel: () => void }]>;
@@ -21,55 +20,34 @@
 		title,
 		description = '',
 		closeLabel = 'Close modal',
-		isDirty = false,
 		isSubmitting = false,
 		onClose,
 		children,
 		preventOutsideClickClose = false
 	}: Props = $props();
 
-	let showUnsavedConfirm = $state(false);
-
 	const modalId = Symbol('CrudModal');
-	const confirmId = Symbol('CrudModalConfirm');
 
 	$effect(() => {
 		if (open) {
 			modalStack.push(modalId);
 		} else {
 			modalStack.pop(modalId);
-			modalStack.pop(confirmId);
-		}
-	});
-
-	$effect(() => {
-		if (showUnsavedConfirm) {
-			modalStack.push(confirmId);
-		} else {
-			modalStack.pop(confirmId);
 		}
 	});
 
 	onDestroy(() => {
 		modalStack.pop(modalId);
-		modalStack.pop(confirmId);
 	});
 
 	function handleCloseAttempt() {
 		if (isSubmitting) return;
-		if (isDirty) {
-			showUnsavedConfirm = true;
-		} else {
-			onClose();
-		}
+		onClose();
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Escape' && open) {
-			if (showUnsavedConfirm && modalStack.isTop(confirmId)) {
-				showUnsavedConfirm = false;
-				e.preventDefault();
-			} else if (modalStack.isTop(modalId)) {
+			if (modalStack.isTop(modalId)) {
 				handleCloseAttempt();
 				e.preventDefault();
 			}
@@ -115,50 +93,5 @@
 				{@render children?.({ cancel: handleCloseAttempt })}
 			</CardContent>
 		</Card>
-	</div>
-{/if}
-
-{#if showUnsavedConfirm}
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div 
-		class="fixed inset-0 z-100 flex items-center justify-center bg-[rgba(15,11,10,0.4)] backdrop-blur-md px-4 py-6"
-		onclick={(e) => {
-			if (preventOutsideClickClose) return;
-			if (e.target === e.currentTarget &&
-		modalStack.isTop(confirmId)) showUnsavedConfirm = false;
-		}}
-	>
-		<div
-			class="bg-card border border-border/50 rounded-[24px] w-full max-w-[420px] shadow-2xl flex flex-col p-6 sm:p-7 md:p-8"
-			role="dialog"
-			aria-modal="true"
-		>
-			<h3 class="text-xl font-bold text-foreground m-0 leading-tight mb-2">
-				Cancel Changes
-			</h3>
-			<p class="text-sm text-muted-foreground m-0 leading-relaxed mb-6">
-				Are you sure you want to cancel? All unsaved changes will be lost.
-			</p>
-			<div class="flex justify-end gap-3">
-				<button
-					type="button"
-					class="h-[38px] px-5 rounded-[12px] border border-[#e5e7eb] bg-card text-[14px] font-semibold cursor-pointer text-foreground hover:bg-muted transition-colors duration-150"
-					onclick={() => {
-						showUnsavedConfirm = false;
-						onClose();
-					}}
-				>
-					Cancel
-				</button>
-				<button
-					type="button"
-					class="h-[38px] px-5 rounded-[12px] border-none text-white text-[14px] font-semibold cursor-pointer transition-colors duration-150 bg-[#800020] hover:bg-[#600018]"
-					onclick={() => (showUnsavedConfirm = false)}
-				>
-					Keep Editing
-				</button>
-			</div>
-		</div>
 	</div>
 {/if}
