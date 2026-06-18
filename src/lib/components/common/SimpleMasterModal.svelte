@@ -6,7 +6,7 @@
 	import { createDirtyChecker } from '$lib/utils';
 	import { globalIsDirty } from '$lib/stores/navigationGuard';
 
-	interface Designation {
+	interface SimpleMaster {
 		cuid: string;
 		name: string;
 		status: boolean;
@@ -14,31 +14,35 @@
 
 	let { 
 		open = $bindable(false), 
-		editingDesignation = null, 
+		editingRecord = null, 
+        entityName,
+        apiEndpoint,
 		onSuccess 
 	}: { 
 		open: boolean; 
-		editingDesignation?: Designation | null; 
-		onSuccess?: (designation: any) => void;
+		editingRecord?: SimpleMaster | null; 
+        entityName: string;
+        apiEndpoint: string;
+		onSuccess?: (record: any) => void;
 	} = $props();
 
-	let formDesignationName = $state('');
-	let formDesignationStatus = $state<boolean>(true);
+	let formName = $state('');
+	let formStatus = $state<boolean>(true);
 	let isSubmitting = $state(false);
 	let isNameTouched = $state(false);
 	let backendError = $state('');
-	let designationNameInput = $state<HTMLInputElement | null>(null);
+	let nameInput = $state<HTMLInputElement | null>(null);
 	let showConfirmClose = $state(false);
 
 	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
-	let isDirty = $derived(open && dirtyChecker.isDirty({ name: formDesignationName.trim(), status: formDesignationStatus }));
+	let isDirty = $derived(open && dirtyChecker.isDirty({ name: formName.trim(), status: formStatus }));
 
 	$effect(() => {
 		if (open) {
-			const initialName = editingDesignation ? editingDesignation.name : '';
-			const initialStatus = editingDesignation ? editingDesignation.status : true;
-			formDesignationName = initialName;
-			formDesignationStatus = initialStatus;
+			const initialName = editingRecord ? editingRecord.name : '';
+			const initialStatus = editingRecord ? editingRecord.status : true;
+			formName = initialName;
+			formStatus = initialStatus;
 			isNameTouched = false;
 			backendError = '';
 			dirtyChecker.snapshot({ name: initialName, status: initialStatus });
@@ -55,7 +59,7 @@
 
 	function getValidationError(name: string): string {
 		const trimmed = name.trim();
-		if (trimmed === '') return 'Designation name is required';
+		if (trimmed === '') return `${entityName} name is required`;
 		if (trimmed.length < 2) return 'Minimum 2 characters required';
 		if (trimmed.length > 100) return 'Maximum 100 characters allowed';
 		const regex = /^[A-Za-z0-9\s-]+$/;
@@ -65,38 +69,42 @@
 		return '';
 	}
 
-	let nameValidationError = $derived(isNameTouched ? getValidationError(formDesignationName) : '');
+	let nameValidationError = $derived(isNameTouched ? getValidationError(formName) : '');
 
-	async function handleSaveDesignation(e: Event) {
+	async function handleSave(e: Event) {
 		e.preventDefault();
-		if (editingDesignation && !isDirty) return;
+		if (editingRecord && !isDirty) return;
 		isNameTouched = true;
 
-		const validationError = getValidationError(formDesignationName);
+		const validationError = getValidationError(formName);
 		if (validationError) {
-			designationNameInput?.focus();
+			nameInput?.focus();
 			return;
 		}
 
 		isSubmitting = true;
 
 		try {
-			const payload = { name: formDesignationName.trim(), status: formDesignationStatus };
+			const payload: any = { name: formName.trim() };
+			if (editingRecord) {
+				payload.status = formStatus;
+			}
+			
 			let res: any;
-			if (editingDesignation) {
-				res = await localApi.put(`/api/designations/${editingDesignation.cuid}`, payload);
+			if (editingRecord) {
+				res = await localApi.put(`${apiEndpoint}/${editingRecord.cuid}`, payload);
 			} else {
-				res = await localApi.post('/api/designations', payload);
+				res = await localApi.post(apiEndpoint, payload);
 			}
 
-			toast.success(editingDesignation ? 'Designation updated successfully' : 'Designation created successfully');
+			toast.success(editingRecord ? `${entityName} updated successfully` : `${entityName} created successfully`);
 			open = false;
 			$globalIsDirty = false;
 			onSuccess?.(res.data);
 		} catch (err) {
 			backendError = err instanceof ApiError ? err.message : 'Something went wrong.';
 			if (err instanceof ApiError && err.status === 409) {
-				designationNameInput?.focus();
+				nameInput?.focus();
 			} else {
 				toast.error(backendError);
 			}
@@ -118,34 +126,34 @@
 
 <CrudModal
 	{open}
-	title={editingDesignation ? 'Edit Designation' : 'Create Designation'}
+	title={editingRecord ? `Edit ${entityName}` : `Create ${entityName}`}
 	{isSubmitting}
 	onClose={handleClose}
 >
 	{#snippet children({ cancel })}
-		<form class="space-y-3" onsubmit={handleSaveDesignation}>
+		<form class="space-y-3" onsubmit={handleSave}>
 			<div class="space-y-2">
-				<Label for="name">Designation Name</Label>
+				<Label for="name">{entityName} Name</Label>
 				<Input
 					id="name"
 					name="name"
-					bind:ref={designationNameInput}
-					bind:value={formDesignationName}
+					bind:ref={nameInput}
+					bind:value={formName}
 					class={nameValidationError || backendError ? 'border-destructive' : ''}
-					placeholder="e.g. Senior HR Manager"
+					placeholder={`e.g. ${entityName === 'Department' ? 'Finance' : entityName === 'Role' ? 'HR Manager' : 'Senior ' + entityName}`}
 					oninput={() => { backendError = ''; }}
 				/>
 				{#if nameValidationError || backendError}
 					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
 				{/if}
 			</div>
-			{#if editingDesignation}
-				<StatusDropdown id="designation_status" name="designation_status" value={formDesignationStatus} onChange={(val) => (formDesignationStatus = val)} />
+			{#if editingRecord}
+				<StatusDropdown id="record_status" name="record_status" value={formStatus} onChange={(val) => (formStatus = val)} />
 			{/if}
 			<div class="flex items-center justify-end gap-3 pt-4">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingDesignation && !isDirty)}>
-					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingDesignation ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
+				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingRecord && !isDirty)}>
+					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingRecord ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>
 			</div>
 		</form>

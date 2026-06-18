@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { Label, Input, SearchableDropdown, MasterDataDropdown, DatePicker, Button } from '$lib/components';
 	import AsyncDropdown from '$lib/components/common/AsyncDropdown.svelte';
-	import DepartmentModal from '$lib/components/departments/DepartmentModal.svelte';
-	import DesignationModal from '$lib/components/designations/DesignationModal.svelte';
-	import RoleModal from '$lib/components/roles/RoleModal.svelte';
+	import SimpleMasterModal from '$lib/components/common/SimpleMasterModal.svelte';
 	import LocationModal from '$lib/components/organization_locations/LocationModal.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { toast } from 'svelte-sonner';
@@ -343,27 +341,36 @@
 				Save
 			</Button>
 		</div>
+		{#if hasErrors && isTouched}
+			<p class="text-xs text-destructive -mt-2">Please fix the errors above before proceeding.</p>
+		{/if}
 	</div>
 </div>
 
-<DepartmentModal 
-	bind:open={isDeptModalOpen} 
+<SimpleMasterModal
+	bind:open={isDeptModalOpen}
+	entityName="Department"
+	apiEndpoint="/api/departments"
 	onSuccess={async (dept) => {
 		if (deptDropdown) await deptDropdown.loadOptions();
 		employment.department_cuid = dept.cuid;
 	}}
 />
 
-<DesignationModal 
-	bind:open={isDesignationModalOpen} 
+<SimpleMasterModal
+	bind:open={isDesignationModalOpen}
+	entityName="Designation"
+	apiEndpoint="/api/designations"
 	onSuccess={async (desig) => {
 		if (desigDropdown) await desigDropdown.loadOptions();
 		employment.designation_cuid = desig.cuid;
 	}}
 />
 
-<RoleModal 
-	bind:open={isRoleModalOpen} 
+<SimpleMasterModal
+	bind:open={isRoleModalOpen}
+	entityName="Role"
+	apiEndpoint="/api/roles"
 	onSuccess={async (role) => {
 		if (roleDropdown) await roleDropdown.loadOptions();
 		employment.role_cuid = role.cuid;

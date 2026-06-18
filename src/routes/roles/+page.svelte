@@ -27,13 +27,13 @@
 		TableHeader,
 		TableRow,
 		ConfirmModal,
-		CrudModal,
 		TableActions,
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
 		SearchInput
 	} from '$lib/components';
+	import SimpleMasterModal from '$lib/components/common/SimpleMasterModal.svelte';
 
 	interface Role {
 		cuid: string;
@@ -55,38 +55,11 @@
 
 	// Shared Form State
 	let editingRole = $state<Role | null>(null);
-	let formRoleName = $state('');
-	let formRoleStatus = $state<boolean>(true);
-	let isSubmitting = $state(false);
 	let isModalOpen = $state(false);
-	let isNameTouched = $state(false);
-	let backendError = $state('');
-	let roleNameInput = $state<HTMLInputElement | null>(null);
-	let showConfirmClose = $state(false);
-
-	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
-	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ name: formRoleName.trim(), status: formRoleStatus }));
-	$effect(() => {
-		$globalIsDirty = isDirty;
-	});
 
 	// Deletion State
 	let itemToDelete = $state<Role | null>(null);
 	let isDeleting = $state(false);
-
-	function getValidationError(name: string): string {
-		const trimmed = name.trim();
-		if (trimmed === '') return 'Role name is required';
-		if (trimmed.length < 2) return 'Minimum 2 characters required';
-		if (trimmed.length > 100) return 'Maximum 100 characters allowed';
-		const regex = /^[A-Za-z0-9\s-]+$/;
-		if (!regex.test(trimmed)) {
-			return 'Only letters, numbers, spaces, and hyphens are allowed';
-		}
-		return '';
-	}
-
-	let nameValidationError = $derived(isNameTouched ? getValidationError(formRoleName) : '');
 
 	let filteredRoles = $derived.by(() => {
 		let result = [...rolesList];
@@ -160,70 +133,12 @@
 
 	function openCreateModal() {
 		editingRole = null;
-		formRoleName = '';
-		formRoleStatus = true;
-		isNameTouched = false;
-		backendError = '';
-		dirtyChecker.snapshot({ name: '', status: true });
 		isModalOpen = true;
 	}
 
 	function openEditModal(role: Role) {
 		editingRole = role;
-		formRoleName = role.name;
-		formRoleStatus = role.status;
-		isNameTouched = false;
-		backendError = '';
-		dirtyChecker.snapshot({ name: role.name, status: role.status });
 		isModalOpen = true;
-	}
-
-	function handleClose() {
-		if (isDirty) {
-			showConfirmClose = true;
-		} else {
-			isModalOpen = false;
-			$globalIsDirty = false;
-		}
-	}
-
-	async function handleSaveRole(e: Event) {
-		e.preventDefault();
-		if (editingRole && !isDirty) return;
-		isNameTouched = true;
-
-		const validationError = getValidationError(formRoleName);
-		if (validationError) {
-			roleNameInput?.focus();
-			return;
-		}
-
-		isSubmitting = true;
-
-		try {
-			if (editingRole) {
-				const payload = { name: formRoleName.trim(), status: formRoleStatus };
-				await localApi.put(`/api/roles/${editingRole.cuid}`, payload);
-			} else {
-				const payload = { name: formRoleName.trim() };
-				await localApi.post('/api/roles', payload);
-			}
-
-			await loadRoles();
-			toast.success(editingRole ? 'Role updated successfully' : 'Role created successfully');
-			isModalOpen = false;
-			$globalIsDirty = false;
-		} catch (err) {
-			backendError = err instanceof ApiError ? err.message : 'Something went wrong.';
-			if (err instanceof ApiError && err.status === 409) {
-				roleNameInput?.focus();
-			} else {
-				toast.error(backendError);
-			}
-			console.error(err);
-		} finally {
-			isSubmitting = false;
-		}
 	}
 
 	async function confirmDelete() {
@@ -380,41 +295,16 @@
 	</div>
 </div>
 
-<CrudModal
-	open={isModalOpen}
-	title={editingRole ? 'Edit Role' : 'Create Role'}
-	isSubmitting={isSubmitting}
-	onClose={handleClose}
->
-	{#snippet children({ cancel })}
-		<form class="space-y-3" onsubmit={handleSaveRole}>
-			<div class="space-y-2">
-				<Label for="name">Role Name</Label>
-				<Input
-					id="name"
-					name="name"
-					bind:ref={roleNameInput}
-					bind:value={formRoleName}
-					class={nameValidationError || backendError ? 'border-destructive' : ''}
-					placeholder="e.g. HR Manager"
-					oninput={() => { backendError = ''; }}
-				/>
-				{#if nameValidationError || backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
-				{/if}
-			</div>
-			{#if editingRole}
-				<StatusDropdown id="role_status" name="role_status" value={formRoleStatus} onChange={(val) => (formRoleStatus = val)} />
-			{/if}
-			<div class="flex items-center justify-end gap-3 pt-4">
-				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingRole && !isDirty)}>
-					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingRole ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
-				</Button>
-			</div>
-		</form>
-	{/snippet}
-</CrudModal>
+<SimpleMasterModal
+	bind:open={isModalOpen}
+	entityName="Role"
+	apiEndpoint="/api/roles"
+	editingRecord={editingRole}
+	onSuccess={() => {
+		isModalOpen = false;
+		loadRoles();
+	}}
+/>
 
 <ConfirmModal
 	open={!!itemToDelete}
@@ -424,20 +314,4 @@
 	isSubmitting={isDeleting}
 	onCancel={() => (itemToDelete = null)}
 	onConfirm={confirmDelete}
-/>
-
-<ConfirmModal
-	open={showConfirmClose}
-	title="Unsaved Changes"
-	description="You have unsaved changes. Are you sure you want to close this modal?"
-	confirmLabel="Cancel"
-	cancelLabel="Keep Editing"
-	onConfirm={() => {
-		showConfirmClose = false;
-		isModalOpen = false;
-		$globalIsDirty = false;
-	}}
-	onCancel={() => {
-		showConfirmClose = false;
-	}}
 />
