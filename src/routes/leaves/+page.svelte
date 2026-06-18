@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { SvelteDate } from 'svelte/reactivity';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
 	import ClockIcon from '@lucide/svelte/icons/clock';
@@ -245,7 +246,7 @@
 
 		// Collect active dates
 		const activeDates: Date[] = [];
-		const curr = new Date(start);
+		const curr = new SvelteDate(start);
 		while (curr <= end) {
 			if (code === 'ML' || code === 'LWP') {
 				activeDates.push(new Date(curr));
@@ -567,14 +568,14 @@
 		if (start > end) return 0;
 
 		let totalMonths = 0;
-		let current = new Date(start);
+		let current = new SvelteDate(start);
 
 		while (current <= end) {
 			const year = current.getFullYear();
 			const month = current.getMonth();
 
-			const startOfMonth = new Date(year, month, 1);
-			const endOfMonth = new Date(year, month + 1, 0);
+			const startOfMonth = new SvelteDate(year, month, 1);
+			const endOfMonth = new SvelteDate(year, month + 1, 0);
 
 			const activeStart = current > startOfMonth ? current : startOfMonth;
 			const activeEnd = end < endOfMonth ? end : endOfMonth;
@@ -587,7 +588,7 @@
 
 			totalMonths += activeDays / monthDays;
 
-			current = new Date(year, month + 1, 1);
+			current = new SvelteDate(year, month + 1, 1);
 		}
 
 		return totalMonths;
@@ -613,15 +614,15 @@
 		const targetYear = requestDate.getFullYear();
 		const targetMonth = requestDate.getMonth();
 
-		const joinDate = new Date(employee.date_of_joining);
+		const joinDate = new SvelteDate(employee.date_of_joining);
 		joinDate.setHours(0, 0, 0, 0);
 
-		const relievingDate = employee.relieving_date ? new Date(employee.relieving_date) : null;
+		const relievingDate = employee.relieving_date ? new SvelteDate(employee.relieving_date) : null;
 		if (relievingDate) {
 			relievingDate.setHours(0, 0, 0, 0);
 		}
 
-		const now = new Date();
+		const now = new SvelteDate();
 		now.setHours(0, 0, 0, 0);
 		const currentYear = now.getFullYear();
 

@@ -231,7 +231,7 @@ describe('Service Layer Unit Tests', () => {
 
       // Retrieve the request and ensure document fields are correct
       const details = await leaveService.getEmployeeLeaveDetails('test.service.official@example.com', 2026);
-      const retrievedReq = details.requests.find((r) => r.cuid === req.cuid);
+      const retrievedReq = details.requests.find((r: any) => r.cuid === req.cuid);
       expect(retrievedReq).toBeDefined();
       expect(retrievedReq?.document_url).toBe(`/api/leaves/${req.cuid}/document`);
       expect(retrievedReq?.file_name).toBe('health_cert.pdf');

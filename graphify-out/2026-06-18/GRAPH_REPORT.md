@@ -1,7 +1,7 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-18)
 
 ## Corpus Check
-- 232 files · ~93,749 words
+- 232 files · ~93,739 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -99,12 +99,12 @@ Cohesion: 0.07
 Nodes (43): getMaster(), POST(), POST(), POST(), requireAdmin(), requireAuth(), requirePermission(), GET() (+35 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.17
-Nodes (10): @lucide/svelte/icons/alert-circle, $lib/api/leaves, @lucide/svelte/icons/calendar, @lucide/svelte/icons/check-circle, @lucide/svelte/icons/clock, @lucide/svelte/icons/file-text, svelte/reactivity, @lucide/svelte/icons/trash-2 (+2 more)
+Cohesion: 0.12
+Nodes (15): @lucide/svelte/icons/alert-circle, $lib/api/leaves, $lib/components/index.js, $lib/components/ui/dropdown-menu/index.js, @lucide/svelte/icons/calendar, @lucide/svelte/icons/check, @lucide/svelte/icons/check-circle, @lucide/svelte/icons/chevron-down (+7 more)
 
 ### Community 2 - "UI Components Index"
-Cohesion: 0.18
-Nodes (24): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/toast, $lib/types/salary-component (+16 more)
+Cohesion: 0.19
+Nodes (23): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/master-data/master-config, $lib/permissions/mock-permissions, $lib/toast, $lib/types/salary-component (+15 more)
 
 ### Community 3 - "UI Components Core"
 Cohesion: 0.08
@@ -151,8 +151,8 @@ Cohesion: 0.26
 Nodes (11): createPermission(), CreatePermissionDto, deletePermission(), ensurePermissionKeyIsUnique(), getPermissionByCuid2(), getPermissionById(), toPublicPermission(), updatePermission() (+3 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.12
-Nodes (13): @lucide/svelte/icons/alert-triangle, $lib/components, $lib/components, $lib/components/index.js, $lib/components/ui/dropdown-menu/index.js, @lucide/svelte/icons/check, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/more-vertical (+5 more)
+Cohesion: 0.19
+Nodes (7): @lucide/svelte/icons/alert-triangle, $lib/components, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/more-vertical, @lucide/svelte/icons/pencil, svelte/transition, @lucide/svelte/icons/x
 
 ### Community 15 - "TypeScript Config"
 Cohesion: 0.14
@@ -187,16 +187,16 @@ Cohesion: 0.07
 Nodes (20): CreateRolePermissionInput, CreateSystemRoleInput, UpdateSystemRoleInput, DELETE(), getStatus(), assignPermissionsToRole(), AssignRolePermissionsDto, removePermissionFromRoleByCuid2() (+12 more)
 
 ### Community 37 - "Community 37"
-Cohesion: 0.20
-Nodes (7): $app/forms, devEmail, devError, devMode, devPassword, redirectTo, $app/state
+Cohesion: 0.12
+Nodes (10): $lib/components, $app/forms, @lucide/svelte/icons/settings, devEmail, devError, devMode, devPassword, redirectTo (+2 more)
 
 ### Community 38 - "Community 38"
 Cohesion: 0.14
 Nodes (12): ./$types, ./$types, averageAge, filteredEmployees, formError, handleAddEmployee(), isSubmitting, loadEmployees() (+4 more)
 
 ### Community 40 - "Community 40"
-Cohesion: 0.29
-Nodes (5): $lib/api/local, $lib/api/locations, $lib/confirmation.svelte.js, $lib/types/organization_location, @lucide/svelte/icons/chevron-down
+Cohesion: 0.33
+Nodes (4): $lib/api/local, $lib/api/locations, $lib/confirmation.svelte.js, $lib/types/organization_location
 
 ### Community 43 - "Community 43"
 Cohesion: 0.40
@@ -268,7 +268,7 @@ _Questions this graph is uniquely positioned to answer:_
   _330 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `API Endpoints` be split into smaller, more focused modules?**
   _Cohesion score 0.06758832565284179 - nodes in this community are weakly interconnected._
+- **Should `Community 1` be split into smaller, more focused modules?**
+  _Cohesion score 0.11578947368421053 - nodes in this community are weakly interconnected._
 - **Should `UI Components Core` be split into smaller, more focused modules?**
   _Cohesion score 0.08315863032844165 - nodes in this community are weakly interconnected._
-- **Should `Dependencies & Icons` be split into smaller, more focused modules?**
-  _Cohesion score 0.044444444444444446 - nodes in this community are weakly interconnected._

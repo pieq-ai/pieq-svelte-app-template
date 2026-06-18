@@ -70,8 +70,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\hooks.server.js": {
-    "mtime": 1781766946.5467095,
-    "ast_hash": "f9eed193072b680b8c9652df9993aec1",
+    "mtime": 1781765899.973005,
+    "ast_hash": "5b149e268eac837dd88f56de0c41f43c",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\instrumentation.server.js": {
@@ -775,8 +775,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\auth\\signin\\+page.svelte": {
-    "mtime": 1781768209.0055497,
-    "ast_hash": "4a9460567e3df59acb84aef29a30f648",
+    "mtime": 1781765915.9567065,
+    "ast_hash": "710bb226ac4058013422658ba588d9c8",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\dashboard\\+page.server.ts": {
@@ -1195,8 +1195,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\api\\auth\\mock-login\\+server.ts": {
-    "mtime": 1781768021.6049373,
-    "ast_hash": "d0faa601612b3174e0e1c1d5c47c26a2",
+    "mtime": 1781765906.4420314,
+    "ast_hash": "a7c5ed13b814f9fa04c90d2aa831e1b5",
     "semantic_hash": ""
   }
 }

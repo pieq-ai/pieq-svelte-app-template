@@ -15,6 +15,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		session,
 		user: locals.user ?? sessionUser,
 		roles: locals.roles,
-		config: getAppConfig()
+		config: getAppConfig(),
+		dev: process.env.NODE_ENV !== 'production'
 	};
 };

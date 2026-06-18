@@ -37,14 +37,7 @@ export async function POST(event: RequestEvent) {
 			return json({ error: 'Invalid payroll cutoff day. Must be between 1 and 28.' }, { status: 400 });
 		}
 
-		await db.systemSetting.upsert({
-			where: { key: 'payroll_cutoff_day' },
-			update: { value: String(cutoffDay) },
-			create: {
-				key: 'payroll_cutoff_day',
-				value: String(cutoffDay)
-			}
-		});
+		leaveService.setPayrollCutoffDay(cutoffDay);
 
 		return json({ data: { payrollCutoffDay: cutoffDay } });
 	} catch (error) {

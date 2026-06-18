@@ -9,6 +9,31 @@ BigInt.prototype.toJSON = function () {
 
 /** @type {import('@sveltejs/kit').Handle} */
 const injectLocals = async ({ event, resolve }) => {
+	// Development Mock Login Bypass
+	if (process.env.NODE_ENV !== 'production') {
+		const mockEmail = event.cookies.get('mock-user-email');
+		if (mockEmail) {
+			let name = 'John Doe';
+			let roles = ['admin', 'manager'];
+			if (mockEmail === 'jane.smith@pieq.ai') {
+				name = 'Jane Smith';
+				roles = ['employee'];
+			} else if (mockEmail === 'bob.johnson@pieq.ai') {
+				name = 'Bob Johnson';
+				roles = ['employee'];
+			}
+
+			event.locals.user = {
+				id: 'mock-' + mockEmail,
+				email: mockEmail,
+				name: name
+			};
+			event.locals.roles = roles;
+
+			return resolve(event);
+		}
+	}
+
 	const session = await event.locals.auth?.();
 
 	if (session?.user?.id) {
@@ -64,6 +89,15 @@ const routeGuard = async ({ event, resolve }) => {
 
 /** @type {import('@sveltejs/kit').Handle} */
 const customAuthHandle = async ({ event, resolve }) => {
+	// Intercept sign-out to clear mock cookie in development mode
+	if (event.url.pathname === '/auth/signout' && event.request.method === 'POST') {
+		const mockEmail = event.cookies.get('mock-user-email');
+		if (mockEmail) {
+			event.cookies.delete('mock-user-email', { path: '/' });
+			redirect(303, '/');
+		}
+	}
+
 	// Root Cause Fix: Bypass Auth.js interception for the custom sign-in page.
 	// If we don't, Auth.js intercepts /auth/signin and infinitely redirects to itself.
 	if (event.url.pathname === '/auth/signin' && event.request.method === 'GET') {

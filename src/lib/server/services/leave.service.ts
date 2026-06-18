@@ -100,16 +100,14 @@ function calculateFractionalMonths(start: Date, end: Date): number {
 	return totalMonths;
 }
 
+let payrollCutoffDayValue = 25;
+
 export async function getPayrollCutoffDay(tx?: any): Promise<number> {
-	const client = tx || db;
-	try {
-		const setting = await client.systemSetting.findUnique({
-			where: { key: 'payroll_cutoff_day' }
-		});
-		return setting ? parseInt(setting.value, 10) : 25;
-	} catch {
-		return 25;
-	}
+	return payrollCutoffDayValue;
+}
+
+export function setPayrollCutoffDay(value: number) {
+	payrollCutoffDayValue = value;
 }
 
 export async function getMonthlyUsedDays(employeeCuid: string, month: number, year: number, leaveCode: 'LOP' | 'LWP', tx?: any) {
@@ -976,7 +974,7 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 		daysFromLwp = totalDays;
 	} else {
 		// All other leave types: available balance first, excess → LOP
-		let remainingBalance = 0;
+		let remainingBalance: number;
 		if (leaveType.leave_code === 'CL' || leaveType.leave_code === 'SL') {
 			const targetMonth = startDate.getMonth();
 			remainingBalance = await getAvailableBalanceForMonth(employee.cuid, leaveType.cuid, targetYear, targetMonth);
@@ -1147,7 +1145,7 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 		// Recheck leave balance sufficiency
 		const year = request.start_date.getFullYear();
 		if (request.days_from_primary && Number(request.days_from_primary) > 0) {
-			let remainingBalance = 0;
+			let remainingBalance: number;
 			if (leaveType.leave_code === 'CL' || leaveType.leave_code === 'SL') {
 				const targetMonth = request.start_date.getMonth();
 				remainingBalance = await getAvailableBalanceForMonth(request.employee_cuid, request.leave_type_cuid, year, targetMonth, tx);

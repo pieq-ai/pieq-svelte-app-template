@@ -6,39 +6,62 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-
 /// Salary Component master — component_type is validated as 'earning' | 'deduction' at the application layer
 model SalaryComponent {
   /// Auto-incrementing surrogate primary key (internal use only)
-  id             BigInt   @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
   /// Externally-exposed, non-guessable identifier — used in all API routes
-  cuid           String   @unique @default(cuid(2)) @db.Text
+  cuid String @unique @default(cuid(2)) @db.Text
 
-  name String   @db.VarChar(150)
+  name String @db.VarChar(150)
 
   /// Stored as plain string: 'earning' | 'deduction' — validated at application layer
-  component_type String   @db.VarChar(20)
+  component_type String @db.VarChar(20)
 
-  is_taxable     Boolean  @default(false)
+  is_taxable Boolean @default(false)
 
-  is_active      Boolean  @default(true)
+  is_active Boolean @default(true)
 
-  created_at     DateTime @default(now()) @db.Timestamptz()
+  created_at DateTime @default(now()) @db.Timestamptz()
 
   /// cuid of the user who created this record
-  created_by     String?  @db.Text
+  created_by String? @db.Text
 
-  updated_at     DateTime @updatedAt @db.Timestamptz()
+  updated_at DateTime @updatedAt @db.Timestamptz()
 
   /// cuid of the user who last updated this record
-  updated_by     String?  @db.Text
+  updated_by String? @db.Text
 
   @@unique([name])
-
   @@map("salary_components")
 }
 
+model Shift {
+  id BigInt @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  shift_name String @unique @db.VarChar(100)
+
+  start_time DateTime @db.Time(6)
+
+  end_time DateTime @db.Time(6)
+
+  minimum_work_hours Decimal @db.Decimal(4, 2)
+
+  status Boolean @default(true)
+
+  created_by String? @db.VarChar(255)
+
+  updated_by String? @db.VarChar(255)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+
+  @@map("shifts")
+}
 
 model SystemRoles {
   id BigInt @id @default(autoincrement())
@@ -47,18 +70,19 @@ model SystemRoles {
 
   name String @unique @db.VarChar(100)
 
-  status          Boolean          @default(true)
+  status Boolean @default(true)
 
   created_at DateTime @default(now()) @db.Timestamptz()
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
+
   @@map("system_roles")
 }
 
 model Department {
-  id        BigInt    @id @default(autoincrement())
-  cuid     String @unique @default(cuid())
+  id   BigInt @id @default(autoincrement())
+  cuid String @unique @default(cuid())
   name String @unique @db.VarChar(150)
 
   status Boolean @default(true)
@@ -67,6 +91,7 @@ model Department {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
+
   @@map("departments")
 }
 
@@ -77,12 +102,13 @@ model Permissions {
 
   permission_key String @unique @db.VarChar(100)
 
-  status          Boolean          @default(true)
+  status Boolean @default(true)
 
   created_at DateTime @default(now()) @db.Timestamptz()
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
+
   @@map("permissions")
 }
 
@@ -92,7 +118,7 @@ model RolePermission {
   cuid String @unique @default(cuid())
 
   system_role_cuid String
-  permission_cuid String
+  permission_cuid  String
 
   created_at DateTime @default(now()) @db.Timestamptz()
   created_by String?  @db.VarChar(100)
@@ -108,18 +134,19 @@ model BloodGroup {
 
   cuid String @unique @default(cuid())
 
-  name String     @unique @db.VarChar(5)
+  name String @unique @db.VarChar(5)
 
   created_at DateTime @default(now()) @db.Timestamptz()
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
+
   @@map("blood_groups")
 }
 
 model Designation {
-  id               BigInt    @id @default(autoincrement())
-  cuid            String @unique @default(cuid())
+  id   BigInt @id @default(autoincrement())
+  cuid String @unique @default(cuid())
   name String @unique @db.VarChar(150)
 
   status Boolean @default(true)
@@ -128,6 +155,7 @@ model Designation {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
+
   @@map("designations")
 }
 
@@ -144,6 +172,7 @@ model PayGrade {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
+
   @@map("pay_grades")
 }
 
@@ -154,12 +183,13 @@ model Nationality {
 
   name String @unique @db.VarChar(100)
 
-  status    Boolean    @default(true)
+  status Boolean @default(true)
 
   created_at DateTime @default(now()) @db.Timestamptz()
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
+
   @@map("nationalities")
 }
 
@@ -176,6 +206,7 @@ model EmploymentType {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
+
   @@map("employment_types")
 }
 
@@ -186,12 +217,13 @@ model RelationType {
 
   name String @unique @db.VarChar(50)
 
-  status    Boolean    @default(true)
+  status Boolean @default(true)
 
   created_at DateTime @default(now()) @db.Timestamptz()
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
+
   @@map("relation_types")
 }
 
@@ -208,6 +240,7 @@ model DocumentType {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
+
   @@map("document_types")
 }
 
@@ -235,12 +268,13 @@ model Country {
 
   cuid String @unique @default(cuid())
 
-  name String  @unique @db.VarChar(100)
+  name String @unique @db.VarChar(100)
 
   created_at DateTime @default(now()) @db.Timestamptz()
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
+
   @@map("countries")
 }
 
@@ -257,6 +291,7 @@ model Skills {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
+
   @@map("skills")
 }
 
@@ -273,6 +308,7 @@ model AttendanceSource {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
+
   @@map("attendance_sources")
 }
 
@@ -289,6 +325,7 @@ model Languages {
   created_by String?  @db.VarChar(100)
   updated_at DateTime @updatedAt @db.Timestamptz()
   updated_by String?  @db.VarChar(100)
+
   @@map("languages")
 }
 
@@ -398,7 +435,6 @@ model Employment {
   @@index([department_cuid])
   @@index([designation_cuid])
   @@index([role_cuid])
-
   @@map("employments")
 }
 
@@ -413,7 +449,7 @@ model EmployeeSkill {
 
   proficiency_level String? @db.VarChar(20)
 
-  years_of_experience Decimal? @db.Decimal(5,2)
+  years_of_experience Decimal? @db.Decimal(5, 2)
 
   created_at DateTime @default(now()) @db.Timestamptz()
 
@@ -424,7 +460,6 @@ model EmployeeSkill {
   updated_by String? @db.VarChar(100)
 
   @@unique([employee_cuid, skill_cuid])
-
   @@map("employee_skills")
 }
 
@@ -454,7 +489,6 @@ model EmployeeLanguage {
   updated_by String? @db.VarChar(100)
 
   @@unique([employee_cuid, language_cuid])
-
   @@map("employee_languages")
 }
 
@@ -473,7 +507,7 @@ model EmployeeEducation {
 
   university_board String? @db.VarChar(255)
 
-  percentage Decimal? @db.Decimal(5,2)
+  percentage Decimal? @db.Decimal(5, 2)
 
   completed_at DateTime? @db.Date
 
@@ -486,7 +520,6 @@ model EmployeeEducation {
   updated_by String? @db.VarChar(100)
 
   @@index([employee_cuid])
-
   @@map("employee_educations")
 }
 
@@ -516,7 +549,6 @@ model EmployeeExperience {
   updated_by String? @db.VarChar(100)
 
   @@index([employee_cuid])
-
   @@map("employee_experiences")
 }
 
@@ -538,13 +570,12 @@ model EmployeeDocument {
   document Bytes?
 
   created_at DateTime @default(now()) @db.Timestamptz()
-  created_by String? @db.VarChar(100)
+  created_by String?  @db.VarChar(100)
 
   updated_at DateTime @updatedAt @db.Timestamptz()
-  updated_by String? @db.VarChar(100)
+  updated_by String?  @db.VarChar(100)
 
   @@index([employee_cuid])
-
   @@map("employee_documents")
 }
 
@@ -572,13 +603,12 @@ model Address {
   pin_code String? @db.VarChar(20)
 
   created_at DateTime @default(now()) @db.Timestamptz()
-  created_by String? @db.VarChar(100)
+  created_by String?  @db.VarChar(100)
 
   updated_at DateTime @updatedAt @db.Timestamptz()
-  updated_by String? @db.VarChar(100)
+  updated_by String?  @db.VarChar(100)
 
   @@index([employee_cuid])
-
   @@map("addresses")
 }
 
@@ -602,13 +632,12 @@ model BankDetail {
   is_primary Boolean @default(true)
 
   created_at DateTime @default(now()) @db.Timestamptz()
-  created_by String? @db.VarChar(100)
+  created_by String?  @db.VarChar(100)
 
   updated_at DateTime @updatedAt @db.Timestamptz()
-  updated_by String? @db.VarChar(100)
+  updated_by String?  @db.VarChar(100)
 
   @@index([employee_cuid])
-
   @@map("bank_details")
 }
 
@@ -622,38 +651,12 @@ model Role {
   status Boolean @default(true)
 
   created_at DateTime @default(now()) @db.Timestamptz()
-  created_by String? @db.VarChar(100)
+  created_by String?  @db.VarChar(100)
 
   updated_at DateTime @updatedAt @db.Timestamptz()
-  updated_by String? @db.VarChar(100)
+  updated_by String?  @db.VarChar(100)
 
   @@map("roles")
-}
-
-model Shift {
-  id BigInt @id @default(autoincrement())
-
-  cuid String @unique @default(cuid())
-
-  shift_name String @unique @db.VarChar(100)
-
-  start_time DateTime @db.Time(6)
-
-  end_time DateTime @db.Time(6)
-
-  minimum_work_hours Decimal @db.Decimal(4, 2)
-
-  status Boolean @default(true)
-
-  created_by String? @db.VarChar(255)
-
-  updated_by String? @db.VarChar(255)
-
-  created_at DateTime @default(now()) @db.Timestamptz()
-
-  updated_at DateTime @updatedAt @db.Timestamptz()
-
-  @@map("shifts")
 }
 
 model CompanyLocation {
@@ -690,69 +693,79 @@ model CompanyLocation {
 }
 
 model LeaveType {
-  id                BigInt   @id @default(autoincrement())
-  cuid              String   @unique @default(cuid())
-  leave_name        String   @unique @db.VarChar(100)
-  leave_code        String   @unique @db.VarChar(20)
-  description       String?  @db.Text
-  is_paid           Boolean  @default(true)
-  requires_approval Boolean  @default(true)
-  status            Boolean  @default(true)
-  created_at        DateTime @default(now()) @db.Timestamptz(3)
-  updated_at        DateTime @default(now()) @updatedAt @db.Timestamptz(3)
-  created_by        String?  @db.Text
-  updated_by        String?  @db.Text
+  id                BigInt   @id @default(autoincrement())
+  cuid              String   @unique @default(cuid())
+  leave_name        String   @unique @db.VarChar(100)
+  leave_code        String   @unique @db.VarChar(20)
+  description       String?  @db.Text
+  is_paid           Boolean  @default(true)
+  requires_approval Boolean  @default(true)
+  status            Boolean  @default(true)
+  created_at        DateTime @default(now()) @db.Timestamptz(3)
+  updated_at        DateTime @default(now()) @updatedAt @db.Timestamptz(3)
+  created_by        String?  @db.Text
+  updated_by        String?  @db.Text
 
-  @@map("leave_types")
+  @@map("leave_types")
 }
 
 model LeavePolicy {
-  id                       BigInt                 @id @default(autoincrement())
-  cuid                     String                 @unique @default(cuid())
+  id   BigInt @id @default(autoincrement())
+  cuid String @unique @default(cuid())
 
-  leave_type_cuid          String                 @db.Text
+  leave_type_cuid String @db.Text
 
-  annual_limit             Decimal                @db.Decimal(5, 1)
-  max_per_month            Decimal?               @db.Decimal(4, 1)
-  carry_forward_allowed    Boolean                @default(false)
-  max_carry_forward_days   Decimal?               @db.Decimal(4, 1)
-  document_required        Boolean                @default(false)
-  document_required_after_days Int?
-  min_service_days         Int                    @default(0)
-  allow_half_day           Boolean                @default(false)
-  gender_specific          Boolean                @default(false)
-  applicable_gender        String?
-  status                   Boolean                @default(true)
-  deactivated_by_leave_type Boolean                @default(false)
-  created_at               DateTime               @default(now()) @db.Timestamptz(3)
-  updated_at               DateTime               @default(now()) @updatedAt @db.Timestamptz(3)
-  created_by               String?                @db.Text
-  updated_by               String?                @db.Text
+  annual_limit                 Decimal  @db.Decimal(5, 1)
+  max_per_month                Decimal? @db.Decimal(4, 1)
+  carry_forward_allowed        Boolean  @default(false)
+  max_carry_forward_days       Decimal? @db.Decimal(4, 1)
+  document_required            Boolean  @default(false)
+  document_required_after_days Int?
+  min_service_days             Int      @default(0)
+  allow_half_day               Boolean  @default(false)
+  gender_specific              Boolean  @default(false)
+  applicable_gender            String?
+  status                       Boolean  @default(true)
+  deactivated_by_leave_type    Boolean  @default(false)
+  created_at                   DateTime @default(now()) @db.Timestamptz(3)
+  updated_at                   DateTime @default(now()) @updatedAt @db.Timestamptz(3)
+  created_by                   String?  @db.Text
+  updated_by                   String?  @db.Text
 
-  @@index([leave_type_cuid])
-
-  @@map("leave_policies")
+  @@index([leave_type_cuid])
+  @@map("leave_policies")
 }
 
-
-
 model LeavePolicyEmploymentType {
-  id                     BigInt   @id @default(autoincrement())
-  cuid                   String   @unique @default(cuid())
+  id   BigInt @id @default(autoincrement())
+  cuid String @unique @default(cuid())
 
-  leave_policy_cuid      String   @db.Text
-  employment_type_cuid   String   @db.Text
-  created_at             DateTime @default(now()) @db.Timestamptz(3)
-  updated_at             DateTime @default(now()) @updatedAt @db.Timestamptz(3)
-  created_by             String?  @db.Text
-  updated_by             String?  @db.Text
+  leave_policy_cuid    String   @db.Text
+  employment_type_cuid String   @db.Text
+  created_at           DateTime @default(now()) @db.Timestamptz(3)
+  updated_at           DateTime @default(now()) @updatedAt @db.Timestamptz(3)
+  created_by           String?  @db.Text
+  updated_by           String?  @db.Text
 
-  @@unique([leave_policy_cuid, employment_type_cuid])
+  @@unique([leave_policy_cuid, employment_type_cuid])
+  @@index([leave_policy_cuid])
+  @@index([employment_type_cuid])
+  @@map("leave_policy_employment_types")
+}
 
-  @@index([leave_policy_cuid])
-  @@index([employment_type_cuid])
+model HolidayCalendar {
+  id           BigInt   @id @default(autoincrement())
+  cuid         String   @unique @default(cuid())
+  holiday_name String   @db.VarChar(200)
+  holiday_date DateTime @db.Date
+  holiday_type String
+  created_at   DateTime @default(now()) @db.Timestamptz(3)
+  updated_at   DateTime @default(now()) @updatedAt @db.Timestamptz(3)
+  created_by   String?  @db.Text
+  updated_by   String?  @db.Text
 
-  @@map("leave_policy_employment_types")
+  @@unique([holiday_name, holiday_date])
+  @@map("holiday_calendars")
 }
 
 model LeaveBalance {
@@ -864,15 +877,4 @@ model AttendanceRecord {
   @@index([attendance_date])
 
   @@map("attendance_records")
-}
-
-model SystemSetting {
-  id         BigInt   @id @default(autoincrement())
-  cuid       String   @unique @default(cuid())
-  key        String   @unique @db.VarChar(100)
-  value      String   @db.Text
-  created_at DateTime @default(now()) @db.Timestamptz()
-  updated_at DateTime @updatedAt @db.Timestamptz()
-
-  @@map("system_settings")
 }

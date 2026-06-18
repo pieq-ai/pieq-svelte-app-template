@@ -136,7 +136,7 @@ export async function createLeaveRequest(data: {
 			file_name: data.file_name ?? null,
 			mime_type: data.mime_type ?? null,
 			file_size: data.file_size ?? null,
-			document_data: data.document_data ?? null,
+			document_data: (data.document_data as any) ?? null,
 			request_status: data.request_status ?? 'pending',
 			days_from_primary: data.days_from_primary ?? null,
 			days_from_lwp: data.days_from_lwp ?? null,

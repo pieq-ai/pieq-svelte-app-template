@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import * as leaveService from '$lib/server/services/leave.service.js';
-import * as leaveDao from '$lib/server/dao/leave.dao.js';
-import { db } from '$lib/server/db.js';
-import { ValidationError } from '$lib/server/utils/errors.js';
+import * as leaveService from '../../src/lib/server/services/leave.service.js';
+import * as leaveDao from '../../src/lib/server/dao/leave.dao.js';
+import { db } from '../../src/lib/server/db.js';
+import { ValidationError } from '../../src/lib/server/utils/errors.js';
 
 vi.mock('$lib/server/db.js', () => {
 	const mockDb = {
@@ -32,10 +32,6 @@ vi.mock('$lib/server/db.js', () => {
 			findMany: vi.fn()
 		},
 		attendanceRecord: {
-			findUnique: vi.fn(),
-			upsert: vi.fn()
-		},
-		systemSetting: {
 			findUnique: vi.fn(),
 			upsert: vi.fn()
 		},
@@ -134,7 +130,6 @@ describe('Leave Service Unit Tests', () => {
 		vi.mocked(db.leaveBalance.create).mockResolvedValue({} as any);
 		vi.mocked(db.attendanceRecord.findUnique).mockResolvedValue(null);
 		vi.mocked(db.attendanceRecord.upsert).mockResolvedValue({} as any);
-		vi.mocked(db.systemSetting.findUnique).mockResolvedValue(null);
 
 		// Default DAO mocks
 		vi.mocked(leaveDao.listLeaveTypes).mockResolvedValue(mockLeaveTypes as any);
@@ -916,7 +911,7 @@ describe('Leave Service Unit Tests', () => {
 
 		it('should automatically split SL request into LOP when primary balance is exceeded', async () => {
 			// SL balance is 1 day, requesting 3 days (June 15 to June 17)
-			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid, typeCuid) => {
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid: any, typeCuid: any) => {
 				if (typeCuid === 'cuid-sl') {
 					return { cuid: 'bal-sl', remaining_days: 1.0 } as any;
 				}
@@ -1018,7 +1013,7 @@ describe('Leave Service Unit Tests', () => {
 
 			const result = await leaveService.getEmployeeLeaveDetails('john@pieq.ai', 2026);
 
-			const lopBal = result.balances.find(b => b.leave_code === 'LOP');
+			const lopBal = result.balances.find((b: any) => b.leave_code === 'LOP');
 			expect(lopBal).toBeDefined();
 			// Only Request 1 falls in June 2026 (targetMonth = 5/June).
 			expect(lopBal?.used_days).toBe(2.0);
@@ -1031,7 +1026,7 @@ describe('Leave Service Unit Tests', () => {
 				annual_limit: 5.0, // limit is 5 days per month (treated monthly)
 				status: true
 			};
-			vi.mocked(leaveDao.getLeavePolicyByLeaveType).mockImplementation(async (cuid) => {
+			vi.mocked(leaveDao.getLeavePolicyByLeaveType).mockImplementation(async (cuid: any) => {
 				if (cuid === 'cuid-lwp') return mockLwpPolicy as any;
 				return null;
 			});
@@ -1146,7 +1141,7 @@ describe('Leave Service Unit Tests', () => {
 		it('should compute SL+LOP split correctly in applyLeave when SL balance is exceeded', async () => {
 			// SL balance: 2 days. Requesting 5 days (Mon–Fri: Jun 15–19).
 			// Expected: days_from_primary=2, days_from_lop=3
-			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (_emp, typeCuid) => {
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (_emp: any, typeCuid: any) => {
 				if (typeCuid === 'cuid-sl') return { cuid: 'bal-sl', remaining_days: 2.0 } as any;
 				return null;
 			});
@@ -1248,7 +1243,7 @@ describe('Leave Service Unit Tests', () => {
 		// 2. CL + LOP split
 		// ─────────────────────────────────────────────────────────────────────
 		it('should compute CL+LOP split correctly in applyLeave when CL balance is 1 day and 2 days requested', async () => {
-			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (_emp, typeCuid) => {
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (_emp: any, typeCuid: any) => {
 				if (typeCuid === 'cuid-cl') return { cuid: 'bal-cl', remaining_days: 1.0 } as any;
 				return null;
 			});
@@ -1305,7 +1300,7 @@ describe('Leave Service Unit Tests', () => {
 		// ─────────────────────────────────────────────────────────────────────
 		it('should allow SL application when balance is 0 — all days become LOP', async () => {
 			// SL balance 0, requesting 3 days → days_from_primary=0, days_from_lop=3
-			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (_emp, typeCuid) => {
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (_emp: any, typeCuid: any) => {
 				if (typeCuid === 'cuid-sl') return { cuid: 'bal-sl', remaining_days: 0.0 } as any;
 				return null;
 			});
@@ -1448,7 +1443,7 @@ describe('Leave Service Unit Tests', () => {
 			vi.setSystemTime(new Date('2026-06-16T10:00:00.000Z'));
 
 			const result = await leaveService.getEmployeeLeaveDetails('john@pieq.ai', 2026);
-			const lopBal = result.balances.find(b => b.leave_code === 'LOP');
+			const lopBal = result.balances.find((b: any) => b.leave_code === 'LOP');
 
 			expect(lopBal).toBeDefined();
 			// Only June LOP (2 days) should be shown — May (1 day) must NOT bleed in
@@ -1460,7 +1455,7 @@ describe('Leave Service Unit Tests', () => {
 		// ─────────────────────────────────────────────────────────────────────
 		it('should compute EL+LOP split in applyLeave and not write LOP LeaveBalance during approve', async () => {
 			// EL balance: 3 days. Requesting 5 days (Jun 15–19). Split: 3 EL + 2 LOP.
-			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (_emp, typeCuid) => {
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (_emp: any, typeCuid: any) => {
 				if (typeCuid === 'cuid-el') return { cuid: 'bal-el', remaining_days: 3.0 } as any;
 				return null;
 			});
@@ -1528,7 +1523,7 @@ describe('Leave Service Unit Tests', () => {
 			// LWP policy: annual_limit=10 (treated as monthly cap).
 			// Already used 5 LWP days in June. Requesting 5 more → still within cap.
 			const mockLwpPolicy = { cuid: 'p-lwp', leave_type_cuid: 'cuid-lwp', annual_limit: 10.0, status: true };
-			vi.mocked(leaveDao.getLeavePolicyByLeaveType).mockImplementation(async (cuid) => {
+			vi.mocked(leaveDao.getLeavePolicyByLeaveType).mockImplementation(async (cuid: any) => {
 				if (cuid === 'cuid-lwp') return mockLwpPolicy as any;
 				return null;
 			});
@@ -1564,7 +1559,7 @@ describe('Leave Service Unit Tests', () => {
 			// LWP policy: annual_limit=5 (treated as monthly cap).
 			// Already used 4 LWP days in June. Requesting 2 more → exceeds by 1.
 			const mockLwpPolicy = { cuid: 'p-lwp', leave_type_cuid: 'cuid-lwp', annual_limit: 5.0, status: true };
-			vi.mocked(leaveDao.getLeavePolicyByLeaveType).mockImplementation(async (cuid) => {
+			vi.mocked(leaveDao.getLeavePolicyByLeaveType).mockImplementation(async (cuid: any) => {
 				if (cuid === 'cuid-lwp') return mockLwpPolicy as any;
 				return null;
 			});
@@ -1600,7 +1595,7 @@ describe('Leave Service Unit Tests', () => {
 		// ─────────────────────────────────────────────────────────────────────
 		it('should not affect CL balance when LOP days accrue for a different leave type (SL)', async () => {
 			// Scenario: Employee has 5 SL LOP days in June. Their CL balance is unaffected.
-			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (_emp, typeCuid) => {
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (_emp: any, typeCuid: any) => {
 				if (typeCuid === 'cuid-cl') return { cuid: 'bal-cl', remaining_days: 5.0 } as any;
 				if (typeCuid === 'cuid-sl') return { cuid: 'bal-sl', remaining_days: 0.0 } as any;
 				return null;
@@ -1714,16 +1709,18 @@ describe('Leave Service Unit Tests', () => {
 			})).resolves.not.toThrow();
 		});
 
-		it('should get payroll cutoff day from system settings with fallback to 25', async () => {
+		it('should get payroll cutoff day with fallback to 25 and update via setter', async () => {
 			// Test fallback
-			vi.mocked(db.systemSetting.findUnique as any).mockResolvedValue(null);
 			const fallbackVal = await leaveService.getPayrollCutoffDay();
 			expect(fallbackVal).toBe(25);
 
 			// Test configured setting
-			vi.mocked(db.systemSetting.findUnique as any).mockResolvedValue({ key: 'payroll_cutoff_day', value: '20' });
+			leaveService.setPayrollCutoffDay(20);
 			const configuredVal = await leaveService.getPayrollCutoffDay();
 			expect(configuredVal).toBe(20);
+
+			// Reset to default
+			leaveService.setPayrollCutoffDay(25);
 		});
 
 		it('should assign LOP days to June or July payroll cycle based on cutoff day 25', async () => {
@@ -1762,7 +1759,7 @@ describe('Leave Service Unit Tests', () => {
 				mockLopRequestJune24,
 				mockLopRequestJune29
 			]);
-			vi.mocked(db.systemSetting.findUnique as any).mockResolvedValue({ key: 'payroll_cutoff_day', value: '25' });
+			leaveService.setPayrollCutoffDay(25);
 
 			// Check LOP for June 2026 (month index 5).
 			// June payroll cycle starts May 26 and ends June 25.
