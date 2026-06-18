@@ -25,6 +25,7 @@
 		permissions?: Partial<MasterPermissionConfig>;
 		disabled?: boolean;
 		class?: string;
+		exclude?: string[];
 		onSelect: (id: string | string[]) => void;
 	}
 
@@ -38,11 +39,15 @@
 		permissions = getMasterPermissions(),
 		disabled = false,
 		class: className = '',
+		exclude = [],
 		onSelect
 	}: Props = $props();
 
 	let config = $derived(getMasterConfig(master));
 	let options = $state<DropdownOption[]>([]);
+	let displayOptions = $derived(
+		exclude.length > 0 ? options.filter((o) => !exclude.includes(o.id)) : options
+	);
 	let isLoading = $state(false);
 	let errorMessage = $state('');
 	let isModalOpen = $state(false);
@@ -218,7 +223,7 @@
 <div class="space-y-2">
 	<SearchableDropdown
 		label={label ?? config.label}
-		{options}
+		options={displayOptions}
 		{value}
 		{multiple}
 		{placeholder}
