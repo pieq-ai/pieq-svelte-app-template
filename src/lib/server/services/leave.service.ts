@@ -979,6 +979,11 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
 		mime_type = input.document.mimeType;
 		document_data = Buffer.from(input.document.base64Data, 'base64');
 		file_size = document_data.length;
+
+		const maxSizeBytes = 2 * 1024 * 1024;
+		if (file_size > maxSizeBytes) {
+			throw new ValidationError('documentUrl', 'Uploaded document must be less than or equal to 2 MB.');
+		}
 	}
 
 	// Create request

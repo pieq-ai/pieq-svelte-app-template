@@ -147,6 +147,7 @@
 	let formFileName = $state('');
 	let formFileMimeType = $state('');
 	let formFileBase64 = $state('');
+	let formFileSize = $state(0);
 	let formValidationErrors = $state<Record<string, string>>({});
 	let formIsTouched = $state(false);
 	let formExpectedDeliveryDate = $state('');
@@ -706,6 +707,10 @@
 			errors.document = 'A supporting document (image/PDF) is required for this request';
 		}
 
+		if (formFileBase64 && formFileSize > 2 * 1024 * 1024) {
+			errors.document = 'Uploaded document must be less than or equal to 2 MB.';
+		}
+
 		// Gender specific validation check
 		if (selectedLeaveType?.policy?.gender_specific && employee) {
 			const appGender = selectedLeaveType.policy.applicable_gender;
@@ -790,15 +795,31 @@
 		const file = target.files?.[0];
 		if (!file) return;
 
-		// Limit to 5MB
-		if (file.size > 5 * 1024 * 1024) {
-			toast.error('File size cannot exceed 5MB.');
+		// Limit to 2MB
+		const maxFileSize = 2 * 1024 * 1024;
+		if (file.size > maxFileSize) {
+			formValidationErrors = {
+				...formValidationErrors,
+				document: 'Uploaded document must be less than or equal to 2 MB.'
+			};
 			target.value = '';
+			formFileName = '';
+			formFileMimeType = '';
+			formFileBase64 = '';
+			formFileSize = 0;
 			return;
+		}
+
+		// Clear file size error if it exists
+		if (formValidationErrors.document === 'Uploaded document must be less than or equal to 2 MB.') {
+			const newErrors = { ...formValidationErrors };
+			delete newErrors.document;
+			formValidationErrors = newErrors;
 		}
 
 		formFileName = file.name;
 		formFileMimeType = file.type;
+		formFileSize = file.size;
 
 		const reader = new FileReader();
 		reader.onload = () => {
@@ -852,7 +873,8 @@
 			}
 		} catch (err: any) {
 			if (err.field) {
-				formValidationErrors = { [err.field]: err.message };
+				const fieldName = err.field === 'documentUrl' ? 'document' : err.field;
+				formValidationErrors = { [fieldName]: err.message };
 			}
 			toast.error(err.message || 'Failed to submit leave request.');
 			console.error(err);
@@ -871,6 +893,7 @@
 		formFileName = '';
 		formFileMimeType = '';
 		formFileBase64 = '';
+		formFileSize = 0;
 		formIsTouched = false;
 		formValidationErrors = {};
 		formExpectedDeliveryDate = '';
@@ -890,6 +913,7 @@
 		formFileName = '';
 		formFileMimeType = '';
 		formFileBase64 = '';
+		formFileSize = 0;
 		formIsTouched = false;
 		formValidationErrors = {};
 		formExpectedDeliveryDate = '';
@@ -1890,7 +1914,7 @@
 					<div class="flex flex-col items-center gap-1 text-center pointer-events-none">
 						<UploadIcon class="size-5 text-muted-foreground" />
 						<span class="text-xs text-muted-foreground">
-							{formFileName || 'Click or drag image/PDF up to 5MB'}
+							{formFileName || 'Click or drag image/PDF up to 2MB'}
 						</span>
 					</div>
 				</div>

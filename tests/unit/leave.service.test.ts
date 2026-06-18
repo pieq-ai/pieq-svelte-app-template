@@ -517,6 +517,51 @@ describe('Leave Service Unit Tests', () => {
 			expect(leaveDao.createLeaveRequest).toHaveBeenCalled();
 		});
 
+		it('should accept a leave request with a valid document (size <= 2 MB)', async () => {
+			const validBase64 = Buffer.from('Mock content').toString('base64');
+			vi.mocked(leaveDao.createLeaveRequest).mockResolvedValue({ cuid: 'new-req-cuid' } as any);
+			vi.mocked(leaveDao.getOverlappingRequests).mockResolvedValue([]);
+
+			const result = await leaveService.applyLeave('john@pieq.ai', {
+				leaveTypeCuid: 'cuid-cl',
+				startDate: '2026-06-15',
+				endDate: '2026-06-15',
+				isHalfDay: false,
+				document: {
+					fileName: 'test.pdf',
+					mimeType: 'application/pdf',
+					base64Data: validBase64
+				}
+			});
+
+			expect(result).toBeDefined();
+			expect(leaveDao.createLeaveRequest).toHaveBeenCalledWith(
+				expect.objectContaining({
+					file_name: 'test.pdf',
+					mime_type: 'application/pdf',
+					file_size: Buffer.from('Mock content').length
+				})
+			);
+		});
+
+		it('should reject a leave request with a document exceeding 2 MB', async () => {
+			// Create a buffer larger than 2 MB
+			const largeBuffer = Buffer.alloc(2 * 1024 * 1024 + 10);
+			const largeBase64 = largeBuffer.toString('base64');
+
+			await expect(leaveService.applyLeave('john@pieq.ai', {
+				leaveTypeCuid: 'cuid-cl',
+				startDate: '2026-06-15',
+				endDate: '2026-06-15',
+				isHalfDay: false,
+				document: {
+					fileName: 'large.pdf',
+					mimeType: 'application/pdf',
+					base64Data: largeBase64
+				}
+			})).rejects.toThrow('Uploaded document must be less than or equal to 2 MB.');
+		});
+
 		it('should reject Casual Leave (CL) request exceeding 2 days with a clear validation message', async () => {
 			await expect(leaveService.applyLeave('john@pieq.ai', {
 				leaveTypeCuid: 'cuid-cl',
