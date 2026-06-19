@@ -15,6 +15,8 @@
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
+	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import { resolve } from '$app/paths';
 
@@ -41,7 +43,8 @@
 		ConfirmModal,
 		CrudModal,
 		Pagination,
-		SearchInput
+		SearchInput,
+		TableActions
 	} from '$lib/components';
 
 	interface LeaveBalance {
@@ -153,6 +156,12 @@
 	let formExpectedDeliveryDate = $state('');
 	let formIsMiscarriage = $state(false);
 	let formChildBirthDate = $state('');
+
+	// Custom Date Picker states
+	let activeDatePicker = $state<string | null>(null);
+	let calendarYear = $state(new Date().getFullYear());
+	let calendarMonth = $state(new Date().getMonth());
+
 
 	const getTodayLocalString = () => {
 		const d = new Date();
@@ -354,6 +363,7 @@
 
 	async function saveCutoffDay() {
 		isSavingCutoff = true;
+		activeDatePicker = null;
 		try {
 			const res = await fetch('/api/leaves/settings', {
 				method: 'POST',
@@ -446,7 +456,11 @@
 
 	// Action triggers
 	function openDetailsModal(app: any) {
-		selectedApproval = app;
+		selectedApproval = {
+			...app,
+			is_own_request: employee ? app.employee_code === employee.emp_code : false,
+			source: 'approvals'
+		};
 		isDetailsModalOpen = true;
 	}
 
@@ -1029,11 +1043,294 @@
 		if (s === 'rejected') return 'destructive';
 		return 'secondary'; // withdrawn
 	}
+
+	// Custom Date Picker Helper Functions
+	const MONTHS = [
+		"January", "February", "March", "April", "May", "June",
+		"July", "August", "September", "October", "November", "December"
+	];
+
+	interface CalendarDay {
+		date: Date;
+		isCurrentMonth: boolean;
+		isToday: boolean;
+		isSelected: boolean;
+		isDisabled: boolean;
+	}
+
+	function getCalendarDays(year: number, month: number, selectedDateStr: string, minStr?: string, maxStr?: string): CalendarDay[] {
+		const days: CalendarDay[] = [];
+		const firstDayIndex = new Date(year, month, 1).getDay();
+		const totalDays = new Date(year, month + 1, 0).getDate();
+		const prevMonthTotalDays = new Date(year, month, 0).getDate();
+		
+		const today = new Date();
+		today.setHours(0,0,0,0);
+		
+		let selectedDate: Date | null = null;
+		if (selectedDateStr) {
+			selectedDate = new Date(selectedDateStr + 'T00:00:00');
+		}
+		
+		const minDate = minStr ? new Date(minStr + 'T00:00:00') : null;
+		const maxDate = maxStr ? new Date(maxStr + 'T00:00:00') : null;
+
+		for (let i = firstDayIndex - 1; i >= 0; i--) {
+			const d = new Date(year, month - 1, prevMonthTotalDays - i);
+			days.push({
+				date: d,
+				isCurrentMonth: false,
+				isToday: d.getTime() === today.getTime(),
+				isSelected: selectedDate ? d.getTime() === selectedDate.getTime() : false,
+				isDisabled: (minDate ? d < minDate : false) || (maxDate ? d > maxDate : false)
+			});
+		}
+
+		for (let i = 1; i <= totalDays; i++) {
+			const d = new Date(year, month, i);
+			days.push({
+				date: d,
+				isCurrentMonth: true,
+				isToday: d.getTime() === today.getTime(),
+				isSelected: selectedDate ? d.getTime() === selectedDate.getTime() : false,
+				isDisabled: (minDate ? d < minDate : false) || (maxDate ? d > maxDate : false)
+			});
+		}
+
+		const remainingCells = 42 - days.length;
+		for (let i = 1; i <= remainingCells; i++) {
+			const d = new Date(year, month + 1, i);
+			days.push({
+				date: d,
+				isCurrentMonth: false,
+				isToday: d.getTime() === today.getTime(),
+				isSelected: selectedDate ? d.getTime() === selectedDate.getTime() : false,
+				isDisabled: (minDate ? d < minDate : false) || (maxDate ? d > maxDate : false)
+			});
+		}
+
+		return days;
+	}
+
+	function prevMonth() {
+		if (calendarMonth === 0) {
+			calendarMonth = 11;
+			calendarYear--;
+		} else {
+			calendarMonth--;
+		}
+	}
+
+	// Make sure calendar navigation functions stop propagation to keep modal from reacting
+	function prevMonthClick(e: Event) {
+		e.stopPropagation();
+		prevMonth();
+	}
+
+	function nextMonthClick(e: Event) {
+		e.stopPropagation();
+		nextMonth();
+	}
+
+	function nextMonth() {
+		if (calendarMonth === 11) {
+			calendarMonth = 0;
+			calendarYear++;
+		} else {
+			calendarMonth++;
+		}
+	}
+
+	function formatDateForDisplay(dateStr: string): string {
+		if (!dateStr) return '';
+		const date = new Date(dateStr + 'T00:00:00');
+		if (isNaN(date.getTime())) return dateStr;
+		const day = String(date.getDate()).padStart(2, '0');
+		const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+		const month = months[date.getMonth()];
+		const year = date.getFullYear();
+		return `${day} ${month} ${year}`;
+	}
+
+	function formatDateString(date: Date): string {
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const day = String(date.getDate()).padStart(2, '0');
+		return `${year}-${month}-${day}`;
+	}
+
+	function clickOutsideAction(node: HTMLElement, callback: () => void) {
+		const handleClick = (event: MouseEvent) => {
+			if (node && !node.contains(event.target as Node)) {
+				callback();
+			}
+		};
+
+		document.addEventListener('click', handleClick, true);
+
+		return {
+			destroy() {
+				document.removeEventListener('click', handleClick, true);
+			}
+		};
+	}
+
+	// Details Modal for own requests
+	function openMyDetailsModal(req: any) {
+		selectedApproval = {
+			...req,
+			employee_name: employee ? `${employee.first_name} ${employee.last_name}`.trim() : 'Logged In Employee',
+			employee_code: employee ? employee.emp_code : 'EMP-CURRENT',
+			is_own_request: true,
+			source: 'my_leaves'
+		};
+		isDetailsModalOpen = true;
+	}
+
+	// Table custom actions helpers
+	const myLeaveActions = (req: LeaveRequest) => {
+		const actions = [
+			{ label: 'View Details', onClick: () => openMyDetailsModal(req) }
+		];
+		if (req.request_status === 'pending') {
+			actions.push({ label: 'Withdraw', onClick: () => openWithdrawModal(req) });
+		}
+		return actions;
+	};
+
+	const approvalActions = (app: any) => {
+		const actions = [
+			{ label: 'View Details', onClick: () => openDetailsModal(app) }
+		];
+		if (app.request_status === 'pending') {
+			actions.push({ label: 'Approve', onClick: () => openApproveConfirm(app) });
+			actions.push({ label: 'Reject', onClick: () => openRejectConfirm(app) });
+		}
+		return actions;
+	};
+
+	function handleRowClick(e: Event, app: any) {
+		const target = e.target as HTMLElement;
+		if (target.closest('button') || target.closest('a') || target.closest('[role="menuitem"]')) {
+			return;
+		}
+		openDetailsModal(app);
+	}
+
+	function handleMyRowClick(e: Event, req: LeaveRequest) {
+		const target = e.target as HTMLElement;
+		if (target.closest('button') || target.closest('a') || target.closest('[role="menuitem"]')) {
+			return;
+		}
+		openMyDetailsModal(req);
+	}
+
+	let isAnyModalOpen = $derived(
+		isApplyModalOpen ||
+		withdrawModalOpen ||
+		isDetailsModalOpen ||
+		approveModalOpen ||
+		rejectModalOpen
+	);
 </script>
+
+<!-- Declarative click-outside handlers managed via Svelte actions locally on date pickers -->
 
 <svelte:head>
 	<title>Employee Leave Management</title>
+	{#if isApplyModalOpen}
+		<style>
+			body {
+				overflow: auto !important;
+				pointer-events: auto !important;
+			}
+		</style>
+	{/if}
 </svelte:head>
+
+{#snippet CustomDatePicker(id: string, value: string, onSelect: (val: string) => void, min: string | undefined, max: string | undefined, disabled: boolean, error: string | undefined)}
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div class="relative w-full" use:clickOutsideAction={() => { if (activeDatePicker === id) activeDatePicker = null; }}>
+		<Input
+			type="text"
+			id={id}
+			readonly
+			placeholder="dd mmm yyyy"
+			value={formatDateForDisplay(value)}
+			onclick={(e) => {
+				if (disabled) return;
+				if (activeDatePicker === id) {
+					activeDatePicker = null;
+				} else {
+					activeDatePicker = id;
+					const initialDate = value ? new Date(value + 'T00:00:00') : new Date();
+					calendarYear = isNaN(initialDate.getTime()) ? new Date().getFullYear() : initialDate.getFullYear();
+					calendarMonth = isNaN(initialDate.getTime()) ? new Date().getMonth() : initialDate.getMonth();
+				}
+			}}
+			class="w-full pl-9 cursor-pointer {error ? 'border-destructive' : ''}"
+			disabled={disabled}
+		/>
+		<CalendarIcon class="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+		
+		{#if activeDatePicker === id}
+			<!-- svelte-ignore a11y_click_events_have_key_events -->
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<div class="absolute {id === 'end_date' ? 'right-0' : 'left-0'} top-full z-[100] mt-1 w-[280px] rounded-md border border-border bg-popover p-3 text-popover-foreground shadow-md outline-none" onclick={(e) => e.stopPropagation()}>
+				<div class="flex items-center justify-between pb-2 mb-2 border-b border-border">
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						class="h-7 w-7 p-0 hover:bg-accent"
+						onclick={prevMonthClick}
+					>
+						<ChevronLeftIcon class="h-4 w-4" />
+					</Button>
+					<span class="text-sm font-semibold select-none">{MONTHS[calendarMonth]} {calendarYear}</span>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						class="h-7 w-7 p-0 hover:bg-accent"
+						onclick={nextMonthClick}
+					>
+						<ChevronRightIcon class="h-4 w-4" />
+					</Button>
+				</div>
+				
+				<div class="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground mb-1 select-none">
+					{#each ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'] as day}
+						<div class="h-6 flex items-center justify-center">{day}</div>
+					{/each}
+				</div>
+				
+				<div class="grid grid-cols-7 gap-1">
+					{#each getCalendarDays(calendarYear, calendarMonth, value, min, max) as day}
+						<button
+							type="button"
+							disabled={day.isDisabled}
+							class="h-8 w-8 text-xs rounded-md flex items-center justify-center p-0 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring
+								{day.isDisabled ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer hover:bg-accent hover:text-accent-foreground'}
+								{day.isSelected ? 'bg-[#F45310] text-white hover:bg-[#F45310]/90 font-bold' : ''}
+								{!day.isSelected && day.isToday ? 'border border-[#F45310] text-[#F45310]' : ''}
+								{!day.isSelected && !day.isToday && !day.isCurrentMonth ? 'text-muted-foreground' : ''}"
+							onclick={(e) => {
+								e.stopPropagation();
+								if (day.isDisabled) return;
+								onSelect(formatDateString(day.date));
+								activeDatePicker = null;
+							}}
+						>
+							{day.date.getDate()}
+						</button>
+					{/each}
+				</div>
+			</div>
+		{/if}
+	</div>
+{/snippet}
 
 <div class="w-full space-y-6 px-1 py-0">
 	<!-- Page Header matching design system -->
@@ -1155,7 +1452,7 @@
 			</div>
 
 			<!-- Payroll Cutoff Configuration Card -->
-			<Card class="shadow-sm border border-border/80">
+			<Card class="shadow-sm border border-border/80 overflow-visible">
 				<CardHeader class="pb-3 border-b border-border/50 bg-muted/20">
 					<CardTitle class="text-base font-bold text-foreground flex items-center gap-2">
 						<ClockIcon class="size-4 text-[#F45310]" />
@@ -1165,7 +1462,7 @@
 						Monthly payroll cutoff day configuration for Loss of Pay (LOP) calculations. LOP days on/before this date belong to the current payroll cycle; LOP days after this date belong to the next payroll cycle.
 					</CardDescription>
 				</CardHeader>
-				<CardContent class="pt-4 px-4 pb-4">
+				<CardContent class="pt-4 px-4 pb-4 overflow-visible">
 					<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 						<div class="space-y-1">
 							<div class="text-sm font-semibold text-foreground">
@@ -1183,17 +1480,47 @@
 
 						{#if isManager}
 							<div class="flex items-center gap-2">
-								<div class="relative w-28">
-									<select
+								<!-- svelte-ignore a11y_click_events_have_key_events -->
+								<!-- svelte-ignore a11y_no_static_element_interactions -->
+								<div class="relative w-28" use:clickOutsideAction={() => { if (activeDatePicker === 'payroll_cutoff') activeDatePicker = null; }}>
+									<Button
 										id="payroll_cutoff_select"
-										bind:value={selectedCutoff}
+										variant="outline"
 										disabled={isSavingCutoff}
-										class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer font-semibold"
+										onclick={(e) => {
+											if (activeDatePicker === 'payroll_cutoff') {
+												activeDatePicker = null;
+											} else {
+												activeDatePicker = 'payroll_cutoff';
+											}
+										}}
+										class="flex h-9 w-full justify-between items-center rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer font-semibold"
 									>
-										{#each Array.from({ length: 28 }, (_, i) => i + 1) as day}
-											<option value={day}>{day}th</option>
-										{/each}
-									</select>
+										<span>{selectedCutoff}th</span>
+										<ChevronDownIcon class="size-4 opacity-50 shrink-0" />
+									</Button>
+
+									{#if activeDatePicker === 'payroll_cutoff'}
+										<div class="absolute right-0 top-full z-[100] mt-1 w-full min-w-[120px] max-h-56 overflow-y-auto rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md outline-none" onclick={(e) => e.stopPropagation()}>
+											{#each Array.from({ length: 28 }, (_, i) => i + 1) as day}
+												<button
+													type="button"
+													class="w-full text-left px-2 py-1.5 text-xs rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer flex items-center justify-between
+														{selectedCutoff === day ? 'bg-accent font-semibold text-[#F45310]' : ''}"
+													onclick={(e) => {
+														e.stopPropagation();
+														selectedCutoff = day;
+														activeDatePicker = null;
+													}}
+												>
+													<span>{day}th</span>
+													{#if selectedCutoff === day}
+														<CheckIcon class="size-3.5 text-[#F45310]" />
+													{/if}
+												</button>
+											{/each}
+										</div>
+									{/if}
 								</div>
 								<Button
 									type="button"
@@ -1261,7 +1588,7 @@
 					bind:value={searchQuery}
 					oninput={() => (currentPage = 1)}
 					placeholder="Search requests..."
-					class="max-w-xs"
+					class="w-full sm:flex-1"
 				/>
 				<div class="flex items-center gap-2">
 					<Label for="status_filter" class="text-xs text-muted-foreground whitespace-nowrap">Filter Status:</Label>
@@ -1271,11 +1598,11 @@
 								<Button
 									id="status_filter"
 									variant="outline"
-									class="h-8 w-32 justify-between border-input bg-background px-2 text-xs font-normal shadow-xs hover:bg-accent outline-none"
+									class="h-9 w-32 justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent outline-none"
 									{...props}
 								>
 									<span class="truncate capitalize">{statusFilter}</span>
-									<ChevronDownIcon class="ml-1.5 size-3 opacity-50 shrink-0" />
+									<ChevronDownIcon class="ml-1.5 size-4 opacity-50 shrink-0" />
 								</Button>
 							{/snippet}
 						</DropdownMenu.Trigger>
@@ -1362,7 +1689,7 @@
 							</TableRow>
 						{:else}
 							{#each paginatedRequests as req (req.cuid)}
-								<TableRow class="hover:bg-muted/10 transition-colors">
+								<TableRow class="hover:bg-muted/10 transition-colors cursor-pointer" onclick={(e) => handleMyRowClick(e, req)}>
 									<TableCell class="text-xs font-semibold py-3.5">
 										<div class="font-medium">{req.leave_name}</div>
 										{#if req.leave_code !== 'LWP' && req.days_from_lwp > 0}
@@ -1410,19 +1737,11 @@
 											{req.request_status}
 										</Badge>
 									</TableCell>
-									<TableCell class="text-right pr-4">
-										{#if req.request_status === 'pending'}
-											<Button
-												variant="outline"
-												size="xs"
-												class="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive h-7 px-2 font-bold"
-												onclick={() => openWithdrawModal(req)}
-											>
-												Withdraw
-											</Button>
-										{:else}
-											<span class="text-muted-foreground text-[11px]">-</span>
-										{/if}
+									<TableCell class="text-right pr-4" onclick={(e) => e.stopPropagation()}>
+										<TableActions
+											canEdit={false}
+											customActions={myLeaveActions(req)}
+										/>
 									</TableCell>
 								</TableRow>
 							{/each}
@@ -1442,7 +1761,7 @@
 					bind:value={approvalsSearchQuery}
 					oninput={() => (approvalsCurrentPage = 1)}
 					placeholder="Search approvals..."
-					class="max-w-xs"
+					class="w-full sm:flex-1"
 				/>
 				<div class="flex items-center gap-2">
 					<Label for="approvals_status_filter" class="text-xs text-muted-foreground whitespace-nowrap">Filter Status:</Label>
@@ -1452,11 +1771,11 @@
 								<Button
 									id="approvals_status_filter"
 									variant="outline"
-									class="h-8 w-32 justify-between border-input bg-background px-2 text-xs font-normal shadow-xs hover:bg-accent outline-none"
+									class="h-9 w-32 justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent outline-none"
 									{...props}
 								>
 									<span class="truncate capitalize">{approvalsStatusFilter}</span>
-									<ChevronDownIcon class="ml-1.5 size-3 opacity-50 shrink-0" />
+									<ChevronDownIcon class="ml-1.5 size-4 opacity-50 shrink-0" />
 								</Button>
 							{/snippet}
 						</DropdownMenu.Trigger>
@@ -1567,7 +1886,7 @@
 							</TableRow>
 						{:else}
 							{#each paginatedApprovals as app (app.cuid)}
-								<TableRow class="hover:bg-muted/10 transition-colors">
+								<TableRow class="hover:bg-muted/10 transition-colors cursor-pointer" onclick={(e) => handleRowClick(e, app)}>
 									<TableCell class="text-xs font-semibold py-3.5">
 										{app.employee_name}
 									</TableCell>
@@ -1621,35 +1940,11 @@
 											{app.request_status}
 										</Badge>
 									</TableCell>
-									<TableCell class="text-right pr-4">
-										<div class="flex items-center justify-end gap-1.5">
-											<Button
-												variant="ghost"
-												size="xs"
-												class="h-7 px-2 text-xs font-bold"
-												onclick={() => openDetailsModal(app)}
-											>
-												View Details
-											</Button>
-											{#if app.request_status === 'pending'}
-												<Button
-													variant="outline"
-													size="xs"
-													class="border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 h-7 px-2 font-bold"
-													onclick={() => openApproveConfirm(app)}
-												>
-													Approve
-												</Button>
-												<Button
-													variant="outline"
-													size="xs"
-													class="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive h-7 px-2 font-bold"
-													onclick={() => openRejectConfirm(app)}
-												>
-													Reject
-												</Button>
-											{/if}
-										</div>
+									<TableCell class="text-right pr-4" onclick={(e) => e.stopPropagation()}>
+										<TableActions
+											canEdit={false}
+											customActions={approvalActions(app)}
+										/>
 									</TableCell>
 								</TableRow>
 							{/each}
@@ -1670,6 +1965,7 @@
 	isDirty={isFormDirty}
 	isSubmitting={isSubmitting}
 	onClose={closeApplyModal}
+	cardClass="overflow-visible my-auto"
 >
 	{#snippet children({ cancel })}
 		<form onsubmit={handleApplyLeave} class="space-y-4">
@@ -1735,13 +2031,15 @@
 				<div class="grid gap-4 grid-cols-2 rounded-lg border border-border/60 bg-muted/10 p-3">
 					<div class="space-y-2">
 						<Label for="expected_delivery_date">Expected Delivery Date <span class="text-destructive">*</span></Label>
-						<Input
-							type="date"
-							id="expected_delivery_date"
-							bind:value={formExpectedDeliveryDate}
-							class={formIsTouched && formValidationErrors.expectedDeliveryDate ? 'border-destructive' : ''}
-							disabled={isSubmitting}
-						/>
+						{@render CustomDatePicker(
+							"expected_delivery_date",
+							formExpectedDeliveryDate,
+							(val) => { formExpectedDeliveryDate = val; },
+							undefined,
+							undefined,
+							isSubmitting,
+							formIsTouched && formValidationErrors.expectedDeliveryDate ? formValidationErrors.expectedDeliveryDate : undefined
+						)}
 						{#if formIsTouched && formValidationErrors.expectedDeliveryDate}
 							<p class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1">
 								<AlertCircleIcon class="size-3 shrink-0" />
@@ -1767,13 +2065,15 @@
 			{#if selectedLeaveType?.leave_code === 'PL'}
 				<div class="space-y-2 rounded-lg border border-border/60 bg-muted/10 p-3">
 					<Label for="child_birth_date">Child's Birth Date <span class="text-destructive">*</span></Label>
-					<Input
-						type="date"
-						id="child_birth_date"
-						bind:value={formChildBirthDate}
-						class={formIsTouched && formValidationErrors.childBirthDate ? 'border-destructive' : ''}
-						disabled={isSubmitting}
-					/>
+					{@render CustomDatePicker(
+						"child_birth_date",
+						formChildBirthDate,
+						(val) => { formChildBirthDate = val; },
+						undefined,
+						undefined,
+						isSubmitting,
+						formIsTouched && formValidationErrors.childBirthDate ? formValidationErrors.childBirthDate : undefined
+					)}
 					{#if formIsTouched && formValidationErrors.childBirthDate}
 						<p class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1">
 							<AlertCircleIcon class="size-3 shrink-0" />
@@ -1787,19 +2087,20 @@
 			<div class="grid gap-4 grid-cols-2">
 				<div class="space-y-2">
 					<Label for="start_date">Start Date <span class="text-destructive">*</span></Label>
-					<Input
-						type="date"
-						id="start_date"
-						bind:value={formStartDate}
-						max={start_date_max || undefined}
-						oninput={() => {
+					{@render CustomDatePicker(
+						"start_date",
+						formStartDate,
+						(val) => {
+							formStartDate = val;
 							if (!formStartDate || (formEndDate && formStartDate > formEndDate)) {
 								formEndDate = '';
 							}
-						}}
-						class={formIsTouched && formValidationErrors.startDate ? 'border-destructive' : ''}
-						disabled={isSubmitting}
-					/>
+						},
+						undefined,
+						start_date_max || undefined,
+						isSubmitting,
+						formIsTouched && formValidationErrors.startDate ? formValidationErrors.startDate : undefined
+					)}
 					{#if formIsTouched && formValidationErrors.startDate}
 						<p class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1">
 							<AlertCircleIcon class="size-3 shrink-0" />
@@ -1810,15 +2111,15 @@
 
 				<div class="space-y-2">
 					<Label for="end_date">End Date <span class="text-destructive">*</span></Label>
-					<Input
-						type="date"
-						id="end_date"
-						bind:value={formEndDate}
-						min={formStartDate}
-						max={end_date_max || undefined}
-						class={formIsTouched && formValidationErrors.endDate ? 'border-destructive' : ''}
-						disabled={isSubmitting || formIsHalfDay || !formStartDate}
-					/>
+					{@render CustomDatePicker(
+						"end_date",
+						formEndDate,
+						(val) => { formEndDate = val; },
+						formStartDate || undefined,
+						end_date_max || undefined,
+						isSubmitting || formIsHalfDay || !formStartDate,
+						formIsTouched && formValidationErrors.endDate ? formValidationErrors.endDate : undefined
+					)}
 					{#if formIsTouched && formValidationErrors.endDate}
 						<p class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1">
 							<AlertCircleIcon class="size-3 shrink-0" />
@@ -1990,9 +2291,9 @@
 				>
 					{#if isSubmitting}
 						<LoaderCircleIcon class="mr-2 size-4 animate-spin" />
-						Submitting...
+						Applying...
 					{:else}
-						Submit ({computedDuration.toFixed(1)} days)
+						Apply
 					{/if}
 				</Button>
 			</div>
@@ -2122,23 +2423,38 @@
 					Close
 				</Button>
 				{#if selectedApproval.request_status === 'pending'}
-					<Button
-						type="button"
-						class="bg-emerald-600 text-white hover:bg-emerald-700 font-bold"
-						onclick={() => openApproveConfirm(selectedApproval)}
-						disabled={isActionSubmitting}
-					>
-						Approve
-					</Button>
-					<Button
-						type="button"
-						variant="destructive"
-						class="font-bold"
-						onclick={() => openRejectConfirm(selectedApproval)}
-						disabled={isActionSubmitting}
-					>
-						Reject
-					</Button>
+					{#if selectedApproval.source === 'my_leaves'}
+						<Button
+							type="button"
+							variant="destructive"
+							class="font-bold"
+							onclick={() => {
+								isDetailsModalOpen = false;
+								openWithdrawModal(selectedApproval);
+							}}
+							disabled={isActionSubmitting}
+						>
+							Withdraw
+						</Button>
+					{:else if selectedApproval.source === 'approvals'}
+						<Button
+							type="button"
+							class="bg-emerald-600 text-white hover:bg-emerald-700 font-bold"
+							onclick={() => openApproveConfirm(selectedApproval)}
+							disabled={isActionSubmitting}
+						>
+							Approve
+						</Button>
+						<Button
+							type="button"
+							variant="destructive"
+							class="font-bold"
+							onclick={() => openRejectConfirm(selectedApproval)}
+							disabled={isActionSubmitting}
+						>
+							Reject
+						</Button>
+					{/if}
 				{/if}
 			</div>
 		</div>

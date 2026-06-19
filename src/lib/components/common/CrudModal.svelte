@@ -12,9 +12,10 @@
 		isSubmitting?: boolean;
 		onClose: () => void;
 		children?: import('svelte').Snippet<[{ cancel: () => void }]>;
+		cardClass?: string;
 	}
 
-	let { open, title, description = '', closeLabel = 'Close modal', isDirty = false, isSubmitting = false, onClose, children }: Props = $props();
+	let { open, title, description = '', closeLabel = 'Close modal', isDirty = false, isSubmitting = false, onClose, children, cardClass = "max-h-[90vh] overflow-y-auto" }: Props = $props();
 
 	let showUnsavedConfirm = $state(false);
 
@@ -50,10 +51,10 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<div 
-		class="fixed inset-0 z-50 flex items-center justify-center bg-[#262626]/70 px-4 py-6"
+		class="fixed inset-0 z-50 flex items-center justify-center bg-[#262626]/70 px-4 py-6 overflow-y-auto"
 		onclick={handleBackdropClick}
 	>
-		<Card class="relative max-h-[90vh] w-full max-w-lg overflow-y-auto" onclick={(e) => e.stopPropagation()}>
+		<Card class="relative w-full max-w-lg {cardClass}" onclick={(e) => e.stopPropagation()}>
 			<CardHeader class="flex-col items-start gap-1 pr-12">
 				<CardTitle>{title}</CardTitle>
 				{#if description}
