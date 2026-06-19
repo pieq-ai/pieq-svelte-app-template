@@ -26,7 +26,7 @@
 </svelte:head>
 
 <!-- Full screen overlay to hide sidebar on the root login page -->
-<div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white bg-gradient-to-br from-white to-[#F43510]/10 p-4">
+<div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white bg-linear-to-br from-white to-[#F43510]/10 p-4">
 	
 	<!-- Centered Login Card -->
 	<div class="w-full max-w-md bg-white border border-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl p-10 flex flex-col items-center text-center">

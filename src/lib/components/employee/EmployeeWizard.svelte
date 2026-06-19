@@ -233,7 +233,7 @@
 				<!-- Animated Active Pill -->
 				{#if isInitialized && activeTabWidth > 0}
 					<div 
-						class="absolute top-0 bottom-0 bg-[#f43510] rounded-xl shadow-md z-0 pointer-events-none {isResizing ? '' : 'transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]'}"
+						class="absolute top-0 bottom-0 bg-[#f43510] rounded-xl shadow-md z-0 pointer-events-none {isResizing ? '' : 'transition-all duration-300 ease-in-out'}"
 						style="
 							transform: translate3d({activeTabLeft}px, 0, 0); 
 							width: {activeTabWidth}px;

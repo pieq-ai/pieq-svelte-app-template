@@ -872,7 +872,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto">
 						<DropdownMenu.Group>
 							{#each filterLeaveTypeOptions as opt}
 								<DropdownMenu.Item onclick={() => { filterLeaveType = opt.value; currentPage = 1; }} class="justify-between cursor-pointer {filterLeaveType === opt.value ? 'bg-accent text-accent-foreground' : ''}">
@@ -896,7 +896,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto">
 						<DropdownMenu.Group>
 							{#each filterEmploymentTypeOptions as opt}
 								<DropdownMenu.Item onclick={() => { filterEmploymentType = opt.value; currentPage = 1; }} class="justify-between cursor-pointer {filterEmploymentType === opt.value ? 'bg-accent text-accent-foreground' : ''}">
@@ -1083,7 +1083,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto">
 						<DropdownMenu.Group>
 							{#each modalLeaveTypeOptions as opt}
 								<DropdownMenu.Item onclick={() => {
@@ -1271,7 +1271,7 @@
 								</Button>
 							{/snippet}
 						</DropdownMenu.Trigger>
-						<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
+						<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
 							<DropdownMenu.Group>
 								{#each genderOptions as opt}
 									<DropdownMenu.Item onclick={() => {
