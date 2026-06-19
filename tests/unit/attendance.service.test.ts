@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { db } from '$lib/server/db.js';
 import * as attendanceDao from '$lib/server/dao/attendance.dao.js';
+import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as holidayDao from '$lib/server/dao/holiday.dao.js';
+import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import {
 	checkIn,
 	checkOut,
@@ -9,23 +11,19 @@ import {
 	AttendanceValidationError
 } from '$lib/server/services/attendance.service.js';
 
-vi.mock('$lib/server/db.js', () => {
-	return {
-		db: {
-			employee: {
-				findUnique: vi.fn()
-			},
-			holidayCalendar: {
-				findFirst: vi.fn()
-			},
-			attendanceSource: {
-				findFirst: vi.fn(),
-				findUnique: vi.fn(),
-				create: vi.fn()
-			}
-		}
-	};
-});
+vi.mock('$lib/server/dao/employee.dao.js', () => ({
+	findUniqueByUuid: vi.fn()
+}));
+
+vi.mock('$lib/server/dao/holiday.dao.js', () => ({
+	findByDate: vi.fn()
+}));
+
+vi.mock('$lib/server/dao/master-data.dao.js', () => ({
+	findAttendanceSourceByName: vi.fn(),
+	createAttendanceSource: vi.fn(),
+	findByCuid2: vi.fn()
+}));
 
 vi.mock('$lib/server/dao/attendance.dao.js', () => {
 	return {
@@ -59,7 +57,7 @@ describe('attendance service', () => {
 		});
 
 		it('should reject if employee does not exist', async () => {
-			vi.mocked(db.employee.findUnique).mockResolvedValue(null);
+			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue(null);
 
 			await expect(checkIn(employeeCuid, null, null, validGps)).rejects.toThrowError(
 				new AttendanceValidationError('employee_cuid', 'Selected employee does not exist')
@@ -67,8 +65,8 @@ describe('attendance service', () => {
 		});
 
 		it('should reject if check-in is on a holiday', async () => {
-			vi.mocked(db.employee.findUnique).mockResolvedValue({ uuid: employeeCuid } as any);
-			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue({ id: 1n, name: 'New Year' } as any);
+			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue({ id: 1n, name: 'New Year' } as any);
 
 			await expect(checkIn(employeeCuid, null, null, validGps)).rejects.toThrowError(
 				new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on holidays')
@@ -76,8 +74,8 @@ describe('attendance service', () => {
 		});
 
 		it('should reject if employee is already checked in for today', async () => {
-			vi.mocked(db.employee.findUnique).mockResolvedValue({ uuid: employeeCuid } as any);
-			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue(null);
+			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({ cuid: 'existing-rec', status: 'Present' } as any);
 
 			await expect(checkIn(employeeCuid, null, null, validGps)).rejects.toThrowError(
@@ -86,8 +84,8 @@ describe('attendance service', () => {
 		});
 
 		it('should reject if check-in is on a leave or LOP day', async () => {
-			vi.mocked(db.employee.findUnique).mockResolvedValue({ uuid: employeeCuid } as any);
-			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue(null);
+			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 
 			// Leave status check
 			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({ cuid: 'existing-rec', status: 'Leave' } as any);
@@ -103,8 +101,8 @@ describe('attendance service', () => {
 		});
 
 		it('should reject if gps coordinates are missing or invalid', async () => {
-			vi.mocked(db.employee.findUnique).mockResolvedValue({ uuid: employeeCuid } as any);
-			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue(null);
+			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue(null);
 
 			await expect(checkIn(employeeCuid, null, null, null)).rejects.toThrowError(
@@ -117,8 +115,8 @@ describe('attendance service', () => {
 		});
 
 		it('should reject if employee is outside the allowed geofence radius', async () => {
-			vi.mocked(db.employee.findUnique).mockResolvedValue({ uuid: employeeCuid } as any);
-			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue(null);
+			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue(null);
 
 			await expect(checkIn(employeeCuid, null, null, invalidGps)).rejects.toThrowError(
@@ -127,10 +125,10 @@ describe('attendance service', () => {
 		});
 
 		it('should reject if selected source does not exist', async () => {
-			vi.mocked(db.employee.findUnique).mockResolvedValue({ uuid: employeeCuid } as any);
-			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue(null);
+			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue(null);
-			vi.mocked(db.attendanceSource.findUnique).mockResolvedValue(null);
+			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue(null);
 
 			await expect(checkIn(employeeCuid, 'invalid-source-cuid', null, validGps)).rejects.toThrowError(
 				new AttendanceValidationError('attendance_source_cuid', 'Selected source does not exist')
@@ -138,10 +136,10 @@ describe('attendance service', () => {
 		});
 
 		it('should successfully check in using specified source', async () => {
-			vi.mocked(db.employee.findUnique).mockResolvedValue({ uuid: employeeCuid } as any);
-			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue(null);
+			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue(null);
-			vi.mocked(db.attendanceSource.findUnique).mockResolvedValue({ cuid: 'source-123', attendance_source_name: 'Mobile' } as any);
+			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ cuid: 'source-123', attendance_source_name: 'Mobile' } as any);
 			vi.mocked(attendanceDao.create).mockResolvedValue({ cuid: 'created-attendance' } as any);
 
 			const result = await checkIn(employeeCuid, 'source-123', 'admin', validGps);
@@ -160,15 +158,15 @@ describe('attendance service', () => {
 		});
 
 		it('should auto-create Web source if not specified', async () => {
-			vi.mocked(db.employee.findUnique).mockResolvedValue({ uuid: employeeCuid } as any);
-			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue(null);
+			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue(null);
-			vi.mocked(db.attendanceSource.findFirst).mockResolvedValue(null);
-			vi.mocked(db.attendanceSource.create).mockResolvedValue({ cuid: 'web-source-cuid' } as any);
+			vi.mocked(masterDataDao.findAttendanceSourceByName).mockResolvedValue(null);
+			vi.mocked(masterDataDao.createAttendanceSource).mockResolvedValue({ cuid: 'web-source-cuid' } as any);
 			vi.mocked(attendanceDao.create).mockResolvedValue({ cuid: 'created-attendance' } as any);
 
 			await checkIn(employeeCuid, null, 'admin', validGps);
-			expect(db.attendanceSource.create).toHaveBeenCalledWith({ data: { attendance_source_name: 'Web' } });
+			expect(masterDataDao.createAttendanceSource).toHaveBeenCalledWith('Web');
 		});
 	});
 
@@ -180,7 +178,7 @@ describe('attendance service', () => {
 		});
 
 		it('should reject if check-out is on a holiday', async () => {
-			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue({ id: 1n, name: 'New Year' } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue({ id: 1n, name: 'New Year' } as any);
 
 			await expect(checkOut(employeeCuid, null, validGps)).rejects.toThrowError(
 				new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on holidays')
@@ -188,7 +186,7 @@ describe('attendance service', () => {
 		});
 
 		it('should reject if no check-in record exists for today', async () => {
-			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue(null);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue(null);
 
 			await expect(checkOut(employeeCuid, null, validGps)).rejects.toThrowError(
@@ -197,7 +195,7 @@ describe('attendance service', () => {
 		});
 
 		it('should reject if already checked out today', async () => {
-			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue(null);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({
 				cuid: 'record-1',
 				status: 'Present',
@@ -211,7 +209,7 @@ describe('attendance service', () => {
 		});
 
 		it('should reject if check-out is on a leave or LOP day', async () => {
-			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue(null);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 
 			// Leave status check
 			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({
@@ -233,7 +231,7 @@ describe('attendance service', () => {
 		});
 
 		it('should reject if gps is invalid or outside office zone', async () => {
-			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue(null);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({
 				cuid: 'record-1',
 				check_in_time: new Date(Date.UTC(2026, 5, 1, 9, 0, 0))
@@ -248,7 +246,7 @@ describe('attendance service', () => {
 			const checkInTime = new Date(Date.UTC(2026, 5, 1, 9, 0, 0)); // 9:00 AM
 			const checkOutTime = new Date(Date.UTC(2026, 5, 1, 17, 30, 0)); // 5:30 PM (8.5 hours / 510 minutes later)
 
-			vi.mocked(db.holidayCalendar.findFirst).mockResolvedValue(null);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({
 				cuid: 'record-123',
 				check_in_time: checkInTime

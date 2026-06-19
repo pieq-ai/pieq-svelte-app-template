@@ -39,7 +39,7 @@ describe('leave type service', () => {
 					leave_code: 'ANNUAL'
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('leave_name', 'Leave name is required and must be a string')
+				new LeaveValidationError('leave_name', 'Leave name is required')
 			);
 		});
 
@@ -50,7 +50,7 @@ describe('leave type service', () => {
 					leave_code: 'ANNUAL'
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('leave_name', 'Leave name cannot be empty')
+				new LeaveValidationError('leave_name', 'Leave name is required')
 			);
 		});
 
@@ -95,7 +95,7 @@ describe('leave type service', () => {
 					leave_code: 123
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('leave_code', 'Leave code is required and must be a string')
+				new LeaveValidationError('leave_code', 'Leave code is required')
 			);
 		});
 
@@ -106,7 +106,7 @@ describe('leave type service', () => {
 					leave_code: '   '
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('leave_code', 'Leave code cannot be empty')
+				new LeaveValidationError('leave_code', 'Leave code is required')
 			);
 		});
 

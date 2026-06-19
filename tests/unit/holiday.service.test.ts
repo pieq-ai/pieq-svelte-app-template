@@ -138,7 +138,7 @@ describe('holiday service', () => {
 					holiday_type: 'National'
 				})
 			).rejects.toThrowError(
-				new HolidayValidationError('holiday_date', 'Holiday date must be between the years 2000 and 2099')
+				new HolidayValidationError('holiday_date', 'You can schedule holidays only up to the year 2099')
 			);
 		});
 
@@ -149,7 +149,7 @@ describe('holiday service', () => {
 					holiday_date: '2026-05-28', // May 28 is yesterday compared to system time May 29
 					holiday_type: 'National'
 				})
-			).rejects.toThrowError(new HolidayValidationError('holiday_date', 'Holiday date cannot be in the past.'));
+			).rejects.toThrowError(new HolidayValidationError('holiday_date', 'Holiday date cannot be in the past'));
 		});
 
 		it('should reject invalid types', async () => {

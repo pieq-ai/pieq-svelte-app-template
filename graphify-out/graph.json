@@ -1296,7 +1296,7 @@
       "source_file": "src/lib/components/ConfirmationModal.svelte",
       "source_location": "L1",
       "id": "components_confirmationmodal",
-      "community": 35,
+      "community": 87,
       "norm_label": "confirmationmodal.svelte"
     },
     {
@@ -1305,7 +1305,7 @@
       "source_file": "src/lib/components/ConfirmationModal.svelte",
       "source_location": "L29",
       "id": "components_confirmationmodal_if",
-      "community": 35,
+      "community": 87,
       "norm_label": "if()"
     },
     {
@@ -1314,7 +1314,7 @@
       "source_file": "src/lib/confirmation.svelte.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_confirmation_svelte_js",
-      "community": 35,
+      "community": 87,
       "norm_label": "$lib/confirmation.svelte.js"
     },
     {
@@ -1341,7 +1341,7 @@
       "source_file": "@lucide/svelte/icons/loader-circle",
       "confidence": "EXTRACTED",
       "id": "loader_circle",
-      "community": 35,
+      "community": 2,
       "norm_label": "@lucide/svelte/icons/loader-circle"
     },
     {
@@ -1405,7 +1405,7 @@
       "source_file": "src/lib/components",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_components",
-      "community": 2,
+      "community": 87,
       "norm_label": "$lib/components"
     },
     {
@@ -1505,7 +1505,7 @@
       "source_file": "src/lib/components/common/Pagination.svelte",
       "source_location": "L1",
       "id": "common_pagination",
-      "community": 3,
+      "community": 87,
       "norm_label": "pagination.svelte"
     },
     {
@@ -1514,7 +1514,7 @@
       "source_file": "src/lib/components/common/Pagination.svelte",
       "source_location": "L59",
       "id": "common_pagination_i",
-      "community": 3,
+      "community": 87,
       "norm_label": "i()"
     },
     {
@@ -1523,7 +1523,7 @@
       "source_file": "@lucide/svelte/icons/chevron-left",
       "confidence": "EXTRACTED",
       "id": "chevron_left",
-      "community": 3,
+      "community": 87,
       "norm_label": "@lucide/svelte/icons/chevron-left"
     },
     {
@@ -1532,7 +1532,7 @@
       "source_file": "@lucide/svelte/icons/chevron-right",
       "confidence": "EXTRACTED",
       "id": "chevron_right",
-      "community": 3,
+      "community": 87,
       "norm_label": "@lucide/svelte/icons/chevron-right"
     },
     {
@@ -1541,7 +1541,7 @@
       "source_file": "src/lib/components/common/PermissionMatrixCell.svelte",
       "source_location": "L1",
       "id": "common_permissionmatrixcell",
-      "community": 35,
+      "community": 87,
       "norm_label": "permissionmatrixcell.svelte"
     },
     {
@@ -1550,7 +1550,7 @@
       "source_file": "src/lib/components/common/SearchInput.svelte",
       "source_location": "L1",
       "id": "common_searchinput",
-      "community": 2,
+      "community": 87,
       "norm_label": "searchinput.svelte"
     },
     {
@@ -1568,7 +1568,7 @@
       "source_file": "@lucide/svelte/icons/pencil",
       "confidence": "EXTRACTED",
       "id": "pencil",
-      "community": 2,
+      "community": 87,
       "norm_label": "@lucide/svelte/icons/pencil"
     },
     {
@@ -1604,7 +1604,7 @@
       "source_file": "src/lib/components/common/StatusDropdown.svelte",
       "source_location": "L1",
       "id": "common_statusdropdown",
-      "community": 10,
+      "community": 87,
       "norm_label": "statusdropdown.svelte"
     },
     {
@@ -1622,7 +1622,7 @@
       "source_file": "src/lib/components/common/TableActions.svelte",
       "source_location": "L1",
       "id": "common_tableactions",
-      "community": 2,
+      "community": 87,
       "norm_label": "tableactions.svelte"
     },
     {
@@ -1631,7 +1631,7 @@
       "source_file": "@lucide/svelte/icons/more-vertical",
       "confidence": "EXTRACTED",
       "id": "more_vertical",
-      "community": 2,
+      "community": 87,
       "norm_label": "@lucide/svelte/icons/more-vertical"
     },
     {
@@ -1658,7 +1658,7 @@
       "source_file": "src/lib/components/index.ts",
       "source_location": "L1",
       "id": "components_index",
-      "community": 3,
+      "community": 87,
       "norm_label": "index.ts"
     },
     {
@@ -1838,7 +1838,7 @@
       "source_file": "src/lib/components/ui/datepicker/DatePicker.svelte",
       "source_location": "L1",
       "id": "datepicker_datepicker",
-      "community": 3,
+      "community": 87,
       "norm_label": "datepicker.svelte"
     },
     {
@@ -2091,7 +2091,7 @@
       "source_file": "src/lib/components/ui/multiselect/multiselect.svelte",
       "source_location": "L1",
       "id": "multiselect_multiselect",
-      "community": 3,
+      "community": 87,
       "norm_label": "multiselect.svelte"
     },
     {
@@ -2100,7 +2100,7 @@
       "source_file": "src/lib/components/ui/multiselect/multiselect.svelte",
       "source_location": "L54",
       "id": "multiselect_multiselect_handleclickoutside",
-      "community": 3,
+      "community": 87,
       "norm_label": "handleclickoutside()"
     },
     {
@@ -2109,7 +2109,7 @@
       "source_file": "src/lib/components/ui/multiselect/multiselect.svelte",
       "source_location": "L192",
       "id": "multiselect_multiselect_each",
-      "community": 3,
+      "community": 87,
       "norm_label": "#each()"
     },
     {
@@ -2551,7 +2551,7 @@
       "source_file": "src/lib/geofence.ts",
       "source_location": "L1",
       "id": "lib_geofence",
-      "community": 38,
+      "community": 35,
       "norm_label": "geofence.ts"
     },
     {
@@ -2560,7 +2560,7 @@
       "source_file": "src/lib/geofence.ts",
       "source_location": "L1",
       "id": "lib_geofence_geofence_config",
-      "community": 38,
+      "community": 35,
       "norm_label": "geofence_config"
     },
     {
@@ -2569,7 +2569,7 @@
       "source_file": "src/lib/geofence.ts",
       "source_location": "L12",
       "id": "lib_geofence_calculatedistance",
-      "community": 38,
+      "community": 35,
       "norm_label": "calculatedistance()"
     },
     {
@@ -2578,7 +2578,7 @@
       "source_file": "src/lib/index.ts",
       "source_location": "L1",
       "id": "lib_index",
-      "community": 3,
+      "community": 87,
       "norm_label": "index.ts"
     },
     {
@@ -4270,7 +4270,7 @@
       "source_file": "src/lib/server/response.ts",
       "source_location": "L146",
       "id": "server_response_errorresponse",
-      "community": 46,
+      "community": 38,
       "norm_label": "errorresponse()"
     },
     {
@@ -4279,7 +4279,7 @@
       "source_file": "src/lib/server/response.ts",
       "source_location": "L155",
       "id": "server_response_createsuccessresponse",
-      "community": 46,
+      "community": 38,
       "norm_label": "createsuccessresponse()"
     },
     {
@@ -4288,7 +4288,7 @@
       "source_file": "src/lib/server/response.ts",
       "source_location": "L162",
       "id": "server_response_updatesuccessresponse",
-      "community": 46,
+      "community": 38,
       "norm_label": "updatesuccessresponse()"
     },
     {
@@ -4297,7 +4297,7 @@
       "source_file": "src/lib/server/response.ts",
       "source_location": "L169",
       "id": "server_response_deletesuccessresponse",
-      "community": 46,
+      "community": 13,
       "norm_label": "deletesuccessresponse()"
     },
     {
@@ -4576,7 +4576,7 @@
       "source_file": "src/lib/server/services/attendance.service.ts",
       "source_location": "L1",
       "id": "services_attendance_service",
-      "community": 38,
+      "community": 35,
       "norm_label": "attendance.service.ts"
     },
     {
@@ -4603,7 +4603,7 @@
       "source_file": "src/lib/server/services/attendance.service.ts",
       "source_location": "L16",
       "id": "services_attendance_service_attendancemultivalidationerror",
-      "community": 38,
+      "community": 35,
       "norm_label": "attendancemultivalidationerror"
     },
     {
@@ -4612,7 +4612,7 @@
       "source_file": "src/lib/server/services/attendance.service.ts",
       "source_location": "L18",
       "id": "services_attendance_service_attendancemultivalidationerror_constructor",
-      "community": 38,
+      "community": 35,
       "norm_label": ".constructor()"
     },
     {
@@ -4621,7 +4621,7 @@
       "source_file": "src/lib/server/services/attendance.service.ts",
       "source_location": "L25",
       "id": "services_attendance_service_getorcreatewebsource",
-      "community": 38,
+      "community": 35,
       "norm_label": "getorcreatewebsource()"
     },
     {
@@ -4630,7 +4630,7 @@
       "source_file": "src/lib/server/services/attendance.service.ts",
       "source_location": "L34",
       "id": "services_attendance_service_checkin",
-      "community": 38,
+      "community": 35,
       "norm_label": "checkin()"
     },
     {
@@ -4639,7 +4639,7 @@
       "source_file": "src/lib/server/services/attendance.service.ts",
       "source_location": "L108",
       "id": "services_attendance_service_checkout",
-      "community": 38,
+      "community": 35,
       "norm_label": "checkout()"
     },
     {
@@ -4648,7 +4648,7 @@
       "source_file": "src/lib/server/services/attendance.service.ts",
       "source_location": "L169",
       "id": "services_attendance_service_getemployeehistory",
-      "community": 38,
+      "community": 35,
       "norm_label": "getemployeehistory()"
     },
     {
@@ -4657,7 +4657,7 @@
       "source_file": "src/lib/server/services/attendance.service.ts",
       "source_location": "L176",
       "id": "services_attendance_service_gettodaystatus",
-      "community": 38,
+      "community": 35,
       "norm_label": "gettodaystatus()"
     },
     {
@@ -5071,7 +5071,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L1",
       "id": "services_leave_policy_service",
-      "community": 37,
+      "community": 46,
       "norm_label": "leave-policy.service.ts"
     },
     {
@@ -5080,7 +5080,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L6",
       "id": "services_leave_policy_service_createleavepolicyinput",
-      "community": 37,
+      "community": 46,
       "norm_label": "createleavepolicyinput"
     },
     {
@@ -5089,7 +5089,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L24",
       "id": "services_leave_policy_service_updateleavepolicyinput",
-      "community": 37,
+      "community": 46,
       "norm_label": "updateleavepolicyinput"
     },
     {
@@ -5098,7 +5098,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L41",
       "id": "services_leave_policy_service_validateandmappolicyinput",
-      "community": 37,
+      "community": 46,
       "norm_label": "validateandmappolicyinput()"
     },
     {
@@ -5125,7 +5125,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L238",
       "id": "services_leave_policy_service_createleavepolicy",
-      "community": 37,
+      "community": 46,
       "norm_label": "createleavepolicy()"
     },
     {
@@ -5134,7 +5134,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L247",
       "id": "services_leave_policy_service_updateleavepolicy",
-      "community": 37,
+      "community": 46,
       "norm_label": "updateleavepolicy()"
     },
     {
@@ -5143,7 +5143,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L287",
       "id": "services_leave_policy_service_deleteleavepolicy",
-      "community": 37,
+      "community": 46,
       "norm_label": "deleteleavepolicy()"
     },
     {
@@ -5161,7 +5161,7 @@
       "source_file": "src/lib/server/services/leave-type.service.ts",
       "source_location": "L6",
       "id": "services_leave_type_service_leavevalidationerror",
-      "community": 37,
+      "community": 46,
       "norm_label": "leavevalidationerror"
     },
     {
@@ -5170,7 +5170,7 @@
       "source_file": "src/lib/server/services/leave-type.service.ts",
       "source_location": "L9",
       "id": "services_leave_type_service_leavevalidationerror_constructor",
-      "community": 37,
+      "community": 46,
       "norm_label": ".constructor()"
     },
     {
@@ -5179,7 +5179,7 @@
       "source_file": "src/lib/server/services/leave-type.service.ts",
       "source_location": "L16",
       "id": "services_leave_type_service_leavemultivalidationerror",
-      "community": 37,
+      "community": 46,
       "norm_label": "leavemultivalidationerror"
     },
     {
@@ -5188,7 +5188,7 @@
       "source_file": "src/lib/server/services/leave-type.service.ts",
       "source_location": "L19",
       "id": "services_leave_type_service_leavemultivalidationerror_constructor",
-      "community": 37,
+      "community": 46,
       "norm_label": ".constructor()"
     },
     {
@@ -5575,7 +5575,7 @@
       "source_file": "src/lib/server/services/role-permission.service.ts",
       "source_location": "L1",
       "id": "services_role_permission_service",
-      "community": 90,
+      "community": 75,
       "norm_label": "role-permission.service.ts"
     },
     {
@@ -5584,7 +5584,7 @@
       "source_file": "src/lib/server/services/role-permission.service.ts",
       "source_location": "L5",
       "id": "services_role_permission_service_assignrolepermissionsdto",
-      "community": 90,
+      "community": 75,
       "norm_label": "assignrolepermissionsdto"
     },
     {
@@ -5593,7 +5593,7 @@
       "source_file": "src/lib/server/services/role-permission.service.ts",
       "source_location": "L10",
       "id": "services_role_permission_service_validatecuid2",
-      "community": 90,
+      "community": 75,
       "norm_label": "validatecuid2()"
     },
     {
@@ -5602,7 +5602,7 @@
       "source_file": "src/lib/server/services/role-permission.service.ts",
       "source_location": "L16",
       "id": "services_role_permission_service_getpermissionmodule",
-      "community": 90,
+      "community": 75,
       "norm_label": "getpermissionmodule()"
     },
     {
@@ -5611,7 +5611,7 @@
       "source_file": "src/lib/server/services/role-permission.service.ts",
       "source_location": "L20",
       "id": "services_role_permission_service_topublicpermission",
-      "community": 90,
+      "community": 75,
       "norm_label": "topublicpermission()"
     },
     {
@@ -5620,7 +5620,7 @@
       "source_file": "src/lib/server/services/role-permission.service.ts",
       "source_location": "L37",
       "id": "services_role_permission_service_getrolepermissionmatrix",
-      "community": 90,
+      "community": 75,
       "norm_label": "getrolepermissionmatrix()"
     },
     {
@@ -5629,7 +5629,7 @@
       "source_file": "src/lib/server/services/role-permission.service.ts",
       "source_location": "L75",
       "id": "services_role_permission_service_assignpermissionstorole",
-      "community": 90,
+      "community": 75,
       "norm_label": "assignpermissionstorole()"
     },
     {
@@ -5638,7 +5638,7 @@
       "source_file": "src/lib/server/services/role-permission.service.ts",
       "source_location": "L122",
       "id": "services_role_permission_service_removepermissionfromrolebycuid2",
-      "community": 90,
+      "community": 75,
       "norm_label": "removepermissionfromrolebycuid2()"
     },
     {
@@ -6133,7 +6133,7 @@
       "source_file": "src/lib/server/validation.ts",
       "source_location": "L1",
       "id": "server_validation",
-      "community": 46,
+      "community": 38,
       "norm_label": "validation.ts"
     },
     {
@@ -6142,7 +6142,7 @@
       "source_file": "src/lib/server/validation.ts",
       "source_location": "L5",
       "id": "server_validation_trimstringfields",
-      "community": 46,
+      "community": 38,
       "norm_label": "trimstringfields()"
     },
     {
@@ -6151,7 +6151,7 @@
       "source_file": "src/lib/server/validation.ts",
       "source_location": "L27",
       "id": "server_validation_validatepayloadkeys",
-      "community": 46,
+      "community": 38,
       "norm_label": "validatepayloadkeys()"
     },
     {
@@ -6691,7 +6691,7 @@
       "source_file": "src/lib/types/shift.ts",
       "source_location": "L1",
       "id": "types_shift",
-      "community": 59,
+      "community": 47,
       "norm_label": "shift.ts"
     },
     {
@@ -6709,7 +6709,7 @@
       "source_file": "src/lib/types/shift.ts",
       "source_location": "L13",
       "id": "types_shift_shiftcreatedto",
-      "community": 59,
+      "community": 47,
       "norm_label": "shiftcreatedto"
     },
     {
@@ -6718,7 +6718,7 @@
       "source_file": "src/lib/types/shift.ts",
       "source_location": "L22",
       "id": "types_shift_shiftupdatedto",
-      "community": 59,
+      "community": 47,
       "norm_label": "shiftupdatedto"
     },
     {
@@ -7141,7 +7141,7 @@
       "source_file": "src/routes/api/attendance-records/+server.ts",
       "source_location": "L46",
       "id": "attendance_records_server_post",
-      "community": 46,
+      "community": 38,
       "norm_label": "post()"
     },
     {
@@ -7150,7 +7150,7 @@
       "source_file": "src/routes/api/attendance-records/[cuid]/+server.ts",
       "source_location": "L1",
       "id": "src_routes_api_attendance_records_cuid_server_ts_cuid_server",
-      "community": 46,
+      "community": 13,
       "norm_label": "+server.ts"
     },
     {
@@ -7159,7 +7159,7 @@
       "source_file": "src/routes/api/attendance-records/[cuid]/+server.ts",
       "source_location": "L18",
       "id": "src_routes_api_attendance_records_cuid_server_ts_cuid_server_get",
-      "community": 46,
+      "community": 13,
       "norm_label": "get()"
     },
     {
@@ -7168,7 +7168,7 @@
       "source_file": "src/routes/api/attendance-records/[cuid]/+server.ts",
       "source_location": "L44",
       "id": "src_routes_api_attendance_records_cuid_server_ts_cuid_server_put",
-      "community": 46,
+      "community": 38,
       "norm_label": "put()"
     },
     {
@@ -7177,7 +7177,7 @@
       "source_file": "src/routes/api/attendance-records/[cuid]/+server.ts",
       "source_location": "L103",
       "id": "src_routes_api_attendance_records_cuid_server_ts_cuid_server_delete",
-      "community": 46,
+      "community": 13,
       "norm_label": "delete()"
     },
     {
@@ -7429,7 +7429,7 @@
       "source_file": "src/routes/api/holidays/+server.ts",
       "source_location": "L28",
       "id": "holidays_server_post",
-      "community": 46,
+      "community": 38,
       "norm_label": "post()"
     },
     {
@@ -7456,7 +7456,7 @@
       "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
       "source_location": "L35",
       "id": "src_routes_api_holidays_cuid_server_ts_cuid_server_put",
-      "community": 46,
+      "community": 38,
       "norm_label": "put()"
     },
     {
@@ -7465,7 +7465,7 @@
       "source_file": "src/routes/api/holidays/[cuid]/+server.ts",
       "source_location": "L91",
       "id": "src_routes_api_holidays_cuid_server_ts_cuid_server_delete",
-      "community": 46,
+      "community": 23,
       "norm_label": "delete()"
     },
     {
@@ -7492,7 +7492,7 @@
       "source_file": "src/routes/api/leave/policies/+server.ts",
       "source_location": "L27",
       "id": "policies_server_post",
-      "community": 46,
+      "community": 38,
       "norm_label": "post()"
     },
     {
@@ -7519,7 +7519,7 @@
       "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
       "source_location": "L33",
       "id": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_put",
-      "community": 46,
+      "community": 38,
       "norm_label": "put()"
     },
     {
@@ -7537,7 +7537,7 @@
       "source_file": "src/routes/api/leave/types/+server.ts",
       "source_location": "L1",
       "id": "types_server",
-      "community": 37,
+      "community": 38,
       "norm_label": "+server.ts"
     },
     {
@@ -7546,7 +7546,7 @@
       "source_file": "src/routes/api/leave/types/+server.ts",
       "source_location": "L17",
       "id": "types_server_get",
-      "community": 37,
+      "community": 38,
       "norm_label": "get()"
     },
     {
@@ -7555,7 +7555,7 @@
       "source_file": "src/routes/api/leave/types/+server.ts",
       "source_location": "L28",
       "id": "types_server_post",
-      "community": 46,
+      "community": 38,
       "norm_label": "post()"
     },
     {
@@ -7582,7 +7582,7 @@
       "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
       "source_location": "L33",
       "id": "src_routes_api_leave_types_cuid_server_ts_cuid_server_put",
-      "community": 46,
+      "community": 38,
       "norm_label": "put()"
     },
     {
@@ -8248,7 +8248,7 @@
       "source_file": "@lucide/svelte/icons/arrow-up",
       "confidence": "EXTRACTED",
       "id": "arrow_up",
-      "community": 10,
+      "community": 2,
       "norm_label": "@lucide/svelte/icons/arrow-up"
     },
     {
@@ -8257,7 +8257,7 @@
       "source_file": "@lucide/svelte/icons/arrow-down",
       "confidence": "EXTRACTED",
       "id": "arrow_down",
-      "community": 55,
+      "community": 2,
       "norm_label": "@lucide/svelte/icons/arrow-down"
     },
     {
@@ -8266,7 +8266,7 @@
       "source_file": "@lucide/svelte/icons/arrow-up-down",
       "confidence": "EXTRACTED",
       "id": "arrow_up_down",
-      "community": 35,
+      "community": 2,
       "norm_label": "@lucide/svelte/icons/arrow-up-down"
     },
     {
@@ -8446,7 +8446,7 @@
       "source_file": "src/routes/dashboard/+page.svelte",
       "source_location": "L1",
       "id": "dashboard_page",
-      "community": 2,
+      "community": 87,
       "norm_label": "+page.svelte"
     },
     {
@@ -8473,7 +8473,7 @@
       "source_file": "src/routes/dashboard/[cuid=cuid]/+page.svelte",
       "source_location": "L1",
       "id": "cuid_cuid_page",
-      "community": 2,
+      "community": 87,
       "norm_label": "+page.svelte"
     },
     {
@@ -9122,7 +9122,7 @@
       "source_file": "src/routes/organization_locations/+page.svelte",
       "source_location": "L1",
       "id": "organization_locations_page",
-      "community": 35,
+      "community": 2,
       "norm_label": "+page.svelte"
     },
     {
@@ -9131,7 +9131,7 @@
       "source_file": "src/routes/organization_locations/+page.svelte",
       "source_location": "L197",
       "id": "organization_locations_page_if",
-      "community": 35,
+      "community": 2,
       "norm_label": "if()"
     },
     {
@@ -9140,7 +9140,7 @@
       "source_file": "src/lib/types/organization_location",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_types_organization_location",
-      "community": 35,
+      "community": 2,
       "norm_label": "$lib/types/organization_location"
     },
     {
@@ -9149,7 +9149,7 @@
       "source_file": "src/lib/api/locations",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_api_locations",
-      "community": 35,
+      "community": 2,
       "norm_label": "$lib/api/locations"
     },
     {
@@ -9158,7 +9158,7 @@
       "source_file": "src/lib/api/local",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_api_local",
-      "community": 35,
+      "community": 2,
       "norm_label": "$lib/api/local"
     },
     {
@@ -9185,7 +9185,7 @@
       "source_file": "src/routes/roles/+page.svelte",
       "source_location": "L1",
       "id": "roles_page",
-      "community": 35,
+      "community": 2,
       "norm_label": "+page.svelte"
     },
     {
@@ -9194,7 +9194,7 @@
       "source_file": "src/lib/types/role",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_types_role",
-      "community": 35,
+      "community": 2,
       "norm_label": "$lib/types/role"
     },
     {
@@ -9203,7 +9203,7 @@
       "source_file": "src/lib/api/roles",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_api_roles",
-      "community": 35,
+      "community": 2,
       "norm_label": "$lib/api/roles"
     },
     {
@@ -9239,7 +9239,7 @@
       "source_file": "src/routes/settings/+page.svelte",
       "source_location": "L1",
       "id": "settings_page",
-      "community": 2,
+      "community": 87,
       "norm_label": "+page.svelte"
     },
     {
@@ -9248,7 +9248,7 @@
       "source_file": "src/routes/shifts/+page.svelte",
       "source_location": "L1",
       "id": "shifts_page",
-      "community": 35,
+      "community": 2,
       "norm_label": "+page.svelte"
     },
     {
@@ -9257,7 +9257,7 @@
       "source_file": "src/lib/types/shift",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_types_shift",
-      "community": 35,
+      "community": 2,
       "norm_label": "$lib/types/shift"
     },
     {
@@ -9266,7 +9266,7 @@
       "source_file": "src/lib/api/shifts",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_api_shifts",
-      "community": 35,
+      "community": 2,
       "norm_label": "$lib/api/shifts"
     },
     {
@@ -9401,7 +9401,7 @@
       "source_file": "tests/unit/attendance.service.test.ts",
       "source_location": "L1",
       "id": "unit_attendance_service_test",
-      "community": 38,
+      "community": 35,
       "norm_label": "attendance.service.test.ts"
     },
     {
@@ -9437,7 +9437,7 @@
       "source_file": "tests/unit/crud.test.ts",
       "source_location": "L1",
       "id": "unit_crud_test",
-      "community": 44,
+      "community": 48,
       "norm_label": "crud.test.ts"
     },
     {
@@ -9581,7 +9581,7 @@
       "source_file": "tests/unit/leave-policy.api.test.ts",
       "source_location": "L1",
       "id": "unit_leave_policy_api_test",
-      "community": 37,
+      "community": 46,
       "norm_label": "leave-policy.api.test.ts"
     },
     {
@@ -9599,7 +9599,7 @@
       "source_file": "tests/unit/leave-policy.service.test.ts",
       "source_location": "L1",
       "id": "unit_leave_policy_service_test",
-      "community": 37,
+      "community": 46,
       "norm_label": "leave-policy.service.test.ts"
     },
     {
@@ -9608,7 +9608,7 @@
       "source_file": "tests/unit/leave-policy.service.test.ts",
       "source_location": "L35",
       "id": "unit_leave_policy_service_test_auditfields",
-      "community": 37,
+      "community": 46,
       "norm_label": "auditfields"
     },
     {
@@ -9761,7 +9761,7 @@
       "source_file": "tests/unit/role-permission.service.test.ts",
       "source_location": "L1",
       "id": "unit_role_permission_service_test",
-      "community": 90,
+      "community": 75,
       "norm_label": "role-permission.service.test.ts"
     },
     {
@@ -9815,7 +9815,7 @@
       "source_file": "tests/unit/validation.test.ts",
       "source_location": "L1",
       "id": "unit_validation_test",
-      "community": 47,
+      "community": 39,
       "norm_label": "validation.test.ts"
     },
     {
@@ -11146,7 +11146,7 @@
       "file_type": "code",
       "source_file": "src/lib/components",
       "confidence": "EXTRACTED",
-      "community": 2,
+      "community": 87,
       "norm_label": "$lib/components",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_components"
     },
@@ -19177,6 +19177,28 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "tests/unit/attendance-record.service.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "unit_attendance_record_service_test",
+      "target": "dao_employee_dao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/attendance.service.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "unit_attendance_service_test",
+      "target": "dao_employee_dao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "tests/unit/employee.dao.test.ts",
       "source_location": "L3",
       "weight": 1.0,
@@ -19369,6 +19391,28 @@
       "confidence_score": 1.0,
       "source": "services_holiday_service",
       "target": "dao_holiday_dao"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/attendance-record.service.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "unit_attendance_record_service_test",
+      "target": "dao_holiday_dao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/attendance.service.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "unit_attendance_service_test",
+      "target": "dao_holiday_dao",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -19852,6 +19896,17 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "tests/unit/leave-policy.service.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "unit_leave_policy_service_test",
+      "target": "dao_leave_type_dao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "tests/unit/leave-type.dao.test.ts",
       "source_location": "L2",
       "weight": 1.0,
@@ -20124,6 +20179,39 @@
       "confidence_score": 1.0,
       "source": "services_master_data_service",
       "target": "dao_master_data_dao"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/attendance-record.service.test.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "unit_attendance_record_service_test",
+      "target": "dao_master_data_dao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/attendance.service.test.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "unit_attendance_service_test",
+      "target": "dao_master_data_dao",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/unit/leave-policy.service.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "unit_leave_policy_service_test",
+      "target": "dao_master_data_dao",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -38381,5 +38469,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "c21d79259d2454260736f8315a1b9556639887a1"
+  "built_at_commit": "766ac1572990095fc9f04f8a7862dce106cbae09"
 }
