@@ -45,15 +45,11 @@ export interface UpdateLeaveTypeInput {
 }
 
 function validateLeaveName(raw: unknown): string {
-	if (typeof raw !== 'string') {
-		throw new LeaveValidationError('leave_name', 'Leave name is required and must be a string');
+	if (typeof raw !== 'string' || raw.trim() === '') {
+		throw new LeaveValidationError('leave_name', 'Leave name is required');
 	}
 
 	const trimmed = raw.trim();
-
-	if (trimmed.length === 0) {
-		throw new LeaveValidationError('leave_name', 'Leave name cannot be empty');
-	}
 
 	if (trimmed.length <= 5) {
 		throw new LeaveValidationError(
@@ -81,15 +77,11 @@ function validateLeaveName(raw: unknown): string {
 }
 
 function validateLeaveCode(raw: unknown): string {
-	if (typeof raw !== 'string') {
-		throw new LeaveValidationError('leave_code', 'Leave code is required and must be a string');
+	if (typeof raw !== 'string' || raw.trim() === '') {
+		throw new LeaveValidationError('leave_code', 'Leave code is required');
 	}
 
 	const converted = raw.trim().toUpperCase();
-
-	if (converted.length === 0) {
-		throw new LeaveValidationError('leave_code', 'Leave code cannot be empty');
-	}
 
 	if (converted.length > LEAVE_CODE_MAX_LENGTH) {
 		throw new LeaveValidationError(

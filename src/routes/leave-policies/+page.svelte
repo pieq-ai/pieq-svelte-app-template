@@ -385,7 +385,6 @@
 			leaveTypeId.trim() !== '' &&
 			selectedEmploymentTypes.length > 0 &&
 			annualLimit.trim() !== '' &&
-			minServiceDays.trim() !== '' &&
 			(!carryForwardAllowed || maxCarryForwardDays.trim() !== '') &&
 			(!genderSpecific || applicableGender !== '');
 		if (!mandatoryFieldsFilled) return true;
@@ -554,31 +553,37 @@
 	// Form Helper functions for validation on submit
 
 	function getLeaveTypeIdError(id: string): string {
-		if (!id) return 'Leave type is required.';
+		if (!id) return 'Leave type is required';
 		return '';
 	}
 
 	function getEmploymentTypesError(types: string[]): string {
 		if (types.length === 0) {
-			return 'At least one employment type must be selected';
+			return 'At least one employment type is required';
 		}
 		return '';
 	}
 
 	function getQuotaError(quotaStr: string): string {
-		if (!quotaStr || quotaStr.trim() === '') return 'Annual limit is required.';
+		if (!quotaStr || quotaStr.trim() === '') return 'Annual limit is required';
+		if (isNaN(Number(quotaStr))) {
+			return 'Only numeric values are allowed';
+		}
 		const quota = Number(quotaStr);
-		if (isNaN(quota) || quota <= 0) {
-			return 'Annual limit must be greater than zero';
+		if (quota <= 0) {
+			return 'Value must be greater than 0';
 		}
 		return '';
 	}
 
 	function getMaxPerMonthError(maxMStr: string, quotaStr: string): string {
 		if (!maxMStr || maxMStr.trim() === '') return '';
+		if (isNaN(Number(maxMStr))) {
+			return 'Only numeric values are allowed';
+		}
 		const maxM = Number(maxMStr);
-		if (isNaN(maxM) || maxM <= 0) {
-			return 'Max per month must be greater than zero';
+		if (maxM <= 0) {
+			return 'Value must be greater than 0';
 		}
 		if (quotaStr) {
 			const quota = Number(quotaStr);
@@ -594,18 +599,24 @@
 		if (!daysStr || String(daysStr).trim() === '') {
 			return 'Max carry forward days is required when carry forward is allowed';
 		}
+		if (isNaN(Number(daysStr))) {
+			return 'Only numeric values are allowed';
+		}
 		const days = Number(daysStr);
-		if (isNaN(days) || days <= 0) {
-			return 'Max carry forward days must be greater than zero';
+		if (days <= 0) {
+			return 'Value must be greater than 0';
 		}
 		return '';
 	}
 
 	function getMinServiceDaysError(daysStr: string): string {
-		if (!daysStr || daysStr.trim() === '') return 'Min service days is required.';
+		if (!daysStr || daysStr.trim() === '') return '';
+		if (isNaN(Number(daysStr))) {
+			return 'Only numeric values are allowed';
+		}
 		const days = Number(daysStr);
-		if (isNaN(days) || !Number.isInteger(days) || days < 0) {
-			return 'Min service days must be a positive integer';
+		if (days < 0) {
+			return 'Value must be greater than or equal to 0';
 		}
 		return '';
 	}
@@ -620,9 +631,12 @@
 	function getDocumentRequiredAfterDaysError(required: boolean, daysStr: string): string {
 		if (!required) return '';
 		if (!daysStr || String(daysStr).trim() === '') return '';
+		if (isNaN(Number(daysStr))) {
+			return 'Only numeric values are allowed';
+		}
 		const days = Number(daysStr);
-		if (isNaN(days) || !Number.isInteger(days) || days <= 0) {
-			return 'Document required after days must be greater than zero';
+		if (days <= 0) {
+			return 'Value must be greater than 0';
 		}
 		return '';
 	}
@@ -1109,6 +1123,9 @@
 					onchange={() => {
 						if (form && form.field === 'carry_forward_allowed') form = null;
 						errors.max_carry_forward_days = '';
+						if (!carryForwardAllowed) {
+							maxCarryForwardDays = '';
+						}
 					}}
 					class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 				/>
@@ -1192,6 +1209,9 @@
 					onchange={() => {
 						if (form && form.field === 'gender_specific') form = null;
 						errors.applicable_gender = '';
+						if (!genderSpecific) {
+							applicableGender = '';
+						}
 					}}
 					class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 				/>
@@ -1234,7 +1254,7 @@
 
 			<!-- Min Service Days -->
 			<div class="space-y-2">
-				<Label for="modal_min_service_days" class={errors.min_service_days ? 'text-destructive' : ''}>Min Service Days (Active service req.) <span class="text-destructive">*</span></Label>
+				<Label for="modal_min_service_days" class={errors.min_service_days ? 'text-destructive font-semibold' : ''}>Min Service Days (Active service req.)</Label>
 				<Input
 					id="modal_min_service_days"
 					name="modal_min_service_days"

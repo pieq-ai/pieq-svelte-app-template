@@ -44,9 +44,14 @@ export interface UpdateAttendanceRecordDto {
 	updated_by?: string | null;
 }
 
+function capitalize(str: string): string {
+	if (!str) return str;
+	return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 function parseDateOnly(raw: unknown, fieldName: string): Date {
 	if (!raw || (typeof raw === 'string' && raw.trim() === '')) {
-		throw new AttendanceValidationError(fieldName, `${fieldName.replace('_', ' ')} is required`);
+		throw new AttendanceValidationError(fieldName, `${capitalize(fieldName.replace('_', ' '))} is required`);
 	}
 
 	let date: Date;
@@ -65,11 +70,11 @@ function parseDateOnly(raw: unknown, fieldName: string): Date {
 	} else if (raw instanceof Date) {
 		date = new Date(Date.UTC(raw.getFullYear(), raw.getMonth(), raw.getDate()));
 	} else {
-		throw new AttendanceValidationError(fieldName, `${fieldName.replace('_', ' ')} must be a valid date`);
+		throw new AttendanceValidationError(fieldName, `${capitalize(fieldName.replace('_', ' '))} must be a valid date`);
 	}
 
 	if (isNaN(date.getTime())) {
-		throw new AttendanceValidationError(fieldName, `${fieldName.replace('_', ' ')} must be a valid date`);
+		throw new AttendanceValidationError(fieldName, `${capitalize(fieldName.replace('_', ' '))} must be a valid date`);
 	}
 
 	return date;
@@ -79,7 +84,7 @@ function parseDateTime(raw: unknown, fieldName: string): Date | null {
 	if (raw === undefined || raw === null || raw === '') return null;
 	const date = new Date(raw as any);
 	if (isNaN(date.getTime())) {
-		throw new AttendanceValidationError(fieldName, `${fieldName.replace('_', ' ')} must be a valid timestamp`);
+		throw new AttendanceValidationError(fieldName, `${capitalize(fieldName.replace('_', ' '))} must be a valid timestamp`);
 	}
 	return date;
 }
@@ -196,6 +201,23 @@ async function validateRecordFields(
 	// Calculate duration if check_in and check_out are present
 	const finalCheckIn = check_in_time !== undefined ? check_in_time : (isUpdate ? existingRecord?.check_in_time : null);
 	const finalCheckOut = check_out_time !== undefined ? check_out_time : (isUpdate ? existingRecord?.check_out_time : null);
+	const finalStatus = attendance_status !== undefined ? attendance_status : (isUpdate ? existingRecord?.status : undefined);
+	const finalSource = attendance_source_cuid !== undefined ? attendance_source_cuid : (isUpdate ? existingRecord?.attendance_source_cuid : null);
+
+	if (finalStatus && ['Leave', 'Holiday', 'LOP'].includes(finalStatus)) {
+		if (finalCheckIn) {
+			errors.check_in_time = 'Check-in and check-out times must be removed for non-working statuses';
+		}
+		if (finalCheckOut) {
+			errors.check_out_time = 'Check-in and check-out times must be removed for non-working statuses';
+		}
+		if (finalSource) {
+			errors.attendance_source_cuid = 'Attendance source must be removed for non-working statuses';
+		}
+		if (errors.check_in_time || errors.check_out_time || errors.attendance_source_cuid) {
+			throw new AttendanceMultiValidationError(errors);
+		}
+	}
 
 	let work_duration_minutes: number | null | undefined = undefined;
 	if (finalCheckIn && finalCheckOut) {

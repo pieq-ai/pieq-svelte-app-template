@@ -321,6 +321,15 @@
 		}
 	});
 
+	// Clear times and source when non-working status is selected
+	$effect(() => {
+		if (['Leave', 'Holiday', 'LOP'].includes(formAttendanceStatus)) {
+			formCheckInTimeOnly = '';
+			formCheckOutTimeOnly = '';
+			formAttendanceSourceCuid = '';
+		}
+	});
+
 	// Formatters
 	function formatDate(dateString: string | Date): string {
 		const date = new Date(dateString);
@@ -389,11 +398,41 @@
 	}
 
 	// Local validation
+	function getISODateString(dateInput: string | Date): string {
+		const d = new Date(dateInput);
+		const year = d.getUTCFullYear();
+		const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+		const day = String(d.getUTCDate()).padStart(2, '0');
+		return `${year}-${month}-${day}`;
+	}
+
 	function getFormErrors() {
 		const errs: Record<string, string> = {};
 		if (!formEmployeeCuid) errs.employee_cuid = 'Employee is required';
-		if (!formAttendanceDate) errs.attendance_date = 'Attendance date is required';
-		if (!formAttendanceStatus) errs.attendance_status = 'Status is required';
+		
+		if (!formAttendanceDate) {
+			errs.attendance_date = 'Attendance date is required';
+		} else {
+			// Holiday check
+			const isHoliday = data.holidays.some((h: any) => getISODateString(h.holiday_date) === formAttendanceDate);
+			if (isHoliday) {
+				errs.attendance_date = 'Attendance cannot be marked on holidays';
+			}
+
+			// Duplicate check
+			if (formEmployeeCuid) {
+				const existing = data.records.find(
+					(rec: any) =>
+						rec.employee_cuid === formEmployeeCuid &&
+						rec.attendance_date === formAttendanceDate
+				);
+				if (existing && (!editCuid || existing.cuid !== editCuid)) {
+					errs.attendance_date = 'An attendance record already exists for this employee on this date';
+				}
+			}
+		}
+
+		if (!formAttendanceStatus) errs.attendance_status = 'Attendance status is required';
 
 		const checkInDateTimeStr = formAttendanceDate && formCheckInTimeOnly ? `${formAttendanceDate}T${formCheckInTimeOnly}` : '';
 		const checkOutDateTimeStr = formAttendanceDate && formCheckOutTimeOnly ? `${formAttendanceDate}T${formCheckOutTimeOnly}` : '';
@@ -1111,6 +1150,7 @@
 							errors.check_out_time = '';
 						}}
 						class={errors.check_in_time ? 'border-destructive' : ''}
+						disabled={['Leave', 'Holiday', 'LOP'].includes(formAttendanceStatus)}
 					/>
 					{#if errors.check_in_time}
 						<p class="text-xs font-semibold text-destructive mt-0.5">{errors.check_in_time}</p>
@@ -1128,6 +1168,7 @@
 							errors.check_out_time = '';
 						}}
 						class={errors.check_out_time ? 'border-destructive' : ''}
+						disabled={['Leave', 'Holiday', 'LOP'].includes(formAttendanceStatus)}
 					/>
 					{#if errors.check_out_time}
 						<p class="text-xs font-semibold text-destructive mt-0.5">{errors.check_out_time}</p>
@@ -1189,7 +1230,8 @@
 									isSourceDropdownOpen = false;
 								}
 							}}
-							class="flex items-center justify-between w-full h-9 rounded-md border border-input bg-card px-3 text-sm shadow-xs transition-[color,box-shadow] hover:bg-accent/30 focus:border-ring focus:ring-ring/50 focus:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 outline-none cursor-pointer select-none text-left {isSourceDropdownOpen ? 'border-ring ring-ring/50 ring-3' : ''}"
+							class="flex items-center justify-between w-full h-9 rounded-md border border-input bg-card px-3 text-sm shadow-xs transition-[color,box-shadow] hover:bg-accent/30 focus:border-ring focus:ring-ring/50 focus:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 outline-none cursor-pointer select-none text-left disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 {isSourceDropdownOpen ? 'border-ring ring-ring/50 ring-3' : ''}"
+							disabled={['Leave', 'Holiday', 'LOP'].includes(formAttendanceStatus)}
 						>
 							<div class="flex items-center gap-1.5 overflow-hidden flex-1 min-w-0 pr-2">
 								{#if !formAttendanceSourceCuid}

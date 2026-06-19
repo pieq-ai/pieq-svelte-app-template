@@ -339,7 +339,7 @@
 
 	function getNameClientError(name: string): string {
 		if (!name || name.trim() === '') {
-			return 'Leave name is required.';
+			return 'Leave name is required';
 		}
 		const trimmed = name.trim();
 		if (trimmed.length <= 5) {
@@ -357,7 +357,7 @@
 
 	function getCodeClientError(code: string): string {
 		if (!code || code.trim() === '') {
-			return 'Leave code is required.';
+			return 'Leave code is required';
 		}
 		const trimmed = code.trim().toUpperCase();
 		if (trimmed.length > 20) {

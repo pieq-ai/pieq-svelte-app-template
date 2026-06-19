@@ -1131,8 +1131,8 @@
 											size="sm"
 											onclick={(e) => { e.stopPropagation(); handleCheckIn(); }}
 											class="w-full mt-1 h-5 text-[9px] px-1 bg-[#F45310] hover:bg-[#F45310]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-											disabled={isSubmitting || !gpsValidation.isValid}
-											title={!gpsValidation.isValid ? gpsValidation.message : ''}
+											disabled={isSubmitting || !gpsValidation.isValid || isLoadingHistory}
+											title={!gpsValidation.isValid ? gpsValidation.message : (isLoadingHistory ? 'Loading history...' : '')}
 										>
 											Check In
 										</Button>
@@ -1141,8 +1141,8 @@
 											size="sm"
 											onclick={(e) => { e.stopPropagation(); handleCheckOut(); }}
 											class="w-full mt-1 h-5 text-[9px] px-1 bg-[#800020] hover:bg-[#800020]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-											disabled={isSubmitting || !gpsValidation.isValid}
-											title={!gpsValidation.isValid ? gpsValidation.message : ''}
+											disabled={isSubmitting || !gpsValidation.isValid || isLoadingHistory}
+											title={!gpsValidation.isValid ? gpsValidation.message : (isLoadingHistory ? 'Loading history...' : '')}
 										>
 											Check Out
 										</Button>

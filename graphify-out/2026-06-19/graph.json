@@ -4529,7 +4529,7 @@
       "label": "listAttendanceRecords()",
       "file_type": "code",
       "source_file": "src/lib/server/services/attendance-record.service.ts",
-      "source_location": "L246",
+      "source_location": "L242",
       "id": "services_attendance_record_service_listattendancerecords",
       "community": 13,
       "norm_label": "listattendancerecords()"
@@ -4538,7 +4538,7 @@
       "label": "getAttendanceRecordByCuid()",
       "file_type": "code",
       "source_file": "src/lib/server/services/attendance-record.service.ts",
-      "source_location": "L262",
+      "source_location": "L258",
       "id": "services_attendance_record_service_getattendancerecordbycuid",
       "community": 13,
       "norm_label": "getattendancerecordbycuid()"
@@ -4547,7 +4547,7 @@
       "label": "createAttendanceRecord()",
       "file_type": "code",
       "source_file": "src/lib/server/services/attendance-record.service.ts",
-      "source_location": "L269",
+      "source_location": "L265",
       "id": "services_attendance_record_service_createattendancerecord",
       "community": 13,
       "norm_label": "createattendancerecord()"
@@ -4556,7 +4556,7 @@
       "label": "updateAttendanceRecord()",
       "file_type": "code",
       "source_file": "src/lib/server/services/attendance-record.service.ts",
-      "source_location": "L285",
+      "source_location": "L281",
       "id": "services_attendance_record_service_updateattendancerecord",
       "community": 13,
       "norm_label": "updateattendancerecord()"
@@ -4565,7 +4565,7 @@
       "label": "deleteAttendanceRecord()",
       "file_type": "code",
       "source_file": "src/lib/server/services/attendance-record.service.ts",
-      "source_location": "L306",
+      "source_location": "L302",
       "id": "services_attendance_record_service_deleteattendancerecord",
       "community": 13,
       "norm_label": "deleteattendancerecord()"
@@ -8216,13 +8216,13 @@
       "norm_label": "+page.svelte"
     },
     {
-      "label": "if()",
+      "label": "#each()",
       "file_type": "code",
       "source_file": "src/routes/attendance-records/+page.svelte",
-      "source_location": "L544",
-      "id": "attendance_records_page_if",
+      "source_location": "L1286",
+      "id": "attendance_records_page_each",
       "community": 10,
-      "norm_label": "if()"
+      "norm_label": "#each()"
     },
     {
       "label": "@sveltejs/kit",
@@ -10454,7 +10454,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L452",
       "id": "pieq_svelte_app_template_readme_development",
-      "community": 82,
+      "community": 49,
       "norm_label": "development"
     },
     {
@@ -10463,7 +10463,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L454",
       "id": "pieq_svelte_app_template_readme_yarn_dev",
-      "community": 82,
+      "community": 49,
       "norm_label": "`yarn dev`"
     },
     {
@@ -10472,7 +10472,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L463",
       "id": "pieq_svelte_app_template_readme_yarn_build",
-      "community": 82,
+      "community": 49,
       "norm_label": "`yarn build`"
     },
     {
@@ -10481,7 +10481,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L472",
       "id": "pieq_svelte_app_template_readme_yarn_preview",
-      "community": 82,
+      "community": 49,
       "norm_label": "`yarn preview`"
     },
     {
@@ -10490,7 +10490,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L482",
       "id": "pieq_svelte_app_template_readme_code_quality",
-      "community": 49,
+      "community": 88,
       "norm_label": "code quality"
     },
     {
@@ -10499,7 +10499,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L484",
       "id": "pieq_svelte_app_template_readme_yarn_check",
-      "community": 49,
+      "community": 88,
       "norm_label": "`yarn check`"
     },
     {
@@ -10508,7 +10508,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L492",
       "id": "pieq_svelte_app_template_readme_yarn_check_watch",
-      "community": 49,
+      "community": 88,
       "norm_label": "`yarn check:watch`"
     },
     {
@@ -10517,7 +10517,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L498",
       "id": "pieq_svelte_app_template_readme_yarn_lint",
-      "community": 49,
+      "community": 88,
       "norm_label": "`yarn lint`"
     },
     {
@@ -10782,13 +10782,13 @@
       "norm_label": "6. architecture notes"
     },
     {
-      "label": "#each()",
+      "label": "if()",
       "file_type": "code",
       "source_file": "src/routes/attendance-records/+page.svelte",
-      "source_location": "L1286",
+      "source_location": "L505",
       "community": 10,
-      "norm_label": "#each()",
-      "id": "attendance_records_page_each"
+      "norm_label": "if()",
+      "id": "attendance_records_page_if"
     },
     {
       "label": "isInteractive()",
@@ -11731,7 +11731,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L452",
-      "community": 88,
+      "community": 32,
       "norm_label": "development",
       "id": "readme_development"
     },
@@ -11740,7 +11740,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L454",
-      "community": 88,
+      "community": 32,
       "norm_label": "`yarn dev`",
       "id": "readme_yarn_dev"
     },
@@ -11749,7 +11749,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L463",
-      "community": 88,
+      "community": 32,
       "norm_label": "`yarn build`",
       "id": "readme_yarn_build"
     },
@@ -11758,7 +11758,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L472",
-      "community": 88,
+      "community": 32,
       "norm_label": "`yarn preview`",
       "id": "readme_yarn_preview"
     },
@@ -11767,7 +11767,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L482",
-      "community": 32,
+      "community": 82,
       "norm_label": "code quality",
       "id": "readme_code_quality"
     },
@@ -11776,7 +11776,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L484",
-      "community": 32,
+      "community": 82,
       "norm_label": "`yarn check`",
       "id": "readme_yarn_check"
     },
@@ -11785,7 +11785,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L492",
-      "community": 32,
+      "community": 82,
       "norm_label": "`yarn check:watch`",
       "id": "readme_yarn_check_watch"
     },
@@ -11794,7 +11794,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L498",
-      "community": 32,
+      "community": 82,
       "norm_label": "`yarn lint`",
       "id": "readme_yarn_lint"
     },
@@ -24174,9 +24174,9 @@
       "source_file": "src/lib/server/services/attendance-record.service.ts",
       "source_location": "L47",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "services_attendance_record_service",
-      "target": "services_attendance_record_service_capitalize"
+      "target": "services_attendance_record_service_capitalize",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -24468,9 +24468,9 @@
       "source_file": "src/lib/server/services/attendance-record.service.ts",
       "source_location": "L54",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "services_attendance_record_service_parsedateonly",
-      "target": "services_attendance_record_service_capitalize"
+      "target": "services_attendance_record_service_capitalize",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -24479,9 +24479,9 @@
       "source_file": "src/lib/server/services/attendance-record.service.ts",
       "source_location": "L87",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "services_attendance_record_service_parsedatetime",
-      "target": "services_attendance_record_service_capitalize"
+      "target": "services_attendance_record_service_capitalize",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -33767,9 +33767,9 @@
       "source_file": "src/routes/attendance-records/+page.svelte",
       "source_location": "L1286",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "src_routes_attendance_records_page_svelte_attendance_records_page",
-      "target": "attendance_records_page_each"
+      "target": "attendance_records_page_each",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -33828,16 +33828,6 @@
       "confidence_score": 1.0,
       "source": "src_routes_attendance_records_page_svelte_attendance_records_page",
       "target": "trash_2"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/routes/attendance-records/+page.svelte",
-      "source_location": "L506",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "attendance_records_page",
-      "target": "attendance_records_page_if"
     },
     {
       "relation": "dynamic_import",
@@ -37305,6 +37295,16 @@
       "confidence_score": 1.0,
       "source": "pieq_svelte_app_template_readme_current_project_state_codebase_reality",
       "target": "pieq_svelte_app_template_readme_6_architecture_notes"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/routes/attendance-records/+page.svelte",
+      "source_location": "L506",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "attendance_records_page",
+      "target": "attendance_records_page_if"
     },
     {
       "relation": "contains",

@@ -217,7 +217,7 @@
 
 	function getHolidayNameError(name: string): string {
 		if (!name || name.trim() === '') {
-			return 'Holiday name is required.';
+			return 'Holiday name is required';
 		}
 		const trimmed = name.trim();
 		if (trimmed.length <= 5) {
@@ -235,18 +235,24 @@
 
 	function getClientDateError(dateStr: string): string {
 		if (!dateStr) {
-			return 'Holiday date is required.';
+			return 'Holiday date is required';
 		}
 		const parts = dateStr.split('-');
-		if (parts.length !== 3) return 'Invalid date format.';
+		if (parts.length !== 3) return 'Invalid date format';
 		const year = parseInt(parts[0], 10);
+		if (year > 2099) {
+			return 'You can schedule holidays only up to the year 2099';
+		}
+		if (year < 2000) {
+			return 'Holiday date must be between the years 2000 and 2099';
+		}
 		const month = parseInt(parts[1], 10) - 1;
 		const day = parseInt(parts[2], 10);
-		const selectedDate = new Date(year, month, day);
+		const selectedDateUTC = new Date(Date.UTC(year, month, day));
 		const today = new Date();
-		const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-		if (selectedDate.getTime() < todayMidnight.getTime()) {
-			return 'Holiday date cannot be in the past.';
+		const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+		if (selectedDateUTC.getTime() < todayUTC.getTime()) {
+			return 'Holiday date cannot be in the past';
 		}
 		return '';
 	}
@@ -731,7 +737,6 @@
 						errors.holiday_date = '';
 					}}
 					required={true}
-					max="2099-12-31"
 					hasError={!!errors.holiday_date}
 				/>
 				{#if errors.holiday_date}

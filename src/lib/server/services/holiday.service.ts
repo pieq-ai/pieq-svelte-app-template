@@ -103,7 +103,13 @@ function validateHolidayDate(raw: unknown): Date {
 	}
 
 	const year = date.getUTCFullYear();
-	if (year < 2000 || year > 2099) {
+	if (year > 2099) {
+		throw new HolidayValidationError(
+			'holiday_date',
+			'You can schedule holidays only up to the year 2099'
+		);
+	}
+	if (year < 2000) {
 		throw new HolidayValidationError(
 			'holiday_date',
 			'Holiday date must be between the years 2000 and 2099'
@@ -115,7 +121,7 @@ function validateHolidayDate(raw: unknown): Date {
 	if (date.getTime() < todayUTC.getTime()) {
 		throw new HolidayValidationError(
 			'holiday_date',
-			'Holiday date cannot be in the past.'
+			'Holiday date cannot be in the past'
 		);
 	}
 

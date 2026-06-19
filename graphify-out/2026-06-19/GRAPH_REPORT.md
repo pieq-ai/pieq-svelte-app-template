@@ -1,7 +1,7 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-19)
 
 ## Corpus Check
-- 274 files · ~109,963 words
+- 274 files · ~109,922 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -210,7 +210,7 @@ Nodes (11): Adding a new feature, Deployment, Keycloak client setup, pieq-svelte
 
 ### Community 32 - "Community 32"
 Cohesion: 0.15
-Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
+Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.10
@@ -266,7 +266,7 @@ Nodes (9): RoleListResponse, Role, RoleCreateDTO, RoleUpdateDTO, rejectUnknownKe
 
 ### Community 49 - "Community 49"
 Cohesion: 0.15
-Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
+Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
 
 ### Community 50 - "Community 50"
 Cohesion: 0.10
@@ -374,7 +374,7 @@ Nodes (3): API reference — Employees, GET — list employees, POST — create 
 
 ### Community 82 - "Community 82"
 Cohesion: 0.50
-Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
+Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
 
 ### Community 83 - "Community 83"
 Cohesion: 0.29
@@ -390,7 +390,7 @@ Nodes (3): @lucide/svelte/icons/alert-triangle, modalStack, stack
 
 ### Community 88 - "Community 88"
 Cohesion: 0.50
-Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
+Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
 
 ### Community 90 - "Community 90"
 Cohesion: 0.13
