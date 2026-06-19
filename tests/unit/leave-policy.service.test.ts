@@ -139,8 +139,8 @@ describe('leave policy service', () => {
 			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({
 				id: 1n,
 				cuid: 'emp-type-1',
-				employment_name: 'Part Time',
-				status: false,
+				name: 'Part Time',
+				status: false, // inactive
 				...auditFields
 			} as any);
 
@@ -160,7 +160,8 @@ describe('leave policy service', () => {
 			} as any);
 			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({
 				id: 1n,
-				employment_name: 'Part Time',
+				cuid: 'emp-type-1',
+				name: 'Part Time',
 				status: true,
 				...auditFields
 			} as any);
@@ -199,6 +200,8 @@ describe('leave policy service', () => {
 			} as any);
 			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({
 				id: 1n,
+				cuid: 'emp-type-1',
+				name: 'Part Time',
 				status: true,
 				...auditFields
 			} as any);

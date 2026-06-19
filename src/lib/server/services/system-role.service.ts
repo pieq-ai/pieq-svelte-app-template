@@ -2,7 +2,7 @@ import * as systemRoleDao from '$lib/server/dao/system-role.dao.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
 
 export interface CreateSystemRoleDto {
-	system_role_name: string;
+	name: string;
 	status?: boolean;
 	created_by?: string;
 	created_at?: Date | string | null;
@@ -10,7 +10,7 @@ export interface CreateSystemRoleDto {
 }
 
 export interface UpdateSystemRoleDto {
-	system_role_name?: string;
+	name?: string;
 	status?: boolean;
 	updated_by?: string;
 	updated_at?: Date | string | null;
@@ -18,12 +18,12 @@ export interface UpdateSystemRoleDto {
 
 function toPublicSystemRole(role: {
 	cuid: string;
-	system_role_name: string;
+	name: string;
 	status: boolean;
  created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
 	return {
 		cuid: role.cuid,
-		system_role_name: role.system_role_name,
+		name: role.name,
 		status: role.status
 	,
 		created_at: role.created_at,
@@ -61,17 +61,17 @@ function validateRoleName(name: string | null | undefined) {
 	return trimmed;
 }
 
-async function ensureRoleNameIsUnique(system_role_name: string, currentId?: bigint) {
-	const normalizedName = system_role_name.trim().toLowerCase();
+async function ensureRoleNameIsUnique(name: string, currentId?: bigint) {
+	const normalizedName = name.trim().toLowerCase();
 	const roles = await systemRoleDao.list();
 	const duplicate = roles.find(
 		(role) =>
 			role.id !== currentId &&
-			role.system_role_name.trim().toLowerCase() === normalizedName
+			role.name.trim().toLowerCase() === normalizedName
 	);
 
 	if (duplicate) {
-		throw new ValidationError('system_role_name', 'System role already exists');
+		throw new ValidationError('name', 'System role already exists');
 	}
 }
 
@@ -79,21 +79,12 @@ export async function getSystemRoles() {
 	return (await systemRoleDao.list()).map(toPublicSystemRole);
 }
 
-export async function getSystemRoleById(id: bigint | number) {
-	if (typeof id === 'number') {
-		if (!Number.isInteger(id) || id <= 0) {
-			throw new Error('System role ID must be a positive integer');
-		}
-	} else if (typeof id === 'bigint') {
-		if (id <= 0n) {
-			throw new Error('System role ID must be a positive integer');
-		}
-	} else {
+export async function getSystemRoleById(id: bigint) {
+	if (typeof id !== 'bigint' || id <= 0n) {
 		throw new Error('System role ID must be a positive integer');
 	}
 
-	const idVal = typeof id === 'bigint' ? id : BigInt(id);
-	const role = await systemRoleDao.findById(idVal);
+	const role = await systemRoleDao.findById(id);
 	if (!role) {
 		throw new Error(`System role with ID "${id}" not found`);
 	}
@@ -115,12 +106,12 @@ export async function getSystemRoleByCuid2(cuid: string) {
 }
 
 export async function createSystemRole(dto: CreateSystemRoleDto) {
-	const system_role_name = validateRoleName(dto.system_role_name);
+	const name = validateRoleName(dto.name);
 	validateStatus(dto.status);
-	await ensureRoleNameIsUnique(system_role_name);
+	await ensureRoleNameIsUnique(name);
 
 	return toPublicSystemRole(await systemRoleDao.create({
-		system_role_name,
+		name,
 		status: dto.status ?? true,
 		created_by: dto.created_by ?? undefined,
 		created_at: dto.created_at ?? undefined,
@@ -143,10 +134,10 @@ export async function updateSystemRole(cuid: string, dto: UpdateSystemRoleDto) {
 		updateData.updated_by = dto.updated_by;
 	}
 
-	if (dto.system_role_name !== undefined) {
-		const system_role_name = validateRoleName(dto.system_role_name);
-		await ensureRoleNameIsUnique(system_role_name, existing.id);
-		updateData.system_role_name = system_role_name;
+	if (dto.name !== undefined) {
+		const name = validateRoleName(dto.name);
+		await ensureRoleNameIsUnique(name, existing.id);
+		updateData.name = name;
 	}
 
 	if (dto.status !== undefined) {

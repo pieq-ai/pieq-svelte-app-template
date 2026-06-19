@@ -213,7 +213,7 @@ export function sendDeleted(entityName: string, cuid: string) {
 export function mapRole(role: any) {
   return {
     cuid: role.cuid,
-    role_name: role.role_name,
+    name: role.name,
     status: role.status,
     created_by: role.created_by ?? null,
     updated_by: role.updated_by ?? null
@@ -236,7 +236,7 @@ export function mapShift(shift: any) {
 export function mapLocation(loc: any) {
   return {
     cuid: loc.cuid,
-    location_name: loc.location_name,
+    name: loc.name,
     address_line1: loc.address_line1,
     address_line2: loc.address_line2,
     city: loc.city,
@@ -244,7 +244,7 @@ export function mapLocation(loc: any) {
     country_cuid: loc.country_cuid,
     pin_code: loc.pin_code,
     timezone: loc.timezone,
-    is_active: loc.is_active,
+    status: loc.status,
     created_by: loc.created_by ?? null,
     updated_by: loc.updated_by ?? null
   };

@@ -12,8 +12,8 @@ export class BusinessValidationError extends Error {
 }
 
 export class DuplicateComponentError extends BusinessValidationError {
-	constructor() {
-		super(`Salary component name already exists.`);
+	constructor(name: string) {
+		super(`Salary component name "${name}" already exists.`);
 		this.name = 'DuplicateComponentError';
 	}
 }
@@ -30,17 +30,17 @@ export class ComponentNotFoundError extends Error {
  * Implements business validation rules (trimming and duplicate checks).
  */
 export async function createComponent(dto: CreateSalaryComponentDto) {
-	const trimmedName = dto.component_name.trim();
+	const trimmedName = dto.name.trim();
 
 	// Business validation: check for duplicates (name must be globally unique)
 	const existing = await dao.findByName(trimmedName);
 	if (existing) {
-		throw new DuplicateComponentError();
+		throw new DuplicateComponentError(trimmedName);
 	}
 
 	return dao.create({
 		...dto,
-		component_name: trimmedName
+		name: trimmedName
 	});
 }
 
@@ -57,19 +57,19 @@ export async function updateComponent(cuid: string, dto: UpdateSalaryComponentDt
 	}
 
 	const updatedName =
-		dto.component_name !== undefined ? dto.component_name.trim() : current.component_name;
+		dto.name !== undefined ? dto.name.trim() : current.name;
 
 	// Business validation: check for duplicates if name is changing
-	if (dto.component_name !== undefined) {
+	if (dto.name !== undefined) {
 		const existing = await dao.findByName(updatedName);
 		if (existing && existing.cuid !== cuid) {
-			throw new DuplicateComponentError();
+			throw new DuplicateComponentError(updatedName);
 		}
 	}
 
 	return dao.update(cuid, {
 		...dto,
-		component_name: dto.component_name !== undefined ? updatedName : undefined
+		name: dto.name !== undefined ? updatedName : undefined
 	});
 }
 

@@ -1,31 +1,56 @@
 <script lang="ts">
-	import PencilIcon from '@lucide/svelte/icons/pencil';
 	import MoreVerticalIcon from '@lucide/svelte/icons/more-vertical';
 	import { Button } from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
-	export interface CustomAction {
+	export interface TableAction {
 		label: string;
 		onClick: () => void;
-		icon?: any;
 		class?: string;
+		disabled?: boolean;
 	}
 
 	interface Props {
-		editLabel?: string;
+		actions?: TableAction[];
+		customActions?: TableAction[];
+		canView?: boolean;
+		onView?: () => void;
+		viewLabel?: string;
 		canEdit?: boolean;
 		onEdit?: () => void;
-		customActions?: CustomAction[];
-		showIcons?: boolean;
+		editLabel?: string;
+		canDelete?: boolean;
+		onDelete?: () => void;
+		deleteLabel?: string;
 	}
 
-	let {
-		editLabel = 'Edit',
-		canEdit = true,
-		onEdit,
+	let { 
+		actions = [],
 		customActions = [],
-		showIcons = true
+		canView = false,
+		onView,
+		viewLabel = 'View',
+		canEdit = false,
+		onEdit,
+		editLabel = 'Edit',
+		canDelete = false,
+		onDelete,
+		deleteLabel = 'Delete'
 	}: Props = $props();
+
+	let finalActions = $derived.by(() => {
+		const arr = [...actions, ...customActions];
+		if (canView && onView) {
+			arr.push({ label: viewLabel, onClick: onView });
+		}
+		if (canEdit && onEdit) {
+			arr.push({ label: editLabel, onClick: onEdit });
+		}
+		if (canDelete && onDelete) {
+			arr.push({ label: deleteLabel, onClick: onDelete, class: 'text-destructive focus:bg-destructive focus:text-destructive-foreground' });
+		}
+		return arr;
+	});
 </script>
 
 <DropdownMenu.Root>
@@ -34,7 +59,7 @@
 			<Button
 				variant="ghost"
 				size="icon-sm"
-				class="h-7 w-7 text-muted-foreground hover:text-foreground focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none"
+				class="kebab-dropdown-menu h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:ring-ring/50 focus-visible:ring-3 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground data-[state=open]:ring-ring/50 data-[state=open]:ring-3 transition-[color,box-shadow] outline-none"
 				aria-label="Actions"
 				{...props}
 			>
@@ -42,25 +67,16 @@
 			</Button>
 		{/snippet}
 	</DropdownMenu.Trigger>
+
 	<DropdownMenu.Content align="end" preventScroll={false}>
-		{#if canEdit}
-			<DropdownMenu.Item onclick={onEdit} class="cursor-pointer">
-				{#if showIcons}
-					<PencilIcon class="mr-2 size-4" />
-				{/if}
-				{editLabel}
+		{#each finalActions as action}
+			<DropdownMenu.Item
+				onclick={action.onClick}
+				disabled={action.disabled}
+				class="cursor-pointer {action.class ?? ''}"
+			>
+				{action.label}
 			</DropdownMenu.Item>
-		{/if}
-		{#if customActions && customActions.length > 0}
-			{#each customActions as action}
-				<DropdownMenu.Item onclick={action.onClick} class="cursor-pointer {action.class || ''}">
-					{#if showIcons && action.icon}
-						{@const IconComponent = action.icon}
-						<IconComponent class="mr-2 size-4" />
-					{/if}
-					{action.label}
-				</DropdownMenu.Item>
-			{/each}
-		{/if}
+		{/each}
 	</DropdownMenu.Content>
 </DropdownMenu.Root>

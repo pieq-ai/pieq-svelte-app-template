@@ -8,7 +8,7 @@
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
-	import PlusIcon from '@lucide/svelte/icons/plus';
+	
 	import FilterIcon from '@lucide/svelte/icons/filter';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
@@ -30,11 +30,9 @@
 		TableHead,
 		TableHeader,
 		TableRow,
-		toast,
-		DatePicker
+		toast
 	} from '$lib/components/ui';
-	import { ConfirmModal, CrudModal, Pagination, TableActions, SearchInput } from '$lib/components';
-	import { UI_CONSTANTS } from '$lib/constants';
+	import { ConfirmModal, CrudModal, Pagination, TableActions, DatePicker } from '$lib/components';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -591,7 +589,7 @@
 								</Button>
 							{/snippet}
 						</DropdownMenu.Trigger>
-						<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
+						<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
 							<DropdownMenu.Group>
 								{#each filterTypeOptions as opt}
 									<DropdownMenu.Item onclick={() => { filterType = opt.value; currentPage = 1; }} class="justify-between cursor-pointer {filterType === opt.value ? 'bg-accent text-accent-foreground' : ''}">
@@ -695,8 +693,7 @@
 <CrudModal
 	open={isFormModalOpen}
 	title={editCuid ? 'Edit Holiday' : 'Create Holiday'}
-	isDirty={hasUnsavedChanges}
-	onClose={confirmDiscard}
+	onClose={handleCloseRequest}
 	preventOutsideClickClose={true}
 >
 	{#snippet children({ cancel })}
@@ -756,7 +753,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
 						<DropdownMenu.Group>
 							{#each holidayTypeOptions as opt}
 								<DropdownMenu.Item onclick={() => {
@@ -814,8 +811,9 @@
 	open={isDiscardModalOpen}
 	title="Cancel Changes"
 	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Keep Editing"
-	onCancel={confirmDiscard}
-	onConfirm={() => (isDiscardModalOpen = false)}
+	confirmLabel="Discard Changes"
+	cancelLabel="Keep Editing"
+	onConfirm={confirmDiscard}
+	onCancel={() => (isDiscardModalOpen = false)}
 	preventOutsideClickClose={true}
 />

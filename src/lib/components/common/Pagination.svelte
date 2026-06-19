@@ -1,16 +1,13 @@
 <script lang="ts">
-	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
-	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
 	import { Button } from '$lib/components';
 
 	interface Props {
 		currentPage: number;
 		pageSize: number;
 		totalItems: number;
-		showIcons?: boolean;
 	}
 
-	let { currentPage = $bindable(), pageSize, totalItems, showIcons = true }: Props = $props();
+	let { currentPage = $bindable(), pageSize, totalItems}: Props = $props();
 
 	let totalPages = $derived(Math.max(1, Math.ceil(totalItems / pageSize)));
 	
@@ -45,13 +42,10 @@
 		<Button 
 			variant="outline" 
 			size="sm" 
-			class="h-8 gap-1 {currentPage === 1 || totalItems === 0 ? 'opacity-50 cursor-not-allowed text-muted-foreground' : ''}"
+			class="h-8 {currentPage === 1 || totalItems === 0 ? 'opacity-50 cursor-not-allowed text-muted-foreground' : ''}"
 			disabled={currentPage === 1 || totalItems === 0}
 			onclick={() => goToPage(currentPage - 1)}
 		>
-			{#if showIcons}
-				<ChevronLeftIcon class="size-4" />
-			{/if}
 			<span>Previous</span>
 		</Button>
 		
@@ -75,14 +69,11 @@
 		<Button 
 			variant="outline" 
 			size="sm" 
-			class="h-8 gap-1 {currentPage >= totalPages || totalItems === 0 ? 'opacity-50 cursor-not-allowed text-muted-foreground' : ''}"
+			class="h-8 {currentPage >= totalPages || totalItems === 0 ? 'opacity-50 cursor-not-allowed text-muted-foreground' : ''}"
 			disabled={currentPage >= totalPages || totalItems === 0}
 			onclick={() => goToPage(currentPage + 1)}
 		>
 			<span>Next</span>
-			{#if showIcons}
-				<ChevronRightIcon class="size-4" />
-			{/if}
 		</Button>
 	</div>
 </div>

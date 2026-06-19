@@ -79,21 +79,12 @@ export async function getPermissions() {
 	return (await permissionDao.list()).map(toPublicPermission);
 }
 
-export async function getPermissionById(id: bigint | number) {
-	if (typeof id === 'number') {
-		if (!Number.isInteger(id) || id <= 0) {
-			throw new Error('Permission ID must be a positive integer');
-		}
-	} else if (typeof id === 'bigint') {
-		if (id <= 0n) {
-			throw new Error('Permission ID must be a positive integer');
-		}
-	} else {
+export async function getPermissionById(id: bigint) {
+	if (typeof id !== 'bigint' || id <= 0n) {
 		throw new Error('Permission ID must be a positive integer');
 	}
 
-	const idVal = typeof id === 'bigint' ? id : BigInt(id);
-	const permission = await permissionDao.findById(idVal);
+	const permission = await permissionDao.findById(id);
 	if (!permission) {
 		throw new Error(`Permission with ID "${id}" not found`);
 	}

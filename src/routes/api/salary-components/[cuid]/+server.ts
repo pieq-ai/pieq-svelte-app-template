@@ -19,7 +19,7 @@ export async function GET({ params }) {
 		const component = await service.getComponentByCuid(cuid);
 		return json({ data: serializeSalaryComponent(component) });
 	} catch (error) {
-		console.error(`Error in GET /api/salary-components/salaryComponentCuid=${params.cuid}:`, error);
+		console.error(`Error in GET /api/salary-components/${params.cuid}:`, error);
 		const isNotFound = (error as Error).name === 'ComponentNotFoundError';
 		return json(
 			{
@@ -48,7 +48,7 @@ export async function PUT({ params, request }) {
 		// Validation step
 		const { errors, validatedData } = validateUpdateSalaryComponent(body);
 		if (errors.length > 0 || !validatedData) {
-			const combinedMsg = errors.map((e) => e.message).join(', ');
+			const combinedMsg = errors.map((e: { message: string }) => e.message).join(', ');
 			return json(
 				{
 					message: `Validation failed: ${combinedMsg}`
@@ -67,7 +67,7 @@ export async function PUT({ params, request }) {
 			}
 		});
 	} catch (error) {
-		console.error(`Error in PUT /api/salary-components/salaryComponentCuid=${params.cuid}:`, error);
+		console.error(`Error in PUT /api/salary-components/${params.cuid}:`, error);
 		const isNotFound = (error as Error).name === 'ComponentNotFoundError';
 		const isValidationError =
 			(error as Error).name === 'DuplicateComponentError' ||
@@ -104,7 +104,7 @@ export async function DELETE({ params }) {
 			}
 		});
 	} catch (error) {
-		console.error(`Error in DELETE /api/salary-components/salaryComponentCuid=${params.cuid}:`, error);
+		console.error(`Error in DELETE /api/salary-components/${params.cuid}:`, error);
 		const isNotFound = (error as Error).name === 'ComponentNotFoundError';
 		return json(
 			{

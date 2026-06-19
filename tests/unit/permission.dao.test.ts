@@ -23,7 +23,7 @@ describe('Permission DAO', () => {
 
 	describe('list', () => {
 		it('should call db.permissions.findMany with order by permission_key', async () => {
-			const mockData = [{ id: 1, permission_key: 'admin.read' }];
+			const mockData = [{ id: 1n, permission_key: 'admin.read' }];
 			vi.mocked(db.permissions.findMany).mockResolvedValue(mockData as any);
 
 			const result = await permissionDao.list();
@@ -51,7 +51,7 @@ describe('Permission DAO', () => {
 
 	describe('findByCuid2', () => {
 		it('should call db.permissions.findUnique with correct cuid', async () => {
-			const mockData = { id: 1, cuid: 'abc' };
+			const mockData = { id: 1n, cuid: 'abc' };
 			vi.mocked(db.permissions.findUnique).mockResolvedValue(mockData as any);
 
 			const result = await permissionDao.findByCuid2('abc');
@@ -66,7 +66,7 @@ describe('Permission DAO', () => {
 	describe('create', () => {
 		it('should create a permission with default true status', async () => {
 			const input = { permission_key: 'admin.write' };
-			const mockResult = { id: 1, permission_key: 'admin.write', status: true };
+			const mockResult = { id: 1n, permission_key: 'admin.write', status: true };
 			vi.mocked(db.permissions.create).mockResolvedValue(mockResult as any);
 
 			const result = await permissionDao.create(input);
@@ -82,7 +82,7 @@ describe('Permission DAO', () => {
 
 		it('should create a permission with provided status', async () => {
 			const input = { permission_key: 'admin.write', status: false };
-			vi.mocked(db.permissions.create).mockResolvedValue({ ...input, id: 1 } as any);
+			vi.mocked(db.permissions.create).mockResolvedValue({ ...input, id: 1n } as any);
 
 			await permissionDao.create(input);
 

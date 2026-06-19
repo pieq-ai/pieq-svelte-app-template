@@ -27,68 +27,68 @@ export const masterConfigs: Record<MasterKey, MasterConfig> = {
 		key: 'blood-groups',
 		label: 'Blood Group',
 		idField: 'id',
-		nameField: 'blood_group_name'
+		nameField: 'name'
 	},
 	'pay-grades': {
 		key: 'pay-grades',
 		label: 'Pay Grade',
 		idField: 'id',
-		nameField: 'paygrade_name'
+		nameField: 'name'
 	},
 	nationalities: {
 		key: 'nationalities',
 		label: 'Nationality',
 		idField: 'id',
-		nameField: 'nationality_name'
+		nameField: 'name'
 	},
 	'employment-types': {
 		key: 'employment-types',
 		label: 'Employment Type',
 		idField: 'id',
-		nameField: 'employment_name'
+		nameField: 'name'
 	},
 	'relation-types': {
 		key: 'relation-types',
 		label: 'Relation Type',
 		idField: 'id',
-		nameField: 'relation_name'
+		nameField: 'name'
 	},
 	'document-types': {
 		key: 'document-types',
 		label: 'Document Type',
 		idField: 'id',
-		nameField: 'document_type_name'
+		nameField: 'name'
 	},
 	states: {
 		key: 'states',
 		label: 'State',
 		idField: 'id',
-		nameField: 'state_name',
+		nameField: 'name',
 		requiresCountry: true
 	},
 	countries: {
 		key: 'countries',
 		label: 'Country',
 		idField: 'id',
-		nameField: 'country_name'
+		nameField: 'name'
 	},
 	skills: {
 		key: 'skills',
 		label: 'Skill',
 		idField: 'id',
-		nameField: 'skills_name'
+		nameField: 'name'
 	},
 	'attendance-sources': {
 		key: 'attendance-sources',
 		label: 'Attendance Source',
 		idField: 'id',
-		nameField: 'attendance_source_name'
+		nameField: 'name'
 	},
 	languages: {
 		key: 'languages',
 		label: 'Language',
 		idField: 'id',
-		nameField: 'languages_name'
+		nameField: 'name'
 	}
 };
 

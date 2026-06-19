@@ -9,7 +9,7 @@
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
-	import PlusIcon from '@lucide/svelte/icons/plus';
+	
 	import FilterIcon from '@lucide/svelte/icons/filter';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
@@ -544,6 +544,7 @@
 	let submissionAttempted = $state(false);
 
 	$effect(() => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 		selectedEmploymentTypes;
 		untrack(() => {
 			errors.employment_type_cuids = '';
@@ -817,7 +818,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto">
 						<DropdownMenu.Group>
 							{#each filterLeaveTypeOptions as opt}
 								<DropdownMenu.Item onclick={() => { filterLeaveType = opt.value; currentPage = 1; }} class="justify-between cursor-pointer {filterLeaveType === opt.value ? 'bg-accent text-accent-foreground' : ''}">
@@ -841,7 +842,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto">
 						<DropdownMenu.Group>
 							{#each filterEmploymentTypeOptions as opt}
 								<DropdownMenu.Item onclick={() => { filterEmploymentType = opt.value; currentPage = 1; }} class="justify-between cursor-pointer {filterEmploymentType === opt.value ? 'bg-accent text-accent-foreground' : ''}">
@@ -1013,8 +1014,7 @@
 <CrudModal
 	open={isFormModalOpen}
 	title={editUuid ? 'Edit Leave Policy' : 'Create Leave Policy'}
-	isDirty={hasUnsavedChanges}
-	onClose={confirmDiscard}
+	onClose={handleCloseRequest}
 	preventOutsideClickClose={true}
 >
 	{#snippet children({ cancel })}
@@ -1036,7 +1036,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto">
 						<DropdownMenu.Group>
 							{#each modalLeaveTypeOptions as opt}
 								<DropdownMenu.Item onclick={() => {
@@ -1231,7 +1231,7 @@
 								</Button>
 							{/snippet}
 						</DropdownMenu.Trigger>
-						<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
+						<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
 							<DropdownMenu.Group>
 								{#each genderOptions as opt}
 									<DropdownMenu.Item onclick={() => {
@@ -1327,9 +1327,10 @@
 	open={isDiscardModalOpen}
 	title="Cancel Changes"
 	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Keep Editing"
-	onCancel={confirmDiscard}
-	onConfirm={() => (isDiscardModalOpen = false)}
+	confirmLabel="Discard Changes"
+	cancelLabel="Keep Editing"
+	onConfirm={confirmDiscard}
+	onCancel={() => (isDiscardModalOpen = false)}
 	preventOutsideClickClose={true}
 />
 
@@ -1337,7 +1338,6 @@
 	open={isAddEmpModalOpen}
 	title="Add Employment Type"
 	description="Create a new employment type master record."
-	isDirty={newEmpName.trim() !== ''}
 	onClose={() => {
 		isAddEmpModalOpen = false;
 		newEmpName = '';

@@ -1,0 +1,14 @@
+<script lang="ts">
+	import EmployeeWizard from '$lib/components/employee/EmployeeWizard.svelte';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
+	let employee = $derived(data.employee);
+</script>
+
+<svelte:head>
+	<title>Edit Employee | {employee?.first_name} {employee?.last_name || ''}</title>
+</svelte:head>
+
+<EmployeeWizard mode="edit" employeeCuid={employee?.cuid} data={data} />
+

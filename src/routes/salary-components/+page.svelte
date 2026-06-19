@@ -5,12 +5,12 @@
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
-	import PlusIcon from '@lucide/svelte/icons/plus';
 	import FilterIcon from '@lucide/svelte/icons/filter';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import { toast } from '$lib/toast';
-	import { createDirtyChecker } from '$lib/utils';
+	import {  createDirtyChecker  } from '$lib/utils';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { UI_CONSTANTS } from '$lib/constants';
 
 	import {
@@ -33,7 +33,8 @@
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
-		SearchInput
+		SearchInput,
+		ConfirmModal
 	} from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
@@ -43,6 +44,17 @@
 	} from '$lib/types/salary-component';
 	import { validateComponentName } from '$lib/validators/salary-component';
 
+	let showConfirmClose = $state(false);
+
+	function handleClose() {
+		if (isDirty) {
+			showConfirmClose = true;
+		} else {
+			isModalOpen = false;
+			$globalIsDirty = false;
+		}
+	}
+
 	let componentsList = $state<SalaryComponent[]>([]);
 	let isLoading = $state(true);
 	let loadError = $state('');
@@ -50,7 +62,7 @@
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
 	let typeFilter = $state<'all' | SalaryComponentType>('all');
-	let sortColumn = $state('component_name');
+	let sortColumn = $state('name');
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -68,7 +80,7 @@
 	let nameInput = $state<HTMLInputElement | null>(null);
 
 	const dirtyChecker = createDirtyChecker<{
-		component_name: string;
+		name: string;
 		component_type: SalaryComponentType;
 		is_taxable: boolean;
 		is_active: boolean;
@@ -76,12 +88,13 @@
 
 	let isDirty = $derived(
 		isModalOpen && dirtyChecker.isDirty({
-			component_name: formName.trim(),
+			name: formName.trim(),
 			component_type: formType,
 			is_taxable: formIsTaxable,
 			is_active: formIsActive
 		})
 	);
+	$effect(() => { $globalIsDirty = isDirty; });
 
 	let filteredComponents = $derived.by(() => {
 		let result = [...componentsList];
@@ -89,7 +102,7 @@
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
 			result = result.filter((comp) =>
-				comp.component_name.toLowerCase().includes(query)
+				comp.name.toLowerCase().includes(query)
 			);
 		}
 
@@ -170,7 +183,7 @@
 		formIsActive = true;
 		backendError = '';
 		dirtyChecker.snapshot({
-			component_name: '',
+			name: '',
 			component_type: 'earning',
 			is_taxable: false,
 			is_active: true
@@ -180,13 +193,13 @@
 
 	function openEditModal(comp: SalaryComponent) {
 		editingComp = comp;
-		formName = comp.component_name;
+		formName = comp.name;
 		formType = comp.component_type;
 		formIsTaxable = comp.is_taxable;
 		formIsActive = comp.is_active;
 		backendError = '';
 		dirtyChecker.snapshot({
-			component_name: comp.component_name,
+			name: comp.name,
 			component_type: comp.component_type,
 			is_taxable: comp.is_taxable,
 			is_active: comp.is_active
@@ -210,7 +223,7 @@
 
 		try {
 			const payload = {
-				component_name: formName.trim(),
+				name: formName.trim(),
 				component_type: formType,
 				is_taxable: formIsTaxable,
 				is_active: formIsActive
@@ -232,6 +245,7 @@
 				await loadComponents();
 				toast.success(editingComp ? 'Salary Component updated successfully' : 'Salary Component created successfully');
 				isModalOpen = false;
+		$globalIsDirty = false;
 			} else {
 				if (response.status === 400 || response.status === 409) {
 					backendError = resData.message || resData.error || 'Validation failed';
@@ -263,7 +277,6 @@
 			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
 			onclick={openCreateModal}
 		>
-			<PlusIcon class="size-4" />
 			Add Component
 		</Button>
 	</div>
@@ -329,11 +342,11 @@
 				<TableHeader class="bg-muted">
 					<TableRow>
 						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('component_name')}>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
 								Component Name
-							{#if sortColumn === 'component_name' && sortDirection === 'asc'}
+							{#if sortColumn === 'name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortColumn === 'component_name' && sortDirection === 'desc'}
+							{:else if sortColumn === 'name' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
@@ -392,7 +405,7 @@
 								class="cursor-pointer"
 							>
 								<TableCell>
-									<span class="font-semibold">{comp.component_name}</span>
+									<span class="font-semibold">{comp.name}</span>
 								</TableCell>
 								<TableCell>
 									<span class="capitalize">{comp.component_type}</span>
@@ -422,17 +435,16 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingComp ? 'Edit Salary Component' : 'Create Salary Component'}
-	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => (isModalOpen = false)}
+	onClose={handleClose}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-4" onsubmit={handleSaveComponent}>
 			<div class="space-y-2">
-				<Label for="component_name">Component Name</Label>
+				<Label for="name">Component Name</Label>
 				<Input
-					id="component_name"
-					name="component_name"
+					id="name"
+					name="name"
 					bind:ref={nameInput}
 					bind:value={formName}
 					class={backendError ? 'border-destructive focus-visible:ring-destructive/30' : ''}
@@ -497,3 +509,19 @@
 		</form>
 	{/snippet}
 </CrudModal>
+
+<ConfirmModal
+	open={showConfirmClose}
+	title="Unsaved Changes"
+	description="You have unsaved changes. Are you sure you want to close this modal?"
+	confirmLabel="Cancel"
+	cancelLabel="Keep Editing"
+	onConfirm={() => {
+		showConfirmClose = false;
+		isModalOpen = false;
+		$globalIsDirty = false;
+	}}
+	onCancel={() => {
+		showConfirmClose = false;
+	}}
+/>

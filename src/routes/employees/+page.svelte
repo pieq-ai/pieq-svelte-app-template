@@ -1,330 +1,287 @@
 <script lang="ts">
-  import { slide } from "svelte/transition";
-  import { enhance } from "$app/forms";
+	import { onMount } from 'svelte';
+	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
+	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
+	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
+	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
+	import {
+		Badge,
+		Button,
+		Card,
+		CardHeader,
+		CardTitle,
+		CardDescription,
+		Table,
+		TableBody,
+		TableCell,
+		TableHead,
+		TableHeader,
+		TableRow,
+		TableActions,
+		Pagination,
+		SearchInput,
+		FilterDropdown
+	} from '$lib/components';
+	import { UI_CONSTANTS } from '$lib/constants';
+	import { toast } from '$lib/toast';
+	import { goto } from '$app/navigation';
 
-  import SearchIcon from "@lucide/svelte/icons/search";
-  import XIcon from "@lucide/svelte/icons/x";
-  import {
-    Alert,
-    AlertDescription,
-    Badge,
-    Button,
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-    Input,
-    Label,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-  } from "$lib/components";
-  import { UI_CONSTANTS } from "$lib/constants";
-  import type { PageData, ActionData } from "./$types";
+	interface Employee {
+		cuid: string;
+		emp_code: string;
+		first_name: string;
+		last_name: string;
+		personal_email: string;
+		profile_completion_status: string;
+	}
 
-  let { data, form }: { data: PageData; form: ActionData } = $props();
+	let { data } = $props<{ data: { employees: Employee[] } }>();
 
-  type Employee = PageData["employees"][number];
-  type SortColumn = "id" | "name" | "age";
+	let employees = $derived<Employee[]>(data.employees);
+	let isLoading = $state(false);
+	let loadError = $state('');
 
-  let employees: Employee[] = $derived([...data.employees]);
+	let searchQuery = $state('');
+	let statusFilter = $state<'all' | 'pending' | 'completed'>('all');
+	let sortColumn = $state('emp_code');
+	let sortDirection = $state<'asc' | 'desc' | null>('asc');
 
-  let searchQuery = $state("");
-  let sortColumn = $state<SortColumn>("id");
-  let sortDirection = $state<"asc" | "desc">("asc");
-
-  let newName: string = $derived(
-    form && "name" in form && typeof form.name === "string" ? form.name : "",
-  );
-  let newAge: string = $derived(
-    form && "age" in form && typeof form.age === "string" ? form.age : "",
-  );
-  let isSubmitting = $state(false);
-  let successMessage = $state("");
-
-  let formError = $derived(form && "error" in form ? form.error : null);
+	let currentPage = $state(1);
+	let pageSize = $state(10);
 
   let filteredEmployees = $derived.by(() => {
     let result = [...employees];
 
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (emp) =>
-          emp.name.toLowerCase().includes(query) ||
-          emp.uuid.toLowerCase().includes(query) ||
-          emp.id.toString().includes(query),
-      );
-    }
+		if (searchQuery.trim()) {
+			const query = searchQuery.toLowerCase();
+			result = result.filter(
+				(emp) =>
+					emp.emp_code?.toLowerCase().includes(query) ||
+					emp.first_name?.toLowerCase().includes(query) ||
+					emp.last_name?.toLowerCase().includes(query) ||
+					emp.personal_email?.toLowerCase().includes(query)
+			);
+		}
 
-    result.sort((a, b) => {
-      const valA = a[sortColumn];
-      const valB = b[sortColumn];
+		if (statusFilter !== 'all') {
+			result = result.filter(
+				(emp) => emp.profile_completion_status === statusFilter
+			);
+		}
 
-      if (typeof valA === "string" && typeof valB === "string") {
-        return sortDirection === "asc"
-          ? valA.localeCompare(valB)
-          : valB.localeCompare(valA);
-      }
+		if (sortDirection && sortColumn) {
+			result.sort((a, b) => {
+				const valA = a[sortColumn as keyof typeof a] || '';
+				const valB = b[sortColumn as keyof typeof b] || '';
 
-      if (valA < valB) return sortDirection === "asc" ? -1 : 1;
-      if (valA > valB) return sortDirection === "asc" ? 1 : -1;
-      return 0;
-    });
+				return sortDirection === 'asc'
+					? String(valA).localeCompare(String(valB))
+					: String(valB).localeCompare(String(valA));
+			});
+		}
 
     return result;
   });
 
-  let totalEmployees = $derived(employees.length);
-  let averageAge = $derived(
-    totalEmployees > 0
-      ? Math.round(
-          employees.reduce((acc, emp) => acc + emp.age, 0) / totalEmployees,
-        )
-      : 0,
-  );
-  let maxAge = $derived(
-    totalEmployees > 0 ? Math.max(...employees.map((e) => e.age)) : 0,
-  );
+	let totalEmployees = $derived(employees.length);
+	let completedCount = $derived(employees.filter((e) => e.profile_completion_status === 'completed').length);
+	let pendingCount = $derived(employees.filter((e) => e.profile_completion_status === 'pending').length);
+	let paginatedEmployees = $derived(filteredEmployees.slice((currentPage - 1) * pageSize, currentPage * pageSize));
 
-  function handleSort(column: SortColumn) {
-    if (sortColumn === column) {
-      sortDirection = sortDirection === "asc" ? "desc" : "asc";
-    } else {
-      sortColumn = column;
-      sortDirection = "asc";
-    }
-  }
+	function handleSort(column: string) {
+		if (sortColumn === column) {
+			if (sortDirection === 'asc') sortDirection = 'desc';
+			else if (sortDirection === 'desc') sortDirection = null;
+			else sortDirection = 'asc';
+		} else {
+			sortColumn = column;
+			sortDirection = 'asc';
+		}
+	}
 
-  function sortIndicator(column: SortColumn) {
-    if (sortColumn !== column) return "";
-    return sortDirection === "asc" ? "↑" : "↓";
-  }
+	function isInteractive(target: HTMLElement | null, rowElement: HTMLElement): boolean {
+		let curr = target;
+		while (curr && curr !== rowElement) {
+			const tagName = curr.tagName.toLowerCase();
+			if (
+				tagName === 'a' ||
+				tagName === 'button' ||
+				tagName === 'input' ||
+				tagName === 'select' ||
+				tagName === 'textarea' ||
+				curr.getAttribute('role') === 'button' ||
+				curr.classList.contains('kebab-dropdown-menu')
+			) {
+				return true;
+			}
+			curr = curr.parentElement;
+		}
+		return false;
+	}
+
+	function handleRowClick(cuid: string, event: MouseEvent) {
+		const target = event.target as HTMLElement;
+		const row = event.currentTarget as HTMLElement;
+		if (isInteractive(target, row)) return;
+		goto(`/employees/${cuid}?mode=edit`);
+	}
 </script>
 
 <svelte:head>
-  <title>System Employees</title>
+	<title>Employees</title>
 </svelte:head>
 
-<div class="mx-auto max-w-5xl space-y-8 px-1 py-4">
-  <div class="space-y-1 border-b border-border pb-6">
-    <Badge variant="secondary" class="uppercase">HRMS Module</Badge>
-    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
-      System Employees
-    </h1>
-    <p class="text-muted-foreground">
-      Manage and monitor employee records with dynamic metrics and seamless
-      creation.
-    </p>
-  </div>
+<div class="w-full space-y-4 px-1 py-0">
+	<div class="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-end sm:justify-between">
+		<div class="space-y-1">
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Employees</h1>
+		</div>
+		<Button
+			href="/employees/create"
+			class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+		>
+			Add Employee
+		</Button>
+	</div>
 
-  <div class="grid gap-4 sm:grid-cols-3">
-    <Card>
-      <CardHeader>
-        <CardDescription>Total Active Employees</CardDescription>
-        <CardTitle class="text-4xl tabular-nums">{totalEmployees}</CardTitle>
-      </CardHeader>
-    </Card>
-    <Card>
-      <CardHeader>
-        <CardDescription>Average Employee Age</CardDescription>
-        <CardTitle class="text-4xl tabular-nums">{averageAge} yrs</CardTitle>
-      </CardHeader>
-    </Card>
-    <Card>
-      <CardHeader>
-        <CardDescription>Max Registered Age</CardDescription>
-        <CardTitle class="text-4xl tabular-nums">{maxAge} yrs</CardTitle>
-      </CardHeader>
-    </Card>
-  </div>
+	<!-- Metrics Cards -->
+	<div class="grid gap-4 sm:grid-cols-3">
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Total Employees</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalEmployees}</CardTitle>
+			</CardHeader>
+		</Card>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Completed Profiles</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{completedCount}</CardTitle>
+			</CardHeader>
+		</Card>
+		<Card>
+			<CardHeader class="pb-2">
+				<CardDescription>Pending Profiles</CardDescription>
+				<CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{pendingCount}</CardTitle>
+			</CardHeader>
+		</Card>
+	</div>
 
-  <div class="grid items-start gap-8 lg:grid-cols-3">
-    <div class="space-y-4 lg:col-span-2">
-      <div class="relative">
-        <SearchIcon
-          class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
-        />
-        <Input
-          type="search"
-          placeholder="Search by name, ID or UUID..."
-          bind:value={searchQuery}
-          class="pl-9 pr-9"
-        />
-        {#if searchQuery}
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            class="absolute top-1/2 right-1 -translate-y-1/2"
-            aria-label="Clear search"
-            onclick={() => (searchQuery = "")}
-          >
-            <XIcon class="size-4" />
-          </Button>
-        {/if}
-      </div>
+	<div class="space-y-3">
+		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+			<SearchInput id="search_employees" name="search_employees" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by code, name, email..." />
+			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} options={[{ label: 'All Status', value: 'all' }, { label: 'Pending', value: 'pending' }, { label: 'Completed', value: 'completed' }]} />
+		</div>
 
-      <Card>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  class="-ml-2 h-8"
-                  onclick={() => handleSort("id")}
-                >
-                  ID {sortIndicator("id")}
-                </Button>
-              </TableHead>
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  class="-ml-2 h-8"
-                  onclick={() => handleSort("name")}
-                >
-                  Name {sortIndicator("name")}
-                </Button>
-              </TableHead>
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  class="-ml-2 h-8"
-                  onclick={() => handleSort("age")}
-                >
-                  Age {sortIndicator("age")}
-                </Button>
-              </TableHead>
-              <TableHead>UUID</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {#if filteredEmployees.length === 0}
-              <TableRow>
-                <TableCell
-                  colspan={7}
-                  class="py-8 text-center text-muted-foreground"
-                >
-                  {UI_CONSTANTS.EMPTY_STATE_MESSAGE}
-                </TableCell>
-              </TableRow>
-            {:else}
-              {#each filteredEmployees as emp (emp.uuid)}
-                <TableRow>
-                  <TableCell class="font-medium">#{emp.id}</TableCell>
-                  <TableCell class="font-semibold">{emp.name}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{emp.age} yrs old</Badge>
-                  </TableCell>
-                  <TableCell class="font-mono text-xs text-muted-foreground">
-                    {emp.uuid}
-                  </TableCell>
-                </TableRow>
-              {/each}
-            {/if}
-          </TableBody>
-        </Table>
-      </Card>
+		<Card class="py-0">
+			<Table>
+				<TableHeader class="bg-muted">
+					<TableRow>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('emp_code')}>
+								Emp Code
+								{#if sortColumn === 'emp_code' && sortDirection === 'asc'}
+									<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortColumn === 'emp_code' && sortDirection === 'desc'}
+									<ArrowDownIcon class="ml-2 size-4" />
+								{:else}
+									<ArrowUpDownIcon class="ml-2 size-4" />
+								{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('first_name')}>
+								First Name
+								{#if sortColumn === 'first_name' && sortDirection === 'asc'}
+									<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortColumn === 'first_name' && sortDirection === 'desc'}
+									<ArrowDownIcon class="ml-2 size-4" />
+								{:else}
+									<ArrowUpDownIcon class="ml-2 size-4" />
+								{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('last_name')}>
+								Last Name
+								{#if sortColumn === 'last_name' && sortDirection === 'asc'}
+									<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortColumn === 'last_name' && sortDirection === 'desc'}
+									<ArrowDownIcon class="ml-2 size-4" />
+								{:else}
+									<ArrowUpDownIcon class="ml-2 size-4" />
+								{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('personal_email')}>
+								Email
+								{#if sortColumn === 'personal_email' && sortDirection === 'asc'}
+									<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortColumn === 'personal_email' && sortDirection === 'desc'}
+									<ArrowDownIcon class="ml-2 size-4" />
+								{:else}
+									<ArrowUpDownIcon class="ml-2 size-4" />
+								{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('profile_completion_status')}>
+								Status
+								{#if sortColumn === 'profile_completion_status' && sortDirection === 'asc'}
+									<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortColumn === 'profile_completion_status' && sortDirection === 'desc'}
+									<ArrowDownIcon class="ml-2 size-4" />
+								{:else}
+									<ArrowUpDownIcon class="ml-2 size-4" />
+								{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{#if isLoading}
+						<TableRow>
+							<TableCell colspan={6} class="py-8 text-center text-muted-foreground">
+								<LoaderCircleIcon class="mx-auto mb-2 size-6 animate-spin" />
+								Loading employees...
+							</TableCell>
+						</TableRow>
+					{:else if filteredEmployees.length === 0}
+						<TableRow>
+							<TableCell colspan={6} class="py-8 text-center text-muted-foreground">
+								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
+							</TableCell>
+						</TableRow>
+					{:else}
+						{#each paginatedEmployees as emp (emp.cuid)}
+							<TableRow onclick={(e) => handleRowClick(emp.cuid, e)} class="cursor-pointer">
+								<TableCell class="font-medium text-xs">{emp.emp_code}</TableCell>
+								<TableCell class="font-semibold">{emp.first_name}</TableCell>
+								<TableCell class="font-semibold">{emp.last_name || '-'}</TableCell>
+								<TableCell class="text-muted-foreground">
+									{emp.personal_email || '-'}
+								</TableCell>
+								<TableCell class="text-center">
+									<Badge variant={emp.profile_completion_status === 'completed' ? 'default' : 'secondary'}>
+										{emp.profile_completion_status === 'completed' ? 'Completed' : 'Pending'}
+									</Badge>
+								</TableCell>
+								<TableCell class="text-right">
+									<TableActions
+										canEdit={true}
+										canView={false}
+										editLabel="Edit"
+										onEdit={() => goto(`/employees/${emp.cuid}?mode=edit`)}
+									/>
+								</TableCell>
+							</TableRow>
+						{/each}
+					{/if}
+				</TableBody>
+			</Table>
+		</Card>
 
-      <p class="text-xs text-muted-foreground">
-        Showing {filteredEmployees.length} of {totalEmployees} entries
-      </p>
-    </div>
-
-    <Card>
-      <CardHeader>
-        <CardTitle>Add New Employee</CardTitle>
-        <CardDescription>
-          Persist a new employee record in PostgreSQL via the API endpoint.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form
-          method="POST"
-          action="?/create"
-          class="space-y-4"
-          use:enhance={() => {
-            isSubmitting = true;
-            return async ({ result, update }) => {
-              if (
-                result.type === "success" &&
-                result.data &&
-                "created" in result.data
-              ) {
-                const created = result.data.created as Employee;
-                employees = [created, ...employees];
-                successMessage = "Employee added successfully!";
-                setTimeout(() => {
-                  successMessage = "";
-                }, 3000);
-                await update({ reset: true });
-              } else {
-                await update({ reset: false });
-              }
-              isSubmitting = false;
-            };
-          }}
-        >
-          <div class="space-y-2">
-            <Label for="name">Full Name</Label>
-            <Input
-              id="name"
-              name="name"
-              bind:value={newName}
-              placeholder="e.g. Charlie Brown"
-              required
-            />
-          </div>
-
-          <div class="space-y-2">
-            <Label for="age">Age</Label>
-            <Input
-              id="age"
-              name="age"
-              type="number"
-              bind:value={newAge}
-              placeholder="e.g. 29"
-              min="1"
-              max="120"
-              required
-            />
-          </div>
-
-          {#if formError}
-            <div transition:slide>
-              <Alert variant="destructive">
-                <AlertDescription>{formError}</AlertDescription>
-              </Alert>
-            </div>
-          {/if}
-
-          {#if successMessage}
-            <div transition:slide>
-              <Alert>
-                <AlertDescription>{successMessage}</AlertDescription>
-              </Alert>
-            </div>
-          {/if}
-
-          <Button
-            type="submit"
-            class="w-full bg-[#F45310] text-white hover:bg-[#F45310]/90"
-            disabled={isSubmitting}
-          >
-            {isSubmitting
-              ? UI_CONSTANTS.BUTTON_SAVING
-              : UI_CONSTANTS.BUTTON_SAVE}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-  </div>
+		<Pagination bind:currentPage={currentPage} pageSize={pageSize} totalItems={filteredEmployees.length} />
+	</div>
 </div>
