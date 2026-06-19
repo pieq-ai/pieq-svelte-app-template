@@ -170,6 +170,10 @@
 		localSources.map(src => ({ id: src.id, label: src.label }))
 	);
 
+	let activeHoliday = $derived(
+		data.holidays.find((h: any) => getISODateString(h.holiday_date) === summaryDate)
+	);
+
 	let editingRecord = $derived(data.records.find((r: any) => r.cuid === editCuid));
 
 	let hasChanges = $derived.by(() => {
@@ -603,7 +607,7 @@
 		const lop = recordsForDate.filter((rec) => rec.attendance_status === 'LOP' || rec.attendance_status === 'Absent').length;
 		
 		const loggedInCuids = new Set(recordsForDate.map((rec) => rec.employee_cuid));
-		const notLoggedIn = data.employees.filter((emp) => !loggedInCuids.has(emp.uuid)).length;
+		const notLoggedIn = activeHoliday ? 0 : data.employees.filter((emp) => !loggedInCuids.has(emp.uuid)).length;
 
 		return {
 			total: data.employees.length,
@@ -631,7 +635,7 @@
 			if (existingRecord) {
 				list.push(existingRecord);
 			} else {
-				// Virtual "Not Logged In" record
+				// Virtual "Not Logged In" or "Holiday" record
 				list.push({
 					cuid: `virtual-${emp.uuid}-${summaryDate}`,
 					employee_cuid: emp.uuid,
@@ -639,7 +643,7 @@
 					check_in_time: null,
 					check_out_time: null,
 					work_duration_minutes: null,
-					attendance_status: 'Not Logged In',
+					attendance_status: activeHoliday ? 'Holiday' : 'Not Logged In',
 					attendance_source_cuid: null,
 					remarks: null,
 					isVirtual: true
@@ -804,63 +808,75 @@
 	</div>
 
 	<!-- Summary Cards Section -->
-	<div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
-		<!-- Total Employees Card -->
-		<Card>
-			<CardHeader class="pb-2">
-				<CardDescription>Total</CardDescription>
-				<CardTitle class="text-2xl font-bold text-foreground mt-1 tabular-nums">{summaryCounts.total}</CardTitle>
-			</CardHeader>
-		</Card>
-		
-		<!-- Present Card -->
-		<Card>
-			<CardHeader class="pb-2">
-				<CardDescription>Present</CardDescription>
-				<CardTitle class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 tabular-nums">{summaryCounts.present}</CardTitle>
-			</CardHeader>
-		</Card>
+	{#if !activeHoliday}
+		<div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
+			<!-- Total Employees Card -->
+			<Card>
+				<CardHeader class="pb-2">
+					<CardDescription>Total</CardDescription>
+					<CardTitle class="text-2xl font-bold text-foreground mt-1 tabular-nums">{summaryCounts.total}</CardTitle>
+				</CardHeader>
+			</Card>
+			
+			<!-- Present Card -->
+			<Card>
+				<CardHeader class="pb-2">
+					<CardDescription>Present</CardDescription>
+					<CardTitle class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 tabular-nums">{summaryCounts.present}</CardTitle>
+				</CardHeader>
+			</Card>
 
-		<!-- Leave Card -->
-		<Card>
-			<CardHeader class="pb-2">
-				<CardDescription>Leave</CardDescription>
-				<CardTitle class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1 tabular-nums">{summaryCounts.leave}</CardTitle>
-			</CardHeader>
-		</Card>
+			<!-- Leave Card -->
+			<Card>
+				<CardHeader class="pb-2">
+					<CardDescription>Leave</CardDescription>
+					<CardTitle class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1 tabular-nums">{summaryCounts.leave}</CardTitle>
+				</CardHeader>
+			</Card>
 
-		<!-- WFH Card -->
-		<Card>
-			<CardHeader class="pb-2">
-				<CardDescription>WFH</CardDescription>
-				<CardTitle class="text-2xl font-bold text-cyan-600 dark:text-cyan-400 mt-1 tabular-nums">{summaryCounts.wfh}</CardTitle>
-			</CardHeader>
-		</Card>
+			<!-- WFH Card -->
+			<Card>
+				<CardHeader class="pb-2">
+					<CardDescription>WFH</CardDescription>
+					<CardTitle class="text-2xl font-bold text-cyan-600 dark:text-cyan-400 mt-1 tabular-nums">{summaryCounts.wfh}</CardTitle>
+				</CardHeader>
+			</Card>
 
-		<!-- Half Day Card -->
-		<Card>
-			<CardHeader class="pb-2">
-				<CardDescription>Half Day</CardDescription>
-				<CardTitle class="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1 tabular-nums">{summaryCounts.halfDay}</CardTitle>
-			</CardHeader>
-		</Card>
+			<!-- Half Day Card -->
+			<Card>
+				<CardHeader class="pb-2">
+					<CardDescription>Half Day</CardDescription>
+					<CardTitle class="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1 tabular-nums">{summaryCounts.halfDay}</CardTitle>
+				</CardHeader>
+			</Card>
 
-		<!-- LOP Card -->
-		<Card>
-			<CardHeader class="pb-2">
-				<CardDescription>LOP</CardDescription>
-				<CardTitle class="text-2xl font-bold text-red-600 dark:text-red-400 mt-1 tabular-nums">{summaryCounts.lop}</CardTitle>
-			</CardHeader>
-		</Card>
+			<!-- LOP Card -->
+			<Card>
+				<CardHeader class="pb-2">
+					<CardDescription>LOP</CardDescription>
+					<CardTitle class="text-2xl font-bold text-red-600 dark:text-red-400 mt-1 tabular-nums">{summaryCounts.lop}</CardTitle>
+				</CardHeader>
+			</Card>
 
-		<!-- Not Logged In Card -->
-		<Card>
-			<CardHeader class="pb-2">
-				<CardDescription>Not Logged In</CardDescription>
-				<CardTitle class="text-2xl font-bold text-neutral-600 dark:text-neutral-400 mt-1 tabular-nums">{summaryCounts.notLoggedIn}</CardTitle>
-			</CardHeader>
-		</Card>
-	</div>
+			<!-- Not Logged In Card -->
+			<Card>
+				<CardHeader class="pb-2">
+					<CardDescription>Not Logged In</CardDescription>
+					<CardTitle class="text-2xl font-bold text-neutral-600 dark:text-neutral-400 mt-1 tabular-nums">{summaryCounts.notLoggedIn}</CardTitle>
+				</CardHeader>
+			</Card>
+		</div>
+	{/if}
+
+	{#if activeHoliday}
+		<div class="flex items-center gap-4 p-4 bg-blue-500/10 dark:bg-blue-500/15 border border-blue-500/20 dark:border-blue-500/30 rounded-xl text-blue-950 dark:text-blue-50 shadow-xs mb-6">
+			<span class="text-xl">🎉</span>
+			<div>
+				<h4 class="font-bold text-base">Today is {activeHoliday.holiday_name}</h4>
+				<p class="text-sm opacity-90">Attendance logging is not required for this holiday</p>
+			</div>
+		</div>
+	{/if}
 
 	<!-- Filters & Search -->
 	<div class="space-y-3">
