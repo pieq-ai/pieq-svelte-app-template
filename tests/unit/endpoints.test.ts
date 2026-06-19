@@ -16,9 +16,9 @@ import * as locationsCuidApi from '../../src/routes/api/organization_location/[c
 describe('API Endpoint Integration Tests', () => {
   beforeAll(async () => {
     // Database cleanup to keep tests idempotent
-    await db.role.deleteMany({ where: { role_name: { in: ['API Role', 'API Role Updated', 'API Conflict Role'] } } });
+    await db.role.deleteMany({ where: { name: { in: ['API Role', 'API Role Updated', 'API Conflict Role'] } } });
     await db.shift.deleteMany({ where: { shift_name: { in: ['API Shift', 'API Shift Updated', 'API Conflict Shift'] } } });
-    await db.companyLocation.deleteMany({ where: { location_name: { in: ['API Location', 'API Location Updated', 'API Conflict Location'] } } });
+    await db.companyLocation.deleteMany({ where: { name: { in: ['API Location', 'API Location Updated', 'API Conflict Location'] } } });
   });
 
   describe('Roles API Endpoints', () => {
@@ -27,7 +27,7 @@ describe('API Endpoint Integration Tests', () => {
       const badHeadersRequest = new Request('http://localhost/api/roles', {
         method: 'POST',
         headers: { 'content-type': 'text/plain' },
-        body: JSON.stringify({ role_name: 'API Role' })
+        body: JSON.stringify({ name: 'API Role' })
       });
       const res415 = await rolesApi.POST({ request: badHeadersRequest });
       expect(res415.status).toBe(415);
@@ -36,7 +36,7 @@ describe('API Endpoint Integration Tests', () => {
       const badNameRequest = new Request('http://localhost/api/roles', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ role_name: 'API Role 123' })
+        body: JSON.stringify({ name: 'API Role 123' })
       });
       const res400BadName = await rolesApi.POST({ request: badNameRequest });
       expect(res400BadName.status).toBe(400);
@@ -45,7 +45,7 @@ describe('API Endpoint Integration Tests', () => {
       const badKeysRequest = new Request('http://localhost/api/roles', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ role_name: 'API Role', unknown_key: true })
+        body: JSON.stringify({ name: 'API Role', unknown_key: true })
       });
       const res400BadKeys = await rolesApi.POST({ request: badKeysRequest });
       expect(res400BadKeys.status).toBe(400);
@@ -54,7 +54,7 @@ describe('API Endpoint Integration Tests', () => {
       const validPostRequest = new Request('http://localhost/api/roles', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ role_name: 'API Role' })
+        body: JSON.stringify({ name: 'API Role' })
       });
       const res201 = await rolesApi.POST({ request: validPostRequest });
       expect(res201.status).toBe(201);
@@ -66,7 +66,7 @@ describe('API Endpoint Integration Tests', () => {
       const duplicateRequest = new Request('http://localhost/api/roles', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ role_name: 'API Role' })
+        body: JSON.stringify({ name: 'API Role' })
       });
       const res409 = await rolesApi.POST({ request: duplicateRequest });
       expect(res409.status).toBe(409);
@@ -82,7 +82,7 @@ describe('API Endpoint Integration Tests', () => {
       const invalidCuidPut = new Request(`http://localhost/api/roles/short`, {
         method: 'PUT',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ role_name: 'API Role Updated' })
+        body: JSON.stringify({ name: 'API Role Updated' })
       });
       const putRes400 = await rolesCuidApi.PUT({ request: invalidCuidPut, params: { cuid: 'short' } });
       expect(putRes400.status).toBe(400);
@@ -92,7 +92,7 @@ describe('API Endpoint Integration Tests', () => {
       const notFoundPut = new Request(`http://localhost/api/roles/${nonExistentCuid}`, {
         method: 'PUT',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ role_name: 'API Role Updated' })
+        body: JSON.stringify({ name: 'API Role Updated' })
       });
       const putRes404 = await rolesCuidApi.PUT({ request: notFoundPut, params: { cuid: nonExistentCuid } });
       expect(putRes404.status).toBe(404);
@@ -101,7 +101,7 @@ describe('API Endpoint Integration Tests', () => {
       const validPutRequest = new Request(`http://localhost/api/roles/${cuid}`, {
         method: 'PUT',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ role_name: 'API Role Updated' })
+        body: JSON.stringify({ name: 'API Role Updated' })
       });
       const putRes200 = await rolesCuidApi.PUT({ request: validPutRequest, params: { cuid: cuid } });
       expect(putRes200.status).toBe(200);
@@ -176,7 +176,7 @@ describe('API Endpoint Integration Tests', () => {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          location_name: 'API Location',
+          name: 'API Location',
           address_line1: '123 API Way',
           city: 'API Town',
           state_cuid: 'state-cuid',

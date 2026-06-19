@@ -11,7 +11,7 @@ export async function GET(event: RequestEvent) {
 		const cuid = event.params.cuid;
 		if (!cuid) return json({ error: 'Designation CUID is required' }, { status: 400 });
 
-		const designation = await designationService.getDesignationByCuid2(cuid);
+		const designation = await designationService.getDesignationByCuid(cuid);
 		return json({ data: toDesignationDTO(designation) });
 	} catch (error) {
 		if (error instanceof ValidationError) {
@@ -54,7 +54,7 @@ export async function DELETE(event: RequestEvent) {
 		const cuid = event.params.cuid;
 		if (!cuid) return json({ error: 'Designation CUID is required' }, { status: 400 });
 
-		const deletedDesignation = await designationService.deleteDesignation(cuid, event.locals.user?.id);
+		const deletedDesignation = await designationService.deleteDesignation(cuid);
 		return json({ data: { cuid: deletedDesignation.cuid, message: 'Successfully disabled' } });
 	} catch (error) {
 		if (error instanceof ValidationError) {

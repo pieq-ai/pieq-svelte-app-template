@@ -1,7 +1,7 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '$lib/generated/prisma/client.js';
 
-const SCHEMA_VERSION = 'standardized-audit-fields';
+const SCHEMA_VERSION = 'added-shift-model';
 let prisma: PrismaClient | undefined;
 
 function createClient(): PrismaClient {

@@ -1,21 +1,16 @@
 import { json } from '@sveltejs/kit';
-import { db } from '$lib/server/db.js';
 import { sendList, mapCountry } from '$lib/server/response.js';
+import { getMasterData } from '$lib/server/services/master-data.service.js';
+import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 
 export async function GET() {
   try {
-    const count = await db.country.count();
-    if (count === 0) {
-      await db.country.createMany({
-        data: [
-          { country_name: 'India' },
-          { country_name: 'United States' },
-          { country_name: 'United Kingdom' }
-        ]
-      });
-    }
-    const countries = await db.country.findMany({ orderBy: { country_name: 'asc' } });
-    const mapped = countries.map(mapCountry);
+    const countries = await getMasterData('countries');
+    // We mock mapCountry since getMasterData already returns an option format
+    const mapped = countries.map(c => ({
+       cuid: c.id,
+       name: c.label
+    }));
     return sendList(mapped);
   } catch (err: any) {
     return json({ error: err.message }, { status: 500 });

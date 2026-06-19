@@ -54,7 +54,7 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
 
   const raw = payload as Record<string, unknown>;
   const allowedKeys = [
-    'location_name',
+    'name',
     'address_line1',
     'address_line2',
     'city',
@@ -67,18 +67,18 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
   ];
   rejectUnknownKeys(raw, allowedKeys);
 
-  // location_name
-  if (raw.location_name === undefined || raw.location_name === null) {
+  // name
+  if (raw.name === undefined || raw.name === null) {
     const err: any = new Error('Company Location name is required');
     err.status = 400;
     throw err;
   }
-  if (typeof raw.location_name !== 'string') {
+  if (typeof raw.name !== 'string') {
     const err: any = new Error('Company Location name must be a string');
     err.status = 400;
     throw err;
   }
-  const name = raw.location_name.trim();
+  const name = raw.name.trim();
   if (name.length === 0) {
     const err: any = new Error('Company Location name is required');
     err.status = 400;
@@ -302,7 +302,7 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
   }
 
   return {
-    location_name: name,
+    name: name,
     address_line1: address1,
     address_line2: address2,
     city: city,
@@ -327,7 +327,7 @@ export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDT
 
   const raw = payload as Record<string, unknown>;
   const allowedKeys = [
-    'location_name',
+    'name',
     'address_line1',
     'address_line2',
     'city',
@@ -335,7 +335,7 @@ export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDT
     'country_cuid',
     'pin_code',
     'timezone',
-    'is_active',
+    'status',
     'created_by',
     'updated_by'
   ];
@@ -343,20 +343,20 @@ export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDT
 
   const result: CompanyLocationUpdateDTO = {};
 
-  if (raw.location_name !== undefined) {
-    if (raw.location_name === null) {
+  if (raw.name !== undefined) {
+    if (raw.name === null) {
       const err: any = new Error('Company Location name must be a string');
       err.status = 400;
       throw err;
     }
 
-    if (typeof raw.location_name !== 'string') {
+    if (typeof raw.name !== 'string') {
       const err: any = new Error('Company Location name must be a string');
       err.status = 400;
       throw err;
     }
 
-    const name = raw.location_name.trim();
+    const name = raw.name.trim();
 
     if (name.length === 0) {
       const err: any = new Error('Company Location name is required');
@@ -413,7 +413,7 @@ export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDT
       throw err;
     }
 
-    result.location_name = name;
+    result.name = name;
   }
 
   if (raw.address_line1 !== undefined) {
@@ -565,13 +565,13 @@ export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDT
     result.timezone = val;
   }
 
-  if (raw.is_active !== undefined) {
-    if (typeof raw.is_active !== 'boolean') {
-      const err: any = new Error('is_active must be a boolean');
+  if (raw.status !== undefined) {
+    if (typeof raw.status !== 'boolean') {
+      const err: any = new Error('status must be a boolean');
       err.status = 400;
       throw err;
     }
-    result.is_active = raw.is_active;
+    result.status = raw.status;
   }
 
   if (raw.created_by !== undefined) {

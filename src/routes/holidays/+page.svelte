@@ -10,11 +10,10 @@
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
-	import PlusIcon from '@lucide/svelte/icons/plus';
+	
 	import FilterIcon from '@lucide/svelte/icons/filter';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
-	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import {
 		Alert,
@@ -33,10 +32,9 @@
 		TableHead,
 		TableHeader,
 		TableRow,
-		toast,
-		DatePicker
+		toast
 	} from '$lib/components/ui';
-	import { ConfirmModal, CrudModal, Pagination, TableActions } from '$lib/components';
+	import { ConfirmModal, CrudModal, Pagination, TableActions, DatePicker } from '$lib/components';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -567,7 +565,6 @@
 			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
 			onclick={openAddModal}
 		>
-			<PlusIcon class="size-4" />
 			Add Holiday
 		</Button>
 	</div>
@@ -650,7 +647,7 @@
 								</Button>
 							{/snippet}
 						</DropdownMenu.Trigger>
-						<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
+						<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
 							<DropdownMenu.Group>
 								{#each filterTypeOptions as opt}
 									<DropdownMenu.Item onclick={() => { filterType = opt.value; currentPage = 1; }} class="justify-between cursor-pointer {filterType === opt.value ? 'bg-accent text-accent-foreground' : ''}">
@@ -734,7 +731,6 @@
 										customActions={[
 											{
 												label: 'Delete',
-												icon: Trash2Icon,
 												class: 'focus:bg-[#800020]/10',
 												onClick: () => {
 													activeDeleteCuid = holiday.cuid;
@@ -760,8 +756,7 @@
 <CrudModal
 	open={isFormModalOpen}
 	title={editCuid ? 'Edit Holiday' : 'Create Holiday'}
-	isDirty={hasUnsavedChanges}
-	onClose={confirmDiscard}
+	onClose={handleCloseRequest}
 	preventOutsideClickClose={true}
 >
 	{#snippet children({ cancel })}
@@ -803,7 +798,7 @@
 					}}
 					required={true}
 					max="2099-12-31"
-					hasError={!!errors.holiday_date}
+					isError={!!errors.holiday_date}
 				/>
 				{#if errors.holiday_date}
 					<p class="text-xs font-medium text-destructive mt-1">{errors.holiday_date}</p>
@@ -822,7 +817,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
 						<DropdownMenu.Group>
 							{#each holidayTypeOptions as opt}
 								<DropdownMenu.Item onclick={() => {
@@ -897,8 +892,9 @@
 	open={isDiscardModalOpen}
 	title="Cancel Changes"
 	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Keep Editing"
-	onCancel={confirmDiscard}
-	onConfirm={() => (isDiscardModalOpen = false)}
+	confirmLabel="Discard Changes"
+	cancelLabel="Keep Editing"
+	onConfirm={confirmDiscard}
+	onCancel={() => (isDiscardModalOpen = false)}
 	preventOutsideClickClose={true}
 />

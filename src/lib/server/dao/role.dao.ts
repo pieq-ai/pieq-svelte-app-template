@@ -8,14 +8,14 @@ import type { Role, RoleCreateDTO, RoleUpdateDTO } from '$lib/types/role';
 export async function createRole(data: RoleCreateDTO): Promise<Role> {
   return db.role.create({
     data: {
-      role_name: data.role_name.trim(),
+      name: data.name.trim(),
       status: true,
       created_by: data.created_by ?? null,
       updated_by: data.updated_by ?? null
     },
     select: {
       cuid: true,
-      role_name: true,
+      name: true,
       status: true,
       created_by: true,
       updated_by: true
@@ -32,7 +32,7 @@ export async function getRoles(): Promise<Role[]> {
     orderBy: { id: 'asc' },
     select: {
       cuid: true,
-      role_name: true,
+      name: true,
       status: true,
       created_by: true,
       updated_by: true
@@ -49,7 +49,7 @@ export async function getAllRoles(): Promise<Role[]> {
     orderBy: { id: 'asc' },
     select: {
       cuid: true,
-      role_name: true,
+      name: true,
       status: true,
       created_by: true,
       updated_by: true
@@ -79,7 +79,7 @@ export async function getRoleByCuid(cuid: string): Promise<Role | null> {
     where: { cuid },
     select: {
       cuid: true,
-      role_name: true,
+      name: true,
       status: true,
       created_by: true,
       updated_by: true
@@ -92,7 +92,7 @@ export async function getRoleByCuid(cuid: string): Promise<Role | null> {
  */
 export async function updateRole(cuid: string, data: RoleUpdateDTO): Promise<Role> {
   const updateData: any = {};
-  if (data.role_name !== undefined) updateData.role_name = data.role_name.trim();
+  if (data.name !== undefined) updateData.name = data.name.trim();
   if (data.status !== undefined) updateData.status = data.status;
   if (data.updated_by !== undefined) updateData.updated_by = data.updated_by;
 
@@ -101,7 +101,7 @@ export async function updateRole(cuid: string, data: RoleUpdateDTO): Promise<Rol
     data: updateData,
     select: {
       cuid: true,
-      role_name: true,
+      name: true,
       status: true,
       created_by: true,
       updated_by: true
@@ -118,7 +118,7 @@ export async function deactivateRole(cuid: string): Promise<Role> {
     data: { status: false },
     select: {
       cuid: true,
-      role_name: true,
+      name: true,
       status: true,
       created_by: true,
       updated_by: true

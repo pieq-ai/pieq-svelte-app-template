@@ -8,7 +8,7 @@ export interface ValidationError {
 
 // Keys that are allowed in the POST (create) body — no others may be present.
 const CREATE_ALLOWED_KEYS = new Set<string>([
-	'component_name',
+	'name',
 	'component_type',
 	'is_taxable',
 	'is_active'
@@ -16,7 +16,7 @@ const CREATE_ALLOWED_KEYS = new Set<string>([
 
 // Keys that are allowed in the PUT (update) body — no others may be present.
 const UPDATE_ALLOWED_KEYS = new Set<string>([
-	'component_name',
+	'name',
 	'component_type',
 	'is_taxable',
 	'is_active'
@@ -55,10 +55,10 @@ export function validateCreateSalaryComponent(data: unknown): {
 		};
 	}
 
-	// Validate component_name
-	const nameError = validateComponentName(body.component_name);
+	// Validate name
+	const nameError = validateComponentName(body.name);
 	if (nameError) {
-		errors.push({ field: 'component_name', message: nameError });
+		errors.push({ field: 'name', message: nameError });
 	}
 
 	// Validate component_type
@@ -101,7 +101,7 @@ export function validateCreateSalaryComponent(data: unknown): {
 	return {
 		errors,
 		validatedData: {
-			component_name: (body.component_name as string).trim(),
+			name: (body.name as string).trim(),
 			component_type: component_type as 'earning' | 'deduction',
 			is_taxable: is_taxable as boolean,
 			is_active: is_active as boolean
@@ -143,13 +143,13 @@ export function validateUpdateSalaryComponent(data: unknown): {
 
 	const validatedData: UpdateSalaryComponentDto = {};
 
-	// Validate component_name if provided
-	if (body.component_name !== undefined) {
-		const nameError = validateComponentName(body.component_name);
+	// Validate name if provided
+	if (body.name !== undefined) {
+		const nameError = validateComponentName(body.name);
 		if (nameError) {
-			errors.push({ field: 'component_name', message: nameError });
-		} else if (body.component_name !== null) {
-			validatedData.component_name = (body.component_name as string).trim();
+			errors.push({ field: 'name', message: nameError });
+		} else if (body.name !== null) {
+			validatedData.name = (body.name as string).trim();
 		}
 	}
 

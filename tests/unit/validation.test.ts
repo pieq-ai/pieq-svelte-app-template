@@ -6,32 +6,32 @@ import * as locationValidator from '../../src/lib/server/validators/organization
 describe('Validation Unit Tests', () => {
   describe('Role Validator', () => {
     it('should validate a correct create payload', () => {
-      const valid = roleValidator.validateCreatePayload({ role_name: 'HR Manager' });
-      expect(valid.role_name).toBe('HR Manager');
+      const valid = roleValidator.validateCreatePayload({ name: 'HR Manager' });
+      expect(valid.name).toBe('HR Manager');
     });
 
     it('should reject a create payload with missing name', () => {
       expect(() => roleValidator.validateCreatePayload({})).toThrow('Role name is required');
-      expect(() => roleValidator.validateCreatePayload({ role_name: '   ' })).toThrow('Role name is required');
+      expect(() => roleValidator.validateCreatePayload({ name: '   ' })).toThrow('Role name is required');
     });
 
     it('should reject names with numbers or special characters', () => {
-      expect(() => roleValidator.validateCreatePayload({ role_name: 'HR Manager 2' })).toThrow('Role name must contain only letters and spaces');
-      expect(() => roleValidator.validateCreatePayload({ role_name: 'HR_Manager' })).toThrow('Role name must contain only letters and spaces');
+      expect(() => roleValidator.validateCreatePayload({ name: 'HR Manager 2' })).toThrow('Role name must contain only letters and spaces');
+      expect(() => roleValidator.validateCreatePayload({ name: 'HR_Manager' })).toThrow('Role name must contain only letters and spaces');
     });
 
     it('should reject names exceeding 255 characters', () => {
       const longName = 'A'.repeat(256);
-      expect(() => roleValidator.validateCreatePayload({ role_name: longName })).toThrow('Role name exceeds maximum length of 255 characters');
+      expect(() => roleValidator.validateCreatePayload({ name: longName })).toThrow('Role name exceeds maximum length of 255 characters');
     });
 
     it('should reject unknown keys in create payload', () => {
-      expect(() => roleValidator.validateCreatePayload({ role_name: 'HR Manager', extra: 123 })).toThrow('Unknown field(s) in request payload');
+      expect(() => roleValidator.validateCreatePayload({ name: 'HR Manager', extra: 123 })).toThrow('Unknown field(s) in request payload');
     });
 
     it('should validate a correct update payload', () => {
-      const valid = roleValidator.validateUpdatePayload({ role_name: 'Recruiter', status: false });
-      expect(valid.role_name).toBe('Recruiter');
+      const valid = roleValidator.validateUpdatePayload({ name: 'Recruiter', status: false });
+      expect(valid.name).toBe('Recruiter');
       expect(valid.status).toBe(false);
     });
 
@@ -72,7 +72,7 @@ describe('Validation Unit Tests', () => {
   describe('Company Location Validator', () => {
     it('should validate a correct create payload', () => {
       const payload = {
-        location_name: 'Bangalore Office',
+        name: 'Bangalore Office',
         address_line1: '456 Tech Park',
         city: 'Bangalore',
         state_cuid: 'state-cuid',
@@ -81,33 +81,33 @@ describe('Validation Unit Tests', () => {
         timezone: 'Asia/Kolkata'
       };
       const valid = locationValidator.validateCreatePayload(payload);
-      expect(valid.location_name).toBe('Bangalore Office');
+      expect(valid.name).toBe('Bangalore Office');
       expect(valid.state_cuid).toBe('state-cuid');
       expect(valid.country_cuid).toBe('country-cuid');
     });
 
     it('should reject symbols-only or numbers-only location names', () => {
-      expect(() => locationValidator.validateCreatePayload({ location_name: '12345' })).toThrow('Company Location name cannot contain only numbers');
-      expect(() => locationValidator.validateCreatePayload({ location_name: '!!!' })).toThrow('Company Location name must contain at least one alphabet');
+      expect(() => locationValidator.validateCreatePayload({ name: '12345' })).toThrow('Company Location name cannot contain only numbers');
+      expect(() => locationValidator.validateCreatePayload({ name: '!!!' })).toThrow('Company Location name must contain at least one alphabet');
     });
 
     it('should reject location names with attached numbers', () => {
-      expect(() => locationValidator.validateCreatePayload({ location_name: 'Location1' })).toThrow('Company Location name cannot contain numbers');
+      expect(() => locationValidator.validateCreatePayload({ name: 'Location1' })).toThrow('Company Location name cannot contain numbers');
     });
 
     it('should reject unknown keys in location create', () => {
-      expect(() => locationValidator.validateCreatePayload({ location_name: 'HQ', country_uuid: 'old-field' })).toThrow('Unknown field(s) in request payload');
+      expect(() => locationValidator.validateCreatePayload({ name: 'HQ', country_uuid: 'old-field' })).toThrow('Unknown field(s) in request payload');
     });
 
     it('should validate a correct update payload', () => {
-      const valid = locationValidator.validateUpdatePayload({ is_active: false, state_cuid: 'new-state-cuid' });
-      expect(valid.is_active).toBe(false);
+      const valid = locationValidator.validateUpdatePayload({ status: false, state_cuid: 'new-state-cuid' });
+      expect(valid.status).toBe(false);
       expect(valid.state_cuid).toBe('new-state-cuid');
     });
 
     it('should reject non-numeric pincode in create payload', () => {
       const payload = {
-        location_name: 'Bangalore Office',
+        name: 'Bangalore Office',
         address_line1: '456 Tech Park',
         city: 'Bangalore',
         state_cuid: 'state-cuid',

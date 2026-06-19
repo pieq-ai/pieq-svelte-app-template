@@ -2,11 +2,13 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { redirect } from '@sveltejs/kit';
 import { handle as authHandle } from '$lib/server/auth.js';
 
-// Add global BigInt JSON serialization support
-/** @type {any} */
-(BigInt.prototype).toJSON = function () {
-	return this.toString();
-};
+// Polyfill for BigInt JSON serialization to prevent runtime errors
+if (typeof BigInt !== 'undefined') {
+	// @ts-expect-error - BigInt.prototype.toJSON is not defined in standard TS libs
+	BigInt.prototype.toJSON = function () {
+		return this.toString();
+	};
+}
 
 /** @type {import('@sveltejs/kit').Handle} */
 const injectLocals = async ({ event, resolve }) => {
@@ -32,9 +34,7 @@ const routeGuard = async ({ event, resolve }) => {
 	const protectedRoutes = [
 		'/employees',
 		'/departments',
-		'/department',
 		'/designations',
-		'/designation',
 		'/system-roles',
 		'/permissions',
 		'/role-permissions',
@@ -43,7 +43,6 @@ const routeGuard = async ({ event, resolve }) => {
 		'/roles',
 		'/shifts',
 		'/organization_locations',
-		'/organization_location',
 		'/settings',
 		'/leave-types',
 		'/leave-policies',
@@ -55,36 +54,17 @@ const routeGuard = async ({ event, resolve }) => {
 
 	if (isProtectedRoute && !event.locals.user) {
 		const callbackUrl = encodeURIComponent(event.url.pathname + event.url.search);
-		redirect(303, `/auth/signin?callbackUrl=${callbackUrl}`);
+		redirect(303, `/?callbackUrl=${callbackUrl}`);
 	}
 
-	if (event.url.pathname === '/auth/signin' && event.locals.user) {
+	if (event.url.pathname === '/' && event.locals.user) {
 		redirect(303, '/dashboard');
 	}
 
 	return resolve(event);
 };
 
-/** @type {import('@sveltejs/kit').Handle} */
-const customAuthHandle = async ({ event, resolve }) => {
-	// Root Cause Fix: Bypass Auth.js interception for the custom sign-in page.
-	// If we don't, Auth.js intercepts /auth/signin and infinitely redirects to itself.
-	if (event.url.pathname === '/auth/signin' && event.request.method === 'GET') {
-		const originalPathname = event.url.pathname;
-		// Trick Auth.js into ignoring this route by changing the pathname
-		event.url.pathname = '/_bypass_auth_signin';
 
-		return authHandle({
-			event,
-			resolve: (ev) => {
-				// Restore original pathname before downstream hooks or SvelteKit routing run
-				ev.url.pathname = originalPathname;
-				return resolve(ev);
-			}
-		});
-	}
-	return authHandle({ event, resolve });
-};
 
 /** @type {import('@sveltejs/kit').Handle} */
 const errorHandler = async ({ event, resolve }) => {
@@ -150,4 +130,4 @@ const errorHandler = async ({ event, resolve }) => {
 	return response;
 };
 
-export const handle = sequence(customAuthHandle, injectLocals, routeGuard, errorHandler);
+export const handle = sequence(authHandle, injectLocals, routeGuard, errorHandler);

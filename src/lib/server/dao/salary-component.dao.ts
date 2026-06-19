@@ -8,7 +8,7 @@ import type {
 export async function create(data: CreateSalaryComponentDto) {
 	return db.salaryComponent.create({
 		data: {
-			component_name: data.component_name,
+			name: data.name,
 			component_type: data.component_type,
 			is_taxable: data.is_taxable ?? false,
 			is_active: data.is_active ?? true,
@@ -35,7 +35,7 @@ export async function findByCuid(cuid: string) {
 export async function findByName(name: string) {
 	return db.salaryComponent.findFirst({
 		where: {
-			component_name: {
+			name: {
 				equals: name,
 				mode: 'insensitive'
 			}
@@ -47,7 +47,7 @@ export async function findMany() {
 	// Search and sorting are fully client-side; always fetch all records with a stable order.
 	const [items, total] = await Promise.all([
 		db.salaryComponent.findMany({
-			orderBy: { component_name: 'asc' }
+			orderBy: { name: 'asc' }
 		}),
 		db.salaryComponent.count()
 	]);

@@ -22,14 +22,14 @@ describe('Department DAO', () => {
 	});
 
 	describe('list', () => {
-		it('should call db.department.findMany with order by dept_name', async () => {
-			const mockData = [{ id: 1, dept_name: 'IT' }];
+		it('should call db.department.findMany with order by name', async () => {
+			const mockData = [{ id: 1n, name: 'IT' }];
 			vi.mocked(db.department.findMany).mockResolvedValue(mockData as never);
 
 			const result = await departmentDao.list();
 
 			expect(db.department.findMany).toHaveBeenCalledWith({
-				orderBy: { dept_name: 'asc' }
+				orderBy: { name: 'asc' }
 			});
 			expect(result).toBe(mockData);
 		});
@@ -42,7 +42,7 @@ describe('Department DAO', () => {
 
 	describe('findByCuid2', () => {
 		it('should call db.department.findUnique with correct cuid', async () => {
-			const mockData = { id: 1, cuid: 'abc1234' };
+			const mockData = { id: 1n, cuid: 'abc1234' };
 			vi.mocked(db.department.findUnique).mockResolvedValue(mockData as never);
 
 			const result = await departmentDao.findByCuid2('abc1234');
@@ -62,14 +62,14 @@ describe('Department DAO', () => {
 
 	describe('findByName', () => {
 		it('should call db.department.findFirst with case-insensitive search', async () => {
-			const mockData = { id: 1, dept_name: 'Human Resources' };
+			const mockData = { id: 1n, name: 'Human Resources' };
 			vi.mocked(db.department.findFirst).mockResolvedValue(mockData as never);
 
 			const result = await departmentDao.findByName('human resources');
 
 			expect(db.department.findFirst).toHaveBeenCalledWith({
 				where: {
-					dept_name: {
+					name: {
 						equals: 'human resources',
 						mode: 'insensitive'
 					}
@@ -81,15 +81,15 @@ describe('Department DAO', () => {
 
 	describe('create', () => {
 		it('should create a department with default true status if not provided', async () => {
-			const input = { dept_name: 'New Dept' };
-			const mockResult = { id: 1, dept_name: 'New Dept', status: true };
+			const input = { name: 'New Dept' };
+			const mockResult = { id: 1n, name: 'New Dept', status: true };
 			vi.mocked(db.department.create).mockResolvedValue(mockResult as never);
 
 			const result = await departmentDao.create(input);
 
 			expect(db.department.create).toHaveBeenCalledWith({
 				data: {
-					dept_name: 'New Dept',
+					name: 'New Dept',
 					status: true
 				}
 			});
@@ -97,14 +97,14 @@ describe('Department DAO', () => {
 		});
 
 		it('should create a department with provided status', async () => {
-			const input = { dept_name: 'Old Dept', status: false };
-			vi.mocked(db.department.create).mockResolvedValue({ ...input, id: 2 } as never);
+			const input = { name: 'Old Dept', status: false };
+			vi.mocked(db.department.create).mockResolvedValue({ ...input, id: 2n } as never);
 
 			await departmentDao.create(input);
 
 			expect(db.department.create).toHaveBeenCalledWith({
 				data: {
-					dept_name: 'Old Dept',
+					name: 'Old Dept',
 					status: false
 				}
 			});
@@ -113,8 +113,8 @@ describe('Department DAO', () => {
 
 	describe('update', () => {
 		it('should update department with provided data', async () => {
-			const data = { dept_name: 'Updated Dept', status: false };
-			const mockResult = { id: 1, cuid: 'abc', ...data };
+			const data = { name: 'Updated Dept', status: false };
+			const mockResult = { id: 1n, cuid: 'abc', ...data };
 			vi.mocked(db.department.update).mockResolvedValue(mockResult as never);
 
 			const result = await departmentDao.update('abc', data);
@@ -128,7 +128,7 @@ describe('Department DAO', () => {
 
 		it('should only update fields provided in data', async () => {
 			const data = { status: false };
-			vi.mocked(db.department.update).mockResolvedValue({ id: 1, status: false } as never);
+			vi.mocked(db.department.update).mockResolvedValue({ id: 1n, status: false } as never);
 
 			await departmentDao.update('xyz', data);
 

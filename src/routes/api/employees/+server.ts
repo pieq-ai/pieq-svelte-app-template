@@ -1,41 +1,30 @@
-import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
-import {
-	createEmployee,
-	EmployeeValidationError,
-	listEmployees
-} from '$lib/server/services/employee.service';
+import type { RequestEvent } from '@sveltejs/kit';
+import * as employeeService from '$lib/server/services/employee.service.js';
+import * as permissionGuard from '$lib/server/guards/permission.guard.js';
+import { mapToDb, toEmployeeDTO } from '$lib/server/utils/mapping.js';
+import { sendList, sendCreated, handleError } from '$lib/server/utils/response.js';
 
-export const GET: RequestHandler = async () => {
+export async function GET(event: RequestEvent) {
 	try {
-		const employees = await listEmployees();
-		return json({ data: employees });
+		permissionGuard.requireAuth(event.locals.user);
+		const employees = await employeeService.getEmployees();
+		return sendList(employees.map(toEmployeeDTO));
 	} catch (error) {
-		console.error('GET /api/employees failed', error);
-		return json({ error: 'Failed to list employees' }, { status: 500 });
+		return handleError(error);
 	}
-};
+}
 
-export const POST: RequestHandler = async ({ request }) => {
-	let body: unknown;
-
+export async function POST(event: RequestEvent) {
 	try {
-		body = await request.json();
-	} catch {
-		return json({ error: 'Request body must be valid JSON' }, { status: 400 });
-	}
-
-	const { name, age } = (body ?? {}) as { name?: unknown; age?: unknown };
-
-	try {
-		const employee = await createEmployee({ name, age });
-		return json({ data: employee }, { status: 201 });
+		permissionGuard.requireAuth(event.locals.user);
+		
+		let body = await event.request.json();
+		body = mapToDb(body);
+		body.created_by = event.locals.user?.id;
+		
+		const newEmployee = await employeeService.createEmployee(body);
+		return sendCreated(newEmployee.cuid);
 	} catch (error) {
-		if (error instanceof EmployeeValidationError) {
-			return json({ error: error.message, field: error.field }, { status: 400 });
-		}
-
-		console.error('POST /api/employees failed', error);
-		return json({ error: 'Failed to create employee' }, { status: 500 });
+		return handleError(error);
 	}
-};
+}

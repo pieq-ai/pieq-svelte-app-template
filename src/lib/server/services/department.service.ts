@@ -3,7 +3,7 @@ import { validateDepartmentName } from '$lib/server/validators/department.valida
 import { ValidationError } from '$lib/server/utils/errors.js';
 
 export interface CreateDepartmentDto {
-	dept_name: string;
+	name: string;
 	status?: boolean;
 	created_by?: string;
 	created_at?: Date | string | null;
@@ -11,16 +11,16 @@ export interface CreateDepartmentDto {
 }
 
 export interface UpdateDepartmentDto {
-	dept_name?: string;
+	name?: string;
 	status?: boolean;
 	updated_by?: string;
 	updated_at?: Date | string | null;
 }
 
-function toPublicDepartment(department: { cuid: string; dept_name: string; status: boolean; created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
+function toPublicDepartment(department: { cuid: string; name: string; status: boolean; created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
 	return {
 		cuid: department.cuid,
-		dept_name: department.dept_name,
+		name: department.name,
 		status: department.status
 	,
 		created_at: department.created_at,
@@ -56,16 +56,16 @@ export async function getDepartmentByCuid2(cuid: string) {
  * Enforces business rules: trimmed name, min length 2, and uniqueness.
  */
 export async function createDepartment(dto: CreateDepartmentDto) {
-	const dept_name = validateDepartmentName(dto.dept_name);
+	const name = validateDepartmentName(dto.name);
 
 	// Uniqueness check
-	const existing = await departmentDao.findByName(dept_name);
+	const existing = await departmentDao.findByName(name);
 	if (existing) {
-		throw new ValidationError('dept_name', `Department name "${dept_name}" already exists`);
+		throw new ValidationError('name', `Department name "${name}" already exists`);
 	}
 
 	return toPublicDepartment(await departmentDao.create({
-		dept_name,
+		name,
 		status: dto.status ?? true,
 		created_by: dto.created_by ?? undefined,
 		created_at: dto.created_at ?? undefined,
@@ -97,17 +97,17 @@ export async function updateDepartment(cuid: string, dto: UpdateDepartmentDto) {
 		updateData.updated_by = dto.updated_by;
 	}
 
-	if (dto.dept_name !== undefined) {
-		const dept_name = validateDepartmentName(dto.dept_name);
+	if (dto.name !== undefined) {
+		const name = validateDepartmentName(dto.name);
 
-		if (dept_name !== existing.dept_name) {
+		if (name !== existing.name) {
 			// Uniqueness check for new name
-			const duplicate = await departmentDao.findByName(dept_name);
+			const duplicate = await departmentDao.findByName(name);
 			if (duplicate) {
-				throw new ValidationError('dept_name', `Department name "${dept_name}" already exists`);
+				throw new ValidationError('name', `Department name "${name}" already exists`);
 			}
 		}
-		updateData.dept_name = dept_name;
+		updateData.name = name;
 	}
 
 	if (dto.status !== undefined) {
