@@ -1253,11 +1253,9 @@
 								{#if !formAttendanceSourceCuid}
 									<span class="text-muted-foreground truncate select-none">Select Source</span>
 								{:else}
-									<div class="flex items-center gap-1.5 overflow-hidden min-w-0">
-										<span class="inline-flex items-center bg-[#262626] text-white dark:bg-neutral-200 dark:text-[#262626] text-xs font-medium px-2 py-0.5 rounded-sm border border-border/20 truncate max-w-[140px] select-none h-6">
-											{modalSourceOptions.find(o => o.id === formAttendanceSourceCuid)?.label || 'Select Source'}
-										</span>
-									</div>
+									<span class="truncate pr-2">
+										{modalSourceOptions.find(o => o.id === formAttendanceSourceCuid)?.label || 'Select Source'}
+									</span>
 								{/if}
 							</div>
 
