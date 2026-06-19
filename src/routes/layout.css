@@ -468,36 +468,28 @@
 	box-sizing: border-box;
 }
 
-/* Scrollbar inside sidebar */
-.sidebar-nav::-webkit-scrollbar {
-	width: 4px;
-}
-.sidebar-nav::-webkit-scrollbar-track {
-	background: transparent;
-}
-.sidebar-nav::-webkit-scrollbar-thumb {
-	background: rgba(255,255,255,0.1);
-	border-radius: 2px;
+/* ============================================================
+   GLOBAL SCROLLBAR THEME
+   ============================================================ */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: #d4d4d4 transparent;
 }
 
-/* Custom scrollbar for modals to merge with modal body */
-.custom-scrollbar::-webkit-scrollbar {
+::-webkit-scrollbar {
 	width: 6px;
 	height: 6px;
 }
-.custom-scrollbar::-webkit-scrollbar-track {
+
+::-webkit-scrollbar-track {
 	background: transparent;
 }
-.custom-scrollbar::-webkit-scrollbar-thumb {
-	background: rgba(0, 0, 0, 0.15);
-	border-radius: 9999px;
+
+::-webkit-scrollbar-thumb {
+	background: #d4d4d4;
+	border-radius: 999px;
 }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb {
-	background: rgba(255, 255, 255, 0.15);
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-	background: rgba(0, 0, 0, 0.3);
-}
-.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-	background: rgba(255, 255, 255, 0.3);
+
+::-webkit-scrollbar-thumb:hover {
+	background: #F45310;
 }
