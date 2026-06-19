@@ -6,6 +6,9 @@
 	import Toaster from '$lib/components/ui/toaster.svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
+	import { beforeNavigate, goto } from '$app/navigation';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
+	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 	import Building2Icon from '@lucide/svelte/icons/building-2';
 	import MenuIcon from '@lucide/svelte/icons/menu';
 	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
@@ -22,10 +25,33 @@
 	import MapPinIcon from '@lucide/svelte/icons/map-pin';
 	import ClockIcon from '@lucide/svelte/icons/clock';
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
+	import CalendarCogIcon from '@lucide/svelte/icons/calendar-cog';
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
 
 	let { children, data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);
 	let isSidebarCollapsed = $state(false);
+
+	let showGlobalUnsavedModal = $state(false);
+	let pendingNavigationUrl = $state('');
+
+	beforeNavigate(({ to, cancel }) => {
+		if ($globalIsDirty) {
+			cancel();
+			if (to?.url) {
+				pendingNavigationUrl = to.url.pathname + to.url.search;
+				showGlobalUnsavedModal = true;
+			}
+		}
+	});
+
+	function confirmGlobalLeave() {
+		$globalIsDirty = false;
+		showGlobalUnsavedModal = false;
+		if (pendingNavigationUrl) {
+			goto(pendingNavigationUrl);
+		}
+	}
 
 	const protectedNavItems = [
 		{ label: 'Dashboard', href: resolve('/dashboard'), icon: LayoutDashboardIcon },
@@ -37,6 +63,9 @@
 		{ label: 'Locations', href: resolve('/organization_locations'), icon: MapPinIcon },
 		{ label: 'Leave Management', href: resolve('/leaves'), icon: CalendarIcon },
 		{ label: 'Salary Components', href: resolve('/salary-components'), icon: WalletIcon },
+		{ label: 'Leave Types', href: resolve('/leave-types'), icon: CalendarCogIcon },
+		{ label: 'Leave Policies', href: resolve('/leave-policies'), icon: ShieldCheckIcon },
+		{ label: 'Holiday Calendar', href: resolve('/holidays'), icon: CalendarIcon },
 		{ label: 'System Roles', href: resolve('/system-roles'), icon: ShieldCheckIcon },
 		{ label: 'Permissions', href: resolve('/permissions'), icon: KeyRoundIcon },
 		{ label: 'Role Permissions', href: resolve('/role-permissions'), icon: LinkIcon }
@@ -73,6 +102,7 @@
 	<aside
 		class={`sticky top-0 h-screen z-30 flex shrink-0 flex-col border-r border-[#737373]/25 bg-[#262626] text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
 		aria-label="Primary navigation"
+		data-sveltekit-preload-data="off"
 	>
 		<div class={`flex h-16 items-center border-b border-white/10 transition-all ${isSidebarCollapsed ? 'justify-center gap-2 px-2' : 'justify-between px-6'}`}>
 			{#if !isSidebarCollapsed}
@@ -120,7 +150,7 @@
 				{/each}
 			{:else}
 				<Button
-					href={resolve('/auth/signin')}
+					href={resolve('/')}
 					variant="ghost"
 					class={`h-10 justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 					title={isSidebarCollapsed ? 'Sign in' : undefined}
@@ -174,4 +204,12 @@
 	</main>
 </div>
 
-<ConfirmationModal />
+<ConfirmModal 
+	open={showGlobalUnsavedModal} 
+	title="Cancel Changes" 
+	description="Are you sure you want to cancel? All unsaved changes will be lost." 
+	cancelLabel="Keep Editing" 
+	confirmLabel="Cancel" 
+	onCancel={() => showGlobalUnsavedModal = false} 
+	onConfirm={confirmGlobalLeave} 
+/>

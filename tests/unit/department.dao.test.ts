@@ -30,6 +30,7 @@ describe('Department DAO', () => {
 
 			expect(db.department.findMany).toHaveBeenCalledWith({
 				orderBy: { name: 'asc' }
+				orderBy: { name: 'asc' }
 			});
 			expect(result).toBe(mockData);
 		});
@@ -42,7 +43,7 @@ describe('Department DAO', () => {
 
 	describe('findByCuid2', () => {
 		it('should call db.department.findUnique with correct cuid', async () => {
-			const mockData = { id: 1, cuid: 'abc1234' };
+			const mockData = { id: 1n, cuid: 'abc1234' };
 			vi.mocked(db.department.findUnique).mockResolvedValue(mockData as never);
 
 			const result = await departmentDao.findByCuid2('abc1234');
@@ -70,6 +71,7 @@ describe('Department DAO', () => {
 			expect(db.department.findFirst).toHaveBeenCalledWith({
 				where: {
 					name: {
+					name: {
 						equals: 'human resources',
 						mode: 'insensitive'
 					}
@@ -90,6 +92,7 @@ describe('Department DAO', () => {
 			expect(db.department.create).toHaveBeenCalledWith({
 				data: {
 					name: 'New Dept',
+					name: 'New Dept',
 					status: true
 				}
 			});
@@ -104,6 +107,7 @@ describe('Department DAO', () => {
 
 			expect(db.department.create).toHaveBeenCalledWith({
 				data: {
+					name: 'Old Dept',
 					name: 'Old Dept',
 					status: false
 				}
@@ -128,7 +132,7 @@ describe('Department DAO', () => {
 
 		it('should only update fields provided in data', async () => {
 			const data = { status: false };
-			vi.mocked(db.department.update).mockResolvedValue({ id: 1, status: false } as never);
+			vi.mocked(db.department.update).mockResolvedValue({ id: 1n, status: false } as never);
 
 			await departmentDao.update('xyz', data);
 

@@ -56,6 +56,7 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
 
   const allowedKeys = [
     'name',
+    'name',
     'address_line1',
     'address_line2',
     'city',
@@ -72,15 +73,19 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
 
   // name
   if (raw.name === undefined || raw.name === null) {
+  // name
+  if (raw.name === undefined || raw.name === null) {
     const err: any = new Error('Company Location name is required');
     err.status = 400;
     throw err;
   }
   if (typeof raw.name !== 'string') {
+  if (typeof raw.name !== 'string') {
     const err: any = new Error('Company Location name must be a string');
     err.status = 400;
     throw err;
   }
+  const name = raw.name.trim();
   const name = raw.name.trim();
   if (name.length === 0) {
     const err: any = new Error('Company Location name is required');
@@ -330,6 +335,7 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
 
   return {
     name: name,
+    name: name,
     address_line1: address1,
     address_line2: address2,
     city: city,
@@ -357,6 +363,7 @@ export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDT
   const raw = payload as Record<string, unknown>;
   const allowedKeys = [
     'name',
+    'name',
     'address_line1',
     'address_line2',
     'city',
@@ -376,17 +383,21 @@ export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDT
 
   if (raw.name !== undefined) {
     if (raw.name === null) {
+  if (raw.name !== undefined) {
+    if (raw.name === null) {
       const err: any = new Error('Company Location name must be a string');
       err.status = 400;
       throw err;
     }
 
     if (typeof raw.name !== 'string') {
+    if (typeof raw.name !== 'string') {
       const err: any = new Error('Company Location name must be a string');
       err.status = 400;
       throw err;
     }
 
+    const name = raw.name.trim();
     const name = raw.name.trim();
 
     if (name.length === 0) {
@@ -444,6 +455,7 @@ export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDT
       throw err;
     }
 
+    result.name = name;
     result.name = name;
   }
 
@@ -630,6 +642,7 @@ export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDT
       err.status = 400;
       throw err;
     }
+    result.status = raw.status;
     result.status = raw.status;
   }
 

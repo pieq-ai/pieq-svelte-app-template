@@ -13,6 +13,7 @@
     createState,
   } from "$lib/api/locations";
   import { ApiError } from "$lib/api/local";
+  import LocationModal from "$lib/components/organization_locations/LocationModal.svelte";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import LoaderCircleIcon from "@lucide/svelte/icons/loader-circle";
   import ArrowUpIcon from "@lucide/svelte/icons/arrow-up";
@@ -397,6 +398,7 @@
     latitudeError = "";
     longitudeError = "";
     dirtyChecker.snapshot({
+      name: loc.name,
       name: loc.name,
       address_line1: loc.address_line1 ?? "",
       address_line2: loc.address_line2 ?? "",
@@ -1135,7 +1137,6 @@
       class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
       onclick={openCreate}
     >
-      <PlusIcon class="size-4" />
       Add Location
     </Button>
   </div>
@@ -1383,7 +1384,6 @@
 <CrudModal
   open={showForm}
   title={editLocation ? 'Edit Location' : 'Create Location'}
-  isDirty={isDirty}
   isSubmitting={formLoading}
   onClose={attemptCloseForm}
 >
@@ -1424,10 +1424,10 @@
       </div>
 
       <div class="space-y-2">
-        <Label for="location_name">Location Name <span class="text-destructive">*</span></Label>
+        <Label for="name">Location Name <span class="text-destructive">*</span></Label>
         <Input
-          id="location_name"
-          name="location_name"
+          id="name"
+          name="name"
           bind:value={formName}
           class={formError || nameError ? 'border-destructive' : ''}
           placeholder="e.g. Chennai - HQ"
@@ -1543,7 +1543,6 @@
                 onclick={openAddCountryModal}
                 class="cursor-pointer font-medium text-[#F45310] hover:text-[#F45310]/90 focus:text-[#F45310]"
               >
-                <PlusIcon class="mr-2 size-4" />
                 Add Country
               </DropdownMenu.Item>
             </DropdownMenu.Content>
@@ -1593,7 +1592,6 @@
                 disabled={!formCountryCuid}
                 class="cursor-pointer font-medium text-[#F45310] hover:text-[#F45310]/90 focus:text-[#F45310] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <PlusIcon class="mr-2 size-4" />
                 Add State
               </DropdownMenu.Item>
             </DropdownMenu.Content>
@@ -1667,7 +1665,6 @@
 <CrudModal
   open={showAddCountry}
   title="Add Country"
-  isDirty={newCountryName.trim() !== ""}
   isSubmitting={addCountryLoading}
   onClose={() => { showAddCountry = false; newCountryName = ""; addCountryError = ""; }}
 >
@@ -1680,7 +1677,7 @@
           name="new_country_name"
           bind:value={newCountryName}
           class={addCountryError ? 'border-destructive' : ''}
-          placeholder="e.g. India"
+          placeholder="Enter country name"
           oninput={() => { addCountryError = ''; }}
         />
         {#if addCountryError}
@@ -1700,7 +1697,6 @@
 <CrudModal
   open={showAddState}
   title="Add State"
-  isDirty={newStateName.trim() !== ""}
   isSubmitting={addStateLoading}
   onClose={() => { showAddState = false; newStateName = ""; addStateError = ""; }}
 >
@@ -1713,7 +1709,7 @@
           name="new_state_name"
           bind:value={newStateName}
           class={addStateError ? 'border-destructive' : ''}
-          placeholder="e.g. Tamil Nadu"
+          placeholder="Enter state name"
           oninput={() => { addStateError = ''; }}
         />
         {#if addStateError}
@@ -1729,3 +1725,5 @@
     </form>
   {/snippet}
 </CrudModal>
+
+<LocationModal bind:open={showForm} {editLocation} onSuccess={fetchLocations} />

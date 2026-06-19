@@ -2,6 +2,7 @@
 export interface CompanyLocation {
   cuid: string;
   name: string;
+  name: string;
   address_line1: string;
   address_line2?: string | null;
   city: string;
@@ -20,6 +21,7 @@ export interface CompanyLocation {
 
 export interface CompanyLocationCreateDTO {
   name: string;
+  name: string;
   address_line1?: string;
   address_line2?: string | null;
   city?: string;
@@ -34,6 +36,7 @@ export interface CompanyLocationCreateDTO {
 }
 
 export interface CompanyLocationUpdateDTO {
+  name?: string;
   name?: string;
   address_line1?: string;
   address_line2?: string | null;

@@ -16,6 +16,7 @@
 	interface SystemRole {
 		cuid: string;
 		name: string;
+		name: string;
 		status: boolean;
 	}
 
@@ -47,13 +48,35 @@
 	let isLoading = $state(true);
 	let loadError = $state('');
 	let searchQuery = $state('');
+	let debouncedSearchQuery = $state('');
 	let assignmentKeys = $state<string[]>([]);
 	let pendingKeys = $state<string[]>([]);
+
+	let searchTimer: ReturnType<typeof setTimeout>;
+	$effect(() => {
+		clearTimeout(searchTimer);
+		const currentQuery = searchQuery;
+		searchTimer = setTimeout(() => {
+			debouncedSearchQuery = currentQuery;
+		}, 300);
+	});
 
 	let activeRoles = $derived(data.roles.filter((role) => role.status === true));
 	let activePermissions = $derived(
 		data.permissions.filter((permission) => permission.status === true)
 	);
+	let matchedRoles = $derived(
+		debouncedSearchQuery.trim()
+			? activeRoles.filter(r => r.name.toLowerCase().includes(debouncedSearchQuery.trim().toLowerCase()))
+			: activeRoles
+	);
+
+	let matchedPermissions = $derived(
+		debouncedSearchQuery.trim()
+			? activePermissions.filter(p => p.permission_key.toLowerCase().includes(debouncedSearchQuery.trim().toLowerCase()))
+			: activePermissions
+	);
+
 	let filteredRoles = $derived.by(() => {
 		const query = searchQuery.trim().toLowerCase();
 		if (!query) return activeRoles;
@@ -63,11 +86,9 @@
 	});
 
 	let filteredPermissions = $derived.by(() => {
-		const query = searchQuery.trim().toLowerCase();
-		if (!query) return activePermissions;
-		return activePermissions.filter((permission) =>
-			permission.permission_key.toLowerCase().includes(query)
-		);
+		if (!debouncedSearchQuery.trim()) return activePermissions;
+		if (matchedPermissions.length === 0 && matchedRoles.length > 0) return activePermissions;
+		return matchedPermissions;
 	});
 
 	function assignmentKey(roleCuid: string, permissionCuid: string) {
@@ -86,7 +107,7 @@
 		isLoading = true;
 		loadError = '';
 		try {
-			const response = await fetch(`/api/role-permissions?t=${Date.now()}`);
+			const response = await fetch('/api/role-permissions');
 			const body = await response.json();
 			if (response.ok) {
 				data = body.data;
@@ -188,6 +209,7 @@
 							</th>
 							{#each filteredRoles as role (role.cuid)}
 								<th class="min-w-40 border-l border-white/10 px-4 py-3 text-center font-semibold">
+									{role.name}
 									{role.name}
 								</th>
 							{/each}

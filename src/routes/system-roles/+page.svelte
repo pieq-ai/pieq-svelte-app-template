@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
-	import PlusIcon from '@lucide/svelte/icons/plus';
 
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import { toast } from '$lib/toast';
-	import { createDirtyChecker } from '$lib/utils';
+	import {  createDirtyChecker  } from '$lib/utils';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import {
 		Alert,
@@ -39,6 +39,7 @@
 	interface SystemRole {
 		cuid: string;
 		name: string;
+		name: string;
 		status: boolean;
 	}
 
@@ -55,6 +56,7 @@
 	let statusFilter = $state<'all' | boolean>('all');
 	
 	let sortColumn = $state('name');
+	let sortColumn = $state('name');
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -68,9 +70,11 @@
 	let isNameTouched = $state(false);
 	let backendError = $state('');
 	let roleNameInput = $state<HTMLInputElement | null>(null);
+	let showConfirmClose = $state(false);
 
 	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ name: roleName.trim(), status: roleStatus }));
+	$effect(() => { $globalIsDirty = isDirty; });
 
 	let itemToDelete = $state<SystemRole | null>(null);
 	let isDeleting = $state(false);
@@ -88,6 +92,7 @@
 		let result = [...roles];
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
+			result = result.filter((role) => role.name.toLowerCase().includes(query));
 			result = result.filter((role) => role.name.toLowerCase().includes(query));
 		}
 		if (statusFilter !== 'all') {
@@ -153,17 +158,29 @@
 		isNameTouched = false;
 		backendError = '';
 		dirtyChecker.snapshot({ name: '', status: true });
+		dirtyChecker.snapshot({ name: '', status: true });
 		isModalOpen = true;
 	}
 
 	function openEditModal(role: SystemRole) {
 		editingRole = role;
 		roleName = role.name;
+		roleName = role.name;
 		roleStatus = role.status;
 		isNameTouched = false;
 		backendError = '';
 		dirtyChecker.snapshot({ name: role.name, status: role.status });
+		dirtyChecker.snapshot({ name: role.name, status: role.status });
 		isModalOpen = true;
+	}
+
+	function handleClose() {
+		if (isDirty) {
+			showConfirmClose = true;
+		} else {
+			isModalOpen = false;
+			$globalIsDirty = false;
+		}
 	}
 
 	async function saveRole(event: Event) {
@@ -191,6 +208,7 @@
 				await loadRoles();
 				toast.success(editingRole ? 'System role updated successfully.' : 'System role created successfully.');
 				isModalOpen = false;
+		$globalIsDirty = false;
 			} else if (response.status === 409 && body.field === 'name') {
 				backendError = body.error;
 				roleNameInput?.focus();
@@ -238,7 +256,6 @@
 		</div>
 		{#if permissions.canCreate}
 			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={openCreateModal}>
-				<PlusIcon class="size-4" />
 				Add Role
 			</Button>
 		{/if}
@@ -341,9 +358,8 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingRole ? 'Edit System Role' : 'Create System Role'}
-	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => (isModalOpen = false)}
+	onClose={handleClose}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={saveRole}>
@@ -383,4 +399,20 @@
 	isSubmitting={isDeleting}
 	onCancel={() => (itemToDelete = null)}
 	onConfirm={confirmDelete}
+/>
+
+<ConfirmModal
+	open={showConfirmClose}
+	title="Unsaved Changes"
+	description="You have unsaved changes. Are you sure you want to close this modal?"
+	confirmLabel="Cancel"
+	cancelLabel="Keep Editing"
+	onConfirm={() => {
+		showConfirmClose = false;
+		isModalOpen = false;
+		$globalIsDirty = false;
+	}}
+	onCancel={() => {
+		showConfirmClose = false;
+	}}
 />

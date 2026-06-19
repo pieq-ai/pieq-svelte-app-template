@@ -1,117 +1,115 @@
 import { db } from '$lib/server/db.js';
 
-export interface CreateEmployeeData {
-	name: string;
-	age: number;
+export interface CreateEmployeeInput {
+	emp_code: string;
+	first_name: string;
+	last_name: string;
+	father_name?: string | null;
+	dob?: Date | null;
+	gender?: string | null;
+	marital_status?: string | null;
+	blood_group_cuid?: string | null;
+	nationality_cuid?: string | null;
+	mobile_no?: string | null;
+	personal_email?: string | null;
+	aadhar_no?: string | null;
+	pan_no?: string | null;
+	uan_no?: string | null;
+	esi_no?: string | null;
+	emergency_contact_name?: string | null;
+	emergency_contact_no?: string | null;
+	relation_cuid?: string | null;
+	remarks?: string | null;
+	profile_completion_status?: string;
+	created_by?: string;
 }
 
-export interface EmployeeCompatibility {
-	uuid: string;
-	name: string;
-	age: number;
-	id: bigint;
+export interface UpdateEmployeeInput extends Partial<CreateEmployeeInput> {
+	updated_by?: string;
 }
 
-function calculateAge(dob: Date | null): number {
-	if (!dob) return 30;
-	const today = new Date();
-	let age = today.getFullYear() - dob.getFullYear();
-	const m = today.getMonth() - dob.getMonth();
-	if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-		age--;
-	}
-	return age;
-}
-
-export async function list(): Promise<EmployeeCompatibility[]> {
-	const dbEmployees = await db.employee.findMany({
-		orderBy: { id: 'asc' }
+export async function list() {
+	return db.employee.findMany({
+        where: { is_deleted: false },
+		orderBy: { emp_code: 'asc' }
 	});
-	return dbEmployees.map((emp) => ({
-		id: emp.id,
-		uuid: emp.cuid,
-		name: `${emp.first_name} ${emp.last_name}`.trim(),
-		age: calculateAge(emp.dob)
-	}));
 }
 
-export async function create(data: CreateEmployeeData): Promise<EmployeeCompatibility> {
-	const parts = data.name.trim().split(/\s+/);
-	const first_name = parts[0] || 'Unknown';
-	const last_name = parts.slice(1).join(' ') || 'Employee';
-	const emp_code = `EMP-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-	
-	const today = new Date();
-	const birthYear = today.getFullYear() - data.age;
-	const dob = new Date(birthYear, 0, 1);
+export async function findByCuid2(cuid: string) {
+	return db.employee.findFirst({
+		where: { cuid, is_deleted: false }
+	});
+}
 
-	const created = await db.employee.create({
+export async function findByEmpCode(emp_code: string) {
+	return db.employee.findFirst({
+		where: { emp_code, is_deleted: false }
+	});
+}
+
+export async function getLatestEmployeeCode() {
+    const latest = await db.employee.findFirst({
+        where: {
+            emp_code: {
+                startsWith: 'PQ'
+            }
+            // we do NOT filter by is_deleted here because we don't want to reuse deleted codes
+        },
+        orderBy: {
+            emp_code: 'desc'
+        },
+        select: {
+            emp_code: true
+        }
+    });
+    return latest?.emp_code || null;
+}
+
+export async function findByEmail(email: string) {
+	return db.employee.findFirst({
+		where: { personal_email: email, is_deleted: false }
+	});
+}
+
+export async function findByMobile(mobile_no: string) {
+	return db.employee.findFirst({
+		where: { mobile_no, is_deleted: false }
+	});
+}
+
+export async function findByAadhar(aadhar_no: string) {
+	return db.employee.findFirst({
+		where: { aadhar_no, is_deleted: false }
+	});
+}
+
+export async function findByPan(pan_no: string) {
+	return db.employee.findFirst({
+		where: { pan_no, is_deleted: false }
+	});
+}
+
+export async function create(data: CreateEmployeeInput) {
+	return db.employee.create({
 		data: {
-			emp_code,
-			first_name,
-			last_name,
-			dob,
-			profile_completion_status: 'pending'
+			...data,
+			profile_completion_status: data.profile_completion_status ?? 'pending'
 		}
 	});
-
-	return {
-		id: created.id,
-		uuid: created.cuid,
-		name: `${created.first_name} ${created.last_name}`.trim(),
-		age: calculateAge(created.dob)
-	};
 }
 
-export async function getEmployeeByCuid(cuid: string, tx?: any): Promise<any> {
-	const client = tx || db;
-	return client.employee.findUnique({
-		where: { cuid }
+export async function update(cuid: string, data: UpdateEmployeeInput) {
+	return db.employee.update({
+		where: { cuid },
+		data
 	});
 }
 
-export async function getEmployeeByPersonalEmail(email: string, tx?: any): Promise<any> {
-	const client = tx || db;
-	return client.employee.findFirst({
-		where: { personal_email: email }
-	});
-}
-
-export async function getFirstEmployee(tx?: any): Promise<any> {
-	const client = tx || db;
-	return client.employee.findFirst({
-		orderBy: { id: 'asc' }
-	});
-}
-
-export async function getActiveEmploymentByOfficialEmail(email: string, tx?: any): Promise<any> {
-	const client = tx || db;
-	return client.employment.findFirst({
-		where: { official_email: email, employment_status: 'active' }
-	});
-}
-
-export async function getFirstEmployment(tx?: any): Promise<any> {
-	const client = tx || db;
-	return client.employment.findFirst({
-		orderBy: { id: 'asc' }
-	});
-}
-
-export async function getActiveEmployeesWithEmployment(tx?: any): Promise<any[]> {
-	const client = tx || db;
-	return client.employee.findMany({
-		where: {
-			employments: {
-				some: { employment_status: 'active' }
-			}
-		},
-		include: {
-			employments: {
-				where: { employment_status: 'active' }
-			}
-		}
-	});
+export async function remove(cuid: string) {
+    return db.employee.update({
+        where: { cuid },
+        data: { is_deleted: true }
+    });
 }
 
 export async function getEmployeesByCuids(cuids: string[], tx?: any): Promise<any[]> {
@@ -126,4 +124,4 @@ export async function getEmployeeByEmpCode(empCode: string, tx?: any): Promise<a
 	return client.employee.findFirst({
 		where: { emp_code: empCode }
 	});
-}
+}

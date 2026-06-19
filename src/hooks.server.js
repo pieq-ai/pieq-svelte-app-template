@@ -2,10 +2,12 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { redirect } from '@sveltejs/kit';
 import { handle as authHandle } from '$lib/server/auth.js';
 
-// Add global BigInt JSON serialization support
-BigInt.prototype.toJSON = function () {
-	return this.toString();
-};
+
+if (typeof BigInt !== 'undefined') {
+	BigInt.prototype.toJSON = function () {
+		return this.toString();
+	};
+}
 
 /** @type {import('@sveltejs/kit').Handle} */
 const injectLocals = async ({ event, resolve }) => {
@@ -56,9 +58,7 @@ const routeGuard = async ({ event, resolve }) => {
 	const protectedRoutes = [
 		'/employees',
 		'/departments',
-		'/department',
 		'/designations',
-		'/designation',
 		'/system-roles',
 		'/permissions',
 		'/role-permissions',
@@ -68,8 +68,7 @@ const routeGuard = async ({ event, resolve }) => {
 		'/shifts',
 		'/organization_locations',
 		'/organization_location',
-		'/settings',
-		'/leaves'
+		'/settings'
 	];
 	const isProtectedRoute = protectedRoutes.some(
 		(path) => event.url.pathname === path || event.url.pathname.startsWith(`${path}/`)
@@ -77,10 +76,10 @@ const routeGuard = async ({ event, resolve }) => {
 
 	if (isProtectedRoute && !event.locals.user) {
 		const callbackUrl = encodeURIComponent(event.url.pathname + event.url.search);
-		redirect(303, `/auth/signin?callbackUrl=${callbackUrl}`);
+		redirect(303, `/?callbackUrl=${callbackUrl}`);
 	}
 
-	if (event.url.pathname === '/auth/signin' && event.locals.user) {
+	if (event.url.pathname === '/' && event.locals.user) {
 		redirect(303, '/dashboard');
 	}
 
@@ -89,15 +88,6 @@ const routeGuard = async ({ event, resolve }) => {
 
 /** @type {import('@sveltejs/kit').Handle} */
 const customAuthHandle = async ({ event, resolve }) => {
-	// Intercept sign-out to clear mock cookie in development mode
-	if (event.url.pathname === '/auth/signout' && event.request.method === 'POST') {
-		const mockEmail = event.cookies.get('mock-user-email');
-		if (mockEmail) {
-			event.cookies.delete('mock-user-email', { path: '/' });
-			redirect(303, '/');
-		}
-	}
-
 	// Root Cause Fix: Bypass Auth.js interception for the custom sign-in page.
 	// If we don't, Auth.js intercepts /auth/signin and infinitely redirects to itself.
 	if (event.url.pathname === '/auth/signin' && event.request.method === 'GET') {
@@ -125,8 +115,8 @@ const errorHandler = async ({ event, resolve }) => {
 		try {
 			const cloned = response.clone();
 			const json = await cloned.json();
-			const rawError = json.error || json.message || '';
-			const field = json.field;
+			const rawError = json.data?.error || json.error || json.message || '';
+			const field = json.data?.field || json.field;
 
 			const isDatabaseError = typeof rawError === 'string' && (
 				rawError.toLowerCase().includes('prisma') ||
@@ -164,9 +154,7 @@ const errorHandler = async ({ event, resolve }) => {
 					data: {
 						error: sanitizedMessage,
 						field: actualField
-					},
-					error: sanitizedMessage,
-					field: actualField
+					}
 				}),
 				{
 					status,
@@ -183,4 +171,4 @@ const errorHandler = async ({ event, resolve }) => {
 	return response;
 };
 
-export const handle = sequence(customAuthHandle, injectLocals, routeGuard, errorHandler);
+export const handle = sequence(authHandle, injectLocals, routeGuard, errorHandler);

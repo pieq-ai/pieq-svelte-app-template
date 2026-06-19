@@ -94,6 +94,7 @@ export function validateCreatePayload(payload: unknown): RoleCreateDTO {
 
   const raw = payload as Record<string, unknown>;
   rejectUnknownKeys(raw, ['name', 'created_by', 'updated_by']);
+  rejectUnknownKeys(raw, ['name', 'created_by', 'updated_by']);
 
   if (raw.name === undefined || raw.name === null) {
     const err: any = new Error('Role name is required');
@@ -117,6 +118,7 @@ export function validateUpdatePayload(payload: unknown): RoleUpdateDTO {
   }
 
   const raw = payload as Record<string, unknown>;
+  rejectUnknownKeys(raw, ['name', 'status', 'created_by', 'updated_by']);
   rejectUnknownKeys(raw, ['name', 'status', 'created_by', 'updated_by']);
 
   const result: RoleUpdateDTO = {};

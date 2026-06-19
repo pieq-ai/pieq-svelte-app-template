@@ -5,12 +5,12 @@
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
-	import PlusIcon from '@lucide/svelte/icons/plus';
 	import FilterIcon from '@lucide/svelte/icons/filter';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import { toast } from '$lib/toast';
-	import { createDirtyChecker } from '$lib/utils';
+	import {  createDirtyChecker  } from '$lib/utils';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { UI_CONSTANTS } from '$lib/constants';
 
 	import {
@@ -33,7 +33,8 @@
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
-		SearchInput
+		SearchInput,
+		ConfirmModal
 	} from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
@@ -42,6 +43,17 @@
 		SalaryComponentType
 	} from '$lib/types/salary-component';
 	import { validateComponentName } from '$lib/validators/salary-component';
+
+	let showConfirmClose = $state(false);
+
+	function handleClose() {
+		if (isDirty) {
+			showConfirmClose = true;
+		} else {
+			isModalOpen = false;
+			$globalIsDirty = false;
+		}
+	}
 
 	let componentsList = $state<SalaryComponent[]>([]);
 	let isLoading = $state(true);
@@ -82,6 +94,7 @@
 			is_active: formIsActive
 		})
 	);
+	$effect(() => { $globalIsDirty = isDirty; });
 
 	let filteredComponents = $derived.by(() => {
 		let result = [...componentsList];
@@ -232,6 +245,7 @@
 				await loadComponents();
 				toast.success(editingComp ? 'Salary Component updated successfully' : 'Salary Component created successfully');
 				isModalOpen = false;
+		$globalIsDirty = false;
 			} else {
 				if (response.status === 400 || response.status === 409) {
 					backendError = resData.message || resData.error || 'Validation failed';
@@ -263,7 +277,6 @@
 			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
 			onclick={openCreateModal}
 		>
-			<PlusIcon class="size-4" />
 			Add Component
 		</Button>
 	</div>
@@ -422,17 +435,16 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingComp ? 'Edit Salary Component' : 'Create Salary Component'}
-	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => (isModalOpen = false)}
+	onClose={handleClose}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-4" onsubmit={handleSaveComponent}>
 			<div class="space-y-2">
-				<Label for="component_name">Component Name</Label>
+				<Label for="name">Component Name</Label>
 				<Input
-					id="component_name"
-					name="component_name"
+					id="name"
+					name="name"
 					bind:ref={nameInput}
 					bind:value={formName}
 					class={backendError ? 'border-destructive focus-visible:ring-destructive/30' : ''}
@@ -497,3 +509,19 @@
 		</form>
 	{/snippet}
 </CrudModal>
+
+<ConfirmModal
+	open={showConfirmClose}
+	title="Unsaved Changes"
+	description="You have unsaved changes. Are you sure you want to close this modal?"
+	confirmLabel="Cancel"
+	cancelLabel="Keep Editing"
+	onConfirm={() => {
+		showConfirmClose = false;
+		isModalOpen = false;
+		$globalIsDirty = false;
+	}}
+	onCancel={() => {
+		showConfirmClose = false;
+	}}
+/>

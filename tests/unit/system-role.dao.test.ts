@@ -23,7 +23,7 @@ describe('System Role DAO', () => {
 
 	describe('list', () => {
 		it('should call db.systemRoles.findMany with order by name', async () => {
-			const mockData = [{ id: 1, name: 'Admin' }];
+			const mockData = [{ id: 1n, name: 'Admin' }];
 			vi.mocked(db.systemRoles.findMany).mockResolvedValue(mockData as any);
 
 			const result = await systemRoleDao.list();
@@ -37,13 +37,13 @@ describe('System Role DAO', () => {
 
 	describe('findById', () => {
 		it('should call db.systemRoles.findUnique with correct id', async () => {
-			const mockData = { id: 1, name: 'Admin' };
+			const mockData = { id: 1n, name: 'Admin' };
 			vi.mocked(db.systemRoles.findUnique).mockResolvedValue(mockData as any);
 
-			const result = await systemRoleDao.findById(1);
+			const result = await systemRoleDao.findById(1n);
 
 			expect(db.systemRoles.findUnique).toHaveBeenCalledWith({
-				where: { id: 1 }
+				where: { id: 1n }
 			});
 			expect(result).toBe(mockData);
 		});
@@ -51,7 +51,7 @@ describe('System Role DAO', () => {
 
 	describe('findByCuid2', () => {
 		it('should call db.systemRoles.findUnique with correct cuid', async () => {
-			const mockData = { id: 1, cuid: 'abc' };
+			const mockData = { id: 1n, cuid: 'abc' };
 			vi.mocked(db.systemRoles.findUnique).mockResolvedValue(mockData as any);
 
 			const result = await systemRoleDao.findByCuid2('abc');
@@ -66,7 +66,7 @@ describe('System Role DAO', () => {
 	describe('create', () => {
 		it('should create a system role with default true status', async () => {
 			const input = { name: 'Editor' };
-			const mockResult = { id: 1, name: 'Editor', status: true };
+			const mockResult = { id: 1n, name: 'Editor', status: true };
 			vi.mocked(db.systemRoles.create).mockResolvedValue(mockResult as any);
 
 			const result = await systemRoleDao.create(input);
@@ -82,7 +82,7 @@ describe('System Role DAO', () => {
 
 		it('should create a system role with provided status', async () => {
 			const input = { name: 'Editor', status: false };
-			vi.mocked(db.systemRoles.create).mockResolvedValue({ ...input, id: 1 } as any);
+			vi.mocked(db.systemRoles.create).mockResolvedValue({ ...input, id: 1n } as any);
 
 			await systemRoleDao.create(input);
 
@@ -98,13 +98,13 @@ describe('System Role DAO', () => {
 	describe('update', () => {
 		it('should update system role with provided data by id', async () => {
 			const data = { name: 'Super Admin', status: false };
-			const mockResult = { id: 1, ...data };
+			const mockResult = { id: 1n, ...data };
 			vi.mocked(db.systemRoles.update).mockResolvedValue(mockResult as any);
 
-			const result = await systemRoleDao.update(1, data);
+			const result = await systemRoleDao.update(1n, data);
 
 			expect(db.systemRoles.update).toHaveBeenCalledWith({
-				where: { id: 1 },
+				where: { id: 1n },
 				data
 			});
 			expect(result).toBe(mockResult);

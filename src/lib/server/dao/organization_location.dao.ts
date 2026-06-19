@@ -10,12 +10,12 @@ export async function createLocation(data: CompanyLocationCreateDTO): Promise<Co
   return db.companyLocation.create({
     data: {
       name: data.name.trim(),
-      address_line1: data.address_line1 !== undefined ? data.address_line1 : '123 Enterprise Way',
+      address_line1: data.address_line1 !== undefined ? data.address_line1 : '',
       address_line2: data.address_line2,
-      city: data.city !== undefined ? data.city : 'Default City',
-      state_cuid: data.state_cuid !== undefined ? data.state_cuid : 'state-cuid-placeholder',
-      country_cuid: data.country_cuid !== undefined ? data.country_cuid : 'country-cuid-placeholder',
-      pin_code: data.pin_code !== undefined ? data.pin_code : '000000',
+      city: data.city !== undefined ? data.city : '',
+      state_cuid: data.state_cuid !== undefined ? data.state_cuid : '',
+      country_cuid: data.country_cuid !== undefined ? data.country_cuid : '',
+      pin_code: data.pin_code !== undefined ? data.pin_code : '',
       timezone: data.timezone !== undefined ? data.timezone : 'UTC',
       latitude: data.latitude,
       longitude: data.longitude,
@@ -25,6 +25,7 @@ export async function createLocation(data: CompanyLocationCreateDTO): Promise<Co
     },
     select: {
       cuid: true,
+      name: true,
       name: true,
       address_line1: true,
       address_line2: true,
@@ -50,9 +51,11 @@ export async function createLocation(data: CompanyLocationCreateDTO): Promise<Co
 export async function getLocations(): Promise<CompanyLocation[]> {
   return db.companyLocation.findMany({
     where: { status: true },
+    where: { status: true },
     orderBy: { id: 'asc' },
     select: {
       cuid: true,
+      name: true,
       name: true,
       address_line1: true,
       address_line2: true,
@@ -80,6 +83,7 @@ export async function getAllLocations(): Promise<CompanyLocation[]> {
     orderBy: { id: 'asc' },
     select: {
       cuid: true,
+      name: true,
       name: true,
       address_line1: true,
       address_line2: true,
@@ -111,6 +115,7 @@ export async function countAllLocations(): Promise<number> {
  */
 export async function countLocations(): Promise<number> {
   return db.companyLocation.count({ where: { status: true } });
+  return db.companyLocation.count({ where: { status: true } });
 }
 
 /**
@@ -121,6 +126,7 @@ export async function getLocationByCuid(cuid: string): Promise<CompanyLocation |
     where: { cuid },
     select: {
       cuid: true,
+      name: true,
       name: true,
       address_line1: true,
       address_line2: true,
@@ -145,6 +151,8 @@ export async function getLocationByCuid(cuid: string): Promise<CompanyLocation |
  */
 export async function updateLocation(cuid: string, data: CompanyLocationUpdateDTO): Promise<CompanyLocation> {
   const updateData: any = {};
+  if (data.name !== undefined) {
+    updateData.name = data.name.trim();
   if (data.name !== undefined) {
     updateData.name = data.name.trim();
   }
@@ -188,6 +196,7 @@ export async function updateLocation(cuid: string, data: CompanyLocationUpdateDT
     select: {
       cuid: true,
       name: true,
+      name: true,
       address_line1: true,
       address_line2: true,
       city: true,
@@ -213,8 +222,10 @@ export async function deactivateLocation(cuid: string): Promise<CompanyLocation>
   return db.companyLocation.update({
     where: { cuid },
     data: { status: false },
+    data: { status: false },
     select: {
       cuid: true,
+      name: true,
       name: true,
       address_line1: true,
       address_line2: true,
@@ -241,8 +252,10 @@ export async function activateLocation(cuid: string): Promise<CompanyLocation> {
   return db.companyLocation.update({
     where: { cuid },
     data: { status: true },
+    data: { status: true },
     select: {
       cuid: true,
+      name: true,
       name: true,
       address_line1: true,
       address_line2: true,

@@ -1,5 +1,6 @@
 export { Button, buttonVariants } from './ui/button/index.js';
 export { Input } from './ui/input/index.js';
+export { Textarea } from './ui/textarea/index.js';
 export { Label } from './ui/label/index.js';
 export { Badge } from './ui/badge/index.js';
 export {
@@ -29,6 +30,7 @@ export { default as CrudModal } from './common/CrudModal.svelte';
 export { default as ConfirmModal } from './common/ConfirmModal.svelte';
 export { default as FilterDropdown } from './common/FilterDropdown.svelte';
 export { default as MasterDataDropdown } from './common/MasterDataDropdown.svelte';
+export { default as DatePicker } from './common/DatePicker.svelte';
 export { default as SearchableDropdown } from './common/SearchableDropdown.svelte';
 export { default as PermissionMatrixCell } from './common/PermissionMatrixCell.svelte';
 export { default as TableActions } from './common/TableActions.svelte';
@@ -38,3 +40,7 @@ export { default as SearchInput } from './common/SearchInput.svelte';
 
 export { default as ConfirmationModal } from './ConfirmationModal.svelte';
 
+
+export { default as MultiSelect } from './ui/multiselect/multiselect.svelte';
+export { default as StatusBadge } from './common/StatusBadge.svelte';
+export { default as Checkbox } from './ui/checkbox/checkbox.svelte';

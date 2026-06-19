@@ -1,6 +1,19 @@
- 
+export function serialize(obj: any, stripId = true): any {
+	if (Array.isArray(obj)) return obj.map((v) => serialize(v, stripId));
+	if (typeof obj === 'bigint') return obj.toString();
+	if (obj === null || typeof obj !== 'object' || obj instanceof Date) return obj;
+
+	const mapped: any = {};
+	for (const [key, value] of Object.entries(obj)) {
+		if (stripId && key === 'id') continue;
+		mapped[key] = serialize(value, stripId);
+	}
+	return mapped;
+}
+
 export function mapToApi(entity: any): any {
 	if (Array.isArray(entity)) return entity.map(mapToApi);
+	if (typeof entity === 'bigint') return entity.toString();
 	if (entity === null || typeof entity !== 'object' || entity instanceof Date) return entity;
 
 	const mapped: any = {};
@@ -33,64 +46,60 @@ export function mapToDb(payload: any): any {
 
 export function toDepartmentDTO(department: any) {
 	if (!department) return department;
-	return {
+	return serialize({
 		cuid: department.cuid,
 		name: department.name,
 		status: department.status
-	};
+	});
 }
 
 export function toDesignationDTO(designation: any) {
 	if (!designation) return designation;
-	return {
+	return serialize({
 		cuid: designation.cuid,
 		name: designation.name,
 		status: designation.status
-	};
+	});
 }
 
 export function toEmployeeDTO(employee: any) {
 	if (!employee) return employee;
-	return {
-		cuid: employee.cuid,
-		name: employee.name,
-		age: employee.age
-	};
+	return serialize(employee, true);
 }
 
 export function toPermissionDTO(permission: any) {
 	if (!permission) return permission;
-	return {
+	return serialize({
 		cuid: permission.cuid,
 		permission_key: permission.permission_key,
 		status: permission.status
-	};
+	});
 }
 
 export function toSystemRoleDTO(systemRole: any) {
 	if (!systemRole) return systemRole;
-	return {
+	return serialize({
 		cuid: systemRole.cuid,
 		name: systemRole.name,
 		status: systemRole.status
-	};
+	});
 }
 
 export function toRolePermissionDTO(mapping: any) {
 	if (!mapping) return mapping;
-	return {
+	return serialize({
 		cuid: mapping.cuid,
 		system_role_cuid: mapping.system_role_cuid,
 		permission_cuid: mapping.permission_cuid
-	};
+	});
 }
 
 export function toMasterDataDTO(masterData: any) {
 	if (!masterData) return masterData;
-	return {
+	return serialize({
 		id: masterData.id,
 		label: masterData.label,
 		master: masterData.master,
 		meta: masterData.meta
-	};
+	}, false);
 }

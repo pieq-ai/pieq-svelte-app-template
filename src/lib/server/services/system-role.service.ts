@@ -3,6 +3,7 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 
 export interface CreateSystemRoleDto {
 	name: string;
+	name: string;
 	status?: boolean;
 	created_by?: string;
 	created_at?: Date | string | null;
@@ -10,6 +11,7 @@ export interface CreateSystemRoleDto {
 }
 
 export interface UpdateSystemRoleDto {
+	name?: string;
 	name?: string;
 	status?: boolean;
 	updated_by?: string;
@@ -19,12 +21,14 @@ export interface UpdateSystemRoleDto {
 function toPublicSystemRole(role: {
 	cuid: string;
 	name: string;
+	name: string;
 	status: boolean;
 	created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
 	return {
 		cuid: role.cuid,
 		name: role.name,
-		status: role.status,
+		status: role.status
+	,
 		created_at: role.created_at,
 		created_by: role.created_by,
 		updated_at: role.updated_at,
@@ -78,21 +82,12 @@ export async function getSystemRoles() {
 	return (await systemRoleDao.list()).map(toPublicSystemRole);
 }
 
-export async function getSystemRoleById(id: bigint | number) {
-	if (typeof id === 'number') {
-		if (!Number.isInteger(id) || id <= 0) {
-			throw new Error('System role ID must be a positive integer');
-		}
-	} else if (typeof id === 'bigint') {
-		if (id <= 0n) {
-			throw new Error('System role ID must be a positive integer');
-		}
-	} else {
+export async function getSystemRoleById(id: bigint) {
+	if (typeof id !== 'bigint' || id <= 0n) {
 		throw new Error('System role ID must be a positive integer');
 	}
 
-	const idVal = typeof id === 'bigint' ? id : BigInt(id);
-	const role = await systemRoleDao.findById(idVal);
+	const role = await systemRoleDao.findById(id);
 	if (!role) {
 		throw new Error(`System role with ID "${id}" not found`);
 	}

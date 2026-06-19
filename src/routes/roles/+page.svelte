@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-
+	
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import { toast } from '$lib/toast';
 	import { createDirtyChecker } from '$lib/utils';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { UI_CONSTANTS } from '$lib/constants';
+	import { localApi, ApiError } from '$lib/api/local';
 
 	import {
 		Badge,
@@ -26,19 +27,19 @@
 		TableHeader,
 		TableRow,
 		ConfirmModal,
-		CrudModal,
 		TableActions,
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
 		SearchInput
 	} from '$lib/components';
-	import type { Role } from '$lib/types/role';
-	import { fetchAllRoles, createRole, updateRole, deleteRole } from '$lib/api/roles';
-	import { ApiError } from '$lib/api/local';
-	import type { PageData } from './$types';
+	import SimpleMasterModal from '$lib/components/common/SimpleMasterModal.svelte';
 
-	let { data }: { data: PageData } = $props();
+	interface Role {
+		cuid: string;
+		name: string;
+		status: boolean;
+	}
 
 	let rolesList = $state<Role[]>(data.roles);
 	let isLoading = $state(false);
@@ -54,9 +55,6 @@
 
 	// Shared Form State
 	let editingRole = $state<Role | null>(null);
-	let roleName = $state('');
-	let roleStatus = $state<boolean>(true);
-	let isSubmitting = $state(false);
 	let isModalOpen = $state(false);
 	let isNameTouched = $state(false);
 	let backendError = $state('');
@@ -69,31 +67,12 @@
 	let itemToDelete = $state<Role | null>(null);
 	let isDeleting = $state(false);
 
-	function getValidationError(name: string): string {
-		const trimmed = name.trim();
-		if (trimmed === '') {
-			return 'Role name is required';
-		}
-		if (trimmed.length < 2) {
-			return 'Minimum 2 characters required';
-		}
-		if (trimmed.length > 255) {
-			return 'Maximum 255 characters allowed';
-		}
-		const regex = /^[A-Za-z\s]+$/;
-		if (!regex.test(trimmed)) {
-			return 'Only letters and spaces are allowed';
-		}
-		return '';
-	}
-
-	let nameValidationError = $derived(isNameTouched ? getValidationError(roleName) : '');
-
 	let filteredRoles = $derived.by(() => {
 		let result = [...rolesList];
 
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase().trim();
+			result = result.filter((role) => role.name.toLowerCase().includes(query));
 			result = result.filter((role) => role.name.toLowerCase().includes(query));
 		}
 
@@ -110,9 +89,7 @@
 				if (valB === null || valB === undefined) return sortDirection === 'asc' ? -1 : 1;
 
 				if (typeof valA === 'string' && typeof valB === 'string') {
-					return sortDirection === 'asc'
-						? valA.localeCompare(valB)
-						: valB.localeCompare(valA);
+					return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
 				}
 				if (typeof valA === 'boolean' && typeof valB === 'boolean') {
 					const numA = valA ? 1 : 0;
@@ -128,14 +105,15 @@
 
 	let totalCount = $derived(rolesList.length);
 	let paginatedRoles = $derived(filteredRoles.slice((currentPage - 1) * pageSize, currentPage * pageSize));
-	let activeCount = $derived(rolesList.filter((r) => r.status === true).length);
-	let inactiveCount = $derived(rolesList.filter((r) => r.status === false).length);
+	let activeCount = $derived(rolesList.filter((d) => d.status === true).length);
+	let inactiveCount = $derived(rolesList.filter((d) => d.status === false).length);
 
 	async function loadRoles() {
 		isLoading = true;
 		loadError = '';
 		try {
-			rolesList = await fetchAllRoles();
+			const res = await localApi.get<{ data: Role[] }>('/api/roles?includeInactive=true');
+			rolesList = res.data ?? [];
 		} catch (err) {
 			loadError = err instanceof ApiError ? err.message : 'Failed to load roles.';
 			toast.error(loadError);
@@ -217,7 +195,7 @@
 		if (!itemToDelete) return;
 		isDeleting = true;
 		try {
-			await deleteRole(itemToDelete.cuid);
+			await localApi.delete(`/api/roles/${itemToDelete.cuid}`);
 			await loadRoles();
 			toast.success('Role deactivated successfully');
 			itemToDelete = null;
@@ -231,20 +209,19 @@
 </script>
 
 <svelte:head>
-	<title>Roles</title>
+	<title>HRMS Role</title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Roles</h1>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Role</h1>
 		</div>
 		<Button
 			type="button"
 			class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
 			onclick={openCreateModal}
 		>
-			<PlusIcon class="size-4" />
 			Add Role
 		</Button>
 	</div>
@@ -273,8 +250,20 @@
 
 	<div class="space-y-3">
 		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-			<SearchInput id="search_roles" name="search_roles" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by role name..." />
-			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
+			<SearchInput
+				id="search_roles"
+				name="search_roles"
+				bind:value={searchQuery}
+				oninput={() => (currentPage = 1)}
+				placeholder="Search by role name..."
+			/>
+			<FilterDropdown
+				value={statusFilter}
+				onChange={(value) => {
+					statusFilter = value;
+					currentPage = 1;
+				}}
+			/>
 		</div>
 
 		<Card class="py-0">
@@ -283,9 +272,12 @@
 					<TableRow>
 						<TableHead class="font-bold text-foreground text-[15px]">
 							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
 								Role Name
 							{#if sortColumn === 'name' && sortDirection === 'asc'}
+							{#if sortColumn === 'name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
+							{:else if sortColumn === 'name' && sortDirection === 'desc'}
 							{:else if sortColumn === 'name' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
@@ -334,6 +326,7 @@
 								<TableCell>
 									<div class="flex flex-col">
 										<span class="font-semibold">{role.name}</span>
+										<span class="font-semibold">{role.name}</span>
 									</div>
 								</TableCell>
 								<TableCell class="text-center">
@@ -343,6 +336,7 @@
 									<TableActions
 										canEdit={true}
 										onEdit={() => openEditModal(role)}
+										onDelete={() => { itemToDelete = role; }}
 									/>
 								</TableCell>
 							</TableRow>
@@ -355,46 +349,21 @@
 	</div>
 </div>
 
-<CrudModal
-	open={isModalOpen}
-	title={editingRole ? 'Edit Role' : 'Create Role'}
-	isDirty={isDirty}
-	isSubmitting={isSubmitting}
-	onClose={() => (isModalOpen = false)}
->
-	{#snippet children({ cancel })}
-		<form class="space-y-3" onsubmit={handleSaveRole}>
-			<div class="space-y-2">
-				<Label for="role_name">Role Name</Label>
-				<Input
-					id="role_name"
-					name="role_name"
-					bind:ref={roleNameInput}
-					bind:value={roleName}
-					class={nameValidationError || backendError ? 'border-destructive' : ''}
-					placeholder="e.g. HR Manager"
-					oninput={() => { backendError = ''; }}
-				/>
-				{#if nameValidationError || backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
-				{/if}
-			</div>
-			{#if editingRole}
-				<StatusDropdown id="role_status" name="role_status" value={roleStatus} onChange={(val) => (roleStatus = val)} />
-			{/if}
-			<div class="flex items-center justify-end gap-3 pt-4">
-				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingRole && !isDirty)}>
-					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingRole ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
-				</Button>
-			</div>
-		</form>
-	{/snippet}
-</CrudModal>
+<SimpleMasterModal
+	bind:open={isModalOpen}
+	entityName="Role"
+	apiEndpoint="/api/roles"
+	editingRecord={editingRole}
+	onSuccess={() => {
+		isModalOpen = false;
+		loadRoles();
+	}}
+/>
 
 <ConfirmModal
 	open={!!itemToDelete}
 	title="Deactivate Role"
+	description={`Are you sure you want to deactivate ${itemToDelete?.name}?`}
 	description={`Are you sure you want to deactivate ${itemToDelete?.name}?`}
 	confirmLabel="Deactivate"
 	isSubmitting={isDeleting}

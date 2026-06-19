@@ -468,14 +468,28 @@
 	box-sizing: border-box;
 }
 
-/* Scrollbar inside sidebar */
-.sidebar-nav::-webkit-scrollbar {
-	width: 4px;
+/* ============================================================
+   GLOBAL SCROLLBAR THEME
+   ============================================================ */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: #d4d4d4 transparent;
 }
-.sidebar-nav::-webkit-scrollbar-track {
+
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+::-webkit-scrollbar-track {
 	background: transparent;
 }
-.sidebar-nav::-webkit-scrollbar-thumb {
-	background: rgba(255,255,255,0.1);
-	border-radius: 2px;
+
+::-webkit-scrollbar-thumb {
+	background: #d4d4d4;
+	border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #F45310;
 }

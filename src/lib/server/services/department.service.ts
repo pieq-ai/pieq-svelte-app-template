@@ -4,6 +4,7 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 
 export interface CreateDepartmentDto {
 	name: string;
+	name: string;
 	status?: boolean;
 	created_by?: string;
 	created_at?: Date | string | null;
@@ -12,11 +13,13 @@ export interface CreateDepartmentDto {
 
 export interface UpdateDepartmentDto {
 	name?: string;
+	name?: string;
 	status?: boolean;
 	updated_by?: string;
 	updated_at?: Date | string | null;
 }
 
+function toPublicDepartment(department: { cuid: string; name: string; status: boolean; created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
 function toPublicDepartment(department: { cuid: string; name: string; status: boolean; created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
 	return {
 		cuid: department.cuid,
