@@ -1,7 +1,7 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-19)
 
 ## Corpus Check
-- 235 files · ~97,389 words
+- 235 files · ~97,435 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c6b66786`
+- Built from commit: `f8fb7fbb`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -252,11 +252,11 @@ Nodes (12): CreateDesignationInput, UpdateDesignationInput, createDesignation(),
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `db` connect `Community 54` to `Community 35`, `Community 36`, `Master Data DAO`, `Department Service DAO`, `Designation Service DAO`, `Community 44`, `Permission Service`, `Community 46`, `Community 47`, `Community 48`, `Community 58`?**
-  _High betweenness centrality (0.106) - this node is a cross-community bridge._
+  _High betweenness centrality (0.109) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `Dependencies & Icons` to `Package Dependencies`?**
-  _High betweenness centrality (0.056) - this node is a cross-community bridge._
+  _High betweenness centrality (0.057) - this node is a cross-community bridge._
 - **Why does `svelte` connect `Dependencies & Icons` to `UI Components Index`?**
-  _High betweenness centrality (0.049) - this node is a cross-community bridge._
+  _High betweenness centrality (0.051) - this node is a cross-community bridge._
 - **What connects `$schema`, `css`, `baseColor` to the rest of the system?**
   _330 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `API Endpoints` be split into smaller, more focused modules?**

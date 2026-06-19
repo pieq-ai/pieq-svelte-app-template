@@ -110,20 +110,30 @@
 
 	let { data }: { data: PageData } = $props();
 
-	// State
-	let balances = $state<LeaveBalance[]>(data.details.balances || []);
-	let requests = $state<LeaveRequest[]>(data.details.requests || []);
-	let leaveTypes = $state<LeaveType[]>(data.details.leaveTypes || []);
-	let employee = $state<Employee | null>(data.details.employee || null);
+	let balances = $state<LeaveBalance[]>([]);
+	let requests = $state<LeaveRequest[]>([]);
+	let leaveTypes = $state<LeaveType[]>([]);
+	let employee = $state<Employee | null>(null);
 	let isLoading = $state(false);
 	let isSubmitting = $state(false);
 
-	let payrollCutoffDay = $state(data.details.payrollCutoffDay ?? 25);
-	let selectedCutoff = $state(data.details.payrollCutoffDay ?? 25);
+	let payrollCutoffDay = $state(25);
+	let selectedCutoff = $state(25);
 	let isSavingCutoff = $state(false);
 
-	let isManager = $state(data.details.isManager || false);
-	let pendingApprovals = $state<any[]>(data.details.pendingApprovals || []);
+	let isManager = $state(false);
+	let pendingApprovals = $state<any[]>([]);
+
+	$effect(() => {
+		balances = data.details.balances || [];
+		requests = data.details.requests || [];
+		leaveTypes = data.details.leaveTypes || [];
+		employee = data.details.employee || null;
+		payrollCutoffDay = data.details.payrollCutoffDay ?? 25;
+		selectedCutoff = data.details.payrollCutoffDay ?? 25;
+		isManager = data.details.isManager || false;
+		pendingApprovals = data.details.pendingApprovals || [];
+	});
 
 	// Views state
 	let activeTab = $state<'dashboard' | 'requests' | 'approvals'>('dashboard');
@@ -1064,8 +1074,8 @@
 		const totalDays = new Date(year, month + 1, 0).getDate();
 		const prevMonthTotalDays = new Date(year, month, 0).getDate();
 		
-		const today = new Date();
-		today.setHours(0,0,0,0);
+		const now = new Date();
+		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 		
 		let selectedDate: Date | null = null;
 		if (selectedDateStr) {
@@ -1277,7 +1287,7 @@
 		{#if activeDatePicker === id}
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
-			<div class="absolute {id === 'end_date' ? 'right-0' : 'left-0'} top-full z-[100] mt-1 w-[280px] rounded-md border border-border bg-popover p-3 text-popover-foreground shadow-md outline-none" onclick={(e) => e.stopPropagation()}>
+			<div class="absolute {id === 'end_date' ? 'right-0' : 'left-0'} top-full z-100 mt-1 w-[280px] rounded-md border border-border bg-popover p-3 text-popover-foreground shadow-md outline-none" onclick={(e) => e.stopPropagation()}>
 				<div class="flex items-center justify-between pb-2 mb-2 border-b border-border">
 					<Button
 						type="button"
@@ -1501,7 +1511,7 @@
 									</Button>
 
 									{#if activeDatePicker === 'payroll_cutoff'}
-										<div class="absolute right-0 top-full z-[100] mt-1 w-full min-w-[120px] max-h-56 overflow-y-auto rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md outline-none" onclick={(e) => e.stopPropagation()}>
+										<div class="absolute right-0 top-full z-100 mt-1 w-full min-w-[120px] max-h-56 overflow-y-auto rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md outline-none" onclick={(e) => e.stopPropagation()}>
 											{#each Array.from({ length: 28 }, (_, i) => i + 1) as day}
 												<button
 													type="button"
