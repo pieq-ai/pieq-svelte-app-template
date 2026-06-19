@@ -11,13 +11,12 @@ export function serializePayrollUpload(record: PrismaPayrollUpload & { failure_c
 		cuid: record.cuid,
 		month: record.month,
 		year: record.year,
-		employee_count: record.employee_count,
+		success_count: record.employee_count,
 		failure_count: record.failure_count ?? 0,
 		status: record.status,
 		file_name: record.file_name,
 		failure_reason: record.failure_reason,
-		uploaded_at: record.uploaded_at.toISOString(),
-		created_at: record.created_at.toISOString()
+		uploaded_at: record.uploaded_at.toISOString()
 	};
 }
 

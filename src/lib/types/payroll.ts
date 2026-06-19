@@ -13,7 +13,7 @@ export interface PayrollUpload {
 	/** 4-digit year e.g. 2026 */
 	year: number;
 	/** Number of employee payroll records successfully created */
-	employee_count: number;
+	success_count: number;
 	/** Number of employee payroll records that failed to load */
 	failure_count: number;
 	/** 'processed' | 'partial' */
@@ -24,8 +24,6 @@ export interface PayrollUpload {
 	failure_reason: string | null;
 	/** ISO timestamp string */
 	uploaded_at: string;
-	/** ISO timestamp string */
-	created_at: string;
 }
 
 export interface Payroll {
@@ -46,8 +44,6 @@ export interface Payroll {
 	payroll_upload_cuid: string | null;
 	/** ISO timestamp string */
 	uploaded_at: string;
-	/** ISO timestamp string */
-	created_at: string;
 }
 
 // ─── DTO types ────────────────────────────────────────────────────────────────
@@ -84,13 +80,10 @@ export interface PayrollUploadError {
 }
 
 export interface PayrollUploadFailure {
-	cuid: string;
-	payroll_upload_cuid: string;
 	row_number: number;
 	employee_code: string | null;
 	error_type: string;
 	error_message: string;
-	created_at: string;
 }
 
 
@@ -109,7 +102,10 @@ export interface ListPayrollUploadResponse {
 }
 
 export interface PayrollUploadDetailResponse {
-	data: PayrollUpload;
+	data: PayrollUpload & {
+		records: Payroll[];
+		failures: PayrollUploadFailure[];
+	};
 }
 
 export interface ListPayrollResponse {

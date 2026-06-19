@@ -54,9 +54,8 @@
 		}));
 
 		const fails = failures
-			.filter(f => f.row_number > 0 && f.cuid !== 'synthetic')
 			.map(f => ({
-				cuid: f.cuid,
+				cuid: `fail-${f.row_number}`,
 				employee_code: f.employee_code || '-',
 				employee_name: '-',
 				status: 'Failed' as const,
@@ -223,37 +222,23 @@
 
 	</div>
 
-	{#if upload.status === 'failed'}
-		<!-- Custom Failure Layout -->
-		<Card class="py-0">
-			<Table>
-				<TableHeader class="bg-muted">
-					<TableRow>
-						<TableHead class="font-bold text-foreground text-[15px] w-24">Row</TableHead>
-						<TableHead class="font-bold text-foreground text-[15px] w-40">Employee Code</TableHead>
-						<TableHead class="font-bold text-foreground text-[15px] w-48">Error Type</TableHead>
-						<TableHead class="font-bold text-foreground text-[15px]">Error Message</TableHead>
-					</TableRow>
-				</TableHeader>
-				<TableBody>
-					{#if failures.length === 0}
-						<TableRow>
-							<TableCell colspan={4} class="py-8 text-center text-muted-foreground">
-								No failure details available.
-							</TableCell>
-						</TableRow>
-					{:else}
-						{#each failures as f (f.cuid)}
-							<TableRow class="hover:bg-muted/70 transition-colors">
-								<TableCell class="font-medium font-mono">{f.row_number === 0 ? '-' : f.row_number}</TableCell>
-								<TableCell class="font-semibold text-foreground font-mono">{f.employee_code || '-'}</TableCell>
-								<TableCell class="font-semibold text-destructive">{f.error_type}</TableCell>
-								<TableCell class="text-muted-foreground wrap-break-word">{f.error_message}</TableCell>
-							</TableRow>
-						{/each}
-					{/if}
-				</TableBody>
-			</Table>
+	{#if upload.status === 'failed' && upload.failure_reason}
+		<!-- Custom Failure Layout (Upload-Level Failure Card) -->
+		<Card class="border-destructive/30 bg-destructive/5 p-6">
+			<div class="flex items-start gap-4">
+				<div class="rounded-full bg-destructive/10 p-3 text-destructive animate-pulse">
+					<svg xmlns="http://www.w3.org/2000/svg" class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+				</div>
+				<div class="space-y-1 flex-1">
+					<h2 class="text-xl font-bold text-destructive">Upload Failed</h2>
+					<p class="text-base text-foreground font-semibold mt-1">
+						{upload.failure_reason}
+					</p>
+					<p class="text-sm text-muted-foreground mt-2">
+						This error occurred before row-level processing could start. Please check the Excel file and try again.
+					</p>
+				</div>
+			</div>
 		</Card>
 	{:else}
 		<!-- Upload summary cards -->
@@ -269,9 +254,9 @@
 				<CardDescription>Employees</CardDescription>
 				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">
 					{#if (upload.failure_count ?? 0) > 0}
-						{upload.employee_count} / {upload.employee_count + (upload.failure_count ?? 0)}
+						{upload.success_count} / {upload.success_count + (upload.failure_count ?? 0)}
 					{:else}
-						{upload.employee_count}
+						{upload.success_count}
 					{/if}
 				</CardTitle>
 			</CardHeader>
@@ -357,14 +342,22 @@
 						{#each paginatedRecords as r (r.cuid)}
 							<TableRow
 								onclick={(e) => {
+									if (r.status === 'Failed') return;
 									if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
 									goto(resolve(`/payroll-records/${r.cuid}`));
 								}}
-								class="cursor-pointer hover:bg-muted/70 transition-colors"
+								class={r.status === 'Failed' ? "transition-colors select-text" : "cursor-pointer hover:bg-muted/70 transition-colors"}
 							>
 								<TableCell>
-									<span class="font-semibold text-foreground block">{r.employee_name}</span>
-									<span class="block text-xs text-muted-foreground font-mono mt-0.5">{r.employee_code}</span>
+									{#if r.status === 'Processed'}
+										<span class="font-semibold text-foreground block">{r.employee_name}</span>
+										<span class="block text-xs text-muted-foreground font-mono mt-0.5">{r.employee_code}</span>
+									{:else}
+										<div class="flex flex-col">
+											<span class="font-semibold text-foreground block">Row {r.originalFailure?.row_number} • {r.employee_code}</span>
+											<span class="text-xs text-destructive mt-0.5 wrap-break-word">{r.originalFailure?.error_type}: {r.originalFailure?.error_message}</span>
+										</div>
+									{/if}
 								</TableCell>
 								<TableCell class="text-center font-mono font-medium">
 									{#if r.status === 'Processed'}
@@ -392,17 +385,19 @@
 										{r.status}
 									</Badge>
 								</TableCell>
-								<TableCell class="text-right w-24">
-									<TableActions canEdit={false}>
-										<DropdownMenu.Item onclick={() => goto(resolve(`/payroll-records/${r.cuid}`))} class="cursor-pointer whitespace-nowrap">
-											View Details
-										</DropdownMenu.Item>
-										{#if r.status === 'Processed'}
+								<TableCell class={r.status === 'Processed' ? "text-right w-24" : "text-center w-24"}>
+									{#if r.status === 'Processed'}
+										<TableActions canEdit={false}>
+											<DropdownMenu.Item onclick={() => goto(resolve(`/payroll-records/${r.cuid}`))} class="cursor-pointer whitespace-nowrap">
+												View Details
+											</DropdownMenu.Item>
 											<DropdownMenu.Item onclick={() => goto(resolve(`/payroll-records/${r.cuid}/payslip`))} class="cursor-pointer whitespace-nowrap">
 												View Payslip
 											</DropdownMenu.Item>
-										{/if}
-									</TableActions>
+										</TableActions>
+									{:else}
+										<span class="text-xs text-muted-foreground">-</span>
+									{/if}
 								</TableCell>
 							</TableRow>
 						{/each}

@@ -1,7 +1,7 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-19)
 
 ## Corpus Check
-- 227 files · ~74,889 words
+- 227 files · ~74,824 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -145,7 +145,7 @@ Nodes (23): POST(), SalaryComponentDto, serializeSalaryComponent(), BusinessVali
 
 ### Community 10 - "Community 10"
 Cohesion: 0.18
-Nodes (9): CreateRevisionDto, CreateSalaryStructureDto, CreateSalaryStructureItemDto, DeleteSalaryStructureResponse, ListSalaryStructureResponse, MutationSalaryStructureResponse, SalaryStructure, SalaryStructureItem (+1 more)
+Nodes (9): CreateRevisionDto, CreateSalaryStructureItemDto, DeleteSalaryStructureResponse, ListSalaryStructureResponse, MutationSalaryStructureResponse, SalaryStructure, SalaryStructureItem, UpdateSalaryStructureDto (+1 more)
 
 ### Community 11 - "Server Authentication"
 Cohesion: 0.16
@@ -249,7 +249,7 @@ Nodes (11): averageAge, filteredEmployees, formError, handleAddEmployee(), isSub
 
 ### Community 55 - "Community 55"
 Cohesion: 0.21
-Nodes (5): findByEmployeeCuid(), findItemsByStructureCuid(), findItemsByStructureCuids(), findMany(), UpdateSalaryStructureDto
+Nodes (5): findByEmployeeCuid(), findItemsByStructureCuid(), findItemsByStructureCuids(), findMany(), CreateSalaryStructureDto
 
 ### Community 56 - "Community 56"
 Cohesion: 0.16

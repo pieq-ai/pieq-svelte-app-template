@@ -21,8 +21,7 @@ export function serializePayroll(record: PrismaPayroll): Payroll {
 		net_salary: Number(record.net_salary),
 		breakdown: record.breakdown as Record<string, number>,
 		payroll_upload_cuid: record.payroll_upload_cuid ?? null,
-		uploaded_at: record.uploaded_at.toISOString(),
-		created_at: record.created_at.toISOString()
+		uploaded_at: record.uploaded_at.toISOString()
 	};
 }
 

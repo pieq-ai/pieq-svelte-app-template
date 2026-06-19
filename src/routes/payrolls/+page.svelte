@@ -90,7 +90,7 @@
 	// ─── Stats ────────────────────────────────────────────────────────────────────
 
 	let totalUploads = $derived(uploadList.length);
-	let employeesProcessed = $derived(uploadList.reduce((sum, u) => sum + u.employee_count, 0));
+	let employeesProcessed = $derived(uploadList.reduce((sum, u) => sum + u.success_count, 0));
 	let payPeriods = $derived(new Set(uploadList.map((u) => `${u.year}-${u.month}`)).size);
 
 	// ─── Filtered + sorted + paginated list ──────────────────────────────────────
@@ -104,6 +104,7 @@
 				(u) =>
 					monthName(u.month).toLowerCase().includes(q) ||
 					String(u.year).includes(q) ||
+					(u.file_name && u.file_name.toLowerCase().includes(q)) ||
 					u.status.toLowerCase().includes(q)
 			);
 		}
@@ -122,9 +123,11 @@
 						valA = a.month; valB = b.month; break;
 					case 'year':
 						valA = a.year; valB = b.year; break;
+					case 'file_name':
+						valA = a.file_name || ''; valB = b.file_name || ''; break;
 					case 'employees':
-						valA = a.employee_count + (a.failure_count ?? 0);
-						valB = b.employee_count + (b.failure_count ?? 0);
+						valA = a.success_count + (a.failure_count ?? 0);
+						valB = b.success_count + (b.failure_count ?? 0);
 						break;
 					case 'uploaded_at':
 						valA = a.uploaded_at; valB = b.uploaded_at; break;
@@ -609,7 +612,15 @@
 							</Button>
 						</TableHead>
 						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('employees')}>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('file_name')}>
+								File Name
+								{#if sortIcon('file_name') === 'asc'}<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortIcon('file_name') === 'desc'}<ArrowDownIcon class="ml-2 size-4" />
+								{:else}<ArrowUpDownIcon class="ml-2 size-4" />{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="text-center font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="mx-auto flex items-center justify-center font-bold text-foreground text-[15px]" onclick={() => handleSort('employees')}>
 								Employees
 								{#if sortIcon('employees') === 'asc'}<ArrowUpIcon class="ml-2 size-4" />
 								{:else if sortIcon('employees') === 'desc'}<ArrowDownIcon class="ml-2 size-4" />
@@ -631,14 +642,14 @@
 				<TableBody>
 					{#if isLoading}
 						<TableRow>
-							<TableCell colspan={6} class="py-8 text-center text-muted-foreground">
+							<TableCell colspan={7} class="py-8 text-center text-muted-foreground">
 								<LoaderCircleIcon class="mx-auto mb-2 size-6 animate-spin" />
 								Loading payroll uploads...
 							</TableCell>
 						</TableRow>
 					{:else if filteredUploads.length === 0}
 						<TableRow>
-							<TableCell colspan={6} class="py-8 text-center text-muted-foreground">
+							<TableCell colspan={7} class="py-8 text-center text-muted-foreground">
 								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 							</TableCell>
 						</TableRow>
@@ -652,11 +663,12 @@
 								class="cursor-pointer hover:bg-muted/70 transition-colors"
 							>
 								<TableCell class="font-medium">{monthName(u.month)}</TableCell>
-								<TableCell>{u.year}</TableCell>
-								<TableCell class="font-semibold tabular-nums">
-									{u.employee_count} / {u.employee_count + (u.failure_count ?? 0)}
+								<TableCell class="text-sm">{u.year}</TableCell>
+								<TableCell class="text-sm max-w-[200px] truncate" title={u.file_name || '-'}>{u.file_name || '-'}</TableCell>
+								<TableCell class="text-center font-semibold tabular-nums">
+									{u.success_count} / {u.success_count + (u.failure_count ?? 0)}
 								</TableCell>
-								<TableCell class="text-muted-foreground">{formatDate(u.uploaded_at)}</TableCell>
+								<TableCell class="text-sm">{formatDate(u.uploaded_at)}</TableCell>
 								<TableCell class="text-center">
 									<Badge variant={statusVariant(u.status)} class="capitalize">
 										{statusLabel(u.status)}

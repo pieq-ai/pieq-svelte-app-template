@@ -5467,7 +5467,7 @@
       "source_file": "src/lib/types/salary-structure.ts",
       "source_location": "L39",
       "id": "types_salary_structure_createsalarystructuredto",
-      "community": 10,
+      "community": 55,
       "norm_label": "createsalarystructuredto"
     },
     {
@@ -5485,7 +5485,7 @@
       "source_file": "src/lib/types/salary-structure.ts",
       "source_location": "L54",
       "id": "types_salary_structure_updatesalarystructuredto",
-      "community": 55,
+      "community": 10,
       "norm_label": "updatesalarystructuredto"
     },
     {
@@ -7112,7 +7112,7 @@
       "label": "paginatedUploads",
       "file_type": "code",
       "source_file": "src/routes/payrolls/+page.svelte",
-      "source_location": "L151",
+      "source_location": "L148",
       "id": "payrolls_page_paginateduploads",
       "community": 45,
       "norm_label": "paginateduploads"
@@ -7121,7 +7121,7 @@
       "label": "loadUploads()",
       "file_type": "code",
       "source_file": "src/routes/payrolls/+page.svelte",
-      "source_location": "L157",
+      "source_location": "L154",
       "id": "payrolls_page_loaduploads",
       "community": 45,
       "norm_label": "loaduploads()"
@@ -7130,7 +7130,7 @@
       "label": "handleSort()",
       "file_type": "code",
       "source_file": "src/routes/payrolls/+page.svelte",
-      "source_location": "L184",
+      "source_location": "L181",
       "id": "payrolls_page_handlesort",
       "community": 45,
       "norm_label": "handlesort()"
@@ -7139,7 +7139,7 @@
       "label": "sortIcon()",
       "file_type": "code",
       "source_file": "src/routes/payrolls/+page.svelte",
-      "source_location": "L196",
+      "source_location": "L193",
       "id": "payrolls_page_sorticon",
       "community": 45,
       "norm_label": "sorticon()"
@@ -7148,7 +7148,7 @@
       "label": "isUploading",
       "file_type": "code",
       "source_file": "src/routes/payrolls/+page.svelte",
-      "source_location": "L204",
+      "source_location": "L201",
       "id": "payrolls_page_isuploading",
       "community": 45,
       "norm_label": "isuploading"
@@ -7157,7 +7157,7 @@
       "label": "dragOver",
       "file_type": "code",
       "source_file": "src/routes/payrolls/+page.svelte",
-      "source_location": "L205",
+      "source_location": "L202",
       "id": "payrolls_page_dragover",
       "community": 45,
       "norm_label": "dragover"
@@ -7166,7 +7166,7 @@
       "label": "currentYear",
       "file_type": "code",
       "source_file": "src/routes/payrolls/+page.svelte",
-      "source_location": "L209",
+      "source_location": "L206",
       "id": "payrolls_page_currentyear",
       "community": 45,
       "norm_label": "currentyear"
@@ -7175,7 +7175,7 @@
       "label": "uploadMonth",
       "file_type": "code",
       "source_file": "src/routes/payrolls/+page.svelte",
-      "source_location": "L212",
+      "source_location": "L209",
       "id": "payrolls_page_uploadmonth",
       "community": 45,
       "norm_label": "uploadmonth"
@@ -7184,7 +7184,7 @@
       "label": "uploadYear",
       "file_type": "code",
       "source_file": "src/routes/payrolls/+page.svelte",
-      "source_location": "L213",
+      "source_location": "L210",
       "id": "payrolls_page_uploadyear",
       "community": 45,
       "norm_label": "uploadyear"
@@ -7193,7 +7193,7 @@
       "label": "monthOptions",
       "file_type": "code",
       "source_file": "src/routes/payrolls/+page.svelte",
-      "source_location": "L215",
+      "source_location": "L212",
       "id": "payrolls_page_monthoptions",
       "community": 45,
       "norm_label": "monthoptions"
@@ -7202,7 +7202,7 @@
       "label": "yearOptions",
       "file_type": "code",
       "source_file": "src/routes/payrolls/+page.svelte",
-      "source_location": "L230",
+      "source_location": "L227",
       "id": "payrolls_page_yearoptions",
       "community": 45,
       "norm_label": "yearoptions"
@@ -7211,7 +7211,7 @@
       "label": "resetUpload()",
       "file_type": "code",
       "source_file": "src/routes/payrolls/+page.svelte",
-      "source_location": "L360",
+      "source_location": "L357",
       "id": "payrolls_page_resetupload",
       "community": 45,
       "norm_label": "resetupload()"
@@ -7220,7 +7220,7 @@
       "label": "formatSize()",
       "file_type": "code",
       "source_file": "src/routes/payrolls/+page.svelte",
-      "source_location": "L368",
+      "source_location": "L365",
       "id": "payrolls_page_formatsize",
       "community": 45,
       "norm_label": "formatsize()"
