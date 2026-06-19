@@ -3,6 +3,7 @@
     Button,
     MasterDataDropdown,
     SearchableDropdown,
+    Checkbox,
   } from "$lib/components";
   import { toast } from "svelte-sonner";
   import { goto } from "$app/navigation";
@@ -212,15 +213,15 @@
             />
           </div>
         </div>
-        <div class="flex gap-4 mt-2">
+        <div class="flex gap-6 mt-2">
           <label class="flex items-center gap-2 text-sm cursor-pointer"
-            ><input type="checkbox" bind:checked={lang.can_read} /> Read</label
+            ><Checkbox bind:checked={lang.can_read} /> Read</label
           >
           <label class="flex items-center gap-2 text-sm cursor-pointer"
-            ><input type="checkbox" bind:checked={lang.can_write} /> Write</label
+            ><Checkbox bind:checked={lang.can_write} /> Write</label
           >
           <label class="flex items-center gap-2 text-sm cursor-pointer"
-            ><input type="checkbox" bind:checked={lang.can_speak} /> Speak</label
+            ><Checkbox bind:checked={lang.can_speak} /> Speak</label
           >
         </div>
       </div>

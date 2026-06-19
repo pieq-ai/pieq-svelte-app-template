@@ -43,4 +43,4 @@ export { default as ConfirmationModal } from './ConfirmationModal.svelte';
 
 export { default as MultiSelect } from './ui/multiselect/multiselect.svelte';
 export { default as StatusBadge } from './common/StatusBadge.svelte';
-
+export { default as Checkbox } from './ui/checkbox/checkbox.svelte';

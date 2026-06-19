@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Label, Input, Button, CrudModal } from "$lib/components";
+  import { Label, Input, Button, CrudModal, Checkbox } from "$lib/components";
   import { toast } from "svelte-sonner";
   import { goto } from "$app/navigation";
   import { globalIsDirty } from "$lib/stores/navigationGuard";
@@ -304,11 +304,10 @@
           {/if}
           <div class="space-y-2 flex items-end pb-2">
             <label class="flex items-center gap-2 text-sm cursor-pointer">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={bank.is_primary}
-                onchange={(e) => {
-                  if (e.currentTarget.checked) {
+                onCheckedChange={(v) => {
+                  if (v) {
                     bankDetails = bankDetails.map((b, i) =>
                       i === index
                         ? { ...b, is_primary: true }

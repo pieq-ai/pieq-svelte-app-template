@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Label, Input, SearchableDropdown, MasterDataDropdown, Button } from '$lib/components';
+	import { Label, Input, SearchableDropdown, MasterDataDropdown, Button, Checkbox } from '$lib/components';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
 	import { globalIsDirty } from '$lib/stores/navigationGuard';
@@ -233,11 +233,9 @@
 
 		{#if address.address_type === 'communication'}
 			<div class="flex items-center gap-2 mb-6 ml-2">
-				<input 
-					type="checkbox" 
+				<Checkbox 
 					id="same_as_comm" 
 					bind:checked={isPermSameAsComm} 
-					class="rounded border-border text-[#F45310] focus:ring-[#F45310] size-4 cursor-pointer" 
 				/>
 				<Label for="same_as_comm" class="cursor-pointer font-medium">Permanent address same as communication address</Label>
 			</div>
