@@ -183,22 +183,22 @@
 	{/if}
 
 	{#each addresses as address, index (address.address_type)}
-		<div class="space-y-4">
-			<h2 class="text-lg font-semibold tracking-tight border-b border-border pb-2">
+		<div class="border border-border rounded-xl p-4 sm:p-6 bg-card text-card-foreground shadow-sm mb-6">
+			<h2 class="text-lg font-semibold tracking-tight border-b border-border pb-3 mb-5">
 				{address.address_type === 'communication' ? 'Communication Address' : 'Permanent Address'}
 			</h2>
 			
-			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-				<div class="space-y-2">
+			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+				<div class="space-y-2 sm:col-span-2 md:col-span-3">
 					<Label>Door No</Label>
 					<Input bind:value={address.door_no} placeholder="Flat/Door No" readonly={address.address_type === 'permanent' && isPermSameAsComm} />
 				</div>
-				<div class="space-y-2 xl:col-span-2">
+				<div class="space-y-2 sm:col-span-2 md:col-span-3">
 					<Label>Address Line 1 <span class="text-destructive">*</span></Label>
 					<Input bind:value={address.address_line1} placeholder="123 Main St" class={(isTouched && validateRequired(address.address_line1)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={address.address_type === 'permanent' && isPermSameAsComm} />
 					{#if isTouched && validateRequired(address.address_line1)}<p class="text-xs text-destructive">{validateRequired(address.address_line1)}</p>{/if}
 				</div>
-				<div class="space-y-2 xl:col-span-2">
+				<div class="space-y-2 sm:col-span-2 md:col-span-3">
 					<Label>Address Line 2</Label>
 					<Input bind:value={address.address_line2} placeholder="Landmark/Area" readonly={address.address_type === 'permanent' && isPermSameAsComm} />
 				</div>
@@ -208,14 +208,6 @@
 					{#if isTouched && validateRequired(address.city)}<p class="text-xs text-destructive">{validateRequired(address.city)}</p>{/if}
 				</div>
 				<MasterDataDropdown
-					master="countries"
-					label="Country *"
-					value={address.country_cuid}
-					onSelect={(val) => address.country_cuid = val as string}
-					disabled={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)}
-					class={(isTouched && validateRequired(address.country_cuid)) ? 'border-destructive' : ''}
-				/>
-				<MasterDataDropdown
 					master="states"
 					label="State *"
 					value={address.state_cuid}
@@ -223,25 +215,33 @@
 					disabled={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)}
 					class={(isTouched && validateRequired(address.state_cuid)) ? 'border-destructive' : ''}
 				/>
+				<MasterDataDropdown
+					master="countries"
+					label="Country *"
+					value={address.country_cuid}
+					onSelect={(val) => address.country_cuid = val as string}
+					disabled={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)}
+					class={(isTouched && validateRequired(address.country_cuid)) ? 'border-destructive' : ''}
+				/>
 				<div class="space-y-2">
 					<Label>Pin Code</Label>
 					<Input bind:value={address.pin_code} placeholder="123456" class={(isTouched && validatePinCode(address.pin_code)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={address.address_type === 'permanent' && isPermSameAsComm} />
 					{#if isTouched && validatePinCode(address.pin_code)}<p class="text-xs text-destructive">{validatePinCode(address.pin_code)}</p>{/if}
 				</div>
 			</div>
-			
-			{#if address.address_type === 'communication'}
-				<div class="flex items-center gap-2 mt-4 pt-2">
-					<input 
-						type="checkbox" 
-						id="same_as_comm" 
-						bind:checked={isPermSameAsComm} 
-						class="rounded border-border text-[#F45310] focus:ring-[#F45310] size-4 cursor-pointer" 
-					/>
-					<Label for="same_as_comm" class="cursor-pointer font-medium">Permanent address is same as communication address</Label>
-				</div>
-			{/if}
 		</div>
+
+		{#if address.address_type === 'communication'}
+			<div class="flex items-center gap-2 mb-6 ml-2">
+				<input 
+					type="checkbox" 
+					id="same_as_comm" 
+					bind:checked={isPermSameAsComm} 
+					class="rounded border-border text-[#F45310] focus:ring-[#F45310] size-4 cursor-pointer" 
+				/>
+				<Label for="same_as_comm" class="cursor-pointer font-medium">Permanent address same as communication address</Label>
+			</div>
+		{/if}
 	{/each}
 
 	<div class="flex items-center justify-between pt-6 border-t border-border">
