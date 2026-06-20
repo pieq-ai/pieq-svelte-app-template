@@ -279,11 +279,11 @@
 			<Table>
 				<TableBody>
 					<TableRow>
-						<TableCell class="font-medium text-muted-foreground">Gross Earnings</TableCell>
+						<TableCell class="font-medium">Gross Earnings</TableCell>
 						<TableCell class="text-right font-mono font-semibold">₹{formatAmount(payroll.gross_earnings)}</TableCell>
 					</TableRow>
 					<TableRow>
-						<TableCell class="font-medium text-muted-foreground">Total Deduction</TableCell>
+						<TableCell class="font-medium">Total Deduction</TableCell>
 						<TableCell class="text-right font-mono font-semibold text-destructive">₹{formatAmount(payroll.total_deduction)}</TableCell>
 					</TableRow>
 					<TableRow class="border-t-2 bg-muted/40">

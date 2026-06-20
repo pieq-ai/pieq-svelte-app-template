@@ -479,3 +479,37 @@
 	background: rgba(255,255,255,0.1);
 	border-radius: 2px;
 }
+
+/* Compact scrollbar for dropdowns and scrollable sections */
+.scrollbar-compact {
+	scrollbar-width: thin;
+	scrollbar-color: oklch(0.8 0 0) oklch(0.96 0 0);
+	scroll-behavior: smooth;
+}
+.dark .scrollbar-compact {
+	scrollbar-color: oklch(0.45 0 0) oklch(0.2 0 0);
+}
+.scrollbar-compact::-webkit-scrollbar {
+	width: 4px;
+	height: 4px;
+}
+.scrollbar-compact::-webkit-scrollbar-track {
+	background: oklch(0.96 0 0);
+	border-radius: 10px;
+}
+.dark .scrollbar-compact::-webkit-scrollbar-track {
+	background: oklch(0.2 0 0);
+}
+.scrollbar-compact::-webkit-scrollbar-thumb {
+	background: oklch(0.8 0 0);
+	border-radius: 10px;
+}
+.dark .scrollbar-compact::-webkit-scrollbar-thumb {
+	background: oklch(0.45 0 0);
+}
+.scrollbar-compact::-webkit-scrollbar-thumb:hover {
+	background: oklch(0.7 0 0);
+}
+.dark .scrollbar-compact::-webkit-scrollbar-thumb:hover {
+	background: oklch(0.55 0 0);
+}

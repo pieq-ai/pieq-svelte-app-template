@@ -722,7 +722,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[300px]">
+					<DropdownMenu.Content class="w-[300px] max-h-[300px] overflow-y-auto scrollbar-compact">
 						<DropdownMenu.Group>
 							{#if eligibleEmployees.length === 0}
 								<DropdownMenu.Item disabled class="text-muted-foreground text-sm">

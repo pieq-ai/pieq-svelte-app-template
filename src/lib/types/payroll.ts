@@ -80,6 +80,8 @@ export interface PayrollUploadError {
 }
 
 export interface PayrollUploadFailure {
+	cuid: string;
+	payroll_upload_cuid: string;
 	row_number: number;
 	employee_code: string | null;
 	error_type: string;

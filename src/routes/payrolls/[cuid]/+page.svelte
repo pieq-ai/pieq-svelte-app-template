@@ -552,11 +552,11 @@
 					<Table>
 						<TableBody>
 							<TableRow class="hover:bg-transparent">
-								<TableCell class="font-medium text-muted-foreground py-2 text-sm">Gross Earnings</TableCell>
+								<TableCell class="font-medium py-2 text-sm">Gross Earnings</TableCell>
 								<TableCell class="text-right font-mono font-semibold py-2 text-sm">₹{formatAmount(selectedRecord.gross_earnings)}</TableCell>
 							</TableRow>
 							<TableRow class="hover:bg-transparent">
-								<TableCell class="font-medium text-muted-foreground py-2 text-sm">Total Deduction</TableCell>
+								<TableCell class="font-medium py-2 text-sm">Total Deduction</TableCell>
 								<TableCell class="text-right font-mono font-semibold text-destructive py-2 text-sm">₹{formatAmount(selectedRecord.total_deduction)}</TableCell>
 							</TableRow>
 							<TableRow class="border-t-2 bg-muted/40 hover:bg-muted/40">

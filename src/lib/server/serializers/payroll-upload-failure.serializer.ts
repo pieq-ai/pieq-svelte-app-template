@@ -8,6 +8,8 @@ import type { PayrollUploadFailure } from '$lib/types/payroll.js';
  */
 export function serializePayrollUploadFailure(record: PrismaPayrollUploadFailure): PayrollUploadFailure {
 	return {
+		cuid: record.cuid,
+		payroll_upload_cuid: record.payroll_upload_cuid,
 		row_number: record.row_number,
 		employee_code: record.employee_code,
 		error_type: record.error_type,
