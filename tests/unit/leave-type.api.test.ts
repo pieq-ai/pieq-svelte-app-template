@@ -56,8 +56,8 @@ describe('leave-types API', () => {
 			expect(body.data).toEqual([
 				{
 					cuid: 'c1',
-					leave_name: 'Annual Leave',
-					leave_code: 'ANNUAL',
+					name: 'Annual Leave',
+					code: 'ANNUAL',
 					description: 'Paid',
 					is_paid: true,
 					requires_approval: true,
@@ -92,7 +92,7 @@ describe('leave-types API', () => {
 		it('should return 400 for disallowed keys', async () => {
 			const mockEvent = {
 				request: {
-					json: vi.fn().mockResolvedValue({ leave_name: 'Annual Leave', leave_code: 'ANNUAL', invalid_key: 'bad' })
+					json: vi.fn().mockResolvedValue({ name: 'Annual Leave', code: 'ANNUAL', invalid_key: 'bad' })
 				},
 				locals: mockLocals
 			};
@@ -104,7 +104,7 @@ describe('leave-types API', () => {
 		});
 
 		it('should return 201 on success', async () => {
-			const payload = { leave_name: 'Sick Leave', leave_code: 'SICK' };
+			const payload = { name: 'Sick Leave', code: 'SICK' };
 			const mockEvent = {
 				request: {
 					json: vi.fn().mockResolvedValue(payload)
@@ -119,8 +119,8 @@ describe('leave-types API', () => {
 			const body = await res.json();
 			expect(body.data.cuid).toBe('cuid-123');
 			expect(leaveTypeService.createLeaveType).toHaveBeenCalledWith({
-				leave_name: 'Sick Leave',
-				leave_code: 'SICK',
+				name: 'Sick Leave',
+				code: 'SICK',
 				description: undefined,
 				is_paid: undefined,
 				requires_approval: undefined,
@@ -133,33 +133,33 @@ describe('leave-types API', () => {
 		it('should return 400 on service single validation error', async () => {
 			const mockEvent = {
 				request: {
-					json: vi.fn().mockResolvedValue({ leave_name: '', leave_code: 'SICK' })
+					json: vi.fn().mockResolvedValue({ name: '', code: 'SICK' })
 				},
 				locals: mockLocals
 			};
 
 			vi.mocked(leaveTypeService.createLeaveType).mockRejectedValue(
-				new leaveTypeService.LeaveValidationError('leave_name', 'Leave name is required')
+				new leaveTypeService.LeaveValidationError('name', 'Leave name is required')
 			);
 
 			const res = await typesApi.POST(mockEvent as any);
 			expect(res.status).toBe(400);
 			const body = await res.json();
-			expect(body.data.error.leave_name).toBe('Leave name is required');
+			expect(body.data.error.name).toBe('Leave name is required');
 		});
 
 		it('should return 400 on service multi validation error', async () => {
 			const mockEvent = {
 				request: {
-					json: vi.fn().mockResolvedValue({ leave_name: 'Sick', leave_code: 'SICK_123' })
+					json: vi.fn().mockResolvedValue({ name: 'Sick', code: 'SICK_123' })
 				},
 				locals: mockLocals
 			};
 
 			vi.mocked(leaveTypeService.createLeaveType).mockRejectedValue(
 				new leaveTypeService.LeaveMultiValidationError({
-					leave_name: 'Leave name must be longer',
-					leave_code: 'Invalid code format'
+					name: 'Leave name must be longer',
+					code: 'Invalid code format'
 				})
 			);
 
@@ -167,8 +167,8 @@ describe('leave-types API', () => {
 			expect(res.status).toBe(400);
 			const body = await res.json();
 			expect(body.data.error).toEqual({
-				leave_name: 'Leave name must be longer',
-				leave_code: 'Invalid code format'
+				name: 'Leave name must be longer',
+				code: 'Invalid code format'
 			});
 		});
 	});
@@ -198,8 +198,8 @@ describe('leave-types API', () => {
 			const body = await res.json();
 			expect(body.data).toEqual({
 				cuid: 'c1',
-				leave_name: 'Sick Leave',
-				leave_code: 'SICK',
+				name: 'Sick Leave',
+				code: 'SICK',
 				description: null,
 				is_paid: true,
 				requires_approval: true,
@@ -213,7 +213,7 @@ describe('leave-types API', () => {
 			const mockEvent = {
 				params: { cuid: 'c1' },
 				request: {
-					json: vi.fn().mockResolvedValue({ leave_name: 'Sick Leave Updated' })
+					json: vi.fn().mockResolvedValue({ name: 'Sick Leave Updated' })
 				},
 				locals: mockLocals
 			};

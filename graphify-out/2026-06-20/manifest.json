@@ -1195,8 +1195,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\holidays\\+page.svelte": {
-    "mtime": 1781972767.721089,
-    "ast_hash": "8c32080db9bacadaa659bad8702d6c81",
+    "mtime": 1781954178.5528677,
+    "ast_hash": "8be34d45e0d8ca576cb5663946d12c7f",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\leave-policies\\+page.svelte": {
@@ -1280,8 +1280,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\attendance-records\\+page.svelte": {
-    "mtime": 1781972688.8397098,
-    "ast_hash": "8334a07ef9582930a5849ad6b5e32c90",
+    "mtime": 1781953066.2568648,
+    "ast_hash": "b532ccd2e00df7dc78b5f962904d7798",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\pieq-svelte-app-template\\src\\routes\\attendance\\+page.svelte": {
@@ -1844,44 +1844,9 @@
     "ast_hash": "b9afacb97a45daf43af9cc8b4746e3b9",
     "semantic_hash": ""
   },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260620160426_added_system_roles_and_permissions\\migration.sql": {
-    "mtime": 1781971466.751588,
-    "ast_hash": "dd5fc1f1a5d64f1df7a429dded288219",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260620160521_added_department_and_designation\\migration.sql": {
-    "mtime": 1781971521.048954,
-    "ast_hash": "72f68a01c322e2b345e717ff112a064d",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260620160646_added_dropdown_masters\\migration.sql": {
-    "mtime": 1781971606.8156216,
-    "ast_hash": "fc59951090e1b02b18e7ebbde9cc12fb",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260620160749_added_employee_module\\migration.sql": {
-    "mtime": 1781971669.593783,
-    "ast_hash": "96eae40379a0dcd79a48fb8c0b4b029d",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260620160923_added_leave_and_holiday\\migration.sql": {
-    "mtime": 1781971763.0398483,
-    "ast_hash": "8888acba526deb6a170d590ff4f5949a",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260620161142_added_attendance_records_table\\migration.sql": {
-    "mtime": 1781971902.6575935,
-    "ast_hash": "8376010c061aaa16867be8f56442bc73",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260620161241_added_roles_shift_and_company_locations\\migration.sql": {
-    "mtime": 1781971961.8341722,
-    "ast_hash": "bd605fb43f98944b134bf2fcc15d1595",
-    "semantic_hash": ""
-  },
-  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260620161317_added_salary_components\\migration.sql": {
-    "mtime": 1781971997.2389395,
-    "ast_hash": "3d442e1daf287e7658122eb9ab7b0b25",
+  "C:\\Users\\user\\pieq-svelte-app-template\\prisma\\migrations\\20260620120837_added_hrms_table\\migration.sql": {
+    "mtime": 1781957317.4939542,
+    "ast_hash": "1bbc7dbec594fb8d754b4a4de2591c4f",
     "semantic_hash": ""
   }
 }

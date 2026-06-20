@@ -1341,7 +1341,7 @@
       "source_file": "@lucide/svelte/icons/loader-circle",
       "confidence": "EXTRACTED",
       "id": "loader_circle",
-      "community": 10,
+      "community": 2,
       "norm_label": "@lucide/svelte/icons/loader-circle"
     },
     {
@@ -1387,7 +1387,7 @@
       "source_file": "src/lib/permissions/mock-permissions",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_permissions_mock_permissions",
-      "community": 87,
+      "community": 2,
       "norm_label": "$lib/permissions/mock-permissions"
     },
     {
@@ -1779,7 +1779,7 @@
       "source_file": "src/lib/components/common/PermissionMatrixCell.svelte",
       "source_location": "L1",
       "id": "common_permissionmatrixcell",
-      "community": 10,
+      "community": 87,
       "norm_label": "permissionmatrixcell.svelte"
     },
     {
@@ -2078,7 +2078,7 @@
       "source_file": "$app/stores",
       "confidence": "EXTRACTED",
       "id": "stores",
-      "community": 44,
+      "community": 8,
       "norm_label": "$app/stores"
     },
     {
@@ -2922,7 +2922,7 @@
       "source_file": "@lucide/svelte/icons/plus",
       "confidence": "EXTRACTED",
       "id": "plus",
-      "community": 87,
+      "community": 10,
       "norm_label": "@lucide/svelte/icons/plus"
     },
     {
@@ -10548,7 +10548,7 @@
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L1",
       "id": "permissions_server",
-      "community": 0,
+      "community": 115,
       "norm_label": "+server.ts"
     },
     {
@@ -10557,7 +10557,7 @@
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L8",
       "id": "permissions_server_getstatus",
-      "community": 0,
+      "community": 115,
       "norm_label": "getstatus()"
     },
     {
@@ -10566,7 +10566,7 @@
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L14",
       "id": "permissions_server_get",
-      "community": 0,
+      "community": 115,
       "norm_label": "get()"
     },
     {
@@ -10575,7 +10575,7 @@
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L28",
       "id": "permissions_server_post",
-      "community": 0,
+      "community": 115,
       "norm_label": "post()"
     },
     {
@@ -11014,7 +11014,7 @@
       "label": "if()",
       "file_type": "code",
       "source_file": "src/routes/attendance-records/+page.svelte",
-      "source_location": "L556",
+      "source_location": "L548",
       "id": "attendance_records_page_if",
       "community": 10,
       "norm_label": "if()"
@@ -11223,7 +11223,7 @@
       "source_file": "src/routes/dashboard/+page.svelte",
       "source_location": "L1",
       "id": "dashboard_page",
-      "community": 44,
+      "community": 8,
       "norm_label": "+page.svelte"
     },
     {
@@ -11250,7 +11250,7 @@
       "source_file": "src/routes/dashboard/[cuid=cuid]/+page.svelte",
       "source_location": "L1",
       "id": "cuid_cuid_page",
-      "community": 87,
+      "community": 8,
       "norm_label": "+page.svelte"
     },
     {
@@ -12052,7 +12052,7 @@
       "source_file": "src/routes/permissions/+page.svelte",
       "source_location": "L1",
       "id": "permissions_page",
-      "community": 87,
+      "community": 2,
       "norm_label": "+page.svelte"
     },
     {
@@ -12061,7 +12061,7 @@
       "source_file": "src/routes/role-permissions/+page.svelte",
       "source_location": "L1",
       "id": "role_permissions_page",
-      "community": 87,
+      "community": 2,
       "norm_label": "+page.svelte"
     },
     {
@@ -12223,7 +12223,7 @@
       "source_file": "src/routes/system-roles/+page.svelte",
       "source_location": "L1",
       "id": "system_roles_page",
-      "community": 87,
+      "community": 2,
       "norm_label": "+page.svelte"
     },
     {
@@ -13465,7 +13465,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L452",
       "id": "pieq_svelte_app_template_readme_development",
-      "community": 82,
+      "community": 49,
       "norm_label": "development"
     },
     {
@@ -13474,7 +13474,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L454",
       "id": "pieq_svelte_app_template_readme_yarn_dev",
-      "community": 82,
+      "community": 49,
       "norm_label": "`yarn dev`"
     },
     {
@@ -13483,7 +13483,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L463",
       "id": "pieq_svelte_app_template_readme_yarn_build",
-      "community": 82,
+      "community": 49,
       "norm_label": "`yarn build`"
     },
     {
@@ -13492,7 +13492,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L472",
       "id": "pieq_svelte_app_template_readme_yarn_preview",
-      "community": 82,
+      "community": 49,
       "norm_label": "`yarn preview`"
     },
     {
@@ -13537,7 +13537,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L507",
       "id": "pieq_svelte_app_template_readme_testing",
-      "community": 49,
+      "community": 82,
       "norm_label": "testing"
     },
     {
@@ -13546,7 +13546,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L509",
       "id": "pieq_svelte_app_template_readme_yarn_test_unit",
-      "community": 49,
+      "community": 82,
       "norm_label": "`yarn test:unit`"
     },
     {
@@ -13555,7 +13555,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L517",
       "id": "pieq_svelte_app_template_readme_yarn_test_e2e",
-      "community": 49,
+      "community": 82,
       "norm_label": "`yarn test:e2e`"
     },
     {
@@ -13564,7 +13564,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L525",
       "id": "pieq_svelte_app_template_readme_yarn_test",
-      "community": 49,
+      "community": 82,
       "norm_label": "`yarn test`"
     },
     {
@@ -14418,7 +14418,7 @@
       "file_type": "code",
       "source_file": "src/lib/components",
       "confidence": "EXTRACTED",
-      "community": 87,
+      "community": 8,
       "norm_label": "$lib/components",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_components"
     },
@@ -14427,7 +14427,7 @@
       "file_type": "code",
       "source_file": "src/lib/constants",
       "confidence": "EXTRACTED",
-      "community": 87,
+      "community": 2,
       "norm_label": "$lib/constants",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants"
     },
@@ -14445,7 +14445,7 @@
       "file_type": "code",
       "source_file": "src/lib/permissions/mock-permissions",
       "confidence": "EXTRACTED",
-      "community": 87,
+      "community": 2,
       "norm_label": "$lib/permissions/mock-permissions",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_permissions_mock_permissions"
     },
@@ -14481,7 +14481,7 @@
       "file_type": "code",
       "source_file": "src/lib/toast",
       "confidence": "EXTRACTED",
-      "community": 87,
+      "community": 2,
       "norm_label": "$lib/toast",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_toast"
     },
@@ -14490,7 +14490,7 @@
       "file_type": "code",
       "source_file": "src/lib/utils",
       "confidence": "EXTRACTED",
-      "community": 87,
+      "community": 2,
       "norm_label": "$lib/utils",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_utils"
     },

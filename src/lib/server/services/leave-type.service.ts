@@ -24,8 +24,8 @@ export class LeaveMultiValidationError extends Error {
 }
 
 export interface CreateLeaveTypeInput {
-	leave_name: unknown;
-	leave_code: unknown;
+	name: unknown;
+	code: unknown;
 	description?: unknown;
 	is_paid?: unknown;
 	requires_approval?: unknown;
@@ -35,8 +35,8 @@ export interface CreateLeaveTypeInput {
 }
 
 export interface UpdateLeaveTypeInput {
-	leave_name?: unknown;
-	leave_code?: unknown;
+	name?: unknown;
+	code?: unknown;
 	description?: unknown;
 	is_paid?: unknown;
 	requires_approval?: unknown;
@@ -46,21 +46,21 @@ export interface UpdateLeaveTypeInput {
 
 function validateLeaveName(raw: unknown): string {
 	if (typeof raw !== 'string' || raw.trim() === '') {
-		throw new LeaveValidationError('leave_name', 'Leave name is required');
+		throw new LeaveValidationError('name', 'Leave name is required');
 	}
 
 	const trimmed = raw.trim();
 
 	if (trimmed.length <= 5) {
 		throw new LeaveValidationError(
-			'leave_name',
+			'name',
 			'Leave name must be more than 5 characters long'
 		);
 	}
 
 	if (trimmed.length > LEAVE_NAME_MAX_LENGTH) {
 		throw new LeaveValidationError(
-			'leave_name',
+			'name',
 			`Leave name must be ${LEAVE_NAME_MAX_LENGTH} characters or fewer`
 		);
 	}
@@ -68,7 +68,7 @@ function validateLeaveName(raw: unknown): string {
 	const LEAVE_NAME_REGEX = /^[a-zA-Z\s]+$/;
 	if (!LEAVE_NAME_REGEX.test(trimmed)) {
 		throw new LeaveValidationError(
-			'leave_name',
+			'name',
 			'Leave name can only contain letters and spaces'
 		);
 	}
@@ -78,14 +78,14 @@ function validateLeaveName(raw: unknown): string {
 
 function validateLeaveCode(raw: unknown): string {
 	if (typeof raw !== 'string' || raw.trim() === '') {
-		throw new LeaveValidationError('leave_code', 'Leave code is required');
+		throw new LeaveValidationError('code', 'Leave code is required');
 	}
 
 	const converted = raw.trim().toUpperCase();
 
 	if (converted.length > LEAVE_CODE_MAX_LENGTH) {
 		throw new LeaveValidationError(
-			'leave_code',
+			'code',
 			`Leave code must be ${LEAVE_CODE_MAX_LENGTH} characters or fewer`
 		);
 	}
@@ -93,7 +93,7 @@ function validateLeaveCode(raw: unknown): string {
 	const LEAVE_CODE_REGEX = /^[A-Z_]+$/;
 	if (!LEAVE_CODE_REGEX.test(converted)) {
 		throw new LeaveValidationError(
-			'leave_code',
+			'code',
 			'Leave code can only contain uppercase letters and underscores'
 		);
 	}
@@ -110,8 +110,8 @@ export async function getLeaveTypeByCuid(cuid: string) {
 }
 
 export async function createLeaveType(input: CreateLeaveTypeInput) {
-	const leave_name = validateLeaveName(input.leave_name);
-	const leave_code = validateLeaveCode(input.leave_code);
+	const leave_name = validateLeaveName(input.name);
+	const leave_code = validateLeaveCode(input.code);
 	const description = typeof input.description === 'string' ? input.description.trim() || null : null;
 	const is_paid = input.is_paid === undefined ? true : Boolean(input.is_paid);
 	const requires_approval = input.requires_approval === undefined ? true : Boolean(input.requires_approval);
@@ -121,12 +121,12 @@ export async function createLeaveType(input: CreateLeaveTypeInput) {
 	const errors: Record<string, string> = {};
 	const existingName = await leaveTypeDao.findByName(leave_name);
 	if (existingName) {
-		errors.leave_name = 'Leave Name already exists';
+		errors.name = 'Leave Name already exists';
 	}
 
 	const existingCode = await leaveTypeDao.findByCode(leave_code);
 	if (existingCode) {
-		errors.leave_code = 'Leave Code already exists';
+		errors.code = 'Leave Code already exists';
 	}
 
 	if (Object.keys(errors).length > 0) {
@@ -155,8 +155,8 @@ export async function updateLeaveType(cuid: string, input: UpdateLeaveTypeInput)
 		throw new Error('Leave type not found');
 	}
 
-	const leave_name = input.leave_name !== undefined ? validateLeaveName(input.leave_name) : existingType.name;
-	const leave_code = input.leave_code !== undefined ? validateLeaveCode(input.leave_code) : existingType.code;
+	const leave_name = input.name !== undefined ? validateLeaveName(input.name) : existingType.name;
+	const leave_code = input.code !== undefined ? validateLeaveCode(input.code) : existingType.code;
 	const description = input.description !== undefined ? (typeof input.description === 'string' ? input.description.trim() || null : null) : existingType.description;
 	const is_paid = input.is_paid !== undefined ? Boolean(input.is_paid) : existingType.is_paid;
 	const requires_approval = input.requires_approval !== undefined ? Boolean(input.requires_approval) : existingType.requires_approval;
@@ -164,17 +164,17 @@ export async function updateLeaveType(cuid: string, input: UpdateLeaveTypeInput)
 
 	// Duplicate checks excluding this cuid
 	const errors: Record<string, string> = {};
-	if (input.leave_name !== undefined) {
+	if (input.name !== undefined) {
 		const duplicateName = await leaveTypeDao.findDuplicateName(leave_name, cuid);
 		if (duplicateName) {
-			errors.leave_name = 'Leave Name already exists';
+			errors.name = 'Leave Name already exists';
 		}
 	}
 
-	if (input.leave_code !== undefined) {
+	if (input.code !== undefined) {
 		const duplicateCode = await leaveTypeDao.findDuplicateCode(leave_code, cuid);
 		if (duplicateCode) {
-			errors.leave_code = 'Leave Code already exists';
+			errors.code = 'Leave Code already exists';
 		}
 	}
 

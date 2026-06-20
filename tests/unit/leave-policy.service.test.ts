@@ -47,6 +47,7 @@ describe('leave policy service', () => {
 			max_per_month: 2,
 			carry_forward_allowed: true,
 			max_carry_forward_days: 5,
+			max_annual_carry_forward_days: 3,
 			document_required: false,
 			min_service_days: 30,
 			allow_half_day: true,
@@ -254,13 +255,68 @@ describe('leave policy service', () => {
 			await expect(
 				createLeavePolicy({
 					...validBaseInput,
+					carry_forward_allowed: true,
+					max_annual_carry_forward_days: null
+				})
+			).rejects.toThrowError(
+				new LeaveValidationError(
+					'max_annual_carry_forward_days',
+					'Max annual carry forward days is required when carry forward is allowed'
+				)
+			);
+
+			await expect(
+				createLeavePolicy({
+					...validBaseInput,
+					carry_forward_allowed: true,
+					max_annual_carry_forward_days: -2
+				})
+			).rejects.toThrowError(
+				new LeaveValidationError(
+					'max_annual_carry_forward_days',
+					'Value must be greater than 0'
+				)
+			);
+
+			await expect(
+				createLeavePolicy({
+					...validBaseInput,
+					carry_forward_allowed: true,
+					max_carry_forward_days: 5,
+					max_annual_carry_forward_days: 6
+				})
+			).rejects.toThrowError(
+				new LeaveValidationError(
+					'max_annual_carry_forward_days',
+					'Max annual carry forward days cannot exceed max carry forward days'
+				)
+			);
+
+			await expect(
+				createLeavePolicy({
+					...validBaseInput,
 					carry_forward_allowed: false,
-					max_carry_forward_days: 5
+					max_carry_forward_days: 5,
+					max_annual_carry_forward_days: null
 				})
 			).rejects.toThrowError(
 				new LeaveValidationError(
 					'max_carry_forward_days',
 					'Max carry forward days must be empty when carry forward is not allowed'
+				)
+			);
+
+			await expect(
+				createLeavePolicy({
+					...validBaseInput,
+					carry_forward_allowed: false,
+					max_carry_forward_days: null,
+					max_annual_carry_forward_days: 3
+				})
+			).rejects.toThrowError(
+				new LeaveValidationError(
+					'max_annual_carry_forward_days',
+					'Max annual carry forward days must be empty when carry forward is not allowed'
 				)
 			);
 		});
@@ -366,6 +422,7 @@ describe('leave policy service', () => {
 				max_per_month: null,
 				carry_forward_allowed: false,
 				max_carry_forward_days: null,
+				max_annual_carry_forward_days: null,
 				document_required: false,
 				document_required_after_days: null,
 				min_service_days: 0,
@@ -387,6 +444,7 @@ describe('leave policy service', () => {
 				annual_limit: 20,
 				carry_forward_allowed: true,
 				max_carry_forward_days: 5,
+				max_annual_carry_forward_days: 3,
 				...auditFields
 			};
 			vi.mocked(leavePolicyDao.update).mockResolvedValue(expectedOutput as any);
@@ -394,7 +452,8 @@ describe('leave policy service', () => {
 			const result = await updateLeavePolicy(targetCuid, {
 				annual_limit: 20,
 				carry_forward_allowed: true,
-				max_carry_forward_days: 5
+				max_carry_forward_days: 5,
+				max_annual_carry_forward_days: 3
 			});
 
 			expect(result).toEqual(expectedOutput);

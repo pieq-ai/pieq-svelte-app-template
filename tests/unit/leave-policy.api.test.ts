@@ -47,6 +47,7 @@ describe('leave-policies API', () => {
 					applicable_gender: null,
 					document_required_after_days: null,
 					max_carry_forward_days: null,
+					max_annual_carry_forward_days: null,
 					max_per_month: null
 				}
 			]);
@@ -124,6 +125,7 @@ describe('leave-policies API', () => {
 				document_required_after_days: null,
 				employment_type_cuids: [],
 				max_carry_forward_days: null,
+				max_annual_carry_forward_days: null,
 				max_per_month: null
 			});
 		});

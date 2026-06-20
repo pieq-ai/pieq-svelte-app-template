@@ -12,6 +12,12 @@ import {
 	AttendanceValidationError,
 	AttendanceMultiValidationError
 } from '$lib/server/services/attendance-record.service.js';
+import * as employmentDao from '$lib/server/dao/employment.dao.js';
+
+vi.mock('$lib/server/dao/employment.dao.js', () => ({
+	findByEmployeeCuid: vi.fn(),
+	list: vi.fn()
+}));
 
 vi.mock('$lib/server/dao/employee.dao.js', () => ({
 	findUniqueByUuid: vi.fn()
@@ -40,17 +46,28 @@ describe('attendance-record service', () => {
 	const employeeCuid = 'emp-123';
 	const validRecordInput = {
 		employee_cuid: employeeCuid,
-		attendance_date: '2026-06-01',
+		date: '2026-06-01',
 		check_in_time: '2026-06-01T09:00:00Z',
 		check_out_time: '2026-06-01T17:00:00Z',
-		attendance_status: 'Present',
+		status: 'Present',
 		attendance_source_cuid: 'source-1',
 		remarks: 'Ok'
 	};
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ cuid: 'source-1', attendance_source_name: 'Web' } as any);
+		vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ cuid: 'source-1', name: 'Web' } as any);
+		vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+			date_of_joining: new Date(Date.UTC(2026, 0, 1)), // Jan 1, 2026
+			relieving_date: null
+		} as any);
+		vi.mocked(employmentDao.list).mockResolvedValue([
+			{
+				employee_cuid: employeeCuid,
+				date_of_joining: new Date(Date.UTC(2026, 0, 1)), // Jan 1, 2026
+				relieving_date: null
+			}
+		] as any);
 	});
 
 	describe('creation and validation', () => {
@@ -68,10 +85,10 @@ describe('attendance-record service', () => {
 			await expect(
 				createAttendanceRecord({
 					...validRecordInput,
-					attendance_date: 'invalid-date'
+					date: 'invalid-date'
 				})
 			).rejects.toThrowError(
-				new AttendanceMultiValidationError({ attendance_date: 'Attendance date must be a valid date' })
+				new AttendanceMultiValidationError({ date: 'Attendance date must be a valid date' })
 			);
 		});
 
@@ -80,7 +97,7 @@ describe('attendance-record service', () => {
 			vi.mocked(holidayDao.findByDate).mockResolvedValue({ id: 1n } as any);
 
 			await expect(createAttendanceRecord(validRecordInput)).rejects.toThrowError(
-				new AttendanceMultiValidationError({ attendance_date: 'Attendance cannot be marked on holidays' })
+				new AttendanceMultiValidationError({ date: 'Attendance cannot be marked on holidays' })
 			);
 		});
 
@@ -117,7 +134,7 @@ describe('attendance-record service', () => {
 			vi.mocked(attendanceRecordDao.findByEmployeeAndDate).mockResolvedValue({ cuid: 'existing-cuid' } as any);
 
 			await expect(createAttendanceRecord(validRecordInput)).rejects.toThrowError(
-				new AttendanceMultiValidationError({ attendance_date: 'An attendance record already exists for this employee on this date' })
+				new AttendanceMultiValidationError({ date: 'An attendance record already exists for this employee on this date' })
 			);
 		});
 
@@ -130,7 +147,7 @@ describe('attendance-record service', () => {
 			await expect(
 				createAttendanceRecord({
 					...validRecordInput,
-					attendance_status: 'Leave'
+					status: 'Leave'
 				})
 			).rejects.toThrowError(
 				new AttendanceMultiValidationError({
@@ -143,7 +160,7 @@ describe('attendance-record service', () => {
 			await expect(
 				createAttendanceRecord({
 					...validRecordInput,
-					attendance_status: 'LOP'
+					status: 'LOP'
 				})
 			).rejects.toThrowError(
 				new AttendanceMultiValidationError({
@@ -165,11 +182,11 @@ describe('attendance-record service', () => {
 			expect(result).toEqual({ cuid: 'created-rec-1' });
 			expect(attendanceRecordDao.create).toHaveBeenCalledWith({
 				employee_cuid: employeeCuid,
-				attendance_date: new Date(Date.UTC(2026, 5, 1)),
+				date: new Date(Date.UTC(2026, 5, 1)),
 				check_in_time: new Date('2026-06-01T09:00:00Z'),
 				check_out_time: new Date('2026-06-01T17:00:00Z'),
 				work_duration_minutes: 480, // 8 hours = 480 minutes
-				attendance_status: 'Present',
+				status: 'Present',
 				attendance_source_cuid: 'source-1',
 				remarks: 'Ok',
 				created_by: undefined,
@@ -222,12 +239,13 @@ describe('attendance-record service', () => {
 		});
 
 		it('should list records with parsed date filter', async () => {
-			vi.mocked(attendanceRecordDao.list).mockResolvedValue([{ cuid: 'rec' }] as any);
+			const expectedRecord = { cuid: 'rec', employee_cuid: employeeCuid, date: new Date(Date.UTC(2026, 5, 1)) };
+			vi.mocked(attendanceRecordDao.list).mockResolvedValue([expectedRecord] as any);
 
-			const result = await listAttendanceRecords({ attendance_date: '2026-06-01' });
-			expect(result).toEqual([{ cuid: 'rec' }]);
+			const result = await listAttendanceRecords({ date: '2026-06-01' });
+			expect(result).toEqual([expectedRecord]);
 			expect(attendanceRecordDao.list).toHaveBeenCalledWith({
-				attendance_date: new Date(Date.UTC(2026, 5, 1))
+				date: new Date(Date.UTC(2026, 5, 1))
 			});
 		});
 

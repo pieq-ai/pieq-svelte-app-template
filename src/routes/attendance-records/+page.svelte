@@ -171,7 +171,7 @@
 	);
 
 	let activeHoliday = $derived(
-		data.holidays.find((h: any) => getISODateString(h.holiday_date) === summaryDate)
+		data.holidays.find((h: any) => getISODateString(h.date) === summaryDate)
 	);
 
 	let editingRecord = $derived(data.records.find((r: any) => r.cuid === editCuid));
@@ -194,10 +194,10 @@
 
 		return (
 			formEmployeeCuid !== editingRecord.employee_cuid ||
-			formAttendanceDate !== editingRecord.attendance_date ||
+			formAttendanceDate !== editingRecord.date ||
 			formCheckInTimeOnly !== originalCheckInTime ||
 			formCheckOutTimeOnly !== originalCheckOutTime ||
-			formAttendanceStatus !== editingRecord.attendance_status ||
+			formAttendanceStatus !== editingRecord.status ||
 			formAttendanceSourceCuid !== originalSource ||
 			formRemarks.trim() !== originalRemarks.trim()
 		);
@@ -248,6 +248,14 @@
 	});
 
 
+
+	function handleCloseRequest() {
+		if (hasUnsavedChanges) {
+			isDiscardModalOpen = true;
+		} else {
+			isFormModalOpen = false;
+		}
+	}
 
 	async function confirmDiscard() {
 		isDiscardModalOpen = false;
@@ -415,12 +423,12 @@
 		if (!formEmployeeCuid) errs.employee_cuid = 'Employee is required';
 		
 		if (!formAttendanceDate) {
-			errs.attendance_date = 'Attendance date is required';
+			errs.date = 'Attendance date is required';
 		} else {
 			// Holiday check
-			const isHoliday = data.holidays.some((h: any) => getISODateString(h.holiday_date) === formAttendanceDate);
+			const isHoliday = data.holidays.some((h: any) => getISODateString(h.date) === formAttendanceDate);
 			if (isHoliday) {
-				errs.attendance_date = 'Attendance cannot be marked on holidays';
+				errs.date = 'Attendance cannot be marked on holidays';
 			}
 
 			// Duplicate check
@@ -428,15 +436,15 @@
 				const existing = data.records.find(
 					(rec: any) =>
 						rec.employee_cuid === formEmployeeCuid &&
-						rec.attendance_date === formAttendanceDate
+						(rec.date || rec.attendance_date) === formAttendanceDate
 				);
 				if (existing && (!editCuid || existing.cuid !== editCuid)) {
-					errs.attendance_date = 'An attendance record already exists for this employee on this date';
+					errs.date = 'An attendance record already exists for this employee on this date';
 				}
 			}
 		}
 
-		if (!formAttendanceStatus) errs.attendance_status = 'Attendance status is required';
+		if (!formAttendanceStatus) errs.status = 'Attendance status is required';
 
 		const checkInDateTimeStr = formAttendanceDate && formCheckInTimeOnly ? `${formAttendanceDate}T${formCheckInTimeOnly}` : '';
 		const checkOutDateTimeStr = formAttendanceDate && formCheckOutTimeOnly ? `${formAttendanceDate}T${formCheckOutTimeOnly}` : '';
@@ -474,7 +482,7 @@
 	function openEditModal(record: any) {
 		editCuid = record.cuid;
 		formEmployeeCuid = record.employee_cuid;
-		formAttendanceDate = record.attendance_date;
+		formAttendanceDate = record.date;
 		
 		if (record.check_in_time) {
 			const d = new Date(record.check_in_time);
@@ -492,7 +500,7 @@
 			formCheckOutTimeOnly = '';
 		}
 
-		formAttendanceStatus = record.attendance_status;
+		formAttendanceStatus = record.status;
 		formAttendanceSourceCuid = record.attendance_source_cuid || '';
 		formRemarks = record.remarks || '';
 		errors = {};
@@ -522,10 +530,10 @@
 
 		const payload = {
 			employee_cuid: formEmployeeCuid,
-			attendance_date: formAttendanceDate,
+			date: formAttendanceDate,
 			check_in_time: checkInISO ? new Date(checkInISO).toISOString() : null,
 			check_out_time: checkOutISO ? new Date(checkOutISO).toISOString() : null,
-			attendance_status: formAttendanceStatus,
+			status: formAttendanceStatus,
 			attendance_source_cuid: formAttendanceSourceCuid || null,
 			remarks: formRemarks || null
 		};
@@ -599,18 +607,23 @@
 	}
 
 	let summaryCounts = $derived.by(() => {
-		const recordsForDate = data.records.filter((rec) => rec.attendance_date === summaryDate);
-		const present = recordsForDate.filter((rec) => rec.attendance_status === 'Present').length;
-		const leave = recordsForDate.filter((rec) => rec.attendance_status === 'Leave' || rec.attendance_status === 'On Leave').length;
-		const wfh = recordsForDate.filter((rec) => rec.attendance_status === 'WFH').length;
-		const halfDay = recordsForDate.filter((rec) => rec.attendance_status === 'Half Day').length;
-		const lop = recordsForDate.filter((rec) => rec.attendance_status === 'LOP' || rec.attendance_status === 'Absent').length;
+		const recordsForDate = data.records.filter((rec) => rec.date === summaryDate);
+		const present = recordsForDate.filter((rec) => rec.status === 'Present').length;
+		const leave = recordsForDate.filter((rec) => rec.status === 'Leave' || rec.status === 'On Leave').length;
+		const wfh = recordsForDate.filter((rec) => rec.status === 'WFH').length;
+		const halfDay = recordsForDate.filter((rec) => rec.status === 'Half Day').length;
+		const lop = recordsForDate.filter((rec) => rec.status === 'LOP' || rec.status === 'Absent').length;
 		
 		const loggedInCuids = new Set(recordsForDate.map((rec) => rec.employee_cuid));
-		const notLoggedIn = activeHoliday ? 0 : data.employees.filter((emp) => !loggedInCuids.has(emp.uuid)).length;
+		const activeEmployeesForDate = data.employees.filter((emp) => {
+			const joinStr = emp.date_of_joining ? getISODateString(emp.date_of_joining) : null;
+			const relieveStr = emp.relieving_date ? getISODateString(emp.relieving_date) : null;
+			return joinStr && (summaryDate >= joinStr) && (!relieveStr || summaryDate <= relieveStr);
+		});
+		const notLoggedIn = activeHoliday ? 0 : activeEmployeesForDate.filter((emp) => !loggedInCuids.has(emp.uuid)).length;
 
 		return {
-			total: data.employees.length,
+			total: activeEmployeesForDate.length,
 			present,
 			leave,
 			wfh,
@@ -623,7 +636,8 @@
 	// Derived filtering & sorting logic
 	let filteredRecords = $derived.by(() => {
 		const allEmployees = data.employees;
-		const recordsForDate = data.records.filter((rec) => rec.attendance_date === summaryDate);
+		const recordsForDate = data.records.filter((rec) => rec.date === summaryDate);
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
 		const recordMap = new Map<string, any>();
 		for (const rec of recordsForDate) {
 			recordMap.set(rec.employee_cuid, rec);
@@ -635,19 +649,25 @@
 			if (existingRecord) {
 				list.push(existingRecord);
 			} else {
-				// Virtual "Not Logged In" or "Holiday" record
-				list.push({
-					cuid: `virtual-${emp.uuid}-${summaryDate}`,
-					employee_cuid: emp.uuid,
-					attendance_date: summaryDate,
-					check_in_time: null,
-					check_out_time: null,
-					work_duration_minutes: null,
-					attendance_status: activeHoliday ? 'Holiday' : 'Not Logged In',
-					attendance_source_cuid: null,
-					remarks: null,
-					isVirtual: true
-				});
+				// Only generate virtual record if summaryDate is within employment range
+				const joinStr = emp.date_of_joining ? getISODateString(emp.date_of_joining) : null;
+				const relieveStr = emp.relieving_date ? getISODateString(emp.relieving_date) : null;
+				
+				if (joinStr && (summaryDate >= joinStr) && (!relieveStr || summaryDate <= relieveStr)) {
+					// Virtual "Not Logged In" or "Holiday" record
+					list.push({
+						cuid: `virtual-${emp.uuid}-${summaryDate}`,
+						employee_cuid: emp.uuid,
+						date: summaryDate,
+						check_in_time: null,
+						check_out_time: null,
+						work_duration_minutes: null,
+						status: activeHoliday ? 'Holiday' : 'Not Logged In',
+						attendance_source_cuid: null,
+						remarks: null,
+						isVirtual: true
+					});
+				}
 			}
 		}
 
@@ -665,14 +685,14 @@
 		if (filterStatus !== 'all') {
 			if (filterStatus === 'LOP') {
 				result = result.filter(
-					(rec) => rec.attendance_status === 'LOP' || rec.attendance_status === 'Absent'
+					(rec) => rec.status === 'LOP' || rec.status === 'Absent'
 				);
 			} else if (filterStatus === 'Leave') {
 				result = result.filter(
-					(rec) => rec.attendance_status === 'Leave' || rec.attendance_status === 'On Leave'
+					(rec) => rec.status === 'Leave' || rec.status === 'On Leave'
 				);
 			} else {
-				result = result.filter((rec) => rec.attendance_status === filterStatus);
+				result = result.filter((rec) => rec.status === filterStatus);
 			}
 		}
 
@@ -872,7 +892,7 @@
 		<div class="flex items-center gap-4 p-4 bg-blue-500/10 dark:bg-blue-500/15 border border-blue-500/20 dark:border-blue-500/30 rounded-xl text-blue-950 dark:text-blue-50 shadow-xs mb-6">
 			<span class="text-xl">🎉</span>
 			<div>
-				<h4 class="font-bold text-base">Today is {activeHoliday.holiday_name}</h4>
+				<h4 class="font-bold text-base">Today is {activeHoliday.name}</h4>
 				<p class="text-sm opacity-90">Attendance logging is not required for this holiday</p>
 			</div>
 		</div>
@@ -889,6 +909,7 @@
 					<DatePicker
 						placeholder="Filter Date"
 						bind:value={summaryDate}
+						isFilter={true}
 					/>
 				</div>
 
@@ -997,11 +1018,11 @@
 							</Button>
 						</TableHead>
 						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('attendance_status')}>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
 								Status
-								{#if sortKey === 'attendance_status' && sortDirection === 'asc'}
+								{#if sortKey === 'status' && sortDirection === 'asc'}
 									<ArrowUpIcon class="ml-1 size-3.5" />
-								{:else if sortKey === 'attendance_status' && sortDirection === 'desc'}
+								{:else if sortKey === 'status' && sortDirection === 'desc'}
 									<ArrowDownIcon class="ml-1 size-3.5" />
 								{:else}
 									<ArrowUpDownIcon class="ml-1 size-3.5" />
@@ -1030,21 +1051,21 @@
 								}}
 							>
 								<TableCell class="font-semibold">{getEmployeeName(rec.employee_cuid)}</TableCell>
-								<TableCell>{formatDate(rec.attendance_date)}</TableCell>
+								<TableCell>{formatDate(rec.date)}</TableCell>
 								<TableCell>{formatDisplayTime(rec.check_in_time)}</TableCell>
 								<TableCell>{formatDisplayTime(rec.check_out_time)}</TableCell>
 								<TableCell>{formatDuration(rec.work_duration_minutes)}</TableCell>
 								<TableCell>
-									<Badge class={`border-none px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(rec.attendance_status)}`}>
-										{rec.attendance_status}
+									<Badge class={`border-none px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(rec.status)}`}>
+										{rec.status}
 									</Badge>
 								</TableCell>
 								<TableCell>{getSourceName(rec.attendance_source_cuid)}</TableCell>
 								<TableCell class="text-right">
 									{#if !rec.isVirtual}
 										<TableActions
+											canEdit={true}
 											onEdit={() => openEditModal(rec)}
-											showIcons={false}
 										/>
 									{:else}
 										<span class="text-muted-foreground text-xs select-none">--</span>
@@ -1057,7 +1078,7 @@
 			</Table>
 		</Card>
 
-		<Pagination totalItems={filteredRecords.length} bind:currentPage={currentPage} pageSize={pageSize} showIcons={false} />
+		<Pagination totalItems={filteredRecords.length} bind:currentPage={currentPage} pageSize={pageSize} />
 	</div>
 </div>
 
@@ -1065,8 +1086,7 @@
 <CrudModal
 	open={isFormModalOpen}
 	title={editCuid ? 'Edit Attendance Record' : 'Create Attendance Record'}
-	isDirty={hasUnsavedChanges}
-	onClose={confirmDiscard}
+	onClose={handleCloseRequest}
 	preventOutsideClickClose={true}
 >
 	{#snippet children({ cancel })}
@@ -1136,19 +1156,19 @@
 
 			<!-- Date Selector -->
 			<div class="space-y-2">
-				<Label for="modal_date" class={errors.attendance_date ? 'text-destructive font-semibold' : ''}>Attendance Date <span class="text-destructive font-bold">*</span></Label>
+				<Label for="modal_date" class={errors.date ? 'text-destructive font-semibold' : ''}>Attendance Date <span class="text-destructive font-bold">*</span></Label>
 				<DatePicker
 					id="modal_date"
-					name="attendance_date"
+					name="date"
 					bind:value={formAttendanceDate}
 					onchange={() => {
-						errors.attendance_date = '';
+						errors.date = '';
 					}}
 					required={true}
-					hasError={!!errors.attendance_date}
+					isError={!!errors.date}
 				/>
-				{#if errors.attendance_date}
-					<p class="text-xs font-semibold text-destructive mt-0.5">{errors.attendance_date}</p>
+				{#if errors.date}
+					<p class="text-xs font-semibold text-destructive mt-0.5">{errors.date}</p>
 				{/if}
 			</div>
 
@@ -1195,11 +1215,11 @@
 			<div class="grid grid-cols-2 gap-4">
 				<!-- Status Selector -->
 				<div class="space-y-2 flex flex-col">
-					<Label for="modal_status" class={errors.attendance_status ? 'text-destructive font-semibold' : ''}>Status <span class="text-destructive font-bold">*</span></Label>
+					<Label for="modal_status" class={errors.status ? 'text-destructive font-semibold' : ''}>Status <span class="text-destructive font-bold">*</span></Label>
 					<DropdownMenu.Root>
 						<DropdownMenu.Trigger>
 							{#snippet child({ props })}
-								<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none {errors.attendance_status ? 'border-destructive' : ''}" {...props}>
+								<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none {errors.status ? 'border-destructive' : ''}" {...props}>
 									<span class="truncate pr-2">
 										{formAttendanceStatus ? (statusOptions.find(o => o.value === formAttendanceStatus)?.label || 'Select Status') : 'Select Status'}
 									</span>
@@ -1213,7 +1233,7 @@
 									<DropdownMenu.Item
 										onclick={() => {
 											formAttendanceStatus = opt.value;
-											errors.attendance_status = '';
+											errors.status = '';
 										}}
 										class="justify-between cursor-pointer {formAttendanceStatus === opt.value ? 'bg-accent text-accent-foreground font-semibold' : ''}"
 									>
@@ -1226,8 +1246,8 @@
 							</DropdownMenu.Group>
 						</DropdownMenu.Content>
 					</DropdownMenu.Root>
-					{#if errors.attendance_status}
-						<p class="text-xs font-semibold text-destructive mt-0.5">{errors.attendance_status}</p>
+					{#if errors.status}
+						<p class="text-xs font-semibold text-destructive mt-0.5">{errors.status}</p>
 					{/if}
 				</div>
 
@@ -1395,9 +1415,10 @@
 	open={isDiscardModalOpen}
 	title="Cancel Changes"
 	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Keep Editing"
-	onCancel={confirmDiscard}
-	onConfirm={() => (isDiscardModalOpen = false)}
+	confirmLabel="Discard Changes"
+	cancelLabel="Keep Editing"
+	onConfirm={confirmDiscard}
+	onCancel={() => (isDiscardModalOpen = false)}
 	preventOutsideClickClose={true}
 />
 
@@ -1407,7 +1428,6 @@
 	open={isAddSourceModalOpen}
 	title="Add Attendance Source"
 	description="Create a new attendance source master record."
-	isDirty={newSourceName.trim() !== ''}
 	onClose={() => {
 		isAddSourceModalOpen = false;
 		newSourceName = '';

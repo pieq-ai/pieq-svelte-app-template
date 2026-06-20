@@ -154,12 +154,12 @@ export async function update(master: MasterKey, data: MasterUpdateInput) {
 
 export async function findAttendanceSourceByName(name: string) {
 	return db.attendanceSource.findFirst({
-		where: { attendance_source_name: { equals: name, mode: 'insensitive' } }
+		where: { name: { equals: name, mode: 'insensitive' } }
 	});
 }
 
 export async function createAttendanceSource(name: string) {
 	return db.attendanceSource.create({
-		data: { attendance_source_name: name }
+		data: { name: name }
 	});
 }

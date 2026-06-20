@@ -34,7 +34,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		return json({ error: { general: 'Request body must be valid JSON' } }, { status: 400 });
 	}
 
-	const allowedKeys = ['leave_name', 'leave_code', 'description', 'is_paid', 'requires_approval', 'status'];
+	const allowedKeys = ['name', 'code', 'description', 'is_paid', 'requires_approval', 'status'];
 
 	const validation = validatePayloadKeys(body, allowedKeys);
 	if (validation) {
@@ -42,15 +42,15 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	}
 
 	const trimmedBody = trimStringFields(body) as {
-		leave_name?: unknown;
-		leave_code?: unknown;
+		name?: unknown;
+		code?: unknown;
 		description?: unknown;
 		is_paid?: unknown;
 		requires_approval?: unknown;
 		status?: unknown;
 	};
 
-	const { leave_name, leave_code, description, is_paid, requires_approval, status } = trimmedBody;
+	const { name, code, description, is_paid, requires_approval, status } = trimmedBody;
 
 	try {
 		let userId: string | null = null;
@@ -62,8 +62,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		}
 
 		const data = await createLeaveType({
-			leave_name,
-			leave_code,
+			name,
+			code,
 			description,
 			is_paid,
 			requires_approval,

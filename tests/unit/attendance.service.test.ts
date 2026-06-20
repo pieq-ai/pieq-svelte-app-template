@@ -10,6 +10,12 @@ import {
 	getTodayStatus,
 	AttendanceValidationError
 } from '$lib/server/services/attendance.service.js';
+import * as employmentDao from '$lib/server/dao/employment.dao.js';
+
+vi.mock('$lib/server/dao/employment.dao.js', () => ({
+	findByEmployeeCuid: vi.fn(),
+	list: vi.fn()
+}));
 
 vi.mock('$lib/server/dao/employee.dao.js', () => ({
 	findUniqueByUuid: vi.fn()
@@ -43,6 +49,10 @@ describe('attendance service', () => {
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date(Date.UTC(2026, 5, 1, 9, 0, 0))); // June 1, 2026 09:00 UTC (Monday)
 		vi.clearAllMocks();
+		vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+			date_of_joining: new Date(Date.UTC(2026, 0, 1)), // Jan 1, 2026
+			relieving_date: null
+		} as any);
 	});
 
 	afterEach(() => {
@@ -139,16 +149,16 @@ describe('attendance service', () => {
 			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue(null);
-			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ cuid: 'source-123', attendance_source_name: 'Mobile' } as any);
+			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ cuid: 'source-123', name: 'Mobile' } as any);
 			vi.mocked(attendanceDao.create).mockResolvedValue({ cuid: 'created-attendance' } as any);
 
 			const result = await checkIn(employeeCuid, 'source-123', 'admin', validGps);
 			expect(result).toEqual({ cuid: 'created-attendance' });
 			expect(attendanceDao.create).toHaveBeenCalledWith({
 				employee_cuid: employeeCuid,
-				attendance_date: new Date(Date.UTC(2026, 5, 1)),
+				date: new Date(Date.UTC(2026, 5, 1)),
 				check_in_time: new Date(Date.UTC(2026, 5, 1, 9, 0, 0)),
-				attendance_status: 'Present',
+				status: 'Present',
 				attendance_source_cuid: 'source-123',
 				created_by: 'admin',
 				updated_by: 'admin',
@@ -274,7 +284,17 @@ describe('attendance service', () => {
 			vi.mocked(attendanceDao.listByEmployee).mockResolvedValue([{ cuid: 'rec-1' }] as any);
 			const result = await getEmployeeHistory(employeeCuid);
 			expect(result).toEqual([{ cuid: 'rec-1' }]);
-			expect(attendanceDao.listByEmployee).toHaveBeenCalledWith(employeeCuid);
+			expect(attendanceDao.listByEmployee).toHaveBeenCalledWith(employeeCuid, expect.any(Date), expect.any(Date));
+		});
+
+		it('should retrieve history with default far-future endDate when no relieving_date is set', async () => {
+			vi.mocked(attendanceDao.listByEmployee).mockResolvedValue([{ cuid: 'rec-1' }] as any);
+			await getEmployeeHistory(employeeCuid);
+			expect(attendanceDao.listByEmployee).toHaveBeenCalledWith(
+				employeeCuid,
+				expect.any(Date),
+				new Date(Date.UTC(2099, 11, 31))
+			);
 		});
 
 		it('should reject retrieval without employeeCuid', async () => {

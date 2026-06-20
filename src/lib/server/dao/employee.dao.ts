@@ -41,6 +41,8 @@ export async function findByCuid2(cuid: string) {
 	});
 }
 
+export const findUniqueByUuid = findByCuid2;
+
 export async function findByEmpCode(emp_code: string) {
 	return db.employee.findFirst({
 		where: { emp_code, is_deleted: false }

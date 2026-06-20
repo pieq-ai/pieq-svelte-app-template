@@ -47,6 +47,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 		'max_per_month',
 		'carry_forward_allowed',
 		'max_carry_forward_days',
+		'max_annual_carry_forward_days',
 		'document_required',
 		'document_required_after_days',
 		'min_service_days',
@@ -68,6 +69,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 		max_per_month?: unknown;
 		carry_forward_allowed?: unknown;
 		max_carry_forward_days?: unknown;
+		max_annual_carry_forward_days?: unknown;
 		document_required?: unknown;
 		document_required_after_days?: unknown;
 		min_service_days?: unknown;
@@ -84,6 +86,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 		max_per_month,
 		carry_forward_allowed,
 		max_carry_forward_days,
+		max_annual_carry_forward_days,
 		document_required,
 		document_required_after_days,
 		min_service_days,
@@ -111,6 +114,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 			max_per_month,
 			carry_forward_allowed,
 			max_carry_forward_days,
+			max_annual_carry_forward_days,
 			document_required,
 			document_required_after_days,
 			min_service_days,

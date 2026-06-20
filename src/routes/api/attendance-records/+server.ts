@@ -12,14 +12,14 @@ import { successResponse, errorResponse, createSuccessResponse } from '$lib/serv
 export const GET: RequestHandler = async ({ url, locals }) => {
 	try {
 		const employee_cuid = url.searchParams.get('employee_cuid') ?? undefined;
-		const attendance_date = url.searchParams.get('attendance_date') ?? undefined;
-		const attendance_status = url.searchParams.get('attendance_status') ?? undefined;
+		const date = url.searchParams.get('date') ?? undefined;
+		const status = url.searchParams.get('status') ?? undefined;
 		const attendance_source_cuid = url.searchParams.get('attendance_source_cuid') ?? undefined;
 
 		const records = await listAttendanceRecords({
 			employee_cuid,
-			attendance_date,
-			attendance_status,
+			date,
+			status,
 			attendance_source_cuid
 		});
 
@@ -27,11 +27,11 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 		const formattedRecords = records.map((rec) => ({
 			cuid: rec.cuid,
 			employee_cuid: rec.employee_cuid,
-			attendance_date: rec.date.toISOString().split('T')[0],
+			date: rec.date.toISOString().split('T')[0],
 			check_in_time: rec.check_in_time ? rec.check_in_time.toISOString() : null,
 			check_out_time: rec.check_out_time ? rec.check_out_time.toISOString() : null,
 			work_duration_minutes: rec.work_duration_minutes,
-			attendance_status: rec.status,
+			status: rec.status,
 			attendance_source_cuid: rec.attendance_source_cuid,
 			remarks: rec.remarks
 		}));
@@ -54,10 +54,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 	const allowedKeys = [
 		'employee_cuid',
-		'attendance_date',
+		'date',
 		'check_in_time',
 		'check_out_time',
-		'attendance_status',
+		'status',
 		'attendance_source_cuid',
 		'remarks'
 	];

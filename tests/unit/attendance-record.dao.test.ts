@@ -37,8 +37,8 @@ describe('attendance-record DAO', () => {
 
 			const result = await list({
 				employee_cuid: 'emp-1',
-				attendance_date: date,
-				attendance_status: 'Present',
+				date,
+				status: 'Present',
 				attendance_source_cuid: 'source-1'
 			});
 
@@ -92,11 +92,11 @@ describe('attendance-record DAO', () => {
 		it('should create attendance record with appropriate schema mappings', async () => {
 			const input = {
 				employee_cuid: 'emp-1',
-				attendance_date: new Date(),
+				date: new Date(),
 				check_in_time: new Date(),
 				check_out_time: new Date(),
 				work_duration_minutes: 480,
-				attendance_status: 'Present',
+				status: 'Present',
 				attendance_source_cuid: 'source-1',
 				remarks: 'Good'
 			};
@@ -106,7 +106,7 @@ describe('attendance-record DAO', () => {
 			expect(db.attendanceRecord.create).toHaveBeenCalledWith({
 				data: {
 					employee_cuid: 'emp-1',
-					date: input.attendance_date,
+					date: input.date,
 					check_in_time: input.check_in_time,
 					check_out_time: input.check_out_time,
 					work_duration_minutes: 480,
@@ -121,10 +121,10 @@ describe('attendance-record DAO', () => {
 	});
 
 	describe('update', () => {
-		it('should map attendance_date and attendance_status to date and status respectively on update', async () => {
+		it('should update record with direct generic inputs on update', async () => {
 			const input = {
-				attendance_date: new Date(),
-				attendance_status: 'Absent'
+				date: new Date(),
+				status: 'Absent'
 			};
 			vi.mocked(db.attendanceRecord.update).mockResolvedValue({ id: 1n } as any);
 
@@ -132,7 +132,7 @@ describe('attendance-record DAO', () => {
 			expect(db.attendanceRecord.update).toHaveBeenCalledWith({
 				where: { cuid: 'c1' },
 				data: {
-					date: input.attendance_date,
+					date: input.date,
 					status: 'Absent'
 				}
 			});

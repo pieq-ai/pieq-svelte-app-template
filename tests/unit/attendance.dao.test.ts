@@ -58,11 +58,11 @@ describe('attendance DAO', () => {
 	it('should create attendance record with expected fields', async () => {
 		const input = {
 			employee_cuid: 'emp-1',
-			attendance_date: new Date(),
+			date: new Date(),
 			check_in_time: new Date(),
 			check_out_time: null,
 			work_duration_minutes: null,
-			attendance_status: 'Present',
+			status: 'Present',
 			attendance_source_cuid: 'source-1',
 			remarks: 'Good',
 			created_by: 'user-1',
@@ -78,11 +78,11 @@ describe('attendance DAO', () => {
 		expect(db.attendanceRecord.create).toHaveBeenCalledWith({
 			data: {
 				employee_cuid: input.employee_cuid,
-				date: input.attendance_date,
+				date: input.date,
 				check_in_time: input.check_in_time,
 				check_out_time: null,
 				work_duration_minutes: null,
-				status: input.attendance_status,
+				status: input.status,
 				attendance_source_cuid: input.attendance_source_cuid,
 				remarks: input.remarks,
 				created_by: input.created_by,

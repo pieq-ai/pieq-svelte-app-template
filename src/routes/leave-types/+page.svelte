@@ -85,8 +85,8 @@
 		const nameErr = getNameClientError(leaveName);
 		const codeErr = getCodeClientError(leaveCode);
 
-		errors.leave_name = nameErr;
-		errors.leave_code = codeErr;
+		errors.name = nameErr;
+		errors.code = codeErr;
 
 		if (nameErr || codeErr) {
 			return;
@@ -96,8 +96,8 @@
 		errors.general = '';
 
 		const body = {
-			leave_name: leaveName,
-			leave_code: leaveCode,
+			name: leaveName,
+			code: leaveCode,
 			description: description || null,
 			is_paid: isPaid,
 			requires_approval: requiresApproval,
@@ -182,8 +182,8 @@
 	let hasChanges = $derived.by(() => {
 		if (!editCuid || !editingType) return false;
 		return (
-			leaveName.trim() !== editingType.leave_name.trim() ||
-			leaveCode.trim() !== editingType.leave_code.trim() ||
+			leaveName.trim() !== editingType.name.trim() ||
+			leaveCode.trim() !== editingType.code.trim() ||
 			description.trim() !== (editingType.description || '').trim() ||
 			isPaid !== editingType.is_paid ||
 			requiresApproval !== editingType.requires_approval ||
@@ -295,8 +295,8 @@
 		if (hasSynchronized) return;
 
 		if (editingType) {
-			leaveName = editingType.leave_name;
-			leaveCode = editingType.leave_code;
+			leaveName = editingType.name;
+			leaveCode = editingType.code;
 			description = editingType.description || '';
 			isPaid = editingType.is_paid;
 			requiresApproval = editingType.requires_approval;
@@ -378,8 +378,8 @@
 			const query = searchQuery.toLowerCase();
 			result = result.filter(
 				(t) =>
-					t.leave_name.toLowerCase().includes(query) ||
-					t.leave_code.toLowerCase().includes(query) ||
+					t.name.toLowerCase().includes(query) ||
+					t.code.toLowerCase().includes(query) ||
 					(t.description && t.description.toLowerCase().includes(query))
 			);
 		}
@@ -485,11 +485,11 @@
 				<TableHeader class="bg-muted">
 					<TableRow>
 						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('leave_name')}>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
 								Leave Name
-							{#if sortKey === 'leave_name' && sortDirection === 'asc'}
+							{#if sortKey === 'name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortKey === 'leave_name' && sortDirection === 'desc'}
+							{:else if sortKey === 'name' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
@@ -497,11 +497,11 @@
 							</Button>
 						</TableHead>
 						<TableHead class="w-32 font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('leave_code')}>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('code')}>
 								Leave Code
-							{#if sortKey === 'leave_code' && sortDirection === 'asc'}
+							{#if sortKey === 'code' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortKey === 'leave_code' && sortDirection === 'desc'}
+							{:else if sortKey === 'code' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
@@ -564,12 +564,12 @@
 								class="cursor-pointer"
 							>
 								<TableCell class="font-normal">
-									<div>{type.leave_name}</div>
+									<div>{type.name}</div>
 									{#if type.description}
 										<span class="font-normal text-muted-foreground line-clamp-1">{type.description}</span>
 									{/if}
 								</TableCell>
-								<TableCell class="font-normal uppercase">{type.leave_code}</TableCell>
+								<TableCell class="font-normal uppercase">{type.code}</TableCell>
 								<TableCell class="text-center">
 									{#if type.is_paid}
 										Paid
@@ -589,8 +589,8 @@
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
+										canEdit={true}
 										onEdit={() => openEditModal(type.cuid)}
-										showIcons={false}
 									/>
 								</TableCell>
 							</TableRow>
@@ -600,7 +600,7 @@
 			</Table>
 		</Card>
 		
-		<Pagination totalItems={filteredTypes.length} bind:currentPage={currentPage} pageSize={10} showIcons={false} />
+		<Pagination totalItems={filteredTypes.length} bind:currentPage={currentPage} pageSize={10} />
 	</div>
 </div>
 
@@ -617,42 +617,42 @@
 			{/if}
 
 			<div class="space-y-2">
-				<Label for="modal_leave_name" class={errors.leave_name ? 'text-destructive' : ''}>Leave Name <span class="text-destructive">*</span></Label>
+				<Label for="modal_leave_name" class={errors.name ? 'text-destructive' : ''}>Leave Name <span class="text-destructive">*</span></Label>
 				<Input
 					id="modal_leave_name"
-					name="leave_name"
+					name="name"
 					bind:value={leaveName}
 					oninput={() => {
-						if (form && form.field === 'leave_name') form = null;
-						errors.leave_name = '';
+						if (form && form.field === 'name') form = null;
+						errors.name = '';
 					}}
 					placeholder="e.g. Sick Leave"
 					required
 					minlength={6}
 					pattern="^[a-zA-Z\s]+$"
-					class={errors.leave_name ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+					class={errors.name ? 'border-destructive focus-visible:ring-destructive/30' : ''}
 				/>
-				{#if errors.leave_name}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.leave_name}</p>
+				{#if errors.name}
+					<p class="text-xs font-medium text-destructive mt-1">{errors.name}</p>
 				{/if}
 			</div>
 
 			<div class="space-y-2">
-				<Label for="modal_leave_code" class={errors.leave_code ? 'text-destructive' : ''}>Leave Code <span class="text-destructive">*</span></Label>
+				<Label for="modal_leave_code" class={errors.code ? 'text-destructive' : ''}>Leave Code <span class="text-destructive">*</span></Label>
 				<Input
 					id="modal_leave_code"
-					name="leave_code"
+					name="code"
 					bind:value={leaveCode}
 					oninput={() => {
-						if (form && form.field === 'leave_code') form = null;
-						errors.leave_code = '';
+						if (form && form.field === 'code') form = null;
+						errors.code = '';
 					}}
 					placeholder="e.g. SL"
 					required
-					class="uppercase {errors.leave_code ? 'border-destructive focus-visible:ring-destructive/30' : ''}"
+					class="uppercase {errors.code ? 'border-destructive focus-visible:ring-destructive/30' : ''}"
 				/>
-				{#if errors.leave_code}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.leave_code}</p>
+				{#if errors.code}
+					<p class="text-xs font-medium text-destructive mt-1">{errors.code}</p>
 				{/if}
 			</div>
 

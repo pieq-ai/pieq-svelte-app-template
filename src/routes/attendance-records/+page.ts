@@ -23,7 +23,12 @@ export const load: PageLoad = async ({ fetch }) => {
 
 	if (employeesRes.ok) {
 		const json = await employeesRes.json();
-		employees = json.data || [];
+		const rawEmployees = json.data || [];
+		employees = rawEmployees.map((emp: any) => ({
+			...emp,
+			uuid: emp.cuid,
+			name: `${emp.first_name} ${emp.last_name}`
+		}));
 	} else {
 		error = 'Failed to fetch employees';
 	}

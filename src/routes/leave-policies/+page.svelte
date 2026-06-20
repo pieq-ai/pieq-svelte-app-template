@@ -55,7 +55,7 @@
 
 	let filterLeaveTypeOptions = $derived([
 		{ value: 'all', label: 'All Leave Types' },
-		...data.leaveTypes.map(type => ({ value: type.cuid, label: type.leave_name }))
+		...data.leaveTypes.map(type => ({ value: type.cuid, label: type.name }))
 	]);
 
 	let filterEmploymentTypeOptions = $derived([
@@ -65,7 +65,7 @@
 	let modalLeaveTypeOptions = $derived([
 		...data.leaveTypes
 			.filter((t) => t.status || (editingPolicy && editingPolicy.leave_type_cuid === t.cuid))
-			.map(type => ({ value: type.cuid, label: type.leave_name }))
+			.map(type => ({ value: type.cuid, label: type.name }))
 	]);
 
 	const genderOptions = [
@@ -97,6 +97,7 @@
 		maxPerMonth = '';
 		carryForwardAllowed = false;
 		maxCarryForwardDays = '';
+		maxAnnualCarryForwardDays = '';
 		documentRequired = false;
 		documentRequiredAfterDays = '';
 		minServiceDays = '0';
@@ -125,6 +126,7 @@
 		const quotaErr = getQuotaError(annualLimit);
 		const maxPerMonthErr = getMaxPerMonthError(maxPerMonth, annualLimit);
 		const carryForwardErr = getCarryForwardDaysError(carryForwardAllowed, maxCarryForwardDays);
+		const carryForwardAnnualErr = getCarryForwardAnnualDaysError(carryForwardAllowed, maxAnnualCarryForwardDays, maxCarryForwardDays);
 		const documentRequiredAfterDaysErr = getDocumentRequiredAfterDaysError(documentRequired, documentRequiredAfterDays);
 		const minServiceErr = getMinServiceDaysError(minServiceDays);
 		const genderErr = getGenderError(genderSpecific, applicableGender);
@@ -134,6 +136,7 @@
 		errors.annual_limit = quotaErr;
 		errors.max_per_month = maxPerMonthErr;
 		errors.max_carry_forward_days = carryForwardErr;
+		errors.max_annual_carry_forward_days = carryForwardAnnualErr;
 		errors.document_required_after_days = documentRequiredAfterDaysErr;
 		errors.min_service_days = minServiceErr;
 		errors.applicable_gender = genderErr;
@@ -144,6 +147,7 @@
 			quotaErr ||
 			maxPerMonthErr ||
 			carryForwardErr ||
+			carryForwardAnnualErr ||
 			documentRequiredAfterDaysErr ||
 			minServiceErr ||
 			genderErr
@@ -161,6 +165,7 @@
 			max_per_month: maxPerMonth || null,
 			carry_forward_allowed: carryForwardAllowed,
 			max_carry_forward_days: carryForwardAllowed ? maxCarryForwardDays : null,
+			max_annual_carry_forward_days: carryForwardAllowed ? maxAnnualCarryForwardDays : null,
 			document_required: documentRequired,
 			document_required_after_days: documentRequired ? (documentRequiredAfterDays === '' ? null : Number(documentRequiredAfterDays)) : null,
 			min_service_days: minServiceDays,
@@ -244,6 +249,7 @@
 	let maxPerMonth = $state('');
 	let carryForwardAllowed = $state(false);
 	let maxCarryForwardDays = $state('');
+	let maxAnnualCarryForwardDays = $state('');
 	let documentRequired = $state(false);
 	let documentRequiredAfterDays = $state('');
 	let minServiceDays = $state('');
@@ -327,6 +333,7 @@
 
 		const originalMaxPerMonth = editingPolicy.max_per_month !== null ? String(editingPolicy.max_per_month) : '';
 		const originalMaxCarryForwardDays = editingPolicy.max_carry_forward_days !== null ? String(editingPolicy.max_carry_forward_days) : '';
+		const originalMaxAnnualCarryForwardDays = editingPolicy.max_annual_carry_forward_days !== null ? String(editingPolicy.max_annual_carry_forward_days) : '';
 		const originalDocumentRequiredAfterDays = editingPolicy.document_required_after_days !== null ? String(editingPolicy.document_required_after_days) : '';
 		const originalMinServiceDays = String(editingPolicy.min_service_days);
 		const originalApplicableGender = editingPolicy.applicable_gender || '';
@@ -347,6 +354,7 @@
 			maxPerMonth.trim() !== originalMaxPerMonth.trim() ||
 			carryForwardAllowed !== editingPolicy.carry_forward_allowed ||
 			maxCarryForwardDays.trim() !== originalMaxCarryForwardDays.trim() ||
+			maxAnnualCarryForwardDays.trim() !== originalMaxAnnualCarryForwardDays.trim() ||
 			documentRequired !== editingPolicy.document_required ||
 			documentRequiredAfterDays.trim() !== originalDocumentRequiredAfterDays.trim() ||
 			minServiceDays.trim() !== originalMinServiceDays.trim() ||
@@ -368,6 +376,7 @@
 				maxPerMonth.trim() !== '' ||
 				carryForwardAllowed !== false ||
 				maxCarryForwardDays.trim() !== '' ||
+				maxAnnualCarryForwardDays.trim() !== '' ||
 				documentRequired !== false ||
 				documentRequiredAfterDays.trim() !== '' ||
 				minServiceDays.trim() !== '0' && minServiceDays.trim() !== '' ||
@@ -385,7 +394,7 @@
 			leaveTypeId.trim() !== '' &&
 			selectedEmploymentTypes.length > 0 &&
 			annualLimit.trim() !== '' &&
-			(!carryForwardAllowed || maxCarryForwardDays.trim() !== '') &&
+			(!carryForwardAllowed || (maxCarryForwardDays.trim() !== '' && maxAnnualCarryForwardDays.trim() !== '')) &&
 			(!genderSpecific || applicableGender !== '');
 		if (!mandatoryFieldsFilled) return true;
 		if (editUuid) {
@@ -416,6 +425,7 @@
 		maxPerMonth = '';
 		carryForwardAllowed = false;
 		maxCarryForwardDays = '';
+		maxAnnualCarryForwardDays = '';
 		documentRequired = false;
 		documentRequiredAfterDays = '';
 		minServiceDays = '0';
@@ -486,6 +496,7 @@
 			maxPerMonth = editingPolicy.max_per_month !== null ? String(editingPolicy.max_per_month) : '';
 			carryForwardAllowed = editingPolicy.carry_forward_allowed;
 			maxCarryForwardDays = editingPolicy.max_carry_forward_days !== null ? String(editingPolicy.max_carry_forward_days) : '';
+			maxAnnualCarryForwardDays = editingPolicy.max_annual_carry_forward_days !== null ? String(editingPolicy.max_annual_carry_forward_days) : '';
 			documentRequired = editingPolicy.document_required;
 			documentRequiredAfterDays = editingPolicy.document_required_after_days !== null ? String(editingPolicy.document_required_after_days) : '';
 			minServiceDays = String(editingPolicy.min_service_days);
@@ -501,6 +512,7 @@
 			maxPerMonth = '';
 			carryForwardAllowed = false;
 			maxCarryForwardDays = '';
+			maxAnnualCarryForwardDays = '';
 			documentRequired = false;
 			documentRequiredAfterDays = '';
 			minServiceDays = '0';
@@ -523,6 +535,7 @@
 			maxPerMonth = '';
 			carryForwardAllowed = false;
 			maxCarryForwardDays = '';
+			maxAnnualCarryForwardDays = '';
 			documentRequired = false;
 			documentRequiredAfterDays = '';
 			minServiceDays = '0';
@@ -610,6 +623,27 @@
 		return '';
 	}
 
+	function getCarryForwardAnnualDaysError(allowed: boolean, annualStr: string, maxStr: string): string {
+		if (!allowed) return '';
+		if (!annualStr || String(annualStr).trim() === '') {
+			return 'Max annual carry forward days is required when carry forward is allowed';
+		}
+		if (isNaN(Number(annualStr))) {
+			return 'Only numeric values are allowed';
+		}
+		const annualDays = Number(annualStr);
+		if (annualDays <= 0) {
+			return 'Value must be greater than 0';
+		}
+		if (maxStr && !isNaN(Number(maxStr))) {
+			const maxDays = Number(maxStr);
+			if (annualDays > maxDays) {
+				return 'Max annual carry forward days cannot exceed max carry forward days';
+			}
+		}
+		return '';
+	}
+
 	function getMinServiceDaysError(daysStr: string): string {
 		if (!daysStr || daysStr.trim() === '') return '';
 		if (isNaN(Number(daysStr))) {
@@ -654,7 +688,7 @@
 
 	function getLeaveTypeName(uuid: string): string {
 		const found = data.leaveTypes.find((t) => t.cuid === uuid);
-		return found ? found.leave_name : `UUID: ${uuid}`;
+		return found ? found.name : `UUID: ${uuid}`;
 	}
 
 	function getEmploymentTypeNames(uuids: string[]): string {
@@ -972,7 +1006,7 @@
 								<TableCell class="text-right font-normal">{policy.annual_limit}</TableCell>
 								<TableCell class="text-center font-normal">
 									{#if policy.carry_forward_allowed}
-										Yes ({policy.max_carry_forward_days})
+										Yes (Max: {policy.max_carry_forward_days}, Annual: {policy.max_annual_carry_forward_days})
 									{:else}
 										No
 									{/if}
@@ -996,8 +1030,8 @@
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
+										canEdit={true}
 										onEdit={() => openEditModal(policy.cuid)}
-										showIcons={false}
 									/>
 								</TableCell>
 							</TableRow>
@@ -1007,7 +1041,7 @@
 			</Table>
 		</Card>
 		
-		<Pagination totalItems={filteredPolicies.length} bind:currentPage={currentPage} pageSize={10} showIcons={false} />
+		<Pagination totalItems={filteredPolicies.length} bind:currentPage={currentPage} pageSize={10} />
 	</div>
 </div>
 
@@ -1123,8 +1157,10 @@
 					onchange={() => {
 						if (form && form.field === 'carry_forward_allowed') form = null;
 						errors.max_carry_forward_days = '';
+						errors.max_annual_carry_forward_days = '';
 						if (!carryForwardAllowed) {
 							maxCarryForwardDays = '';
+							maxAnnualCarryForwardDays = '';
 						}
 					}}
 					class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
@@ -1133,24 +1169,44 @@
 			</div>
 
 			{#if carryForwardAllowed}
-				<div transition:slide class="space-y-2 pl-4">
-					<Label for="modal_max_carry_forward_days" class={errors.max_carry_forward_days ? 'text-destructive' : ''}>Max Carry Forward Days <span class="text-destructive">*</span></Label>
-					
-					<Input
-						id="modal_max_carry_forward_days"
-						name="max_carry_forward_days"
-						bind:value={maxCarryForwardDays}
-						oninput={() => {
-							if (form && form.field === 'max_carry_forward_days') form = null;
-							errors.max_carry_forward_days = '';
-						}}
-						placeholder="e.g. 5"
-						required={carryForwardAllowed}
-						class={errors.max_carry_forward_days ? 'border-destructive focus-visible:ring-destructive/30' : ''}
-					/>
-					{#if errors.max_carry_forward_days}
-						<p class="text-xs font-medium text-destructive mt-1">{errors.max_carry_forward_days}</p>
-					{/if}
+				<div transition:slide class="space-y-4 pl-4 border-l-2 border-muted">
+					<div class="space-y-2">
+						<Label for="modal_max_carry_forward_days" class={errors.max_carry_forward_days ? 'text-destructive' : ''}>Max Carry Forward Days <span class="text-destructive">*</span></Label>
+						<Input
+							id="modal_max_carry_forward_days"
+							name="max_carry_forward_days"
+							bind:value={maxCarryForwardDays}
+							oninput={() => {
+								if (form && form.field === 'max_carry_forward_days') form = null;
+								errors.max_carry_forward_days = '';
+							}}
+							placeholder="e.g. 24"
+							required={carryForwardAllowed}
+							class={errors.max_carry_forward_days ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+						/>
+						{#if errors.max_carry_forward_days}
+							<p class="text-xs font-medium text-destructive mt-1">{errors.max_carry_forward_days}</p>
+						{/if}
+					</div>
+
+					<div class="space-y-2">
+						<Label for="modal_max_annual_carry_forward_days" class={errors.max_annual_carry_forward_days ? 'text-destructive' : ''}>Max Annual Carry Forward Days <span class="text-destructive">*</span></Label>
+						<Input
+							id="modal_max_annual_carry_forward_days"
+							name="max_annual_carry_forward_days"
+							bind:value={maxAnnualCarryForwardDays}
+							oninput={() => {
+								if (form && form.field === 'max_annual_carry_forward_days') form = null;
+								errors.max_annual_carry_forward_days = '';
+							}}
+							placeholder="e.g. 6"
+							required={carryForwardAllowed}
+							class={errors.max_annual_carry_forward_days ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+						/>
+						{#if errors.max_annual_carry_forward_days}
+							<p class="text-xs font-medium text-destructive mt-1">{errors.max_annual_carry_forward_days}</p>
+						{/if}
+					</div>
 				</div>
 			{/if}
 

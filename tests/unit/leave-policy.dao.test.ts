@@ -58,8 +58,8 @@ describe('leave-policy DAO', () => {
 		dbMock.$transaction.mockImplementation(async (callback: (tx: PrismaClient) => Promise<any>) => {
 			mockTx = {
 				leavePolicy: {
-					create: vi.fn().mockResolvedValue({ cuid: 'test-policy-cuid', annual_limit: 10n, max_per_month: null, max_carry_forward_days: null }),
-					update: vi.fn().mockResolvedValue({ cuid: 'test-policy-cuid', annual_limit: 20n, max_per_month: null, max_carry_forward_days: null }),
+					create: vi.fn().mockResolvedValue({ cuid: 'test-policy-cuid', annual_limit: 10n, max_per_month: null, max_carry_forward_days: null, max_annual_carry_forward_days: null }),
+					update: vi.fn().mockResolvedValue({ cuid: 'test-policy-cuid', annual_limit: 20n, max_per_month: null, max_carry_forward_days: null, max_annual_carry_forward_days: null }),
 					delete: vi.fn().mockResolvedValue({ cuid: 'test-policy-cuid' })
 				},
 				leavePolicyEmploymentType: {
@@ -81,6 +81,7 @@ describe('leave-policy DAO', () => {
 				max_per_month: null,
 				carry_forward_allowed: false,
 				max_carry_forward_days: null,
+				max_annual_carry_forward_days: null,
 				document_required: false,
 				document_required_after_days: null,
 				min_service_days: 0,
@@ -112,6 +113,7 @@ describe('leave-policy DAO', () => {
 			max_per_month: null,
 			carry_forward_allowed: false,
 			max_carry_forward_days: null,
+			max_annual_carry_forward_days: null,
 			document_required: false,
 			document_required_after_days: null,
 			min_service_days: 0,
@@ -127,6 +129,7 @@ describe('leave-policy DAO', () => {
 			annual_limit: 10,
 			max_per_month: null,
 			max_carry_forward_days: null,
+			max_annual_carry_forward_days: null,
 			employment_type_cuids: ['emp-1', 'emp-2']
 		});
 		expect(mockTx.leavePolicy.create).toHaveBeenCalledWith({
@@ -136,6 +139,7 @@ describe('leave-policy DAO', () => {
 				max_per_month: null,
 				carry_forward_allowed: false,
 				max_carry_forward_days: null,
+				max_annual_carry_forward_days: null,
 				document_required: false,
 				document_required_after_days: null,
 				min_service_days: 0,
@@ -162,6 +166,7 @@ describe('leave-policy DAO', () => {
 			annual_limit: 20,
 			max_per_month: null,
 			max_carry_forward_days: null,
+			max_annual_carry_forward_days: null,
 			employment_type_cuids: ['emp-1']
 		});
 	});
@@ -187,6 +192,7 @@ describe('leave-policy DAO', () => {
 			max_per_month: null,
 			carry_forward_allowed: false,
 			max_carry_forward_days: null,
+			max_annual_carry_forward_days: null,
 			document_required: false,
 			document_required_after_days: null,
 			min_service_days: 0,

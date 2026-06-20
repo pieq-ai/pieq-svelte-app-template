@@ -57,7 +57,7 @@ describe('holidays API', () => {
 
 	describe('POST /api/holidays', () => {
 		it('should create holiday successfully', async () => {
-			const payload = { holiday_name: 'Independence Day', holiday_date: '2026-07-04', holiday_type: 'National' };
+			const payload = { name: 'Independence Day', date: '2026-07-04', type: 'National' };
 			const mockEvent = {
 				request: {
 					json: vi.fn().mockResolvedValue(payload)
@@ -76,13 +76,13 @@ describe('holidays API', () => {
 		it('should return 400 for validation errors', async () => {
 			const mockEvent = {
 				request: {
-					json: vi.fn().mockResolvedValue({ holiday_name: '' })
+					json: vi.fn().mockResolvedValue({ name: '' })
 				},
 				locals: mockLocals
 			};
 
 			vi.mocked(holidayService.createHoliday).mockRejectedValue(
-				new holidayService.HolidayValidationError('holiday_name', 'Required')
+				new holidayService.HolidayValidationError('name', 'Required')
 			);
 
 			const res = await holidaysApi.POST(mockEvent as any);
@@ -111,7 +111,7 @@ describe('holidays API', () => {
 			const mockEvent = {
 				params: { cuid: 'h1' },
 				request: {
-					json: vi.fn().mockResolvedValue({ holiday_name: 'New Year' })
+					json: vi.fn().mockResolvedValue({ name: 'New Year' })
 				},
 				locals: mockLocals
 			};

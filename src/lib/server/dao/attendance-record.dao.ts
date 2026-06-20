@@ -2,11 +2,11 @@ import { db } from '$lib/server/db.js';
 
 export interface CreateAttendanceRecordInput {
 	employee_cuid: string;
-	attendance_date: Date;
+	date: Date;
 	check_in_time?: Date | null;
 	check_out_time?: Date | null;
 	work_duration_minutes?: number | null;
-	attendance_status: string;
+	status: string;
 	attendance_source_cuid?: string | null;
 	remarks?: string | null;
 	created_by?: string | null;
@@ -15,11 +15,11 @@ export interface CreateAttendanceRecordInput {
 
 export interface UpdateAttendanceRecordInput {
 	employee_cuid?: string;
-	attendance_date?: Date;
+	date?: Date;
 	check_in_time?: Date | null;
 	check_out_time?: Date | null;
 	work_duration_minutes?: number | null;
-	attendance_status?: string;
+	status?: string;
 	attendance_source_cuid?: string | null;
 	remarks?: string | null;
 	updated_by?: string | null;
@@ -28,8 +28,8 @@ export interface UpdateAttendanceRecordInput {
 
 export interface AttendanceRecordFilters {
 	employee_cuid?: string;
-	attendance_date?: Date;
-	attendance_status?: string;
+	date?: Date;
+	status?: string;
 	attendance_source_cuid?: string;
 }
 
@@ -40,12 +40,12 @@ export async function list(filters: AttendanceRecordFilters = {}) {
 		whereClause.employee_cuid = filters.employee_cuid;
 	}
 
-	if (filters.attendance_date) {
-		whereClause.date = filters.attendance_date;
+	if (filters.date) {
+		whereClause.date = filters.date;
 	}
 
-	if (filters.attendance_status) {
-		whereClause.status = filters.attendance_status;
+	if (filters.status) {
+		whereClause.status = filters.status;
 	}
 
 	if (filters.attendance_source_cuid) {
@@ -67,11 +67,11 @@ export async function findByCuid(cuid: string) {
 	});
 }
 
-export async function findByEmployeeAndDate(employee_cuid: string, attendance_date: Date) {
+export async function findByEmployeeAndDate(employee_cuid: string, date: Date) {
 	return db.attendanceRecord.findFirst({
 		where: {
 			employee_cuid,
-			date: attendance_date
+			date: date
 		}
 	});
 }
@@ -80,11 +80,11 @@ export async function create(data: CreateAttendanceRecordInput) {
 	return db.attendanceRecord.create({
 		data: {
 			employee_cuid: data.employee_cuid,
-			date: data.attendance_date,
+			date: data.date,
 			check_in_time: data.check_in_time ?? null,
 			check_out_time: data.check_out_time ?? null,
 			work_duration_minutes: data.work_duration_minutes ?? null,
-			status: data.attendance_status,
+			status: data.status,
 			attendance_source_cuid: data.attendance_source_cuid ?? null,
 			remarks: data.remarks ?? null,
 			created_by: data.created_by ?? null,
@@ -94,19 +94,9 @@ export async function create(data: CreateAttendanceRecordInput) {
 }
 
 export async function update(cuid: string, data: UpdateAttendanceRecordInput) {
-	const updateData: any = { ...data };
-	if (data.attendance_date !== undefined) {
-		updateData.date = data.attendance_date;
-		delete updateData.attendance_date;
-	}
-	if (data.attendance_status !== undefined) {
-		updateData.status = data.attendance_status;
-		delete updateData.attendance_status;
-	}
-
 	return db.attendanceRecord.update({
 		where: { cuid },
-		data: updateData
+		data
 	});
 }
 

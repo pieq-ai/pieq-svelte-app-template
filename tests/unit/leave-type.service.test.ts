@@ -35,33 +35,33 @@ describe('leave type service', () => {
 		it('should reject non-string name', async () => {
 			await expect(
 				createLeaveType({
-					leave_name: 12345,
-					leave_code: 'ANNUAL'
+					name: 12345,
+					code: 'ANNUAL'
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('leave_name', 'Leave name is required')
+				new LeaveValidationError('name', 'Leave name is required')
 			);
 		});
 
 		it('should reject empty name', async () => {
 			await expect(
 				createLeaveType({
-					leave_name: '   ',
-					leave_code: 'ANNUAL'
+					name: '   ',
+					code: 'ANNUAL'
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('leave_name', 'Leave name is required')
+				new LeaveValidationError('name', 'Leave name is required')
 			);
 		});
 
 		it('should reject short name (<= 5 chars)', async () => {
 			await expect(
 				createLeaveType({
-					leave_name: 'Sick',
-					leave_code: 'ANNUAL'
+					name: 'Sick',
+					code: 'ANNUAL'
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('leave_name', 'Leave name must be more than 5 characters long')
+				new LeaveValidationError('name', 'Leave name must be more than 5 characters long')
 			);
 		});
 
@@ -69,44 +69,44 @@ describe('leave type service', () => {
 			const longName = 'A'.repeat(101);
 			await expect(
 				createLeaveType({
-					leave_name: longName,
-					leave_code: 'ANNUAL'
+					name: longName,
+					code: 'ANNUAL'
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('leave_name', 'Leave name must be 100 characters or fewer')
+				new LeaveValidationError('name', 'Leave name must be 100 characters or fewer')
 			);
 		});
 
 		it('should reject names containing numbers or special characters', async () => {
 			await expect(
 				createLeaveType({
-					leave_name: 'Sick Leave 123',
-					leave_code: 'ANNUAL'
+					name: 'Sick Leave 123',
+					code: 'ANNUAL'
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('leave_name', 'Leave name can only contain letters and spaces')
+				new LeaveValidationError('name', 'Leave name can only contain letters and spaces')
 			);
 		});
 
 		it('should reject non-string code', async () => {
 			await expect(
 				createLeaveType({
-					leave_name: 'Annual Leave',
-					leave_code: 123
+					name: 'Annual Leave',
+					code: 123
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('leave_code', 'Leave code is required')
+				new LeaveValidationError('code', 'Leave code is required')
 			);
 		});
 
 		it('should reject empty code', async () => {
 			await expect(
 				createLeaveType({
-					leave_name: 'Annual Leave',
-					leave_code: '   '
+					name: 'Annual Leave',
+					code: '   '
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('leave_code', 'Leave code is required')
+				new LeaveValidationError('code', 'Leave code is required')
 			);
 		});
 
@@ -114,23 +114,23 @@ describe('leave type service', () => {
 			const longCode = 'A'.repeat(21);
 			await expect(
 				createLeaveType({
-					leave_name: 'Annual Leave',
-					leave_code: longCode
+					name: 'Annual Leave',
+					code: longCode
 				})
 			).rejects.toThrowError(
-				new LeaveValidationError('leave_code', 'Leave code must be 20 characters or fewer')
+				new LeaveValidationError('code', 'Leave code must be 20 characters or fewer')
 			);
 		});
 
 		it('should reject codes containing lowercase or special characters', async () => {
 			await expect(
 				createLeaveType({
-					leave_name: 'Annual Leave',
-					leave_code: 'Annual-1'
+					name: 'Annual Leave',
+					code: 'Annual-1'
 				})
 			).rejects.toThrowError(
 				new LeaveValidationError(
-					'leave_code',
+					'code',
 					'Leave code can only contain uppercase letters and underscores'
 				)
 			);
@@ -143,23 +143,23 @@ describe('leave type service', () => {
 
 			try {
 				await createLeaveType({
-					leave_name: 'Sick Leave',
-					leave_code: 'SICK'
+					name: 'Sick Leave',
+					code: 'SICK'
 				});
 				expect.fail('Should have thrown LeaveMultiValidationError');
 			} catch (error: any) {
 				expect(error).toBeInstanceOf(LeaveMultiValidationError);
 				expect(error.fields).toEqual({
-					leave_name: 'Leave Name already exists',
-					leave_code: 'Leave Code already exists'
+					name: 'Leave Name already exists',
+					code: 'Leave Code already exists'
 				});
 			}
 		});
 
 		it('should successfully create leave type when valid', async () => {
 			const input = {
-				leave_name: 'Annual Leave',
-				leave_code: 'ANNUAL',
+				name: 'Annual Leave',
+				code: 'ANNUAL',
 				description: 'Yearly holidays',
 				is_paid: true,
 				requires_approval: true,
@@ -205,7 +205,7 @@ describe('leave type service', () => {
 
 			await expect(
 				updateLeaveType(targetCuid, {
-					leave_name: 'Valid Name'
+					name: 'Valid Name'
 				})
 			).rejects.toThrow('Leave type not found');
 		});
@@ -234,10 +234,10 @@ describe('leave type service', () => {
 
 			await expect(
 				updateLeaveType(targetCuid, {
-					leave_name: 'Conflicting Name'
+					name: 'Conflicting Name'
 				})
 			).rejects.toThrowError(
-				new LeaveMultiValidationError({ leave_name: 'Leave Name already exists' })
+				new LeaveMultiValidationError({ name: 'Leave Name already exists' })
 			);
 		});
 
@@ -266,10 +266,10 @@ describe('leave type service', () => {
 
 			await expect(
 				updateLeaveType(targetCuid, {
-					leave_code: 'NEW_CODE'
+					code: 'NEW_CODE'
 				})
 			).rejects.toThrowError(
-				new LeaveMultiValidationError({ leave_code: 'Leave Code already exists' })
+				new LeaveMultiValidationError({ code: 'Leave Code already exists' })
 			);
 		});
 
@@ -301,8 +301,8 @@ describe('leave type service', () => {
 			vi.mocked(leaveTypeDao.update).mockResolvedValue(expectedUpdated as any);
 
 			const result = await updateLeaveType(targetCuid, {
-				leave_name: 'New Name',
-				leave_code: 'NEW_CODE',
+				name: 'New Name',
+				code: 'NEW_CODE',
 				description: 'New Description',
 				is_paid: false,
 				requires_approval: false,

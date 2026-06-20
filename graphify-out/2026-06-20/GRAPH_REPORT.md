@@ -1,11 +1,11 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-20)
 
 ## Corpus Check
-- 372 files · ~138,009 words
+- 366 files · ~137,957 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1703 nodes · 3443 edges · 118 communities (94 shown, 24 thin omitted)
+- 1703 nodes · 3443 edges · 119 communities (95 shown, 24 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 77 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -121,6 +121,7 @@
 - [[_COMMUNITY_Community 112|Community 112]]
 - [[_COMMUNITY_Community 113|Community 113]]
 - [[_COMMUNITY_Community 114|Community 114]]
+- [[_COMMUNITY_Community 115|Community 115]]
 - [[_COMMUNITY_Community 116|Community 116]]
 - [[_COMMUNITY_Community 117|Community 117]]
 
@@ -152,11 +153,11 @@
 - 1-file cycle: `src/routes/leave-policies/+page.svelte -> src/routes/leave-policies/+page.svelte`
 - 3-file cycle: `src/lib/components/ui/calendar/calendar-caption.svelte -> src/lib/components/ui/calendar/calendar.svelte -> src/lib/components/ui/calendar/index.ts -> src/lib/components/ui/calendar/calendar-caption.svelte`
 
-## Communities (118 total, 24 thin omitted)
+## Communities (119 total, 24 thin omitted)
 
 ### Community 0 - "API Endpoints"
-Cohesion: 0.13
-Nodes (16): getMaster(), POST(), POST(), GET(), getStatus(), POST(), GET(), PUT() (+8 more)
+Cohesion: 0.15
+Nodes (13): getMaster(), POST(), POST(), GET(), PUT(), GET(), PUT(), getStatus() (+5 more)
 
 ### Community 1 - "Data Access Tests"
 Cohesion: 0.11
@@ -164,7 +165,7 @@ Nodes (7): UpsertBankDetailInput, UpsertLanguageInput, UpsertSkillInput, createC
 
 ### Community 2 - "UI Components Index"
 Cohesion: 0.10
-Nodes (23): $lib/api/local, $lib/api/locations, $lib/api/shifts, $lib/confirmation.svelte.js, $lib/constants, $lib/toast, $lib/types/organization_location, $lib/types/shift (+15 more)
+Nodes (29): $lib/constants, $lib/permissions/mock-permissions, $lib/toast, $lib/utils, $lib/api/local, $lib/api/locations, $lib/api/shifts, $lib/confirmation.svelte.js (+21 more)
 
 ### Community 4 - "Dependencies & Icons"
 Cohesion: 0.06
@@ -184,7 +185,7 @@ Nodes (15): scripts, build, check, check:watch, db:generate, db:migrate, db:push
 
 ### Community 8 - "Layout & Toast"
 Cohesion: 0.08
-Nodes (22): @lucide/svelte/icons/building-2, $lib/assets/favicon.svg, $lib/auth, ./layout.css, $lib/assets/favicon.svg, $lib/auth, ./layout.css, @lucide/svelte/icons/calendar-cog (+14 more)
+Nodes (24): @lucide/svelte/icons/building-2, $lib/assets/favicon.svg, $lib/auth, $lib/components, ./layout.css, $lib/assets/favicon.svg, $lib/auth, ./layout.css (+16 more)
 
 ### Community 9 - "Department Service DAO"
 Cohesion: 0.06
@@ -271,8 +272,8 @@ Cohesion: 0.40
 Nodes (4): SALARY_COMPONENT_TYPE_LABELS, SALARY_COMPONENT_TYPE_OPTIONS, SALARY_COMPONENT_TYPES, SalaryComponentType
 
 ### Community 44 - "Community 44"
-Cohesion: 0.17
-Nodes (13): @lucide/svelte/icons/arrow-left, $lib/components, $lib/stores/navigationGuard, $lib/utils/employeeValidationHelper, $lib/utils/errors.js, $lib/components/common/AsyncDropdown.svelte, $lib/components/employee/EmployeeWizard.svelte, $app/navigation (+5 more)
+Cohesion: 0.18
+Nodes (12): @lucide/svelte/icons/arrow-left, $lib/components, $lib/stores/navigationGuard, $lib/utils/employeeValidationHelper, $lib/utils/errors.js, $lib/components/common/AsyncDropdown.svelte, $lib/components/employee/EmployeeWizard.svelte, $app/navigation (+4 more)
 
 ### Community 45 - "Community 45"
 Cohesion: 0.17
@@ -292,7 +293,7 @@ Nodes (23): ApiError, extractErrorMessage(), localApi, localRequest(), RoleListR
 
 ### Community 49 - "Community 49"
 Cohesion: 0.15
-Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
+Nodes (13): Code quality, Common workflows, Development, Other, Quick reference, Scripts, `yarn build`, `yarn check` (+5 more)
 
 ### Community 50 - "Community 50"
 Cohesion: 0.10
@@ -408,7 +409,7 @@ Nodes (3): API reference — Employees, GET — list employees, POST — create 
 
 ### Community 82 - "Community 82"
 Cohesion: 0.50
-Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
+Nodes (4): Testing, `yarn test`, `yarn test:e2e`, `yarn test:unit`
 
 ### Community 83 - "Community 83"
 Cohesion: 0.29
@@ -424,7 +425,7 @@ Nodes (3): normalizeSpaces(), validateName(), validateRemarks()
 
 ### Community 87 - "Community 87"
 Cohesion: 0.09
-Nodes (15): @lucide/svelte/icons/alert-triangle, $lib/components, $lib/constants, $lib/permissions/mock-permissions, $lib/toast, $lib/utils, $lib/components/ui/checkbox/index.js, $lib/permissions/mock-permissions (+7 more)
+Nodes (8): @lucide/svelte/icons/alert-triangle, $lib/components/ui/checkbox/index.js, @lucide/svelte/icons/chevron-up, $lib/components/common/ConfirmModal.svelte, modalStack, stack, @lucide/svelte/icons/more-vertical, @lucide/svelte/icons/pencil
 
 ### Community 89 - "Community 89"
 Cohesion: 0.17
@@ -486,6 +487,10 @@ Nodes (4): GET(), getMaster(), getStatus(), POST()
 Cohesion: 0.40
 Nodes (4): name, private, type, version
 
+### Community 115 - "Community 115"
+Cohesion: 0.83
+Nodes (3): GET(), getStatus(), POST()
+
 ### Community 116 - "Community 116"
 Cohesion: 0.50
 Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
@@ -509,6 +514,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `$schema`, `css`, `baseColor` to the rest of the system?**
   _444 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `API Endpoints` be split into smaller, more focused modules?**
-  _Cohesion score 0.13054187192118227 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.14666666666666667 - nodes in this community are weakly interconnected._
 - **Should `Data Access Tests` be split into smaller, more focused modules?**
   _Cohesion score 0.10591133004926108 - nodes in this community are weakly interconnected._

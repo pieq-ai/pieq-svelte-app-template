@@ -59,7 +59,7 @@ describe('attendance-records API', () => {
 			expect(res.status).toBe(200);
 			const body = await res.json();
 			expect(body.data[0].cuid).toBe('rec-1');
-			expect(body.data[0].attendance_date).toBe('2026-06-01');
+			expect(body.data[0].date).toBe('2026-06-01');
 		});
 	});
 
@@ -67,8 +67,8 @@ describe('attendance-records API', () => {
 		it('should create attendance record successfully', async () => {
 			const payload = {
 				employee_cuid: 'emp-1',
-				attendance_date: '2026-06-01',
-				attendance_status: 'Present'
+				date: '2026-06-01',
+				status: 'Present'
 			};
 			const mockEvent = {
 				request: {
@@ -119,7 +119,7 @@ describe('attendance-records API', () => {
 			const mockEvent = {
 				params: { cuid: 'r1' },
 				request: {
-					json: vi.fn().mockResolvedValue({ attendance_status: 'Present' })
+					json: vi.fn().mockResolvedValue({ status: 'Present' })
 				},
 				locals: mockLocals
 			};

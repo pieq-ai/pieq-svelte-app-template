@@ -2,6 +2,7 @@ import * as attendanceRecordDao from '$lib/server/dao/attendance-record.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as holidayDao from '$lib/server/dao/holiday.dao.js';
 import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
+import * as employmentDao from '$lib/server/dao/employment.dao.js';
 
 export class AttendanceValidationError extends Error {
 	readonly field: string;
@@ -23,10 +24,10 @@ export class AttendanceMultiValidationError extends Error {
 
 export interface CreateAttendanceRecordDto {
 	employee_cuid: unknown;
-	attendance_date: unknown;
+	date: unknown;
 	check_in_time?: unknown;
 	check_out_time?: unknown;
-	attendance_status: unknown;
+	status: unknown;
 	attendance_source_cuid?: unknown;
 	remarks?: unknown;
 	created_by?: string | null;
@@ -35,10 +36,10 @@ export interface CreateAttendanceRecordDto {
 
 export interface UpdateAttendanceRecordDto {
 	employee_cuid?: unknown;
-	attendance_date?: unknown;
+	date?: unknown;
 	check_in_time?: unknown;
 	check_out_time?: unknown;
-	attendance_status?: unknown;
+	status?: unknown;
 	attendance_source_cuid?: unknown;
 	remarks?: unknown;
 	updated_by?: string | null;
@@ -51,7 +52,8 @@ function capitalize(str: string): string {
 
 function parseDateOnly(raw: unknown, fieldName: string): Date {
 	if (!raw || (typeof raw === 'string' && raw.trim() === '')) {
-		throw new AttendanceValidationError(fieldName, `${capitalize(fieldName.replace('_', ' '))} is required`);
+		const display = fieldName === 'date' ? 'Attendance date' : capitalize(fieldName.replace('_', ' '));
+		throw new AttendanceValidationError(fieldName, `${display} is required`);
 	}
 
 	let date: Date;
@@ -70,11 +72,13 @@ function parseDateOnly(raw: unknown, fieldName: string): Date {
 	} else if (raw instanceof Date) {
 		date = new Date(Date.UTC(raw.getFullYear(), raw.getMonth(), raw.getDate()));
 	} else {
-		throw new AttendanceValidationError(fieldName, `${capitalize(fieldName.replace('_', ' '))} must be a valid date`);
+		const display = fieldName === 'date' ? 'Attendance date' : capitalize(fieldName.replace('_', ' '));
+		throw new AttendanceValidationError(fieldName, `${display} must be a valid date`);
 	}
 
 	if (isNaN(date.getTime())) {
-		throw new AttendanceValidationError(fieldName, `${capitalize(fieldName.replace('_', ' '))} must be a valid date`);
+		const display = fieldName === 'date' ? 'Attendance date' : capitalize(fieldName.replace('_', ' '));
+		throw new AttendanceValidationError(fieldName, `${display} must be a valid date`);
 	}
 
 	return date;
@@ -97,8 +101,8 @@ async function validateRecordFields(
 	const errors: Record<string, string> = {};
 
 	let employee_cuid: string | undefined;
-	let attendance_date: Date | undefined;
-	let attendance_status: string | undefined;
+	let date: Date | undefined;
+	let status: string | undefined;
 	let attendance_source_cuid: string | null | undefined;
 	let remarks: string | null | undefined;
 
@@ -117,20 +121,20 @@ async function validateRecordFields(
 	}
 
 	// 2. Date Validation
-	if (!isUpdate || dto.attendance_date !== undefined) {
+	if (!isUpdate || dto.date !== undefined) {
 		try {
-			attendance_date = parseDateOnly(dto.attendance_date, 'attendance_date');
+			date = parseDateOnly(dto.date, 'date');
 		} catch (err: any) {
-			errors.attendance_date = err.message;
+			errors.date = err.message;
 		}
 	}
 
 	// 3. Status Validation
-	if (!isUpdate || dto.attendance_status !== undefined) {
-		if (typeof dto.attendance_status !== 'string' || !dto.attendance_status.trim()) {
-			errors.attendance_status = 'Attendance status is required';
+	if (!isUpdate || dto.status !== undefined) {
+		if (typeof dto.status !== 'string' || !dto.status.trim()) {
+			errors.status = 'Attendance status is required';
 		} else {
-			attendance_status = dto.attendance_status.trim();
+			status = dto.status.trim();
 		}
 	}
 
@@ -180,12 +184,34 @@ async function validateRecordFields(
 	// Duplicate employee + date check
 	const existingRecord = isUpdate && excludeCuid ? await attendanceRecordDao.findByCuid(excludeCuid) : null;
 	const finalEmployee = employee_cuid ?? (isUpdate ? existingRecord?.employee_cuid : undefined);
-	const finalDate = attendance_date ?? (isUpdate ? existingRecord?.date : undefined);
+	const finalDate = date ?? (isUpdate ? existingRecord?.date : undefined);
+
+	if (finalEmployee && finalDate) {
+		const emp = await employmentDao.findByEmployeeCuid(finalEmployee);
+		if (!emp || !emp.date_of_joining) {
+			errors.employee_cuid = 'Selected employee has no valid employment record';
+		} else {
+			const recTime = new Date(Date.UTC(finalDate.getUTCFullYear(), finalDate.getUTCMonth(), finalDate.getUTCDate())).getTime();
+			const joinTime = new Date(Date.UTC(emp.date_of_joining.getUTCFullYear(), emp.date_of_joining.getUTCMonth(), emp.date_of_joining.getUTCDate())).getTime();
+
+			if (recTime < joinTime) {
+				errors.date = 'Attendance date must be within employee\'s employment period.';
+			} else if (emp.relieving_date) {
+				const relieveTime = new Date(Date.UTC(emp.relieving_date.getUTCFullYear(), emp.relieving_date.getUTCMonth(), emp.relieving_date.getUTCDate())).getTime();
+				if (recTime > relieveTime) {
+					errors.date = 'Attendance date must be within employee\'s employment period.';
+				}
+			}
+		}
+		if (errors.employee_cuid || errors.date) {
+			throw new AttendanceMultiValidationError(errors);
+		}
+	}
 
 	if (finalDate) {
 		const isHoliday = await holidayDao.findByDate(finalDate);
 		if (isHoliday) {
-			errors.attendance_date = 'Attendance cannot be marked on holidays';
+			errors.date = 'Attendance cannot be marked on holidays';
 			throw new AttendanceMultiValidationError(errors);
 		}
 	}
@@ -193,7 +219,7 @@ async function validateRecordFields(
 	if (finalEmployee && finalDate) {
 		const existing = await attendanceRecordDao.findByEmployeeAndDate(finalEmployee, finalDate);
 		if (existing && (!isUpdate || existing.cuid !== excludeCuid)) {
-			errors.attendance_date = 'An attendance record already exists for this employee on this date';
+			errors.date = 'An attendance record already exists for this employee on this date';
 			throw new AttendanceMultiValidationError(errors);
 		}
 	}
@@ -201,7 +227,7 @@ async function validateRecordFields(
 	// Calculate duration if check_in and check_out are present
 	const finalCheckIn = check_in_time !== undefined ? check_in_time : (isUpdate ? existingRecord?.check_in_time : null);
 	const finalCheckOut = check_out_time !== undefined ? check_out_time : (isUpdate ? existingRecord?.check_out_time : null);
-	const finalStatus = attendance_status !== undefined ? attendance_status : (isUpdate ? existingRecord?.status : undefined);
+	const finalStatus = status !== undefined ? status : (isUpdate ? existingRecord?.status : undefined);
 	const finalSource = attendance_source_cuid !== undefined ? attendance_source_cuid : (isUpdate ? existingRecord?.attendance_source_cuid : null);
 
 	if (finalStatus && ['Leave', 'Holiday', 'LOP'].includes(finalStatus)) {
@@ -233,11 +259,11 @@ async function validateRecordFields(
 
 	return {
 		employee_cuid: employee_cuid!,
-		attendance_date: attendance_date!,
+		date: date!,
 		check_in_time,
 		check_out_time,
 		work_duration_minutes,
-		attendance_status: attendance_status!,
+		status: status!,
 		attendance_source_cuid,
 		remarks
 	};
@@ -245,17 +271,36 @@ async function validateRecordFields(
 
 export async function listAttendanceRecords(filters: any = {}) {
 	let parsedDate: Date | undefined;
-	if (filters.attendance_date) {
+	if (filters.date) {
 		try {
-			parsedDate = parseDateOnly(filters.attendance_date, 'attendance_date');
+			parsedDate = parseDateOnly(filters.date, 'date');
 		} catch {
 			// ignore invalid date filter
 		}
 	}
 
-	return attendanceRecordDao.list({
+	const records = await attendanceRecordDao.list({
 		...filters,
-		attendance_date: parsedDate
+		date: parsedDate
+	});
+
+	const employments = await employmentDao.list();
+	const empMap = new Map(employments.map(e => [e.employee_cuid, e]));
+
+	return records.filter(rec => {
+		const emp = empMap.get(rec.employee_cuid);
+		if (!emp || !emp.date_of_joining) return false;
+
+		const recTime = new Date(Date.UTC(rec.date.getUTCFullYear(), rec.date.getUTCMonth(), rec.date.getUTCDate())).getTime();
+		const joinTime = new Date(Date.UTC(emp.date_of_joining.getUTCFullYear(), emp.date_of_joining.getUTCMonth(), emp.date_of_joining.getUTCDate())).getTime();
+
+		if (recTime < joinTime) return false;
+
+		if (emp.relieving_date) {
+			const relieveTime = new Date(Date.UTC(emp.relieving_date.getUTCFullYear(), emp.relieving_date.getUTCMonth(), emp.relieving_date.getUTCDate())).getTime();
+			return recTime <= relieveTime;
+		}
+		return true;
 	});
 }
 
@@ -270,11 +315,11 @@ export async function createAttendanceRecord(dto: CreateAttendanceRecordDto) {
 	const validated = await validateRecordFields(dto, false);
 	return attendanceRecordDao.create({
 		employee_cuid: validated.employee_cuid,
-		attendance_date: validated.attendance_date,
+		date: validated.date,
 		check_in_time: validated.check_in_time,
 		check_out_time: validated.check_out_time,
 		work_duration_minutes: validated.work_duration_minutes,
-		attendance_status: validated.attendance_status,
+		status: validated.status,
 		attendance_source_cuid: validated.attendance_source_cuid,
 		remarks: validated.remarks,
 		created_by: dto.created_by,
@@ -290,11 +335,11 @@ export async function updateAttendanceRecord(cuid: string, dto: UpdateAttendance
 
 	const updateData: any = {};
 	if (dto.employee_cuid !== undefined) updateData.employee_cuid = validated.employee_cuid;
-	if (dto.attendance_date !== undefined) updateData.attendance_date = validated.attendance_date;
+	if (dto.date !== undefined) updateData.date = validated.date;
 	if (dto.check_in_time !== undefined) updateData.check_in_time = validated.check_in_time;
 	if (dto.check_out_time !== undefined) updateData.check_out_time = validated.check_out_time;
 	if (validated.work_duration_minutes !== undefined) updateData.work_duration_minutes = validated.work_duration_minutes;
-	if (dto.attendance_status !== undefined) updateData.attendance_status = validated.attendance_status;
+	if (dto.status !== undefined) updateData.status = validated.status;
 	if (dto.attendance_source_cuid !== undefined) updateData.attendance_source_cuid = validated.attendance_source_cuid;
 	if (dto.remarks !== undefined) updateData.remarks = validated.remarks;
 	updateData.updated_by = dto.updated_by;

@@ -26,11 +26,11 @@ export const GET: RequestHandler = async ({ params }) => {
 		const formatted = {
 			cuid: record.cuid,
 			employee_cuid: record.employee_cuid,
-			attendance_date: record.date.toISOString().split('T')[0],
+			date: record.date.toISOString().split('T')[0],
 			check_in_time: record.check_in_time ? record.check_in_time.toISOString() : null,
 			check_out_time: record.check_out_time ? record.check_out_time.toISOString() : null,
 			work_duration_minutes: record.work_duration_minutes,
-			attendance_status: record.status,
+			status: record.status,
 			attendance_source_cuid: record.attendance_source_cuid,
 			remarks: record.remarks
 		};
@@ -53,10 +53,10 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
 	const allowedKeys = [
 		'employee_cuid',
-		'attendance_date',
+		'date',
 		'check_in_time',
 		'check_out_time',
-		'attendance_status',
+		'status',
 		'attendance_source_cuid',
 		'remarks'
 	];

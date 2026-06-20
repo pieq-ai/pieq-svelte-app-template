@@ -10,6 +10,7 @@ export interface CreateLeavePolicyInput {
 	max_per_month?: unknown;
 	carry_forward_allowed?: unknown;
 	max_carry_forward_days?: unknown;
+	max_annual_carry_forward_days?: unknown;
 	document_required?: unknown;
 	document_required_after_days?: unknown;
 	min_service_days?: unknown;
@@ -28,6 +29,7 @@ export interface UpdateLeavePolicyInput {
 	max_per_month?: unknown;
 	carry_forward_allowed?: unknown;
 	max_carry_forward_days?: unknown;
+	max_annual_carry_forward_days?: unknown;
 	document_required?: unknown;
 	document_required_after_days?: unknown;
 	min_service_days?: unknown;
@@ -111,6 +113,7 @@ async function validateAndMapPolicyInput(
 
 	const carry_forward_allowed = Boolean(input.carry_forward_allowed);
 	let max_carry_forward_days: number | null = null;
+	let max_annual_carry_forward_days: number | null = null;
 	if (carry_forward_allowed) {
 		if (
 			input.max_carry_forward_days === undefined ||
@@ -126,6 +129,24 @@ async function validateAndMapPolicyInput(
 		if (max_carry_forward_days <= 0) {
 			throw new LeaveValidationError('max_carry_forward_days', 'Value must be greater than 0');
 		}
+
+		if (
+			input.max_annual_carry_forward_days === undefined ||
+			input.max_annual_carry_forward_days === null ||
+			String(input.max_annual_carry_forward_days).trim() === ''
+		) {
+			throw new LeaveValidationError('max_annual_carry_forward_days', 'Max annual carry forward days is required when carry forward is allowed');
+		}
+		if (isNaN(Number(input.max_annual_carry_forward_days))) {
+			throw new LeaveValidationError('max_annual_carry_forward_days', 'Only numeric values are allowed');
+		}
+		max_annual_carry_forward_days = Number(input.max_annual_carry_forward_days);
+		if (max_annual_carry_forward_days <= 0) {
+			throw new LeaveValidationError('max_annual_carry_forward_days', 'Value must be greater than 0');
+		}
+		if (max_annual_carry_forward_days > max_carry_forward_days) {
+			throw new LeaveValidationError('max_annual_carry_forward_days', 'Max annual carry forward days cannot exceed max carry forward days');
+		}
 	} else {
 		if (
 			input.max_carry_forward_days !== undefined &&
@@ -133,6 +154,13 @@ async function validateAndMapPolicyInput(
 			String(input.max_carry_forward_days).trim() !== ''
 		) {
 			throw new LeaveValidationError('max_carry_forward_days', 'Max carry forward days must be empty when carry forward is not allowed');
+		}
+		if (
+			input.max_annual_carry_forward_days !== undefined &&
+			input.max_annual_carry_forward_days !== null &&
+			String(input.max_annual_carry_forward_days).trim() !== ''
+		) {
+			throw new LeaveValidationError('max_annual_carry_forward_days', 'Max annual carry forward days must be empty when carry forward is not allowed');
 		}
 	}
 
@@ -215,6 +243,7 @@ async function validateAndMapPolicyInput(
 			max_per_month,
 			carry_forward_allowed,
 			max_carry_forward_days,
+			max_annual_carry_forward_days,
 			document_required,
 			document_required_after_days,
 			min_service_days,
@@ -261,6 +290,7 @@ export async function updateLeavePolicy(cuid: string, input: UpdateLeavePolicyIn
 		max_per_month: existingPolicy.max_per_month,
 		carry_forward_allowed: existingPolicy.carry_forward_allowed,
 		max_carry_forward_days: existingPolicy.max_carry_forward_days,
+		max_annual_carry_forward_days: existingPolicy.max_annual_carry_forward_days,
 		document_required: existingPolicy.document_required,
 		document_required_after_days: existingPolicy.document_required_after_days,
 		min_service_days: existingPolicy.min_service_days,

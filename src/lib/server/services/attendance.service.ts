@@ -3,6 +3,7 @@ import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as holidayDao from '$lib/server/dao/holiday.dao.js';
 import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import { GEOFENCE_CONFIG, calculateDistance } from '$lib/geofence.js';
+import * as employmentDao from '$lib/server/dao/employment.dao.js';
 
 export class AttendanceValidationError extends Error {
 	readonly field: string;
@@ -47,8 +48,27 @@ export async function checkIn(
 		throw new AttendanceValidationError('employee_cuid', 'Selected employee does not exist');
 	}
 
+	// Fetch employee's employment details
+	const employment = await employmentDao.findByEmployeeCuid(employeeCuid);
+
+	if (!employment || !employment.date_of_joining) {
+		throw new AttendanceValidationError('employee_cuid', 'Selected employee has no valid employment record');
+	}
+
 	const today = new Date();
 	const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+
+	const joinDate = new Date(Date.UTC(employment.date_of_joining.getUTCFullYear(), employment.date_of_joining.getUTCMonth(), employment.date_of_joining.getUTCDate()));
+	if (todayUTC < joinDate) {
+		throw new AttendanceValidationError('employee_cuid', 'Attendance date must be within employee\'s employment period.');
+	}
+
+	if (employment.relieving_date) {
+		const relieveDate = new Date(Date.UTC(employment.relieving_date.getUTCFullYear(), employment.relieving_date.getUTCMonth(), employment.relieving_date.getUTCDate()));
+		if (todayUTC > relieveDate) {
+			throw new AttendanceValidationError('employee_cuid', 'Attendance date must be within employee\'s employment period.');
+		}
+	}
 
 	// Check if today is a holiday
 	const isHoliday = await holidayDao.findByDate(todayUTC);
@@ -94,9 +114,9 @@ export async function checkIn(
 
 	return attendanceDao.create({
 		employee_cuid: employeeCuid,
-		attendance_date: todayUTC,
+		date: todayUTC,
 		check_in_time: today,
-		attendance_status: 'Present',
+		status: 'Present',
 		attendance_source_cuid: sourceCuid,
 		created_by: createdBy,
 		updated_by: createdBy,
@@ -116,6 +136,31 @@ export async function checkOut(
 
 	const today = new Date();
 	const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+
+	// Verify employee exists
+	const empExists = await employeeDao.findUniqueByUuid(employeeCuid);
+	if (!empExists) {
+		throw new AttendanceValidationError('employee_cuid', 'Selected employee does not exist');
+	}
+
+	// Fetch employee's employment details
+	const employment = await employmentDao.findByEmployeeCuid(employeeCuid);
+
+	if (!employment || !employment.date_of_joining) {
+		throw new AttendanceValidationError('employee_cuid', 'Selected employee has no valid employment record');
+	}
+
+	const joinDate = new Date(Date.UTC(employment.date_of_joining.getUTCFullYear(), employment.date_of_joining.getUTCMonth(), employment.date_of_joining.getUTCDate()));
+	if (todayUTC < joinDate) {
+		throw new AttendanceValidationError('employee_cuid', 'Attendance date must be within employee\'s employment period.');
+	}
+
+	if (employment.relieving_date) {
+		const relieveDate = new Date(Date.UTC(employment.relieving_date.getUTCFullYear(), employment.relieving_date.getUTCMonth(), employment.relieving_date.getUTCDate()));
+		if (todayUTC > relieveDate) {
+			throw new AttendanceValidationError('employee_cuid', 'Attendance date must be within employee\'s employment period.');
+		}
+	}
 
 	// Check if today is a holiday
 	const isHoliday = await holidayDao.findByDate(todayUTC);
@@ -170,14 +215,51 @@ export async function getEmployeeHistory(employeeCuid: string) {
 	if (!employeeCuid) {
 		throw new Error('Employee CUID is required');
 	}
-	return attendanceDao.listByEmployee(employeeCuid);
+
+	const employment = await employmentDao.findByEmployeeCuid(employeeCuid);
+
+	if (!employment || !employment.date_of_joining) {
+		return [];
+	}
+
+	const startDate = new Date(Date.UTC(employment.date_of_joining.getUTCFullYear(), employment.date_of_joining.getUTCMonth(), employment.date_of_joining.getUTCDate()));
+	let endDate: Date;
+
+	if (employment.relieving_date) {
+		endDate = new Date(Date.UTC(employment.relieving_date.getUTCFullYear(), employment.relieving_date.getUTCMonth(), employment.relieving_date.getUTCDate()));
+	} else {
+		// Set default endDate to far future (2099-12-31) to include future scheduled attendance records
+		endDate = new Date(Date.UTC(2099, 11, 31));
+	}
+
+	return attendanceDao.listByEmployee(employeeCuid, startDate, endDate);
 }
 
 export async function getTodayStatus(employeeCuid: string) {
 	if (!employeeCuid) {
 		throw new Error('Employee CUID is required');
 	}
+
+	const employment = await employmentDao.findByEmployeeCuid(employeeCuid);
+
+	if (!employment || !employment.date_of_joining) {
+		return null;
+	}
+
 	const today = new Date();
 	const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+
+	const joinDate = new Date(Date.UTC(employment.date_of_joining.getUTCFullYear(), employment.date_of_joining.getUTCMonth(), employment.date_of_joining.getUTCDate()));
+	if (todayUTC < joinDate) {
+		return null;
+	}
+
+	if (employment.relieving_date) {
+		const relieveDate = new Date(Date.UTC(employment.relieving_date.getUTCFullYear(), employment.relieving_date.getUTCMonth(), employment.relieving_date.getUTCDate()));
+		if (todayUTC > relieveDate) {
+			return null;
+		}
+	}
+
 	return attendanceDao.findByEmployeeAndDate(employeeCuid, todayUTC);
 }

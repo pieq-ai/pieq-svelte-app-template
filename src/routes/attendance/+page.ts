@@ -19,7 +19,26 @@ export const load: PageLoad = async ({ fetch }) => {
 
 	if (employeesRes.ok) {
 		const json = await employeesRes.json();
-		employees = json.data || [];
+		const rawEmployees = json.data || [];
+		employees = rawEmployees.map((emp: any) => {
+			let age = 'N/A';
+			if (emp.dob) {
+				const birthDate = new Date(emp.dob);
+				const today = new Date();
+				let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+				const m = today.getMonth() - birthDate.getMonth();
+				if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+					calculatedAge--;
+				}
+				age = String(calculatedAge);
+			}
+			return {
+				...emp,
+				uuid: emp.cuid,
+				name: `${emp.first_name} ${emp.last_name}`,
+				age
+			};
+		});
 	}
 	if (sourcesRes.ok) {
 		const json = await sourcesRes.json();

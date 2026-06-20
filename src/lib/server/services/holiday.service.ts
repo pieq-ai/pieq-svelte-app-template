@@ -4,9 +4,9 @@ export const HOLIDAY_NAME_MAX_LENGTH = 200;
 const VALID_HOLIDAY_TYPES = new Set<string>(['National', 'Regional', 'Restricted']);
 
 export class HolidayValidationError extends Error {
-	readonly field: 'holiday_name' | 'holiday_date' | 'holiday_type';
+	readonly field: 'name' | 'date' | 'type';
 
-	constructor(field: 'holiday_name' | 'holiday_date' | 'holiday_type', message: string) {
+	constructor(field: 'name' | 'date' | 'type', message: string) {
 		super(message);
 		this.name = 'HolidayValidationError';
 		this.field = field;
@@ -24,41 +24,41 @@ export class HolidayMultiValidationError extends Error {
 }
 
 export interface CreateHolidayInput {
-	holiday_name: unknown;
-	holiday_date: unknown;
-	holiday_type: unknown;
+	name: unknown;
+	date: unknown;
+	type: unknown;
 	created_by?: string | null;
 	updated_by?: string | null;
 }
 
 export interface UpdateHolidayInput {
-	holiday_name?: unknown;
-	holiday_date?: unknown;
-	holiday_type?: unknown;
+	name?: unknown;
+	date?: unknown;
+	type?: unknown;
 	updated_by?: string | null;
 }
 
 function validateHolidayName(raw: unknown): string {
 	if (typeof raw !== 'string') {
-		throw new HolidayValidationError('holiday_name', 'Holiday name is required and must be a string');
+		throw new HolidayValidationError('name', 'Holiday name is required and must be a string');
 	}
 
 	const trimmed = raw.trim();
 
 	if (trimmed.length === 0) {
-		throw new HolidayValidationError('holiday_name', 'Holiday name cannot be empty');
+		throw new HolidayValidationError('name', 'Holiday name cannot be empty');
 	}
 
 	if (trimmed.length <= 5) {
 		throw new HolidayValidationError(
-			'holiday_name',
+			'name',
 			'Holiday name must be more than 5 characters long'
 		);
 	}
 
 	if (trimmed.length > HOLIDAY_NAME_MAX_LENGTH) {
 		throw new HolidayValidationError(
-			'holiday_name',
+			'name',
 			`Holiday name must be ${HOLIDAY_NAME_MAX_LENGTH} characters or fewer`
 		);
 	}
@@ -66,7 +66,7 @@ function validateHolidayName(raw: unknown): string {
 	const HOLIDAY_NAME_REGEX = /^[a-zA-Z\s]+$/;
 	if (!HOLIDAY_NAME_REGEX.test(trimmed)) {
 		throw new HolidayValidationError(
-			'holiday_name',
+			'name',
 			'Holiday name can only contain letters and spaces'
 		);
 	}
@@ -76,7 +76,7 @@ function validateHolidayName(raw: unknown): string {
 
 function validateHolidayDate(raw: unknown): Date {
 	if (!raw || (typeof raw === 'string' && raw.trim() === '')) {
-		throw new HolidayValidationError('holiday_date', 'Holiday date is required');
+		throw new HolidayValidationError('date', 'Holiday date is required');
 	}
 
 	let date: Date;
@@ -95,23 +95,23 @@ function validateHolidayDate(raw: unknown): Date {
 	} else if (raw instanceof Date) {
 		date = new Date(Date.UTC(raw.getFullYear(), raw.getMonth(), raw.getDate()));
 	} else {
-		throw new HolidayValidationError('holiday_date', 'Holiday date must be a valid date');
+		throw new HolidayValidationError('date', 'Holiday date must be a valid date');
 	}
 
 	if (isNaN(date.getTime())) {
-		throw new HolidayValidationError('holiday_date', 'Holiday date must be a valid date');
+		throw new HolidayValidationError('date', 'Holiday date must be a valid date');
 	}
 
 	const year = date.getUTCFullYear();
 	if (year > 2099) {
 		throw new HolidayValidationError(
-			'holiday_date',
+			'date',
 			'You can schedule holidays only up to the year 2099'
 		);
 	}
 	if (year < 2000) {
 		throw new HolidayValidationError(
-			'holiday_date',
+			'date',
 			'Holiday date must be between the years 2000 and 2099'
 		);
 	}
@@ -120,7 +120,7 @@ function validateHolidayDate(raw: unknown): Date {
 	const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
 	if (date.getTime() < todayUTC.getTime()) {
 		throw new HolidayValidationError(
-			'holiday_date',
+			'date',
 			'Holiday date cannot be in the past'
 		);
 	}
@@ -130,14 +130,14 @@ function validateHolidayDate(raw: unknown): Date {
 
 function validateHolidayType(raw: unknown): string {
 	if (typeof raw !== 'string') {
-		throw new HolidayValidationError('holiday_type', 'Holiday type is required and must be a string');
+		throw new HolidayValidationError('type', 'Holiday type is required and must be a string');
 	}
 
 	const trimmed = raw.trim();
 
 	if (!VALID_HOLIDAY_TYPES.has(trimmed)) {
 		throw new HolidayValidationError(
-			'holiday_type',
+			'type',
 			`Holiday type must be one of: ${Array.from(VALID_HOLIDAY_TYPES).join(', ')}`
 		);
 	}
@@ -154,16 +154,16 @@ export async function getHolidayByCuid(cuid: string) {
 }
 
 export async function createHoliday(input: CreateHolidayInput) {
-	const holiday_name = validateHolidayName(input.holiday_name);
-	const holiday_date = validateHolidayDate(input.holiday_date);
-	const holiday_type = validateHolidayType(input.holiday_type);
+	const holiday_name = validateHolidayName(input.name);
+	const holiday_date = validateHolidayDate(input.date);
+	const holiday_type = validateHolidayType(input.type);
 
 	// Unique date and name check (non-fail-fast)
 	const errors: Record<string, string> = {};
 	
 	const existingDate = await holidayDao.findByDate(holiday_date);
 	if (existingDate) {
-		errors.holiday_date = 'Holiday already scheduled for this date';
+		errors.date = 'Holiday already scheduled for this date';
 	}
 
 	const existingNameInYear = await holidayDao.findByNameAndYear(
@@ -171,7 +171,7 @@ export async function createHoliday(input: CreateHolidayInput) {
 		holiday_date.getUTCFullYear()
 	);
 	if (existingNameInYear) {
-		errors.holiday_name = 'Holiday Name already exists';
+		errors.name = 'Holiday Name already exists';
 	}
 
 	if (Object.keys(errors).length > 0) {
@@ -191,16 +191,16 @@ export async function updateHoliday(cuid: string, input: UpdateHolidayInput) {
 		throw new Error('Holiday not found');
 	}
 
-	const holiday_name = validateHolidayName(input.holiday_name);
-	const holiday_date = validateHolidayDate(input.holiday_date);
-	const holiday_type = validateHolidayType(input.holiday_type);
+	const holiday_name = input.name !== undefined ? validateHolidayName(input.name) : existingHoliday.name;
+	const holiday_date = input.date !== undefined ? validateHolidayDate(input.date) : existingHoliday.date;
+	const holiday_type = input.type !== undefined ? validateHolidayType(input.type) : existingHoliday.type;
 
 	// Unique date and name check excluding this CUID (non-fail-fast)
 	const errors: Record<string, string> = {};
 
 	const duplicateDate = await holidayDao.findByDateExcludingCuid(holiday_date, cuid);
 	if (duplicateDate) {
-		errors.holiday_date = 'Holiday already scheduled for this date';
+		errors.date = 'Holiday already scheduled for this date';
 	}
 
 	const duplicateNameInYear = await holidayDao.findByNameAndYearExcludingCuid(
@@ -209,7 +209,7 @@ export async function updateHoliday(cuid: string, input: UpdateHolidayInput) {
 		cuid
 	);
 	if (duplicateNameInYear) {
-		errors.holiday_name = 'Holiday Name already exists';
+		errors.name = 'Holiday Name already exists';
 	}
 
 	if (Object.keys(errors).length > 0) {

@@ -154,7 +154,7 @@
 	let historyFilterStatus = $state<string>('all');
 	let historyFilterStartDate = $state('');
 	let historyFilterEndDate = $state('');
-	let historySortKey = $state<string | null>('attendance_date');
+	let historySortKey = $state<string | null>('date');
 	let historySortDirection = $state<'asc' | 'desc' | null>('desc');
 
 	function handleHistorySort(key: string) {
@@ -183,15 +183,15 @@
 		let result = [...historyRecords];
 
 		if (historyFilterStatus !== 'all') {
-			result = result.filter((r) => r.attendance_status === historyFilterStatus || (r.attendance_status === 'Absent' && historyFilterStatus === 'LOP'));
+			result = result.filter((r) => r.status === historyFilterStatus || (r.status === 'Absent' && historyFilterStatus === 'LOP'));
 		}
 
 		if (historyFilterStartDate) {
-			result = result.filter((r) => getISODateString(r.attendance_date) >= historyFilterStartDate);
+			result = result.filter((r) => getISODateString(r.date) >= historyFilterStartDate);
 		}
 
 		if (historyFilterEndDate) {
-			result = result.filter((r) => getISODateString(r.attendance_date) <= historyFilterEndDate);
+			result = result.filter((r) => getISODateString(r.date) <= historyFilterEndDate);
 		}
 
 		if (historySortKey && historySortDirection) {
@@ -200,7 +200,7 @@
 				const valA = a[key];
 				const valB = b[key];
 
-				if (key === 'attendance_date' || key === 'check_in_time' || key === 'check_out_time') {
+				if (key === 'date' || key === 'check_in_time' || key === 'check_out_time') {
 					const timeA = valA ? new Date(valA).getTime() : 0;
 					const timeB = valB ? new Date(valB).getTime() : 0;
 					return historySortDirection === 'asc' ? timeA - timeB : timeB - timeA;
@@ -222,8 +222,8 @@
 			});
 		} else {
 			result.sort((a, b) => {
-				const timeA = new Date(a.attendance_date).getTime();
-				const timeB = new Date(b.attendance_date).getTime();
+				const timeA = new Date(a.date).getTime();
+				const timeB = new Date(b.date).getTime();
 				return timeB - timeA; // default sort desc
 			});
 		}
@@ -247,7 +247,7 @@
 	let empSearchQuery = $state('');
 
 	let todayRecord = $derived(
-		historyRecords.find((rec: any) => rec.attendance_date === data.todayStr) || null
+		historyRecords.find((rec: any) => rec.date === data.todayStr) || null
 	);
 
 	let employeeOptions = $derived(
@@ -356,14 +356,14 @@
 	}
 
 	function getDayStatus(dateStr: string) {
-		const isHoliday = data.holidays.some((h: any) => getISODateString(h.holiday_date) === dateStr);
+		const isHoliday = data.holidays.some((h: any) => getISODateString(h.date) === dateStr);
 		if (isHoliday) {
 			return { status: 'Holiday', color: 'bg-blue-500/15 text-blue-800 dark:bg-blue-500/25 dark:text-blue-300 border border-blue-500/30 dark:border-blue-500/40' };
 		}
 
-		const record = historyRecords.find((rec) => rec.attendance_date === dateStr);
+		const record = historyRecords.find((rec) => rec.date === dateStr);
 		if (record) {
-			const status = record.attendance_status;
+			const status = record.status;
 			if (status === 'Present' || status === 'Late') {
 				return { status: 'Present', color: 'bg-emerald-500/15 text-emerald-800 dark:bg-emerald-500/25 dark:text-emerald-300 border border-emerald-500/30 dark:border-emerald-500/40' };
 			}
@@ -401,7 +401,7 @@
 	}
 
 	function getHolidayForDate(dateStr: string) {
-		return data.holidays.find((h: any) => getISODateString(h.holiday_date) === dateStr) || null;
+		return data.holidays.find((h: any) => getISODateString(h.date) === dateStr) || null;
 	}
 
 	function formatHolidayType(type: string): string {
@@ -449,7 +449,7 @@
 				const dateObj = new Date(year, month, day);
 				const dayOfWeek = dateObj.getDay();
 				const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-				const isHoliday = data.holidays.some((h: any) => getISODateString(h.holiday_date) === d.dateStr);
+				const isHoliday = data.holidays.some((h: any) => getISODateString(h.date) === d.dateStr);
 
 				if (!isWeekend && !isHoliday) {
 					workingDays++;
@@ -520,33 +520,33 @@
 		let totalWorkingDays = 0;
 
 		for (const r of historyRecords) {
-			if (!r.attendance_date) continue;
+			if (!r.date) continue;
 
 			// Ignore future dates
-			if (r.attendance_date > data.todayStr) continue;
+			if (r.date > data.todayStr) continue;
 
 			// Apply period filter
 			if (filterPeriod === 'week') {
-				if (!isInCurrentWeek(r.attendance_date, data.todayStr)) continue;
+				if (!isInCurrentWeek(r.date, data.todayStr)) continue;
 			} else if (filterPeriod === 'month') {
-				if (!isInCurrentMonth(r.attendance_date, data.todayStr)) continue;
+				if (!isInCurrentMonth(r.date, data.todayStr)) continue;
 			}
 
 			// Exclude weekends/week-offs entirely from both hours and days
-			const dateObj = parseLocalDate(r.attendance_date);
+			const dateObj = parseLocalDate(r.date);
 			const dayOfWeek = dateObj.getDay();
 			if (dayOfWeek === 0 || dayOfWeek === 6) {
 				continue;
 			}
 
 			// Exclude holidays from both hours and days
-			const isHoliday = data.holidays.some((h: any) => getISODateString(h.holiday_date) === r.attendance_date);
+			const isHoliday = data.holidays.some((h: any) => getISODateString(h.date) === r.date);
 			if (isHoliday) {
 				continue;
 			}
 
 			// Exclude leaves and LOPs from both hours and days
-			const status = r.attendance_status;
+			const status = r.status;
 			if (status === 'Leave' || status === 'On Leave' || status === 'LOP' || status === 'Absent') {
 				continue;
 			}
@@ -765,7 +765,7 @@
 </script>
 
 <svelte:head>
-	<title>Employee Attendance</title>
+	<title>Attendance</title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
@@ -773,7 +773,7 @@
 	<div class="space-y-1 border-b border-border pb-6">
 		
 		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
-			Employee Attendance
+			Attendance
 		</h1>
 		
 	</div>
@@ -1084,7 +1084,7 @@
 				<!-- Grid of Days -->
 				<div class="grid grid-cols-7 gap-2">
 					{#each calendarMonthDays as cell}
-						{@const record = historyRecords.find((rec) => rec.attendance_date === cell.dateStr)}
+						{@const record = historyRecords.find((rec) => rec.date === cell.dateStr)}
 						{@const dayStatus = getDayStatus(cell.dateStr)}
 						{@const holiday = getHolidayForDate(cell.dateStr)}
 						<div
@@ -1107,10 +1107,10 @@
 									<!-- Holiday Info Mode -->
 									<div class="space-y-1 text-left w-full mt-1">
 										<div class="text-xs font-bold leading-tight line-clamp-2">
-											{holiday.holiday_name}
+											{holiday.name}
 										</div>
 										<div class="text-[9.5px] opacity-90 font-bold leading-none">
-											{formatHolidayType(holiday.holiday_type)}
+											{formatHolidayType(holiday.type)}
 										</div>
 									</div>
 								{:else if record && record.check_in_time}
@@ -1175,6 +1175,7 @@
 									placeholder="Start Date"
 									bind:value={historyFilterStartDate}
 									max={historyFilterEndDate || '2099-12-31'}
+									isFilter={true}
 								/>
 							</div>
 							<div class="w-full sm:w-40">
@@ -1182,6 +1183,7 @@
 									placeholder="End Date"
 									bind:value={historyFilterEndDate}
 									min={historyFilterStartDate}
+									isFilter={true}
 								/>
 							</div>
 							<div class="w-full sm:w-48">
@@ -1213,11 +1215,11 @@
 								<TableHeader class="bg-muted">
 									<TableRow>
 										<TableHead class="font-bold text-foreground text-[15px]">
-											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleHistorySort('attendance_date')}>
+											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleHistorySort('date')}>
 												Date
-											{#if historySortKey === 'attendance_date' && historySortDirection === 'asc'}
+											{#if historySortKey === 'date' && historySortDirection === 'asc'}
 												<ArrowUpIcon class="ml-2 size-4" />
-											{:else if historySortKey === 'attendance_date' && historySortDirection === 'desc'}
+											{:else if historySortKey === 'date' && historySortDirection === 'desc'}
 												<ArrowDownIcon class="ml-2 size-4" />
 											{:else}
 												<ArrowUpDownIcon class="ml-2 size-4" />
@@ -1261,11 +1263,11 @@
 											</Button>
 										</TableHead>
 										<TableHead class="font-bold text-foreground text-[15px]">
-											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleHistorySort('attendance_status')}>
+											<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleHistorySort('status')}>
 												Status
-											{#if historySortKey === 'attendance_status' && historySortDirection === 'asc'}
+											{#if historySortKey === 'status' && historySortDirection === 'asc'}
 												<ArrowUpIcon class="ml-2 size-4" />
-											{:else if historySortKey === 'attendance_status' && historySortDirection === 'desc'}
+											{:else if historySortKey === 'status' && historySortDirection === 'desc'}
 												<ArrowDownIcon class="ml-2 size-4" />
 											{:else}
 												<ArrowUpDownIcon class="ml-2 size-4" />
@@ -1284,13 +1286,13 @@
 									{:else}
 										{#each paginatedHistory as rec (rec.cuid)}
 											<TableRow>
-												<TableCell class="font-semibold">{formatDisplayDate(rec.attendance_date)}</TableCell>
+												<TableCell class="font-semibold">{formatDisplayDate(rec.date)}</TableCell>
 												<TableCell>{formatDisplayTime(rec.check_in_time)}</TableCell>
 												<TableCell>{formatDisplayTime(rec.check_out_time)}</TableCell>
 												<TableCell>{formatDuration(rec.work_duration_minutes)}</TableCell>
 												<TableCell>
-													<Badge class={`border-none px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(rec.attendance_status === 'Absent' ? 'LOP' : rec.attendance_status)}`}>
-														{rec.attendance_status === 'Absent' ? 'LOP' : rec.attendance_status}
+													<Badge class={`border-none px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(rec.status === 'Absent' ? 'LOP' : rec.status)}`}>
+														{rec.status === 'Absent' ? 'LOP' : rec.status}
 													</Badge>
 												</TableCell>
 											</TableRow>
@@ -1299,7 +1301,7 @@
 								</TableBody>
 							</Table>
 						</Card>
-						<Pagination totalItems={filteredHistory.length} bind:currentPage={historyCurrentPage} pageSize={10} showIcons={false} />
+						<Pagination totalItems={filteredHistory.length} bind:currentPage={historyCurrentPage} pageSize={10} />
 					</div>
 				{/if}
 			</CardContent>
