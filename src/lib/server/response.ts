@@ -214,7 +214,6 @@ export function mapRole(role: any) {
   return {
     cuid: role.cuid,
     name: role.name,
-    name: role.name,
     status: role.status,
     created_by: role.created_by ?? null,
     updated_by: role.updated_by ?? null
@@ -237,7 +236,6 @@ export function mapShift(shift: any) {
 export function mapLocation(loc: any) {
   return {
     cuid: loc.cuid,
-    name: loc.name,
     name: loc.name,
     address_line1: loc.address_line1,
     address_line2: loc.address_line2,

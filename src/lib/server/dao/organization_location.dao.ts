@@ -26,7 +26,6 @@ export async function createLocation(data: CompanyLocationCreateDTO): Promise<Co
     select: {
       cuid: true,
       name: true,
-      name: true,
       address_line1: true,
       address_line2: true,
       city: true,
@@ -51,11 +50,9 @@ export async function createLocation(data: CompanyLocationCreateDTO): Promise<Co
 export async function getLocations(): Promise<CompanyLocation[]> {
   return db.companyLocation.findMany({
     where: { status: true },
-    where: { status: true },
     orderBy: { id: 'asc' },
     select: {
       cuid: true,
-      name: true,
       name: true,
       address_line1: true,
       address_line2: true,
@@ -83,7 +80,6 @@ export async function getAllLocations(): Promise<CompanyLocation[]> {
     orderBy: { id: 'asc' },
     select: {
       cuid: true,
-      name: true,
       name: true,
       address_line1: true,
       address_line2: true,
@@ -115,7 +111,6 @@ export async function countAllLocations(): Promise<number> {
  */
 export async function countLocations(): Promise<number> {
   return db.companyLocation.count({ where: { status: true } });
-  return db.companyLocation.count({ where: { status: true } });
 }
 
 /**
@@ -126,7 +121,6 @@ export async function getLocationByCuid(cuid: string): Promise<CompanyLocation |
     where: { cuid },
     select: {
       cuid: true,
-      name: true,
       name: true,
       address_line1: true,
       address_line2: true,
@@ -151,8 +145,6 @@ export async function getLocationByCuid(cuid: string): Promise<CompanyLocation |
  */
 export async function updateLocation(cuid: string, data: CompanyLocationUpdateDTO): Promise<CompanyLocation> {
   const updateData: any = {};
-  if (data.name !== undefined) {
-    updateData.name = data.name.trim();
   if (data.name !== undefined) {
     updateData.name = data.name.trim();
   }
@@ -196,7 +188,6 @@ export async function updateLocation(cuid: string, data: CompanyLocationUpdateDT
     select: {
       cuid: true,
       name: true,
-      name: true,
       address_line1: true,
       address_line2: true,
       city: true,
@@ -222,10 +213,8 @@ export async function deactivateLocation(cuid: string): Promise<CompanyLocation>
   return db.companyLocation.update({
     where: { cuid },
     data: { status: false },
-    data: { status: false },
     select: {
       cuid: true,
-      name: true,
       name: true,
       address_line1: true,
       address_line2: true,
@@ -252,10 +241,8 @@ export async function activateLocation(cuid: string): Promise<CompanyLocation> {
   return db.companyLocation.update({
     where: { cuid },
     data: { status: true },
-    data: { status: true },
     select: {
       cuid: true,
-      name: true,
       name: true,
       address_line1: true,
       address_line2: true,

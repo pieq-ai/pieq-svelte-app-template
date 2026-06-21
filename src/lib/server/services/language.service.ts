@@ -39,8 +39,8 @@ export async function replaceLanguages(employee_cuid: string, dtos: UpsertLangua
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
     const validatedDtos = z.array(languageSchema)
-        .refine(items => {
-            const languageCuids = items.map(i => i.language_cuid);
+        .refine((items: any[]) => {
+            const languageCuids = items.map((i: any) => i.language_cuid);
             return new Set(languageCuids).size === languageCuids.length;
         }, { message: "Duplicate languages are not allowed", path: ["root"] })
         .parse(dtos);

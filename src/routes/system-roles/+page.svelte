@@ -39,7 +39,6 @@
 	interface SystemRole {
 		cuid: string;
 		name: string;
-		name: string;
 		status: boolean;
 	}
 
@@ -55,7 +54,6 @@
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
 	
-	let sortColumn = $state('name');
 	let sortColumn = $state('name');
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
@@ -92,7 +90,6 @@
 		let result = [...roles];
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
-			result = result.filter((role) => role.name.toLowerCase().includes(query));
 			result = result.filter((role) => role.name.toLowerCase().includes(query));
 		}
 		if (statusFilter !== 'all') {
@@ -158,18 +155,15 @@
 		isNameTouched = false;
 		backendError = '';
 		dirtyChecker.snapshot({ name: '', status: true });
-		dirtyChecker.snapshot({ name: '', status: true });
 		isModalOpen = true;
 	}
 
 	function openEditModal(role: SystemRole) {
 		editingRole = role;
 		roleName = role.name;
-		roleName = role.name;
 		roleStatus = role.status;
 		isNameTouched = false;
 		backendError = '';
-		dirtyChecker.snapshot({ name: role.name, status: role.status });
 		dirtyChecker.snapshot({ name: role.name, status: role.status });
 		isModalOpen = true;
 	}

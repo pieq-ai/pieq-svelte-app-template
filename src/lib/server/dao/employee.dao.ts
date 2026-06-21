@@ -119,6 +119,34 @@ export async function getEmployeesByCuids(cuids: string[], tx?: any): Promise<an
 	});
 }
 
+export async function getEmployeeByCuid(cuid: string, tx?: any) {
+	const client = tx || db;
+	return client.employee.findUnique({
+		where: { cuid }
+	});
+}
+
+export async function getActiveEmploymentByOfficialEmail(email: string, tx?: any) {
+	const client = tx || db;
+	return client.employment.findFirst({
+		where: { official_email: email, employment_status: 'active' }
+	});
+}
+
+export async function getEmployeeByPersonalEmail(email: string, tx?: any) {
+	const client = tx || db;
+	return client.employee.findFirst({
+		where: { personal_email: email, is_deleted: false }
+	});
+}
+
+export async function getFirstEmployee(tx?: any) {
+	const client = tx || db;
+	return client.employee.findFirst({
+		where: { is_deleted: false }
+	});
+}
+
 export async function getEmployeeByEmpCode(empCode: string, tx?: any): Promise<any> {
 	const client = tx || db;
 	return client.employee.findFirst({

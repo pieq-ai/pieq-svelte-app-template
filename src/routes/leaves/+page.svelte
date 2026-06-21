@@ -1972,7 +1972,6 @@
 	open={isApplyModalOpen}
 	title="Apply Leave"
 	description="Fill out the details below to submit a leave request."
-	isDirty={isFormDirty}
 	isSubmitting={isSubmitting}
 	onClose={closeApplyModal}
 	cardClass="overflow-visible my-auto"
@@ -2330,7 +2329,6 @@
 	open={isDetailsModalOpen}
 	title="Leave Request Details"
 	description="Review the leave request submitted by the employee."
-	isDirty={false}
 	isSubmitting={isActionSubmitting}
 	onClose={() => {
 		isDetailsModalOpen = false;

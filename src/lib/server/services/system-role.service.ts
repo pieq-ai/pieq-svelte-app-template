@@ -3,7 +3,6 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 
 export interface CreateSystemRoleDto {
 	name: string;
-	name: string;
 	status?: boolean;
 	created_by?: string;
 	created_at?: Date | string | null;
@@ -12,7 +11,6 @@ export interface CreateSystemRoleDto {
 
 export interface UpdateSystemRoleDto {
 	name?: string;
-	name?: string;
 	status?: boolean;
 	updated_by?: string;
 	updated_at?: Date | string | null;
@@ -20,7 +18,6 @@ export interface UpdateSystemRoleDto {
 
 function toPublicSystemRole(role: {
 	cuid: string;
-	name: string;
 	name: string;
 	status: boolean;
 	created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {

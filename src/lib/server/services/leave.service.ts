@@ -268,6 +268,8 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 		const existingBalance = await leaveDao.getLeaveBalance(employeeCuid, type.cuid, year);
 		
 		let carriedForward = 0.0;
+		const maxCarryForward = Number(policy.max_carry_forward_days ?? 24);
+
 		if (type.leave_code === 'EL' && year > joinYear) {
 			const prevBalance = await leaveDao.getLeaveBalance(employeeCuid, type.cuid, year - 1);
 			if (prevBalance) {
@@ -292,14 +294,14 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 				const unusedPreviousCarriedForward = Math.max(0.0, prevCarried - Math.max(0.0, prevUsed - prevAllocated));
 
 				// The total carried forward balance for the new year is the sum of both components.
-				carriedForward = cfFromAllocated + unusedPreviousCarriedForward;
+				carriedForward = Math.min(maxCarryForward, cfFromAllocated + unusedPreviousCarriedForward);
 			}
 		}
 
 		if (!existingBalance) {
 			let remaining = initialAllocated + carriedForward;
 			if (type.leave_code === 'EL') {
-				remaining = Math.min(24.0, remaining);
+				remaining = Math.min(maxCarryForward, remaining);
 			}
 			await leaveDao.createLeaveBalance({
 				employee_cuid: employeeCuid,
@@ -314,7 +316,7 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 		} else {
 			const used = Number(existingBalance.used_days) || 0.0;
 			let remaining = type.leave_code === 'EL'
-				? Math.min(24.0, initialAllocated + carriedForward) - used
+				? Math.min(maxCarryForward, initialAllocated + carriedForward) - used
 				: initialAllocated + carriedForward - used;
 			remaining = Math.max(0.0, remaining);
 

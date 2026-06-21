@@ -11,31 +11,6 @@ if (typeof BigInt !== 'undefined') {
 
 /** @type {import('@sveltejs/kit').Handle} */
 const injectLocals = async ({ event, resolve }) => {
-	// Development Mock Login Bypass
-	if (process.env.NODE_ENV !== 'production') {
-		const mockEmail = event.cookies.get('mock-user-email');
-		if (mockEmail) {
-			let name = 'John Doe';
-			let roles = ['admin', 'manager'];
-			if (mockEmail === 'jane.smith@pieq.ai') {
-				name = 'Jane Smith';
-				roles = ['employee'];
-			} else if (mockEmail === 'bob.johnson@pieq.ai') {
-				name = 'Bob Johnson';
-				roles = ['employee'];
-			}
-
-			event.locals.user = {
-				id: 'mock-' + mockEmail,
-				email: mockEmail,
-				name: name
-			};
-			event.locals.roles = roles;
-
-			return resolve(event);
-		}
-	}
-
 	const session = await event.locals.auth?.();
 
 	if (session?.user?.id) {
@@ -172,3 +147,4 @@ const errorHandler = async ({ event, resolve }) => {
 };
 
 export const handle = sequence(authHandle, injectLocals, routeGuard, errorHandler);
+

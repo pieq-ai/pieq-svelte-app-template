@@ -34,12 +34,15 @@
 		SearchInput
 	} from '$lib/components';
 	import SimpleMasterModal from '$lib/components/common/SimpleMasterModal.svelte';
+	import type { PageData } from './$types';
 
 	interface Role {
 		cuid: string;
 		name: string;
 		status: boolean;
 	}
+
+	let { data }: { data: PageData } = $props();
 
 	let rolesList = $state<Role[]>(data.roles);
 	let isLoading = $state(false);
@@ -56,12 +59,6 @@
 	// Shared Form State
 	let editingRole = $state<Role | null>(null);
 	let isModalOpen = $state(false);
-	let isNameTouched = $state(false);
-	let backendError = $state('');
-	let roleNameInput = $state<HTMLInputElement | null>(null);
-
-	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
-	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ name: roleName.trim(), status: roleStatus }));
 
 	// Deletion State
 	let itemToDelete = $state<Role | null>(null);
@@ -72,7 +69,6 @@
 
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase().trim();
-			result = result.filter((role) => role.name.toLowerCase().includes(query));
 			result = result.filter((role) => role.name.toLowerCase().includes(query));
 		}
 
@@ -140,55 +136,12 @@
 
 	function openCreateModal() {
 		editingRole = null;
-		roleName = '';
-		roleStatus = true;
-		isNameTouched = false;
-		backendError = '';
-		dirtyChecker.snapshot({ name: '', status: true });
 		isModalOpen = true;
 	}
 
 	function openEditModal(role: Role) {
 		editingRole = role;
-		roleName = role.name;
-		roleStatus = role.status;
-		isNameTouched = false;
-		backendError = '';
-		dirtyChecker.snapshot({ name: role.name, status: role.status });
 		isModalOpen = true;
-	}
-
-	async function handleSaveRole(e: Event) {
-		e.preventDefault();
-		if (editingRole && !isDirty) return;
-		isNameTouched = true;
-
-		const validationError = getValidationError(roleName);
-		if (validationError) {
-			roleNameInput?.focus();
-			return;
-		}
-
-		isSubmitting = true;
-
-		try {
-			if (editingRole) {
-				await updateRole(editingRole.cuid, { name: roleName.trim(), status: roleStatus });
-			} else {
-				await createRole(roleName.trim());
-			}
-			await loadRoles();
-			toast.success(editingRole ? 'Role updated successfully' : 'Role created successfully');
-			isModalOpen = false;
-		} catch (err) {
-			backendError = err instanceof ApiError ? err.message : 'Something went wrong.';
-			if (!(err instanceof ApiError && (err.status === 400 || err.status === 409 || err.status === 422))) {
-				toast.error(backendError);
-			}
-			console.error(err);
-		} finally {
-			isSubmitting = false;
-		}
 	}
 
 	async function confirmDelete() {
@@ -272,17 +225,14 @@
 					<TableRow>
 						<TableHead class="font-bold text-foreground text-[15px]">
 							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
 								Role Name
-							{#if sortColumn === 'name' && sortDirection === 'asc'}
-							{#if sortColumn === 'name' && sortDirection === 'asc'}
-								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortColumn === 'name' && sortDirection === 'desc'}
-							{:else if sortColumn === 'name' && sortDirection === 'desc'}
-								<ArrowDownIcon class="ml-2 size-4" />
-							{:else}
-								<ArrowUpDownIcon class="ml-2 size-4" />
-							{/if}
+								{#if sortColumn === 'name' && sortDirection === 'asc'}
+									<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortColumn === 'name' && sortDirection === 'desc'}
+									<ArrowDownIcon class="ml-2 size-4" />
+								{:else}
+									<ArrowUpDownIcon class="ml-2 size-4" />
+								{/if}
 							</Button>
 						</TableHead>
 						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
@@ -326,7 +276,6 @@
 								<TableCell>
 									<div class="flex flex-col">
 										<span class="font-semibold">{role.name}</span>
-										<span class="font-semibold">{role.name}</span>
 									</div>
 								</TableCell>
 								<TableCell class="text-center">
@@ -363,7 +312,6 @@
 <ConfirmModal
 	open={!!itemToDelete}
 	title="Deactivate Role"
-	description={`Are you sure you want to deactivate ${itemToDelete?.name}?`}
 	description={`Are you sure you want to deactivate ${itemToDelete?.name}?`}
 	confirmLabel="Deactivate"
 	isSubmitting={isDeleting}

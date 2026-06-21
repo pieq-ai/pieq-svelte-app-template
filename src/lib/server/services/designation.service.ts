@@ -3,7 +3,6 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 
 export interface CreateDesignationDto {
 	name: string;
-	name: string;
 	status?: boolean;
 	created_by?: string;
 	created_at?: Date | string | null;
@@ -11,7 +10,6 @@ export interface CreateDesignationDto {
 }
 
 export interface UpdateDesignationDto {
-	name?: string;
 	name?: string;
 	status?: boolean;
 	updated_by?: string;
@@ -53,8 +51,6 @@ async function ensureDesignationNameIsUnique(name: string, currentCuid2?: string
 
 	if (isDuplicate) {
 		throw new ValidationError('name', 'Designation already exists');
-	if (duplicate) {
-		throw new ValidationError('name', 'Designation already exists');
 	}
 }
 
@@ -83,13 +79,10 @@ export async function getDesignationByCuid(cuid: string) {
  */
 export async function createDesignation(dto: CreateDesignationDto) {
 	const name = validateDesignationName(dto.name);
-	const name = validateDesignationName(dto.name);
 
-	await ensureDesignationNameIsUnique(name);
 	await ensureDesignationNameIsUnique(name);
 
 	return toPublicDesignation(await designationDao.create({
-		name,
 		name,
 		status: dto.status ?? true,
 		created_by: dto.created_by ?? undefined,
@@ -116,13 +109,9 @@ export async function updateDesignation(cuid: string, dto: UpdateDesignationDto)
 
 	if (dto.name !== undefined) {
 		const name = validateDesignationName(dto.name);
-	if (dto.name !== undefined) {
-		const name = validateDesignationName(dto.name);
 
 		await ensureDesignationNameIsUnique(name, existing.cuid);
-		await ensureDesignationNameIsUnique(name, existing.cuid);
 
-		updateData.name = name;
 		updateData.name = name;
 	}
 

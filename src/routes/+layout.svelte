@@ -26,7 +26,6 @@
 	import ClockIcon from '@lucide/svelte/icons/clock';
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
 	import CalendarCogIcon from '@lucide/svelte/icons/calendar-cog';
-	import CalendarIcon from '@lucide/svelte/icons/calendar';
 
 	let { children, data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);

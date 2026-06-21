@@ -16,7 +16,6 @@
 	interface SystemRole {
 		cuid: string;
 		name: string;
-		name: string;
 		status: boolean;
 	}
 
@@ -209,7 +208,6 @@
 							</th>
 							{#each filteredRoles as role (role.cuid)}
 								<th class="min-w-40 border-l border-white/10 px-4 py-3 text-center font-semibold">
-									{role.name}
 									{role.name}
 								</th>
 							{/each}

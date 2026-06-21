@@ -374,6 +374,72 @@ describe('Leave Service Unit Tests', () => {
 				updated_by: 'system'
 			});
 		});
+
+		it('should correctly calculate EL carry-forward balances according to the capping rules', async () => {
+			const scenarios = [
+				{ prevCarried: 20, unusedEl: 6, expectedCf: 24, maxCf: 24 },
+				{ prevCarried: 10, unusedEl: 4, expectedCf: 14, maxCf: 24 },
+				{ prevCarried: 24, unusedEl: 6, expectedCf: 24, maxCf: 24 },
+				{ prevCarried: 0, unusedEl: 6, expectedCf: 6, maxCf: 24 },
+				{ prevCarried: 0, unusedEl: 12, expectedCf: 6, maxCf: 24 },
+				{ prevCarried: 6, unusedEl: 12, expectedCf: 12, maxCf: 24 },
+				{ prevCarried: 18, unusedEl: 12, expectedCf: 24, maxCf: 24 },
+				{ prevCarried: 20, unusedEl: 12, expectedCf: 24, maxCf: 24 },
+				{ prevCarried: 24, unusedEl: 12, expectedCf: 24, maxCf: 24 },
+				// Test database-driven dynamic limit changes (e.g. maxCf = 18 and maxCf = 30)
+				{ prevCarried: 20, unusedEl: 6, expectedCf: 18, maxCf: 18 },
+				{ prevCarried: 20, unusedEl: 12, expectedCf: 26, maxCf: 30 }
+			];
+
+			for (const sc of scenarios) {
+				vi.clearAllMocks();
+
+				// Mock policy with the scenario's maxCf limit
+				const modifiedPolicies = {
+					...mockPolicies,
+					'cuid-el': {
+						...mockPolicies['cuid-el'],
+						max_carry_forward_days: sc.maxCf
+					}
+				};
+				vi.mocked(leaveDao.getLeavePolicyByLeaveType).mockImplementation(async (cuid: string) => {
+					return modifiedPolicies[cuid as keyof typeof modifiedPolicies] || null;
+				});
+
+				// Previous year EL balance (year 2025)
+				// unusedEl is the unused portion of Allocated Days.
+				// Allocated is 12, so usage must be (12 - unusedEl).
+				const prevUsed = 12.0 - sc.unusedEl;
+				const mockPrevBalance = {
+					cuid: 'bal-el-2025',
+					employee_cuid: 'emp-cuid',
+					leave_type_cuid: 'cuid-el',
+					year: 2025,
+					allocated_days: 12.0,
+					carried_forward_days: sc.prevCarried,
+					used_days: prevUsed,
+					remaining_days: 12.0 + sc.prevCarried - prevUsed
+				};
+
+				vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid: string, typeCuid: string, year: number) => {
+					if (typeCuid === 'cuid-el') {
+						if (year === 2025) return mockPrevBalance as any;
+						if (year === 2026) return null; // assume no existing balance for 2026 yet
+					}
+					return null;
+				});
+
+				// Execute accrue for 2026 (joining date is 2025, so year 2026 > joinYear)
+				await leaveService.accrueLeaves('emp-cuid', 2026);
+
+				// Verify created balance has the capped carried forward days
+				expect(leaveDao.createLeaveBalance).toHaveBeenCalledWith(expect.objectContaining({
+					leave_type_cuid: 'cuid-el',
+					year: 2026,
+					carried_forward_days: sc.expectedCf
+				}));
+			}
+		});
 	});
 
 	describe('applyLeave Validations', () => {

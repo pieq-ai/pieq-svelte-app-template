@@ -31,8 +31,8 @@ export async function replaceSkills(employee_cuid: string, dtos: UpsertSkillDto[
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
     const validatedDtos = z.array(skillSchema)
-        .refine(items => {
-            const skillCuids = items.map(i => i.skill_cuid);
+        .refine((items: any[]) => {
+            const skillCuids = items.map((i: any) => i.skill_cuid);
             return new Set(skillCuids).size === skillCuids.length;
         }, { message: "Duplicate skills are not allowed", path: ["root"] })
         .parse(dtos);
