@@ -3,7 +3,7 @@
   import { toast } from "svelte-sonner";
   import { goto } from "$app/navigation";
   import { globalIsDirty } from "$lib/stores/navigationGuard";
-  import { isDuplicateEntry } from "$lib/utils/employeeValidationHelper";
+  import { isDuplicateEntry, normalizeText, validateLettersSpaces } from "$lib/utils/employeeValidationHelper";
   import { SvelteDate } from "svelte/reactivity";
   import { parseBackendErrors } from "$lib/utils/errors.js";
   import { onMount } from "svelte";
@@ -95,6 +95,12 @@
   function validateRequired(val: string | undefined | null) {
     return val && val.trim().length > 0 ? "" : "Required";
   }
+  function companyNameError(val: string) {
+    return validateRequired(val) || validateLettersSpaces(val, 'Company name');
+  }
+  function roleError(val: string) {
+    return validateRequired(val) || validateLettersSpaces(val, 'Role/Designation');
+  }
   function validateDates(from: string, to: string) {
     // Both dates are optional in Prisma
     if (!from && !to) return ""; // both empty is fine
@@ -111,8 +117,8 @@
   let hasErrors = $derived(
     experiences.some(
       (e, i) =>
-        validateRequired(e.company_name) ||
-        validateRequired(e.role) ||
+        companyNameError(e.company_name) ||
+        roleError(e.role) ||
         validateDates(e.from_date, e.to_date) ||
         isDuplicateEntry(experiences, i, (x) => `${x.company_name}|${x.role}`),
     ),
@@ -195,8 +201,9 @@
           <Input
             bind:value={exp.company_name}
             placeholder="Company Name"
+            onblur={() => (exp.company_name = normalizeText(exp.company_name))}
             class={isTouched &&
-            (validateRequired(exp.company_name) ||
+            (companyNameError(exp.company_name) ||
               isDuplicateEntry(
                 experiences,
                 index,
@@ -205,10 +212,10 @@
               ? "border-destructive focus-visible:ring-destructive/50"
               : ""}
           />
-          {#if isTouched && validateRequired(exp.company_name)}<p
+          {#if isTouched && companyNameError(exp.company_name)}<p
               class="text-xs text-destructive"
             >
-              {validateRequired(exp.company_name)}
+              {companyNameError(exp.company_name)}
             </p>{/if}
         </div>
         <div class="space-y-2">
@@ -217,8 +224,9 @@
           <Input
             bind:value={exp.role}
             placeholder="e.g. Software Engineer"
+            onblur={() => (exp.role = normalizeText(exp.role))}
             class={isTouched &&
-            (validateRequired(exp.role) ||
+            (roleError(exp.role) ||
               isDuplicateEntry(
                 experiences,
                 index,
@@ -227,10 +235,10 @@
               ? "border-destructive focus-visible:ring-destructive/50"
               : ""}
           />
-          {#if isTouched && validateRequired(exp.role)}<p
+          {#if isTouched && roleError(exp.role)}<p
               class="text-xs text-destructive"
             >
-              {validateRequired(exp.role)}
+              {roleError(exp.role)}
             </p>{/if}
         </div>
         {#if isTouched && isDuplicateEntry(experiences, index, (x) => `${x.company_name}|${x.role}`)}
@@ -266,6 +274,7 @@
           <Textarea
             bind:value={exp.description}
             placeholder="Key responsibilities and achievements..."
+            onblur={() => (exp.description = normalizeText(exp.description))}
             rows={3}
           />
         </div>

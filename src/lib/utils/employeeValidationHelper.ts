@@ -1,4 +1,9 @@
 // Validation helpers
+/** Trims and collapses multiple internal spaces to a single space */
+export function normalizeText(val: string): string {
+	return val.trim().replace(/\s+/g, ' ');
+}
+
 export function isDuplicateEntry<T>(list: T[], index: number, keyFn: (item: T) => string): boolean {
 	if (!list || !list[index]) return false;
 	const currentKey = keyFn(list[index])?.trim().toLowerCase();
@@ -136,6 +141,36 @@ export function validateIfsc(ifsc: string | undefined | null) {
 	if (!ifsc) return 'Required';
 	const trimmed = ifsc.trim().toUpperCase();
 	if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(trimmed)) return "Invalid IFSC code format";
+	return '';
+}
+
+/** Letters and spaces only (e.g. names, country, city, company) */
+export function validateLettersSpaces(val: string | undefined | null, fieldLabel: string = 'Field'): string {
+	if (!val || !val.trim()) return ''; // optional by default — caller decides required check
+	if (!/^[a-zA-Z\s]+$/.test(val.trim())) return `${fieldLabel} can contain only letters and spaces`;
+	return '';
+}
+
+/** Letters, numbers and spaces (e.g. skills like "Java 17", "Node.js 20") */
+export function validateLettersNumbersSpaces(val: string | undefined | null, fieldLabel: string = 'Field'): string {
+	if (!val || !val.trim()) return '';
+	if (!/^[a-zA-Z0-9\s]+$/.test(val.trim())) return `${fieldLabel} can contain only letters, numbers, and spaces`;
+	return '';
+}
+
+/** Digits only (account numbers) */
+export function validateAccountNumber(val: string | undefined | null): string {
+	if (!val || !val.trim()) return 'Required';
+	if (!/^\d+$/.test(val.trim())) return 'Account number can contain only digits';
+	return '';
+}
+
+/** IFSC input — strip and block special chars (letters + numbers only, no spaces) */
+export function validateIfscInput(val: string | undefined | null): string {
+	if (!val || !val.trim()) return 'Required';
+	const upper = val.trim().toUpperCase();
+	if (!/^[A-Z0-9]+$/.test(upper)) return 'IFSC code can contain only letters and numbers';
+	if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(upper)) return 'Invalid IFSC format (e.g. SBIN0123456)';
 	return '';
 }
 

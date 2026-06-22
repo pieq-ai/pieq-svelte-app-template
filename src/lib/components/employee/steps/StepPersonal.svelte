@@ -6,6 +6,7 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { parseBackendErrors } from '$lib/utils/errors.js';
+	import { normalizeText } from '$lib/utils/employeeValidationHelper';
 
 	let { mode, cuid, onNext, data, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit';
@@ -278,17 +279,17 @@
 		</div>
 		<div class="space-y-2">
 			<Label>First Name <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.first_name} oninput={() => clearBackendError('first_name')} onblur={() => emp.first_name = emp.first_name.trim()} placeholder="John" class={(isTouched && errors.first_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
+			<Input bind:value={emp.first_name} oninput={() => clearBackendError('first_name')} onblur={() => emp.first_name = normalizeText(emp.first_name)} placeholder="John" class={(isTouched && errors.first_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
 			{#if isTouched && errors.first_name}<p class="text-xs text-destructive">{errors.first_name}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Last Name <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.last_name} oninput={() => clearBackendError('last_name')} onblur={() => emp.last_name = emp.last_name.trim()} placeholder="Doe" class={(isTouched && errors.last_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
+			<Input bind:value={emp.last_name} oninput={() => clearBackendError('last_name')} onblur={() => emp.last_name = normalizeText(emp.last_name)} placeholder="Doe" class={(isTouched && errors.last_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
 			{#if isTouched && errors.last_name}<p class="text-xs text-destructive">{errors.last_name}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Father's Name <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.father_name} oninput={() => clearBackendError('father_name')} onblur={() => emp.father_name = emp.father_name.trim()} placeholder="Father's Name" class={(isTouched && errors.father_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
+			<Input bind:value={emp.father_name} oninput={() => clearBackendError('father_name')} onblur={() => emp.father_name = normalizeText(emp.father_name)} placeholder="Father's Name" class={(isTouched && errors.father_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
 			{#if isTouched && errors.father_name}<p class="text-xs text-destructive">{errors.father_name}</p>{/if}
 		</div>
 		<div class="space-y-2">
@@ -323,7 +324,7 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Personal Email <span class="text-destructive">*</span></Label>
-			<Input type="email" bind:value={emp.personal_email} oninput={() => clearBackendError('personal_email')} onblur={() => emp.personal_email = emp.personal_email.trim().toLowerCase()} placeholder="john@example.com" class={(isTouched && errors.personal_email) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
+			<Input type="email" bind:value={emp.personal_email} oninput={() => clearBackendError('personal_email')} onblur={() => emp.personal_email = normalizeText(emp.personal_email).toLowerCase()} placeholder="john@example.com" class={(isTouched && errors.personal_email) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
 			{#if isTouched && errors.personal_email}<p class="text-xs text-destructive">{errors.personal_email}</p>{/if}
 		</div>
 		<div class="space-y-2">
@@ -346,7 +347,7 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Emergency Contact Name <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.emergency_contact_name} onblur={() => emp.emergency_contact_name = emp.emergency_contact_name.trim()} placeholder="Emergency Contact Name" class={(isTouched && errors.emergency_contact_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
+			<Input bind:value={emp.emergency_contact_name} onblur={() => emp.emergency_contact_name = normalizeText(emp.emergency_contact_name)} placeholder="Emergency Contact Name" class={(isTouched && errors.emergency_contact_name) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
 			{#if isTouched && errors.emergency_contact_name}<p class="text-xs text-destructive">{errors.emergency_contact_name}</p>{/if}
 		</div>
 		<div class="space-y-2">
@@ -362,7 +363,7 @@
 
 	<div class="space-y-2">
 		<Label>Remarks</Label>
-		<Textarea bind:value={emp.remarks} onblur={() => emp.remarks = emp.remarks.trim()} placeholder="Any additional notes..." rows={3} />
+		<Textarea bind:value={emp.remarks} onblur={() => emp.remarks = normalizeText(emp.remarks)} placeholder="Any additional notes..." rows={3} />
 	</div>
 
 	<div class="flex items-center justify-between pt-6 border-t border-border">
