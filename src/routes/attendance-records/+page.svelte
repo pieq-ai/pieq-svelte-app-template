@@ -442,6 +442,21 @@
 					errs.date = 'An attendance record already exists for this employee on this date';
 				}
 			}
+
+			// Join and Relieving Date check
+			if (formEmployeeCuid) {
+				const emp = data.employees.find((e: any) => e.uuid === formEmployeeCuid);
+				if (emp) {
+					const joinStr = emp.date_of_joining ? getISODateString(emp.date_of_joining) : null;
+					const relieveStr = emp.relieving_date ? getISODateString(emp.relieving_date) : null;
+
+					if (joinStr && formAttendanceDate < joinStr) {
+						errs.date = "Attendance date must be within employee's employment period.";
+					} else if (relieveStr && formAttendanceDate > relieveStr) {
+						errs.date = "Attendance date must be within employee's employment period.";
+					}
+				}
+			}
 		}
 
 		if (!formAttendanceStatus) errs.status = 'Attendance status is required';

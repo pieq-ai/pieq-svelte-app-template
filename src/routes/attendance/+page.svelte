@@ -246,6 +246,16 @@
 	// Local state for dropdown searching
 	let empSearchQuery = $state('');
 
+	let selectedEmployee = $derived(
+		data.employees.find((emp: any) => emp.uuid === selectedEmployeeUuid) || null
+	);
+
+	let isRelieved = $derived.by(() => {
+		if (!selectedEmployee || !selectedEmployee.relieving_date) return false;
+		const relieveStr = getISODateString(selectedEmployee.relieving_date);
+		return data.todayStr > relieveStr;
+	});
+
 	let todayRecord = $derived(
 		historyRecords.find((rec: any) => rec.date === data.todayStr) || null
 	);
@@ -1127,15 +1137,17 @@
 
 								{#if cell.isToday && !holiday && !['Leave', 'LOP'].includes(dayStatus?.status ?? '')}
 									{#if !record}
-										<Button
-											size="sm"
-											onclick={(e) => { e.stopPropagation(); handleCheckIn(); }}
-											class="w-full mt-1 h-5 text-[9px] px-1 bg-[#F45310] hover:bg-[#F45310]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-											disabled={isSubmitting || !gpsValidation.isValid || isLoadingHistory}
-											title={!gpsValidation.isValid ? gpsValidation.message : (isLoadingHistory ? 'Loading history...' : '')}
-										>
-											Check In
-										</Button>
+										{#if !isRelieved}
+											<Button
+												size="sm"
+												onclick={(e) => { e.stopPropagation(); handleCheckIn(); }}
+												class="w-full mt-1 h-5 text-[9px] px-1 bg-[#F45310] hover:bg-[#F45310]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+												disabled={isSubmitting || !gpsValidation.isValid || isLoadingHistory}
+												title={!gpsValidation.isValid ? gpsValidation.message : (isLoadingHistory ? 'Loading history...' : '')}
+											>
+												Check In
+											</Button>
+										{/if}
 									{:else if record && !record.check_out_time}
 										<Button
 											size="sm"
