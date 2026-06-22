@@ -4,7 +4,7 @@ import * as shiftAssignmentService from '$lib/server/services/shift-assignment.s
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as shiftDao from '$lib/server/dao/shift.dao.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
-import { mapShiftAssignment } from '../api/shift-assignments/+server.js';
+import { _mapShiftAssignment } from '../api/shift-assignments/+server.js';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -41,7 +41,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   // Load existing assignments
   const assignments = await shiftAssignmentService.listAssignments(email);
-  const formattedAssignments = assignments.map(mapShiftAssignment);
+  const formattedAssignments = assignments.map(_mapShiftAssignment);
 
   return {
     employeeOptions,

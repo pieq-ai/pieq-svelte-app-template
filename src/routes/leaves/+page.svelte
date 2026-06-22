@@ -1036,9 +1036,9 @@
 	);
 
 	const cardThemes = {
-		EL: { bg: 'bg-[#FEF6F0]', border: 'border-orange-200', text: 'text-[#F45310]' }, // Soft Orange
-		CL: { bg: 'bg-[#F0F7FF]', border: 'border-blue-200', text: 'text-blue-600' }, // Soft Blue
-		SL: { bg: 'bg-[#FFF0F2]', border: 'border-pink-200', text: 'text-[#800020]' } // Soft Maroon
+		EL: { text: 'text-[#F45310]' }, // Warm Orange
+		CL: { text: 'text-emerald-600' }, // Emerald Green
+		SL: { text: 'text-purple-600' } // Purple
 	};
 
 	function formatDate(d: string | Date) {
@@ -1409,54 +1409,51 @@
 			<div class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
 				{#each balances.filter(b => ['EL', 'CL', 'SL'].includes(b.leave_code)) as b (b.cuid)}
 					{@const theme = cardThemes[b.leave_code as keyof typeof cardThemes] || cardThemes.EL}
-					<Card class="border {theme.border} {theme.bg} shadow-xs transition-transform hover:-translate-y-0.5">
+					{@const badgeColor = b.leave_code === 'EL' ? 'text-[#F45310] border-[#F45310]/30 bg-orange-50/50' : b.leave_code === 'CL' ? 'text-emerald-600 border-emerald-600/30 bg-emerald-50/50' : 'text-purple-600 border-purple-600/30 bg-purple-50/50'}
+					<Card class="bg-background border border-border/80 shadow-xs transition-transform hover:-translate-y-0.5 rounded-xl">
 						<CardHeader class="pb-1 pt-4 px-4 flex flex-row items-center justify-between">
-							<span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">{b.leave_name}</span>
-							<Badge variant="outline" class="font-bold text-[10px] bg-white {theme.text} border-current">{b.leave_code}</Badge>
+							<span class="text-sm font-semibold text-neutral-700">{b.leave_name}</span>
+							<Badge variant="outline" class="font-bold text-[10px] {badgeColor}">{b.leave_code}</Badge>
 						</CardHeader>
 						<CardContent class="pb-4 pt-1 px-4">
-							<div class="text-3xl font-extrabold tracking-tight tabular-nums {theme.text}">{b.remaining_days.toFixed(1)}</div>
-							<p class="text-[10px] text-muted-foreground font-semibold mt-1">Available Days</p>
-							<div class="border-t border-muted/50 mt-2.5 pt-2 flex justify-between text-[10px] text-muted-foreground">
-								<span>Quota: <strong>{b.allocated_days.toFixed(1)}</strong></span>
-								<span>Used: <strong>{b.used_days.toFixed(1)}</strong></span>
+							<div class="text-4xl font-extrabold tracking-tight tabular-nums {theme.text}">{b.remaining_days.toFixed(1)}</div>
+							<p class="text-xs text-muted-foreground mt-1 font-medium">Available Days</p>
+							<div class="border-t border-border/40 mt-2.5 pt-2 flex justify-between text-xs text-muted-foreground">
+								<span>Quota: <strong class="font-semibold text-foreground">{b.allocated_days.toFixed(1)}</strong></span>
+								<span>Used: <strong class="font-semibold text-foreground">{b.used_days.toFixed(1)}</strong></span>
 							</div>
 						</CardContent>
 					</Card>
 				{/each}
 
 				<!-- Loss of Pay (LOP) Stats Card -->
-				<Card class="border border-destructive/20 bg-destructive/5 shadow-xs transition-transform hover:-translate-y-0.5">
+				<Card class="bg-background border border-border/80 shadow-xs transition-transform hover:-translate-y-0.5 rounded-xl">
 					<CardHeader class="pb-1 pt-4 px-4 flex flex-row items-center justify-between">
-						<span class="text-xs font-bold uppercase tracking-wider text-destructive">Loss of Pay (LOP)</span>
-						<Badge variant="destructive" class="font-bold text-[10px]">LOP</Badge>
+						<span class="text-sm font-semibold text-neutral-700">Loss of Pay</span>
+						<Badge variant="outline" class="font-bold text-[10px] text-red-600 border-red-600/30 bg-red-50/50">LOP</Badge>
 					</CardHeader>
 					<CardContent class="pb-4 pt-1 px-4">
-						<div class="text-3xl font-extrabold tracking-tight tabular-nums text-destructive">
-							{(balances.find(b => b.leave_code === 'LOP')?.used_days ?? 0).toFixed(1)}
-						</div>
-						<p class="text-[10px] text-muted-foreground font-semibold mt-1">Days Taken (Excess Leave)</p>
-						<div class="border-t border-destructive/20 mt-2.5 pt-2 flex justify-between text-[10px] text-muted-foreground">
-							<span>Quota: <strong>0.0</strong></span>
-							<span>Remaining: <strong>0.0</strong></span>
+						<div class="text-4xl font-extrabold tracking-tight tabular-nums text-red-600">0.0</div>
+						<p class="text-xs text-muted-foreground mt-1 font-medium">Available Days</p>
+						<div class="border-t border-border/40 mt-2.5 pt-2 flex justify-between text-xs text-muted-foreground">
+							<span>Quota: <strong class="font-semibold text-foreground">0.0</strong></span>
+							<span>Used: <strong class="font-semibold text-foreground">{(balances.find(b => b.leave_code === 'LOP')?.used_days ?? 0).toFixed(1)}</strong></span>
 						</div>
 					</CardContent>
 				</Card>
 
 				<!-- Leave Without Pay (LWP) Stats Card -->
-				<Card class="border border-amber-200 bg-amber-50/50 shadow-xs transition-transform hover:-translate-y-0.5">
+				<Card class="bg-background border border-border/80 shadow-xs transition-transform hover:-translate-y-0.5 rounded-xl">
 					<CardHeader class="pb-1 pt-4 px-4 flex flex-row items-center justify-between">
-						<span class="text-xs font-bold uppercase tracking-wider text-amber-700">Leave Without Pay (LWP)</span>
-						<Badge variant="outline" class="font-bold text-[10px] bg-white text-amber-700 border-amber-200">LWP</Badge>
+						<span class="text-sm font-semibold text-neutral-700">Leave Without Pay</span>
+						<Badge variant="outline" class="font-bold text-[10px] text-blue-600 border-blue-600/30 bg-blue-50/50">LWP</Badge>
 					</CardHeader>
 					<CardContent class="pb-4 pt-1 px-4">
-						<div class="text-3xl font-extrabold tracking-tight tabular-nums text-amber-700">
-							{(balances.find(b => b.leave_code === 'LWP')?.used_days ?? 0).toFixed(1)}
-						</div>
-						<p class="text-[10px] text-muted-foreground font-semibold mt-1">Days Taken</p>
-						<div class="border-t border-amber-200/50 mt-2.5 pt-2 flex justify-between text-[10px] text-muted-foreground">
-							<span>Quota: <strong>0.0</strong></span>
-							<span>Remaining: <strong>0.0</strong></span>
+						<div class="text-4xl font-extrabold tracking-tight tabular-nums text-blue-600">0.0</div>
+						<p class="text-xs text-muted-foreground mt-1 font-medium">Available Days</p>
+						<div class="border-t border-border/40 mt-2.5 pt-2 flex justify-between text-xs text-muted-foreground">
+							<span>Quota: <strong class="font-semibold text-foreground">0.0</strong></span>
+							<span>Used: <strong class="font-semibold text-foreground">{(balances.find(b => b.leave_code === 'LWP')?.used_days ?? 0).toFixed(1)}</strong></span>
 						</div>
 					</CardContent>
 				</Card>

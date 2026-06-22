@@ -3,7 +3,7 @@ import { json } from '@sveltejs/kit';
 import * as shiftAssignmentService from '$lib/server/services/shift-assignment.service.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import { successResponse, updateSuccessResponse, deleteSuccessResponse } from '$lib/server/response.js';
-import { mapShiftAssignment } from '../+server.js';
+import { _mapShiftAssignment } from '../+server.js';
 
 function parseCuid(param: string | undefined): string {
   if (!param) {
@@ -30,7 +30,7 @@ export async function GET({ params, locals }) {
     const cuid = parseCuid(params.cuid);
 
     const assignment = await shiftAssignmentService.getAssignmentDetails(cuid, email);
-    const formatted = mapShiftAssignment(assignment);
+    const formatted = _mapShiftAssignment(assignment);
 
     return successResponse(formatted);
   } catch (err: any) {

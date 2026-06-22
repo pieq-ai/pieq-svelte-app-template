@@ -4,7 +4,7 @@ import * as shiftAssignmentService from '$lib/server/services/shift-assignment.s
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import { successResponse, createSuccessResponse } from '$lib/server/response.js';
 
-export function mapShiftAssignment(sa: any) {
+export function _mapShiftAssignment(sa: any) {
   return {
     cuid: sa.cuid,
     employee_cuid: sa.employee_cuid,
@@ -41,7 +41,7 @@ export async function GET({ locals }) {
     const email = locals.user?.email || '';
 
     const list = await shiftAssignmentService.listAssignments(email);
-    const formatted = list.map(mapShiftAssignment);
+    const formatted = list.map(_mapShiftAssignment);
 
     return successResponse(formatted);
   } catch (err: any) {
