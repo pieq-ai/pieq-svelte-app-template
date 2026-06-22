@@ -1,7 +1,7 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-22)
 
 ## Corpus Check
-- 372 files · ~138,120 words
+- 372 files · ~138,115 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `bd1af940`
+- Built from commit: `07812aa1`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -204,8 +204,8 @@ Cohesion: 0.12
 Nodes (16): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+8 more)
 
 ### Community 13 - "Permission Service"
-Cohesion: 0.18
-Nodes (16): GET(), AttendanceMultiValidationError, AttendanceValidationError, capitalize(), createAttendanceRecord(), CreateAttendanceRecordDto, deleteAttendanceRecord(), getAttendanceRecordByCuid() (+8 more)
+Cohesion: 0.17
+Nodes (17): GET(), deleteSuccessResponse(), AttendanceMultiValidationError, AttendanceValidationError, capitalize(), createAttendanceRecord(), CreateAttendanceRecordDto, deleteAttendanceRecord() (+9 more)
 
 ### Community 14 - "System Role Service"
 Cohesion: 0.06
@@ -225,7 +225,7 @@ Nodes (3): load(), Toast, ToastStore
 
 ### Community 23 - "Dashboard Routes"
 Cohesion: 0.15
-Nodes (20): GET(), deleteSuccessResponse(), formatHoliday(), createHoliday(), CreateHolidayInput, deleteHoliday(), getHolidayByCuid(), HolidayMultiValidationError (+12 more)
+Nodes (19): GET(), formatHoliday(), createHoliday(), CreateHolidayInput, deleteHoliday(), getHolidayByCuid(), HolidayMultiValidationError, HolidayValidationError (+11 more)
 
 ### Community 31 - "Community 31"
 Cohesion: 0.17
@@ -233,7 +233,7 @@ Nodes (11): Adding a new feature, Deployment, Keycloak client setup, pieq-svelte
 
 ### Community 32 - "Community 32"
 Cohesion: 0.15
-Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
+Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.10
@@ -293,7 +293,7 @@ Nodes (23): ApiError, extractErrorMessage(), localApi, localRequest(), RoleListR
 
 ### Community 49 - "Community 49"
 Cohesion: 0.15
-Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
+Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
 
 ### Community 50 - "Community 50"
 Cohesion: 0.10
@@ -489,11 +489,11 @@ Nodes (4): name, private, type, version
 
 ### Community 115 - "Community 115"
 Cohesion: 0.50
-Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
+Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
 
 ### Community 116 - "Community 116"
 Cohesion: 0.50
-Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
+Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
 
 ## Knowledge Gaps
 - **444 isolated node(s):** `$schema`, `css`, `baseColor`, `components`, `utils` (+439 more)

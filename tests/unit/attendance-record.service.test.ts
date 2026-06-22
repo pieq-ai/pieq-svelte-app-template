@@ -20,7 +20,7 @@ vi.mock('$lib/server/dao/employment.dao.js', () => ({
 }));
 
 vi.mock('$lib/server/dao/employee.dao.js', () => ({
-	findUniqueByUuid: vi.fn()
+	findByCuid2: vi.fn()
 }));
 
 vi.mock('$lib/server/dao/holiday.dao.js', () => ({
@@ -72,7 +72,7 @@ describe('attendance-record service', () => {
 
 	describe('creation and validation', () => {
 		it('should reject if employee does not exist', async () => {
-			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue(null);
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue(null);
 
 			await expect(createAttendanceRecord(validRecordInput)).rejects.toThrowError(
 				new AttendanceMultiValidationError({ employee_cuid: 'Selected employee does not exist' })
@@ -80,7 +80,7 @@ describe('attendance-record service', () => {
 		});
 
 		it('should reject for invalid date formats', async () => {
-			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
 
 			await expect(
 				createAttendanceRecord({
@@ -93,7 +93,7 @@ describe('attendance-record service', () => {
 		});
 
 		it('should reject if date is a holiday', async () => {
-			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
 			vi.mocked(holidayDao.findByDate).mockResolvedValue({ id: 1n } as any);
 
 			await expect(createAttendanceRecord(validRecordInput)).rejects.toThrowError(
@@ -102,7 +102,7 @@ describe('attendance-record service', () => {
 		});
 
 		it('should reject if source does not exist', async () => {
-			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue(null);
 
@@ -112,7 +112,7 @@ describe('attendance-record service', () => {
 		});
 
 		it('should reject check-out time before check-in time', async () => {
-			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ cuid: 'source-1' } as any);
 
@@ -128,7 +128,7 @@ describe('attendance-record service', () => {
 		});
 
 		it('should reject duplicate record for employee on same date', async () => {
-			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ cuid: 'source-1' } as any);
 			vi.mocked(attendanceRecordDao.findByEmployeeAndDate).mockResolvedValue({ cuid: 'existing-cuid' } as any);
@@ -139,7 +139,7 @@ describe('attendance-record service', () => {
 		});
 
 		it('should reject check-in, check-out, or source for non-working statuses (Leave, Holiday, LOP)', async () => {
-			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ cuid: 'source-1' } as any);
 			vi.mocked(attendanceRecordDao.findByEmployeeAndDate).mockResolvedValue(null);
@@ -172,7 +172,7 @@ describe('attendance-record service', () => {
 		});
 
 		it('should successfully create record and calculate duration', async () => {
-			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ cuid: 'source-1' } as any);
 			vi.mocked(attendanceRecordDao.findByEmployeeAndDate).mockResolvedValue(null);
@@ -209,7 +209,7 @@ describe('attendance-record service', () => {
 				date: new Date(Date.UTC(2026, 5, 1)),
 				check_in_time: new Date('2026-06-01T09:00:00Z')
 			} as any);
-			vi.mocked(employeeDao.findUniqueByUuid).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(attendanceRecordDao.findByEmployeeAndDate).mockResolvedValue(null);
 			vi.mocked(attendanceRecordDao.update).mockResolvedValue({ cuid: targetCuid } as any);

@@ -5778,7 +5778,7 @@
       "source_file": "src/lib/server/response.ts",
       "source_location": "L172",
       "id": "server_response_deletesuccessresponse",
-      "community": 13,
+      "community": 23,
       "norm_label": "deletesuccessresponse()"
     },
     {
@@ -10548,7 +10548,7 @@
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L1",
       "id": "permissions_server",
-      "community": 0,
+      "community": 82,
       "norm_label": "+server.ts"
     },
     {
@@ -10557,7 +10557,7 @@
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L8",
       "id": "permissions_server_getstatus",
-      "community": 0,
+      "community": 82,
       "norm_label": "getstatus()"
     },
     {
@@ -10566,7 +10566,7 @@
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L14",
       "id": "permissions_server_get",
-      "community": 0,
+      "community": 82,
       "norm_label": "get()"
     },
     {
@@ -10575,7 +10575,7 @@
       "source_file": "src/routes/api/permissions/+server.ts",
       "source_location": "L28",
       "id": "permissions_server_post",
-      "community": 0,
+      "community": 82,
       "norm_label": "post()"
     },
     {
@@ -11014,7 +11014,7 @@
       "label": "if()",
       "file_type": "code",
       "source_file": "src/routes/attendance-records/+page.svelte",
-      "source_location": "L556",
+      "source_location": "L571",
       "id": "attendance_records_page_if",
       "community": 10,
       "norm_label": "if()"
@@ -11104,7 +11104,7 @@
       "label": "if()",
       "file_type": "code",
       "source_file": "src/routes/attendance/+page.svelte",
-      "source_location": "L430",
+      "source_location": "L440",
       "id": "attendance_page_if",
       "community": 10,
       "norm_label": "if()"
@@ -13465,7 +13465,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L452",
       "id": "pieq_svelte_app_template_readme_development",
-      "community": 82,
+      "community": 49,
       "norm_label": "development"
     },
     {
@@ -13474,7 +13474,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L454",
       "id": "pieq_svelte_app_template_readme_yarn_dev",
-      "community": 82,
+      "community": 49,
       "norm_label": "`yarn dev`"
     },
     {
@@ -13483,7 +13483,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L463",
       "id": "pieq_svelte_app_template_readme_yarn_build",
-      "community": 82,
+      "community": 49,
       "norm_label": "`yarn build`"
     },
     {
@@ -13492,7 +13492,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L472",
       "id": "pieq_svelte_app_template_readme_yarn_preview",
-      "community": 82,
+      "community": 49,
       "norm_label": "`yarn preview`"
     },
     {
@@ -13501,7 +13501,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L482",
       "id": "pieq_svelte_app_template_readme_code_quality",
-      "community": 49,
+      "community": 115,
       "norm_label": "code quality"
     },
     {
@@ -13510,7 +13510,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L484",
       "id": "pieq_svelte_app_template_readme_yarn_check",
-      "community": 49,
+      "community": 115,
       "norm_label": "`yarn check`"
     },
     {
@@ -13519,7 +13519,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L492",
       "id": "pieq_svelte_app_template_readme_yarn_check_watch",
-      "community": 49,
+      "community": 115,
       "norm_label": "`yarn check:watch`"
     },
     {
@@ -13528,7 +13528,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L498",
       "id": "pieq_svelte_app_template_readme_yarn_lint",
-      "community": 49,
+      "community": 115,
       "norm_label": "`yarn lint`"
     },
     {
@@ -15003,7 +15003,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L452",
-      "community": 32,
+      "community": 116,
       "norm_label": "development",
       "id": "readme_development"
     },
@@ -15012,7 +15012,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L454",
-      "community": 32,
+      "community": 116,
       "norm_label": "`yarn dev`",
       "id": "readme_yarn_dev"
     },
@@ -15021,7 +15021,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L463",
-      "community": 32,
+      "community": 116,
       "norm_label": "`yarn build`",
       "id": "readme_yarn_build"
     },
@@ -15030,7 +15030,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L472",
-      "community": 32,
+      "community": 116,
       "norm_label": "`yarn preview`",
       "id": "readme_yarn_preview"
     },
@@ -15039,7 +15039,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L482",
-      "community": 116,
+      "community": 32,
       "norm_label": "code quality",
       "id": "readme_code_quality"
     },
@@ -15048,7 +15048,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L484",
-      "community": 116,
+      "community": 32,
       "norm_label": "`yarn check`",
       "id": "readme_yarn_check"
     },
@@ -15057,7 +15057,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L492",
-      "community": 116,
+      "community": 32,
       "norm_label": "`yarn check:watch`",
       "id": "readme_yarn_check_watch"
     },
@@ -15066,7 +15066,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L498",
-      "community": 116,
+      "community": 32,
       "norm_label": "`yarn lint`",
       "id": "readme_yarn_lint"
     },
@@ -49636,5 +49636,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "9d555d17e3e54c495133741cdcbeaa8445f8142f"
+  "built_at_commit": "bd1af94010145c616df6da5b74d964c2df115f56"
 }

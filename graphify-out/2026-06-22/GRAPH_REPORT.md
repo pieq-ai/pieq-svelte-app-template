@@ -1,16 +1,16 @@
-# Graph Report - pieq-svelte-app-template  (2026-06-20)
+# Graph Report - pieq-svelte-app-template  (2026-06-22)
 
 ## Corpus Check
-- 372 files · ~138,009 words
+- 372 files · ~138,120 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1703 nodes · 3443 edges · 118 communities (94 shown, 24 thin omitted)
+- 1703 nodes · 3443 edges · 119 communities (95 shown, 24 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 77 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `9d555d17`
+- Built from commit: `bd1af940`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -121,6 +121,7 @@
 - [[_COMMUNITY_Community 112|Community 112]]
 - [[_COMMUNITY_Community 113|Community 113]]
 - [[_COMMUNITY_Community 114|Community 114]]
+- [[_COMMUNITY_Community 115|Community 115]]
 - [[_COMMUNITY_Community 116|Community 116]]
 - [[_COMMUNITY_Community 117|Community 117]]
 
@@ -152,11 +153,11 @@
 - 1-file cycle: `src/routes/leave-policies/+page.svelte -> src/routes/leave-policies/+page.svelte`
 - 3-file cycle: `src/lib/components/ui/calendar/calendar-caption.svelte -> src/lib/components/ui/calendar/calendar.svelte -> src/lib/components/ui/calendar/index.ts -> src/lib/components/ui/calendar/calendar-caption.svelte`
 
-## Communities (118 total, 24 thin omitted)
+## Communities (119 total, 24 thin omitted)
 
 ### Community 0 - "API Endpoints"
-Cohesion: 0.13
-Nodes (16): getMaster(), POST(), POST(), GET(), getStatus(), POST(), GET(), PUT() (+8 more)
+Cohesion: 0.15
+Nodes (13): getMaster(), POST(), POST(), GET(), PUT(), GET(), PUT(), getStatus() (+5 more)
 
 ### Community 1 - "Data Access Tests"
 Cohesion: 0.11
@@ -203,8 +204,8 @@ Cohesion: 0.12
 Nodes (16): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+8 more)
 
 ### Community 13 - "Permission Service"
-Cohesion: 0.17
-Nodes (17): GET(), deleteSuccessResponse(), AttendanceMultiValidationError, AttendanceValidationError, capitalize(), createAttendanceRecord(), CreateAttendanceRecordDto, deleteAttendanceRecord() (+9 more)
+Cohesion: 0.18
+Nodes (16): GET(), AttendanceMultiValidationError, AttendanceValidationError, capitalize(), createAttendanceRecord(), CreateAttendanceRecordDto, deleteAttendanceRecord(), getAttendanceRecordByCuid() (+8 more)
 
 ### Community 14 - "System Role Service"
 Cohesion: 0.06
@@ -224,7 +225,7 @@ Nodes (3): load(), Toast, ToastStore
 
 ### Community 23 - "Dashboard Routes"
 Cohesion: 0.15
-Nodes (19): GET(), formatHoliday(), createHoliday(), CreateHolidayInput, deleteHoliday(), getHolidayByCuid(), HolidayMultiValidationError, HolidayValidationError (+11 more)
+Nodes (20): GET(), deleteSuccessResponse(), formatHoliday(), createHoliday(), CreateHolidayInput, deleteHoliday(), getHolidayByCuid(), HolidayMultiValidationError (+12 more)
 
 ### Community 31 - "Community 31"
 Cohesion: 0.17
@@ -232,7 +233,7 @@ Nodes (11): Adding a new feature, Deployment, Keycloak client setup, pieq-svelte
 
 ### Community 32 - "Community 32"
 Cohesion: 0.15
-Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
+Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.10
@@ -292,7 +293,7 @@ Nodes (23): ApiError, extractErrorMessage(), localApi, localRequest(), RoleListR
 
 ### Community 49 - "Community 49"
 Cohesion: 0.15
-Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
+Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
 
 ### Community 50 - "Community 50"
 Cohesion: 0.10
@@ -407,8 +408,8 @@ Cohesion: 0.67
 Nodes (3): API reference — Employees, GET — list employees, POST — create employee
 
 ### Community 82 - "Community 82"
-Cohesion: 0.50
-Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
+Cohesion: 0.83
+Nodes (3): GET(), getStatus(), POST()
 
 ### Community 83 - "Community 83"
 Cohesion: 0.29
@@ -486,9 +487,13 @@ Nodes (4): GET(), getMaster(), getStatus(), POST()
 Cohesion: 0.40
 Nodes (4): name, private, type, version
 
-### Community 116 - "Community 116"
+### Community 115 - "Community 115"
 Cohesion: 0.50
 Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
+
+### Community 116 - "Community 116"
+Cohesion: 0.50
+Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
 
 ## Knowledge Gaps
 - **444 isolated node(s):** `$schema`, `css`, `baseColor`, `components`, `utils` (+439 more)
@@ -509,6 +514,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `$schema`, `css`, `baseColor` to the rest of the system?**
   _444 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `API Endpoints` be split into smaller, more focused modules?**
-  _Cohesion score 0.13054187192118227 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.14666666666666667 - nodes in this community are weakly interconnected._
 - **Should `Data Access Tests` be split into smaller, more focused modules?**
   _Cohesion score 0.10591133004926108 - nodes in this community are weakly interconnected._

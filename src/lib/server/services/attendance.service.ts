@@ -43,7 +43,7 @@ export async function checkIn(
 	}
 
 	// Verify employee exists
-	const empExists = await employeeDao.findUniqueByUuid(employeeCuid);
+	const empExists = await employeeDao.findByCuid2(employeeCuid);
 	if (!empExists) {
 		throw new AttendanceValidationError('employee_cuid', 'Selected employee does not exist');
 	}
@@ -138,7 +138,7 @@ export async function checkOut(
 	const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
 
 	// Verify employee exists
-	const empExists = await employeeDao.findUniqueByUuid(employeeCuid);
+	const empExists = await employeeDao.findByCuid2(employeeCuid);
 	if (!empExists) {
 		throw new AttendanceValidationError('employee_cuid', 'Selected employee does not exist');
 	}

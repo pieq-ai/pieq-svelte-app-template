@@ -113,7 +113,7 @@ async function validateRecordFields(
 		} else {
 			employee_cuid = dto.employee_cuid.trim();
 			// Verify employee exists
-			const empExists = await employeeDao.findUniqueByUuid(employee_cuid);
+			const empExists = await employeeDao.findByCuid2(employee_cuid);
 			if (!empExists) {
 				errors.employee_cuid = 'Selected employee does not exist';
 			}
