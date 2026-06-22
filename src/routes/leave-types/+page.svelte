@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import { page } from '$app/state';
-	import { resolve } from '$app/paths';
 	import { goto, invalidate, beforeNavigate } from '$app/navigation';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
@@ -29,7 +27,8 @@
 		TableRow,
 		toast
 	} from '$lib/components/ui';
-	import { ConfirmModal, CrudModal, Pagination, TableActions, FilterDropdown, StatusDropdown, StatusBadge } from '$lib/components';
+	import { ConfirmModal, CrudModal, Pagination, TableActions, FilterDropdown, StatusDropdown, StatusBadge, SearchInput } from '$lib/components';
+	import { UI_CONSTANTS } from '$lib/constants';
 	import type { PageData } from './$types.js';
 
 	let { data }: { data: PageData } = $props();
@@ -60,12 +59,18 @@
 
 
 	function openAddModal() {
+		editCuid = null;
 		leaveName = '';
 		leaveCode = '';
 		description = '';
 		isPaid = true;
 		requiresApproval = true;
 		status = true;
+		isFormModalOpen = true;
+	}
+
+	function openEditModal(cuid: string) {
+		editCuid = cuid;
 		isFormModalOpen = true;
 	}
 
@@ -80,8 +85,8 @@
 		const nameErr = getNameClientError(leaveName);
 		const codeErr = getCodeClientError(leaveCode);
 
-		errors.leave_name = nameErr;
-		errors.leave_code = codeErr;
+		errors.name = nameErr;
+		errors.code = codeErr;
 
 		if (nameErr || codeErr) {
 			return;
@@ -91,8 +96,8 @@
 		errors.general = '';
 
 		const body = {
-			leave_name: leaveName,
-			leave_code: leaveCode,
+			name: leaveName,
+			code: leaveCode,
 			description: description || null,
 			is_paid: isPaid,
 			requires_approval: requiresApproval,
@@ -111,16 +116,6 @@
 			if (res.ok && result.data) {
 				toast.success(result.data.message);
 				isFormModalOpen = false;
-				if (editCuid) {
-					await goto(resolve('/leave-types'), { replaceState: true });
-				} else {
-					leaveName = '';
-					leaveCode = '';
-					description = '';
-					isPaid = true;
-					requiresApproval = true;
-					status = true;
-				}
 				await invalidate('/api/leave/types');
 			} else {
 				if (result.data?.error && typeof result.data.error === 'object') {
@@ -172,8 +167,8 @@
 
 
 
-	// Active Edit Mode Detection from URL query parameter
-	let editCuid = $derived(page.url.searchParams.get('edit'));
+	// Active Edit Mode Detection (local state – no longer URL-driven)
+	let editCuid = $state<string | null>(null);
 	let editingType = $derived(data.leaveTypes.find((t) => t.cuid === editCuid));
 
 	// Form local state
@@ -187,8 +182,8 @@
 	let hasChanges = $derived.by(() => {
 		if (!editCuid || !editingType) return false;
 		return (
-			leaveName.trim() !== editingType.leave_name.trim() ||
-			leaveCode.trim() !== editingType.leave_code.trim() ||
+			leaveName.trim() !== editingType.name.trim() ||
+			leaveCode.trim() !== editingType.code.trim() ||
 			description.trim() !== (editingType.description || '').trim() ||
 			isPaid !== editingType.is_paid ||
 			requiresApproval !== editingType.requires_approval ||
@@ -249,10 +244,8 @@
 			const target = pendingNavigation.to?.url;
 			pendingNavigation = null;
 			if (target) {
-				await goto(resolve((target.pathname + target.search) as '/leave-types'));
+				await goto(target.pathname + target.search);
 			}
-		} else if (editCuid) {
-			await goto(resolve('/leave-types'), { replaceState: true });
 		}
 		
 		isNavigatingProgrammatically = false;
@@ -302,8 +295,8 @@
 		if (hasSynchronized) return;
 
 		if (editingType) {
-			leaveName = editingType.leave_name;
-			leaveCode = editingType.leave_code;
+			leaveName = editingType.name;
+			leaveCode = editingType.code;
 			description = editingType.description || '';
 			isPaid = editingType.is_paid;
 			requiresApproval = editingType.requires_approval;
@@ -320,14 +313,7 @@
 		}
 	});
 
-	// Sync isFormModalOpen with editCuid
-	$effect(() => {
-		if (editCuid) {
-			isFormModalOpen = true;
-		}
-	});
-
-	// Reset form state and clear query parameter on modal close
+	// Reset form state on modal close
 	$effect(() => {
 		if (!isFormModalOpen) {
 			form = null;
@@ -342,9 +328,7 @@
 			submissionAttempted = false;
 			hasSynchronized = false;
 			isDiscardModalOpen = false;
-			if (editCuid) {
-				goto(resolve('/leave-types'), { replaceState: true });
-			}
+			editCuid = null;
 		}
 	});
 
@@ -355,7 +339,7 @@
 
 	function getNameClientError(name: string): string {
 		if (!name || name.trim() === '') {
-			return 'Leave name is required.';
+			return 'Leave name is required';
 		}
 		const trimmed = name.trim();
 		if (trimmed.length <= 5) {
@@ -373,7 +357,7 @@
 
 	function getCodeClientError(code: string): string {
 		if (!code || code.trim() === '') {
-			return 'Leave code is required.';
+			return 'Leave code is required';
 		}
 		const trimmed = code.trim().toUpperCase();
 		if (trimmed.length > 20) {
@@ -394,8 +378,8 @@
 			const query = searchQuery.toLowerCase();
 			result = result.filter(
 				(t) =>
-					t.leave_name.toLowerCase().includes(query) ||
-					t.leave_code.toLowerCase().includes(query) ||
+					t.name.toLowerCase().includes(query) ||
+					t.code.toLowerCase().includes(query) ||
 					(t.description && t.description.toLowerCase().includes(query))
 			);
 		}
@@ -444,32 +428,7 @@
 	let activeTypesCount = $derived(data.leaveTypes.filter((t) => t.status).length);
 	let inactiveTypesCount = $derived(data.leaveTypes.filter((t) => !t.status).length);
 
-	function isInteractive(target: HTMLElement | null, rowElement: HTMLElement): boolean {
-		let curr = target;
-		while (curr && curr !== rowElement) {
-			const tagName = curr.tagName.toLowerCase();
-			if (
-				tagName === 'a' ||
-				tagName === 'button' ||
-				tagName === 'input' ||
-				tagName === 'select' ||
-				tagName === 'textarea' ||
-				curr.getAttribute('role') === 'button' ||
-				curr.classList.contains('kebab-dropdown-menu')
-			) {
-				return true;
-			}
-			curr = curr.parentElement;
-		}
-		return false;
-	}
 
-	function handleRowClick(cuid: string, event: MouseEvent) {
-		const target = event.target as HTMLElement;
-		const row = event.currentTarget as HTMLElement;
-		if (isInteractive(target, row)) return;
-		goto(resolve(('/leave-types?edit=' + cuid) as '/leave-types'));
-	}
 </script>
 
 <svelte:head>
@@ -515,62 +474,42 @@
 
 	<div class="space-y-3">
 		<!-- Search & Filter controls -->
-		<div class="flex flex-col gap-4 sm:flex-row sm:items-center">
-			<div class="relative flex-1">
-				<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-				<Input
-					type="search"
-					placeholder="Search by leave name or code..."
-					bind:value={searchQuery}
-					class="pl-9 pr-9"
-				/>
-				{#if searchQuery}
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon-sm"
-						class="absolute top-1/2 right-1 -translate-y-1/2"
-						aria-label="Clear search"
-						onclick={() => (searchQuery = '')}
-					>
-						<XIcon class="size-4" />
-					</Button>
-				{/if}
-			</div>
+		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+			<SearchInput id="search_leave_types" name="search_leave_types" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by leave name or code..." />
 			<FilterDropdown value={filterStatus} onChange={(value) => { filterStatus = value; currentPage = 1; }} allLabel="All Status" />
 		</div>
 
 		<!-- Table Card -->
-		<Card>
+		<Card class="py-0">
 			<Table>
-				<TableHeader>
+				<TableHeader class="bg-muted">
 					<TableRow>
-						<TableHead class="font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('leave_name')}>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
 								Leave Name
-							{#if sortKey === 'leave_name' && sortDirection === 'asc'}
+							{#if sortKey === 'name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortKey === 'leave_name' && sortDirection === 'desc'}
+							{:else if sortKey === 'name' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-32 font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('leave_code')}>
+						<TableHead class="w-32 font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('code')}>
 								Leave Code
-							{#if sortKey === 'leave_code' && sortDirection === 'asc'}
+							{#if sortKey === 'code' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortKey === 'leave_code' && sortDirection === 'desc'}
+							{:else if sortKey === 'code' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-24 text-center font-bold">
-							<Button variant="ghost" size="sm" class="h-8 font-bold" onclick={() => handleSort('is_paid')}>
+						<TableHead class="w-24 text-center font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('is_paid')}>
 								Paid
 							{#if sortKey === 'is_paid' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -581,8 +520,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-28 text-center font-bold">
-							<Button variant="ghost" size="sm" class="h-8 font-bold" onclick={() => handleSort('requires_approval')}>
+						<TableHead class="w-28 text-center font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('requires_approval')}>
 								Approval Required
 							{#if sortKey === 'requires_approval' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -593,8 +532,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-24 text-center font-bold">
-							<Button variant="ghost" size="sm" class="h-8 font-bold" onclick={() => handleSort('status')}>
+						<TableHead class="w-24 text-center font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
 								Status
 							{#if sortKey === 'status' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -605,26 +544,32 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-right font-bold">Actions</TableHead>
+						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{#if filteredTypes.length === 0}
 						<TableRow>
-							<TableCell colspan={6} class="py-12 text-center text-muted-foreground">
-								No records found
+							<TableCell colspan={6} class="py-8 text-center text-muted-foreground">
+								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 							</TableCell>
 						</TableRow>
 					{:else}
 						{#each paginatedTypes as type (type.cuid)}
-							<TableRow onclick={(e) => handleRowClick(type.cuid, e)} class="cursor-pointer">
+							<TableRow 
+								onclick={(e) => {
+									if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
+									openEditModal(type.cuid);
+								}} 
+								class="cursor-pointer"
+							>
 								<TableCell class="font-normal">
-									<div>{type.leave_name}</div>
+									<div>{type.name}</div>
 									{#if type.description}
 										<span class="font-normal text-muted-foreground line-clamp-1">{type.description}</span>
 									{/if}
 								</TableCell>
-								<TableCell class="font-normal uppercase">{type.leave_code}</TableCell>
+								<TableCell class="font-normal uppercase">{type.code}</TableCell>
 								<TableCell class="text-center">
 									{#if type.is_paid}
 										Paid
@@ -644,7 +589,8 @@
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
-										onEdit={() => goto(resolve(('/leave-types?edit=' + type.cuid) as '/leave-types'))}
+										canEdit={true}
+										onEdit={() => openEditModal(type.cuid)}
 									/>
 								</TableCell>
 							</TableRow>
@@ -671,42 +617,42 @@
 			{/if}
 
 			<div class="space-y-2">
-				<Label for="modal_leave_name" class={errors.leave_name ? 'text-destructive' : ''}>Leave Name <span class="text-destructive">*</span></Label>
+				<Label for="modal_leave_name" class={errors.name ? 'text-destructive' : ''}>Leave Name <span class="text-destructive">*</span></Label>
 				<Input
 					id="modal_leave_name"
-					name="leave_name"
+					name="name"
 					bind:value={leaveName}
 					oninput={() => {
-						if (form && form.field === 'leave_name') form = null;
-						errors.leave_name = '';
+						if (form && form.field === 'name') form = null;
+						errors.name = '';
 					}}
 					placeholder="e.g. Sick Leave"
 					required
 					minlength={6}
 					pattern="^[a-zA-Z\s]+$"
-					class={errors.leave_name ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+					class={errors.name ? 'border-destructive focus-visible:ring-destructive/30' : ''}
 				/>
-				{#if errors.leave_name}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.leave_name}</p>
+				{#if errors.name}
+					<p class="text-xs font-medium text-destructive mt-1">{errors.name}</p>
 				{/if}
 			</div>
 
 			<div class="space-y-2">
-				<Label for="modal_leave_code" class={errors.leave_code ? 'text-destructive' : ''}>Leave Code <span class="text-destructive">*</span></Label>
+				<Label for="modal_leave_code" class={errors.code ? 'text-destructive' : ''}>Leave Code <span class="text-destructive">*</span></Label>
 				<Input
 					id="modal_leave_code"
-					name="leave_code"
+					name="code"
 					bind:value={leaveCode}
 					oninput={() => {
-						if (form && form.field === 'leave_code') form = null;
-						errors.leave_code = '';
+						if (form && form.field === 'code') form = null;
+						errors.code = '';
 					}}
 					placeholder="e.g. SL"
 					required
-					class="uppercase {errors.leave_code ? 'border-destructive focus-visible:ring-destructive/30' : ''}"
+					class="uppercase {errors.code ? 'border-destructive focus-visible:ring-destructive/30' : ''}"
 				/>
-				{#if errors.leave_code}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.leave_code}</p>
+				{#if errors.code}
+					<p class="text-xs font-medium text-destructive mt-1">{errors.code}</p>
 				{/if}
 			</div>
 
@@ -778,7 +724,6 @@
 				>
 					<!-- force recompile -->
 					{#if isSubmitting}
-						<LoaderCircleIcon class="size-4 animate-spin" />
 						Saving...
 					{:else}
 						Save

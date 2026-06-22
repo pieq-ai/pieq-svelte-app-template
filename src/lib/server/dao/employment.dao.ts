@@ -24,6 +24,10 @@ export async function findByEmployeeCuid(employee_cuid: string) {
     });
 }
 
+export async function list() {
+    return db.employment.findMany();
+}
+
 export async function upsert(employee_cuid: string, data: UpsertEmploymentInput) {
     const existing = await findByEmployeeCuid(employee_cuid);
     if (existing) {

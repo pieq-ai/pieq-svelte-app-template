@@ -3,9 +3,9 @@ import type { PageLoad } from './$types';
 export interface Holiday {
 	id: number;
 	cuid: string;
-	holiday_name: string;
-	holiday_date: string | Date;
-	holiday_type: 'National' | 'Regional' | 'Restricted';
+	name: string;
+	date: string | Date;
+	type: 'National' | 'Regional' | 'Restricted';
 }
 
 export const load: PageLoad = async ({ fetch }) => {

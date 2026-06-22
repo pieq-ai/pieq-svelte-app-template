@@ -2,8 +2,6 @@
 	import { validateEmploymentTypeName } from '$lib/validators/employment-type.js';
 	import { slide } from 'svelte/transition';
 	import { untrack } from 'svelte';
-	import { page } from '$app/state';
-	import { resolve } from '$app/paths';
 	import { goto, invalidate, beforeNavigate } from '$app/navigation';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
@@ -36,7 +34,8 @@
 		toast,
 		MultiSelect
 	} from '$lib/components/ui';
-	import { ConfirmModal, CrudModal, Pagination, TableActions, FilterDropdown, StatusDropdown, StatusBadge } from '$lib/components';
+	import { ConfirmModal, CrudModal, Pagination, TableActions, FilterDropdown, StatusDropdown, StatusBadge, SearchInput } from '$lib/components';
+	import { UI_CONSTANTS } from '$lib/constants';
 	import type { PageData } from './$types.js';
 	import type { EmploymentType } from './+page.js';
 
@@ -56,7 +55,7 @@
 
 	let filterLeaveTypeOptions = $derived([
 		{ value: 'all', label: 'All Leave Types' },
-		...data.leaveTypes.map(type => ({ value: type.cuid, label: type.leave_name }))
+		...data.leaveTypes.map(type => ({ value: type.cuid, label: type.name }))
 	]);
 
 	let filterEmploymentTypeOptions = $derived([
@@ -66,7 +65,7 @@
 	let modalLeaveTypeOptions = $derived([
 		...data.leaveTypes
 			.filter((t) => t.status || (editingPolicy && editingPolicy.leave_type_cuid === t.cuid))
-			.map(type => ({ value: type.cuid, label: type.leave_name }))
+			.map(type => ({ value: type.cuid, label: type.name }))
 	]);
 
 	const genderOptions = [
@@ -91,12 +90,14 @@
 
 
 	function openAddModal() {
+		editUuid = null;
 		leaveTypeId = '';
 		selectedEmploymentTypes = [];
 		annualLimit = '';
 		maxPerMonth = '';
 		carryForwardAllowed = false;
 		maxCarryForwardDays = '';
+		maxAnnualCarryForwardDays = '';
 		documentRequired = false;
 		documentRequiredAfterDays = '';
 		minServiceDays = '0';
@@ -104,6 +105,11 @@
 		genderSpecific = false;
 		applicableGender = '';
 		status = true;
+		isFormModalOpen = true;
+	}
+
+	function openEditModal(uuid: string) {
+		editUuid = uuid;
 		isFormModalOpen = true;
 	}
 
@@ -120,6 +126,7 @@
 		const quotaErr = getQuotaError(annualLimit);
 		const maxPerMonthErr = getMaxPerMonthError(maxPerMonth, annualLimit);
 		const carryForwardErr = getCarryForwardDaysError(carryForwardAllowed, maxCarryForwardDays);
+		const carryForwardAnnualErr = getCarryForwardAnnualDaysError(carryForwardAllowed, maxAnnualCarryForwardDays, maxCarryForwardDays);
 		const documentRequiredAfterDaysErr = getDocumentRequiredAfterDaysError(documentRequired, documentRequiredAfterDays);
 		const minServiceErr = getMinServiceDaysError(minServiceDays);
 		const genderErr = getGenderError(genderSpecific, applicableGender);
@@ -129,6 +136,7 @@
 		errors.annual_limit = quotaErr;
 		errors.max_per_month = maxPerMonthErr;
 		errors.max_carry_forward_days = carryForwardErr;
+		errors.max_annual_carry_forward_days = carryForwardAnnualErr;
 		errors.document_required_after_days = documentRequiredAfterDaysErr;
 		errors.min_service_days = minServiceErr;
 		errors.applicable_gender = genderErr;
@@ -139,6 +147,7 @@
 			quotaErr ||
 			maxPerMonthErr ||
 			carryForwardErr ||
+			carryForwardAnnualErr ||
 			documentRequiredAfterDaysErr ||
 			minServiceErr ||
 			genderErr
@@ -156,6 +165,7 @@
 			max_per_month: maxPerMonth || null,
 			carry_forward_allowed: carryForwardAllowed,
 			max_carry_forward_days: carryForwardAllowed ? maxCarryForwardDays : null,
+			max_annual_carry_forward_days: carryForwardAllowed ? maxAnnualCarryForwardDays : null,
 			document_required: documentRequired,
 			document_required_after_days: documentRequired ? (documentRequiredAfterDays === '' ? null : Number(documentRequiredAfterDays)) : null,
 			min_service_days: minServiceDays,
@@ -177,23 +187,6 @@
 			if (res.ok && result.data) {
 				toast.success(result.data.message);
 				isFormModalOpen = false;
-				if (editUuid) {
-					await goto(resolve('/leave-policies'), { replaceState: true });
-				} else {
-					leaveTypeId = '';
-					selectedEmploymentTypes = [];
-					annualLimit = '';
-					maxPerMonth = '';
-					carryForwardAllowed = false;
-					maxCarryForwardDays = '';
-					documentRequired = false;
-					documentRequiredAfterDays = '';
-					minServiceDays = '0';
-					allowHalfDay = false;
-					genderSpecific = false;
-					applicableGender = '';
-					status = true;
-				}
 				await invalidate('/api/leave/policies');
 			} else {
 				if (result.data?.error && typeof result.data.error === 'object') {
@@ -245,8 +238,8 @@
 
 
 
-	// Active Edit Mode Detection from URL query parameter
-	let editUuid = $derived(page.url.searchParams.get('edit'));
+	// Active Edit Mode Detection (local state – no longer URL-driven)
+	let editUuid = $state<string | null>(null);
 	let editingPolicy = $derived(data.policies.find((p) => p.cuid === editUuid));
 
 	// Form local state
@@ -256,6 +249,7 @@
 	let maxPerMonth = $state('');
 	let carryForwardAllowed = $state(false);
 	let maxCarryForwardDays = $state('');
+	let maxAnnualCarryForwardDays = $state('');
 	let documentRequired = $state(false);
 	let documentRequiredAfterDays = $state('');
 	let minServiceDays = $state('');
@@ -339,6 +333,7 @@
 
 		const originalMaxPerMonth = editingPolicy.max_per_month !== null ? String(editingPolicy.max_per_month) : '';
 		const originalMaxCarryForwardDays = editingPolicy.max_carry_forward_days !== null ? String(editingPolicy.max_carry_forward_days) : '';
+		const originalMaxAnnualCarryForwardDays = editingPolicy.max_annual_carry_forward_days !== null ? String(editingPolicy.max_annual_carry_forward_days) : '';
 		const originalDocumentRequiredAfterDays = editingPolicy.document_required_after_days !== null ? String(editingPolicy.document_required_after_days) : '';
 		const originalMinServiceDays = String(editingPolicy.min_service_days);
 		const originalApplicableGender = editingPolicy.applicable_gender || '';
@@ -359,6 +354,7 @@
 			maxPerMonth.trim() !== originalMaxPerMonth.trim() ||
 			carryForwardAllowed !== editingPolicy.carry_forward_allowed ||
 			maxCarryForwardDays.trim() !== originalMaxCarryForwardDays.trim() ||
+			maxAnnualCarryForwardDays.trim() !== originalMaxAnnualCarryForwardDays.trim() ||
 			documentRequired !== editingPolicy.document_required ||
 			documentRequiredAfterDays.trim() !== originalDocumentRequiredAfterDays.trim() ||
 			minServiceDays.trim() !== originalMinServiceDays.trim() ||
@@ -380,6 +376,7 @@
 				maxPerMonth.trim() !== '' ||
 				carryForwardAllowed !== false ||
 				maxCarryForwardDays.trim() !== '' ||
+				maxAnnualCarryForwardDays.trim() !== '' ||
 				documentRequired !== false ||
 				documentRequiredAfterDays.trim() !== '' ||
 				minServiceDays.trim() !== '0' && minServiceDays.trim() !== '' ||
@@ -397,8 +394,7 @@
 			leaveTypeId.trim() !== '' &&
 			selectedEmploymentTypes.length > 0 &&
 			annualLimit.trim() !== '' &&
-			minServiceDays.trim() !== '' &&
-			(!carryForwardAllowed || maxCarryForwardDays.trim() !== '') &&
+			(!carryForwardAllowed || (maxCarryForwardDays.trim() !== '' && maxAnnualCarryForwardDays.trim() !== '')) &&
 			(!genderSpecific || applicableGender !== '');
 		if (!mandatoryFieldsFilled) return true;
 		if (editUuid) {
@@ -429,6 +425,7 @@
 		maxPerMonth = '';
 		carryForwardAllowed = false;
 		maxCarryForwardDays = '';
+		maxAnnualCarryForwardDays = '';
 		documentRequired = false;
 		documentRequiredAfterDays = '';
 		minServiceDays = '0';
@@ -442,10 +439,8 @@
 			const target = pendingNavigation.to?.url;
 			pendingNavigation = null;
 			if (target) {
-				await goto(resolve((target.pathname + target.search) as '/leave-policies'));
+				await goto(target.pathname + target.search);
 			}
-		} else if (editUuid) {
-			await goto(resolve('/leave-policies'), { replaceState: true });
 		}
 		
 		isNavigatingProgrammatically = false;
@@ -501,6 +496,7 @@
 			maxPerMonth = editingPolicy.max_per_month !== null ? String(editingPolicy.max_per_month) : '';
 			carryForwardAllowed = editingPolicy.carry_forward_allowed;
 			maxCarryForwardDays = editingPolicy.max_carry_forward_days !== null ? String(editingPolicy.max_carry_forward_days) : '';
+			maxAnnualCarryForwardDays = editingPolicy.max_annual_carry_forward_days !== null ? String(editingPolicy.max_annual_carry_forward_days) : '';
 			documentRequired = editingPolicy.document_required;
 			documentRequiredAfterDays = editingPolicy.document_required_after_days !== null ? String(editingPolicy.document_required_after_days) : '';
 			minServiceDays = String(editingPolicy.min_service_days);
@@ -516,6 +512,7 @@
 			maxPerMonth = '';
 			carryForwardAllowed = false;
 			maxCarryForwardDays = '';
+			maxAnnualCarryForwardDays = '';
 			documentRequired = false;
 			documentRequiredAfterDays = '';
 			minServiceDays = '0';
@@ -527,14 +524,7 @@
 		}
 	});
 
-	// Sync isFormModalOpen with editUuid
-	$effect(() => {
-		if (editUuid) {
-			isFormModalOpen = true;
-		}
-	});
-
-	// Reset form state and clear query parameter on modal close
+	// Reset form state on modal close
 	$effect(() => {
 		if (!isFormModalOpen) {
 			form = null;
@@ -545,6 +535,7 @@
 			maxPerMonth = '';
 			carryForwardAllowed = false;
 			maxCarryForwardDays = '';
+			maxAnnualCarryForwardDays = '';
 			documentRequired = false;
 			documentRequiredAfterDays = '';
 			minServiceDays = '0';
@@ -556,9 +547,7 @@
 			submissionAttempted = false;
 			hasSynchronized = false;
 			isDiscardModalOpen = false;
-			if (editUuid) {
-				goto(resolve('/leave-policies'), { replaceState: true });
-			}
+			editUuid = null;
 		}
 	});
 
@@ -578,31 +567,37 @@
 	// Form Helper functions for validation on submit
 
 	function getLeaveTypeIdError(id: string): string {
-		if (!id) return 'Leave type is required.';
+		if (!id) return 'Leave type is required';
 		return '';
 	}
 
 	function getEmploymentTypesError(types: string[]): string {
 		if (types.length === 0) {
-			return 'At least one employment type must be selected';
+			return 'At least one employment type is required';
 		}
 		return '';
 	}
 
 	function getQuotaError(quotaStr: string): string {
-		if (!quotaStr || quotaStr.trim() === '') return 'Annual limit is required.';
+		if (!quotaStr || quotaStr.trim() === '') return 'Annual limit is required';
+		if (isNaN(Number(quotaStr))) {
+			return 'Only numeric values are allowed';
+		}
 		const quota = Number(quotaStr);
-		if (isNaN(quota) || quota <= 0) {
-			return 'Annual limit must be greater than zero';
+		if (quota <= 0) {
+			return 'Value must be greater than 0';
 		}
 		return '';
 	}
 
 	function getMaxPerMonthError(maxMStr: string, quotaStr: string): string {
 		if (!maxMStr || maxMStr.trim() === '') return '';
+		if (isNaN(Number(maxMStr))) {
+			return 'Only numeric values are allowed';
+		}
 		const maxM = Number(maxMStr);
-		if (isNaN(maxM) || maxM <= 0) {
-			return 'Max per month must be greater than zero';
+		if (maxM <= 0) {
+			return 'Value must be greater than 0';
 		}
 		if (quotaStr) {
 			const quota = Number(quotaStr);
@@ -618,18 +613,45 @@
 		if (!daysStr || String(daysStr).trim() === '') {
 			return 'Max carry forward days is required when carry forward is allowed';
 		}
+		if (isNaN(Number(daysStr))) {
+			return 'Only numeric values are allowed';
+		}
 		const days = Number(daysStr);
-		if (isNaN(days) || days <= 0) {
-			return 'Max carry forward days must be greater than zero';
+		if (days <= 0) {
+			return 'Value must be greater than 0';
+		}
+		return '';
+	}
+
+	function getCarryForwardAnnualDaysError(allowed: boolean, annualStr: string, maxStr: string): string {
+		if (!allowed) return '';
+		if (!annualStr || String(annualStr).trim() === '') {
+			return 'Max annual carry forward days is required when carry forward is allowed';
+		}
+		if (isNaN(Number(annualStr))) {
+			return 'Only numeric values are allowed';
+		}
+		const annualDays = Number(annualStr);
+		if (annualDays <= 0) {
+			return 'Value must be greater than 0';
+		}
+		if (maxStr && !isNaN(Number(maxStr))) {
+			const maxDays = Number(maxStr);
+			if (annualDays > maxDays) {
+				return 'Max annual carry forward days cannot exceed max carry forward days';
+			}
 		}
 		return '';
 	}
 
 	function getMinServiceDaysError(daysStr: string): string {
-		if (!daysStr || daysStr.trim() === '') return 'Min service days is required.';
+		if (!daysStr || daysStr.trim() === '') return '';
+		if (isNaN(Number(daysStr))) {
+			return 'Only numeric values are allowed';
+		}
 		const days = Number(daysStr);
-		if (isNaN(days) || !Number.isInteger(days) || days < 0) {
-			return 'Min service days must be a positive integer';
+		if (days < 0) {
+			return 'Value must be greater than or equal to 0';
 		}
 		return '';
 	}
@@ -644,9 +666,12 @@
 	function getDocumentRequiredAfterDaysError(required: boolean, daysStr: string): string {
 		if (!required) return '';
 		if (!daysStr || String(daysStr).trim() === '') return '';
+		if (isNaN(Number(daysStr))) {
+			return 'Only numeric values are allowed';
+		}
 		const days = Number(daysStr);
-		if (isNaN(days) || !Number.isInteger(days) || days <= 0) {
-			return 'Document required after days must be greater than zero';
+		if (days <= 0) {
+			return 'Value must be greater than 0';
 		}
 		return '';
 	}
@@ -663,7 +688,7 @@
 
 	function getLeaveTypeName(uuid: string): string {
 		const found = data.leaveTypes.find((t) => t.cuid === uuid);
-		return found ? found.leave_name : `UUID: ${uuid}`;
+		return found ? found.name : `UUID: ${uuid}`;
 	}
 
 	function getEmploymentTypeNames(uuids: string[]): string {
@@ -767,32 +792,7 @@
 	let activePoliciesCount = $derived(data.policies.filter((p) => p.status).length);
 	let inactivePoliciesCount = $derived(data.policies.filter((p) => !p.status).length);
 
-	function isInteractive(target: HTMLElement | null, rowElement: HTMLElement): boolean {
-		let curr = target;
-		while (curr && curr !== rowElement) {
-			const tagName = curr.tagName.toLowerCase();
-			if (
-				tagName === 'a' ||
-				tagName === 'button' ||
-				tagName === 'input' ||
-				tagName === 'select' ||
-				tagName === 'textarea' ||
-				curr.getAttribute('role') === 'button' ||
-				curr.classList.contains('kebab-dropdown-menu')
-			) {
-				return true;
-			}
-			curr = curr.parentElement;
-		}
-		return false;
-	}
 
-	function handleRowClick(cuid: string, event: MouseEvent) {
-		const target = event.target as HTMLElement;
-		const row = event.currentTarget as HTMLElement;
-		if (isInteractive(target, row)) return;
-		goto(resolve(('/leave-policies?edit=' + cuid) as '/leave-policies'));
-	}
 </script>
 
 <svelte:head>
@@ -838,28 +838,8 @@
 
 	<div class="space-y-3">
 		<!-- Search & Filter controls -->
-		<div class="flex flex-col gap-4 md:flex-row md:items-center w-full">
-			<div class="relative flex-1">
-				<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-				<Input
-					type="search"
-					placeholder="Search by leave type or employment type..."
-					bind:value={searchQuery}
-					class="pl-9 pr-9"
-				/>
-				{#if searchQuery}
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon-sm"
-						class="absolute top-1/2 right-1 -translate-y-1/2"
-						aria-label="Clear search"
-						onclick={() => (searchQuery = '')}
-					>
-						<XIcon class="size-4" />
-					</Button>
-				{/if}
-			</div>
+		<div class="flex flex-col gap-3 md:flex-row md:items-center w-full">
+			<SearchInput id="search_leave_policies" name="search_leave_policies" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by leave type or employment type..." />
 
 			<!-- Leave Type Filter -->
 			<div class="w-full md:w-48 shrink-0">
@@ -914,12 +894,12 @@
 		</div>
 
 		<!-- Table Card -->
-		<Card>
+		<Card class="py-0">
 			<Table>
-				<TableHeader>
+				<TableHeader class="bg-muted">
 					<TableRow>
-						<TableHead class="font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('leave_type_cuid')}>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('leave_type_cuid')}>
 								Leave Type
 							{#if sortKey === 'leave_type_cuid' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -930,8 +910,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('employment_type_cuids')}>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('employment_type_cuids')}>
 								Employment Types
 							{#if sortKey === 'employment_type_cuids' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -942,8 +922,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-24 text-right font-bold">
-							<Button variant="ghost" size="sm" class="-mr-2.5 h-8 ml-auto font-bold" onclick={() => handleSort('annual_limit')}>
+						<TableHead class="w-24 text-right font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-mr-2.5 h-8 ml-auto font-bold text-foreground text-[15px]" onclick={() => handleSort('annual_limit')}>
 								Annual Limit
 							{#if sortKey === 'annual_limit' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -954,8 +934,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-24 text-center font-bold">
-							<Button variant="ghost" size="sm" class="h-8 font-bold" onclick={() => handleSort('carry_forward_allowed')}>
+						<TableHead class="w-24 text-center font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('carry_forward_allowed')}>
 								Carry Fwd
 							{#if sortKey === 'carry_forward_allowed' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -966,8 +946,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-24 text-center font-bold">
-							<Button variant="ghost" size="sm" class="h-8 font-bold" onclick={() => handleSort('allow_half_day')}>
+						<TableHead class="w-24 text-center font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('allow_half_day')}>
 								Half Day
 							{#if sortKey === 'allow_half_day' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -978,8 +958,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-24 text-center font-bold">
-							<Button variant="ghost" size="sm" class="h-8 font-bold" onclick={() => handleSort('gender_specific')}>
+						<TableHead class="w-24 text-center font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('gender_specific')}>
 								Gender
 							{#if sortKey === 'gender_specific' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -990,8 +970,8 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-24 text-center font-bold">
-							<Button variant="ghost" size="sm" class="h-8 font-bold" onclick={() => handleSort('status')}>
+						<TableHead class="w-24 text-center font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
 								Status
 							{#if sortKey === 'status' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
@@ -1002,25 +982,31 @@
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-right font-bold">Actions</TableHead>
+						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{#if filteredPolicies.length === 0}
 						<TableRow>
-							<TableCell colspan={8} class="py-12 text-center text-muted-foreground">
-								No records found
+							<TableCell colspan={8} class="py-8 text-center text-muted-foreground">
+								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 							</TableCell>
 						</TableRow>
 					{:else}
 						{#each paginatedPolicies as policy (policy.cuid)}
-							<TableRow onclick={(e) => handleRowClick(policy.cuid, e)} class="cursor-pointer">
+							<TableRow 
+								onclick={(e) => {
+									if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
+									openEditModal(policy.cuid);
+								}} 
+								class="cursor-pointer"
+							>
 								<TableCell class="font-normal">{getLeaveTypeName(policy.leave_type_cuid)}</TableCell>
 								<TableCell class="font-normal">{getEmploymentTypeNames(policy.employment_type_cuids)}</TableCell>
 								<TableCell class="text-right font-normal">{policy.annual_limit}</TableCell>
 								<TableCell class="text-center font-normal">
 									{#if policy.carry_forward_allowed}
-										Yes ({policy.max_carry_forward_days})
+										Yes (Max: {policy.max_carry_forward_days}, Annual: {policy.max_annual_carry_forward_days})
 									{:else}
 										No
 									{/if}
@@ -1044,7 +1030,8 @@
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
-										onEdit={() => goto(resolve(('/leave-policies?edit=' + policy.cuid) as '/leave-policies'))}
+										canEdit={true}
+										onEdit={() => openEditModal(policy.cuid)}
 									/>
 								</TableCell>
 							</TableRow>
@@ -1115,6 +1102,7 @@
 					addLabel="Add Employment Type"
 					placeholder="Select Employment Types"
 					name="employment_type_cuids"
+					showAddIcon={false}
 				/>
 				{#if errors.employment_type_cuids}
 					<p class="text-xs font-medium text-destructive mt-1">{errors.employment_type_cuids}</p>
@@ -1169,6 +1157,11 @@
 					onchange={() => {
 						if (form && form.field === 'carry_forward_allowed') form = null;
 						errors.max_carry_forward_days = '';
+						errors.max_annual_carry_forward_days = '';
+						if (!carryForwardAllowed) {
+							maxCarryForwardDays = '';
+							maxAnnualCarryForwardDays = '';
+						}
 					}}
 					class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 				/>
@@ -1176,24 +1169,44 @@
 			</div>
 
 			{#if carryForwardAllowed}
-				<div transition:slide class="space-y-2 pl-4">
-					<Label for="modal_max_carry_forward_days" class={errors.max_carry_forward_days ? 'text-destructive' : ''}>Max Carry Forward Days <span class="text-destructive">*</span></Label>
-					
-					<Input
-						id="modal_max_carry_forward_days"
-						name="max_carry_forward_days"
-						bind:value={maxCarryForwardDays}
-						oninput={() => {
-							if (form && form.field === 'max_carry_forward_days') form = null;
-							errors.max_carry_forward_days = '';
-						}}
-						placeholder="e.g. 5"
-						required={carryForwardAllowed}
-						class={errors.max_carry_forward_days ? 'border-destructive focus-visible:ring-destructive/30' : ''}
-					/>
-					{#if errors.max_carry_forward_days}
-						<p class="text-xs font-medium text-destructive mt-1">{errors.max_carry_forward_days}</p>
-					{/if}
+				<div transition:slide class="space-y-4 pl-4 border-l-2 border-muted">
+					<div class="space-y-2">
+						<Label for="modal_max_carry_forward_days" class={errors.max_carry_forward_days ? 'text-destructive' : ''}>Max Carry Forward Days <span class="text-destructive">*</span></Label>
+						<Input
+							id="modal_max_carry_forward_days"
+							name="max_carry_forward_days"
+							bind:value={maxCarryForwardDays}
+							oninput={() => {
+								if (form && form.field === 'max_carry_forward_days') form = null;
+								errors.max_carry_forward_days = '';
+							}}
+							placeholder="e.g. 24"
+							required={carryForwardAllowed}
+							class={errors.max_carry_forward_days ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+						/>
+						{#if errors.max_carry_forward_days}
+							<p class="text-xs font-medium text-destructive mt-1">{errors.max_carry_forward_days}</p>
+						{/if}
+					</div>
+
+					<div class="space-y-2">
+						<Label for="modal_max_annual_carry_forward_days" class={errors.max_annual_carry_forward_days ? 'text-destructive' : ''}>Max Annual Carry Forward Days <span class="text-destructive">*</span></Label>
+						<Input
+							id="modal_max_annual_carry_forward_days"
+							name="max_annual_carry_forward_days"
+							bind:value={maxAnnualCarryForwardDays}
+							oninput={() => {
+								if (form && form.field === 'max_annual_carry_forward_days') form = null;
+								errors.max_annual_carry_forward_days = '';
+							}}
+							placeholder="e.g. 6"
+							required={carryForwardAllowed}
+							class={errors.max_annual_carry_forward_days ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+						/>
+						{#if errors.max_annual_carry_forward_days}
+							<p class="text-xs font-medium text-destructive mt-1">{errors.max_annual_carry_forward_days}</p>
+						{/if}
+					</div>
 				</div>
 			{/if}
 
@@ -1252,6 +1265,9 @@
 					onchange={() => {
 						if (form && form.field === 'gender_specific') form = null;
 						errors.applicable_gender = '';
+						if (!genderSpecific) {
+							applicableGender = '';
+						}
 					}}
 					class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 				/>
@@ -1294,7 +1310,7 @@
 
 			<!-- Min Service Days -->
 			<div class="space-y-2">
-				<Label for="modal_min_service_days" class={errors.min_service_days ? 'text-destructive' : ''}>Min Service Days (Active service req.) <span class="text-destructive">*</span></Label>
+				<Label for="modal_min_service_days" class={errors.min_service_days ? 'text-destructive font-semibold' : ''}>Min Service Days (Active service req.)</Label>
 				<Input
 					id="modal_min_service_days"
 					name="modal_min_service_days"
@@ -1353,7 +1369,6 @@
 					disabled={isSubmitDisabled}
 				>
 					{#if isSubmitting}
-						<LoaderCircleIcon class="size-4 animate-spin" />
 						Saving...
 					{:else}
 						Save

@@ -3,8 +3,8 @@ import type { PageLoad } from './$types';
 export interface LeaveType {
 	id: number;
 	cuid: string;
-	leave_name: string;
-	leave_code: string;
+	name: string;
+	code: string;
 	description: string | null;
 	is_paid: boolean;
 	requires_approval: boolean;

@@ -43,14 +43,31 @@ function toPublicEmployee(emp: any) {
 }
 
 export async function getEmployees() {
-    return (await employeeDao.list()).map(toPublicEmployee);
+    const employees = await employeeDao.list();
+    const employments = await employmentDao.list();
+    const empMap = new Map(employments.map(e => [e.employee_cuid, e]));
+    return employees.map(emp => {
+        const publicEmp = toPublicEmployee(emp);
+        if (publicEmp) {
+            const empl = empMap.get(emp.cuid);
+            publicEmp.date_of_joining = empl?.date_of_joining || null;
+            publicEmp.relieving_date = empl?.relieving_date || null;
+        }
+        return publicEmp;
+    });
 }
 
 export async function getEmployeeByCuid2(cuid: string) {
     if (!cuid) throw new Error("Employee CUID2 is required");
     const emp = await employeeDao.findByCuid2(cuid);
     if (!emp) throw new Error(`Employee with CUID2 "${cuid}" not found`);
-    return toPublicEmployee(emp);
+    const publicEmp = toPublicEmployee(emp);
+    if (publicEmp) {
+        const empl = await employmentDao.findByEmployeeCuid(cuid);
+        publicEmp.date_of_joining = empl?.date_of_joining || null;
+        publicEmp.relieving_date = empl?.relieving_date || null;
+    }
+    return publicEmp;
 }
 
 export async function generateNextEmployeeCode(): Promise<string> {
@@ -236,4 +253,21 @@ export async function deleteEmployee(cuid: string) {
     const existing = await employeeDao.findByCuid2(cuid);
     if (!existing) throw new Error(`Employee with CUID2 "${cuid}" not found`);
     return toPublicEmployee(await employeeDao.remove(cuid));
+}
+
+export async function getMinimalEmployeesForAttendance() {
+    const employees = await employeeDao.list();
+    const employments = await employmentDao.list();
+    const empMap = new Map(employments.map(e => [e.employee_cuid, e]));
+    return employees.map(emp => {
+        const empl = empMap.get(emp.cuid);
+        return {
+            cuid: emp.cuid,
+            emp_code: emp.emp_code,
+            first_name: emp.first_name,
+            last_name: emp.last_name,
+            date_of_joining: empl?.date_of_joining || null,
+            relieving_date: empl?.relieving_date || null
+        };
+    });
 }

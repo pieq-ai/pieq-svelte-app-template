@@ -8,6 +8,7 @@ export interface LeavePolicy {
 	max_per_month: number | null;
 	carry_forward_allowed: boolean;
 	max_carry_forward_days: number | null;
+	max_annual_carry_forward_days: number | null;
 	document_required: boolean;
 	document_required_after_days: number | null;
 	min_service_days: number;
@@ -21,8 +22,8 @@ export interface LeavePolicy {
 export interface LeaveType {
 	id: number;
 	cuid: string;
-	leave_name: string;
-	leave_code: string;
+	name: string;
+	code: string;
 	description: string | null;
 	is_paid: boolean;
 	requires_approval: boolean;

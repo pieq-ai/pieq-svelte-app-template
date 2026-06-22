@@ -1,8 +1,8 @@
 import { db } from '$lib/server/db.js';
 
 export interface CreateLeaveTypeData {
-	leave_name: string;
-	leave_code: string;
+	name: string;
+	code: string;
 	description?: string | null;
 	is_paid: boolean;
 	requires_approval: boolean;
@@ -15,8 +15,8 @@ export async function list() {
 	return db.leaveType.findMany({
 		select: {
 			cuid: true,
-			leave_name: true,
-			leave_code: true,
+			name: true,
+			code: true,
 			description: true,
 			is_paid: true,
 			requires_approval: true,
@@ -80,8 +80,8 @@ export async function findByCuid(cuid: string) {
 		where: { cuid },
 		select: {
 			cuid: true,
-			leave_name: true,
-			leave_code: true,
+			name: true,
+			code: true,
 			description: true,
 			is_paid: true,
 			requires_approval: true,
@@ -93,7 +93,7 @@ export async function findByCuid(cuid: string) {
 export async function findByName(leave_name: string) {
 	return db.leaveType.findFirst({
 		where: {
-			leave_name: {
+			name: {
 				equals: leave_name,
 				mode: 'insensitive'
 			}
@@ -104,7 +104,7 @@ export async function findByName(leave_name: string) {
 export async function findByCode(leave_code: string) {
 	return db.leaveType.findFirst({
 		where: {
-			leave_code: {
+			code: {
 				equals: leave_code,
 				mode: 'insensitive'
 			}
@@ -115,7 +115,7 @@ export async function findByCode(leave_code: string) {
 export async function findDuplicateName(leave_name: string, excludeCuid: string) {
 	return db.leaveType.findFirst({
 		where: {
-			leave_name: {
+			name: {
 				equals: leave_name,
 				mode: 'insensitive'
 			},
@@ -127,7 +127,7 @@ export async function findDuplicateName(leave_name: string, excludeCuid: string)
 export async function findDuplicateCode(leave_code: string, excludeCuid: string) {
 	return db.leaveType.findFirst({
 		where: {
-			leave_code: {
+			code: {
 				equals: leave_code,
 				mode: 'insensitive'
 			},

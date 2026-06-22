@@ -64,6 +64,8 @@
 		{ label: 'Leave Types', href: resolve('/leave-types'), icon: CalendarCogIcon },
 		{ label: 'Leave Policies', href: resolve('/leave-policies'), icon: ShieldCheckIcon },
 		{ label: 'Holiday Calendar', href: resolve('/holidays'), icon: CalendarIcon },
+		{ label: 'Attendance', href: resolve('/attendance'), icon: ClockIcon },
+		{ label: 'Attendance Records', href: resolve('/attendance-records'), icon: CalendarIcon },
 		{ label: 'System Roles', href: resolve('/system-roles'), icon: ShieldCheckIcon },
 		{ label: 'Permissions', href: resolve('/permissions'), icon: KeyRoundIcon },
 		{ label: 'Role Permissions', href: resolve('/role-permissions'), icon: LinkIcon }

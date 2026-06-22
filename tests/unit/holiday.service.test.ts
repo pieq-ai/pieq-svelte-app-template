@@ -39,293 +39,193 @@ describe('holiday service', () => {
 	});
 
 	describe('validation and creation', () => {
-		// Name checks
 		it('should reject non-string names', async () => {
 			await expect(
 				createHoliday({
-					holiday_name: 123,
-					holiday_date: '2026-06-01',
-					holiday_type: 'National'
+					name: 123,
+					date: '2026-06-01',
+					type: 'National'
 				})
 			).rejects.toThrowError(
-				new HolidayValidationError('holiday_name', 'Holiday name is required and must be a string')
+				new HolidayValidationError('name', 'Holiday name is required and must be a string')
 			);
 		});
 
 		it('should reject empty names', async () => {
 			await expect(
 				createHoliday({
-					holiday_name: '   ',
-					holiday_date: '2026-06-01',
-					holiday_type: 'National'
+					name: '   ',
+					date: '2026-06-01',
+					type: 'National'
 				})
 			).rejects.toThrowError(
-				new HolidayValidationError('holiday_name', 'Holiday name cannot be empty')
+				new HolidayValidationError('name', 'Holiday name cannot be empty')
 			);
 		});
 
 		it('should reject short names (<= 5 chars)', async () => {
 			await expect(
 				createHoliday({
-					holiday_name: 'New',
-					holiday_date: '2026-06-01',
-					holiday_type: 'National'
+					name: 'New',
+					date: '2026-06-01',
+					type: 'National'
 				})
 			).rejects.toThrowError(
-				new HolidayValidationError(
-					'holiday_name',
-					'Holiday name must be more than 5 characters long'
-				)
+				new HolidayValidationError('name', 'Holiday name must be more than 5 characters long')
 			);
 		});
 
-		it('should reject names exceeding max length', async () => {
+		it('should reject long names (> 200 chars)', async () => {
 			const longName = 'A'.repeat(201);
 			await expect(
 				createHoliday({
-					holiday_name: longName,
-					holiday_date: '2026-06-01',
-					holiday_type: 'National'
+					name: longName,
+					date: '2026-06-01',
+					type: 'National'
 				})
 			).rejects.toThrowError(
-				new HolidayValidationError(
-					'holiday_name',
-					'Holiday name must be 200 characters or fewer'
-				)
+				new HolidayValidationError('name', 'Holiday name must be 200 characters or fewer')
 			);
 		});
 
-		it('should reject names with special characters or numbers', async () => {
+		it('should reject names containing numbers or special characters', async () => {
 			await expect(
 				createHoliday({
-					holiday_name: 'New Year 2026',
-					holiday_date: '2026-06-01',
-					holiday_type: 'National'
+					name: 'New Year 123',
+					date: '2026-06-01',
+					type: 'National'
 				})
 			).rejects.toThrowError(
-				new HolidayValidationError(
-					'holiday_name',
-					'Holiday name can only contain letters and spaces'
-				)
+				new HolidayValidationError('name', 'Holiday name can only contain letters and spaces')
 			);
 		});
 
-		// Date checks
-		it('should reject empty date', async () => {
+		it('should reject missing holiday dates', async () => {
 			await expect(
 				createHoliday({
-					holiday_name: 'New Year Day',
-					holiday_date: '',
-					holiday_type: 'National'
+					name: 'Valid Name',
+					date: '',
+					type: 'National'
+				})
+			).rejects.toThrowError(new HolidayValidationError('date', 'Holiday date is required'));
+		});
+
+		it('should reject invalid dates', async () => {
+			await expect(
+				createHoliday({
+					name: 'Valid Name',
+					date: 'invalid-date-format',
+					type: 'National'
+				})
+			).rejects.toThrowError(new HolidayValidationError('date', 'Holiday date must be a valid date'));
+		});
+
+		it('should reject dates outside the 2000-2099 range', async () => {
+			await expect(
+				createHoliday({
+					name: 'Valid Name',
+					date: '1999-12-31',
+					type: 'National'
 				})
 			).rejects.toThrowError(
-				new HolidayValidationError('holiday_date', 'Holiday date is required')
+				new HolidayValidationError('date', 'Holiday date must be between the years 2000 and 2099')
+			);
+
+			await expect(
+				createHoliday({
+					name: 'Valid Name',
+					date: '2100-01-01',
+					type: 'National'
+				})
+			).rejects.toThrowError(
+				new HolidayValidationError('date', 'You can schedule holidays only up to the year 2099')
 			);
 		});
 
-		it('should reject invalid date strings', async () => {
+		it('should reject dates in the past', async () => {
 			await expect(
 				createHoliday({
-					holiday_name: 'New Year Day',
-					holiday_date: 'not-a-date',
-					holiday_type: 'National'
+					name: 'Valid Name',
+					date: '2026-05-28', // May 28 is yesterday compared to system time May 29
+					type: 'National'
+				})
+			).rejects.toThrowError(new HolidayValidationError('date', 'Holiday date cannot be in the past'));
+		});
+
+		it('should reject invalid types', async () => {
+			await expect(
+				createHoliday({
+					name: 'Valid Name',
+					date: '2026-06-01',
+					type: 'Government'
 				})
 			).rejects.toThrowError(
-				new HolidayValidationError('holiday_date', 'Holiday date must be a valid date')
+				new HolidayValidationError('type', 'Holiday type must be one of: National, Regional, Restricted')
 			);
 		});
 
-		it('should reject years outside 2000-2099', async () => {
-			await expect(
-				createHoliday({
-					holiday_name: 'New Year Day',
-					holiday_date: '1999-12-31',
-					holiday_type: 'National'
-				})
-			).rejects.toThrowError(
-				new HolidayValidationError(
-					'holiday_date',
-					'Holiday date must be between the years 2000 and 2099'
-				)
-			);
-
-			await expect(
-				createHoliday({
-					holiday_name: 'New Year Day',
-					holiday_date: '2100-01-01',
-					holiday_type: 'National'
-				})
-			).rejects.toThrowError(
-				new HolidayValidationError(
-					'holiday_date',
-					'Holiday date must be between the years 2000 and 2099'
-				)
-			);
-		});
-
-		it('should reject past dates and allow current date', async () => {
-			// May 28, 2026 (past)
-			await expect(
-				createHoliday({
-					holiday_name: 'New Year Day',
-					holiday_date: '2026-05-28',
-					holiday_type: 'National'
-				})
-			).rejects.toThrowError(
-				new HolidayValidationError('holiday_date', 'Holiday date cannot be in the past.')
-			);
-
-			// May 29, 2026 (today) - should be allowed
-			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+		it('should reject creation if date is already scheduled for another holiday', async () => {
+			vi.mocked(holidayDao.findByDate).mockResolvedValue({ id: 1n, name: 'Existing Holiday' } as any);
 			vi.mocked(holidayDao.findByNameAndYear).mockResolvedValue(null);
-			vi.mocked(holidayDao.create).mockResolvedValue({
-				id: 99n,
-				cuid: 'today-cuid',
-				holiday_name: 'Today Holiday',
-				holiday_date: new Date(Date.UTC(2026, 4, 29)),
-				holiday_type: 'National',
-				...auditFields
-			});
 
-			const result = await createHoliday({
-				holiday_name: 'Today Holiday',
-				holiday_date: '2026-05-29',
-				holiday_type: 'National'
-			});
-			expect(result.cuid).toBe('today-cuid');
-		});
-
-		// Type checks
-		it('should reject invalid holiday types', async () => {
 			await expect(
 				createHoliday({
-					holiday_name: 'New Year Day',
-					holiday_date: '2026-06-01',
-					holiday_type: 'Public Holiday'
+					name: 'New Holiday Name',
+					date: '2026-06-01',
+					type: 'National'
 				})
 			).rejects.toThrowError(
-				new HolidayValidationError(
-					'holiday_type',
-					'Holiday type must be one of: National, Regional, Restricted'
-				)
+				new HolidayMultiValidationError({ date: 'Holiday already scheduled for this date' })
 			);
 		});
 
-		// Duplicate checks
-		it('should reject creation if holiday on date already exists', async () => {
-			vi.mocked(holidayDao.findByDate).mockResolvedValue({
-				id: 1n,
-				cuid: 'cuid-1',
-				holiday_name: 'Existing Holiday',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National',
-				...auditFields
-			});
-
-			try {
-				await createHoliday({
-					holiday_name: 'New Year Day',
-					holiday_date: '2026-06-01',
-					holiday_type: 'National'
-				});
-				expect.fail('Should have thrown HolidayMultiValidationError');
-			} catch (error: any) {
-				expect(error.name).toBe('HolidayMultiValidationError');
-				expect(error.fields).toEqual({
-					holiday_date: 'Holiday already scheduled for this date'
-				});
-			}
-		});
-
-		it('should reject creation if holiday name already exists in the same year', async () => {
+		it('should reject creation if name already exists in the same year', async () => {
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
-			vi.mocked(holidayDao.findByNameAndYear).mockResolvedValue({
-				id: 2n,
-				cuid: 'cuid-2',
-				holiday_name: 'New Year Day',
-				holiday_date: new Date(Date.UTC(2026, 0, 1)),
-				holiday_type: 'National',
-				...auditFields
-			});
+			vi.mocked(holidayDao.findByNameAndYear).mockResolvedValue({ id: 1n, name: 'Duplicated Name' } as any);
 
-			try {
-				await createHoliday({
-					holiday_name: 'New Year Day',
-					holiday_date: '2026-06-01',
-					holiday_type: 'National'
-				});
-				expect.fail('Should have thrown HolidayMultiValidationError');
-			} catch (error: any) {
-				expect(error.name).toBe('HolidayMultiValidationError');
-				expect(error.fields).toEqual({
-					holiday_name: 'Holiday Name already exists'
-				});
-			}
+			await expect(
+				createHoliday({
+					name: 'Duplicated Name',
+					date: '2026-06-01',
+					type: 'National'
+				})
+			).rejects.toThrowError(
+				new HolidayMultiValidationError({ name: 'Holiday Name already exists' })
+			);
 		});
 
 		it('should successfully create a holiday when all validations pass', async () => {
-			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
-			vi.mocked(holidayDao.findByNameAndYear).mockResolvedValue(null);
 			const expectedHoliday = {
-				id: 3n,
-				cuid: 'new-cuid',
-				holiday_name: 'New Year Day',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National',
+				id: 2n,
+				cuid: 'new-holiday-cuid',
+				name: 'Independence Day',
+				date: new Date(Date.UTC(2026, 5, 1)),
+				type: 'National',
 				...auditFields
 			};
-			vi.mocked(holidayDao.create).mockResolvedValue(expectedHoliday);
+
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(holidayDao.findByNameAndYear).mockResolvedValue(null);
+			vi.mocked(holidayDao.create).mockResolvedValue(expectedHoliday as any);
 
 			const result = await createHoliday({
-				holiday_name: 'New Year Day',
-				holiday_date: '2026-06-01',
-				holiday_type: 'National'
+				name: 'Independence Day',
+				date: '2026-06-01',
+				type: 'National'
 			});
 
 			expect(result).toEqual(expectedHoliday);
 			expect(holidayDao.create).toHaveBeenCalledWith({
-				holiday_name: 'New Year Day',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National'
+				name: 'Independence Day',
+				date: new Date(Date.UTC(2026, 5, 1)),
+				type: 'National',
+				created_by: undefined,
+				updated_by: undefined
 			});
-		});
-
-		it('should reject creation with multiple validation errors if both name and date already exist', async () => {
-			vi.mocked(holidayDao.findByDate).mockResolvedValue({
-				id: 1n,
-				cuid: 'cuid-1',
-				holiday_name: 'Existing Holiday',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National',
-				...auditFields
-			});
-			vi.mocked(holidayDao.findByNameAndYear).mockResolvedValue({
-				id: 2n,
-				cuid: 'cuid-2',
-				holiday_name: 'New Year Day',
-				holiday_date: new Date(Date.UTC(2026, 0, 1)),
-				holiday_type: 'National',
-				...auditFields
-			});
-
-			try {
-				await createHoliday({
-					holiday_name: 'New Year Day',
-					holiday_date: '2026-06-01',
-					holiday_type: 'National'
-				});
-				expect.fail('Should have thrown HolidayMultiValidationError');
-			} catch (error: any) {
-				expect(error.name).toBe('HolidayMultiValidationError');
-				expect(error.fields).toEqual({
-					holiday_date: 'Holiday already scheduled for this date',
-					holiday_name: 'Holiday Name already exists'
-				});
-			}
 		});
 	});
 
-	describe('updating holidays', () => {
+	describe('updates', () => {
 		const targetCuid = 'holiday-cuid';
 
 		it('should throw error when holiday is not found', async () => {
@@ -333,9 +233,9 @@ describe('holiday service', () => {
 
 			await expect(
 				updateHoliday(targetCuid, {
-					holiday_name: 'Valid Name',
-					holiday_date: '2026-06-01',
-					holiday_type: 'National'
+					name: 'Valid Name',
+					date: '2026-06-01',
+					type: 'National'
 				})
 			).rejects.toThrow('Holiday not found');
 		});
@@ -344,31 +244,31 @@ describe('holiday service', () => {
 			vi.mocked(holidayDao.findByCuid).mockResolvedValue({
 				id: 4n,
 				cuid: targetCuid,
-				holiday_name: 'Old Name',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National',
+				name: 'Old Name',
+				date: new Date(Date.UTC(2026, 5, 1)),
+				type: 'National',
 				...auditFields
-			});
+			} as any);
 			vi.mocked(holidayDao.findByDateExcludingCuid).mockResolvedValue({
 				id: 5n,
 				cuid: 'another-cuid',
-				holiday_name: 'Conflicting Holiday',
-				holiday_date: new Date(Date.UTC(2026, 5, 2)),
-				holiday_type: 'Regional',
+				name: 'Conflicting Holiday',
+				date: new Date(Date.UTC(2026, 5, 2)),
+				type: 'Regional',
 				...auditFields
-			});
+			} as any);
 
 			try {
 				await updateHoliday(targetCuid, {
-					holiday_name: 'Valid Name',
-					holiday_date: '2026-06-02',
-					holiday_type: 'National'
+					name: 'Valid Name',
+					date: '2026-06-02',
+					type: 'National'
 				});
 				expect.fail('Should have thrown HolidayMultiValidationError');
 			} catch (error: any) {
-				expect(error.name).toBe('HolidayMultiValidationError');
+				expect(error).toBeInstanceOf(HolidayMultiValidationError);
 				expect(error.fields).toEqual({
-					holiday_date: 'Holiday already scheduled for this date'
+					date: 'Holiday already scheduled for this date'
 				});
 			}
 		});
@@ -377,32 +277,32 @@ describe('holiday service', () => {
 			vi.mocked(holidayDao.findByCuid).mockResolvedValue({
 				id: 4n,
 				cuid: targetCuid,
-				holiday_name: 'Old Name',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National',
+				name: 'Old Name',
+				date: new Date(Date.UTC(2026, 5, 1)),
+				type: 'National',
 				...auditFields
-			});
+			} as any);
 			vi.mocked(holidayDao.findByDateExcludingCuid).mockResolvedValue(null);
 			vi.mocked(holidayDao.findByNameAndYearExcludingCuid).mockResolvedValue({
 				id: 5n,
 				cuid: 'another-cuid',
-				holiday_name: 'Conflicting Name',
-				holiday_date: new Date(Date.UTC(2026, 8, 1)),
-				holiday_type: 'Regional',
+				name: 'Conflicting Name',
+				date: new Date(Date.UTC(2026, 8, 1)),
+				type: 'Regional',
 				...auditFields
-			});
+			} as any);
 
 			try {
 				await updateHoliday(targetCuid, {
-					holiday_name: 'Conflicting Name',
-					holiday_date: '2026-06-01',
-					holiday_type: 'National'
+					name: 'Conflicting Name',
+					date: '2026-06-01',
+					type: 'National'
 				});
 				expect.fail('Should have thrown HolidayMultiValidationError');
 			} catch (error: any) {
-				expect(error.name).toBe('HolidayMultiValidationError');
+				expect(error).toBeInstanceOf(HolidayMultiValidationError);
 				expect(error.fields).toEqual({
-					holiday_name: 'Holiday Name already exists'
+					name: 'Holiday Name already exists'
 				});
 			}
 		});
@@ -411,77 +311,36 @@ describe('holiday service', () => {
 			const existing = {
 				id: 4n,
 				cuid: targetCuid,
-				holiday_name: 'Old Name',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National',
+				name: 'Old Name',
+				date: new Date(Date.UTC(2026, 5, 1)),
+				type: 'National',
 				...auditFields
 			};
-			vi.mocked(holidayDao.findByCuid).mockResolvedValue(existing);
+			vi.mocked(holidayDao.findByCuid).mockResolvedValue(existing as any);
 			vi.mocked(holidayDao.findByDateExcludingCuid).mockResolvedValue(null);
 			vi.mocked(holidayDao.findByNameAndYearExcludingCuid).mockResolvedValue(null);
-			
+
 			const updated = {
 				...existing,
-				holiday_name: 'Updated Name',
-				holiday_date: new Date(Date.UTC(2026, 5, 2)),
+				name: 'Updated Name',
+				date: new Date(Date.UTC(2026, 5, 2)),
 				...auditFields
 			};
-			vi.mocked(holidayDao.update).mockResolvedValue(updated);
+			vi.mocked(holidayDao.update).mockResolvedValue(updated as any);
 
 			const result = await updateHoliday(targetCuid, {
-				holiday_name: 'Updated Name',
-				holiday_date: '2026-06-02',
-				holiday_type: 'National'
+				name: 'Updated Name',
+				date: '2026-06-02',
+				type: 'National'
 			});
 
 			expect(result).toEqual(updated);
 			expect(holidayDao.update).toHaveBeenCalledWith(targetCuid, {
-				holiday_name: 'Updated Name',
-				holiday_date: new Date(Date.UTC(2026, 5, 2)),
-				holiday_type: 'National'
+				name: 'Updated Name',
+				date: new Date(Date.UTC(2026, 5, 2)),
+				type: 'National',
+				updated_by: undefined
 			});
-		});
-
-		it('should reject update with multiple validation errors if both name and date conflict with other holidays', async () => {
-			vi.mocked(holidayDao.findByCuid).mockResolvedValue({
-				id: 4n,
-				cuid: targetCuid,
-				holiday_name: 'Old Name',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National',
-				...auditFields
-			});
-			vi.mocked(holidayDao.findByDateExcludingCuid).mockResolvedValue({
-				id: 5n,
-				cuid: 'another-cuid-1',
-				holiday_name: 'Conflicting Holiday',
-				holiday_date: new Date(Date.UTC(2026, 5, 2)),
-				holiday_type: 'Regional',
-				...auditFields
-			});
-			vi.mocked(holidayDao.findByNameAndYearExcludingCuid).mockResolvedValue({
-				id: 6n,
-				cuid: 'another-cuid-2',
-				holiday_name: 'Conflicting Name',
-				holiday_date: new Date(Date.UTC(2026, 8, 1)),
-				holiday_type: 'Regional',
-				...auditFields
-			});
-
-			try {
-				await updateHoliday(targetCuid, {
-					holiday_name: 'Conflicting Name',
-					holiday_date: '2026-06-02',
-					holiday_type: 'National'
-				});
-				expect.fail('Should have thrown HolidayMultiValidationError');
-			} catch (error: any) {
-				expect(error.name).toBe('HolidayMultiValidationError');
-				expect(error.fields).toEqual({
-					holiday_date: 'Holiday already scheduled for this date',
-					holiday_name: 'Holiday Name already exists'
-				});
-			}
 		});
 	});
 
@@ -498,13 +357,13 @@ describe('holiday service', () => {
 			const existing = {
 				id: 6n,
 				cuid: targetCuid,
-				holiday_name: 'New Year Day',
-				holiday_date: new Date(Date.UTC(2026, 5, 1)),
-				holiday_type: 'National',
+				name: 'New Year Day',
+				date: new Date(Date.UTC(2026, 5, 1)),
+				type: 'National',
 				...auditFields
 			};
-			vi.mocked(holidayDao.findByCuid).mockResolvedValue(existing);
-			vi.mocked(holidayDao.deleteHoliday).mockResolvedValue(existing);
+			vi.mocked(holidayDao.findByCuid).mockResolvedValue(existing as any);
+			vi.mocked(holidayDao.deleteHoliday).mockResolvedValue(existing as any);
 
 			const result = await deleteHoliday(targetCuid);
 

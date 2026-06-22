@@ -2,6 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as employmentDao from '$lib/server/dao/employment.dao.js';
 
 vi.mock('$lib/server/dao/employee.dao.js', () => ({
 	list: vi.fn(),
@@ -11,6 +12,11 @@ vi.mock('$lib/server/dao/employee.dao.js', () => ({
 	create: vi.fn(),
 	update: vi.fn(),
     remove: vi.fn()
+}));
+
+vi.mock('$lib/server/dao/employment.dao.js', () => ({
+	list: vi.fn(),
+	findByEmployeeCuid: vi.fn()
 }));
 
 describe('Employee Service', () => {
@@ -24,12 +30,22 @@ describe('Employee Service', () => {
 				{ id: 1n, cuid: 'abc', emp_code: 'E01', first_name: 'John', last_name: 'Doe' }
 			];
 			vi.mocked(employeeDao.list).mockResolvedValue(mockData as any);
+			vi.mocked(employmentDao.list).mockResolvedValue([
+				{ employee_cuid: 'abc', date_of_joining: new Date('2026-01-01'), relieving_date: null }
+			] as any);
 
 			const result = await employeeService.getEmployees();
 
 			expect(employeeDao.list).toHaveBeenCalledTimes(1);
 			expect(result).toHaveLength(1);
-			expect(result[0]).toEqual({ cuid: 'abc', emp_code: 'E01', first_name: 'John', last_name: 'Doe' });
+			expect(result[0]).toEqual({
+				cuid: 'abc',
+				emp_code: 'E01',
+				first_name: 'John',
+				last_name: 'Doe',
+				date_of_joining: new Date('2026-01-01'),
+				relieving_date: null
+			});
 		});
 	});
 
@@ -40,8 +56,15 @@ describe('Employee Service', () => {
 
 		it('should return mapped employee', async () => {
 			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'abc', first_name: 'John' } as any);
+			vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+				employee_cuid: 'abc',
+				date_of_joining: new Date('2026-01-01'),
+				relieving_date: null
+			} as any);
 			const result = await employeeService.getEmployeeByCuid2('abc');
 			expect(result.first_name).toBe('John');
+			expect(result.date_of_joining).toEqual(new Date('2026-01-01'));
+			expect(result.relieving_date).toBeNull();
 		});
 	});
 
