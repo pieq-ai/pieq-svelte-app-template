@@ -44,7 +44,7 @@
 
 	let { data }: { data: PageData } = $props();
 
-	let rolesList = $state<Role[]>(data.roles);
+	let rolesList = $derived<Role[]>(data.roles);
 	let isLoading = $state(false);
 	let loadError = $state('');
 

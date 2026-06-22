@@ -59,7 +59,7 @@
 
 	let { data }: { data: PageData } = $props();
 
-	let shiftsList = $state<Shift[]>(data.shifts);
+	let shiftsList = $derived<Shift[]>(data.shifts);
 	let isLoading = $state(false);
 	let loadError = $state('');
 

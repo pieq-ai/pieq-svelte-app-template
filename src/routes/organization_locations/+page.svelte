@@ -53,7 +53,7 @@
 
   let { data }: { data: PageData } = $props();
 
-  let locations = $state<CompanyLocation[]>(data.locations);
+  let locations = $derived<CompanyLocation[]>(data.locations);
   let page = $state(1);
   let limit = $state(10);
   let loading = $state(false);
@@ -64,8 +64,8 @@
   let showForm = $state(false);
 
   // Dropdown choices
-  let countries = $state<any[]>(data.countries);
-  let states = $state<any[]>(data.states);
+  let countries = $derived(data.countries);
+  let states = $derived(data.states);
 
 
 

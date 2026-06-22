@@ -50,7 +50,7 @@
 
 	let { data }: { data: PageData } = $props();
 
-	let assignmentsList = $state<ShiftAssignment[]>(data.assignments);
+	let assignmentsList = $derived<ShiftAssignment[]>(data.assignments);
 	let isLoading = $state(false);
 	let loadError = $state('');
 
