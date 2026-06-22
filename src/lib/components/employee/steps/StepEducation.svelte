@@ -9,7 +9,7 @@
   import { toast } from "svelte-sonner";
   import { goto } from "$app/navigation";
   import { globalIsDirty } from "$lib/stores/navigationGuard";
-  import { isDuplicateEntry } from "$lib/utils/employeeValidationHelper";
+  import { isDuplicateEntry, normalizeText, validateLettersSpaces } from "$lib/utils/employeeValidationHelper";
   import { SvelteDate } from "svelte/reactivity";
   import { parseBackendErrors } from "$lib/utils/errors.js";
   import { onMount } from "svelte";
@@ -107,14 +107,26 @@
   function validateRequired(val: string | undefined | null) {
     return val && val.trim().length > 0 ? "" : "Required";
   }
+  function specializationError(val: string) {
+    // optional — validate format only when present
+    return validateLettersSpaces(val, 'Specialization');
+  }
+  function institutionError(val: string) {
+    // optional — validate format only when present
+    return validateLettersSpaces(val, 'Institution name');
+  }
+  function universityBoardError(val: string) {
+    // optional — validate format only when present
+    return validateLettersSpaces(val, 'University/Board');
+  }
   function validatePercentage(val: string | undefined | null) {
-    if (!val) return "Required";
+    if (!val) return ""; // optional
     const num = parseFloat(val);
     if (isNaN(num) || num < 0 || num > 100) return "Must be 0–100";
     return "";
   }
   function validatePastDate(date: string) {
-    if (!date) return "Required";
+    if (!date) return ""; // optional
     const dt = new SvelteDate(date);
     if (isNaN(dt.getTime())) return "Invalid date.";
     if (dt > new SvelteDate()) return "Cannot be a future date.";
@@ -125,9 +137,9 @@
     educations.some(
       (e, i) =>
         validateRequired(e.education_level) ||
-        validateRequired(e.specialization) ||
-        validateRequired(e.institution) ||
-        validateRequired(e.university_board) ||
+        specializationError(e.specialization) ||
+        institutionError(e.institution) ||
+        universityBoardError(e.university_board) ||
         validatePercentage(e.percentage?.toString()) ||
         validatePastDate(e.completed_at) ||
         isDuplicateEntry(educations, i, (x) => x.education_level),
@@ -234,56 +246,59 @@
         {/if}
         <div class="space-y-2">
           <Label
-            >Specialization/Major <span class="text-destructive">*</span></Label
+            >Specialization/Major</Label
           >
           <Input
             bind:value={edu.specialization}
             placeholder="e.g. Computer Science"
-            class={isTouched && validateRequired(edu.specialization)
+            onblur={() => (edu.specialization = normalizeText(edu.specialization))}
+            class={isTouched && specializationError(edu.specialization)
               ? "border-destructive focus-visible:ring-destructive/50"
               : ""}
           />
-          {#if isTouched && validateRequired(edu.specialization)}<p
+          {#if isTouched && specializationError(edu.specialization)}<p
               class="text-xs text-destructive"
             >
-              {validateRequired(edu.specialization)}
+              {specializationError(edu.specialization)}
             </p>{/if}
         </div>
         <div class="space-y-2 xl:col-span-2">
           <Label
-            >Institution/School <span class="text-destructive">*</span></Label
+            >Institution/School</Label
           >
           <Input
             bind:value={edu.institution}
             placeholder="Institution Name"
-            class={isTouched && validateRequired(edu.institution)
+            onblur={() => (edu.institution = normalizeText(edu.institution))}
+            class={isTouched && institutionError(edu.institution)
               ? "border-destructive focus-visible:ring-destructive/50"
               : ""}
           />
-          {#if isTouched && validateRequired(edu.institution)}<p
+          {#if isTouched && institutionError(edu.institution)}<p
               class="text-xs text-destructive"
             >
-              {validateRequired(edu.institution)}
+              {institutionError(edu.institution)}
             </p>{/if}
         </div>
         <div class="space-y-2 xl:col-span-2">
-          <Label>University/Board <span class="text-destructive">*</span></Label
+          <Label>University/Board</Label
           >
           <Input
             bind:value={edu.university_board}
             placeholder="University/Board Name"
-            class={isTouched && validateRequired(edu.university_board)
+            onblur={() => (edu.university_board = normalizeText(edu.university_board))}
+            class={isTouched && universityBoardError(edu.university_board)
               ? "border-destructive focus-visible:ring-destructive/50"
               : ""}
           />
-          {#if isTouched && validateRequired(edu.university_board)}<p
+          {#if isTouched && universityBoardError(edu.university_board)}<p
               class="text-xs text-destructive"
             >
-              {validateRequired(edu.university_board)}
+              {universityBoardError(edu.university_board)}
             </p>{/if}
         </div>
         <div class="space-y-2">
-          <Label>Percentage/CGPA <span class="text-destructive">*</span></Label>
+          <Label>Percentage/CGPA</Label>
           <Input
             type="number"
             step="0.01"
@@ -300,7 +315,7 @@
             </p>{/if}
         </div>
         <div class="space-y-2">
-          <Label>Completion Date <span class="text-destructive">*</span></Label>
+          <Label>Completion Date</Label>
           <DatePicker
             bind:value={edu.completed_at}
             class={isTouched && validatePastDate(edu.completed_at)
