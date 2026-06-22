@@ -4,7 +4,7 @@ export async function listLeaveTypes(tx?: any) {
 	const client = tx || db;
 	return client.leaveType.findMany({
 		where: { status: true },
-		orderBy: { leave_name: 'asc' }
+		orderBy: { name: 'asc' }
 	});
 }
 
@@ -202,21 +202,21 @@ export async function upsertAttendanceRecord(data: {
 	const client = tx || db;
 	return client.attendanceRecord.upsert({
 		where: {
-			employee_cuid_attendance_date: {
+			employee_cuid_date: {
 				employee_cuid: data.employee_cuid,
-				attendance_date: data.attendance_date
+				date: data.attendance_date
 			}
 		},
 		create: {
 			employee_cuid: data.employee_cuid,
-			attendance_date: data.attendance_date,
-			attendance_status: data.attendance_status,
+			date: data.attendance_date,
+			status: data.attendance_status,
 			remarks: data.remarks ?? null,
 			created_by: data.created_by,
 			updated_by: data.created_by
 		},
 		update: {
-			attendance_status: data.attendance_status,
+			status: data.attendance_status,
 			remarks: data.remarks ?? null,
 			updated_by: data.created_by
 		}
@@ -298,7 +298,7 @@ export async function getApprovedRequestsOverlapping(start: Date, end: Date, tx?
 export async function getLeaveTypeByCode(leaveCode: string, tx?: any) {
 	const client = tx || db;
 	return client.leaveType.findFirst({
-		where: { leave_code: leaveCode }
+		where: { code: leaveCode }
 	});
 }
 
@@ -306,9 +306,9 @@ export async function getAttendanceRecord(employeeCuid: string, attendanceDate: 
 	const client = tx || db;
 	return client.attendanceRecord.findUnique({
 		where: {
-			employee_cuid_attendance_date: {
+			employee_cuid_date: {
 				employee_cuid: employeeCuid,
-				attendance_date: attendanceDate
+				date: attendanceDate
 			}
 		}
 	});

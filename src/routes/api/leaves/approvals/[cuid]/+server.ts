@@ -7,22 +7,33 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 export async function POST(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
-		const email = event.locals.user?.email || '';
 		const cuid = event.params.cuid || '';
-
-		const { employee: manager } = await leaveService.resolveEmployee(email);
-		if (!manager) {
-			throw new Error('Manager record not found.');
-		}
 
 		const body = await event.request.json();
 		const { action } = body;
 
+		// Prefer managerEmployeeCuid from body (employee dropdown pattern, same as Attendance page).
+		// Fall back to resolving via the logged-in user's email for backwards compatibility.
+		const managerEmployeeCuid = body.managerEmployeeCuid || '';
+
+		let manager;
+		if (managerEmployeeCuid) {
+			// Use the selected manager employee's cuid directly
+			manager = { emp_code: managerEmployeeCuid, cuid: managerEmployeeCuid };
+		} else {
+			const email = event.locals.user?.email || '';
+			const resolved = await leaveService.resolveEmployee(email);
+			manager = resolved.employee;
+			if (!manager) {
+				throw new Error('Manager record not found.');
+			}
+		}
+
 		let result;
 		if (action === 'approve') {
-			result = await leaveService.approveLeaveRequest(cuid, manager.emp_code);
+			result = await leaveService.approveLeaveRequest(cuid, managerEmployeeCuid || manager.emp_code);
 		} else if (action === 'reject') {
-			result = await leaveService.rejectLeaveRequest(cuid, manager.emp_code);
+			result = await leaveService.rejectLeaveRequest(cuid, managerEmployeeCuid || manager.emp_code);
 		} else {
 			throw new Error('Invalid action.');
 		}

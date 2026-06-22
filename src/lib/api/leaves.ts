@@ -12,12 +12,19 @@ export interface ApplyLeavePayload {
 		mimeType: string;
 		base64Data: string;
 	} | null;
+	employeeCuid?: string;
+	expectedDeliveryDate?: string | null;
+	isMiscarriage?: boolean | null;
+	childBirthDate?: string | null;
 }
 
 export const leavesApi = {
-	getDetails: () => localApi.get<any>('/api/leaves'),
-	applyLeave: (payload: ApplyLeavePayload) => localApi.post<any>('/api/leaves', payload),
-	withdrawLeave: (cuid: string) => localApi.post<any>(`/api/leaves/${cuid}`, {}),
-	approveOrRejectLeave: (cuid: string, action: 'approve' | 'reject') =>
-		localApi.post<any>(`/api/leaves/approvals/${cuid}`, { action })
+	getDetails: (employeeCuid: string) =>
+		localApi.get<any>(`/api/leaves?employeeCuid=${encodeURIComponent(employeeCuid)}`),
+	applyLeave: (payload: ApplyLeavePayload) =>
+		localApi.post<any>('/api/leaves', payload),
+	withdrawLeave: (cuid: string, employeeCuid: string) =>
+		localApi.post<any>(`/api/leaves/${cuid}`, { employeeCuid }),
+	approveOrRejectLeave: (cuid: string, action: 'approve' | 'reject', managerEmployeeCuid: string) =>
+		localApi.post<any>(`/api/leaves/approvals/${cuid}`, { action, managerEmployeeCuid })
 };

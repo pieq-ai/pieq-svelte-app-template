@@ -24,7 +24,7 @@ export function _mapShiftAssignment(sa: any) {
       emp_code: sa.employee.emp_code
     } : undefined,
     shift: sa.shift ? {
-      shift_name: sa.shift.shift_name,
+      name: sa.shift.name,
       start_time: sa.shift.start_time,
       end_time: sa.shift.end_time
     } : undefined

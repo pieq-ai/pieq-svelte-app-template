@@ -19,6 +19,8 @@
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import { resolve } from '$app/paths';
+	import SearchIcon from '@lucide/svelte/icons/search';
+	import XIcon from '@lucide/svelte/icons/x';
 
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { toast } from '$lib/toast';
@@ -110,6 +112,40 @@
 
 	let { data }: { data: PageData } = $props();
 
+	// Employee dropdown state — mirrors the Attendance page pattern exactly
+	let selectedEmployeeUuid = $state('');
+	let empSearchQuery = $state('');
+
+	let selectedEmployee = $derived(
+		data.employees.find((emp: any) => emp.uuid === selectedEmployeeUuid) || null
+	);
+
+	let employeeOptions = $derived(
+		data.employees.map((emp: any) => ({
+			id: emp.uuid,
+			label: `${emp.name} (${emp.emp_code})`
+		}))
+	);
+
+	let filteredEmployeeOptions = $derived.by(() => {
+		const q = empSearchQuery.toLowerCase().trim();
+		if (!q) return employeeOptions;
+		return employeeOptions.filter((o: any) => o.label.toLowerCase().includes(q));
+	});
+
+	function scrollIntoView(node: HTMLElement, condition: boolean) {
+		if (condition) {
+			setTimeout(() => {
+				const parent = node.closest('[data-slot="dropdown-menu-item"]');
+				if (parent) {
+					parent.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+				} else {
+					node.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+				}
+			}, 50);
+		}
+	}
+
 	let balances = $state<LeaveBalance[]>([]);
 	let requests = $state<LeaveRequest[]>([]);
 	let leaveTypes = $state<LeaveType[]>([]);
@@ -124,16 +160,8 @@
 	let isManager = $state(false);
 	let pendingApprovals = $state<any[]>([]);
 
-	$effect(() => {
-		balances = data.details.balances || [];
-		requests = data.details.requests || [];
-		leaveTypes = data.details.leaveTypes || [];
-		employee = data.details.employee || null;
-		payrollCutoffDay = data.details.payrollCutoffDay ?? 25;
-		selectedCutoff = data.details.payrollCutoffDay ?? 25;
-		isManager = data.details.isManager || false;
-		pendingApprovals = data.details.pendingApprovals || [];
-	});
+	// Remove the $effect that initialized from data.details — data is now loaded
+	// client-side after employee selection (same as Attendance page pattern)
 
 	// Views state
 	let activeTab = $state<'dashboard' | 'requests' | 'approvals'>('dashboard');
@@ -240,19 +268,19 @@
 			let lwpDays = 0;
 
 			if (code === 'LWP') {
-				primaryDays = 0;
+				primaryDays = 0.0;
 				lwpDays = 0.5;
 			} else {
 				if (0.5 > remaining) {
-					primaryDays = 0;
-					lopDays = 0.5;
+					primaryDays = Math.max(0, remaining);
+					lopDays = 0.5 - primaryDays;
 				}
 			}
 
 			const cyclesBreakdown: Record<string, number> = {};
 			if (lopDays > 0) {
 				const cycle = getPayrollCycleForDate(activeDates[0], payrollCutoffDay);
-				cyclesBreakdown[cycle] = 0.5;
+				cyclesBreakdown[cycle] = lopDays;
 			}
 
 			return {
@@ -350,10 +378,13 @@
 		formFileBase64 !== ''
 	);
 
-	// Fetch Data
-	async function loadDetails() {
+	// Fetch Data — now accepts employeeCuid directly (same as Attendance page loadEmployeeData)
+	async function loadDetails(employeeCuid?: string) {
+		const cuid = employeeCuid || selectedEmployeeUuid;
+		if (!cuid) return;
+		isLoading = true;
 		try {
-			const res = await leavesApi.getDetails();
+			const res = await leavesApi.getDetails(cuid);
 			if (res && res.data) {
 				balances = res.data.balances || [];
 				requests = res.data.requests || [];
@@ -371,6 +402,24 @@
 			isLoading = false;
 		}
 	}
+
+	// Trigger leave data load whenever the selected employee changes — mirrors Attendance page $effect pattern
+	$effect(() => {
+		if (selectedEmployeeUuid) {
+			loadDetails(selectedEmployeeUuid);
+		} else {
+			// Reset all leave state when no employee is selected
+			balances = [];
+			requests = [];
+			leaveTypes = [];
+			employee = null;
+			isManager = false;
+			pendingApprovals = [];
+			payrollCutoffDay = 25;
+			selectedCutoff = 25;
+			activeTab = 'dashboard';
+		}
+	});
 
 	async function saveCutoffDay() {
 		isSavingCutoff = true;
@@ -398,7 +447,8 @@
 	}
 
 	onMount(() => {
-		// Initial load provided via SSR (+page.server.ts)
+		// Initial load is now driven by employee selection (same as Attendance page pattern)
+		// No SSR data — the $effect above handles loading when selectedEmployeeUuid changes
 	});
 
 	// Sort Approvals
@@ -489,7 +539,7 @@
 		if (!approvalToAct) return;
 		isActionSubmitting = true;
 		try {
-			const res = await leavesApi.approveOrRejectLeave(approvalToAct.cuid, 'approve');
+			const res = await leavesApi.approveOrRejectLeave(approvalToAct.cuid, 'approve', selectedEmployeeUuid);
 			if (res) {
 				toast.success('Leave request approved successfully.');
 				approveModalOpen = false;
@@ -509,7 +559,7 @@
 		if (!approvalToAct) return;
 		isActionSubmitting = true;
 		try {
-			const res = await leavesApi.approveOrRejectLeave(approvalToAct.cuid, 'reject');
+			const res = await leavesApi.approveOrRejectLeave(approvalToAct.cuid, 'reject', selectedEmployeeUuid);
 			if (res) {
 				toast.success('Leave request rejected successfully.');
 				rejectModalOpen = false;
@@ -667,13 +717,20 @@
 
 		let accrued = 0;
 		if (effectiveMonthLimit >= 0) {
-			const serviceStart = joinDate > yearStart ? joinDate : yearStart;
+			// Enforce full-month credit rule for employee joining dates
+			const accrualJoinDate = new Date(joinDate);
+			accrualJoinDate.setDate(1);
+
+			const serviceStart = accrualJoinDate > yearStart ? accrualJoinDate : yearStart;
 			const accrualEnd = new Date(targetYear, effectiveMonthLimit + 1, 0);
 			const serviceEnd = relievingDate && relievingDate < accrualEnd ? relievingDate : accrualEnd;
 
 			if (serviceStart <= serviceEnd) {
 				const monthsAccrued = calculateFractionalMonths(serviceStart, serviceEnd);
-				accrued = Math.min(6.0, monthsAccrued * 0.5);
+				const typeObj = leaveTypes.find((t) => t.cuid === leaveTypeCuid);
+				const annualLimit = typeObj && typeObj.policy ? Number(typeObj.policy.annual_limit) : 6.0;
+				const monthlyCredit = annualLimit / 12;
+				accrued = Math.min(annualLimit, monthsAccrued * monthlyCredit);
 			}
 		}
 
@@ -871,6 +928,7 @@
 
 		try {
 			const payload = {
+				employeeCuid: selectedEmployeeUuid,
 				leaveTypeCuid: formLeaveTypeCuid,
 				startDate: formStartDate,
 				endDate: formEndDate,
@@ -958,7 +1016,7 @@
 		isWithdrawing = true;
 
 		try {
-			const res = await leavesApi.withdrawLeave(requestToWithdraw.cuid);
+			const res = await leavesApi.withdrawLeave(requestToWithdraw.cuid, selectedEmployeeUuid);
 			if (res) {
 				toast.success('Leave request withdrawn successfully.');
 				withdrawModalOpen = false;
@@ -1343,22 +1401,83 @@
 	</div>
 {/snippet}
 
+
 <div class="w-full space-y-6 px-1 py-0">
 	<!-- Page Header matching design system -->
-	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
-		<div class="space-y-1">
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Leave Management</h1>
-			<p class="text-sm text-muted-foreground">View your balances, apply for leaves, and track requests.</p>
-		</div>
-		{#if employee}
-			<div class="hidden rounded-lg bg-accent/40 px-3 py-1.5 border border-border/60 sm:block">
-				<p class="text-xs text-muted-foreground">Logged in Employee</p>
-				<p class="text-sm font-semibold">{employee.first_name} {employee.last_name} ({employee.emp_code})</p>
-			</div>
-		{/if}
+	<div class="space-y-1 border-b border-border pb-6">
+		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Leave Management</h1>
 	</div>
 
-	<!-- View Switcher Tabs (Requirement 4) -->
+	<!-- Employee Selector (same pattern as Attendance page) -->
+	<Card>
+		<CardContent class="p-6">
+			<div class="max-w-md space-y-2">
+				<Label>Select Employee <span class="text-destructive">*</span></Label>
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger>
+						{#snippet child({ props })}
+							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
+								<span class="truncate pr-2">
+									{selectedEmployeeUuid ? (employeeOptions.find((o: any) => o.id === selectedEmployeeUuid)?.label || 'Select Employee') : 'Select Employee'}
+								</span>
+								<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
+							</Button>
+						{/snippet}
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto">
+						<div class="flex items-center border-b border-border px-3 py-2 bg-transparent">
+							<SearchIcon class="mr-2 size-4 shrink-0 opacity-50" />
+							<input
+								type="text"
+								bind:value={empSearchQuery}
+								placeholder="Search employee..."
+								class="flex h-7 w-full rounded-md bg-transparent text-xs outline-none placeholder:text-muted-foreground"
+							/>
+							{#if empSearchQuery}
+								<button
+									type="button"
+									onclick={() => (empSearchQuery = '')}
+									class="text-muted-foreground hover:text-foreground p-0.5 rounded-md hover:bg-accent cursor-pointer"
+									title="Clear search"
+									aria-label="Clear search"
+								>
+									<XIcon class="size-3" />
+								</button>
+							{/if}
+						</div>
+						<DropdownMenu.Group>
+							{#each filteredEmployeeOptions as opt}
+								<DropdownMenu.Item
+									onclick={() => {
+										selectedEmployeeUuid = opt.id;
+										empSearchQuery = '';
+									}}
+									class="justify-between cursor-pointer {selectedEmployeeUuid === opt.id ? 'bg-accent text-accent-foreground font-semibold' : ''}"
+								>
+									<span class="truncate">{opt.label}</span>
+									{#if selectedEmployeeUuid === opt.id}
+										<CheckIcon class="size-4 shrink-0 text-[#F45310]" />
+									{/if}
+								</DropdownMenu.Item>
+							{:else}
+								<div class="px-3 py-4 text-sm text-muted-foreground text-center">
+									No employees found
+								</div>
+							{/each}
+						</DropdownMenu.Group>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
+			</div>
+		</CardContent>
+	</Card>
+
+	{#if !selectedEmployeeUuid}
+		<div class="text-center py-16 border rounded-lg bg-card text-muted-foreground font-medium flex flex-col items-center justify-center gap-3">
+			<span>Please select an employee to view their leave dashboard.</span>
+		</div>
+	{:else}
+
+	<!-- View Switcher Tabs -->
 	<div class="flex items-center justify-between border-b border-border pb-px">
 		<div class="flex gap-2">
 			<button
@@ -1373,7 +1492,7 @@
 				class={`px-4 py-2.5 text-sm font-bold border-b-2 transition-all cursor-pointer mb-[-2px] ${activeTab === 'requests' ? 'border-[#F45310] text-[#F45310]' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
 				onclick={() => (activeTab = 'requests')}
 			>
-				My Leave Requests
+				Leave Requests
 			</button>
 			{#if isManager}
 				<button
@@ -1433,10 +1552,10 @@
 						<Badge variant="outline" class="font-bold text-[10px] text-red-600 border-red-600/30 bg-red-50/50">LOP</Badge>
 					</CardHeader>
 					<CardContent class="pb-4 pt-1 px-4">
-						<div class="text-4xl font-extrabold tracking-tight tabular-nums text-red-600">0.0</div>
+						<div class="text-4xl font-extrabold tracking-tight tabular-nums text-red-600">{(balances.find(b => b.leave_code === 'LOP')?.remaining_days ?? 0).toFixed(1)}</div>
 						<p class="text-xs text-muted-foreground mt-1 font-medium">Available Days</p>
 						<div class="border-t border-border/40 mt-2.5 pt-2 flex justify-between text-xs text-muted-foreground">
-							<span>Quota: <strong class="font-semibold text-foreground">0.0</strong></span>
+							<span>Quota: <strong class="font-semibold text-foreground">{(balances.find(b => b.leave_code === 'LOP')?.allocated_days ?? 0).toFixed(1)}</strong></span>
 							<span>Used: <strong class="font-semibold text-foreground">{(balances.find(b => b.leave_code === 'LOP')?.used_days ?? 0).toFixed(1)}</strong></span>
 						</div>
 					</CardContent>
@@ -1449,10 +1568,10 @@
 						<Badge variant="outline" class="font-bold text-[10px] text-blue-600 border-blue-600/30 bg-blue-50/50">LWP</Badge>
 					</CardHeader>
 					<CardContent class="pb-4 pt-1 px-4">
-						<div class="text-4xl font-extrabold tracking-tight tabular-nums text-blue-600">0.0</div>
+						<div class="text-4xl font-extrabold tracking-tight tabular-nums text-blue-600">{(balances.find(b => b.leave_code === 'LWP')?.remaining_days ?? 0).toFixed(1)}</div>
 						<p class="text-xs text-muted-foreground mt-1 font-medium">Available Days</p>
 						<div class="border-t border-border/40 mt-2.5 pt-2 flex justify-between text-xs text-muted-foreground">
-							<span>Quota: <strong class="font-semibold text-foreground">0.0</strong></span>
+							<span>Quota: <strong class="font-semibold text-foreground">{(balances.find(b => b.leave_code === 'LWP')?.allocated_days ?? 0).toFixed(1)}</strong></span>
 							<span>Used: <strong class="font-semibold text-foreground">{(balances.find(b => b.leave_code === 'LWP')?.used_days ?? 0).toFixed(1)}</strong></span>
 						</div>
 					</CardContent>
@@ -1979,7 +2098,10 @@
 			<Pagination bind:currentPage={approvalsCurrentPage} pageSize={approvalsPageSize} totalItems={filteredApprovals.length} />
 		</div>
 	{/if}
+<!-- End selectedEmployeeUuid else block -->
+{/if}
 </div>
+
 
 <!-- Section 3: CrudModal containing Apply Leave Form (Requirement 3) -->
 <CrudModal
@@ -2292,8 +2414,10 @@
 							<div class="text-muted-foreground">Requested Duration (Working Days):</div>
 							<div class="font-bold text-right">{leaveImpactBreakdown.totalActive.toFixed(1)} days</div>
 							
-							<div class="text-muted-foreground">Deducted from {selectedLeaveType?.leave_code}:</div>
-							<div class="font-semibold text-right">{leaveImpactBreakdown.primaryDays.toFixed(1)} days</div>
+							{#if selectedLeaveType?.leave_code !== 'LWP'}
+								<div class="text-muted-foreground">Deducted from {selectedLeaveType?.leave_code}:</div>
+								<div class="font-semibold text-right">{leaveImpactBreakdown.primaryDays.toFixed(1)} days</div>
+							{/if}
 							
 							{#if selectedLeaveType?.leave_code === 'LWP'}
 								<div class="text-muted-foreground">Deducted from LWP:</div>

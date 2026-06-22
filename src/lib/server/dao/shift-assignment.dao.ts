@@ -18,7 +18,7 @@ async function resolveRelations(assignments: any[], client: any): Promise<ShiftA
     }),
     client.shift.findMany({
       where: { cuid: { in: shiftCuids } },
-      select: { cuid: true, shift_name: true, start_time: true, end_time: true }
+      select: { cuid: true, name: true, start_time: true, end_time: true }
     })
   ]);
 
@@ -49,7 +49,7 @@ async function resolveRelations(assignments: any[], client: any): Promise<ShiftA
         : undefined,
       shift: sh
         ? {
-            shift_name: sh.shift_name,
+            name: sh.name,
             start_time: sh.start_time,
             end_time: sh.end_time
           }

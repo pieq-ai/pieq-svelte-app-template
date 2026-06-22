@@ -65,7 +65,7 @@
 
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
-	let sortColumn = $state('shift_name');
+	let sortColumn = $state('name');
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -90,7 +90,7 @@
 	let formMinHours = $state(0);
 
 	const dirtyChecker = createDirtyChecker<{
-		shift_name: string;
+		name: string;
 		start_time: string;
 		end_time: string;
 		minimum_work_hours: number;
@@ -100,7 +100,7 @@
 	let isDirty = $derived(
 		isModalOpen &&
 		dirtyChecker.isDirty({
-			shift_name: formName.trim(),
+			name: formName.trim(),
 			start_time: formStartTime,
 			end_time: formEndTime,
 			minimum_work_hours: formMinHours,
@@ -170,7 +170,7 @@
 
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase().trim();
-			result = result.filter((shift) => shift.shift_name.toLowerCase().includes(query));
+			result = result.filter((shift) => shift.name.toLowerCase().includes(query));
 		}
 
 		if (statusFilter !== 'all') {
@@ -294,7 +294,7 @@
 		isMinHoursManuallyEdited = false;
 		formMinHours = 9.0; // calculated for 09:00 - 18:00
 		dirtyChecker.snapshot({
-			shift_name: '',
+			name: '',
 			start_time: '09:00',
 			end_time: '18:00',
 			minimum_work_hours: 9.0,
@@ -305,7 +305,7 @@
 
 	function openEditModal(shift: Shift) {
 		editingShift = shift;
-		formName = shift.shift_name;
+		formName = shift.name;
 		formStartTime = formatTimeForInput(shift.start_time);
 		formEndTime = formatTimeForInput(shift.end_time);
 		formStatus = shift.status;
@@ -317,7 +317,7 @@
 		isMinHoursManuallyEdited = Number(shift.minimum_work_hours) !== calculatedMinHours;
 		formMinHours = Number(shift.minimum_work_hours);
 		dirtyChecker.snapshot({
-			shift_name: shift.shift_name,
+			name: shift.name,
 			start_time: formStartTime,
 			end_time: formEndTime,
 			minimum_work_hours: formMinHours,
@@ -361,7 +361,7 @@
 
 			if (editingShift) {
 				await updateShift(editingShift.cuid, {
-					shift_name: formName.trim(),
+					name: formName.trim(),
 					start_time: startTimeOnly,
 					end_time: endTimeOnly,
 					minimum_work_hours: formMinHours,
@@ -369,7 +369,7 @@
 				});
 			} else {
 				await createShift({
-					shift_name: formName.trim(),
+					name: formName.trim(),
 					start_time: startTimeOnly,
 					end_time: endTimeOnly,
 					minimum_work_hours: formMinHours
@@ -492,11 +492,11 @@
 				<TableHeader class="bg-muted">
 					<TableRow>
 						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('shift_name')}>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
 								Shift Name
-							{#if sortColumn === 'shift_name' && sortDirection === 'asc'}
+							{#if sortColumn === 'name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortColumn === 'shift_name' && sortDirection === 'desc'}
+							{:else if sortColumn === 'name' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
@@ -545,7 +545,7 @@
 								class="cursor-pointer"
 							>
 								<TableCell>
-									<span class="font-semibold">{shift.shift_name}</span>
+									<span class="font-semibold">{shift.name}</span>
 								</TableCell>
 								<TableCell class="text-center">{formatTimeForDisplay(shift.start_time)}</TableCell>
 								<TableCell class="text-center">{formatTimeForDisplay(shift.end_time)}</TableCell>
@@ -578,10 +578,10 @@
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={handleSaveShift}>
 			<div class="space-y-2">
-				<Label for="shift_name">Shift Name</Label>
+				<Label for="name">Shift Name</Label>
 				<Input
-					id="shift_name"
-					name="shift_name"
+					id="name"
+					name="name"
 					bind:ref={shiftNameInput}
 					bind:value={formName}
 					class={nameValidationError || backendError ? 'border-destructive' : ''}

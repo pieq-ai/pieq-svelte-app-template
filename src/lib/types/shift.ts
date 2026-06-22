@@ -1,7 +1,7 @@
 // src/lib/types/shift.ts
 export interface Shift {
   cuid: string;
-  shift_name: string;
+  name: string;
   start_time: Date | string;
   end_time: Date | string;
   minimum_work_hours: number;
@@ -11,7 +11,7 @@ export interface Shift {
 }
 
 export interface ShiftCreateDTO {
-  shift_name: string;
+  name: string;
   start_time?: Date | string;
   end_time?: Date | string;
   minimum_work_hours?: number;
@@ -20,7 +20,7 @@ export interface ShiftCreateDTO {
 }
 
 export interface ShiftUpdateDTO {
-  shift_name?: string;
+  name?: string;
   start_time?: Date | string;
   end_time?: Date | string;
   minimum_work_hours?: number;

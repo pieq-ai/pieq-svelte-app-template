@@ -18,7 +18,7 @@ export interface ShiftAssignment {
     emp_code: string;
   };
   shift?: {
-    shift_name: string;
+    name: string;
     start_time: Date | string;
     end_time: Date | string;
   };

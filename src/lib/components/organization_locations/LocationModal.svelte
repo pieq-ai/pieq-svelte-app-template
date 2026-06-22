@@ -63,15 +63,7 @@
   let latitudeError = $state("");
   let longitudeError = $state("");
 
-  // Google Maps state variables
-  let isMapApiLoaded = $state(false);
-  let mapApiLoadError = $state("");
-  let searchInput = $state<HTMLInputElement | null>(null);
-  let mapContainer = $state<HTMLDivElement | null>(null);
 
-  let map: any = null;
-  let marker: any = null;
-  let autocomplete: any = null;
 
   const dirtyChecker = createDirtyChecker<{
     name: string;
@@ -225,332 +217,50 @@
     fetchDropdowns();
   });
 
-  // Load Google Maps Script dynamically
-  function loadGoogleMapsScript(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (typeof window === 'undefined') return;
-      const win = window as any;
-      if (win.google?.maps) {
-        isMapApiLoaded = true;
-        resolve();
-        return;
-      }
-      
-      const existingScript = document.getElementById('google-maps-script');
-      if (existingScript) {
-        let checkInterval = setInterval(() => {
-          if (win.google?.maps) {
-            clearInterval(checkInterval);
-            isMapApiLoaded = true;
-            resolve();
-          }
-        }, 100);
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.id = 'google-maps-script';
-      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        isMapApiLoaded = true;
-        resolve();
-      };
-      script.onerror = (err) => {
-        mapApiLoadError = "Failed to load Google Maps API script.";
-        reject(err);
-      };
-      document.head.appendChild(script);
-    });
-  }
-
-  // Country and State fuzzy matchers
-  function findCountryCuid(gCountryName: string, gCountryShortName?: string): string {
-    const cleanName = gCountryName.toLowerCase().trim();
-    const cleanShort = gCountryShortName?.toLowerCase().trim();
-    
-    let match = countries.find(c => c.name.toLowerCase().trim() === cleanName);
-    if (match) return match.cuid;
-    
-    if (cleanShort) {
-      match = countries.find(c => c.name.toLowerCase().trim() === cleanShort);
-      if (match) return match.cuid;
-    }
-
-    match = countries.find(c => c.name.toLowerCase().includes(cleanName) || cleanName.includes(c.name.toLowerCase()));
-    if (match) return match.cuid;
-
-    return '';
-  }
-
-  function findStateCuid(gStateName: string, gStateShortName: string, countryCuid: string): string {
-    const cleanName = gStateName.toLowerCase().trim();
-    const cleanShort = gStateShortName?.toLowerCase().trim();
-    
-    const countryStates = states.filter(s => s.country_cuid === countryCuid);
-    
-    let match = countryStates.find(s => s.name.toLowerCase().trim() === cleanName);
-    if (match) return match.cuid;
-    
-    if (cleanShort) {
-      match = countryStates.find(s => s.name.toLowerCase().trim() === cleanShort);
-      if (match) return match.cuid;
-    }
-
-    match = countryStates.find(s => s.name.toLowerCase().includes(cleanName) || cleanName.includes(s.name.toLowerCase()));
-    if (match) return match.cuid;
-
-    return '';
-  }
-
-  // Populate address components from selected place
-  function populateAddressFromPlace(place: any) {
-    let streetNumber = '';
-    let route = '';
-    let sublocality = '';
-    let city = '';
-    let stateName = '';
-    let stateShortName = '';
-    let countryName = '';
-    let countryShortName = '';
-    let postalCode = '';
-
-    if (place.address_components) {
-      for (const component of place.address_components) {
-        const types = component.types;
-        if (types.includes('street_number')) {
-          streetNumber = component.long_name;
-        } else if (types.includes('route')) {
-          route = component.long_name;
-        } else if (types.includes('sublocality') || types.includes('sublocality_level_1') || types.includes('neighborhood')) {
-          sublocality = component.long_name;
-        } else if (types.includes('locality') || types.includes('postal_town')) {
-          city = component.long_name;
-        } else if (types.includes('administrative_area_level_2') && !city) {
-          city = component.long_name;
-        } else if (types.includes('administrative_area_level_1')) {
-          stateName = component.long_name;
-          stateShortName = component.short_name;
-        } else if (types.includes('country')) {
-          countryName = component.long_name;
-          countryShortName = component.short_name;
-        } else if (types.includes('postal_code')) {
-          postalCode = component.long_name;
-        }
-      }
-    }
-
-    // Set Form values
-    formName = place.name || place.formatted_address || '';
-    
-    const addr1 = [streetNumber, route].filter(Boolean).join(' ');
-    formAddress1 = addr1 || place.name || place.formatted_address || '';
-    
-    formAddress2 = sublocality || '';
-    formCity = city || '';
-    formPinCode = postalCode || '';
-
-    // Match Country & State
-    if (countryName) {
-      const matchedCountryCuid = findCountryCuid(countryName, countryShortName);
-      if (matchedCountryCuid) {
-        formCountryCuid = matchedCountryCuid;
-        countryError = '';
-        
-        if (stateName) {
-          const matchedStateCuid = findStateCuid(stateName, stateShortName, matchedCountryCuid);
-          if (matchedStateCuid) {
-            formStateCuid = matchedStateCuid;
-            stateError = '';
-          } else {
-            formStateCuid = '';
-            toast.warning(`State "${stateName}" not found in database. Please select it manually.`);
-          }
-        } else {
-          formStateCuid = '';
-        }
-      } else {
-        formCountryCuid = '';
-        formStateCuid = '';
-        toast.warning(`Country "${countryName}" not found in database. Please select it manually.`);
-      }
-    } else {
-      toast.warning("Could not identify country from search. Please select it manually.");
+  // Automatically capture coordinates using browser's Geolocation API
+  function captureGeolocation() {
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          formLatitude = position.coords.latitude.toFixed(8);
+          formLongitude = position.coords.longitude.toFixed(8);
+          latitudeError = "";
+          longitudeError = "";
+        },
+        (error) => {
+          console.warn("Geolocation permission denied or failed:", error);
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      );
     }
   }
 
-  // Reverse geocode coordinate to address components
-  function reverseGeocode(lat: number, lng: number) {
-    const win = window as any;
-    if (!win.google?.maps) return;
-    const geocoder = new win.google.maps.Geocoder();
-    geocoder.geocode({ location: { lat, lng } }, (results: any, status: string) => {
-      if (status === 'OK' && results && results[0]) {
-        populateAddressFromPlace(results[0]);
-      } else {
-        console.error('Reverse geocoding failed:', status);
-        toast.error('Could not retrieve address components for this coordinate.');
-      }
-    });
-  }
-
-  // Initialize Map
-  function initMap() {
-    if (!mapContainer || !(window as any).google?.maps) return;
-    const win = window as any;
-
-    let defaultLat = 12.9716;
-    let defaultLng = 77.5946;
-    let defaultZoom = 12;
-
-    const setupMap = (latVal: number, lngVal: number, zoomVal: number) => {
-      const mapOptions = {
-        center: { lat: latVal, lng: lngVal },
-        zoom: zoomVal,
-        mapTypeControl: true,
-        streetViewControl: true,
-        fullscreenControl: true,
-        zoomControl: true
-      };
-
-      map = new win.google.maps.Map(mapContainer, mapOptions);
-
-      marker = new win.google.maps.Marker({
-        position: { lat: latVal, lng: lngVal },
-        map,
-        draggable: true,
-        animation: win.google.maps.Animation.DROP
-      });
-
-      marker.addListener('dragend', () => {
-        const position = marker?.getPosition();
-        if (position) {
-          const newLat = position.lat().toFixed(8);
-          const newLng = position.lng().toFixed(8);
-          formLatitude = newLat;
-          formLongitude = newLng;
-          
-          reverseGeocode(position.lat(), position.lng());
-        }
-      });
-
-      if (searchInput) {
-        autocomplete = new win.google.maps.places.Autocomplete(searchInput, {
-          fields: ['address_components', 'geometry', 'formatted_address', 'name']
-        });
-
-        autocomplete.bindTo('bounds', map);
-
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete?.getPlace();
-          if (!place || !place.geometry || !place.geometry.location) {
-            toast.error("Location details not found for selected search. Please search again.");
-            return;
-          }
-
-          const loc = place.geometry.location;
-          map?.setCenter(loc);
-          map?.setZoom(16);
-          marker?.setPosition(loc);
-
-          formLatitude = loc.lat().toFixed(8);
-          formLongitude = loc.lng().toFixed(8);
-
-          populateAddressFromPlace(place);
-        });
-      }
-    };
-
-    // Determine initial coordinates
-    const hasCoords = formLatitude && formLongitude && !isNaN(parseFloat(formLatitude)) && !isNaN(parseFloat(formLongitude));
-    if (hasCoords) {
-      const lat = parseFloat(formLatitude);
-      const lng = parseFloat(formLongitude);
-      setupMap(lat, lng, 15);
-    } else {
-      if (navigator.geolocation) {
+  async function captureCoordinates(): Promise<{ latitude: string; longitude: string }> {
+    return new Promise((resolve) => {
+      if (typeof navigator !== "undefined" && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            formLatitude = lat.toFixed(8);
-            formLongitude = lng.toFixed(8);
-            setupMap(lat, lng, 15);
-            reverseGeocode(lat, lng);
+            const lat = position.coords.latitude.toFixed(8);
+            const lon = position.coords.longitude.toFixed(8);
+            resolve({ latitude: lat, longitude: lon });
           },
           (error) => {
-            console.warn("Geolocation failed or denied, using default fallback:", error);
-            setupMap(defaultLat, defaultLng, defaultZoom);
+            console.warn("Error getting geolocation:", error);
+            resolve({ latitude: formLatitude, longitude: formLongitude });
           },
           { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
         );
       } else {
-        setupMap(defaultLat, defaultLng, defaultZoom);
+        resolve({ latitude: formLatitude, longitude: formLongitude });
       }
-    }
+    });
   }
 
-  // Effect hook to load/init map when modal opens
   $effect(() => {
     if (open) {
-      setTimeout(() => {
-        loadGoogleMapsScript().then(initMap).catch(err => {
-          console.error("Maps load error:", err);
-        });
-      }, 50);
-    } else {
-      map = null;
-      marker = null;
-      autocomplete = null;
+      captureGeolocation();
     }
   });
-
-  async function autoGeocode() {
-    if (!formAddress1.trim() || !formCity.trim() || !formCountryCuid || !formStateCuid) {
-      return;
-    }
-    const countryName = getCountryName(formCountryCuid);
-    const stateName = getStateName(formStateCuid);
-    const query = [
-      formAddress1.trim(),
-      formAddress2.trim(),
-      formCity.trim(),
-      stateName,
-      countryName,
-      formPinCode.trim()
-    ].filter(Boolean).join(', ');
-
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`, {
-        headers: {
-          'Accept-Language': 'en',
-          'User-Agent': 'PieqHR-LocationMaster/1.0'
-        }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data && data.length > 0) {
-          formLatitude = parseFloat(data[0].lat).toFixed(8);
-          formLongitude = parseFloat(data[0].lon).toFixed(8);
-          return;
-        }
-      }
-    } catch (err) {
-      console.error('Geocoding failed:', err);
-    }
-
-    // Fallback deterministic coordinates if geocoding fails or returns no results
-    let hash = 0;
-    for (let i = 0; i < query.length; i++) {
-      hash = query.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const lat = (12.9 + Math.abs(hash % 150) / 100).toFixed(8);
-    const lon = (77.5 + Math.abs((hash >> 3) % 200) / 100).toFixed(8);
-    formLatitude = lat;
-    formLongitude = lon;
-  }
 
   async function submitForm(e: Event) {
     e.preventDefault();
@@ -689,6 +399,15 @@
     formLoading = true;
     formError = "";
     try {
+      if (typeof navigator !== "undefined" && navigator.geolocation) {
+        try {
+          const coords = await captureCoordinates();
+          formLatitude = coords.latitude;
+          formLongitude = coords.longitude;
+        } catch (err) {
+          console.warn("Latest coordinate capture failed:", err);
+        }
+      }
       const payload: any = {
         name: nameTrimmed,
         address_line1: address1Trimmed,
@@ -870,39 +589,7 @@
 >
   {#snippet children({ cancel })}
     <form class="space-y-4" onsubmit={submitForm}>
-      <!-- Google Maps Integration -->
-      <div class="space-y-2">
-        <Label for="map_search">Search Location on Google Maps</Label>
-        <Input
-          id="map_search"
-          name="map_search"
-          bind:ref={searchInput}
-          placeholder="Type a location name or address..."
-        />
-      </div>
 
-      <div class="space-y-2">
-        <div 
-          bind:this={mapContainer} 
-          class="w-full h-[250px] rounded-md border border-input bg-muted/20 relative"
-          id="google-map-container"
-        >
-          {#if !isMapApiLoaded && !mapApiLoadError}
-            <div class="absolute inset-0 flex items-center justify-center bg-background/50">
-              <LoaderCircleIcon class="size-6 animate-spin text-muted-foreground" />
-            </div>
-          {/if}
-          {#if mapApiLoadError}
-            <div class="absolute inset-0 flex flex-col items-center justify-center p-4 bg-background/50 text-center">
-              <p class="text-sm text-destructive font-medium">{mapApiLoadError}</p>
-              <Button size="sm" variant="outline" class="mt-2" onclick={() => loadGoogleMapsScript().then(initMap)}>Retry</Button>
-            </div>
-          {/if}
-        </div>
-        <p class="text-[11px] text-muted-foreground">
-          Tip: Search for a location above or drag the marker on the map to fine-tune the position.
-        </p>
-      </div>
 
       <div class="space-y-2">
         <Label for="name">Location Name <span class="text-destructive">*</span></Label>
@@ -928,7 +615,6 @@
           class={address1Error ? 'border-destructive' : ''}
           placeholder="e.g. 123 Enterprise Way"
           oninput={() => { address1Error = ''; }}
-          onblur={autoGeocode}
         />
         {#if address1Error}
           <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{address1Error}</p>
@@ -944,7 +630,6 @@
           class={address2Error ? 'border-destructive' : ''}
           placeholder="e.g. Suite 400"
           oninput={() => { address2Error = ''; }}
-          onblur={autoGeocode}
         />
         {#if address2Error}
           <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{address2Error}</p>
@@ -961,7 +646,6 @@
             class={cityError ? 'border-destructive' : ''}
             placeholder="e.g. Chennai"
             oninput={() => { cityError = ''; }}
-            onblur={autoGeocode}
           />
           {#if cityError}
             <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{cityError}</p>
@@ -976,7 +660,6 @@
             class={pinCodeError ? 'border-destructive' : ''}
             placeholder="e.g. 600001"
             oninput={() => { pinCodeError = ''; }}
-            onblur={autoGeocode}
           />
           {#if pinCodeError}
             <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{pinCodeError}</p>
@@ -1011,7 +694,7 @@
                 </DropdownMenu.Item>
                 {#each countries as country}
                   <DropdownMenu.Item
-                    onclick={() => { formCountryCuid = country.cuid; formStateCuid = ''; countryError = ''; autoGeocode(); }}
+                    onclick={() => { formCountryCuid = country.cuid; formStateCuid = ''; countryError = ''; }}
                     class="cursor-pointer justify-between {formCountryCuid === country.cuid ? 'bg-accent font-semibold' : ''}"
                   >
                     {country.name}
@@ -1059,7 +742,7 @@
                 </DropdownMenu.Item>
                 {#each filteredStates as state}
                   <DropdownMenu.Item
-                    onclick={() => { formStateCuid = state.cuid; stateError = ''; autoGeocode(); }}
+                    onclick={() => { formStateCuid = state.cuid; stateError = ''; }}
                     class="cursor-pointer justify-between {formStateCuid === state.cuid ? 'bg-accent font-semibold' : ''}"
                   >
                     {state.name}
@@ -1108,6 +791,7 @@
             class={latitudeError ? 'border-destructive' : ''}
             placeholder="e.g. 12.9716"
             oninput={() => { latitudeError = ''; }}
+            readonly
           />
           {#if latitudeError}
             <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{latitudeError}</p>
@@ -1122,6 +806,7 @@
             class={longitudeError ? 'border-destructive' : ''}
             placeholder="e.g. 77.5946"
             oninput={() => { longitudeError = ''; }}
+            readonly
           />
           {#if longitudeError}
             <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{longitudeError}</p>

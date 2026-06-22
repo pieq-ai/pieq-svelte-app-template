@@ -8,7 +8,7 @@ import { db } from '../../src/lib/server/db.js';
 describe('Service Layer Unit Tests', () => {
   beforeAll(async () => {
     await db.role.deleteMany({ where: { name: { in: ['Service HR', 'Service HR Updated'] } } });
-    await db.shift.deleteMany({ where: { shift_name: { in: ['Service Shift', 'Sibling Shift'] } } });
+    await db.shift.deleteMany({ where: { name: { in: ['Service Shift', 'Sibling Shift'] } } });
     await db.companyLocation.deleteMany({ where: { name: { in: ['Service Location'] } } });
   });
 
@@ -53,18 +53,18 @@ describe('Service Layer Unit Tests', () => {
     it('should cleanly create, duplicate check, update, activate, and deactivate Shifts', async () => {
       // 1. Create a Shift
       const shift = await shiftService.createShift({
-        shift_name: 'Service Shift',
+        name: 'Service Shift',
         start_time: '1970-01-01T09:00:00Z',
         end_time: '1970-01-01T17:00:00Z',
         minimum_work_hours: 8
       });
       expect(shift).toBeDefined();
-      expect(shift.shift_name).toBe('Service Shift');
+      expect(shift.name).toBe('Service Shift');
       expect(shift.status).toBe(true);
 
       // 2. Expect duplicate name to throw 409
       await expect(shiftService.createShift({
-        shift_name: 'Service Shift',
+        name: 'Service Shift',
         start_time: '1970-01-01T09:00:00Z',
         end_time: '1970-01-01T17:00:00Z',
         minimum_work_hours: 8
@@ -76,12 +76,12 @@ describe('Service Layer Unit Tests', () => {
 
       // 4. Update Shift with duplicate name throws 409
       const sibling = await shiftService.createShift({
-        shift_name: 'Sibling Shift',
+        name: 'Sibling Shift',
         start_time: '1970-01-01T09:30:00Z',
         end_time: '1970-01-01T17:30:00Z',
         minimum_work_hours: 8
       });
-      await expect(shiftService.updateShift(shift.cuid, { shift_name: 'Sibling Shift' })).rejects.toThrow('Shift name already exists');
+      await expect(shiftService.updateShift(shift.cuid, { name: 'Sibling Shift' })).rejects.toThrow('Shift name already exists');
 
       // 5. Delete Shift (soft delete)
       const deactivated = await shiftService.deleteShift(shift.cuid);

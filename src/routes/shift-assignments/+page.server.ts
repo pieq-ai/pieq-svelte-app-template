@@ -36,7 +36,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   const activeShifts = await shiftDao.getShifts();
   const shiftOptions = activeShifts.map((s: any) => ({
     id: s.cuid,
-    label: s.shift_name
+    label: s.name
   }));
 
   // Load existing assignments

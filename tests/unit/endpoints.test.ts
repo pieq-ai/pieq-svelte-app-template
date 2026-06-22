@@ -17,7 +17,7 @@ describe('API Endpoint Integration Tests', () => {
   beforeAll(async () => {
     // Database cleanup to keep tests idempotent
     await db.role.deleteMany({ where: { name: { in: ['API Role', 'API Role Updated', 'API Conflict Role'] } } });
-    await db.shift.deleteMany({ where: { shift_name: { in: ['API Shift', 'API Shift Updated', 'API Conflict Shift'] } } });
+    await db.shift.deleteMany({ where: { name: { in: ['API Shift', 'API Shift Updated', 'API Conflict Shift'] } } });
     await db.companyLocation.deleteMany({ where: { name: { in: ['API Location', 'API Location Updated', 'API Conflict Location'] } } });
   });
 
@@ -131,7 +131,7 @@ describe('API Endpoint Integration Tests', () => {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          shift_name: 'API Shift',
+          name: 'API Shift',
           start_time: '1970-01-01T10:00:00Z',
           end_time: '1970-01-01T18:00:00Z',
           minimum_work_hours: 8

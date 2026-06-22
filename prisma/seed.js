@@ -141,8 +141,8 @@ async function main() {
   for (const lt of leaveTypes) {
     typeRecords[lt.code] = await prisma.leaveType.create({
       data: {
-        leave_name: lt.name,
-        leave_code: lt.code,
+        name: lt.name,
+        code: lt.code,
         is_paid: lt.isPaid,
         requires_approval: lt.reqApproval,
         status: true

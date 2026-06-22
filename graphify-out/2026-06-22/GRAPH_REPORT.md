@@ -1,7 +1,7 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-22)
 
 ## Corpus Check
-- 374 files · ~150,325 words
+- 374 files · ~150,297 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -554,11 +554,11 @@ Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `db` connect `Community 122` to `Master Data DAO`, `Community 133`, `Community 134`, `Department Service DAO`, `Designation Service DAO`, `Server Authentication`, `Permission Service`, `Utility Functions`, `Community 35`, `Community 36`, `Community 39`, `Community 54`, `Community 60`, `Community 68`, `Community 69`, `Community 72`, `Community 80`, `Community 85`, `Community 98`, `Community 103`, `Community 107`, `Community 116`, `Community 117`, `Community 119`, `Community 123`, `Community 124`?**
-  _High betweenness centrality (0.063) - this node is a cross-community bridge._
+  _High betweenness centrality (0.065) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `Community 52` to `Community 106`, `Community 61`, `Community 79`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+  _High betweenness centrality (0.042) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `Dependencies & Icons` to `Community 61`, `Community 109`, `Community 79`?**
-  _High betweenness centrality (0.040) - this node is a cross-community bridge._
+  _High betweenness centrality (0.041) - this node is a cross-community bridge._
 - **What connects `$schema`, `css`, `baseColor` to the rest of the system?**
   _512 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 1` be split into smaller, more focused modules?**

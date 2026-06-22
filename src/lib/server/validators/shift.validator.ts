@@ -53,21 +53,21 @@ export function validateCreatePayload(payload: unknown): ShiftCreateDTO {
   }
 
   const raw = payload as Record<string, unknown>;
-  rejectUnknownKeys(raw, ['shift_name', 'start_time', 'end_time', 'minimum_work_hours', 'created_by', 'updated_by']);
+  rejectUnknownKeys(raw, ['name', 'start_time', 'end_time', 'minimum_work_hours', 'created_by', 'updated_by']);
 
-  if (raw.shift_name === undefined || raw.shift_name === null) {
+  if (raw.name === undefined || raw.name === null) {
     const err: any = new Error('Shift name is required');
     err.status = 400;
     throw err;
   }
 
-  if (typeof raw.shift_name !== 'string') {
+  if (typeof raw.name !== 'string') {
     const err: any = new Error('Shift name must be a string');
     err.status = 400;
     throw err;
   }
 
-  const shiftName = raw.shift_name.trim();
+  const shiftName = raw.name.trim();
 
   if (shiftName.length === 0) {
     const err: any = new Error('Shift name is required');
@@ -111,7 +111,7 @@ export function validateCreatePayload(payload: unknown): ShiftCreateDTO {
   }
 
   return {
-    shift_name: shiftName,
+    name: shiftName,
     start_time: raw.start_time as string | undefined,
     end_time: raw.end_time as string | undefined,
     minimum_work_hours,
@@ -131,24 +131,24 @@ export function validateUpdatePayload(payload: unknown): ShiftUpdateDTO {
   }
 
   const raw = payload as Record<string, unknown>;
-  rejectUnknownKeys(raw, ['shift_name', 'start_time', 'end_time', 'minimum_work_hours', 'status', 'created_by', 'updated_by']);
+  rejectUnknownKeys(raw, ['name', 'start_time', 'end_time', 'minimum_work_hours', 'status', 'created_by', 'updated_by']);
 
   const result: ShiftUpdateDTO = {};
 
-  if (raw.shift_name !== undefined) {
-    if (raw.shift_name === null) {
+  if (raw.name !== undefined) {
+    if (raw.name === null) {
       const err: any = new Error('Shift name must be a string');
       err.status = 400;
       throw err;
     }
 
-    if (typeof raw.shift_name !== 'string') {
+    if (typeof raw.name !== 'string') {
       const err: any = new Error('Shift name must be a string');
       err.status = 400;
       throw err;
     }
 
-    const shiftName = raw.shift_name.trim();
+    const shiftName = raw.name.trim();
 
     if (shiftName.length === 0) {
       const err: any = new Error('Shift name is required');
@@ -180,7 +180,7 @@ export function validateUpdatePayload(payload: unknown): ShiftUpdateDTO {
       throw err;
     }
 
-    result.shift_name = shiftName;
+    result.name = shiftName;
   }
 
   if (raw.start_time !== undefined) {

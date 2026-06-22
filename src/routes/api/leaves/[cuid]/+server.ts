@@ -6,10 +6,22 @@ import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 export async function POST(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
-		const email = event.locals.user?.email || '';
 		const cuid = event.params.cuid || '';
 
-		const result = await leaveService.withdrawLeave(email, cuid);
+		const body = await event.request.json();
+
+		// Prefer employeeCuid from body (employee dropdown pattern, same as Attendance page).
+		// Fall back to the logged-in user's email for backwards compatibility.
+		const employeeCuid = body.employeeCuid || '';
+
+		let result;
+		if (employeeCuid) {
+			result = await leaveService.withdrawLeaveByCuid(employeeCuid, cuid);
+		} else {
+			const email = event.locals.user?.email || '';
+			result = await leaveService.withdrawLeave(email, cuid);
+		}
+
 		return json({ data: result });
 	} catch (error) {
 		const message = (error as Error).message;

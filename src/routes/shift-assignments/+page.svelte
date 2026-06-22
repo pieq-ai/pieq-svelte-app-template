@@ -137,7 +137,7 @@
 			result = result.filter((assignment) => {
 				const empName = `${assignment.employee?.first_name} ${assignment.employee?.last_name}`.toLowerCase();
 				const empCode = (assignment.employee?.emp_code ?? '').toLowerCase();
-				const shiftName = (assignment.shift?.shift_name ?? '').toLowerCase();
+				const shiftName = (assignment.shift?.name ?? '').toLowerCase();
 				return empName.includes(query) || empCode.includes(query) || shiftName.includes(query);
 			});
 		}
@@ -155,8 +155,8 @@
 					valA = `${a.employee?.first_name} ${a.employee?.last_name}`;
 					valB = `${b.employee?.first_name} ${b.employee?.last_name}`;
 				} else if (sortColumn === 'shift') {
-					valA = a.shift?.shift_name ?? '';
-					valB = b.shift?.shift_name ?? '';
+					valA = a.shift?.name ?? '';
+					valB = b.shift?.name ?? '';
 				} else {
 					valA = a[sortColumn as keyof typeof a];
 					valB = b[sortColumn as keyof typeof b];
@@ -475,7 +475,7 @@
 									</div>
 								</TableCell>
 								<TableCell>
-									<span class="font-semibold">{assignment.shift?.shift_name}</span>
+									<span class="font-semibold">{assignment.shift?.name}</span>
 								</TableCell>
 								<TableCell class="text-center">{assignment.effective_from}</TableCell>
 								<TableCell class="text-center">{assignment.effective_to}</TableCell>

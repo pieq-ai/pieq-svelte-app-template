@@ -226,7 +226,7 @@ export function mapRole(role: any) {
 export function mapShift(shift: any) {
   return {
     cuid: shift.cuid,
-    shift_name: shift.shift_name,
+    name: shift.name,
     start_time: shift.start_time,
     end_time: shift.end_time,
     minimum_work_hours: Number(shift.minimum_work_hours),

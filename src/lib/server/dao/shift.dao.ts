@@ -43,7 +43,7 @@ export async function createShift(data: ShiftCreateDTO): Promise<Shift> {
 
   return db.shift.create({
     data: {
-      shift_name: data.shift_name.trim(),
+      name: data.name.trim(),
       start_time: startTime,
       end_time: endTime,
       minimum_work_hours: minHours,
@@ -53,7 +53,7 @@ export async function createShift(data: ShiftCreateDTO): Promise<Shift> {
     },
     select: {
       cuid: true,
-      shift_name: true,
+      name: true,
       start_time: true,
       end_time: true,
       minimum_work_hours: true,
@@ -73,7 +73,7 @@ export async function getShifts(): Promise<Shift[]> {
     orderBy: { id: 'asc' },
     select: {
       cuid: true,
-      shift_name: true,
+      name: true,
       start_time: true,
       end_time: true,
       minimum_work_hours: true,
@@ -92,7 +92,7 @@ export async function getAllShifts(): Promise<Shift[]> {
     orderBy: { id: 'asc' },
     select: {
       cuid: true,
-      shift_name: true,
+      name: true,
       start_time: true,
       end_time: true,
       minimum_work_hours: true,
@@ -125,7 +125,7 @@ export async function getShiftByCuid(cuid: string): Promise<Shift | null> {
     where: { cuid },
     select: {
       cuid: true,
-      shift_name: true,
+      name: true,
       start_time: true,
       end_time: true,
       minimum_work_hours: true,
@@ -143,8 +143,8 @@ export async function getShiftByCuid(cuid: string): Promise<Shift | null> {
  */
 export async function updateShift(cuid: string, data: ShiftUpdateDTO): Promise<Shift> {
   const updateData: any = {};
-  if (data.shift_name !== undefined) {
-    updateData.shift_name = data.shift_name.trim();
+  if (data.name !== undefined) {
+    updateData.name = data.name.trim();
   }
   if (data.start_time !== undefined) {
     updateData.start_time = parseTimeToDate(data.start_time, '1970-01-01T09:00:00.000Z');
@@ -195,7 +195,7 @@ export async function updateShift(cuid: string, data: ShiftUpdateDTO): Promise<S
     data: updateData,
     select: {
       cuid: true,
-      shift_name: true,
+      name: true,
       start_time: true,
       end_time: true,
       minimum_work_hours: true,
@@ -215,7 +215,7 @@ export async function deactivateShift(cuid: string): Promise<Shift> {
     data: { status: false },
     select: {
       cuid: true,
-      shift_name: true,
+      name: true,
       start_time: true,
       end_time: true,
       minimum_work_hours: true,
@@ -235,7 +235,7 @@ export async function activateShift(cuid: string): Promise<Shift> {
     data: { status: true },
     select: {
       cuid: true,
-      shift_name: true,
+      name: true,
       start_time: true,
       end_time: true,
       minimum_work_hours: true,

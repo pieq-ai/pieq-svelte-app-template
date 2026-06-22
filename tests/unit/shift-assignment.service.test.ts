@@ -62,7 +62,7 @@ describe('Shift Assignment Service Unit Tests', () => {
 
     vi.mocked(shiftDao.getShiftByCuid).mockResolvedValue({
       cuid: shiftCuid,
-      shift_name: 'Morning Shift',
+      name: 'Morning Shift',
       status: true
     } as any);
   });
@@ -150,7 +150,7 @@ describe('Shift Assignment Service Unit Tests', () => {
     it('should throw 400 if target shift is inactive', async () => {
       vi.mocked(shiftDao.getShiftByCuid).mockResolvedValue({
         cuid: shiftCuid,
-        shift_name: 'Morning Shift',
+        name: 'Morning Shift',
         status: false
       } as any);
 
