@@ -46,7 +46,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			return json({ data: { error: { [error.field]: error.message } } }, { status: 400 });
 		}
 
-		console.error('POST /api/attendance/check-in fa	iled', error);
+		console.error('POST /api/attendance/check-in failed', error);
 		return errorResponse('Failed to check in', 500);
 	}
 };

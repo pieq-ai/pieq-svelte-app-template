@@ -9,7 +9,7 @@ import {
 import { validatePayloadKeys, trimStringFields } from '$lib/server/validation.js';
 import { successResponse, errorResponse, createSuccessResponse } from '$lib/server/response.js';
 
-export const GET: RequestHandler = async ({ url, locals }) => {
+export const GET: RequestHandler = async ({ url }) => {
 	try {
 		const employee_cuid = url.searchParams.get('employee_cuid') ?? undefined;
 		const date = url.searchParams.get('date') ?? undefined;
