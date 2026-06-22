@@ -70,6 +70,29 @@
 		{ label: 'Role Permissions', href: resolve('/role-permissions'), icon: LinkIcon }
 	];
 
+	let isManager = $derived(data.isManager ?? false);
+
+	let navItems = $derived.by(() => {
+		const items = [...protectedNavItems];
+		if (isManager) {
+			const shiftsIndex = items.findIndex((item) => item.label === 'Shifts');
+			if (shiftsIndex !== -1) {
+				items.splice(shiftsIndex + 1, 0, {
+					label: 'Shift Assignment',
+					href: resolve('/shift-assignments'),
+					icon: CalendarCogIcon
+				});
+			} else {
+				items.push({
+					label: 'Shift Assignment',
+					href: resolve('/shift-assignments'),
+					icon: CalendarCogIcon
+				});
+			}
+		}
+		return items;
+	});
+
 	$effect(() => {
 		if (typeof window !== 'undefined' && data.config) {
 			window.__PIEQ_CONFIG__ = data.config;
@@ -131,7 +154,7 @@
 		<!-- Main nav -->
 		<nav class="flex flex-1 flex-col gap-1 px-3 py-4 overflow-y-auto">
 			{#if authenticatedUser}
-				{#each protectedNavItems as item (item.href)}
+				{#each navItems as item (item.href)}
 					{@const Icon = item.icon}
 					{@const isActive = $page.url.pathname === item.href || $page.url.pathname.startsWith(item.href + '/')}
 					<Button

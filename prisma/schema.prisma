@@ -882,3 +882,27 @@ model AttendanceRecord {
 
   @@map("attendance_records")
 }
+
+model ShiftAssignment {
+  id BigInt @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  employee_cuid String @db.VarChar(100)
+  shift_cuid    String @db.VarChar(100)
+
+  effective_from DateTime @db.Date
+  effective_to   DateTime @db.Date
+
+  status Boolean @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@index([employee_cuid])
+  @@index([shift_cuid])
+  @@map("shift_assignments")
+}
+

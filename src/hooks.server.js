@@ -43,7 +43,8 @@ const routeGuard = async ({ event, resolve }) => {
 		'/shifts',
 		'/organization_locations',
 		'/organization_location',
-		'/settings'
+		'/settings',
+		'/shift-assignments'
 	];
 	const isProtectedRoute = protectedRoutes.some(
 		(path) => event.url.pathname === path || event.url.pathname.startsWith(`${path}/`)
