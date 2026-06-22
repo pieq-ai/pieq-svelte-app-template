@@ -483,7 +483,27 @@
 	function openAddModal() {
 		editCuid = null;
 		formEmployeeCuid = '';
-		formAttendanceDate = '';
+		formAttendanceDate = summaryDate; // pre-fill the currently viewed date
+		formCheckInTimeOnly = '';
+		formCheckOutTimeOnly = '';
+		formAttendanceStatus = '';
+		formAttendanceSourceCuid = '';
+		formRemarks = '';
+		errors = {};
+		submissionAttempted = false;
+		isFormModalOpen = true;
+
+		isSourceDropdownOpen = false;
+		sourceSearchQuery = '';
+		newSourceName = '';
+		newSourceError = '';
+	}
+
+	// Opens the Create modal pre-filled with the employee + date from a virtual row
+	function openAddModalForVirtualRow(rec: any) {
+		editCuid = null;
+		formEmployeeCuid = rec.employee_cuid;
+		formAttendanceDate = rec.date;
 		formCheckInTimeOnly = '';
 		formCheckOutTimeOnly = '';
 		formAttendanceStatus = '';
@@ -570,7 +590,12 @@
 
 			if (res.ok) {
 				toast.success(body.data?.message || 'Attendance record saved');
+				const createdDate = formAttendanceDate;
+				const isCreate = !editCuid;
 				isFormModalOpen = false;
+				if (isCreate && createdDate) {
+					summaryDate = createdDate;
+				}
 				await invalidate('/api/attendance-records');
 			} else {
 				if (body.data?.error && typeof body.data.error === 'object') {
@@ -1079,11 +1104,14 @@
 					{:else}
 						{#each paginatedRecords as rec (rec.cuid)}
 							<TableRow 
-								class={rec.isVirtual ? "" : "cursor-pointer"} 
+								class="cursor-pointer"
 								onclick={(e) => {
-									if (rec.isVirtual) return;
 									if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
-									openEditModal(rec);
+									if (rec.isVirtual) {
+										openAddModalForVirtualRow(rec);
+									} else {
+										openEditModal(rec);
+									}
 								}}
 							>
 								<TableCell class="font-semibold">{getEmployeeName(rec.employee_cuid)}</TableCell>
@@ -1105,7 +1133,11 @@
 											onEdit={() => openEditModal(rec)}
 										/>
 									{:else}
-										<span class="text-muted-foreground text-xs select-none">--</span>
+										<TableActions
+											canEdit={true}
+											editLabel="Add Record"
+											onEdit={() => openAddModalForVirtualRow(rec)}
+										/>
 									{/if}
 								</TableCell>
 							</TableRow>
@@ -1134,7 +1166,7 @@
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
-							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none {errors.employee_cuid ? 'border-destructive' : ''}" {...props}>
+							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none {errors.employee_cuid ? 'border-destructive' : ''} {!!editCuid ? 'opacity-60 pointer-events-none' : ''}" {...props}>
 								<span class="truncate pr-2">
 									{formEmployeeCuid ? (employeeFormOptions.find(o => o.id === formEmployeeCuid)?.label || 'Select Employee') : 'Select Employee'}
 								</span>
@@ -1194,16 +1226,22 @@
 			<!-- Date Selector -->
 			<div class="space-y-2">
 				<Label for="modal_date" class={errors.date ? 'text-destructive font-semibold' : ''}>Attendance Date <span class="text-destructive font-bold">*</span></Label>
-				<DatePicker
-					id="modal_date"
-					name="date"
-					bind:value={formAttendanceDate}
-					onchange={() => {
-						errors.date = '';
-					}}
-					required={true}
-					isError={!!errors.date}
-				/>
+				{#if editCuid}
+					<div class="h-9 flex items-center px-3 rounded-md border border-input bg-muted/50 text-sm text-muted-foreground select-none">
+						{formAttendanceDate ? formatDate(formAttendanceDate) : '--'}
+					</div>
+				{:else}
+					<DatePicker
+						id="modal_date"
+						name="date"
+						bind:value={formAttendanceDate}
+						onchange={() => {
+							errors.date = '';
+						}}
+						required={true}
+						isError={!!errors.date}
+					/>
+				{/if}
 				{#if errors.date}
 					<p class="text-xs font-semibold text-destructive mt-0.5">{errors.date}</p>
 				{/if}

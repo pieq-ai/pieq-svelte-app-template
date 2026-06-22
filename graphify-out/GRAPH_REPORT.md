@@ -1,16 +1,16 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-22)
 
 ## Corpus Check
-- 372 files · ~138,161 words
+- 372 files · ~138,282 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1705 nodes · 3451 edges · 128 communities (103 shown, 25 thin omitted)
+- 1705 nodes · 3451 edges · 127 communities (102 shown, 25 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 77 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ab1d19c1`
+- Built from commit: `007b3571`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -132,7 +132,6 @@
 - [[_COMMUNITY_Community 124|Community 124]]
 - [[_COMMUNITY_Community 125|Community 125]]
 - [[_COMMUNITY_Community 126|Community 126]]
-- [[_COMMUNITY_Community 127|Community 127]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `$lib/utils.js` - 67 edges
@@ -162,7 +161,7 @@
 - 1-file cycle: `src/routes/leave-policies/+page.svelte -> src/routes/leave-policies/+page.svelte`
 - 3-file cycle: `src/lib/components/ui/calendar/calendar-caption.svelte -> src/lib/components/ui/calendar/calendar.svelte -> src/lib/components/ui/calendar/index.ts -> src/lib/components/ui/calendar/calendar-caption.svelte`
 
-## Communities (128 total, 25 thin omitted)
+## Communities (127 total, 25 thin omitted)
 
 ### Community 0 - "API Endpoints"
 Cohesion: 0.16
@@ -213,8 +212,8 @@ Cohesion: 0.12
 Nodes (16): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+8 more)
 
 ### Community 13 - "Permission Service"
-Cohesion: 0.17
-Nodes (19): GET(), deleteSuccessResponse(), successResponse(), AttendanceMultiValidationError, AttendanceValidationError, capitalize(), createAttendanceRecord(), CreateAttendanceRecordDto (+11 more)
+Cohesion: 0.18
+Nodes (18): GET(), deleteSuccessResponse(), successResponse(), AttendanceMultiValidationError, AttendanceValidationError, capitalize(), createAttendanceRecord(), CreateAttendanceRecordDto (+10 more)
 
 ### Community 14 - "System Role Service"
 Cohesion: 0.06
@@ -233,8 +232,8 @@ Cohesion: 0.25
 Nodes (3): load(), Toast, ToastStore
 
 ### Community 23 - "Dashboard Routes"
-Cohesion: 0.16
-Nodes (18): GET(), formatHoliday(), createHoliday(), CreateHolidayInput, deleteHoliday(), getHolidayByCuid(), HolidayMultiValidationError, HolidayValidationError (+10 more)
+Cohesion: 0.15
+Nodes (19): GET(), formatHoliday(), createHoliday(), CreateHolidayInput, deleteHoliday(), getHolidayByCuid(), HolidayMultiValidationError, HolidayValidationError (+11 more)
 
 ### Community 31 - "Community 31"
 Cohesion: 0.17
@@ -301,8 +300,8 @@ Cohesion: 0.14
 Nodes (9): RoleListResponse, Role, RoleCreateDTO, RoleUpdateDTO, rejectUnknownKeys(), sanitizeString(), validateCreatePayload(), validatePaginationParams() (+1 more)
 
 ### Community 49 - "Community 49"
-Cohesion: 0.22
-Nodes (9): Common workflows, Development, Other, Quick reference, Scripts, `yarn build`, `yarn dev`, `yarn prepare` (+1 more)
+Cohesion: 0.15
+Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
 
 ### Community 50 - "Community 50"
 Cohesion: 0.10
@@ -445,16 +444,16 @@ Cohesion: 0.39
 Nodes (6): create(), CreateAttendanceInput, findByEmployeeAndDate(), listByEmployee(), update(), UpdateAttendanceInput
 
 ### Community 93 - "Community 93"
-Cohesion: 0.60
-Nodes (5): DELETE(), GET(), getStatus(), PUT(), toPermissionDTO()
+Cohesion: 0.33
+Nodes (8): GET(), getStatus(), POST(), DELETE(), GET(), getStatus(), PUT(), toPermissionDTO()
 
 ### Community 95 - "Community 95"
 Cohesion: 0.17
 Nodes (10): $app/environment, toast, createDirtyChecker(), WithElementRef, WithoutChild, WithoutChildren, WithoutChildrenOrChild, globalIsDirty (+2 more)
 
 ### Community 97 - "Community 97"
-Cohesion: 0.18
-Nodes (11): GET(), getErrorStatus(), POST(), GET(), PUT(), GET(), PUT(), toEmployeeDTO() (+3 more)
+Cohesion: 0.27
+Nodes (7): GET(), PUT(), GET(), PUT(), toEmployeeDTO(), sendDeleted(), sendItem()
 
 ### Community 98 - "Community 98"
 Cohesion: 0.27
@@ -462,7 +461,7 @@ Nodes (5): requireAdmin(), requireAuth(), requirePermission(), DELETE(), getStat
 
 ### Community 99 - "Community 99"
 Cohesion: 0.33
-Nodes (8): GET(), getStatus(), POST(), DELETE(), GET(), getStatus(), PUT(), toSystemRoleDTO()
+Nodes (8): DELETE(), GET(), getStatus(), PUT(), GET(), getStatus(), POST(), toSystemRoleDTO()
 
 ### Community 100 - "Community 100"
 Cohesion: 0.22
@@ -521,20 +520,16 @@ Cohesion: 0.22
 Nodes (4): ShiftCreatePayload, ShiftListResponse, ShiftUpdatePayload, Shift
 
 ### Community 124 - "Community 124"
-Cohesion: 0.50
-Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
+Cohesion: 0.60
+Nodes (4): GET(), getErrorStatus(), POST(), sendCreated()
 
 ### Community 125 - "Community 125"
 Cohesion: 0.50
-Nodes (4): Testing, `yarn test`, `yarn test:e2e`, `yarn test:unit`
+Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
 
 ### Community 126 - "Community 126"
 Cohesion: 0.50
 Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
-
-### Community 127 - "Community 127"
-Cohesion: 0.83
-Nodes (3): GET(), getStatus(), POST()
 
 ## Knowledge Gaps
 - **444 isolated node(s):** `$schema`, `css`, `baseColor`, `components`, `utils` (+439 more)
