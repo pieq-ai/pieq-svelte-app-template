@@ -263,7 +263,7 @@
 	let employeeOptions = $derived(
 		data.employees.map((emp: any) => ({
 			id: emp.uuid,
-			label: `${emp.name} (Age: ${emp.age})`
+			label: `${emp.name} (${emp.emp_code})`
 		}))
 	);
 

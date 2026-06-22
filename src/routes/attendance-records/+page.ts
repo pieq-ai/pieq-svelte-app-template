@@ -3,7 +3,7 @@ import type { PageLoad } from './$types';
 export const load: PageLoad = async ({ fetch }) => {
 	const [recordsRes, employeesRes, sourcesRes, holidaysRes] = await Promise.all([
 		fetch('/api/attendance-records'),
-		fetch('/api/employees'),
+		fetch('/api/employees/attendance-view'),
 		fetch('/api/master-data/attendance-sources'),
 		fetch('/api/holidays')
 	]);

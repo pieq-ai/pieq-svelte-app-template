@@ -67,6 +67,18 @@ export function toEmployeeDTO(employee: any) {
 	return serialize(employee, true);
 }
 
+export function toEmployeeAttendanceViewDTO(employee: any) {
+	if (!employee) return employee;
+	return serialize({
+		cuid: employee.cuid,
+		emp_code: employee.emp_code,
+		first_name: employee.first_name,
+		last_name: employee.last_name,
+		date_of_joining: employee.date_of_joining || null,
+		relieving_date: employee.relieving_date || null
+	});
+}
+
 export function toPermissionDTO(permission: any) {
 	if (!permission) return permission;
 	return serialize({

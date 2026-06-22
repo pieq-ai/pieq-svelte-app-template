@@ -142,7 +142,7 @@
 	let employeeFormOptions = $derived(
 		data.employees.map((emp: any) => ({
 			id: emp.uuid,
-			label: emp.name
+			label: `${emp.name} (${emp.emp_code})`
 		}))
 	);
 
@@ -374,6 +374,11 @@
 	function getEmployeeName(uuid: string): string {
 		const emp = data.employees.find((e: any) => e.uuid === uuid);
 		return emp ? emp.name : 'Unknown';
+	}
+
+	function getEmployeeCode(uuid: string): string {
+		const emp = data.employees.find((e: any) => e.uuid === uuid);
+		return emp ? emp.emp_code : '--';
 	}
 
 	function getSourceName(cuid: string | null): string {
@@ -724,6 +729,12 @@
 					return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
 				}
 
+				if (sortKey === 'employee_code') {
+					const valA = getEmployeeCode(a.employee_cuid);
+					const valB = getEmployeeCode(b.employee_cuid);
+					return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+				}
+
 				if (sortKey === 'check_in_time' || sortKey === 'check_out_time') {
 					const valA = a[sortKey as keyof typeof a];
 					const valB = b[sortKey as keyof typeof b];
@@ -988,7 +999,17 @@
 								Employee
 								{#if sortKey === 'employee_name' && sortDirection === 'asc'}
 									<ArrowUpIcon class="ml-1 size-3.5" />
-								{:else if sortKey === 'employee_name' && sortDirection === 'desc'}
+								{:else}
+									<ArrowUpDownIcon class="ml-1 size-3.5" />
+								{/if}
+							</Button>
+						</TableHead>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('employee_code')}>
+								Code
+								{#if sortKey === 'employee_code' && sortDirection === 'asc'}
+									<ArrowUpIcon class="ml-1 size-3.5" />
+								{:else if sortKey === 'employee_code' && sortDirection === 'desc'}
 									<ArrowDownIcon class="ml-1 size-3.5" />
 								{:else}
 									<ArrowUpDownIcon class="ml-1 size-3.5" />
@@ -1051,7 +1072,7 @@
 				<TableBody>
 					{#if filteredRecords.length === 0}
 						<TableRow>
-							<TableCell colspan={8} class="py-8 text-center text-muted-foreground">
+							<TableCell colspan={9} class="py-8 text-center text-muted-foreground">
 								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 							</TableCell>
 						</TableRow>
@@ -1066,6 +1087,7 @@
 								}}
 							>
 								<TableCell class="font-semibold">{getEmployeeName(rec.employee_cuid)}</TableCell>
+								<TableCell>{getEmployeeCode(rec.employee_cuid)}</TableCell>
 								<TableCell>{formatDate(rec.date)}</TableCell>
 								<TableCell>{formatDisplayTime(rec.check_in_time)}</TableCell>
 								<TableCell>{formatDisplayTime(rec.check_out_time)}</TableCell>

@@ -8,7 +8,7 @@ export const load: PageLoad = async ({ fetch }) => {
 	const todayStr = `${y}-${m}-${d}`;
 
 	const [employeesRes, sourcesRes, holidaysRes] = await Promise.all([
-		fetch('/api/employees'),
+		fetch('/api/employees/attendance-view'),
 		fetch('/api/master-data/attendance-sources'),
 		fetch('/api/holidays')
 	]);
@@ -21,22 +21,10 @@ export const load: PageLoad = async ({ fetch }) => {
 		const json = await employeesRes.json();
 		const rawEmployees = json.data || [];
 		employees = rawEmployees.map((emp: any) => {
-			let age = 'N/A';
-			if (emp.dob) {
-				const birthDate = new Date(emp.dob);
-				const today = new Date();
-				let calculatedAge = today.getFullYear() - birthDate.getFullYear();
-				const m = today.getMonth() - birthDate.getMonth();
-				if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-					calculatedAge--;
-				}
-				age = String(calculatedAge);
-			}
 			return {
 				...emp,
 				uuid: emp.cuid,
-				name: `${emp.first_name} ${emp.last_name}`,
-				age
+				name: `${emp.first_name} ${emp.last_name}`
 			};
 		});
 	}

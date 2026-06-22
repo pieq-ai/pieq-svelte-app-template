@@ -254,3 +254,20 @@ export async function deleteEmployee(cuid: string) {
     if (!existing) throw new Error(`Employee with CUID2 "${cuid}" not found`);
     return toPublicEmployee(await employeeDao.remove(cuid));
 }
+
+export async function getMinimalEmployeesForAttendance() {
+    const employees = await employeeDao.list();
+    const employments = await employmentDao.list();
+    const empMap = new Map(employments.map(e => [e.employee_cuid, e]));
+    return employees.map(emp => {
+        const empl = empMap.get(emp.cuid);
+        return {
+            cuid: emp.cuid,
+            emp_code: emp.emp_code,
+            first_name: emp.first_name,
+            last_name: emp.last_name,
+            date_of_joining: empl?.date_of_joining || null,
+            relieving_date: empl?.relieving_date || null
+        };
+    });
+}
