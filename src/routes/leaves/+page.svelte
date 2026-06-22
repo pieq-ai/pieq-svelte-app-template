@@ -301,10 +301,11 @@
 
 		const cyclesBreakdown: Record<string, number> = {};
 		for (let i = 0; i < activeDates.length; i++) {
-			if (i >= primaryDays) {
+			const lopDayContribution = Math.max(0, Math.min(i + 1, totalActive) - Math.max(i, primaryDays));
+			if (lopDayContribution > 0) {
 				if (code !== 'LWP') {
 					const cycle = getPayrollCycleForDate(activeDates[i], payrollCutoffDay);
-					cyclesBreakdown[cycle] = (cyclesBreakdown[cycle] || 0) + 1;
+					cyclesBreakdown[cycle] = (cyclesBreakdown[cycle] || 0) + lopDayContribution;
 				}
 			}
 		}
@@ -637,11 +638,11 @@
 
 		if (!employee || !employee.date_of_joining || !startDateStr) return 0;
 
-		const requestDate = new Date(startDateStr);
-		if (isNaN(requestDate.getTime())) return 0;
-
-		const targetYear = requestDate.getFullYear();
-		const targetMonth = requestDate.getMonth();
+		const dateParts = startDateStr.split('-');
+		if (dateParts.length !== 3) return 0;
+		const targetYear = parseInt(dateParts[0], 10);
+		const targetMonth = parseInt(dateParts[1], 10) - 1;
+		if (isNaN(targetYear) || isNaN(targetMonth)) return 0;
 
 		const joinDate = new SvelteDate(employee.date_of_joining);
 		joinDate.setHours(0, 0, 0, 0);
@@ -1704,12 +1705,20 @@
 										<div class="font-medium">{req.leave_name}</div>
 										{#if req.leave_code !== 'LWP' && req.days_from_lwp > 0}
 											<span class="text-[9px] text-orange-600 bg-orange-50 border border-orange-200 rounded px-1 py-0.5 inline-block mt-0.5">
-												Split: {req.days_from_primary} {req.leave_code} / {req.days_from_lwp} LWP
+												{#if req.days_from_primary === 0}
+													{req.days_from_lwp} LWP
+												{:else}
+													Split: {req.days_from_primary} {req.leave_code} / {req.days_from_lwp} LWP
+												{/if}
 											</span>
 										{/if}
 										{#if req.leave_code !== 'LOP' && req.days_from_lop > 0}
 											<span class="text-[9px] text-red-600 bg-red-50 border border-red-200 rounded px-1 py-0.5 inline-block mt-0.5 font-semibold">
-												Split: {req.days_from_primary} {req.leave_code} / {req.days_from_lop} LOP
+												{#if req.days_from_primary === 0}
+													{req.days_from_lop} LOP
+												{:else}
+													Split: {req.days_from_primary} {req.leave_code} / {req.days_from_lop} LOP
+												{/if}
 											</span>
 										{/if}
 									</TableCell>
@@ -1907,12 +1916,20 @@
 										<div class="font-medium">{app.leave_name}</div>
 										{#if app.leave_code !== 'LWP' && app.days_from_lwp > 0}
 											<span class="text-[9px] text-orange-600 bg-orange-50 border border-orange-200 rounded px-1 py-0.5 inline-block mt-0.5">
-												Split: {app.days_from_primary} {app.leave_code} / {app.days_from_lwp} LWP
+												{#if app.days_from_primary === 0}
+													{app.days_from_lwp} LWP
+												{:else}
+													Split: {app.days_from_primary} {app.leave_code} / {app.days_from_lwp} LWP
+												{/if}
 											</span>
 										{/if}
 										{#if app.leave_code !== 'LOP' && app.days_from_lop > 0}
 											<span class="text-[9px] text-red-600 bg-red-50 border border-red-200 rounded px-1 py-0.5 inline-block mt-0.5 font-semibold">
-												Split: {app.days_from_primary} {app.leave_code} / {app.days_from_lop} LOP
+												{#if app.days_from_primary === 0}
+													{app.days_from_lop} LOP
+												{:else}
+													Split: {app.days_from_primary} {app.leave_code} / {app.days_from_lop} LOP
+												{/if}
 											</span>
 										{/if}
 									</TableCell>
@@ -2372,14 +2389,22 @@
 					{#if selectedApproval.leave_code !== 'LWP' && selectedApproval.days_from_lwp > 0}
 						<div class="text-muted-foreground">Deduction Breakdown:</div>
 						<div class="font-semibold text-right text-xs">
-							{selectedApproval.days_from_primary} {selectedApproval.leave_code} | {selectedApproval.days_from_lwp} LWP
+							{#if selectedApproval.days_from_primary === 0}
+								{selectedApproval.days_from_lwp} LWP
+							{:else}
+								{selectedApproval.days_from_primary} {selectedApproval.leave_code} | {selectedApproval.days_from_lwp} LWP
+							{/if}
 						</div>
 					{/if}
 
 					{#if selectedApproval.leave_code !== 'LOP' && selectedApproval.days_from_lop > 0}
 						<div class="text-muted-foreground">Deduction Breakdown:</div>
 						<div class="font-semibold text-right text-xs text-red-600">
-							{selectedApproval.days_from_primary} {selectedApproval.leave_code} | {selectedApproval.days_from_lop} LOP
+							{#if selectedApproval.days_from_primary === 0}
+								{selectedApproval.days_from_lop} LOP
+							{:else}
+								{selectedApproval.days_from_primary} {selectedApproval.leave_code} | {selectedApproval.days_from_lop} LOP
+							{/if}
 						</div>
 					{/if}
 

@@ -34,7 +34,7 @@
 		Pagination,
 		SearchInput
 	} from '$lib/components';
-	import { getMasterPermissions } from '$lib/permissions/mock-permissions';
+
 
 	interface SystemRole {
 		cuid: string;
@@ -42,7 +42,7 @@
 		status: boolean;
 	}
 
-	const permissions = getMasterPermissions();
+
 	let roles = $state<SystemRole[]>([]);
 	let isLoading = $state(true);
 	let loadError = $state('');
@@ -248,11 +248,9 @@
 		<div class="space-y-1">
 			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">System Roles</h1>
 		</div>
-		{#if permissions.canCreate}
 			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={openCreateModal}>
 				Add Role
 			</Button>
-		{/if}
 	</div>
 
 	<!-- Metrics Cards -->
@@ -335,7 +333,7 @@
 							<TableCell class="text-center"><Badge variant={role.status === true ? 'default' : 'secondary'}>{role.status ? 'Active' : 'Inactive'}</Badge></TableCell>
 							<TableCell class="text-right">
 								<TableActions
-									canEdit={permissions.canEdit}
+									canEdit={true}
 									onEdit={() => openEditModal(role)}
 								/>
 							</TableCell>

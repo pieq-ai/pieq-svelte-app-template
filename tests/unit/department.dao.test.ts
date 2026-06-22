@@ -30,7 +30,6 @@ describe('Department DAO', () => {
 
 			expect(db.department.findMany).toHaveBeenCalledWith({
 				orderBy: { name: 'asc' }
-				orderBy: { name: 'asc' }
 			});
 			expect(result).toBe(mockData);
 		});
@@ -71,7 +70,6 @@ describe('Department DAO', () => {
 			expect(db.department.findFirst).toHaveBeenCalledWith({
 				where: {
 					name: {
-					name: {
 						equals: 'human resources',
 						mode: 'insensitive'
 					}
@@ -92,7 +90,6 @@ describe('Department DAO', () => {
 			expect(db.department.create).toHaveBeenCalledWith({
 				data: {
 					name: 'New Dept',
-					name: 'New Dept',
 					status: true
 				}
 			});
@@ -107,7 +104,6 @@ describe('Department DAO', () => {
 
 			expect(db.department.create).toHaveBeenCalledWith({
 				data: {
-					name: 'Old Dept',
 					name: 'Old Dept',
 					status: false
 				}

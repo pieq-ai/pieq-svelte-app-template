@@ -3,7 +3,7 @@ import { db } from '$lib/server/db.js';
 export async function register() {
 	if (process.env.NODE_ENV === 'test') {
 		return;
-	}
+    }
 
 	try {
 		await db.$connect();

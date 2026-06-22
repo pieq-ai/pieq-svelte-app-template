@@ -41,13 +41,7 @@ export async function resolveEmployee(email: string) {
 		}
 	}
 
-	// Fallback during local development if SSO is not configured or mapped
-	const firstEmp = await employeeDao.getFirstEmployee();
-	if (!firstEmp) {
-		throw new Error('No employees found in the database. Please run seeding first.');
-	}
-	const firstEmployment = await leaveDao.getEmploymentByEmployeeCuid(firstEmp.cuid);
-	return { employee: firstEmp, employment: firstEmployment };
+	throw new Error(`Employee record not found for email "${email}"`);
 }
 
 /**

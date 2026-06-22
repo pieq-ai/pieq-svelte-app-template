@@ -10,7 +10,7 @@
   import { ScrollArea } from "$lib/components/ui/scroll-area/index.js";
 
   import { UI_CONSTANTS } from "$lib/constants";
-  import type { MasterPermissionConfig } from "$lib/permissions/mock-permissions";
+
 
   export interface DropdownOption {
     id: string;
@@ -23,7 +23,7 @@
     value: string | string[];
     multiple?: boolean;
     placeholder?: string;
-    permissions?: Partial<MasterPermissionConfig>;
+
     disabled?: boolean;
     class?: string;
     onSelect: (id: string | string[]) => void;
@@ -37,7 +37,7 @@
     value,
     multiple = false,
     placeholder,
-    permissions = {},
+
     disabled = false,
     class: className = "",
     onSelect,
@@ -208,7 +208,7 @@
                       {option.label}
                     </span>
                   </button>
-                  {#if permissions.canEdit && onEdit}
+                  {#if onEdit}
                     <Button
                       type="button"
                       variant="ghost"
@@ -233,7 +233,7 @@
               {/each}
             </div>
           </ScrollArea>
-          {#if permissions.canCreate && onAdd}
+          {#if onAdd}
             <div class="p-2 border-t border-border">
               <Button
                 type="button"
