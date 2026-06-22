@@ -19,7 +19,7 @@ export interface UpsertEducationDto {
 function toPublicEducation(edu: any) {
     if (!edu) return null;
     const { id, employee_cuid, created_at, updated_at, percentage, ...rest } = edu;
-    return { ...rest, percentage: percentage ? Number(percentage) : null };
+    return { ...rest, percentage: (percentage !== null && percentage !== undefined) ? Number(percentage) : null };
 }
 
 export async function getEducationsByEmployeeCuid(employee_cuid: string) {
@@ -46,7 +46,7 @@ export async function replaceEducations(employee_cuid: string, dtos: UpsertEduca
         specialization: dto.specialization,
         institution: dto.institution,
         university_board: dto.university_board,
-        percentage: dto.percentage ? Number(dto.percentage) : null,
+        percentage: (dto.percentage !== null && dto.percentage !== undefined) ? Number(dto.percentage) : null,
         completed_at: dto.completed_at,
         created_by: dto.updated_by,
         updated_by: dto.updated_by
