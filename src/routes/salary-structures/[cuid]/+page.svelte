@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import type { DateValue } from '@internationalized/date';
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
@@ -249,9 +250,9 @@
 				goto(resolve(`/salary-structures/${resData.data.cuid}`));
 			} else {
 				if (res.status === 400 || res.status === 409) {
-					backendError = resData.message || resData.error || 'Validation failed';
+					backendError = resData.data?.error || resData.message || resData.error || 'Validation failed';
 				} else {
-					toast.error(resData.message || resData.error || 'Failed to add new structure.');
+					toast.error(resData.data?.error || resData.message || resData.error || 'Failed to add new structure.');
 				}
 			}
 		} catch (err) {
@@ -382,7 +383,6 @@
 	open={isRevisionOpen}
 	title="Add New Structure"
 	description="A new Active structure will be created. The current structure will be marked Inactive."
-	isDirty={isRevisionDirty}
 	isSubmitting={isSubmitting}
 	onClose={closeRevision}
 >
@@ -395,9 +395,9 @@
 					id="revision_effective_from"
 					name="revision_effective_from"
 					bind:value={revisionEffectiveFrom}
-					isDateDisabled={(date) => date.toString() <= minDate}
+					isDateDisabled={(date: DateValue) => date.toString() <= minDate}
 					class={fieldErrors['effective_from'] ? 'border-destructive' : ''}
-					onChange={() => { delete fieldErrors['effective_from']; fieldErrors = { ...fieldErrors }; }}
+					onchange={() => { delete fieldErrors['effective_from']; fieldErrors = { ...fieldErrors }; }}
 				/>
 				{#if fieldErrors['effective_from']}
 					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{fieldErrors['effective_from']}</p>

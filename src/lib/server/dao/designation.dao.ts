@@ -1,7 +1,7 @@
 import { db } from '$lib/server/db.js';
 
 export interface CreateDesignationInput {
-	designation_name: string;
+	name: string;
 	status?: boolean;
 	created_by?: string;
 	created_at?: Date | string;
@@ -9,7 +9,7 @@ export interface CreateDesignationInput {
 }
 
 export interface UpdateDesignationInput {
-	designation_name?: string;
+	name?: string;
 	status?: boolean;
 	updated_by?: string;
 	updated_at?: Date | string;
@@ -18,12 +18,12 @@ export interface UpdateDesignationInput {
 export async function list() {
 	return db.designation.findMany({
 		orderBy: {
-			designation_name: 'asc'
+			name: 'asc'
 		}
 	});
 }
 
-export async function findById(id: number) {
+export async function findById(id: bigint) {
 	return db.designation.findUnique({
 		where: {
 			id
@@ -42,7 +42,7 @@ export async function findByCuid2(cuid: string) {
 export async function create(data: CreateDesignationInput) {
 	return db.designation.create({
 		data: {
-			designation_name: data.designation_name,
+			name: data.name,
 			status: data.status ?? true,
 			created_by: data.created_by ?? undefined,
 			updated_by: data.created_by ?? undefined,

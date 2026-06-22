@@ -210,7 +210,7 @@ export async function uploadPayroll(
 		}
 
 		// 2. Employee existence check (takes precedence over month/year/component validation errors)
-		const employee = findEmployeeByCode(empCode);
+		const employee = await findEmployeeByCode(empCode);
 		if (!employee) {
 			skipped++;
 			const errorMessage = `Employee with code ${empCode} does not exist (not found)`;

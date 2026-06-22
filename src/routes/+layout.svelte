@@ -2,10 +2,13 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg'
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
-	import { Button } from '$lib/components';
+	import { Button, ConfirmationModal } from '$lib/components';
 	import Toaster from '$lib/components/ui/toaster.svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
+	import { beforeNavigate, goto } from '$app/navigation';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
+	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 	import Building2Icon from '@lucide/svelte/icons/building-2';
 	import MenuIcon from '@lucide/svelte/icons/menu';
 	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
@@ -21,19 +24,52 @@
 	import ReceiptTextIcon from '@lucide/svelte/icons/receipt-text';
 	import BanknoteIcon from '@lucide/svelte/icons/banknote';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import UserCheckIcon from '@lucide/svelte/icons/user-check';
+	import MapPinIcon from '@lucide/svelte/icons/map-pin';
+	import ClockIcon from '@lucide/svelte/icons/clock';
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
+	import CalendarCogIcon from '@lucide/svelte/icons/calendar-cog';
 
 	let { children, data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);
 	let isSidebarCollapsed = $state(false);
 
+	let showGlobalUnsavedModal = $state(false);
+	let pendingNavigationUrl = $state('');
+
+	beforeNavigate(({ to, cancel }) => {
+		if ($globalIsDirty) {
+			cancel();
+			if (to?.url) {
+				pendingNavigationUrl = to.url.pathname + to.url.search;
+				showGlobalUnsavedModal = true;
+			}
+		}
+	});
+
+	function confirmGlobalLeave() {
+		$globalIsDirty = false;
+		showGlobalUnsavedModal = false;
+		if (pendingNavigationUrl) {
+			goto(pendingNavigationUrl);
+		}
+	}
+
 	const protectedNavItems1 = [
 		{ label: 'Dashboard', href: resolve('/dashboard'), icon: LayoutDashboardIcon },
-		{ label: 'Employee', href: resolve('/employees'), icon: UsersRoundIcon },
-		{ label: 'Department', href: resolve('/departments'), icon: Building2Icon },
-		{ label: 'Designation', href: resolve('/designations'), icon: UserRoundIcon }
+		{ label: 'Employees', href: resolve('/employees'), icon: UsersRoundIcon },
+		{ label: 'Departments', href: resolve('/departments'), icon: Building2Icon },
+		{ label: 'Designations', href: resolve('/designations'), icon: UserRoundIcon },
+		{ label: 'Roles', href: resolve('/roles'), icon: UserCheckIcon },
+		{ label: 'Shifts', href: resolve('/shifts'), icon: ClockIcon },
+		{ label: 'Locations', href: resolve('/organization_locations'), icon: MapPinIcon }
 	];
 
-	const salaryRoutes = [resolve('/salary-components'), resolve('/salary-structures'), resolve('/payrolls')];
+	const salaryRoutes = [
+		resolve('/salary-components'),
+		resolve('/salary-structures'),
+		resolve('/payrolls')
+	];
 
 	const salaryManagementItems = [
 		{ label: 'Salary Components', href: resolve('/salary-components'), icon: WalletIcon },
@@ -42,6 +78,11 @@
 	];
 
 	const protectedNavItems2 = [
+		{ label: 'Leave Types', href: resolve('/leave-types'), icon: CalendarCogIcon },
+		{ label: 'Leave Policies', href: resolve('/leave-policies'), icon: ShieldCheckIcon },
+		{ label: 'Holiday Calendar', href: resolve('/holidays'), icon: CalendarIcon },
+		{ label: 'Attendance', href: resolve('/attendance'), icon: ClockIcon },
+		{ label: 'Attendance Records', href: resolve('/attendance-records'), icon: CalendarIcon },
 		{ label: 'System Roles', href: resolve('/system-roles'), icon: ShieldCheckIcon },
 		{ label: 'Permissions', href: resolve('/permissions'), icon: KeyRoundIcon },
 		{ label: 'Role Permissions', href: resolve('/role-permissions'), icon: LinkIcon }
@@ -77,13 +118,17 @@
 	});
 </script>
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<svelte:head>
+	<link rel="icon" href={favicon} />
+	<title>PieQ HRMS</title>
+</svelte:head>
 
 <div class="flex min-h-screen bg-background text-foreground">
 	<Toaster />
 	<aside
 		class={`sticky top-0 h-screen z-30 flex shrink-0 flex-col border-r border-[#737373]/25 bg-[#262626] text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
 		aria-label="Primary navigation"
+		data-sveltekit-preload-data="off"
 	>
 		<div class={`flex h-16 items-center border-b border-white/10 transition-all ${isSidebarCollapsed ? 'justify-center gap-2 px-2' : 'justify-between px-6'}`}>
 			{#if !isSidebarCollapsed}
@@ -190,7 +235,7 @@
 				{/each}
 			{:else}
 				<Button
-					href={resolve('/auth/signin')}
+					href={resolve('/')}
 					variant="ghost"
 					class={`h-10 justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 					title={isSidebarCollapsed ? 'Sign in' : undefined}
@@ -243,3 +288,13 @@
 		{@render children()}
 	</main>
 </div>
+
+<ConfirmModal 
+	open={showGlobalUnsavedModal} 
+	title="Cancel Changes" 
+	description="Are you sure you want to cancel? All unsaved changes will be lost." 
+	cancelLabel="Keep Editing" 
+	confirmLabel="Cancel" 
+	onCancel={() => showGlobalUnsavedModal = false} 
+	onConfirm={confirmGlobalLeave} 
+/>

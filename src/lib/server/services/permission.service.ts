@@ -61,7 +61,7 @@ function validatePermissionKey(permissionKey: string | null | undefined) {
 	return normalized;
 }
 
-async function ensurePermissionKeyIsUnique(permission_key: string, currentId?: number) {
+async function ensurePermissionKeyIsUnique(permission_key: string, currentId?: bigint) {
 	const normalizedKey = permission_key.trim().toLowerCase();
 	const permissions = await permissionDao.list();
 	const duplicate = permissions.find(
@@ -79,8 +79,8 @@ export async function getPermissions() {
 	return (await permissionDao.list()).map(toPublicPermission);
 }
 
-export async function getPermissionById(id: number) {
-	if (!Number.isInteger(id) || id <= 0) {
+export async function getPermissionById(id: bigint) {
+	if (typeof id !== 'bigint' || id <= 0n) {
 		throw new Error('Permission ID must be a positive integer');
 	}
 

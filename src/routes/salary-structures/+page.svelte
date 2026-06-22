@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import type { DateValue } from '@internationalized/date';
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
@@ -416,9 +417,9 @@
 				closeModal();
 			} else {
 				if (response.status === 400 || response.status === 409) {
-					backendError = resData.message || resData.error || 'Validation failed';
+					backendError = resData.data?.error || resData.message || resData.error || 'Validation failed';
 				} else {
-					toast.error(resData.message || resData.error || 'Failed to save salary structure.');
+					toast.error(resData.data?.error || resData.message || resData.error || 'Failed to save salary structure.');
 				}
 			}
 		} catch (err) {
@@ -512,7 +513,7 @@
 				closeEditDates();
 				await loadAll();
 			} else {
-				datesBackendError = resData.message || 'Failed to update effective dates';
+				datesBackendError = resData.data?.error || resData.message || 'Failed to update effective dates';
 			}
 		} catch {
 			datesBackendError = 'An unexpected error occurred';
@@ -695,7 +696,6 @@
 <CrudModal
 	open={isCreateOpen}
 	title="Add Salary Structure"
-	isDirty={isDirty}
 	isSubmitting={isSubmitting}
 	onClose={closeModal}
 >
@@ -759,14 +759,14 @@
 						id="effective_from"
 						name="effective_from"
 						bind:value={formEffectiveFrom}
-						isDateDisabled={(date) => {
+						isDateDisabled={(date: DateValue) => {
 							const dateStr = date.toString();
 							if (selectedEmpMinDate && dateStr <= selectedEmpMinDate) return true;
 							if (formEffectiveTo && dateStr >= formEffectiveTo) return true;
 							return false;
 						}}
 						class={fieldErrors['effective_from'] ? 'border-destructive' : ''}
-						onChange={() => { delete fieldErrors['effective_from']; fieldErrors = { ...fieldErrors }; }}
+						onchange={() => { delete fieldErrors['effective_from']; fieldErrors = { ...fieldErrors }; }}
 					/>
 					{#if fieldErrors['effective_from']}
 						<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{fieldErrors['effective_from']}</p>
@@ -778,13 +778,13 @@
 						id="effective_to"
 						name="effective_to"
 						bind:value={formEffectiveTo}
-						isDateDisabled={(date) => {
+						isDateDisabled={(date: DateValue) => {
 							const dateStr = date.toString();
 							if (formEffectiveFrom && dateStr <= formEffectiveFrom) return true;
 							return false;
 						}}
 						class={fieldErrors['effective_to'] ? 'border-destructive' : ''}
-						onChange={() => { delete fieldErrors['effective_to']; fieldErrors = { ...fieldErrors }; }}
+						onchange={() => { delete fieldErrors['effective_to']; fieldErrors = { ...fieldErrors }; }}
 					/>
 					{#if fieldErrors['effective_to']}
 						<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{fieldErrors['effective_to']}</p>
@@ -918,7 +918,6 @@
 <CrudModal
 	open={isEditDatesOpen}
 	title="Edit Effective Dates"
-	isDirty={isEditDatesDirty}
 	isSubmitting={isSubmittingDates}
 	onClose={closeEditDates}
 >
@@ -935,13 +934,13 @@
 					id="edit_effective_from"
 					name="effective_from"
 					bind:value={editEffectiveFrom}
-					isDateDisabled={(date) => {
+					isDateDisabled={(date: DateValue) => {
 						const dateStr = date.toString();
 						if (editEffectiveTo && dateStr >= editEffectiveTo) return true;
 						return false;
 					}}
 					class={datesErrors['effective_from'] ? 'border-destructive' : ''}
-					onChange={() => { delete datesErrors['effective_from']; datesErrors = { ...datesErrors }; }}
+					onchange={() => { delete datesErrors['effective_from']; datesErrors = { ...datesErrors }; }}
 				/>
 				{#if datesErrors['effective_from']}
 					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{datesErrors['effective_from']}</p>
@@ -954,13 +953,13 @@
 					id="edit_effective_to"
 					name="effective_to"
 					bind:value={editEffectiveTo}
-					isDateDisabled={(date) => {
+					isDateDisabled={(date: DateValue) => {
 						const dateStr = date.toString();
 						if (editEffectiveFrom && dateStr <= editEffectiveFrom) return true;
 						return false;
 					}}
 					class={datesErrors['effective_to'] ? 'border-destructive' : ''}
-					onChange={() => { delete datesErrors['effective_to']; datesErrors = { ...datesErrors }; }}
+					onchange={() => { delete datesErrors['effective_to']; datesErrors = { ...datesErrors }; }}
 				/>
 				{#if datesErrors['effective_to']}
 					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{datesErrors['effective_to']}</p>

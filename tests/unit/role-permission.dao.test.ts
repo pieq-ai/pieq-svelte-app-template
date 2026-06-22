@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as rolePermissionDao from '$lib/server/dao/role-permission.dao.js';
 import { db } from '$lib/server/db.js';
@@ -23,7 +23,7 @@ describe('Role Permission DAO', () => {
 
 	describe('list', () => {
 		it('should call db.rolePermission.findMany with order by id', async () => {
-			const mockData = [{ id: 1, system_role_cuid: 'role1', permission_cuid: 'perm1' }];
+			const mockData = [{ id: 1n, system_role_cuid: 'role1', permission_cuid: 'perm1' }];
 			vi.mocked(db.rolePermission.findMany).mockResolvedValue(mockData as any);
 
 			const result = await rolePermissionDao.list();
@@ -37,13 +37,13 @@ describe('Role Permission DAO', () => {
 
 	describe('findById', () => {
 		it('should call db.rolePermission.findUnique with correct id', async () => {
-			const mockData = { id: 1 };
+			const mockData = { id: 1n };
 			vi.mocked(db.rolePermission.findUnique).mockResolvedValue(mockData as any);
 
-			const result = await rolePermissionDao.findById(1);
+			const result = await rolePermissionDao.findById(1n);
 
 			expect(db.rolePermission.findUnique).toHaveBeenCalledWith({
-				where: { id: 1 }
+				where: { id: 1n }
 			});
 			expect(result).toBe(mockData);
 		});
@@ -51,7 +51,7 @@ describe('Role Permission DAO', () => {
 
 	describe('findByRoleAndPermission', () => {
 		it('should call db.rolePermission.findUnique with correct compound key', async () => {
-			const mockData = { id: 1, system_role_cuid: 'role1', permission_cuid: 'perm1' };
+			const mockData = { id: 1n, system_role_cuid: 'role1', permission_cuid: 'perm1' };
 			vi.mocked(db.rolePermission.findUnique).mockResolvedValue(mockData as any);
 
 			const result = await rolePermissionDao.findByRoleAndPermission('role1', 'perm1');
@@ -71,7 +71,7 @@ describe('Role Permission DAO', () => {
 	describe('create', () => {
 		it('should create a role permission', async () => {
 			const input = { system_role_cuid: 'role1', permission_cuid: 'perm1' };
-			const mockResult = { id: 1, ...input };
+			const mockResult = { id: 1n, ...input };
 			vi.mocked(db.rolePermission.create).mockResolvedValue(mockResult as any);
 
 			const result = await rolePermissionDao.create(input);
@@ -85,13 +85,13 @@ describe('Role Permission DAO', () => {
 
 	describe('remove', () => {
 		it('should delete a role permission by id', async () => {
-			const mockResult = { id: 1 };
+			const mockResult = { id: 1n };
 			vi.mocked(db.rolePermission.delete).mockResolvedValue(mockResult as any);
 
-			const result = await rolePermissionDao.remove(1);
+			const result = await rolePermissionDao.remove(1n);
 
 			expect(db.rolePermission.delete).toHaveBeenCalledWith({
-				where: { id: 1 }
+				where: { id: 1n }
 			});
 			expect(result).toBe(mockResult);
 		});
@@ -99,7 +99,7 @@ describe('Role Permission DAO', () => {
 
 	describe('removeByRoleAndPermission', () => {
 		it('should delete a role permission by compound key', async () => {
-			const mockResult = { id: 1 };
+			const mockResult = { id: 1n };
 			vi.mocked(db.rolePermission.delete).mockResolvedValue(mockResult as any);
 
 			const result = await rolePermissionDao.removeByRoleAndPermission('role1', 'perm1');

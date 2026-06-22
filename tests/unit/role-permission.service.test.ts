@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as rolePermissionService from '$lib/server/services/role-permission.service.js';
 import * as permissionDao from '$lib/server/dao/permission.dao.js';
@@ -30,23 +30,23 @@ describe('Role Permission Service', () => {
 	describe('getRolePermissionMatrix', () => {
 		it('should retrieve and format matrix data correctly', async () => {
 			vi.mocked(systemRoleDao.list).mockResolvedValue([
-				{ id: 1, cuid: 'role1', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
+				{ id: 1n, cuid: 'role1', name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
 			] as any);
 			
 			vi.mocked(permissionDao.list).mockResolvedValue([
-				{ id: 1, cuid: 'perm1', permission_key: 'user_read', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
-				{ id: 2, cuid: 'perm2', permission_key: 'user_write', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
-				{ id: 3, cuid: 'perm3', permission_key: 'general_view', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
+				{ id: 1n, cuid: 'perm1', permission_key: 'user_read', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
+				{ id: 2n, cuid: 'perm2', permission_key: 'user_write', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null },
+				{ id: 3n, cuid: 'perm3', permission_key: 'general_view', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null }
 			] as any);
 
 			vi.mocked(rolePermissionDao.list).mockResolvedValue([
-				{ id: 1, cuid: 'rp1', system_role_cuid: 'role1', permission_cuid: 'perm1' }
+				{ id: 1n, cuid: 'rp1', system_role_cuid: 'role1', permission_cuid: 'perm1' }
 			] as any);
 
 			const result = await rolePermissionService.getRolePermissionMatrix();
 
 			expect(result.roles).toHaveLength(1);
-			expect(result.roles[0]).toEqual({ cuid: 'role1', system_role_name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
+			expect(result.roles[0]).toEqual({ cuid: 'role1', name: 'Admin', status: true, created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null });
 
 			expect(result.permissions).toHaveLength(3);
 			expect(result.groupedPermissions).toEqual({
@@ -84,7 +84,7 @@ describe('Role Permission Service', () => {
 		});
 
 		it('should throw if permission CUID2 is invalid or not found', async () => {
-			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1, cuid: 'role1' } as any);
+			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'role1' } as any);
 			
 			await expect(rolePermissionService.assignPermissionsToRole({ system_role_cuid: 'role1', permission_cuids: [''] })).rejects.toThrow('Permission CUID2 is required');
 
@@ -93,18 +93,18 @@ describe('Role Permission Service', () => {
 		});
 
 		it('should create new mappings and skip existing ones', async () => {
-			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1, cuid: 'role1' } as any);
+			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'role1' } as any);
 			
 			vi.mocked(permissionDao.findByCuid2).mockImplementation(async (cuid) => {
 				return { id: cuid === 'perm1' ? 1 : 2, cuid: cuid } as any;
 			});
 
 			vi.mocked(rolePermissionDao.findByRoleAndPermission).mockImplementation(async (roleId, permId) => {
-				if (permId === 'perm1') return { id: 1, system_role_cuid: roleId, permission_cuid: permId } as any;
+				if (permId === 'perm1') return { id: 1n, system_role_cuid: roleId, permission_cuid: permId } as any;
 				return null;
 			});
 
-			vi.mocked(rolePermissionDao.create).mockImplementation(async (data) => ({ id: 2, ...data } as any));
+			vi.mocked(rolePermissionDao.create).mockImplementation(async (data) => ({ id: 2n, ...data } as any));
 
 			const result = await rolePermissionService.assignPermissionsToRole({
 				system_role_cuid: 'role1',
@@ -131,30 +131,30 @@ describe('Role Permission Service', () => {
 			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue(null);
 			await expect(rolePermissionService.removePermissionFromRoleByCuid2('role1', 'perm1')).rejects.toThrow('System role not found');
 
-			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1, cuid: 'role1' } as any);
+			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'role1' } as any);
 			vi.mocked(permissionDao.findByCuid2).mockResolvedValue(null);
 			await expect(rolePermissionService.removePermissionFromRoleByCuid2('role1', 'perm1')).rejects.toThrow('Permission not found');
 		});
 
 		it('should throw if mapping not found', async () => {
-			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1, cuid: 'role1' } as any);
-			vi.mocked(permissionDao.findByCuid2).mockResolvedValue({ id: 2, cuid: 'perm1' } as any);
+			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'role1' } as any);
+			vi.mocked(permissionDao.findByCuid2).mockResolvedValue({ id: 2n, cuid: 'perm1' } as any);
 			vi.mocked(rolePermissionDao.findByRoleAndPermission).mockResolvedValue(null);
 
 			await expect(rolePermissionService.removePermissionFromRoleByCuid2('role1', 'perm1')).rejects.toThrow('Role permission mapping not found');
 		});
 
 		it('should remove mapping successfully', async () => {
-			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1, cuid: 'role1' } as any);
-			vi.mocked(permissionDao.findByCuid2).mockResolvedValue({ id: 2, cuid: 'perm1' } as any);
-			vi.mocked(rolePermissionDao.findByRoleAndPermission).mockResolvedValue({ id: 3 } as any);
+			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'role1' } as any);
+			vi.mocked(permissionDao.findByCuid2).mockResolvedValue({ id: 2n, cuid: 'perm1' } as any);
+			vi.mocked(rolePermissionDao.findByRoleAndPermission).mockResolvedValue({ id: 3n } as any);
 			
-			vi.mocked(rolePermissionDao.removeByRoleAndPermission).mockResolvedValue({ id: 3 } as any);
+			vi.mocked(rolePermissionDao.removeByRoleAndPermission).mockResolvedValue({ id: 3n } as any);
 
 			const result = await rolePermissionService.removePermissionFromRoleByCuid2('role1', 'perm1');
 
 			expect(rolePermissionDao.removeByRoleAndPermission).toHaveBeenCalledWith('role1', 'perm1');
-			expect(result).toEqual({ id: 3 });
+			expect(result).toEqual({ id: 3n });
 		});
 	});
 });

@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
-	import PlusIcon from '@lucide/svelte/icons/plus';
 
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
 	import { toast } from '$lib/toast';
-	import { createDirtyChecker } from '$lib/utils';
+	import {  createDirtyChecker  } from '$lib/utils';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import {
 		Alert,
@@ -63,9 +63,11 @@
 	let isKeyTouched = $state(false);
 	let backendError = $state('');
 	let permissionKeyInput = $state<HTMLInputElement | null>(null);
+	let showConfirmClose = $state(false);
 
 	const dirtyChecker = createDirtyChecker<{ permission_key: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ permission_key: permissionKey.trim(), status: permissionStatus }));
+	$effect(() => { $globalIsDirty = isDirty; });
 
 	let itemToDelete = $state<Permission | null>(null);
 	let isDeleting = $state(false);
@@ -165,6 +167,15 @@
 		isModalOpen = true;
 	}
 
+	function handleClose() {
+		if (isDirty) {
+			showConfirmClose = true;
+		} else {
+			isModalOpen = false;
+			$globalIsDirty = false;
+		}
+	}
+
 	async function savePermission(event: Event) {
 		event.preventDefault();
 		if (editingPermission && !isDirty) return;
@@ -179,7 +190,7 @@
 		try {
 			const response = await fetch(
 				editingPermission
-					? `/api/permissions/permissionCuid=${editingPermission.cuid}`
+					? `/api/permissions/${editingPermission.cuid}`
 					: '/api/permissions',
 				{
 					method: editingPermission ? 'PUT' : 'POST',
@@ -192,6 +203,7 @@
 				await loadPermissions();
 				toast.success(editingPermission ? 'Permission updated successfully.' : 'Permission created successfully.');
 				isModalOpen = false;
+		$globalIsDirty = false;
 			} else if (response.status === 409 && body.field === 'permission_key') {
 				backendError = body.error;
 				permissionKeyInput?.focus();
@@ -210,7 +222,7 @@
 		if (!itemToDelete) return;
 		isDeleting = true;
 		try {
-			const response = await fetch(`/api/permissions/permissionCuid=${itemToDelete.cuid}`, { method: 'DELETE' });
+			const response = await fetch(`/api/permissions/${itemToDelete.cuid}`, { method: 'DELETE' });
 			const body = await response.json();
 			if (response.ok) {
 				await loadPermissions();
@@ -239,7 +251,6 @@
 		</div>
 		{#if masterPermissions.canCreate}
 			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={openCreateModal}>
-				<PlusIcon class="size-4" />
 				Add Permission
 			</Button>
 		{/if}
@@ -342,9 +353,8 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingPermission ? 'Edit Permission' : 'Create Permission'}
-	isDirty={isDirty}
 	isSubmitting={isSubmitting}
-	onClose={() => (isModalOpen = false)}
+	onClose={handleClose}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={savePermission}>
@@ -384,4 +394,20 @@
 	isSubmitting={isDeleting}
 	onCancel={() => (itemToDelete = null)}
 	onConfirm={confirmDelete}
+/>
+
+<ConfirmModal
+	open={showConfirmClose}
+	title="Unsaved Changes"
+	description="You have unsaved changes. Are you sure you want to close this modal?"
+	confirmLabel="Cancel"
+	cancelLabel="Keep Editing"
+	onConfirm={() => {
+		showConfirmClose = false;
+		isModalOpen = false;
+		$globalIsDirty = false;
+	}}
+	onCancel={() => {
+		showConfirmClose = false;
+	}}
 />

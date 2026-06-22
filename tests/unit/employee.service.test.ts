@@ -1,102 +1,85 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import * as employeeService from '$lib/server/services/employee.service.js';
+import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as employmentDao from '$lib/server/dao/employment.dao.js';
 
-vi.mock('$lib/server/dao/employee.dao', () => ({
+vi.mock('$lib/server/dao/employee.dao.js', () => ({
 	list: vi.fn(),
-	create: vi.fn()
+	findByCuid2: vi.fn(),
+	findByEmpCode: vi.fn(),
+	findByEmail: vi.fn(),
+	create: vi.fn(),
+	update: vi.fn(),
+    remove: vi.fn()
 }));
 
-import * as employeeDao from '$lib/server/dao/employee.dao';
-import {
-	createEmployee,
-	EmployeeValidationError,
-	listEmployees
-} from '$lib/server/services/employee.service';
+vi.mock('$lib/server/dao/employment.dao.js', () => ({
+	list: vi.fn(),
+	findByEmployeeCuid: vi.fn()
+}));
 
-const mockedDao = vi.mocked(employeeDao);
-
-const sampleEmployee = {
-	id: 1,
-	uuid: '11111111-1111-4111-8111-111111111111',
-	name: 'Ada Lovelace',
-	age: 36
-};
-
-describe('employee.service', () => {
+describe('Employee Service', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
 
-	describe('listEmployees', () => {
-		it('returns the DAO result unchanged', async () => {
-			mockedDao.list.mockResolvedValueOnce([sampleEmployee]);
+	describe('getEmployees', () => {
+		it('should return mapped public employees', async () => {
+			const mockData = [
+				{ id: 1n, cuid: 'abc', emp_code: 'E01', first_name: 'John', last_name: 'Doe' }
+			];
+			vi.mocked(employeeDao.list).mockResolvedValue(mockData as any);
+			vi.mocked(employmentDao.list).mockResolvedValue([
+				{ employee_cuid: 'abc', date_of_joining: new Date('2026-01-01'), relieving_date: null }
+			] as any);
 
-			const result = await listEmployees();
+			const result = await employeeService.getEmployees();
 
-			expect(result).toEqual([sampleEmployee]);
-			expect(mockedDao.list).toHaveBeenCalledOnce();
-		});
-
-		it('propagates DAO errors instead of swallowing them', async () => {
-			mockedDao.list.mockRejectedValueOnce(new Error('connection refused'));
-
-			await expect(listEmployees()).rejects.toThrow('connection refused');
+			expect(employeeDao.list).toHaveBeenCalledTimes(1);
+			expect(result).toHaveLength(1);
+			expect(result[0]).toEqual({
+				cuid: 'abc',
+				emp_code: 'E01',
+				first_name: 'John',
+				last_name: 'Doe',
+				date_of_joining: new Date('2026-01-01'),
+				relieving_date: null
+			});
 		});
 	});
 
-	describe('createEmployee', () => {
-		it('trims the name and forwards a coerced numeric age to the DAO', async () => {
-			mockedDao.create.mockResolvedValueOnce(sampleEmployee);
-
-			const result = await createEmployee({ name: '  Ada Lovelace  ', age: '36' });
-
-			expect(mockedDao.create).toHaveBeenCalledWith({ name: 'Ada Lovelace', age: 36 });
-			expect(result).toEqual(sampleEmployee);
+	describe('getEmployeeByCuid2', () => {
+		it('should throw an error if cuid is missing', async () => {
+			await expect(employeeService.getEmployeeByCuid2('')).rejects.toThrow('Employee CUID2 is required');
 		});
 
-		it('rejects a non-string name', async () => {
-			await expect(createEmployee({ name: 42, age: 30 })).rejects.toThrow(
-				EmployeeValidationError
-			);
-			expect(mockedDao.create).not.toHaveBeenCalled();
-		});
-
-		it('rejects an empty / whitespace-only name', async () => {
-			await expect(createEmployee({ name: '   ', age: 30 })).rejects.toMatchObject({
-				name: 'EmployeeValidationError',
-				field: 'name'
-			});
-		});
-
-		it('rejects a name longer than 100 characters', async () => {
-			await expect(
-				createEmployee({ name: 'a'.repeat(101), age: 30 })
-			).rejects.toMatchObject({ field: 'name' });
-		});
-
-		it('rejects a non-numeric age', async () => {
-			await expect(createEmployee({ name: 'Ada', age: 'thirty' })).rejects.toMatchObject({
-				field: 'age'
-			});
-		});
-
-		it('rejects a non-integer age', async () => {
-			await expect(createEmployee({ name: 'Ada', age: 30.5 })).rejects.toMatchObject({
-				field: 'age'
-			});
-		});
-
-		it.each([0, -1, 121, 1000])('rejects age %i (out of range)', async (age) => {
-			await expect(createEmployee({ name: 'Ada', age })).rejects.toMatchObject({
-				field: 'age'
-			});
-		});
-
-		it('propagates DAO errors instead of swallowing them', async () => {
-			mockedDao.create.mockRejectedValueOnce(new Error('unique constraint violated'));
-
-			await expect(createEmployee({ name: 'Ada', age: 36 })).rejects.toThrow(
-				'unique constraint violated'
-			);
+		it('should return mapped employee', async () => {
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'abc', first_name: 'John' } as any);
+			vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+				employee_cuid: 'abc',
+				date_of_joining: new Date('2026-01-01'),
+				relieving_date: null
+			} as any);
+			const result = await employeeService.getEmployeeByCuid2('abc');
+			expect(result.first_name).toBe('John');
+			expect(result.date_of_joining).toEqual(new Date('2026-01-01'));
+			expect(result.relieving_date).toBeNull();
 		});
 	});
+
+    describe('deleteEmployee', () => {
+        it('should throw if employee missing', async () => {
+            vi.mocked(employeeDao.findByCuid2).mockResolvedValue(null);
+            await expect(employeeService.deleteEmployee('miss')).rejects.toThrow('Employee with CUID2 "miss" not found');
+        });
+
+        it('should call remove', async () => {
+            vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'abc' } as any);
+            vi.mocked(employeeDao.remove).mockResolvedValue({ id: 1n, cuid: 'abc' } as any);
+            const result = await employeeService.deleteEmployee('abc');
+            expect(employeeDao.remove).toHaveBeenCalledWith('abc');
+            expect(result.cuid).toBe('abc');
+        });
+    });
 });

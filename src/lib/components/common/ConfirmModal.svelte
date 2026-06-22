@@ -6,26 +6,31 @@
 		open: boolean;
 		title: string;
 		description: string;
+		cancelLabel?: string;
 		confirmLabel?: string;
 		isSubmitting?: boolean;
 		onCancel: () => void;
 		onConfirm: () => void;
+		preventOutsideClickClose?: boolean;
 	}
 
 	let {
 		open,
 		title,
 		description,
+		cancelLabel = 'Cancel',
 		confirmLabel = 'Confirm',
 		isSubmitting = false,
 		onCancel,
-		onConfirm
+		onConfirm,
+		preventOutsideClickClose = false
 	}: Props = $props();
+
 </script>
 
-<CrudModal {open} {title} {description} onClose={onCancel}>
+<CrudModal {open} {title} {description} onClose={onCancel} {preventOutsideClickClose}>
 	<div class="flex justify-end gap-2">
-		<Button type="button" variant="outline" onclick={onCancel} disabled={isSubmitting}>Cancel</Button>
+		<Button type="button" variant="outline" onclick={onCancel} disabled={isSubmitting}>{cancelLabel}</Button>
 		<Button
 			type="button"
 			class="bg-danger text-danger-foreground hover:bg-danger/90 focus-visible:ring-danger/50 focus-visible:border-danger"

@@ -64,9 +64,9 @@ export class SourceStructureNotActiveError extends BusinessValidationError {
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
-/** Validate that an employee exists in the provider. */
-function assertEmployeeExists(employee_cuid: string) {
-	if (!findEmployeeByCuid(employee_cuid)) {
+/** Validate that an employee exists in the DB. */
+async function assertEmployeeExists(employee_cuid: string) {
+	if (!(await findEmployeeByCuid(employee_cuid))) {
 		throw new InvalidEmployeeError(employee_cuid);
 	}
 }
@@ -117,7 +117,7 @@ function previousEffectiveTo(newEffectiveFrom: string): string {
  */
 export async function createStructure(dto: CreateSalaryStructureDto) {
 	// Validate employee
-	assertEmployeeExists(dto.employee_cuid);
+	await assertEmployeeExists(dto.employee_cuid);
 
 	// Enforce: only one Active structure per employee — Add Structure is blocked if one exists
 	const existingActive = await dao.findActiveByEmployeeCuid(dto.employee_cuid);
@@ -261,7 +261,7 @@ export async function updateStructure(cuid: string, dto: UpdateSalaryStructureDt
 
 	// Validate employee if changing
 	if (dto.employee_cuid !== undefined) {
-		assertEmployeeExists(dto.employee_cuid);
+		await assertEmployeeExists(dto.employee_cuid);
 	}
 
 	// Validate components if items are being updated

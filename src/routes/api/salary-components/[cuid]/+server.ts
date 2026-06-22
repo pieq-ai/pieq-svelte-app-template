@@ -48,7 +48,7 @@ export async function PUT({ params, request }) {
 		// Validation step
 		const { errors, validatedData } = validateUpdateSalaryComponent(body);
 		if (errors.length > 0 || !validatedData) {
-			const combinedMsg = errors.map((e) => e.message).join(', ');
+			const combinedMsg = errors.map((e: { message: string }) => e.message).join(', ');
 			return json(
 				{
 					message: `Validation failed: ${combinedMsg}`

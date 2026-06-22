@@ -119,7 +119,7 @@ describe('Payroll Service', () => {
 
 	describe('uploadPayroll', () => {
 		it('should create a record for a valid row with matching employee', async () => {
-			vi.mocked(findEmployeeByCode).mockReturnValue(mockEmployee());
+			vi.mocked(findEmployeeByCode).mockResolvedValue(mockEmployee());
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
 			vi.mocked(dao.create).mockResolvedValue(mockPayrollRecord() as never);
 
@@ -140,7 +140,7 @@ describe('Payroll Service', () => {
 		});
 
 		it('should skip a row when employee code is not found', async () => {
-			vi.mocked(findEmployeeByCode).mockReturnValue(null);
+			vi.mocked(findEmployeeByCode).mockResolvedValue(null);
 
 			const result = await uploadPayroll([mockParsedRow({ employee_code: 'UNKNOWN' })], 6, 2026);
 
@@ -161,7 +161,7 @@ describe('Payroll Service', () => {
 		});
 
 		it('should skip a row when month is null (validation error)', async () => {
-			vi.mocked(findEmployeeByCode).mockReturnValue(mockEmployee());
+			vi.mocked(findEmployeeByCode).mockResolvedValue(mockEmployee());
 			const result = await uploadPayroll([mockParsedRow({ month: null })], 6, 2026);
 
 			expect(result.created).toBe(0);
@@ -170,7 +170,7 @@ describe('Payroll Service', () => {
 		});
 
 		it('should skip a row when year is null (validation error)', async () => {
-			vi.mocked(findEmployeeByCode).mockReturnValue(mockEmployee());
+			vi.mocked(findEmployeeByCode).mockResolvedValue(mockEmployee());
 			const result = await uploadPayroll([mockParsedRow({ year: null })], 6, 2026);
 
 			expect(result.created).toBe(0);
@@ -179,7 +179,7 @@ describe('Payroll Service', () => {
 		});
 
 		it('should skip a row when duplicate record exists', async () => {
-			vi.mocked(findEmployeeByCode).mockReturnValue(mockEmployee());
+			vi.mocked(findEmployeeByCode).mockResolvedValue(mockEmployee());
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(mockPayrollRecord() as never);
 
 			const result = await uploadPayroll([mockParsedRow()], 6, 2026);
@@ -197,8 +197,8 @@ describe('Payroll Service', () => {
 			];
 
 			vi.mocked(findEmployeeByCode)
-				.mockReturnValueOnce(null)
-				.mockReturnValueOnce(mockEmployee());
+				.mockResolvedValueOnce(null)
+				.mockResolvedValueOnce(mockEmployee());
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
 			vi.mocked(dao.create).mockResolvedValue(mockPayrollRecord() as never);
 
@@ -216,8 +216,8 @@ describe('Payroll Service', () => {
 			];
 
 			vi.mocked(findEmployeeByCode)
-				.mockReturnValueOnce(mockEmployee({ cuid: 'EMP001', employee_id: 'EMP001' }))
-				.mockReturnValueOnce(mockEmployee({ cuid: 'EMP002', employee_id: 'EMP002' }));
+				.mockResolvedValueOnce(mockEmployee({ cuid: 'EMP001', employee_id: 'EMP001' }))
+				.mockResolvedValueOnce(mockEmployee({ cuid: 'EMP002', employee_id: 'EMP002' }));
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
 			vi.mocked(dao.create).mockResolvedValue(mockPayrollRecord() as never);
 
@@ -230,7 +230,7 @@ describe('Payroll Service', () => {
 		});
 
 		it('should use employee name from Excel if available, otherwise fallback to provider', async () => {
-			vi.mocked(findEmployeeByCode).mockReturnValue(mockEmployee({ name: 'John Doe Provider' }));
+			vi.mocked(findEmployeeByCode).mockResolvedValue(mockEmployee({ name: 'John Doe Provider' }));
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
 			vi.mocked(dao.create).mockResolvedValue(mockPayrollRecord() as never);
 
@@ -242,7 +242,7 @@ describe('Payroll Service', () => {
 		});
 
 		it('should use provider name when Excel employee_name is empty', async () => {
-			vi.mocked(findEmployeeByCode).mockReturnValue(mockEmployee({ name: 'John Doe Provider' }));
+			vi.mocked(findEmployeeByCode).mockResolvedValue(mockEmployee({ name: 'John Doe Provider' }));
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
 			vi.mocked(dao.create).mockResolvedValue(mockPayrollRecord() as never);
 
@@ -329,7 +329,7 @@ describe('Payroll Service', () => {
 		});
 
 		it('should skip duplicate rows inside the Excel file', async () => {
-			vi.mocked(findEmployeeByCode).mockReturnValue(mockEmployee());
+			vi.mocked(findEmployeeByCode).mockResolvedValue(mockEmployee());
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
 			vi.mocked(dao.create).mockResolvedValue(mockPayrollRecord() as never);
 
@@ -349,7 +349,7 @@ describe('Payroll Service', () => {
 		});
 
 		it('should strictly follow validation order (Employee Not Found takes precedence over component Validation Error)', async () => {
-			vi.mocked(findEmployeeByCode).mockReturnValue(null); // Employee does not exist
+			vi.mocked(findEmployeeByCode).mockResolvedValue(null); // Employee does not exist
 			const row = mockParsedRow({
 				employee_code: 'EMP999',
 				rawComponents: { Basic: 'ABC' } // Non-numeric

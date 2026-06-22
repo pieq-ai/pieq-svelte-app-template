@@ -1,7 +1,8 @@
 import { json } from '@sveltejs/kit';
-import { MOCK_EMPLOYEES } from '$lib/server/providers/employee.provider.js';
+import { getAll } from '$lib/server/providers/employee.provider.js';
 
-/** Returns the mock employee list for use in the salary structure form dropdown. */
+/** Returns the active employee list for use in the salary structure form dropdown. */
 export async function GET() {
-	return json({ data: MOCK_EMPLOYEES });
+	const employees = await getAll();
+	return json({ data: employees });
 }

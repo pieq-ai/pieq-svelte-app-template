@@ -80,7 +80,7 @@ function createAuth() {
 			}
 		},
 		pages: {
-			signIn: '/auth/signin'
+			signIn: '/'
 		},
 		trustHost: true
 	});

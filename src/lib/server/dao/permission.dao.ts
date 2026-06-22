@@ -23,7 +23,7 @@ export async function list() {
 	});
 }
 
-export async function findById(id: number) {
+export async function findById(id: bigint) {
 	return db.permissions.findUnique({
 		where: {
 			id
@@ -52,7 +52,7 @@ export async function create(data: CreatePermissionInput) {
 	});
 }
 
-export async function update(id: number, data: UpdatePermissionInput) {
+export async function update(id: bigint, data: UpdatePermissionInput) {
 	return db.permissions.update({
 		where: {
 			id

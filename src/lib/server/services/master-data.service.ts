@@ -64,7 +64,7 @@ function normalizeName(name: string | null | undefined, master: MasterKey) {
 }
 
 function readId(record: Record<string, unknown>, master: MasterKey) {
-	return Number(record[getMasterConfig(master).idField]);
+	return BigInt(record[getMasterConfig(master).idField] as bigint);
 }
 
 function readCuid2(record: Record<string, unknown>) {
@@ -79,8 +79,8 @@ function toOption(record: Record<string, unknown>, master: MasterKey): MasterDat
 	const option: MasterDataOption = {
 		id: readCuid2(record),
 		label: readName(record, master),
-		master
-	,
+		master,
+		meta: master === 'states' && record.country_cuid ? { country_cuid: record.country_cuid as string } : undefined,
 		created_at: record.created_at as Date,
 		created_by: record.created_by as string | null,
 		updated_at: record.updated_at as Date,

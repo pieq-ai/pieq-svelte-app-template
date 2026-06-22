@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as permissionDao from '$lib/server/dao/permission.dao.js';
 import { db } from '$lib/server/db.js';
@@ -23,7 +23,7 @@ describe('Permission DAO', () => {
 
 	describe('list', () => {
 		it('should call db.permissions.findMany with order by permission_key', async () => {
-			const mockData = [{ id: 1, permission_key: 'admin.read' }];
+			const mockData = [{ id: 1n, permission_key: 'admin.read' }];
 			vi.mocked(db.permissions.findMany).mockResolvedValue(mockData as any);
 
 			const result = await permissionDao.list();
@@ -37,13 +37,13 @@ describe('Permission DAO', () => {
 
 	describe('findById', () => {
 		it('should call db.permissions.findUnique with correct id', async () => {
-			const mockData = { id: 1, permission_key: 'admin.read' };
+			const mockData = { id: 1n, permission_key: 'admin.read' };
 			vi.mocked(db.permissions.findUnique).mockResolvedValue(mockData as any);
 
-			const result = await permissionDao.findById(1);
+			const result = await permissionDao.findById(1n);
 
 			expect(db.permissions.findUnique).toHaveBeenCalledWith({
-				where: { id: 1 }
+				where: { id: 1n }
 			});
 			expect(result).toBe(mockData);
 		});
@@ -51,7 +51,7 @@ describe('Permission DAO', () => {
 
 	describe('findByCuid2', () => {
 		it('should call db.permissions.findUnique with correct cuid', async () => {
-			const mockData = { id: 1, cuid: 'abc' };
+			const mockData = { id: 1n, cuid: 'abc' };
 			vi.mocked(db.permissions.findUnique).mockResolvedValue(mockData as any);
 
 			const result = await permissionDao.findByCuid2('abc');
@@ -66,7 +66,7 @@ describe('Permission DAO', () => {
 	describe('create', () => {
 		it('should create a permission with default true status', async () => {
 			const input = { permission_key: 'admin.write' };
-			const mockResult = { id: 1, permission_key: 'admin.write', status: true };
+			const mockResult = { id: 1n, permission_key: 'admin.write', status: true };
 			vi.mocked(db.permissions.create).mockResolvedValue(mockResult as any);
 
 			const result = await permissionDao.create(input);
@@ -82,7 +82,7 @@ describe('Permission DAO', () => {
 
 		it('should create a permission with provided status', async () => {
 			const input = { permission_key: 'admin.write', status: false };
-			vi.mocked(db.permissions.create).mockResolvedValue({ ...input, id: 1 } as any);
+			vi.mocked(db.permissions.create).mockResolvedValue({ ...input, id: 1n } as any);
 
 			await permissionDao.create(input);
 
@@ -98,13 +98,13 @@ describe('Permission DAO', () => {
 	describe('update', () => {
 		it('should update permission with provided data by id', async () => {
 			const data = { permission_key: 'admin.delete', status: false };
-			const mockResult = { id: 1, ...data };
+			const mockResult = { id: 1n, ...data };
 			vi.mocked(db.permissions.update).mockResolvedValue(mockResult as any);
 
-			const result = await permissionDao.update(1, data);
+			const result = await permissionDao.update(1n, data);
 
 			expect(db.permissions.update).toHaveBeenCalledWith({
-				where: { id: 1 },
+				where: { id: 1n },
 				data
 			});
 			expect(result).toBe(mockResult);

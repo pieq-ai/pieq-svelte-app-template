@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as designationDao from '$lib/server/dao/designation.dao.js';
 import { db } from '$lib/server/db.js';
@@ -22,14 +22,14 @@ describe('Designation DAO', () => {
 	});
 
 	describe('list', () => {
-		it('should call db.designation.findMany with order by designation_name', async () => {
-			const mockData = [{ id: 1, designation_name: 'Manager' }];
+		it('should call db.designation.findMany with order by name', async () => {
+			const mockData = [{ id: 1n, name: 'Manager' }];
 			vi.mocked(db.designation.findMany).mockResolvedValue(mockData as any);
 
 			const result = await designationDao.list();
 
 			expect(db.designation.findMany).toHaveBeenCalledWith({
-				orderBy: { designation_name: 'asc' }
+				orderBy: { name: 'asc' }
 			});
 			expect(result).toBe(mockData);
 		});
@@ -42,27 +42,27 @@ describe('Designation DAO', () => {
 
 	describe('findById', () => {
 		it('should call db.designation.findUnique with correct id', async () => {
-			const mockData = { id: 1, designation_name: 'Manager' };
+			const mockData = { id: 1n, name: 'Manager' };
 			vi.mocked(db.designation.findUnique).mockResolvedValue(mockData as any);
 
-			const result = await designationDao.findById(1);
+			const result = await designationDao.findById(1n);
 
 			expect(db.designation.findUnique).toHaveBeenCalledWith({
-				where: { id: 1 }
+				where: { id: 1n }
 			});
 			expect(result).toBe(mockData);
 		});
 
 		it('should return null if not found', async () => {
 			vi.mocked(db.designation.findUnique).mockResolvedValue(null);
-			const result = await designationDao.findById(999);
+			const result = await designationDao.findById(999n);
 			expect(result).toBeNull();
 		});
 	});
 
 	describe('findByCuid2', () => {
 		it('should call db.designation.findUnique with correct cuid', async () => {
-			const mockData = { id: 1, cuid: 'abc' };
+			const mockData = { id: 1n, cuid: 'abc' };
 			vi.mocked(db.designation.findUnique).mockResolvedValue(mockData as any);
 
 			const result = await designationDao.findByCuid2('abc');
@@ -82,15 +82,15 @@ describe('Designation DAO', () => {
 
 	describe('create', () => {
 		it('should create a designation with default true status', async () => {
-			const input = { designation_name: 'Engineer' };
-			const mockResult = { id: 1, designation_name: 'Engineer', status: true };
+			const input = { name: 'Engineer' };
+			const mockResult = { id: 1n, name: 'Engineer', status: true };
 			vi.mocked(db.designation.create).mockResolvedValue(mockResult as any);
 
 			const result = await designationDao.create(input);
 
 			expect(db.designation.create).toHaveBeenCalledWith({
 				data: {
-					designation_name: 'Engineer',
+					name: 'Engineer',
 					status: true
 				}
 			});
@@ -98,14 +98,14 @@ describe('Designation DAO', () => {
 		});
 
 		it('should create a designation with provided status', async () => {
-			const input = { designation_name: 'Engineer', status: false };
-			vi.mocked(db.designation.create).mockResolvedValue({ ...input, id: 1 } as any);
+			const input = { name: 'Engineer', status: false };
+			vi.mocked(db.designation.create).mockResolvedValue({ ...input, id: 1n } as any);
 
 			await designationDao.create(input);
 
 			expect(db.designation.create).toHaveBeenCalledWith({
 				data: {
-					designation_name: 'Engineer',
+					name: 'Engineer',
 					status: false
 				}
 			});
@@ -114,8 +114,8 @@ describe('Designation DAO', () => {
 
 	describe('update', () => {
 		it('should update designation with provided data', async () => {
-			const data = { designation_name: 'Senior Engineer', status: false };
-			const mockResult = { id: 1, cuid: 'abc', ...data };
+			const data = { name: 'Senior Engineer', status: false };
+			const mockResult = { id: 1n, cuid: 'abc', ...data };
 			vi.mocked(db.designation.update).mockResolvedValue(mockResult as any);
 
 			const result = await designationDao.update('abc', data);
@@ -129,7 +129,7 @@ describe('Designation DAO', () => {
 
 		it('should only update fields provided in data', async () => {
 			const data = { status: false };
-			vi.mocked(db.designation.update).mockResolvedValue({ id: 1, status: false } as any);
+			vi.mocked(db.designation.update).mockResolvedValue({ id: 1n, status: false } as any);
 
 			await designationDao.update('xyz', data);
 

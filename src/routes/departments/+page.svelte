@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
-
+	
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
-	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { toast } from '$lib/toast';
 	import { createDirtyChecker } from '$lib/utils';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { UI_CONSTANTS } from '$lib/constants';
+	import { localApi, ApiError } from '$lib/api/local';
 
 	import {
 		Badge,
@@ -26,17 +27,17 @@
 		TableHeader,
 		TableRow,
 		ConfirmModal,
-		CrudModal,
 		TableActions,
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
 		SearchInput
 	} from '$lib/components';
+	import SimpleMasterModal from '$lib/components/common/SimpleMasterModal.svelte';
 
 	interface Department {
 		cuid: string;
-		dept_name: string;
+		name: string;
 		status: boolean;
 	}
 
@@ -46,7 +47,7 @@
 
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
-	let sortColumn = $state('dept_name');
+	let sortColumn = $state('name');
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -54,50 +55,18 @@
 
 	// Shared Form State
 	let editingDept = $state<Department | null>(null);
-	let formDeptName = $state('');
-	let formDeptStatus = $state<boolean>(true);
-	let isSubmitting = $state(false);
 	let isModalOpen = $state(false);
-	let isNameTouched = $state(false);
-	let backendError = $state('');
-	let deptNameInput = $state<HTMLInputElement | null>(null);
-
-	const dirtyChecker = createDirtyChecker<{ dept_name: string; status: boolean }>();
-	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ dept_name: formDeptName.trim(), status: formDeptStatus }));
 
 	// Deletion State
 	let itemToDelete = $state<Department | null>(null);
 	let isDeleting = $state(false);
 
-	function getValidationError(name: string): string {
-		const trimmed = name.trim();
-		if (trimmed === '') {
-			return 'Department name is required';
-		}
-		if (trimmed.length < 2) {
-			return 'Minimum 2 characters required';
-		}
-		if (trimmed.length > 100) {
-			return 'Maximum 100 characters allowed';
-		}
-		const regex = /^[A-Za-z\s]+$/;
-		if (!regex.test(trimmed)) {
-			return 'Only letters and spaces are allowed';
-		}
-		return '';
-	}
-
-	let nameValidationError = $derived(isNameTouched ? getValidationError(formDeptName) : '');
-
 	let filteredDepartments = $derived.by(() => {
 		let result = [...departmentsList];
 
 		if (searchQuery.trim()) {
-			const query = searchQuery.toLowerCase();
-			result = result.filter(
-				(dept) =>
-					dept.dept_name.toLowerCase().includes(query)
-			);
+			const query = searchQuery.toLowerCase().trim();
+			result = result.filter((dept) => dept.name.toLowerCase().includes(query));
 		}
 
 		if (statusFilter !== 'all') {
@@ -109,9 +78,18 @@
 				const valA = a[sortColumn as keyof typeof a];
 				const valB = b[sortColumn as keyof typeof b];
 
-				return sortDirection === 'asc'
-					? String(valA).localeCompare(String(valB))
-					: String(valB).localeCompare(String(valA));
+				if (valA === null || valA === undefined) return sortDirection === 'asc' ? 1 : -1;
+				if (valB === null || valB === undefined) return sortDirection === 'asc' ? -1 : 1;
+
+				if (typeof valA === 'string' && typeof valB === 'string') {
+					return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+				}
+				if (typeof valA === 'boolean' && typeof valB === 'boolean') {
+					const numA = valA ? 1 : 0;
+					const numB = valB ? 1 : 0;
+					return sortDirection === 'asc' ? numA - numB : numB - numA;
+				}
+				return 0;
 			});
 		}
 
@@ -127,16 +105,10 @@
 		isLoading = true;
 		loadError = '';
 		try {
-			const response = await fetch('/api/departments');
-			const resData = await response.json();
-			if (response.ok) {
-				departmentsList = resData.data ?? [];
-			} else {
-				loadError = resData.error || 'Failed to load departments.';
-				toast.error(loadError);
-			}
+			const res = await localApi.get<{ data: Department[] }>('/api/departments');
+			departmentsList = res.data ?? [];
 		} catch (err) {
-			loadError = 'An error occurred while loading departments.';
+			loadError = err instanceof ApiError ? err.message : 'Failed to load departments.';
 			toast.error(loadError);
 			console.error(err);
 		} finally {
@@ -159,89 +131,27 @@
 		}
 	}
 
-	
-
 	function openCreateModal() {
 		editingDept = null;
-		formDeptName = '';
-		formDeptStatus = true;
-		isNameTouched = false;
-		backendError = '';
-		dirtyChecker.snapshot({ dept_name: '', status: true });
 		isModalOpen = true;
 	}
 
 	function openEditModal(dept: Department) {
 		editingDept = dept;
-		formDeptName = dept.dept_name;
-		formDeptStatus = dept.status;
-		isNameTouched = false;
-		backendError = '';
-		dirtyChecker.snapshot({ dept_name: dept.dept_name, status: dept.status });
 		isModalOpen = true;
-	}
-
-	async function handleSaveDepartment(e: Event) {
-		e.preventDefault();
-		if (editingDept && !isDirty) return;
-		isNameTouched = true;
-
-		const validationError = getValidationError(formDeptName);
-		if (validationError) {
-			deptNameInput?.focus();
-			return;
-		}
-
-		isSubmitting = true;
-
-		try {
-			const response = await fetch(
-				editingDept ? `/api/departments/departmentCuid=${editingDept.cuid}` : '/api/departments',
-				{
-					method: editingDept ? 'PUT' : 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ dept_name: formDeptName.trim(), status: formDeptStatus })
-				}
-			);
-			const resData = await response.json();
-
-			if (response.ok && resData.data) {
-				await loadDepartments();
-				toast.success(editingDept ? 'Department updated successfully' : 'Department created successfully');
-				isModalOpen = false;
-			} else if (response.status === 409 && resData.field === 'dept_name') {
-				backendError = resData.error;
-				deptNameInput?.focus();
-			} else {
-				toast.error(resData.error || 'Failed to save department.');
-			}
-		} catch (err) {
-			toast.error('An error occurred. Please try again.');
-			console.error(err);
-		} finally {
-			isSubmitting = false;
-		}
 	}
 
 	async function confirmDelete() {
 		if (!itemToDelete) return;
 		isDeleting = true;
 		try {
-			const response = await fetch(`/api/departments/departmentCuid=${itemToDelete.cuid}`, {
-				method: 'DELETE'
-			});
-			const resData = await response.json();
-
-			if (response.ok && resData.data) {
-				await loadDepartments();
-				toast.success('Department deactivated successfully');
-				itemToDelete = null;
-			} else {
-				toast.error(resData.error || 'Failed to deactivate department.');
-			}
+			await localApi.delete(`/api/departments/${itemToDelete.cuid}`);
+			await loadDepartments();
+			toast.success('Department deactivated successfully');
+			itemToDelete = null;
 		} catch (err) {
 			console.error(err);
-			toast.error('An error occurred while deleting the department.');
+			toast.error(err instanceof ApiError ? err.message : 'Failed to deactivate department.');
 		} finally {
 			isDeleting = false;
 		}
@@ -249,20 +159,19 @@
 </script>
 
 <svelte:head>
-	<title>HRMS Department Directory</title>
+	<title>HRMS Department</title>
 </svelte:head>
 
 <div class="w-full space-y-6 px-1 py-0">
 	<div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
 		<div class="space-y-1">
-			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Department Directory</h1>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Department</h1>
 		</div>
 		<Button
 			type="button"
 			class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
 			onclick={openCreateModal}
 		>
-			<PlusIcon class="size-4" />
 			Add Department
 		</Button>
 	</div>
@@ -291,8 +200,20 @@
 
 	<div class="space-y-3">
 		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-			<SearchInput id="search_departments" name="search_departments" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by department name..." />
-			<FilterDropdown value={statusFilter} onChange={(value) => { statusFilter = value; currentPage = 1; }} />
+			<SearchInput
+				id="search_departments"
+				name="search_departments"
+				bind:value={searchQuery}
+				oninput={() => (currentPage = 1)}
+				placeholder="Search by department name..."
+			/>
+			<FilterDropdown
+				value={statusFilter}
+				onChange={(value) => {
+					statusFilter = value;
+					currentPage = 1;
+				}}
+			/>
 		</div>
 
 		<Card class="py-0">
@@ -300,11 +221,11 @@
 				<TableHeader class="bg-muted">
 					<TableRow>
 						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('dept_name')}>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
 								Department Name
-							{#if sortColumn === 'dept_name' && sortDirection === 'asc'}
+							{#if sortColumn === 'name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortColumn === 'dept_name' && sortDirection === 'desc'}
+							{:else if sortColumn === 'name' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
@@ -351,7 +272,7 @@
 							>
 								<TableCell>
 									<div class="flex flex-col">
-										<span class="font-semibold">{dept.dept_name}</span>
+										<span class="font-semibold">{dept.name}</span>
 									</div>
 								</TableCell>
 								<TableCell class="text-center">
@@ -361,6 +282,7 @@
 									<TableActions
 										canEdit={true}
 										onEdit={() => openEditModal(dept)}
+										onDelete={() => { itemToDelete = dept; }}
 									/>
 								</TableCell>
 							</TableRow>
@@ -373,47 +295,21 @@
 	</div>
 </div>
 
-<CrudModal
+<SimpleMasterModal
 	open={isModalOpen}
-	title={editingDept ? 'Edit Department' : 'Create Department'}
-	isDirty={isDirty}
-	isSubmitting={isSubmitting}
-	onClose={() => (isModalOpen = false)}
->
-	{#snippet children({ cancel })}
-		<form class="space-y-3" onsubmit={handleSaveDepartment}>
-			<div class="space-y-2">
-				<Label for="dept_name">Department Name</Label>
-				<Input
-					id="dept_name"
-					name="dept_name"
-					bind:ref={deptNameInput}
-					bind:value={formDeptName}
-					class={nameValidationError || backendError ? 'border-destructive' : ''}
-					placeholder="e.g. Finance"
-					oninput={() => { backendError = ''; }}
-				/>
-				{#if nameValidationError || backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
-				{/if}
-			</div>
-			{#if editingDept}
-				<StatusDropdown id="dept_status" name="dept_status" value={formDeptStatus} onChange={(val) => (formDeptStatus = val)} />
-			{/if}
-			<div class="flex items-center justify-end gap-3 pt-4">
-				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingDept && !isDirty)}>
-					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingDept ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
-				</Button>
-			</div>
-		</form>
-	{/snippet}
-</CrudModal>
+	entityName="Department"
+	apiEndpoint="/api/departments"
+	editingRecord={editingDept}
+	onSuccess={() => {
+		isModalOpen = false;
+		loadDepartments();
+	}}
+/>
 
 <ConfirmModal
 	open={!!itemToDelete}
 	title="Deactivate Department"
-	description={`Are you sure you want to deactivate ${itemToDelete?.dept_name}?`}
+	description={`Are you sure you want to deactivate ${itemToDelete?.name}?`}
 	confirmLabel="Deactivate"
 	isSubmitting={isDeleting}
 	onCancel={() => (itemToDelete = null)}
