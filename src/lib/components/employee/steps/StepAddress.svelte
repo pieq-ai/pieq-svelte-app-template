@@ -211,15 +211,22 @@
 					master="states"
 					label="State *"
 					value={address.state_cuid}
+					countryCuid={address.country_cuid}
+					placeholder={!address.country_cuid ? 'Select Country first' : 'Select State'}
 					onSelect={(val) => address.state_cuid = val as string}
-					disabled={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)}
+					disabled={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm) || !address.country_cuid}
 					class={(isTouched && validateRequired(address.state_cuid)) ? 'border-destructive' : ''}
 				/>
 				<MasterDataDropdown
 					master="countries"
 					label="Country *"
 					value={address.country_cuid}
-					onSelect={(val) => address.country_cuid = val as string}
+					onSelect={(val) => {
+						if (address.country_cuid !== val) {
+							address.country_cuid = val as string;
+							address.state_cuid = '';
+						}
+					}}
 					disabled={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)}
 					class={(isTouched && validateRequired(address.country_cuid)) ? 'border-destructive' : ''}
 				/>
