@@ -1,6 +1,6 @@
-import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
-import * as leaveTypeDao from '$lib/server/dao/leave-type.dao.js';
 import * as leavePolicyDao from '$lib/server/dao/leave-policy.dao.js';
+import * as leaveTypeDao from '$lib/server/dao/leave-type.dao.js';
+import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import { LeaveValidationError, LeaveMultiValidationError } from './leave-type.service.js';
 
 export interface CreateLeavePolicyInput {
@@ -10,6 +10,7 @@ export interface CreateLeavePolicyInput {
 	max_per_month?: unknown;
 	carry_forward_allowed?: unknown;
 	max_carry_forward_days?: unknown;
+	max_annual_carry_forward_days?: unknown;
 	document_required?: unknown;
 	document_required_after_days?: unknown;
 	min_service_days?: unknown;
@@ -28,6 +29,7 @@ export interface UpdateLeavePolicyInput {
 	max_per_month?: unknown;
 	carry_forward_allowed?: unknown;
 	max_carry_forward_days?: unknown;
+	max_annual_carry_forward_days?: unknown;
 	document_required?: unknown;
 	document_required_after_days?: unknown;
 	min_service_days?: unknown;
@@ -75,7 +77,7 @@ async function validateAndMapPolicyInput(
 	}
 
 	for (const empTypeCuid of employmentTypeCuids) {
-		const empType = await masterDataDao.findByCuid2('employment-types', empTypeCuid);
+		const empType = (await masterDataDao.findByCuid2('employment-types', empTypeCuid)) as any;
 		if (!empType) {
 			throw new LeaveValidationError('employment_type_cuids', `Employment type ${empTypeCuid} does not exist`);
 		}
@@ -87,16 +89,22 @@ async function validateAndMapPolicyInput(
 	if (input.annual_limit === undefined || input.annual_limit === null || String(input.annual_limit).trim() === '') {
 		throw new LeaveValidationError('annual_limit', 'Annual limit is required');
 	}
+	if (isNaN(Number(input.annual_limit))) {
+		throw new LeaveValidationError('annual_limit', 'Only numeric values are allowed');
+	}
 	const annual_limit = Number(input.annual_limit);
-	if (isNaN(annual_limit) || annual_limit <= 0) {
-		throw new LeaveValidationError('annual_limit', 'Annual limit must be greater than zero');
+	if (annual_limit <= 0) {
+		throw new LeaveValidationError('annual_limit', 'Value must be greater than 0');
 	}
 
 	let max_per_month: number | null = null;
 	if (input.max_per_month !== undefined && input.max_per_month !== null && String(input.max_per_month).trim() !== '') {
+		if (isNaN(Number(input.max_per_month))) {
+			throw new LeaveValidationError('max_per_month', 'Only numeric values are allowed');
+		}
 		max_per_month = Number(input.max_per_month);
-		if (isNaN(max_per_month) || max_per_month <= 0) {
-			throw new LeaveValidationError('max_per_month', 'Max per month must be greater than zero');
+		if (max_per_month <= 0) {
+			throw new LeaveValidationError('max_per_month', 'Value must be greater than 0');
 		}
 		if (max_per_month > annual_limit) {
 			throw new LeaveValidationError('max_per_month', 'Max per month cannot exceed annual limit');
@@ -105,6 +113,7 @@ async function validateAndMapPolicyInput(
 
 	const carry_forward_allowed = Boolean(input.carry_forward_allowed);
 	let max_carry_forward_days: number | null = null;
+	let max_annual_carry_forward_days: number | null = null;
 	if (carry_forward_allowed) {
 		if (
 			input.max_carry_forward_days === undefined ||
@@ -113,9 +122,30 @@ async function validateAndMapPolicyInput(
 		) {
 			throw new LeaveValidationError('max_carry_forward_days', 'Max carry forward days is required when carry forward is allowed');
 		}
+		if (isNaN(Number(input.max_carry_forward_days))) {
+			throw new LeaveValidationError('max_carry_forward_days', 'Only numeric values are allowed');
+		}
 		max_carry_forward_days = Number(input.max_carry_forward_days);
-		if (isNaN(max_carry_forward_days) || max_carry_forward_days <= 0) {
-			throw new LeaveValidationError('max_carry_forward_days', 'Max carry forward days must be greater than zero');
+		if (max_carry_forward_days <= 0) {
+			throw new LeaveValidationError('max_carry_forward_days', 'Value must be greater than 0');
+		}
+
+		if (
+			input.max_annual_carry_forward_days === undefined ||
+			input.max_annual_carry_forward_days === null ||
+			String(input.max_annual_carry_forward_days).trim() === ''
+		) {
+			throw new LeaveValidationError('max_annual_carry_forward_days', 'Max annual carry forward days is required when carry forward is allowed');
+		}
+		if (isNaN(Number(input.max_annual_carry_forward_days))) {
+			throw new LeaveValidationError('max_annual_carry_forward_days', 'Only numeric values are allowed');
+		}
+		max_annual_carry_forward_days = Number(input.max_annual_carry_forward_days);
+		if (max_annual_carry_forward_days <= 0) {
+			throw new LeaveValidationError('max_annual_carry_forward_days', 'Value must be greater than 0');
+		}
+		if (max_annual_carry_forward_days > max_carry_forward_days) {
+			throw new LeaveValidationError('max_annual_carry_forward_days', 'Max annual carry forward days cannot exceed max carry forward days');
 		}
 	} else {
 		if (
@@ -125,13 +155,23 @@ async function validateAndMapPolicyInput(
 		) {
 			throw new LeaveValidationError('max_carry_forward_days', 'Max carry forward days must be empty when carry forward is not allowed');
 		}
+		if (
+			input.max_annual_carry_forward_days !== undefined &&
+			input.max_annual_carry_forward_days !== null &&
+			String(input.max_annual_carry_forward_days).trim() !== ''
+		) {
+			throw new LeaveValidationError('max_annual_carry_forward_days', 'Max annual carry forward days must be empty when carry forward is not allowed');
+		}
 	}
 
 	let min_service_days = 0;
 	if (input.min_service_days !== undefined && input.min_service_days !== null && String(input.min_service_days).trim() !== '') {
+		if (isNaN(Number(input.min_service_days))) {
+			throw new LeaveValidationError('min_service_days', 'Only numeric values are allowed');
+		}
 		min_service_days = Number(input.min_service_days);
-		if (isNaN(min_service_days) || !Number.isInteger(min_service_days) || min_service_days < 0) {
-			throw new LeaveValidationError('min_service_days', 'Min service days must be a positive integer');
+		if (min_service_days < 0) {
+			throw new LeaveValidationError('min_service_days', 'Value must be greater than or equal to 0');
 		}
 	}
 
@@ -143,9 +183,12 @@ async function validateAndMapPolicyInput(
 			input.document_required_after_days !== null &&
 			String(input.document_required_after_days).trim() !== ''
 		) {
+			if (isNaN(Number(input.document_required_after_days))) {
+				throw new LeaveValidationError('document_required_after_days', 'Only numeric values are allowed');
+			}
 			document_required_after_days = Number(input.document_required_after_days);
-			if (isNaN(document_required_after_days) || !Number.isInteger(document_required_after_days) || document_required_after_days <= 0) {
-				throw new LeaveValidationError('document_required_after_days', 'Document required after days must be greater than zero');
+			if (document_required_after_days <= 0) {
+				throw new LeaveValidationError('document_required_after_days', 'Value must be greater than 0');
 			}
 		}
 	} else {
@@ -200,6 +243,7 @@ async function validateAndMapPolicyInput(
 			max_per_month,
 			carry_forward_allowed,
 			max_carry_forward_days,
+			max_annual_carry_forward_days,
 			document_required,
 			document_required_after_days,
 			min_service_days,
@@ -246,6 +290,7 @@ export async function updateLeavePolicy(cuid: string, input: UpdateLeavePolicyIn
 		max_per_month: existingPolicy.max_per_month,
 		carry_forward_allowed: existingPolicy.carry_forward_allowed,
 		max_carry_forward_days: existingPolicy.max_carry_forward_days,
+		max_annual_carry_forward_days: existingPolicy.max_annual_carry_forward_days,
 		document_required: existingPolicy.document_required,
 		document_required_after_days: existingPolicy.document_required_after_days,
 		min_service_days: existingPolicy.min_service_days,

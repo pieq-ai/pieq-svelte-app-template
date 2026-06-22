@@ -16,7 +16,7 @@ export interface UpsertSkillDto {
 function toPublicSkill(skill: any) {
     if (!skill) return null;
     const { id, employee_cuid, created_at, updated_at, ...rest } = skill;
-    return { ...rest, years_of_experience: rest.years_of_experience ? Number(rest.years_of_experience) : null };
+    return { ...rest, years_of_experience: (rest.years_of_experience !== null && rest.years_of_experience !== undefined) ? Number(rest.years_of_experience) : null };
 }
 
 export async function getSkillsByEmployeeCuid(employee_cuid: string) {
@@ -41,7 +41,7 @@ export async function replaceSkills(employee_cuid: string, dtos: UpsertSkillDto[
         cuid: dto.cuid,
         skill_cuid: dto.skill_cuid,
         proficiency_level: dto.proficiency_level,
-        years_of_experience: dto.years_of_experience ? Number(dto.years_of_experience) : null,
+        years_of_experience: (dto.years_of_experience !== null && dto.years_of_experience !== undefined) ? Number(dto.years_of_experience) : null,
         created_by: dto.updated_by,
         updated_by: dto.updated_by
     }));

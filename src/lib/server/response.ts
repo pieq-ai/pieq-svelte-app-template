@@ -2,33 +2,33 @@ import { json } from '@sveltejs/kit';
 
 export interface HolidayInput {
 	cuid: string;
-	holiday_name: string;
-	holiday_date: Date | string;
-	holiday_type: string;
+	name: string;
+	date: Date | string;
+	type: string;
 }
 
 export interface HolidayDTO {
 	cuid: string;
-	holiday_name: string;
-	holiday_date: string;
-	holiday_type: 'National' | 'Regional' | 'Restricted';
+	name: string;
+	date: string;
+	type: 'National' | 'Regional' | 'Restricted';
 }
 
 export function formatHoliday(holiday: HolidayInput): HolidayDTO {
 	return {
 		cuid: holiday.cuid,
-		holiday_name: holiday.holiday_name,
-		holiday_date: holiday.holiday_date instanceof Date 
-			? holiday.holiday_date.toISOString().split('T')[0]
-			: new Date(holiday.holiday_date).toISOString().split('T')[0],
-		holiday_type: holiday.holiday_type as 'National' | 'Regional' | 'Restricted'
+		name: holiday.name,
+		date: holiday.date instanceof Date 
+			? holiday.date.toISOString().split('T')[0]
+			: new Date(holiday.date).toISOString().split('T')[0],
+		type: holiday.type as 'National' | 'Regional' | 'Restricted'
 	};
 }
 
 export interface LeaveTypeInput {
 	cuid: string;
-	leave_name: string;
-	leave_code: string;
+	name: string;
+	code: string;
 	description?: string | null;
 	is_paid: boolean;
 	requires_approval: boolean;
@@ -37,8 +37,8 @@ export interface LeaveTypeInput {
 
 export interface LeaveTypeDTO {
 	cuid: string;
-	leave_name: string;
-	leave_code: string;
+	name: string;
+	code: string;
 	description: string | null;
 	is_paid: boolean;
 	requires_approval: boolean;
@@ -48,8 +48,8 @@ export interface LeaveTypeDTO {
 export function formatLeaveType(type: LeaveTypeInput): LeaveTypeDTO {
 	return {
 		cuid: type.cuid,
-		leave_name: type.leave_name,
-		leave_code: type.leave_code,
+		name: type.name,
+		code: type.code,
 		description: type.description || null,
 		is_paid: type.is_paid,
 		requires_approval: type.requires_approval,
@@ -64,6 +64,7 @@ export interface LeavePolicyInput {
 	max_per_month?: number | null;
 	carry_forward_allowed: boolean;
 	max_carry_forward_days?: number | null;
+	max_annual_carry_forward_days?: number | null;
 	document_required: boolean;
 	document_required_after_days?: number | null;
 	min_service_days: number;
@@ -81,6 +82,7 @@ export interface LeavePolicyDTO {
 	max_per_month: number | null;
 	carry_forward_allowed: boolean;
 	max_carry_forward_days: number | null;
+	max_annual_carry_forward_days: number | null;
 	document_required: boolean;
 	document_required_after_days: number | null;
 	min_service_days: number;
@@ -99,6 +101,7 @@ export function formatLeavePolicy(policy: LeavePolicyInput): LeavePolicyDTO {
 		max_per_month: policy.max_per_month || null,
 		carry_forward_allowed: policy.carry_forward_allowed,
 		max_carry_forward_days: policy.max_carry_forward_days || null,
+		max_annual_carry_forward_days: policy.max_annual_carry_forward_days !== undefined && policy.max_annual_carry_forward_days !== null ? Number(policy.max_annual_carry_forward_days) : null,
 		document_required: policy.document_required,
 		document_required_after_days: policy.document_required_after_days !== undefined && policy.document_required_after_days !== null ? Number(policy.document_required_after_days) : null,
 		min_service_days: policy.min_service_days,

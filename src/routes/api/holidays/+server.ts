@@ -34,18 +34,18 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		return json({ error: { general: 'Request body must be valid JSON' } }, { status: 400 });
 	}
 
-	const validation = validatePayloadKeys(body, ['holiday_name', 'holiday_date', 'holiday_type']);
+	const validation = validatePayloadKeys(body, ['name', 'date', 'type']);
 	if (validation) {
 		return json({ error: { general: validation.error } }, { status: 400 });
 	}
 
 	const trimmedBody = trimStringFields(body) as {
-		holiday_name?: unknown;
-		holiday_date?: unknown;
-		holiday_type?: unknown;
+		name?: unknown;
+		date?: unknown;
+		type?: unknown;
 	};
 
-	const { holiday_name, holiday_date, holiday_type } = trimmedBody;
+	const { name, date, type } = trimmedBody;
 
 	try {
 		let userId: string | null = null;
@@ -57,9 +57,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		}
 
 		const holiday = await createHoliday({
-			holiday_name,
-			holiday_date,
-			holiday_type,
+			name,
+			date,
+			type,
 			created_by: userId,
 			updated_by: userId
 		});

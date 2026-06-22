@@ -1,10 +1,11 @@
 <script lang="ts">
 	import CalendarIcon from "@lucide/svelte/icons/calendar";
-	import { type DateValue, getLocalTimeZone, parseDate } from "@internationalized/date";
+	import { type DateValue, getLocalTimeZone, parseDate, today } from "@internationalized/date";
 	import { cn } from "$lib/utils.js";
 	import { Input } from "$lib/components/ui/input/index.js";
 	import { Calendar } from "$lib/components/ui/calendar/index.js";
 	import * as Popover from "$lib/components/ui/popover/index.js";
+	import { Button } from "$lib/components/ui/button/index.js";
 	import { untrack } from "svelte";
 
 	interface Props {
@@ -19,6 +20,7 @@
 		max?: string;
 		required?: boolean;
 		onchange?: () => void;
+		isFilter?: boolean;
 	}
 
 	let { 
@@ -32,7 +34,8 @@
 		min,
 		max,
 		required,
-		onchange
+		onchange,
+		isFilter = false
 	}: Props = $props();
 
 	let open = $state(false);
@@ -55,10 +58,21 @@
 
 	let textValue = $state(formatDate(value));
 	let calendarValue = $state<DateValue | undefined>(value && value !== 'Invalid Date' ? parseDate(value.split('T')[0]) : undefined);
+	let calendarPlaceholder = $state<DateValue>(today(getLocalTimeZone()));
 
+	let minDate = $derived(min && min !== 'Invalid Date' ? parseDate(min.split('T')[0]) : undefined);
+	let maxDate = $derived(max && max !== 'Invalid Date' ? parseDate(max.split('T')[0]) : undefined);
 
 	const currentYear = new Date().getFullYear();
 	const yearsForDropdown = Array.from({ length: currentYear - 1900 + 50 }, (_, i) => 1900 + i);
+
+	$effect(() => {
+		if (open && !calendarValue) {
+			calendarPlaceholder = today(getLocalTimeZone());
+		} else if (calendarValue) {
+			calendarPlaceholder = calendarValue;
+		}
+	});
 
 	$effect(() => {
 		if (value !== prevValue) {
@@ -100,6 +114,37 @@
 				});
 			}
 		}
+	});
+
+	function handleToday() {
+		const t = today(getLocalTimeZone());
+		const tStr = t.toString();
+		calendarValue = t;
+		value = tStr;
+		textValue = formatDate(tStr);
+		prevTextValue = textValue;
+		prevValue = tStr;
+		isError = false;
+		open = false;
+		if (onchange) onchange();
+	}
+
+	function handleClear() {
+		calendarValue = undefined;
+		value = '';
+		textValue = '';
+		prevTextValue = '';
+		prevValue = '';
+		isError = false;
+		open = false;
+		if (onchange) onchange();
+	}
+
+	let isTodayDisabled = $derived.by(() => {
+		const tStr = today(getLocalTimeZone()).toString();
+		if (min && tStr < min) return true;
+		if (max && tStr > max) return true;
+		return false;
 	});
 
 	function parseInputDate(val: string): string | null {
@@ -169,14 +214,26 @@
 
 		const isoString = parseInputDate(textValue);
 		if (isoString) {
-			try {
-				calendarValue = parseDate(isoString);
-				value = isoString;
-				prevValue = isoString;
-				isError = false;
+			let isOutOfRange = false;
+			if (min && isoString < min) isOutOfRange = true;
+			if (max && isoString > max) isOutOfRange = true;
+
+			if (!isOutOfRange) {
+				try {
+					calendarValue = parseDate(isoString);
+					value = isoString;
+					prevValue = isoString;
+					isError = false;
+					if (onchange) onchange();
+				} catch {
+					// Internal parse failure
+				}
+			} else {
+				isError = true;
+				value = '';
+				prevValue = '';
+				calendarValue = undefined;
 				if (onchange) onchange();
-			} catch {
-				// Internal parse failure
 			}
 		}
 	}
@@ -198,8 +255,20 @@
 			calendarValue = undefined;
 			if (onchange) onchange();
 		} else {
-			textValue = formatDate(isoString);
-			prevTextValue = textValue;
+			let isOutOfRange = false;
+			if (min && isoString < min) isOutOfRange = true;
+			if (max && isoString > max) isOutOfRange = true;
+
+			if (isOutOfRange) {
+				isError = true;
+				value = '';
+				prevValue = '';
+				calendarValue = undefined;
+				if (onchange) onchange();
+			} else {
+				textValue = formatDate(isoString);
+				prevTextValue = textValue;
+			}
 		}
 	}
 </script>
@@ -208,34 +277,89 @@
 	{#if name}
 		<input type="hidden" {name} {id} value={value ?? ''} />
 	{/if}
-	<Input
-		type="text"
-		id={name ? undefined : id}
-		{placeholder}
-		{required}
-		bind:value={textValue}
-		oninput={handleInput}
-		onblur={handleBlur}
-		{disabled}
-		class={cn(
-			"pr-10 transition-colors",
-			isError && "border-destructive focus-visible:ring-destructive/50",
-			className
-		)}
-	/>
-	{#if !disabled}
+
+	{#if isFilter}
 		<Popover.Root bind:open>
-			<Popover.Trigger class="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-r-md">
-				<CalendarIcon class="size-4 shrink-0" />
+			<Popover.Trigger>
+				{#snippet child({ props })}
+					<div 
+						{...props} 
+						class="relative w-full group cursor-pointer focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 rounded-md outline-none"
+					>
+						<Input
+							type="text"
+							id={name ? undefined : id}
+							{placeholder}
+							{required}
+							bind:value={textValue}
+							readonly={true}
+							{disabled}
+							tabindex={-1}
+							class={cn(
+								"pr-10 transition-colors cursor-pointer select-none pointer-events-none",
+								isError && "border-destructive focus-visible:ring-destructive/50",
+								className
+							)}
+						/>
+						<div class="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-muted-foreground hover:text-foreground">
+							<CalendarIcon class="size-4 shrink-0" />
+						</div>
+					</div>
+				{/snippet}
 			</Popover.Trigger>
 			<Popover.Content class="w-auto p-0 border border-border rounded-md shadow-md bg-popover z-50" align="end" sideOffset={4}>
 				<Calendar 
 					type="single" 
 					bind:value={calendarValue} 
+					bind:placeholder={calendarPlaceholder}
+					minValue={minDate}
+					maxValue={maxDate}
 					captionLayout="dropdown"
 					years={yearsForDropdown}
 				/>
+				<div class="flex items-center justify-between p-2 border-t border-border mt-1">
+					<Button variant="ghost" size="sm" onclick={handleToday} disabled={isTodayDisabled}>Today</Button>
+					<Button variant="ghost" size="sm" onclick={handleClear}>Clear</Button>
+				</div>
 			</Popover.Content>
 		</Popover.Root>
+	{:else}
+		<Input
+			type="text"
+			id={name ? undefined : id}
+			{placeholder}
+			{required}
+			bind:value={textValue}
+			oninput={handleInput}
+			onblur={handleBlur}
+			{disabled}
+			class={cn(
+				"pr-10 transition-colors",
+				isError && "border-destructive focus-visible:ring-destructive/50",
+				className
+			)}
+		/>
+		{#if !disabled}
+			<Popover.Root bind:open>
+				<Popover.Trigger class="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-r-md">
+					<CalendarIcon class="size-4 shrink-0" />
+				</Popover.Trigger>
+				<Popover.Content class="w-auto p-0 border border-border rounded-md shadow-md bg-popover z-50" align="end" sideOffset={4}>
+					<Calendar 
+						type="single" 
+						bind:value={calendarValue} 
+						bind:placeholder={calendarPlaceholder}
+						minValue={minDate}
+						maxValue={maxDate}
+						captionLayout="dropdown"
+						years={yearsForDropdown}
+					/>
+					<div class="flex items-center justify-between p-2 border-t border-border mt-1">
+						<Button variant="ghost" size="sm" onclick={handleToday} disabled={isTodayDisabled}>Today</Button>
+						<Button variant="ghost" size="sm" onclick={handleClear}>Clear</Button>
+					</div>
+				</Popover.Content>
+			</Popover.Root>
+		{/if}
 	{/if}
 </div>

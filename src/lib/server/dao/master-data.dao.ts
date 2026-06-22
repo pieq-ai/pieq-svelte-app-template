@@ -151,3 +151,15 @@ export async function update(master: MasterKey, data: MasterUpdateInput) {
 			return db.languages.update({ where: { id: data.id }, data: { name: data.name, updated_by: data.updated_by ?? undefined, updated_at: data.updated_at ? new Date(data.updated_at) : undefined } });
 	}
 }
+
+export async function findAttendanceSourceByName(name: string) {
+	return db.attendanceSource.findFirst({
+		where: { name: { equals: name, mode: 'insensitive' } }
+	});
+}
+
+export async function createAttendanceSource(name: string) {
+	return db.attendanceSource.create({
+		data: { name: name }
+	});
+}

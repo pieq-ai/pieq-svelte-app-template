@@ -7,7 +7,7 @@
 		totalItems: number;
 	}
 
-	let { currentPage = $bindable(), pageSize, totalItems }: Props = $props();
+	let { currentPage = $bindable(), pageSize, totalItems}: Props = $props();
 
 	let totalPages = $derived(Math.max(1, Math.ceil(totalItems / pageSize)));
 	

@@ -6,6 +6,7 @@ export interface CreateLeavePolicyData {
 	max_per_month: number | null;
 	carry_forward_allowed: boolean;
 	max_carry_forward_days: number | null;
+	max_annual_carry_forward_days: number | null;
 	document_required: boolean;
 	document_required_after_days: number | null;
 	min_service_days: number;
@@ -26,6 +27,7 @@ export async function list() {
 			max_per_month: true,
 			carry_forward_allowed: true,
 			max_carry_forward_days: true,
+			max_annual_carry_forward_days: true,
 			document_required: true,
 			document_required_after_days: true,
 			min_service_days: true,
@@ -57,6 +59,7 @@ export async function list() {
 		annual_limit: Number(p.annual_limit),
 		max_per_month: p.max_per_month !== null ? Number(p.max_per_month) : null,
 		max_carry_forward_days: p.max_carry_forward_days !== null ? Number(p.max_carry_forward_days) : null,
+		max_annual_carry_forward_days: p.max_annual_carry_forward_days !== null ? Number(p.max_annual_carry_forward_days) : null,
 		employment_type_cuids: mappingsMap.get(p.cuid) || []
 	}));
 }
@@ -70,6 +73,7 @@ export async function create(policyData: CreateLeavePolicyData, employmentTypeCu
 				max_per_month: policyData.max_per_month,
 				carry_forward_allowed: policyData.carry_forward_allowed,
 				max_carry_forward_days: policyData.max_carry_forward_days,
+				max_annual_carry_forward_days: policyData.max_annual_carry_forward_days,
 				document_required: policyData.document_required,
 				document_required_after_days: policyData.document_required_after_days,
 				min_service_days: policyData.min_service_days,
@@ -98,6 +102,7 @@ export async function create(policyData: CreateLeavePolicyData, employmentTypeCu
 			annual_limit: Number(createdPolicy.annual_limit),
 			max_per_month: createdPolicy.max_per_month !== null ? Number(createdPolicy.max_per_month) : null,
 			max_carry_forward_days: createdPolicy.max_carry_forward_days !== null ? Number(createdPolicy.max_carry_forward_days) : null,
+			max_annual_carry_forward_days: createdPolicy.max_annual_carry_forward_days !== null ? Number(createdPolicy.max_annual_carry_forward_days) : null,
 			employment_type_cuids: employmentTypeCuids
 		};
 	});
@@ -113,6 +118,7 @@ export async function update(cuid: string, policyData: Partial<CreateLeavePolicy
 				max_per_month: policyData.max_per_month,
 				carry_forward_allowed: policyData.carry_forward_allowed,
 				max_carry_forward_days: policyData.max_carry_forward_days,
+				max_annual_carry_forward_days: policyData.max_annual_carry_forward_days,
 				document_required: policyData.document_required,
 				document_required_after_days: policyData.document_required_after_days,
 				min_service_days: policyData.min_service_days,
@@ -155,6 +161,7 @@ export async function update(cuid: string, policyData: Partial<CreateLeavePolicy
 			annual_limit: Number(updatedPolicy.annual_limit),
 			max_per_month: updatedPolicy.max_per_month !== null ? Number(updatedPolicy.max_per_month) : null,
 			max_carry_forward_days: updatedPolicy.max_carry_forward_days !== null ? Number(updatedPolicy.max_carry_forward_days) : null,
+			max_annual_carry_forward_days: updatedPolicy.max_annual_carry_forward_days !== null ? Number(updatedPolicy.max_annual_carry_forward_days) : null,
 			employment_type_cuids: mappings.map((m) => m.employment_type_cuid)
 		};
 	});
@@ -194,6 +201,7 @@ export async function findByCuid(cuid: string) {
 			max_per_month: true,
 			carry_forward_allowed: true,
 			max_carry_forward_days: true,
+			max_annual_carry_forward_days: true,
 			document_required: true,
 			document_required_after_days: true,
 			min_service_days: true,
@@ -217,6 +225,7 @@ export async function findByCuid(cuid: string) {
 		annual_limit: Number(policy.annual_limit),
 		max_per_month: policy.max_per_month !== null ? Number(policy.max_per_month) : null,
 		max_carry_forward_days: policy.max_carry_forward_days !== null ? Number(policy.max_carry_forward_days) : null,
+		max_annual_carry_forward_days: policy.max_annual_carry_forward_days !== null ? Number(policy.max_annual_carry_forward_days) : null,
 		employment_type_cuids: mappings.map((m) => m.employment_type_cuid)
 	};
 }

@@ -16,6 +16,10 @@
     validateDocuments,
     validateBankDetails,
     isDuplicateEntry,
+    normalizeText,
+    validateLettersSpaces,
+    validateAccountNumber,
+    validateIfscInput,
   } from "$lib/utils/employeeValidationHelper";
 
   let { mode, cuid, onPrev, onDirtyChange, onCancel } = $props<{
@@ -104,20 +108,30 @@
   function validateRequired(val: string | undefined | null) {
     return val && val.trim().length > 0 ? "" : "Required";
   }
-  function validateIfsc(val: string | undefined | null) {
-    if (!val) return "Required";
-    if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(val))
-      return "Invalid IFSC (e.g. SBIN0123456)";
-    return "";
+  function bankNameError(val: string) {
+    return validateRequired(val) || validateLettersSpaces(val, 'Bank name');
+  }
+  function branchNameError(val: string) {
+    // branch_name is optional — only validate format when present
+    return validateLettersSpaces(val, 'Branch name');
+  }
+  function holderNameError(val: string) {
+    return validateRequired(val) || validateLettersSpaces(val, 'Account holder name');
+  }
+  function accountNumberError(val: string) {
+    return validateAccountNumber(val);
+  }
+  function ifscError(val: string) {
+    return validateIfscInput(val);
   }
 
   let hasErrors = $derived(
     bankDetails.some(
       (b, i) =>
-        validateRequired(b.account_holder_name) ||
-        validateRequired(b.account_number) ||
-        validateRequired(b.bank_name) ||
-        validateIfsc(b.ifsc_code) ||
+        bankNameError(b.bank_name) ||
+        holderNameError(b.account_holder_name) ||
+        accountNumberError(b.account_number) ||
+        ifscError(b.ifsc_code) ||
         isDuplicateEntry(
           bankDetails,
           i,
@@ -207,24 +221,32 @@
             <Label>Bank Name <span class="text-destructive">*</span></Label>
             <Input
               bind:value={bank.bank_name}
-              placeholder="e.g. Chase Bank"
-              class={isTouched && validateRequired(bank.bank_name)
+              placeholder="e.g. State Bank of India"
+              onblur={() => (bank.bank_name = normalizeText(bank.bank_name))}
+              class={isTouched && bankNameError(bank.bank_name)
                 ? "border-destructive focus-visible:ring-destructive/50"
                 : ""}
               required
             />
-            {#if isTouched && validateRequired(bank.bank_name)}<p
+            {#if isTouched && bankNameError(bank.bank_name)}<p
                 class="text-xs text-destructive"
               >
-                {validateRequired(bank.bank_name)}
+                {bankNameError(bank.bank_name)}
               </p>{/if}
           </div>
           <div class="space-y-2">
             <Label>Branch Name</Label>
             <Input
               bind:value={bank.branch_name}
-              placeholder="Downtown Branch"
+              placeholder="e.g. MG Road Branch"
+              onblur={() => (bank.branch_name = normalizeText(bank.branch_name))}
+              class={isTouched && branchNameError(bank.branch_name)
+                ? "border-destructive focus-visible:ring-destructive/50"
+                : ""}
             />
+            {#if isTouched && branchNameError(bank.branch_name)}<p
+                class="text-xs text-destructive"
+              >{branchNameError(bank.branch_name)}</p>{/if}
           </div>
           <div class="space-y-2">
             <Label
@@ -234,15 +256,16 @@
             <Input
               bind:value={bank.account_holder_name}
               placeholder="John Doe"
-              class={isTouched && validateRequired(bank.account_holder_name)
+              onblur={() => (bank.account_holder_name = normalizeText(bank.account_holder_name))}
+              class={isTouched && holderNameError(bank.account_holder_name)
                 ? "border-destructive focus-visible:ring-destructive/50"
                 : ""}
               required
             />
-            {#if isTouched && validateRequired(bank.account_holder_name)}<p
+            {#if isTouched && holderNameError(bank.account_holder_name)}<p
                 class="text-xs text-destructive"
               >
-                {validateRequired(bank.account_holder_name)}
+                {holderNameError(bank.account_holder_name)}
               </p>{/if}
           </div>
           <div class="space-y-2">
@@ -251,8 +274,9 @@
             <Input
               bind:value={bank.account_number}
               placeholder="000123456789"
+              oninput={(e) => (bank.account_number = e.currentTarget.value.replace(/\D/g, ''))}
               class={isTouched &&
-              (validateRequired(bank.account_number) ||
+              (accountNumberError(bank.account_number) ||
                 isDuplicateEntry(
                   bankDetails,
                   index,
@@ -262,10 +286,10 @@
                 : ""}
               required
             />
-            {#if isTouched && validateRequired(bank.account_number)}<p
+            {#if isTouched && accountNumberError(bank.account_number)}<p
                 class="text-xs text-destructive"
               >
-                {validateRequired(bank.account_number)}
+                {accountNumberError(bank.account_number)}
               </p>{/if}
           </div>
           <div class="space-y-2">
@@ -276,10 +300,10 @@
             <Input
               bind:value={bank.ifsc_code}
               oninput={(e) =>
-                (bank.ifsc_code = e.currentTarget.value.toUpperCase())}
-              placeholder="IFSC/Routing"
+                (bank.ifsc_code = e.currentTarget.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase())}
+              placeholder="SBIN0123456"
               class={isTouched &&
-              (validateIfsc(bank.ifsc_code) ||
+              (ifscError(bank.ifsc_code) ||
                 isDuplicateEntry(
                   bankDetails,
                   index,
@@ -289,10 +313,10 @@
                 : ""}
               required
             />
-            {#if isTouched && validateIfsc(bank.ifsc_code)}<p
+            {#if isTouched && ifscError(bank.ifsc_code)}<p
                 class="text-xs text-destructive"
               >
-                {validateIfsc(bank.ifsc_code)}
+                {ifscError(bank.ifsc_code)}
               </p>{/if}
           </div>
           {#if isTouched && isDuplicateEntry(bankDetails, index, (x) => `${x.ifsc_code}|${x.account_number}`)}

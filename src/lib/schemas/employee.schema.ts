@@ -3,13 +3,13 @@ import { z } from 'zod';
 // Helper for exact digit string lengths
 const digits = (len: number) => z.string().regex(/^\d+$/, `Must contain only digits`).length(len, `Must be exactly ${len} digits`);
 
-// Helper to convert empty strings from frontend to undefined before validation
+// Helper to convert empty strings from frontend to null before validation
 export const optionalString = <T extends z.ZodTypeAny>(schema: T) =>
-  z.unknown().transform((val) => (val === '' ? undefined : val)).pipe(schema.optional().nullable());
+  z.unknown().transform((val) => (val === '' ? null : val)).pipe(schema.optional().nullable());
 
-// Helper to convert empty string dates from frontend to undefined before validation
+// Helper to convert empty string dates from frontend to null before validation
 export const optionalDate = <T extends z.ZodTypeAny>(schema: T) =>
-  z.unknown().transform((val) => (val === '' ? undefined : val)).pipe(schema);
+  z.unknown().transform((val) => (val === '' ? null : val)).pipe(schema);
 
 export const personalSchema = z.object({
   emp_code: optionalString(z.string().regex(/^PQ\d+$/, "Employee code must be in format PQ followed by digits (e.g. PQ001)")),

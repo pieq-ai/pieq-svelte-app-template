@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import { page } from '$app/state';
-	import { resolve } from '$app/paths';
 	import { goto, invalidate, beforeNavigate } from '$app/navigation';
 	import { SvelteDate } from 'svelte/reactivity';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
@@ -34,7 +32,8 @@
 		TableRow,
 		toast
 	} from '$lib/components/ui';
-	import { ConfirmModal, CrudModal, Pagination, TableActions, DatePicker } from '$lib/components';
+	import { ConfirmModal, CrudModal, Pagination, TableActions, DatePicker, SearchInput } from '$lib/components';
+	import { UI_CONSTANTS } from '$lib/constants';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -48,7 +47,7 @@
 	let isSubmitting = $state(false);
 	let isFormModalOpen = $state(false);
 
-	let sortKey = $state<string | null>('holiday_date');
+	let sortKey = $state<string | null>('date');
 	let sortDirection = $state<'asc' | 'desc' | null>('asc');
 
 	function handleSort(key: string) {
@@ -64,16 +63,16 @@
 		}
 	}
 
-	// Confirm Modal states
-	let isConfirmOpen = $state(false);
-	let confirmTitle = $state('');
-	let confirmMessage = $state('');
-	let activeDeleteCuid = $state<string | null>(null);
-
 	function openAddModal() {
+		editCuid = null;
 		holidayName = '';
 		holidayDate = '';
-		holidayType = 'National';
+		holidayType = '';
+		isFormModalOpen = true;
+	}
+
+	function openEditModal(cuid: string) {
+		editCuid = cuid;
 		isFormModalOpen = true;
 	}
 
@@ -87,11 +86,13 @@
 		// Validate all fields client-side simultaneously
 		const nameErr = getHolidayNameError(holidayName);
 		const dateErr = getClientDateError(holidayDate);
+		const typeErr = getCategoryError(holidayType);
 
-		errors.holiday_name = nameErr;
-		errors.holiday_date = dateErr;
+		errors.name = nameErr;
+		errors.date = dateErr;
+		errors.type = typeErr;
 
-		if (nameErr || dateErr) {
+		if (nameErr || dateErr || typeErr) {
 			return;
 		}
 
@@ -99,9 +100,9 @@
 		errors.general = '';
 
 		const body = {
-			holiday_name: holidayName,
-			holiday_date: holidayDate,
-			holiday_type: holidayType
+			name: holidayName,
+			date: holidayDate,
+			type: holidayType
 		};
 
 		try {
@@ -116,13 +117,6 @@
 			if (res.ok && result.data) {
 				toast.success(result.data.message);
 				isFormModalOpen = false;
-				if (editCuid) {
-					await goto(resolve('/holidays'), { replaceState: true });
-				} else {
-					holidayName = '';
-					holidayDate = '';
-					holidayType = 'National';
-				}
 				await invalidate('/api/holidays');
 			} else {
 				if (result.data?.error && typeof result.data.error === 'object') {
@@ -172,36 +166,15 @@
 		}
 	}
 
-	async function handleDelete(cuid: string) {
-		isSubmitting = true;
-		try {
-			const res = await fetch(`/api/holidays/${cuid}`, {
-				method: 'DELETE'
-			});
-			const result = await res.json();
-			if (res.ok && result.data) {
-				toast.success(result.data.message);
-				await invalidate('/api/holidays');
-			} else {
-				toast.error(result.data?.error || 'Action failed');
-			}
-		} catch (error) {
-			console.error('Delete failed:', error);
-			toast.error('An unexpected error occurred.');
-		} finally {
-			isSubmitting = false;
-		}
-	}
 
-
-	// Active Edit Mode Detection from URL query parameter
-	let editCuid = $derived(page.url.searchParams.get('edit'));
+	// Active Edit Mode Detection (local state – no longer URL-driven)
+	let editCuid = $state<string | null>(null);
 	let editingHoliday = $derived(data.holidays.find((h) => h.cuid === editCuid));
 
 	// Form local state
 	let holidayName = $state('');
 	let holidayDate = $state('');
-	let holidayType = $state<'National' | 'Regional' | 'Restricted'>('National');
+	let holidayType = $state<'National' | 'Regional' | 'Restricted' | ''>('');
 
 	const filterTypeOptions = [
 		{ value: 'all', label: 'All Holiday Types' },
@@ -219,16 +192,16 @@
 	let hasChanges = $derived.by(() => {
 		if (!editCuid || !editingHoliday) return false;
 		
-		const dateObj = new Date(editingHoliday.holiday_date);
+		const dateObj = new Date(editingHoliday.date);
 		const year = dateObj.getUTCFullYear();
 		const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
 		const day = String(dateObj.getUTCDate()).padStart(2, '0');
 		const originalDateStr = `${year}-${month}-${day}`;
 
 		return (
-			holidayName.trim() !== editingHoliday.holiday_name.trim() ||
+			holidayName.trim() !== editingHoliday.name.trim() ||
 			holidayDate !== originalDateStr ||
-			holidayType !== editingHoliday.holiday_type
+			holidayType !== editingHoliday.type
 		);
 	});
 
@@ -236,7 +209,7 @@
 		if (editCuid) {
 			return hasChanges;
 		} else {
-			return holidayName.trim() !== '' || holidayDate !== '' || holidayType !== 'National';
+			return holidayName.trim() !== '' || holidayDate !== '' || holidayType !== '';
 		}
 	});
 
@@ -245,7 +218,7 @@
 
 	function getHolidayNameError(name: string): string {
 		if (!name || name.trim() === '') {
-			return 'Holiday name is required.';
+			return 'Holiday name is required';
 		}
 		const trimmed = name.trim();
 		if (trimmed.length <= 5) {
@@ -263,18 +236,34 @@
 
 	function getClientDateError(dateStr: string): string {
 		if (!dateStr) {
-			return 'Holiday date is required.';
+			return 'Holiday date is required';
 		}
 		const parts = dateStr.split('-');
-		if (parts.length !== 3) return 'Invalid date format.';
+		if (parts.length !== 3) return 'Invalid date format';
 		const year = parseInt(parts[0], 10);
+		if (year > 2099) {
+			return 'You can schedule holidays only up to the year 2099';
+		}
+		if (year < 2000) {
+			return 'Holiday date must be between the years 2000 and 2099';
+		}
 		const month = parseInt(parts[1], 10) - 1;
 		const day = parseInt(parts[2], 10);
-		const selectedDate = new Date(year, month, day);
+		const selectedDateUTC = new Date(Date.UTC(year, month, day));
 		const today = new Date();
-		const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-		if (selectedDate.getTime() < todayMidnight.getTime()) {
-			return 'Holiday date cannot be in the past.';
+		const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+		if (selectedDateUTC.getTime() < todayUTC.getTime()) {
+			return 'Holiday date cannot be in the past';
+		}
+		return '';
+	}
+
+	function getCategoryError(type: string): string {
+		if (!type || type.trim() === '') {
+			return 'Category is required';
+		}
+		if (!['National', 'Regional', 'Restricted'].includes(type)) {
+			return 'Category must be one of: National, Regional, Restricted';
 		}
 		return '';
 	}
@@ -310,17 +299,15 @@
 		
 		holidayName = '';
 		holidayDate = '';
-		holidayType = 'National';
+		holidayType = '';
 		isFormModalOpen = false;
 		
 		if (pendingNavigation) {
 			const target = pendingNavigation.to?.url;
 			pendingNavigation = null;
 			if (target) {
-				await goto(resolve((target.pathname + target.search) as '/holidays'));
+				await goto(target.pathname + target.search);
 			}
-		} else if (editCuid) {
-			await goto(resolve('/holidays'), { replaceState: true });
 		}
 		
 		isNavigatingProgrammatically = false;
@@ -370,44 +357,35 @@
 		if (hasSynchronized) return;
 
 		if (editingHoliday) {
-			holidayName = editingHoliday.holiday_name;
-			const dateObj = new Date(editingHoliday.holiday_date);
+			holidayName = editingHoliday.name;
+			const dateObj = new Date(editingHoliday.date);
 			const year = dateObj.getUTCFullYear();
 			const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
 			const day = String(dateObj.getUTCDate()).padStart(2, '0');
 			holidayDate = `${year}-${month}-${day}`;
-			holidayType = editingHoliday.holiday_type;
+			holidayType = editingHoliday.type;
 			hasSynchronized = true;
 		} else if (!editCuid) {
 			holidayName = '';
 			holidayDate = '';
-			holidayType = 'National';
+			holidayType = '';
 			hasSynchronized = true;
 		}
 	});
 
-	// Sync isFormModalOpen with editCuid
-	$effect(() => {
-		if (editCuid) {
-			isFormModalOpen = true;
-		}
-	});
-
-	// Reset form state and clear query parameter on modal close
+	// Reset form state on modal close
 	$effect(() => {
 		if (!isFormModalOpen) {
 			form = null;
 			isSubmitting = false;
 			holidayName = '';
 			holidayDate = '';
-			holidayType = 'National';
+			holidayType = '';
 			errors = {};
 			submissionAttempted = false;
 			hasSynchronized = false;
 			isDiscardModalOpen = false;
-			if (editCuid) {
-				goto(resolve('/holidays'), { replaceState: true });
-			}
+			editCuid = null;
 		}
 	});
 
@@ -428,33 +406,46 @@
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
 			result = result.filter(
-				(h) => h.holiday_name.toLowerCase().includes(query)
+				(h) => h.name.toLowerCase().includes(query)
 			);
 		}
 
 		if (filterType !== 'all') {
-			result = result.filter((h) => h.holiday_type === filterType);
+			result = result.filter((h) => h.type === filterType);
 		}
 
 		if (filterStartDate) {
-			result = result.filter((h) => getISODateString(h.holiday_date) >= filterStartDate);
+			result = result.filter((h) => getISODateString(h.date) >= filterStartDate);
 		}
 
 		if (filterEndDate) {
-			result = result.filter((h) => getISODateString(h.holiday_date) <= filterEndDate);
+			result = result.filter((h) => getISODateString(h.date) <= filterEndDate);
 		}
 
 		// Sort behavior
+		const now = new Date();
+		const todayUTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+
 		if (sortKey && sortDirection) {
 			result.sort((a, b) => {
+				if (sortKey === 'date') {
+					const dateA = new Date(a.date);
+					const dateB = new Date(b.date);
+					const isUpcomingA = dateA >= todayUTC;
+					const isUpcomingB = dateB >= todayUTC;
+
+					if (isUpcomingA && !isUpcomingB) {
+						return sortDirection === 'asc' ? -1 : 1;
+					}
+					if (!isUpcomingA && isUpcomingB) {
+						return sortDirection === 'asc' ? 1 : -1;
+					}
+					const diff = dateA.getTime() - dateB.getTime();
+					return sortDirection === 'asc' ? diff : -diff;
+				}
+
 				const valA = a[sortKey as keyof typeof a];
 				const valB = b[sortKey as keyof typeof b];
-
-				if (sortKey === 'holiday_date') {
-					const timeA = new Date(valA as string).getTime();
-					const timeB = new Date(valB as string).getTime();
-					return sortDirection === 'asc' ? timeA - timeB : timeB - timeA;
-				}
 
 				if (typeof valA === 'string' && typeof valB === 'string') {
 					return sortDirection === 'asc'
@@ -466,9 +457,18 @@
 			});
 		} else {
 			result.sort((a, b) => {
-				const timeA = new Date(a.holiday_date).getTime();
-				const timeB = new Date(b.holiday_date).getTime();
-				return timeA - timeB;
+				const dateA = new Date(a.date);
+				const dateB = new Date(b.date);
+				const isUpcomingA = dateA >= todayUTC;
+				const isUpcomingB = dateB >= todayUTC;
+
+				if (isUpcomingA && !isUpcomingB) {
+					return -1;
+				}
+				if (!isUpcomingA && isUpcomingB) {
+					return 1;
+				}
+				return dateA.getTime() - dateB.getTime();
 			});
 		}
 
@@ -498,17 +498,21 @@
 		return `${y}-${m}-${d}`;
 	});
 
+	let activeHoliday = $derived(
+		data.holidays.find((h) => getISODateString(h.date) === todayStr)
+	);
+
 	let totalHolidays = $derived(data.holidays.length);
 	let upcomingHolidaysCount = $derived(
 		data.holidays.filter(
-			(h) => getISODateString(h.holiday_date) > todayStr
+			(h) => getISODateString(h.date) > todayStr
 		).length
 	);
 
 	let nextHoliday = $derived.by(() => {
 		const futureHolidays = data.holidays
-			.filter((h) => getISODateString(h.holiday_date) > todayStr)
-			.sort((a, b) => new Date(a.holiday_date).getTime() - new Date(b.holiday_date).getTime());
+			.filter((h) => getISODateString(h.date) > todayStr)
+			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 		return futureHolidays[0] || null;
 	});
 
@@ -522,32 +526,7 @@
 		});
 	}
 
-	function isInteractive(target: HTMLElement | null, rowElement: HTMLElement): boolean {
-		let curr = target;
-		while (curr && curr !== rowElement) {
-			const tagName = curr.tagName.toLowerCase();
-			if (
-				tagName === 'a' ||
-				tagName === 'button' ||
-				tagName === 'input' ||
-				tagName === 'select' ||
-				tagName === 'textarea' ||
-				curr.getAttribute('role') === 'button' ||
-				curr.classList.contains('kebab-dropdown-menu')
-			) {
-				return true;
-			}
-			curr = curr.parentElement;
-		}
-		return false;
-	}
 
-	function handleRowClick(cuid: string, event: MouseEvent) {
-		const target = event.target as HTMLElement;
-		const row = event.currentTarget as HTMLElement;
-		if (isInteractive(target, row)) return;
-		goto(resolve(('/holidays?edit=' + cuid) as '/holidays'));
-	}
 </script>
 
 <svelte:head>
@@ -587,9 +566,9 @@
 			<CardHeader class="pb-2">
 				<CardDescription class="text-black dark:text-white">Next Scheduled Holiday</CardDescription>
 				{#if nextHoliday}
-					<CardTitle class="text-xl font-bold line-clamp-1 text-[#800020] dark:text-[#b83d58]">{nextHoliday.holiday_name}</CardTitle>
+					<CardTitle class="text-xl font-bold line-clamp-1 text-[#800020] dark:text-[#b83d58]">{nextHoliday.name}</CardTitle>
 					<CardDescription class="text-xs text-[#800020] dark:text-[#b83d58]/80 mt-1">
-						{formatDate(nextHoliday.holiday_date)}
+						{formatDate(nextHoliday.date)}
 					</CardDescription>
 				{:else}
 					<CardTitle class="text-xl font-bold text-[#800020] dark:text-[#b83d58]">No upcoming holidays</CardTitle>
@@ -598,36 +577,26 @@
 		</Card>
 	</div>
 
+	{#if activeHoliday}
+		<div class="flex items-center gap-4 p-4 bg-blue-500/10 dark:bg-blue-500/15 border border-blue-500/20 dark:border-blue-500/30 rounded-xl text-blue-950 dark:text-blue-50 shadow-xs">
+			<span class="text-xl">🎉</span>
+			<div>
+				<h4 class="font-bold text-base">Today is {activeHoliday.name}</h4>
+			</div>
+		</div>
+	{/if}
+
 	<div class="space-y-3">
 		<!-- Search & Filter controls -->
-		<div class="flex flex-col gap-4 lg:flex-row lg:items-center">
-			<div class="relative flex-1 min-w-0">
-				<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-				<Input
-					type="search"
-					placeholder="Search by holiday name..."
-					bind:value={searchQuery}
-					class="pl-9 pr-9"
-				/>
-				{#if searchQuery}
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon-sm"
-						class="absolute top-1/2 right-1 -translate-y-1/2"
-						aria-label="Clear search"
-						onclick={() => (searchQuery = '')}
-					>
-						<XIcon class="size-4" />
-					</Button>
-				{/if}
-			</div>
+		<div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+			<SearchInput id="search_holidays" name="search_holidays" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by holiday name..." />
 			<div class="flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full lg:w-auto">
 				<div class="w-full sm:w-40">
 					<DatePicker
 						placeholder="Start Date"
 						bind:value={filterStartDate}
 						max={filterEndDate || '2099-12-31'}
+						isFilter={true}
 					/>
 				</div>
 				<div class="w-full sm:w-40">
@@ -635,6 +604,7 @@
 						placeholder="End Date"
 						bind:value={filterEndDate}
 						min={filterStartDate}
+						isFilter={true}
 					/>
 				</div>
 				<div class="w-full sm:w-48">
@@ -663,83 +633,78 @@
 		</div>
 
 		<!-- Holidays List Card -->
-		<Card>
+		<Card class="py-0">
 			<Table>
-				<TableHeader>
+				<TableHeader class="bg-muted">
 					<TableRow>
-						<TableHead class="w-32 font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('holiday_date')}>
+						<TableHead class="w-32 font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('date')}>
 								Date
-							{#if sortKey === 'holiday_date' && sortDirection === 'asc'}
+							{#if sortKey === 'date' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortKey === 'holiday_date' && sortDirection === 'desc'}
+							{:else if sortKey === 'date' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('holiday_name')}>
+						<TableHead class="font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
 								Holiday Name
-							{#if sortKey === 'holiday_name' && sortDirection === 'asc'}
+							{#if sortKey === 'name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortKey === 'holiday_name' && sortDirection === 'desc'}
+							{:else if sortKey === 'name' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="w-32 font-bold">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold" onclick={() => handleSort('holiday_type')}>
+						<TableHead class="w-32 font-bold text-foreground text-[15px]">
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('type')}>
 								Category
-							{#if sortKey === 'holiday_type' && sortDirection === 'asc'}
+							{#if sortKey === 'type' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortKey === 'holiday_type' && sortDirection === 'desc'}
+							{:else if sortKey === 'type' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
 							{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="text-right font-bold">Actions</TableHead>
+						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{#if filteredHolidays.length === 0}
 						<TableRow>
-							<TableCell colspan={4} class="py-12 text-center text-muted-foreground">
-								No records found
+							<TableCell colspan={4} class="py-8 text-center text-muted-foreground">
+								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 							</TableCell>
 						</TableRow>
 					{:else}
 						{#each paginatedHolidays as holiday (holiday.cuid)}
-							<TableRow onclick={(e) => handleRowClick(holiday.cuid, e)} class="cursor-pointer">
+							<TableRow 
+								onclick={(e) => {
+									if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
+									openEditModal(holiday.cuid);
+								}} 
+								class="cursor-pointer"
+							>
 								<TableCell class="font-normal">
-									{formatDate(holiday.holiday_date)}
+									{formatDate(holiday.date)}
 								</TableCell>
 								<TableCell class="font-normal">
-									{holiday.holiday_name}
+									{holiday.name}
 								</TableCell>
 								<TableCell>
-									{holiday.holiday_type}
+									{holiday.type}
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions
-										onEdit={() => goto(resolve(('/holidays?edit=' + holiday.cuid) as '/holidays'))}
-										customActions={[
-											{
-												label: 'Delete',
-												class: 'focus:bg-[#800020]/10',
-												onClick: () => {
-													activeDeleteCuid = holiday.cuid;
-													confirmTitle = 'Delete Holiday';
-													confirmMessage = 'Are you sure you want to delete this holiday?';
-													isConfirmOpen = true;
-												}
-											}
-										]}
+										canEdit={true}
+										onEdit={() => openEditModal(holiday.cuid)}
 									/>
 								</TableCell>
 							</TableRow>
@@ -766,53 +731,51 @@
 			{/if}
 
 			<div class="space-y-2">
-				<Label for="modal_holiday_name" class={errors.holiday_name ? 'text-destructive' : ''}>Holiday Name <span class="text-destructive">*</span></Label>
+				<Label for="modal_holiday_name" class={errors.name ? 'text-destructive' : ''}>Holiday Name <span class="text-destructive">*</span></Label>
 				<Input
 					id="modal_holiday_name"
-					name="holiday_name"
+					name="name"
 					bind:value={holidayName}
 					oninput={() => {
-						if (form && form.field === 'holiday_name') form = null;
-						errors.holiday_name = '';
+						if (form && form.field === 'name') form = null;
+						errors.name = '';
 					}}
 					placeholder="e.g. Independence Day"
 					required
 					minlength={6}
 					pattern="^[a-zA-Z\s]+$"
-					class={errors.holiday_name ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+					class={errors.name ? 'border-destructive focus-visible:ring-destructive/30' : ''}
 				/>
-				{#if errors.holiday_name}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.holiday_name}</p>
+				{#if errors.name}
+					<p class="text-xs font-medium text-destructive mt-1">{errors.name}</p>
 				{/if}
 			</div>
 
 			<div class="space-y-2">
-				<Label for="modal_holiday_date" class={errors.holiday_date ? 'text-destructive' : ''}>Holiday Date <span class="text-destructive">*</span></Label>
+				<Label for="modal_holiday_date" class={errors.date ? 'text-destructive' : ''}>Holiday Date <span class="text-destructive">*</span></Label>
 				<DatePicker
 					id="modal_holiday_date"
-					name="holiday_date"
+					name="date"
 					bind:value={holidayDate}
 					onchange={() => {
-						if (form && form.field === 'holiday_date') form = null;
-						errors.holiday_date = '';
+						if (form && form.field === 'date') form = null;
+						errors.date = '';
 					}}
 					required={true}
-					max="2099-12-31"
-					isError={!!errors.holiday_date}
 				/>
-				{#if errors.holiday_date}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.holiday_date}</p>
+				{#if errors.date}
+					<p class="text-xs font-medium text-destructive mt-1">{errors.date}</p>
 				{/if}
 			</div>
 
 			<div class="space-y-2">
-				<Label for="modal_holiday_type" class={errors.holiday_type ? 'text-destructive' : ''}>Category <span class="text-destructive">*</span></Label>
-				<input type="hidden" id="modal_holiday_type" name="holiday_type" value={holidayType} />
+				<Label for="modal_holiday_type" class={errors.type ? 'text-destructive' : ''}>Category <span class="text-destructive">*</span></Label>
+				<input type="hidden" id="modal_holiday_type" name="type" value={holidayType} />
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
-							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {errors.holiday_type ? 'border-destructive focus:border-destructive focus:ring-destructive/30 focus-visible:ring-destructive/30 data-[state=open]:border-destructive data-[state=open]:ring-destructive/30' : ''}" {...props}>
-								<span class="truncate pr-2">{holidayTypeOptions.find(o => o.value === holidayType)?.label || 'Select Category'}</span>
+							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {errors.type ? 'border-destructive focus:border-destructive focus:ring-destructive/30 focus-visible:ring-destructive/30 data-[state=open]:border-destructive data-[state=open]:ring-destructive/30' : ''}" {...props}>
+								<span class={holidayType ? 'truncate pr-2' : 'truncate pr-2 text-muted-foreground'}>{holidayTypeOptions.find(o => o.value === holidayType)?.label || 'Select category'}</span>
 								<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
 							</Button>
 						{/snippet}
@@ -822,8 +785,8 @@
 							{#each holidayTypeOptions as opt}
 								<DropdownMenu.Item onclick={() => {
 									holidayType = opt.value as 'National' | 'Regional' | 'Restricted';
-									if (form && form.field === 'holiday_type') form = null;
-									errors.holiday_type = '';
+									if (form && form.field === 'type') form = null;
+									errors.type = '';
 								}} class="justify-between cursor-pointer {holidayType === opt.value ? 'bg-accent text-accent-foreground' : ''}">
 									<span class="truncate pr-2">{opt.label}</span>
 									{#if holidayType === opt.value}<CheckIcon class="size-4 shrink-0" />{/if}
@@ -832,8 +795,8 @@
 						</DropdownMenu.Group>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
-				{#if errors.holiday_type}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.holiday_type}</p>
+				{#if errors.type}
+					<p class="text-xs font-medium text-destructive mt-1">{errors.type}</p>
 				{/if}
 			</div>
 
@@ -861,7 +824,6 @@
 					disabled={isSubmitDisabled}
 				>
 					{#if isSubmitting}
-						<LoaderCircleIcon class="size-4 animate-spin" />
 						Saving...
 					{:else}
 						Save
@@ -871,22 +833,6 @@
 		</form>
 	{/snippet}
 </CrudModal>
-
-<ConfirmModal
-	open={isConfirmOpen}
-	title={confirmTitle}
-	description={confirmMessage}
-	confirmLabel="Delete"
-	isSubmitting={isSubmitting}
-	onCancel={() => (isConfirmOpen = false)}
-	onConfirm={async () => {
-		if (activeDeleteCuid) {
-			await handleDelete(activeDeleteCuid);
-		}
-		isConfirmOpen = false;
-	}}
-	preventOutsideClickClose={true}
-/>
 
 <ConfirmModal
 	open={isDiscardModalOpen}

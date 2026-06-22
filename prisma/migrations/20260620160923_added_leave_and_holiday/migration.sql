@@ -2,8 +2,8 @@
 CREATE TABLE "leave_types" (
     "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
-    "leave_name" VARCHAR(100) NOT NULL,
-    "leave_code" VARCHAR(20) NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "code" VARCHAR(20) NOT NULL,
     "description" TEXT,
     "is_paid" BOOLEAN NOT NULL DEFAULT true,
     "requires_approval" BOOLEAN NOT NULL DEFAULT true,
@@ -25,6 +25,7 @@ CREATE TABLE "leave_policies" (
     "max_per_month" DECIMAL(4,1),
     "carry_forward_allowed" BOOLEAN NOT NULL DEFAULT false,
     "max_carry_forward_days" DECIMAL(4,1),
+    "max_annual_carry_forward_days" DECIMAL(4,1),
     "document_required" BOOLEAN NOT NULL DEFAULT false,
     "document_required_after_days" INTEGER,
     "min_service_days" INTEGER NOT NULL DEFAULT 0,
@@ -59,9 +60,9 @@ CREATE TABLE "leave_policy_employment_types" (
 CREATE TABLE "holiday_calendars" (
     "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
-    "holiday_name" VARCHAR(200) NOT NULL,
-    "holiday_date" DATE NOT NULL,
-    "holiday_type" TEXT NOT NULL,
+    "name" VARCHAR(200) NOT NULL,
+    "date" DATE NOT NULL,
+    "type" TEXT NOT NULL,
     "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_by" TEXT,
@@ -74,10 +75,10 @@ CREATE TABLE "holiday_calendars" (
 CREATE UNIQUE INDEX "leave_types_cuid_key" ON "leave_types"("cuid");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "leave_types_leave_name_key" ON "leave_types"("leave_name");
+CREATE UNIQUE INDEX "leave_types_name_key" ON "leave_types"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "leave_types_leave_code_key" ON "leave_types"("leave_code");
+CREATE UNIQUE INDEX "leave_types_code_key" ON "leave_types"("code");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "leave_policies_cuid_key" ON "leave_policies"("cuid");
@@ -101,4 +102,4 @@ CREATE UNIQUE INDEX "leave_policy_employment_types_leave_policy_cuid_employment_
 CREATE UNIQUE INDEX "holiday_calendars_cuid_key" ON "holiday_calendars"("cuid");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "holiday_calendars_holiday_name_holiday_date_key" ON "holiday_calendars"("holiday_name", "holiday_date");
+CREATE UNIQUE INDEX "holiday_calendars_name_date_key" ON "holiday_calendars"("name", "date");

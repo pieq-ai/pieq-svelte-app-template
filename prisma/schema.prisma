@@ -590,9 +590,9 @@ model BankDetail {
 
 model LeaveType {
   id                BigInt   @id @default(autoincrement())
-  cuid              String   @unique @default(cuid())
-  leave_name        String   @unique @db.VarChar(100)
-  leave_code        String   @unique @db.VarChar(20)
+  cuid              String   @unique @default(cuid(2))
+  name              String   @unique @db.VarChar(100)
+  code              String   @unique @db.VarChar(20)
   description       String?  @db.Text
   is_paid           Boolean  @default(true)
   requires_approval Boolean  @default(true)
@@ -606,8 +606,8 @@ model LeaveType {
 }
 
 model LeavePolicy {
-  id   BigInt @id @default(autoincrement())
-  cuid String @unique @default(cuid())
+  id                       BigInt                 @id @default(autoincrement())
+  cuid                     String                 @unique @default(cuid(2))
 
   leave_type_cuid String @db.Text
 
@@ -615,7 +615,7 @@ model LeavePolicy {
   max_per_month                Decimal? @db.Decimal(4, 1)
   carry_forward_allowed        Boolean  @default(false)
   max_carry_forward_days       Decimal? @db.Decimal(4, 1)
-  max_annual_carry_forward_days Decimal? @db.Decimal(5,1)
+  max_annual_carry_forward_days Decimal? @db.Decimal(4, 1)
   document_required            Boolean  @default(false)
   document_required_after_days Int?
   min_service_days             Int      @default(0)
@@ -634,8 +634,8 @@ model LeavePolicy {
 }
 
 model LeavePolicyEmploymentType {
-  id   BigInt @id @default(autoincrement())
-  cuid String @unique @default(cuid())
+  id                     BigInt   @id @default(autoincrement())
+  cuid                   String   @unique @default(cuid(2))
 
   leave_policy_cuid    String   @db.Text
   employment_type_cuid String   @db.Text
@@ -651,18 +651,46 @@ model LeavePolicyEmploymentType {
 }
 
 model HolidayCalendar {
-  id           BigInt   @id @default(autoincrement())
-  cuid         String   @unique @default(cuid())
-  holiday_name String   @db.VarChar(200)
-  holiday_date DateTime @db.Date
-  holiday_type String
-  created_at   DateTime @default(now()) @db.Timestamptz(3)
-  updated_at   DateTime @default(now()) @updatedAt @db.Timestamptz(3)
-  created_by   String?  @db.Text
-  updated_by   String?  @db.Text
+  id             BigInt           @id @default(autoincrement())
+  cuid           String           @unique @default(cuid(2))
+  name           String           @db.VarChar(200)
+  date           DateTime         @db.Date
+  type           String
+  created_at     DateTime         @default(now()) @db.Timestamptz(3)
+  updated_at     DateTime         @default(now()) @updatedAt @db.Timestamptz(3)
+  created_by     String?          @db.Text
+  updated_by     String?          @db.Text
 
-  @@unique([holiday_name, holiday_date])
+  @@unique([name, date])
+
   @@map("holiday_calendars")
+}
+
+model AttendanceRecord {
+  id BigInt @id @default(autoincrement())
+  cuid String @unique @default(cuid(2))
+  employee_cuid String @db.Text
+  date DateTime @db.Date
+  check_in_time DateTime? @db.Timestamptz(3)
+  check_out_time DateTime? @db.Timestamptz(3)
+  work_duration_minutes Int?
+  status String @db.VarChar(20)
+  attendance_source_cuid String? @db.Text
+  remarks String? @db.Text
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  created_by String? @db.Text
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz(3)
+  updated_by String? @db.Text
+
+  check_in_latitude Float?
+  check_in_longitude Float?
+  check_out_latitude Float?
+  check_out_longitude Float?
+
+  @@unique([employee_cuid, date])
+  @@index([employee_cuid])
+  @@index([date])
+  @@map("attendance_records")
 }
 
 model Shift {
@@ -848,39 +876,6 @@ model LeaveRequest {
   @@index([request_status])
 
   @@map("leave_requests")
-}
-
-model AttendanceRecord {
-  id                     BigInt   @id @default(autoincrement())
-  cuid                   String   @unique @default(cuid())
-
-  employee_cuid          String   @db.Text
-
-  attendance_date        DateTime @db.Date
-
-  check_in_time          DateTime?
-  check_out_time         DateTime?
-
-  work_duration_minutes  Int?
-
-  attendance_status      String   @default("Absent") @db.VarChar(30)
-
-  attendance_source_id   String?  @db.Text
-
-  remarks                String?  @db.Text
-
-  created_at             DateTime @default(now()) @db.Timestamptz(3)
-  updated_at             DateTime @default(now()) @updatedAt @db.Timestamptz(3)
-
-  created_by             String?  @db.Text
-  updated_by             String?  @db.Text
-
-  @@unique([employee_cuid, attendance_date])
-
-  @@index([employee_cuid])
-  @@index([attendance_date])
-
-  @@map("attendance_records")
 }
 
 model ShiftAssignment {

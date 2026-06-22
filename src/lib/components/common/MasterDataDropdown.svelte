@@ -140,6 +140,10 @@
 	});
 
 	function openCreateModal() {
+		if (master === 'states' && !countryCuid) {
+			toast.error('Please select a Country before creating a State');
+			return;
+		}
 		editingOption = null;
 		masterValue = '';
 		originalValue = '';
@@ -150,6 +154,10 @@
 	}
 
 	function openEditModal(id: string) {
+		if (master === 'states' && !countryCuid) {
+			toast.error('Please select a Country before editing a State');
+			return;
+		}
 		const option = options.find((item) => item.id === id);
 		if (!option) return;
 		editingOption = option;

@@ -19,7 +19,7 @@ function toPublicDocument(doc: any) {
     if (!doc) return null;
     const { id, employee_cuid, created_at, updated_at, buffer, ...rest } = doc;
     // Don't send the raw binary buffer back to the client in the list
-    return { ...rest, file_size: rest.file_size ? Number(rest.file_size) : null };
+    return { ...rest, file_size: (rest.file_size !== null && rest.file_size !== undefined) ? Number(rest.file_size) : null };
 }
 
 export async function getDocumentsByEmployeeCuid(employee_cuid: string) {
@@ -82,7 +82,7 @@ export async function replaceDocuments(employee_cuid: string, dtos: UpsertDocume
             document_type_cuid: dto.document_type_cuid,
             mime_type: dto.mime_type,
             file_name: dto.file_name,
-            file_size: dto.file_size ? BigInt(dto.file_size) : null,
+            file_size: (dto.file_size !== null && dto.file_size !== undefined) ? BigInt(dto.file_size) : null,
             document: buffer,
             created_by: dto.updated_by,
             updated_by: dto.updated_by

@@ -16,7 +16,8 @@
 		name = 'selected_ids',
 		searchQuery = $bindable(''),
 		onAdd,
-		addLabel = 'Add option'
+		addLabel = 'Add option',
+		showAddIcon = true
 	}: {
 		options: Option[];
 		selectedIds: (string | number)[];
@@ -25,6 +26,7 @@
 		searchQuery?: string;
 		onAdd?: () => void;
 		addLabel?: string;
+		showAddIcon?: boolean;
 	} = $props();
 	let isOpen = $state(false);
 	let container: HTMLDivElement | null = $state(null);
@@ -216,7 +218,9 @@
 							onAdd();
 						}}
 					>
-						<PlusIcon class="size-3.5" />
+						{#if showAddIcon}
+							<PlusIcon class="size-3.5" />
+						{/if}
 						{addLabel}
 					</button>
 				</div>

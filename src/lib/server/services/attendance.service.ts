@@ -1,0 +1,265 @@
+import * as attendanceDao from '$lib/server/dao/attendance.dao.js';
+import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as holidayDao from '$lib/server/dao/holiday.dao.js';
+import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
+import { GEOFENCE_CONFIG, calculateDistance } from '$lib/geofence.js';
+import * as employmentDao from '$lib/server/dao/employment.dao.js';
+
+export class AttendanceValidationError extends Error {
+	readonly field: string;
+	constructor(field: string, message: string) {
+		super(message);
+		this.name = 'AttendanceValidationError';
+		this.field = field;
+	}
+}
+
+export class AttendanceMultiValidationError extends Error {
+	readonly fields: Record<string, string>;
+	constructor(fields: Record<string, string>) {
+		super('Validation failed');
+		this.name = 'AttendanceMultiValidationError';
+		this.fields = fields;
+	}
+}
+
+async function getOrCreateWebSource(): Promise<string> {
+	const existing = await masterDataDao.findAttendanceSourceByName('Web');
+	if (existing) {
+		return existing.cuid;
+	}
+	const created = await masterDataDao.createAttendanceSource('Web');
+	return created.cuid;
+}
+
+export async function checkIn(
+	employeeCuid: string,
+	attendanceSourceCuid?: string | null,
+	createdBy?: string | null,
+	gpsData?: { latitude: number; longitude: number } | null
+) {
+	if (!employeeCuid) {
+		throw new AttendanceValidationError('employee_cuid', 'Employee is required');
+	}
+
+	// Verify employee exists
+	const empExists = await employeeDao.findByCuid2(employeeCuid);
+	if (!empExists) {
+		throw new AttendanceValidationError('employee_cuid', 'Selected employee does not exist');
+	}
+
+	// Fetch employee's employment details
+	const employment = await employmentDao.findByEmployeeCuid(employeeCuid);
+
+	if (!employment || !employment.date_of_joining) {
+		throw new AttendanceValidationError('employee_cuid', 'Selected employee has no valid employment record');
+	}
+
+	const today = new Date();
+	const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+
+	const joinDate = new Date(Date.UTC(employment.date_of_joining.getUTCFullYear(), employment.date_of_joining.getUTCMonth(), employment.date_of_joining.getUTCDate()));
+	if (todayUTC < joinDate) {
+		throw new AttendanceValidationError('employee_cuid', 'Attendance date must be within employee\'s employment period.');
+	}
+
+	if (employment.relieving_date) {
+		const relieveDate = new Date(Date.UTC(employment.relieving_date.getUTCFullYear(), employment.relieving_date.getUTCMonth(), employment.relieving_date.getUTCDate()));
+		if (todayUTC > relieveDate) {
+			throw new AttendanceValidationError('employee_cuid', 'Attendance date must be within employee\'s employment period.');
+		}
+	}
+
+	// Check if today is a holiday
+	const isHoliday = await holidayDao.findByDate(todayUTC);
+	if (isHoliday) {
+		throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on holidays');
+	}
+
+	// Check if already checked in / on leave / LOP
+	const existing = await attendanceDao.findByEmployeeAndDate(employeeCuid, todayUTC);
+	if (existing) {
+		if (existing.status === 'Leave' || existing.status === 'On Leave' || existing.status === 'LOP') {
+			throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on leave or LOP days');
+		}
+		throw new AttendanceValidationError('employee_cuid', 'Already checked in for today');
+	}
+
+	// Geofence Validation
+	if (
+		!gpsData ||
+		gpsData.latitude === undefined || gpsData.latitude === null || isNaN(gpsData.latitude) ||
+		gpsData.longitude === undefined || gpsData.longitude === null || isNaN(gpsData.longitude)
+	) {
+		throw new AttendanceValidationError('employee_cuid', 'GPS coordinates are required to mark attendance');
+	}
+
+	const { latitude, longitude } = gpsData;
+
+	const dist = calculateDistance(latitude, longitude, GEOFENCE_CONFIG.OFFICE_LATITUDE, GEOFENCE_CONFIG.OFFICE_LONGITUDE);
+	if (dist > GEOFENCE_CONFIG.ALLOWED_RADIUS_METERS) {
+		throw new AttendanceValidationError('employee_cuid', 'You are outside the office zone');
+	}
+
+	let sourceCuid = attendanceSourceCuid;
+	if (!sourceCuid) {
+		sourceCuid = await getOrCreateWebSource();
+	} else {
+		// Verify source if provided
+		const sourceExists = await masterDataDao.findByCuid2('attendance-sources', sourceCuid);
+		if (!sourceExists) {
+			throw new AttendanceValidationError('attendance_source_cuid', 'Selected source does not exist');
+		}
+	}
+
+	return attendanceDao.create({
+		employee_cuid: employeeCuid,
+		date: todayUTC,
+		check_in_time: today,
+		status: 'Present',
+		attendance_source_cuid: sourceCuid,
+		created_by: createdBy,
+		updated_by: createdBy,
+		check_in_latitude: latitude,
+		check_in_longitude: longitude
+	});
+}
+
+export async function checkOut(
+	employeeCuid: string,
+	updatedBy?: string | null,
+	gpsData?: { latitude: number; longitude: number } | null
+) {
+	if (!employeeCuid) {
+		throw new AttendanceValidationError('employee_cuid', 'Employee is required');
+	}
+
+	const today = new Date();
+	const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+
+	// Verify employee exists
+	const empExists = await employeeDao.findByCuid2(employeeCuid);
+	if (!empExists) {
+		throw new AttendanceValidationError('employee_cuid', 'Selected employee does not exist');
+	}
+
+	// Fetch employee's employment details
+	const employment = await employmentDao.findByEmployeeCuid(employeeCuid);
+
+	if (!employment || !employment.date_of_joining) {
+		throw new AttendanceValidationError('employee_cuid', 'Selected employee has no valid employment record');
+	}
+
+	const joinDate = new Date(Date.UTC(employment.date_of_joining.getUTCFullYear(), employment.date_of_joining.getUTCMonth(), employment.date_of_joining.getUTCDate()));
+	if (todayUTC < joinDate) {
+		throw new AttendanceValidationError('employee_cuid', 'Attendance date must be within employee\'s employment period.');
+	}
+
+	if (employment.relieving_date) {
+		const relieveDate = new Date(Date.UTC(employment.relieving_date.getUTCFullYear(), employment.relieving_date.getUTCMonth(), employment.relieving_date.getUTCDate()));
+		if (todayUTC > relieveDate) {
+			throw new AttendanceValidationError('employee_cuid', 'Attendance date must be within employee\'s employment period.');
+		}
+	}
+
+	// Check if today is a holiday
+	const isHoliday = await holidayDao.findByDate(todayUTC);
+	if (isHoliday) {
+		throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on holidays');
+	}
+
+	const existing = await attendanceDao.findByEmployeeAndDate(employeeCuid, todayUTC);
+	if (!existing) {
+		throw new AttendanceValidationError('employee_cuid', 'No check-in record found for today');
+	}
+
+	if (existing.status === 'Leave' || existing.status === 'On Leave' || existing.status === 'LOP') {
+		throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on leave or LOP days');
+	}
+
+	if (existing.check_out_time) {
+		throw new AttendanceValidationError('employee_cuid', 'Already checked out for today');
+	}
+
+	// Geofence Validation
+	if (
+		!gpsData ||
+		gpsData.latitude === undefined || gpsData.latitude === null || isNaN(gpsData.latitude) ||
+		gpsData.longitude === undefined || gpsData.longitude === null || isNaN(gpsData.longitude)
+	) {
+		throw new AttendanceValidationError('employee_cuid', 'GPS coordinates are required to mark attendance');
+	}
+
+	const { latitude, longitude } = gpsData;
+
+	const dist = calculateDistance(latitude, longitude, GEOFENCE_CONFIG.OFFICE_LATITUDE, GEOFENCE_CONFIG.OFFICE_LONGITUDE);
+	if (dist > GEOFENCE_CONFIG.ALLOWED_RADIUS_METERS) {
+		throw new AttendanceValidationError('employee_cuid', 'You are outside the office zone');
+	}
+
+	const checkInTime = existing.check_in_time ? new Date(existing.check_in_time) : today;
+	const diffMs = today.getTime() - checkInTime.getTime();
+	const minutes = Math.round(diffMs / 1000 / 60);
+
+	return attendanceDao.update(existing.cuid, {
+		check_out_time: today,
+		work_duration_minutes: Math.max(0, minutes),
+		updated_by: updatedBy,
+		updated_at: today,
+		check_out_latitude: latitude,
+		check_out_longitude: longitude
+	});
+}
+
+export async function getEmployeeHistory(employeeCuid: string) {
+	if (!employeeCuid) {
+		throw new Error('Employee CUID is required');
+	}
+
+	const employment = await employmentDao.findByEmployeeCuid(employeeCuid);
+
+	if (!employment || !employment.date_of_joining) {
+		return [];
+	}
+
+	const startDate = new Date(Date.UTC(employment.date_of_joining.getUTCFullYear(), employment.date_of_joining.getUTCMonth(), employment.date_of_joining.getUTCDate()));
+	let endDate: Date;
+
+	if (employment.relieving_date) {
+		endDate = new Date(Date.UTC(employment.relieving_date.getUTCFullYear(), employment.relieving_date.getUTCMonth(), employment.relieving_date.getUTCDate()));
+	} else {
+		// Set default endDate to far future (2099-12-31) to include future scheduled attendance records
+		endDate = new Date(Date.UTC(2099, 11, 31));
+	}
+
+	return attendanceDao.listByEmployee(employeeCuid, startDate, endDate);
+}
+
+export async function getTodayStatus(employeeCuid: string) {
+	if (!employeeCuid) {
+		throw new Error('Employee CUID is required');
+	}
+
+	const employment = await employmentDao.findByEmployeeCuid(employeeCuid);
+
+	if (!employment || !employment.date_of_joining) {
+		return null;
+	}
+
+	const today = new Date();
+	const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+
+	const joinDate = new Date(Date.UTC(employment.date_of_joining.getUTCFullYear(), employment.date_of_joining.getUTCMonth(), employment.date_of_joining.getUTCDate()));
+	if (todayUTC < joinDate) {
+		return null;
+	}
+
+	if (employment.relieving_date) {
+		const relieveDate = new Date(Date.UTC(employment.relieving_date.getUTCFullYear(), employment.relieving_date.getUTCMonth(), employment.relieving_date.getUTCDate()));
+		if (todayUTC > relieveDate) {
+			return null;
+		}
+	}
+
+	return attendanceDao.findByEmployeeAndDate(employeeCuid, todayUTC);
+}

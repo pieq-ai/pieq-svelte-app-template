@@ -85,7 +85,7 @@ describe('Master Data DAO', () => {
 
 	describe('findByCuid2', () => {
 		it.each(masterKeys)('should call findUnique with correct cuid for %s', async (master) => {
-			const mockData = { id: 10n, cuid: 'abc' };
+			const mockData = { id: 10, cuid: 'abc' };
 			mockDbMethods.findUnique.mockResolvedValueOnce(mockData);
 
 			const result = await masterDataDao.findByCuid2(master, 'abc');
