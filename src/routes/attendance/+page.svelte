@@ -21,7 +21,8 @@
 		Input,
 		CrudModal,
 		Pagination,
-		DatePicker
+		DatePicker,
+		ConfirmModal
 	} from '$lib/components';
 	import ClockIcon from '@lucide/svelte/icons/clock';
 	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
@@ -772,6 +773,34 @@
 			}, 50);
 		}
 	}
+
+	let isConfirmModalOpen = $state(false);
+	let confirmModalTitle = $state('');
+	let confirmModalDescription = $state('');
+	let confirmModalConfirmLabel = $state('');
+	let confirmModalAction = $state<(() => void) | null>(null);
+
+	function triggerCheckInConfirm() {
+		confirmModalTitle = 'Confirm Check In';
+		confirmModalDescription = 'Are you sure you want to check in for today?';
+		confirmModalConfirmLabel = 'Check In';
+		confirmModalAction = async () => {
+			await handleCheckIn();
+			isConfirmModalOpen = false;
+		};
+		isConfirmModalOpen = true;
+	}
+
+	function triggerCheckOutConfirm() {
+		confirmModalTitle = 'Confirm Check Out';
+		confirmModalDescription = 'Are you sure you want to check out for today?';
+		confirmModalConfirmLabel = 'Check Out';
+		confirmModalAction = async () => {
+			await handleCheckOut();
+			isConfirmModalOpen = false;
+		};
+		isConfirmModalOpen = true;
+	}
 </script>
 
 <svelte:head>
@@ -1140,7 +1169,7 @@
 										{#if !isRelieved}
 											<Button
 												size="sm"
-												onclick={(e) => { e.stopPropagation(); handleCheckIn(); }}
+												onclick={(e) => { e.stopPropagation(); triggerCheckInConfirm(); }}
 												class="w-full mt-1 h-5 text-[9px] px-1 bg-[#F45310] hover:bg-[#F45310]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
 												disabled={isSubmitting || !gpsValidation.isValid || isLoadingHistory}
 												title={!gpsValidation.isValid ? gpsValidation.message : (isLoadingHistory ? 'Loading history...' : '')}
@@ -1151,7 +1180,7 @@
 									{:else if record && !record.check_out_time}
 										<Button
 											size="sm"
-											onclick={(e) => { e.stopPropagation(); handleCheckOut(); }}
+											onclick={(e) => { e.stopPropagation(); triggerCheckOutConfirm(); }}
 											class="w-full mt-1 h-5 text-[9px] px-1 bg-[#800020] hover:bg-[#800020]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
 											disabled={isSubmitting || !gpsValidation.isValid || isLoadingHistory}
 											title={!gpsValidation.isValid ? gpsValidation.message : (isLoadingHistory ? 'Loading history...' : '')}
@@ -1319,4 +1348,16 @@
 			</CardContent>
 		</Card>
 	{/if}
+
+	<!-- Check In / Check Out Confirmation Modal -->
+	<ConfirmModal
+		open={isConfirmModalOpen}
+		title={confirmModalTitle}
+		description={confirmModalDescription}
+		confirmLabel={confirmModalConfirmLabel}
+		isSubmitting={isSubmitting}
+		onCancel={() => (isConfirmModalOpen = false)}
+		onConfirm={() => { if (confirmModalAction) confirmModalAction(); }}
+		preventOutsideClickClose={true}
+	/>
 </div>
