@@ -1237,7 +1237,7 @@
 
 			{#if documentRequired}
 				<div transition:slide class="space-y-2 pl-4">
-					<Label for="modal_document_required_after_days" class={errors.document_required_after_days ? 'text-destructive' : ''}>Document Required After (Days)<span class="text-destructive">*</span></Label>
+					<Label for="modal_document_required_after_days" class={errors.document_required_after_days ? 'text-destructive' : ''}>Document Required After (Days)</Label>
 					<Input
 						id="modal_document_required_after_days"
 						name="document_required_after_days"
@@ -1246,7 +1246,7 @@
 							if (form && form.field === 'document_required_after_days') form = null;
 							errors.document_required_after_days = '';
 						}}
-						placeholder="Document becomes mandatory after these days."
+						placeholder="Leave blank if document is mandatory regardless of leave duration"
 						class={errors.document_required_after_days ? 'border-destructive focus-visible:ring-destructive/30' : ''}
 					/>
 					{#if errors.document_required_after_days}
@@ -1310,7 +1310,7 @@
 
 			<!-- Min Service Days -->
 			<div class="space-y-2">
-				<Label for="modal_min_service_days" class={errors.min_service_days ? 'text-destructive font-semibold' : ''}>Min Service Days (Active service req.)</Label>
+				<Label for="modal_min_service_days" class={errors.min_service_days ? 'text-destructive font-semibold' : ''}>Min Service Days (Active service req.) <span class="text-destructive">*</span></Label>
 				<Input
 					id="modal_min_service_days"
 					name="modal_min_service_days"
