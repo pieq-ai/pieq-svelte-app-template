@@ -1,7 +1,7 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-23)
 
 ## Corpus Check
-- 401 files · ~172,970 words
+- 401 files · ~172,984 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -286,7 +286,7 @@ Nodes (13): sendDeleted(), sendUpdated(), DELETE(), parseCuid(), PATCH(), PUT(),
 
 ### Community 49 - "Community 49"
 Cohesion: 0.15
-Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
+Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
 
 ### Community 50 - "Community 50"
 Cohesion: 0.10
@@ -438,7 +438,7 @@ Nodes (5): Database (Prisma), `yarn db:generate`, `yarn db:migrate`, `yarn db:pu
 
 ### Community 98 - "Community 98"
 Cohesion: 0.50
-Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
+Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
 
 ### Community 100 - "Community 100"
 Cohesion: 0.33
