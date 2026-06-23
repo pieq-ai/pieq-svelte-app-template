@@ -193,20 +193,21 @@
 
 			// --- Employee Info Section ---
 			const empStartY = startY + headerH;
+			const ed = payroll.employee_details;
 			const col1Fields = [
 				{ label: 'Employee Name', value: payroll.employee_name },
 				{ label: 'Employee Number', value: payroll.employee_code },
-				{ label: 'Designation', value: '—' },
-				{ label: 'Location', value: '—' },
-				{ label: 'Date Of Joining', value: '—' }
+				{ label: 'Designation', value: ed?.designation ?? '—' },
+				{ label: 'Location', value: ed?.location ?? '—' },
+				{ label: 'Date Of Joining', value: ed?.date_of_joining ?? '—' }
 			];
 			const col2Fields = [
-				{ label: 'Bank Name', value: '—' },
-				{ label: 'Bank Account No.', value: '—' },
-				{ label: 'PAN', value: '—' },
-				{ label: 'PF Account No.', value: '—' },
-				{ label: 'UAN', value: '—' },
-				{ label: 'Paid Days', value: '—' }
+				{ label: 'Bank Name', value: ed?.bank_name ?? '—' },
+				{ label: 'Bank Account No.', value: ed?.bank_account_number ?? '—' },
+				{ label: 'PAN', value: ed?.pan ?? '—' },
+				{ label: 'PF Account No.', value: ed?.pf_account_number ?? '—' },
+				{ label: 'UAN', value: ed?.uan ?? '—' },
+				{ label: 'Paid Days', value: ed?.paid_days ?? '—' }
 			];
 
 			pdf.setFontSize(9);
@@ -460,22 +461,22 @@
 				<div class="payslip-field">
 					<span class="payslip-label">Employee Number</span>
 					<span class="payslip-colon">:</span>
-					<span class="payslip-value payslip-mono">{payroll.employee_code}</span>
+					<span class="payslip-value">{payroll.employee_code}</span>
 				</div>
 				<div class="payslip-field">
 					<span class="payslip-label">Designation</span>
 					<span class="payslip-colon">:</span>
-					<span class="payslip-value payslip-empty">—</span>
+					<span class={payroll.employee_details?.designation ? 'payslip-value' : 'payslip-value payslip-empty'}>{payroll.employee_details?.designation ?? '—'}</span>
 				</div>
 				<div class="payslip-field">
 					<span class="payslip-label">Location</span>
 					<span class="payslip-colon">:</span>
-					<span class="payslip-value payslip-empty">—</span>
+					<span class={payroll.employee_details?.location ? 'payslip-value' : 'payslip-value payslip-empty'}>{payroll.employee_details?.location ?? '—'}</span>
 				</div>
 				<div class="payslip-field">
 					<span class="payslip-label">Date Of Joining</span>
 					<span class="payslip-colon">:</span>
-					<span class="payslip-value payslip-empty">—</span>
+					<span class={payroll.employee_details?.date_of_joining ? 'payslip-value' : 'payslip-value payslip-empty'}>{payroll.employee_details?.date_of_joining ?? '—'}</span>
 				</div>
 			</div>
 			<div class="payslip-emp-divider"></div>
@@ -483,32 +484,32 @@
 				<div class="payslip-field">
 					<span class="payslip-label">Bank Name</span>
 					<span class="payslip-colon">:</span>
-					<span class="payslip-value payslip-empty">—</span>
+					<span class={payroll.employee_details?.bank_name ? 'payslip-value' : 'payslip-value payslip-empty'}>{payroll.employee_details?.bank_name ?? '—'}</span>
 				</div>
 				<div class="payslip-field">
 					<span class="payslip-label">Bank Account No.</span>
 					<span class="payslip-colon">:</span>
-					<span class="payslip-value payslip-empty">—</span>
+					<span class={payroll.employee_details?.bank_account_number ? 'payslip-value' : 'payslip-value payslip-empty'}>{payroll.employee_details?.bank_account_number ?? '—'}</span>
 				</div>
 				<div class="payslip-field">
 					<span class="payslip-label">PAN</span>
 					<span class="payslip-colon">:</span>
-					<span class="payslip-value payslip-empty">—</span>
+					<span class={payroll.employee_details?.pan ? 'payslip-value' : 'payslip-value payslip-empty'}>{payroll.employee_details?.pan ?? '—'}</span>
 				</div>
 				<div class="payslip-field">
 					<span class="payslip-label">PF Account No.</span>
 					<span class="payslip-colon">:</span>
-					<span class="payslip-value payslip-empty">—</span>
+					<span class={payroll.employee_details?.pf_account_number ? 'payslip-value' : 'payslip-value payslip-empty'}>{payroll.employee_details?.pf_account_number ?? '—'}</span>
 				</div>
 				<div class="payslip-field">
 					<span class="payslip-label">UAN</span>
 					<span class="payslip-colon">:</span>
-					<span class="payslip-value payslip-empty">—</span>
+					<span class={payroll.employee_details?.uan ? 'payslip-value' : 'payslip-value payslip-empty'}>{payroll.employee_details?.uan ?? '—'}</span>
 				</div>
 				<div class="payslip-field">
 					<span class="payslip-label">Paid Days</span>
 					<span class="payslip-colon">:</span>
-					<span class="payslip-value payslip-empty">—</span>
+					<span class={payroll.employee_details?.paid_days ? 'payslip-value' : 'payslip-value payslip-empty'}>{payroll.employee_details?.paid_days ?? '—'}</span>
 				</div>
 			</div>
 		</div>
@@ -684,9 +685,6 @@
 		color: #111827;
 	}
 
-	.payslip-mono {
-		font-family: 'Courier New', monospace;
-	}
 
 	.payslip-empty {
 		color: #d1d5db;
@@ -757,7 +755,6 @@
 	}
 
 	.payslip-td-amount {
-		font-family: 'Courier New', monospace;
 		font-size: 12.5px;
 		font-weight: 500;
 		color: #111827;
@@ -791,7 +788,6 @@
 
 	.payslip-tf-amount {
 		text-align: right;
-		font-family: 'Courier New', monospace;
 		font-size: 12.5px;
 		white-space: nowrap;
 	}

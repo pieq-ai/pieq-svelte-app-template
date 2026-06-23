@@ -15,6 +15,26 @@ vi.mock('$lib/server/dao/payroll.dao.js', () => ({
 	findMany: vi.fn()
 }));
 
+vi.mock('$lib/server/dao/employee.dao.js', () => ({
+	findByEmpCode: vi.fn()
+}));
+
+vi.mock('$lib/server/dao/employment.dao.js', () => ({
+	findByEmployeeCuid: vi.fn()
+}));
+
+vi.mock('$lib/server/dao/bank-detail.dao.js', () => ({
+	findByEmployeeCuid: vi.fn()
+}));
+
+vi.mock('$lib/server/dao/designation.dao.js', () => ({
+	findByCuid2: vi.fn()
+}));
+
+vi.mock('$lib/server/dao/organization_location.dao.js', () => ({
+	getLocationByCuid: vi.fn()
+}));
+
 // ─── Mock upload DAO ──────────────────────────────────────────────────────────
 
 vi.mock('$lib/server/dao/payroll-upload.dao.js', () => ({
@@ -40,6 +60,11 @@ vi.mock('$lib/server/providers/employee.provider.js', () => ({
 import * as dao from '$lib/server/dao/payroll.dao.js';
 import * as uploadDao from '$lib/server/dao/payroll-upload.dao.js';
 import * as failureDao from '$lib/server/dao/payroll-upload-failure.dao.js';
+import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as employmentDao from '$lib/server/dao/employment.dao.js';
+import * as bankDetailDao from '$lib/server/dao/bank-detail.dao.js';
+import * as designationDao from '$lib/server/dao/designation.dao.js';
+import * as locationDao from '$lib/server/dao/organization_location.dao.js';
 import { findEmployeeByCode } from '$lib/server/providers/employee.provider.js';
 import type { ParsedPayrollRow } from '$lib/server/utils/excel-parser.js';
 
@@ -396,6 +421,30 @@ describe('Payroll Service', () => {
 	describe('getPayrollByCuid', () => {
 		it('should return a serialized payroll record when found', async () => {
 			vi.mocked(dao.findByCuid).mockResolvedValue(mockPayrollRecord() as never);
+			vi.mocked(employeeDao.findByEmpCode).mockResolvedValue({
+				cuid: 'emp_001',
+				pan_no: 'PAN12345',
+				uan_no: 'UAN12345',
+				esi_no: 'ESI12345'
+			} as any);
+			vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+				designation_cuid: 'des_001',
+				location_cuid: 'loc_001',
+				date_of_joining: new Date('2025-01-15')
+			} as any);
+			vi.mocked(bankDetailDao.findByEmployeeCuid).mockResolvedValue([
+				{
+					bank_name: 'Mock Bank',
+					account_number: '1234567890',
+					is_primary: true
+				}
+			] as any);
+			vi.mocked(designationDao.findByCuid2).mockResolvedValue({
+				name: 'Software Engineer Description'
+			} as any);
+			vi.mocked(locationDao.getLocationByCuid).mockResolvedValue({
+				name: 'HQ Office'
+			} as any);
 
 			const result = await getPayrollByCuid('pay_001');
 
@@ -403,6 +452,17 @@ describe('Payroll Service', () => {
 			expect(result.employee_code).toBe('EMP001');
 			expect(result.month).toBe(6);
 			expect(result.year).toBe(2026);
+			expect(result.employee_details).toEqual({
+				designation: 'Software Engineer Description',
+				location: 'HQ Office',
+				date_of_joining: '2025-01-15',
+				bank_name: 'Mock Bank',
+				bank_account_number: '1234567890',
+				pan: 'PAN12345',
+				pf_account_number: '1234567890',
+				uan: 'UAN12345',
+				paid_days: null
+			});
 		});
 
 		it('should throw PayrollNotFoundError when record not found', async () => {

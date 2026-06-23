@@ -1,10 +1,16 @@
 import * as dao from '$lib/server/dao/payroll.dao.js';
 import * as uploadDao from '$lib/server/dao/payroll-upload.dao.js';
 import * as failureDao from '$lib/server/dao/payroll-upload-failure.dao.js';
+import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as employmentDao from '$lib/server/dao/employment.dao.js';
+import * as bankDetailDao from '$lib/server/dao/bank-detail.dao.js';
+import * as designationDao from '$lib/server/dao/designation.dao.js';
+import * as locationDao from '$lib/server/dao/organization_location.dao.js';
 import { findEmployeeByCode } from '$lib/server/providers/employee.provider.js';
 import { serializePayroll, serializePayrollList } from '$lib/server/serializers/payroll.serializer.js';
 import type { ParsedPayrollRow } from '$lib/server/utils/excel-parser.js';
 import type { PayrollUploadResult } from '$lib/types/payroll.js';
+import type { PayrollEmployeeDetails } from '$lib/types/payroll.js';
 import { Prisma } from '$lib/generated/prisma/client.js';
 import { validatePayrollRow } from '$lib/server/validators/payroll.validator.js';
 
@@ -351,8 +357,103 @@ export async function getPayrolls() {
 	return serializePayrollList(records);
 }
 
+// ─── Paid Days extraction ─────────────────────────────────────────────────────
+
+/**
+ * Paid days is not a dedicated DB column.
+ * It may appear in the payroll breakdown JSON under a recognisable key name.
+ * Returns the value as a string, or null if not present.
+ */
+const PAID_DAYS_KEYS = new Set([
+	'paid days', 'working days', 'days paid', 'days worked',
+	'payable days', 'actual days', 'pay days'
+]);
+
+function extractPaidDays(breakdown: Record<string, number>): string | null {
+	for (const [key, value] of Object.entries(breakdown)) {
+		if (PAID_DAYS_KEYS.has(key.toLowerCase().trim())) {
+			return String(value);
+		}
+	}
+	return null;
+}
+
+// ─── Employee detail enrichment ───────────────────────────────────────────────
+
+/**
+ * Fetch all Employee Master details required for payslip rendering.
+ * Uses a controlled parallel query strategy to avoid N+1 problems.
+ *
+ * Query sequence (max 5 DB calls):
+ *  1. employees      — by emp_code  → pan_no, uan_no, esi_no, cuid
+ *  2. (parallel)
+ *       employments  — by employee_cuid → designation_cuid, location_cuid, date_of_joining
+ *       bank_details — by employee_cuid → primary bank (is_primary = true, or first)
+ *  3. (parallel, only if CUIDs are non-null)
+ *       designations → name
+ *       company_locations → name
+ *
+ * All lookups are null-safe. A missing record yields null for each field.
+ */
+async function fetchEmployeeDetails(
+	employeeCode: string,
+	breakdown: Record<string, number>
+): Promise<PayrollEmployeeDetails> {
+	// Step 1 — find employee by code (statutory fields + cuid for joins)
+	const employee = await employeeDao.findByEmpCode(employeeCode.trim().toUpperCase());
+
+	if (!employee) {
+		return {
+			designation: null,
+			location: null,
+			date_of_joining: null,
+			bank_name: null,
+			bank_account_number: null,
+			pan: null,
+			pf_account_number: null,
+			uan: null,
+			paid_days: extractPaidDays(breakdown)
+		};
+	}
+
+	// Step 2 — parallel: employment record + bank details
+	const [employment, bankDetails] = await Promise.all([
+		employmentDao.findByEmployeeCuid(employee.cuid),
+		bankDetailDao.findByEmployeeCuid(employee.cuid)
+	]);
+
+	// Pick primary bank (is_primary = true), fall back to first record
+	const primaryBank =
+		bankDetails.find((b) => b.is_primary) ?? bankDetails[0] ?? null;
+
+	// Step 3 — parallel: resolve CUIDs to names (only if present)
+	const [designation, location] = await Promise.all([
+		employment?.designation_cuid
+			? designationDao.findByCuid2(employment.designation_cuid)
+			: Promise.resolve(null),
+		employment?.location_cuid
+			? locationDao.getLocationByCuid(employment.location_cuid)
+			: Promise.resolve(null)
+	]);
+
+	return {
+		designation: designation?.name ?? null,
+		location: location?.name ?? null,
+		date_of_joining: employment?.date_of_joining
+			? employment.date_of_joining.toISOString().split('T')[0]
+			: null,
+		bank_name: primaryBank?.bank_name ?? null,
+		bank_account_number: primaryBank?.account_number ?? null,
+		pan: employee.pan_no ?? null,
+		pf_account_number: primaryBank?.account_number ?? null,
+		uan: employee.uan_no ?? null,
+		paid_days: extractPaidDays(breakdown)
+	};
+}
+
 /**
  * Retrieve a single payroll record by its external cuid.
+ * Enriches the result with Employee Master details for payslip rendering.
  * Throws PayrollNotFoundError if not found.
  */
 export async function getPayrollByCuid(cuid: string) {
@@ -360,7 +461,9 @@ export async function getPayrollByCuid(cuid: string) {
 	if (!record) {
 		throw new PayrollNotFoundError(cuid);
 	}
-	return serializePayroll(record);
+	const breakdown = record.breakdown as Record<string, number>;
+	const employeeDetails = await fetchEmployeeDetails(record.employee_code, breakdown);
+	return serializePayroll(record, employeeDetails);
 }
 
 /**

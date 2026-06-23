@@ -271,7 +271,6 @@ export async function updateStructure(cuid: string, dto: UpdateSalaryStructureDt
 	}
 
 	// Update structure fields
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { components, ...structureFields } = dto;
 	const updated = await dao.update(cuid, structureFields);
 

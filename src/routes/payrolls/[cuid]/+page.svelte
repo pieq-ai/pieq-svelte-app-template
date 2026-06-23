@@ -351,7 +351,7 @@
 								<TableCell>
 									{#if r.status === 'Processed'}
 										<span class="font-semibold text-foreground block">{r.employee_name}</span>
-										<span class="block text-xs text-muted-foreground font-mono mt-0.5">{r.employee_code}</span>
+										<span class="block text-xs text-muted-foreground mt-0.5">{r.employee_code}</span>
 									{:else}
 										<div class="flex flex-col">
 											<span class="font-semibold text-foreground block">Row {r.originalFailure?.row_number} • {r.employee_code}</span>
@@ -359,21 +359,21 @@
 										</div>
 									{/if}
 								</TableCell>
-								<TableCell class="text-center font-mono font-medium">
+								<TableCell class="text-center font-medium">
 									{#if r.status === 'Processed'}
 										₹{formatAmount(r.gross_earnings)}
 									{:else}
 										-
 									{/if}
 								</TableCell>
-								<TableCell class="text-center font-mono font-medium text-destructive">
+								<TableCell class="text-center font-medium text-destructive">
 									{#if r.status === 'Processed'}
 										₹{formatAmount(r.total_deduction)}
 									{:else}
 										-
 									{/if}
 								</TableCell>
-								<TableCell class="text-center font-mono font-semibold">
+								<TableCell class="text-center font-semibold">
 									{#if r.status === 'Processed'}
 										₹{formatAmount(r.net_salary)}
 									{:else}
@@ -458,7 +458,7 @@
 					</div>
 					<div class="space-y-0.5">
 						<p class="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Code</p>
-						<p class="text-sm font-semibold text-foreground font-mono">{selectedRecord.employee_code}</p>
+						<p class="text-sm font-semibold text-foreground">{selectedRecord.employee_code}</p>
 					</div>
 					<div class="space-y-0.5">
 						<p class="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Month</p>
@@ -487,7 +487,7 @@
 								{#each selectedEarnings as [component, amount] (component)}
 									<TableRow class="hover:bg-transparent">
 										<TableCell class="font-medium py-2 text-sm">{component}</TableCell>
-										<TableCell class="text-right font-mono text-sm py-2">{formatAmount(amount)}</TableCell>
+										<TableCell class="text-right text-sm py-2">{formatAmount(amount)}</TableCell>
 									</TableRow>
 								{/each}
 							</TableBody>
@@ -512,7 +512,7 @@
 								{#each selectedDeductions as [component, amount] (component)}
 									<TableRow class="hover:bg-transparent">
 										<TableCell class="font-medium py-2 text-sm">{component}</TableCell>
-										<TableCell class="text-right font-mono text-sm py-2 text-destructive">{formatAmount(Math.abs(amount))}</TableCell>
+										<TableCell class="text-right text-sm py-2 text-destructive">{formatAmount(Math.abs(amount))}</TableCell>
 									</TableRow>
 								{/each}
 							</TableBody>
@@ -553,15 +553,15 @@
 						<TableBody>
 							<TableRow class="hover:bg-transparent">
 								<TableCell class="font-medium py-2 text-sm">Gross Earnings</TableCell>
-								<TableCell class="text-right font-mono font-semibold py-2 text-sm">₹{formatAmount(selectedRecord.gross_earnings)}</TableCell>
+								<TableCell class="text-right font-semibold py-2 text-sm">₹{formatAmount(selectedRecord.gross_earnings)}</TableCell>
 							</TableRow>
 							<TableRow class="hover:bg-transparent">
 								<TableCell class="font-medium py-2 text-sm">Total Deduction</TableCell>
-								<TableCell class="text-right font-mono font-semibold text-destructive py-2 text-sm">₹{formatAmount(selectedRecord.total_deduction)}</TableCell>
+								<TableCell class="text-right font-semibold text-destructive py-2 text-sm">₹{formatAmount(selectedRecord.total_deduction)}</TableCell>
 							</TableRow>
 							<TableRow class="border-t-2 bg-muted/40 hover:bg-muted/40">
 								<TableCell class="font-bold text-foreground py-2.5 text-sm">Net Salary</TableCell>
-								<TableCell class="text-right font-mono font-bold text-[#F45310] py-2.5 text-base">₹{formatAmount(selectedRecord.net_salary)}</TableCell>
+								<TableCell class="text-right font-bold text-[#F45310] py-2.5 text-base">₹{formatAmount(selectedRecord.net_salary)}</TableCell>
 							</TableRow>
 						</TableBody>
 					</Table>

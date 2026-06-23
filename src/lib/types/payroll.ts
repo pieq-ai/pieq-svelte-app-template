@@ -26,6 +26,27 @@ export interface PayrollUpload {
 	uploaded_at: string;
 }
 
+export interface PayrollEmployeeDetails {
+	/** Designation name from designations table */
+	designation: string | null;
+	/** Location name from company_locations table */
+	location: string | null;
+	/** Date of joining (ISO date string "YYYY-MM-DD"), or null */
+	date_of_joining: string | null;
+	/** Bank name from primary bank_details record */
+	bank_name: string | null;
+	/** Account number from primary bank_details record (also used as PF Account No.) */
+	bank_account_number: string | null;
+	/** PAN from employees table */
+	pan: string | null;
+	/** ESI number from employees table */
+	pf_account_number: string | null;
+	/** UAN from employees table */
+	uan: string | null;
+	/** Paid days extracted from the breakdown JSON, or null if not present */
+	paid_days: string | null;
+}
+
 export interface Payroll {
 	cuid: string;
 	employee_cuid: string;
@@ -44,6 +65,8 @@ export interface Payroll {
 	payroll_upload_cuid: string | null;
 	/** ISO timestamp string */
 	uploaded_at: string;
+	/** Employee master details fetched at payslip time (optional — may be absent on list views) */
+	employee_details?: PayrollEmployeeDetails;
 }
 
 // ─── DTO types ────────────────────────────────────────────────────────────────

@@ -128,8 +128,8 @@
 				</TableHeader>
 				<TableBody>
 					<TableRow class="hover:bg-muted/70 transition-colors">
-						<TableCell class="font-medium font-mono">{payroll.row_number === 0 ? '-' : payroll.row_number}</TableCell>
-						<TableCell class="font-semibold text-foreground font-mono">{payroll.employee_code || '-'}</TableCell>
+						<TableCell class="font-medium">{payroll.row_number === 0 ? '-' : payroll.row_number}</TableCell>
+						<TableCell class="font-semibold text-foreground">{payroll.employee_code || '-'}</TableCell>
 						<TableCell class="font-semibold text-destructive">{payroll.error_type}</TableCell>
 						<TableCell class="text-muted-foreground wrap-break-word">{payroll.error_message}</TableCell>
 					</TableRow>
@@ -183,7 +183,7 @@
 					</div>
 					<div class="space-y-1">
 						<p class="text-xs uppercase tracking-wide text-muted-foreground font-medium">Employee Code</p>
-						<p class="font-mono font-semibold text-foreground">{payroll.employee_code}</p>
+						<p class="font-semibold text-foreground">{payroll.employee_code}</p>
 					</div>
 					<div class="space-y-1">
 						<p class="text-xs uppercase tracking-wide text-muted-foreground font-medium">Month</p>
@@ -214,7 +214,7 @@
 						{#each earnings as [component, amount] (component)}
 							<TableRow>
 								<TableCell class="font-medium">{component}</TableCell>
-								<TableCell class="text-right font-mono text-sm">{formatAmount(amount)}</TableCell>
+								<TableCell class="text-right text-sm">{formatAmount(amount)}</TableCell>
 							</TableRow>
 						{/each}
 					</TableBody>
@@ -239,7 +239,7 @@
 						{#each deductions as [component, amount] (component)}
 							<TableRow>
 								<TableCell class="font-medium">{component}</TableCell>
-								<TableCell class="text-right font-mono text-sm text-destructive">{formatAmount(Math.abs(amount))}</TableCell>
+								<TableCell class="text-right text-sm text-destructive">{formatAmount(Math.abs(amount))}</TableCell>
 							</TableRow>
 						{/each}
 					</TableBody>
@@ -280,15 +280,15 @@
 				<TableBody>
 					<TableRow>
 						<TableCell class="font-medium">Gross Earnings</TableCell>
-						<TableCell class="text-right font-mono font-semibold">₹{formatAmount(payroll.gross_earnings)}</TableCell>
+						<TableCell class="text-right font-semibold">₹{formatAmount(payroll.gross_earnings)}</TableCell>
 					</TableRow>
 					<TableRow>
 						<TableCell class="font-medium">Total Deduction</TableCell>
-						<TableCell class="text-right font-mono font-semibold text-destructive">₹{formatAmount(payroll.total_deduction)}</TableCell>
+						<TableCell class="text-right font-semibold text-destructive">₹{formatAmount(payroll.total_deduction)}</TableCell>
 					</TableRow>
 					<TableRow class="border-t-2 bg-muted/40">
 						<TableCell class="font-bold text-foreground text-base">Net Salary</TableCell>
-						<TableCell class="text-right font-mono font-bold text-[#F45310] text-base">₹{formatAmount(payroll.net_salary)}</TableCell>
+						<TableCell class="text-right font-bold text-[#F45310] text-base">₹{formatAmount(payroll.net_salary)}</TableCell>
 					</TableRow>
 				</TableBody>
 			</Table>
