@@ -31,9 +31,9 @@
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
-		SearchInput,
-		ConfirmModal
+		SearchInput
 	} from '$lib/components';
+	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 	import type { Shift } from '$lib/types/shift';
 	import {
 		fetchAllShifts,
@@ -43,13 +43,28 @@
 		activateShift as activateShiftApi
 	} from '$lib/api/shifts';
 	import { ApiError } from '$lib/api/local';
-	import { confirmation } from '$lib/confirmation.svelte.js';
 
-	let showConfirmClose = $state(false);
+	let confirmModalOpen = $state(false);
+	let confirmModalTitle = $state('');
+	let confirmModalDescription = $state('');
+	let confirmModalConfirmLabel = $state('Confirm');
+	let confirmModalCancelLabel = $state('Cancel');
+	let confirmModalIsSubmitting = $state(false);
+	let confirmModalOnConfirm = $state<() => void | Promise<void>>(() => {});
+	let confirmModalOnCancel = $state<() => void>(() => {});
 
 	function handleClose() {
 		if (isDirty) {
-			showConfirmClose = true;
+			confirmModalTitle = 'Cancel Changes';
+			confirmModalDescription = 'Are you sure you want to cancel? All unsaved changes will be lost.';
+			confirmModalConfirmLabel = 'Cancel';
+			confirmModalCancelLabel = 'Keep Editing';
+			confirmModalOnConfirm = () => {
+				isModalOpen = false;
+				$globalIsDirty = false;
+			};
+			confirmModalOnCancel = () => {};
+			confirmModalOpen = true;
 		} else {
 			isModalOpen = false;
 			$globalIsDirty = false;
@@ -401,43 +416,45 @@
 	}
 
 	async function deactivateShift(cuid: string) {
-		confirmation.ask({
-			title: 'Deactivate Shift',
-			message: 'Deactivate this shift? It will remain visible but marked as inactive.',
-			confirmText: 'Deactivate',
-			cancelText: 'Cancel',
-			isDestructive: true,
-			onConfirm: async () => {
-				try {
-					await deleteShift(cuid);
-					await loadShifts();
-					toast.success('Shift deactivated successfully');
-				} catch (err) {
-					console.error(err);
-					toast.error(err instanceof ApiError ? err.message : 'Failed to deactivate shift.');
-				}
+		const shift = shiftsList.find((s) => s.cuid === cuid);
+		const name = shift ? shift.name : '';
+		confirmModalTitle = 'Deactivate Shift';
+		confirmModalDescription = `Are you sure you want to deactivate ${name}?`;
+		confirmModalConfirmLabel = 'Deactivate';
+		confirmModalCancelLabel = 'Cancel';
+		confirmModalOnConfirm = async () => {
+			try {
+				await deleteShift(cuid);
+				await loadShifts();
+				toast.success('Shift deactivated successfully');
+			} catch (err) {
+				console.error(err);
+				toast.error(err instanceof ApiError ? err.message : 'Failed to deactivate shift.');
 			}
-		});
+		};
+		confirmModalOnCancel = () => {};
+		confirmModalOpen = true;
 	}
 
 	async function activateShift(cuid: string) {
-		confirmation.ask({
-			title: 'Activate Shift',
-			message: 'Activate this shift? It will be marked as active.',
-			confirmText: 'Activate',
-			cancelText: 'Cancel',
-			isDestructive: false,
-			onConfirm: async () => {
-				try {
-					await activateShiftApi(cuid);
-					await loadShifts();
-					toast.success('Shift activated successfully');
-				} catch (err) {
-					console.error(err);
-					toast.error(err instanceof ApiError ? err.message : 'Failed to activate shift.');
-				}
+		const shift = shiftsList.find((s) => s.cuid === cuid);
+		const name = shift ? shift.name : '';
+		confirmModalTitle = 'Activate Shift';
+		confirmModalDescription = `Are you sure you want to activate ${name}?`;
+		confirmModalConfirmLabel = 'Activate';
+		confirmModalCancelLabel = 'Cancel';
+		confirmModalOnConfirm = async () => {
+			try {
+				await activateShiftApi(cuid);
+				await loadShifts();
+				toast.success('Shift activated successfully');
+			} catch (err) {
+				console.error(err);
+				toast.error(err instanceof ApiError ? err.message : 'Failed to activate shift.');
 			}
-		});
+		};
+		confirmModalOnCancel = () => {};
+		confirmModalOpen = true;
 	}
 </script>
 
@@ -666,17 +683,23 @@
 </CrudModal>
 
 <ConfirmModal
-	open={showConfirmClose}
-	title="Unsaved Changes"
-	description="You have unsaved changes. Are you sure you want to close this modal?"
-	confirmLabel="Cancel"
-	cancelLabel="Keep Editing"
-	onConfirm={() => {
-		showConfirmClose = false;
-		isModalOpen = false;
-		$globalIsDirty = false;
+	open={confirmModalOpen}
+	title={confirmModalTitle}
+	description={confirmModalDescription}
+	confirmLabel={confirmModalConfirmLabel}
+	cancelLabel={confirmModalCancelLabel}
+	isSubmitting={confirmModalIsSubmitting}
+	onConfirm={async () => {
+		confirmModalIsSubmitting = true;
+		try {
+			await confirmModalOnConfirm();
+		} finally {
+			confirmModalIsSubmitting = false;
+			confirmModalOpen = false;
+		}
 	}}
 	onCancel={() => {
-		showConfirmClose = false;
+		confirmModalOnCancel();
+		confirmModalOpen = false;
 	}}
 />

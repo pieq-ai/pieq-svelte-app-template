@@ -42,12 +42,12 @@
     TableHead,
     TableHeader,
     TableRow,
-    ConfirmModal,
     CrudModal,
     Pagination,
     SearchInput,
     TableActions,
   } from "$lib/components";
+  import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 
   interface LeaveBalance {
     cuid: string;

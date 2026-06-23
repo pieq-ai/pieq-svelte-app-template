@@ -1996,7 +1996,7 @@
       "source_file": "src/lib/api/local",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_api_local",
-      "community": 2,
+      "community": 19,
       "norm_label": "$lib/api/local"
     },
     {
@@ -13229,25 +13229,16 @@
       "label": "if()",
       "file_type": "code",
       "source_file": "src/routes/leaves/+page.svelte",
-      "source_location": "L275",
+      "source_location": "L291",
       "id": "leaves_page_if",
       "community": 1,
       "norm_label": "if()"
     },
     {
-      "label": "loadDetails()",
-      "file_type": "code",
-      "source_file": "src/routes/leaves/+page.svelte",
-      "source_location": "L411",
-      "id": "leaves_page_loaddetails",
-      "community": 1,
-      "norm_label": "loaddetails()"
-    },
-    {
       "label": "destroy()",
       "file_type": "code",
       "source_file": "src/routes/leaves/+page.svelte",
-      "source_location": "L1244",
+      "source_location": "L1414",
       "id": "leaves_page_destroy",
       "community": 1,
       "norm_label": "destroy()"
@@ -15584,6 +15575,15 @@
       "norm_label": "6. architecture notes"
     },
     {
+      "label": "loadDetails()",
+      "file_type": "code",
+      "source_file": "src/routes/leaves/+page.svelte",
+      "source_location": "L411",
+      "community": 1,
+      "norm_label": "loaddetails()",
+      "id": "leaves_page_loaddetails"
+    },
+    {
       "label": "toLocalDateString()",
       "file_type": "code",
       "source_file": "src/lib/server/config/leave.config.ts",
@@ -16866,7 +16866,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L452",
-      "community": 102,
+      "community": 32,
       "norm_label": "development",
       "id": "readme_development"
     },
@@ -16875,7 +16875,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L454",
-      "community": 102,
+      "community": 32,
       "norm_label": "`yarn dev`",
       "id": "readme_yarn_dev"
     },
@@ -16884,7 +16884,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L463",
-      "community": 102,
+      "community": 32,
       "norm_label": "`yarn build`",
       "id": "readme_yarn_build"
     },
@@ -16893,7 +16893,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L472",
-      "community": 102,
+      "community": 32,
       "norm_label": "`yarn preview`",
       "id": "readme_yarn_preview"
     },
@@ -16902,7 +16902,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L482",
-      "community": 32,
+      "community": 102,
       "norm_label": "code quality",
       "id": "readme_code_quality"
     },
@@ -16911,7 +16911,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L484",
-      "community": 32,
+      "community": 102,
       "norm_label": "`yarn check`",
       "id": "readme_yarn_check"
     },
@@ -16920,7 +16920,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L492",
-      "community": 32,
+      "community": 102,
       "norm_label": "`yarn check:watch`",
       "id": "readme_yarn_check_watch"
     },
@@ -16929,7 +16929,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L498",
-      "community": 32,
+      "community": 102,
       "norm_label": "`yarn lint`",
       "id": "readme_yarn_lint"
     },
@@ -54981,5 +54981,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "f057d1219793a4d47f71740d70707c145ed35b8b"
+  "built_at_commit": "fb27cc945a6da44d4878314f23bb244b1577364a"
 }

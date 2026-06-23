@@ -22,7 +22,7 @@
   import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
   import CheckIcon from "@lucide/svelte/icons/check";
   import { toast } from "$lib/toast";
-  import { confirmation } from "$lib/confirmation.svelte.js";
+  import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
   import { createDirtyChecker } from "$lib/utils";
   import { UI_CONSTANTS } from "$lib/constants";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
@@ -52,6 +52,15 @@
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
+
+  let confirmModalOpen = $state(false);
+  let confirmModalTitle = $state('');
+  let confirmModalDescription = $state('');
+  let confirmModalConfirmLabel = $state('Confirm');
+  let confirmModalCancelLabel = $state('Cancel');
+  let confirmModalIsSubmitting = $state(false);
+  let confirmModalOnConfirm = $state<() => void | Promise<void>>(() => {});
+  let confirmModalOnCancel = $state<() => void>(() => {});
 
   let locations = $derived<CompanyLocation[]>(data.locations);
   let page = $state(1);
@@ -257,46 +266,47 @@
   }
 
   async function deactivateLocation(cuid: string) {
-    confirmation.ask({
-      title: "Deactivate Location",
-      message:
-        "Deactivate this location? It will remain visible but marked as inactive.",
-      confirmText: "Deactivate",
-      cancelText: "Cancel",
-      isDestructive: true,
-      onConfirm: async () => {
-        try {
-          await deleteLocation(cuid);
-          await fetchLocations();
-          toast.success("Company Location deactivated successfully");
-        } catch (e) {
-          toast.error(
-            e instanceof ApiError ? e.message : "Failed to deactivate location"
-          );
-        }
-      },
-    });
+    const loc = locations.find((l) => l.cuid === cuid);
+    const name = loc ? loc.name : '';
+    confirmModalTitle = "Deactivate Location";
+    confirmModalDescription = `Are you sure you want to deactivate ${name}?`;
+    confirmModalConfirmLabel = "Deactivate";
+    confirmModalCancelLabel = "Cancel";
+    confirmModalOnConfirm = async () => {
+      try {
+        await deleteLocation(cuid);
+        await fetchLocations();
+        toast.success("Company Location deactivated successfully");
+      } catch (e) {
+        toast.error(
+          e instanceof ApiError ? e.message : "Failed to deactivate location"
+        );
+      }
+    };
+    confirmModalOnCancel = () => {};
+    confirmModalOpen = true;
   }
 
   async function activateLocation(cuid: string) {
-    confirmation.ask({
-      title: "Activate Location",
-      message: "Activate this location? It will be marked as active.",
-      confirmText: "Activate",
-      cancelText: "Cancel",
-      isDestructive: false,
-      onConfirm: async () => {
-        try {
-          await activateLocationApi(cuid);
-          await fetchLocations();
-          toast.success("Company Location activated successfully");
-        } catch (e) {
-          toast.error(
-            e instanceof ApiError ? e.message : "Failed to activate location"
-          );
-        }
-      },
-    });
+    const loc = locations.find((l) => l.cuid === cuid);
+    const name = loc ? loc.name : '';
+    confirmModalTitle = "Activate Location";
+    confirmModalDescription = `Are you sure you want to activate ${name}?`;
+    confirmModalConfirmLabel = "Activate";
+    confirmModalCancelLabel = "Cancel";
+    confirmModalOnConfirm = async () => {
+      try {
+        await activateLocationApi(cuid);
+        await fetchLocations();
+        toast.success("Company Location activated successfully");
+      } catch (e) {
+        toast.error(
+          e instanceof ApiError ? e.message : "Failed to activate location"
+        );
+      }
+    };
+    confirmModalOnCancel = () => {};
+    confirmModalOpen = true;
   }
 
 
@@ -567,3 +577,25 @@
 
 
 <LocationModal bind:open={showForm} {editLocation} onSuccess={fetchLocations} />
+
+<ConfirmModal
+  open={confirmModalOpen}
+  title={confirmModalTitle}
+  description={confirmModalDescription}
+  confirmLabel={confirmModalConfirmLabel}
+  cancelLabel={confirmModalCancelLabel}
+  isSubmitting={confirmModalIsSubmitting}
+  onConfirm={async () => {
+    confirmModalIsSubmitting = true;
+    try {
+      await confirmModalOnConfirm();
+    } finally {
+      confirmModalIsSubmitting = false;
+      confirmModalOpen = false;
+    }
+  }}
+  onCancel={() => {
+    confirmModalOnCancel();
+    confirmModalOpen = false;
+  }}
+/>

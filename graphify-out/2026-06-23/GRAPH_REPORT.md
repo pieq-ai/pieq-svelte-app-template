@@ -1,7 +1,7 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-23)
 
 ## Corpus Check
-- 401 files · ~172,984 words
+- 401 files · ~173,302 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f057d121`
+- Built from commit: `fb27cc94`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -170,7 +170,7 @@ Nodes (32): @lucide/svelte/icons/alert-circle, @lucide/svelte/icons/arrow-down, 
 
 ### Community 2 - "UI Components Index"
 Cohesion: 0.09
-Nodes (33): $lib/constants, $lib/permissions/mock-permissions, $lib/toast, $lib/types/salary-component, $lib/utils, $lib/validators/salary-component, $lib/api/local, $lib/api/shifts (+25 more)
+Nodes (32): $lib/constants, $lib/permissions/mock-permissions, $lib/toast, $lib/types/salary-component, $lib/utils, $lib/validators/salary-component, $lib/api/shifts, $lib/components/ui/checkbox/index.js (+24 more)
 
 ### Community 4 - "Dependencies & Icons"
 Cohesion: 0.06
@@ -222,7 +222,7 @@ Nodes (10): POST(), POST(), POST(), createSuccessResponse(), trimStringFields(),
 
 ### Community 19 - "Mock Permissions"
 Cohesion: 0.08
-Nodes (12): $lib/api/locations, $lib/types/organization_location, $lib/components/organization_locations/LocationModal.svelte, activeLocationsCount, filteredLocations, inactiveLocationsCount, paginatedLocations, selectedStateLabel (+4 more)
+Nodes (13): $lib/api/local, $lib/api/locations, $lib/types/organization_location, $lib/components/organization_locations/LocationModal.svelte, activeLocationsCount, filteredLocations, inactiveLocationsCount, paginatedLocations (+5 more)
 
 ### Community 22 - "Server Routing"
 Cohesion: 0.23
@@ -238,7 +238,7 @@ Nodes (11): Adding a new feature, Deployment, Keycloak client setup, pieq-svelte
 
 ### Community 32 - "Community 32"
 Cohesion: 0.15
-Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
+Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.10
@@ -450,7 +450,7 @@ Nodes (6): 1. Clone and install dependencies, 2. Configure environment, 3. Set u
 
 ### Community 102 - "Community 102"
 Cohesion: 0.50
-Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
+Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
 
 ### Community 103 - "Community 103"
 Cohesion: 0.15
@@ -517,7 +517,7 @@ Nodes (3): API reference — Employees, GET — list employees, POST — create 
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `db` connect `Community 122` to `Master Data DAO`, `Community 133`, `Department Service DAO`, `Designation Service DAO`, `Server Authentication`, `Permission Service`, `Community 35`, `Community 36`, `Community 44`, `Community 52`, `Community 54`, `Community 67`, `Community 68`, `Community 69`, `Community 70`, `Community 72`, `Community 73`, `Community 80`, `Community 85`, `Community 87`, `Community 90`, `Community 103`, `Community 104`, `Community 116`, `Community 117`, `Community 123`?**
-  _High betweenness centrality (0.068) - this node is a cross-community bridge._
+  _High betweenness centrality (0.069) - this node is a cross-community bridge._
 - **Why does `$lib/utils.js` connect `Community 59` to `Community 1`, `UI Components Core`, `Community 74`, `Community 77`, `Community 78`, `Community 56`, `Community 89`, `Community 61`?**
   _High betweenness centrality (0.050) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `Dependencies & Icons` to `Community 61`, `Community 109`, `Community 79`?**

@@ -26,13 +26,13 @@
 		TableHead,
 		TableHeader,
 		TableRow,
-		ConfirmModal,
 		TableActions,
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
 		SearchInput
 	} from '$lib/components';
+	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 	import SimpleMasterModal from '$lib/components/common/SimpleMasterModal.svelte';
 	import type { PageData } from './$types';
 

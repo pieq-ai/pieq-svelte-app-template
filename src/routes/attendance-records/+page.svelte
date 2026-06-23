@@ -976,7 +976,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
 						<DropdownMenu.Group>
 							{#each statusFilterOptions as opt}
 								<DropdownMenu.Item onclick={() => filterStatus = opt.value} class="justify-between cursor-pointer {filterStatus === opt.value ? 'bg-accent text-accent-foreground font-semibold' : ''}">
@@ -1000,7 +1000,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto">
 						<DropdownMenu.Group>
 							{#each sourceFilterOptions as opt}
 								<DropdownMenu.Item onclick={() => filterSourceCuid = opt.value} class="justify-between cursor-pointer {filterSourceCuid === opt.value ? 'bg-accent text-accent-foreground font-semibold' : ''}">
@@ -1174,7 +1174,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto">
 						<div class="flex items-center border-b border-border px-3 py-2 bg-transparent">
 							<SearchIcon class="mr-2 size-4 shrink-0 opacity-50" />
 							<input
@@ -1302,7 +1302,7 @@
 								</Button>
 							{/snippet}
 						</DropdownMenu.Trigger>
-						<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
+						<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto">
 							<DropdownMenu.Group>
 								{#each modalStatusOptions as opt}
 									<DropdownMenu.Item
@@ -1490,7 +1490,7 @@
 	open={isDiscardModalOpen}
 	title="Cancel Changes"
 	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Discard Changes"
+	confirmLabel="Cancel"
 	cancelLabel="Keep Editing"
 	onConfirm={confirmDiscard}
 	onCancel={() => (isDiscardModalOpen = false)}

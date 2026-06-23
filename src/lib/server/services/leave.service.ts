@@ -3,32 +3,6 @@ import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
 import { calculateLeaveDays, isWeekend, isHoliday } from '$lib/server/config/leave.config.js';
 
-let testBusinessDateOverride: Date | null = null;
-
-export function getBusinessDate(): Date {
-	if (testBusinessDateOverride) {
-		return new Date(testBusinessDateOverride);
-	}
-	if (process.env.TEST_BUSINESS_DATE) {
-		const parsed = new Date(process.env.TEST_BUSINESS_DATE);
-		if (!isNaN(parsed.getTime())) {
-			return parsed;
-		}
-	}
-	return new Date();
-}
-
-export function setTestBusinessDate(date: Date | string | null) {
-	if (date === null) {
-		testBusinessDateOverride = null;
-	} else {
-		const parsed = new Date(date);
-		if (isNaN(parsed.getTime())) {
-			throw new Error('Invalid test date format');
-		}
-		testBusinessDateOverride = parsed;
-	}
-}
 
 export interface ApplyLeaveInput {
 	leaveTypeCuid: string;
@@ -229,7 +203,7 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 
 	if (!employee || !employment) return;
 
-	const joinDate = employment.date_of_joining ? new Date(employment.date_of_joining) : getBusinessDate();
+	const joinDate = employment.date_of_joining ? new Date(employment.date_of_joining) : new Date();
 	joinDate.setHours(0, 0, 0, 0);
 	const joinYear = joinDate.getFullYear();
 
@@ -242,7 +216,7 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 		relievingDate.setHours(0, 0, 0, 0);
 	}
 
-	const now = getBusinessDate();
+	const now = new Date();
 	now.setHours(0, 0, 0, 0);
 	const currentYear = now.getFullYear();
 
@@ -398,7 +372,7 @@ export async function getAvailableBalanceForMonth(
 	const employment = await leaveDao.getEmploymentByEmployeeCuid(employeeCuid, tx);
 	if (!employment) return 0;
 
-	const joinDate = employment.date_of_joining ? new Date(employment.date_of_joining) : getBusinessDate();
+	const joinDate = employment.date_of_joining ? new Date(employment.date_of_joining) : new Date();
 	joinDate.setHours(0, 0, 0, 0);
 
 	const relievingDate = employment.relieving_date ? new Date(employment.relieving_date) : null;
@@ -406,7 +380,7 @@ export async function getAvailableBalanceForMonth(
 		relievingDate.setHours(0, 0, 0, 0);
 	}
 
-	const now = getBusinessDate();
+	const now = new Date();
 	now.setHours(0, 0, 0, 0);
 	const currentYear = now.getFullYear();
 
@@ -473,7 +447,7 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 	const activePolicies = await leaveDao.listLeavePolicies();
 
 	// Dynamically calculate and append monthly LOP and LWP balances
-	const now = getBusinessDate();
+	const now = new Date();
 	const targetMonth = year === now.getFullYear() ? now.getMonth() : (year < now.getFullYear() ? 11 : 0);
 	const targetYear = year;
 
@@ -496,7 +470,7 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 			remaining = await getAvailableBalanceForMonth(employee.cuid, b.leave_type_cuid, targetYear, targetMonth);
 			
 			// Recalculate allocated (accrued) days up to targetMonth
-			const joinDate = employment?.date_of_joining ? new Date(employment.date_of_joining) : getBusinessDate();
+			const joinDate = employment?.date_of_joining ? new Date(employment.date_of_joining) : new Date();
 			joinDate.setHours(0, 0, 0, 0);
 			const yearStart = new Date(targetYear, 0, 1);
 
@@ -707,7 +681,7 @@ export async function getEmployeeLeaveDetailsByCuid(employeeCuid: string, year: 
 	const activeTypes = await leaveDao.listLeaveTypes();
 	const activePolicies = await leaveDao.listLeavePolicies();
 
-	const now = getBusinessDate();
+	const now = new Date();
 	const targetMonth = year === now.getFullYear() ? now.getMonth() : (year < now.getFullYear() ? 11 : 0);
 	const targetYear = year;
 
@@ -728,7 +702,7 @@ export async function getEmployeeLeaveDetailsByCuid(employeeCuid: string, year: 
 		if (leaveCode === 'CL' || leaveCode === 'SL') {
 			remaining = await getAvailableBalanceForMonth(employee.cuid, b.leave_type_cuid, targetYear, targetMonth);
 
-			const joinDate = employment?.date_of_joining ? new Date(employment.date_of_joining) : getBusinessDate();
+			const joinDate = employment?.date_of_joining ? new Date(employment.date_of_joining) : new Date();
 			joinDate.setHours(0, 0, 0, 0);
 			const yearStart = new Date(targetYear, 0, 1);
 
@@ -976,7 +950,7 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 		throw new ValidationError('startDate', 'Start Date cannot exceed End Date.');
 	}
 
-	const joinDate = employment?.date_of_joining ? new Date(employment.date_of_joining) : getBusinessDate();
+	const joinDate = employment?.date_of_joining ? new Date(employment.date_of_joining) : new Date();
 	joinDate.setHours(0, 0, 0, 0);
 	const serviceTimeDiff = startDate.getTime() - joinDate.getTime();
 	const serviceDays = serviceTimeDiff / (1000 * 60 * 60 * 24);
@@ -1037,7 +1011,7 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 
 	// CL/SL month validations
 	if (leaveType.code === 'CL' || leaveType.code === 'SL') {
-		const now = getBusinessDate();
+		const now = new Date();
 		const currentYear = now.getFullYear();
 		const currentMonth = now.getMonth();
 
@@ -1147,7 +1121,7 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 
 		// Must be submitted at least 8 weeks before expected delivery (except miscarriage)
 		if (!input.isMiscarriage) {
-			const now = getBusinessDate();
+			const now = new Date();
 			now.setHours(0, 0, 0, 0);
 			const minEdd = new Date(now);
 			minEdd.setDate(minEdd.getDate() + 56);
@@ -1376,7 +1350,7 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 				}
 			}
 			// Service days check
-			const joinDate = targetEmployment?.date_of_joining ? new Date(targetEmployment.date_of_joining) : getBusinessDate();
+			const joinDate = targetEmployment?.date_of_joining ? new Date(targetEmployment.date_of_joining) : new Date();
 			const serviceDays = (request.start_date.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24);
 			if (serviceDays < policy.min_service_days) {
 				throw new Error('Employee does not meet the minimum service days required for this leave type.');

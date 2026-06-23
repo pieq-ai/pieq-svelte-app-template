@@ -117,8 +117,6 @@ describe('Leave Service Unit Tests', () => {
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date('2026-06-15T12:00:00.000Z'));
 		vi.clearAllMocks();
-		delete process.env.TEST_BUSINESS_DATE;
-		leaveService.setTestBusinessDate(null);
 
 		// Default DB mocks
 		vi.mocked(db.employment.findFirst).mockResolvedValue(mockEmployment as any);
@@ -2322,45 +2320,7 @@ describe('Leave Service Unit Tests', () => {
 			})).rejects.toThrow('Selected Leave Type is invalid or inactive.');
 		});
 
-		describe('TEST_BUSINESS_DATE Override Tests', () => {
-			afterEach(() => {
-				leaveService.setTestBusinessDate(null);
-				delete process.env.TEST_BUSINESS_DATE;
-			});
 
-			it('should default to the current system date when no override is set', () => {
-				const now = new Date();
-				const businessDate = leaveService.getBusinessDate();
-				expect(Math.abs(businessDate.getTime() - now.getTime())).toBeLessThan(500);
-			});
-
-			it('should respect the in-memory testBusinessDateOverride when set', () => {
-				const overrideStr = '2027-12-25T12:00:00.000Z';
-				leaveService.setTestBusinessDate(overrideStr);
-				const businessDate = leaveService.getBusinessDate();
-				expect(businessDate.toISOString()).toBe(overrideStr);
-			});
-
-			it('should respect the process.env.TEST_BUSINESS_DATE environment variable when set', () => {
-				const envStr = '2028-06-01T00:00:00.000Z';
-				process.env.TEST_BUSINESS_DATE = envStr;
-				const businessDate = leaveService.getBusinessDate();
-				expect(businessDate.toISOString()).toBe(envStr);
-			});
-
-			it('should prioritize in-memory override over environment variable override', () => {
-				const envStr = '2028-06-01T00:00:00.000Z';
-				const overrideStr = '2027-12-25T12:00:00.000Z';
-				process.env.TEST_BUSINESS_DATE = envStr;
-				leaveService.setTestBusinessDate(overrideStr);
-				const businessDate = leaveService.getBusinessDate();
-				expect(businessDate.toISOString()).toBe(overrideStr);
-			});
-
-			it('should throw an error for invalid date override values', () => {
-				expect(() => leaveService.setTestBusinessDate('invalid-date')).toThrow('Invalid test date format');
-			});
-		});
 	});
 });
 
