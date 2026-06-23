@@ -38,3 +38,5 @@ src/lib/generated
 playwright-report/
 blob-report/
 playwright/.cache/
+
+graphify-out/
