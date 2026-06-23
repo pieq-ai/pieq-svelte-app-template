@@ -3,6 +3,33 @@ import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
 import { calculateLeaveDays, isWeekend, isHoliday } from '$lib/server/config/leave.config.js';
 
+let testBusinessDateOverride: Date | null = null;
+
+export function getBusinessDate(): Date {
+	if (testBusinessDateOverride) {
+		return new Date(testBusinessDateOverride);
+	}
+	if (process.env.TEST_BUSINESS_DATE) {
+		const parsed = new Date(process.env.TEST_BUSINESS_DATE);
+		if (!isNaN(parsed.getTime())) {
+			return parsed;
+		}
+	}
+	return new Date();
+}
+
+export function setTestBusinessDate(date: Date | string | null) {
+	if (date === null) {
+		testBusinessDateOverride = null;
+	} else {
+		const parsed = new Date(date);
+		if (isNaN(parsed.getTime())) {
+			throw new Error('Invalid test date format');
+		}
+		testBusinessDateOverride = parsed;
+	}
+}
+
 export interface ApplyLeaveInput {
 	leaveTypeCuid: string;
 	startDate: string; // ISO string or YYYY-MM-DD
@@ -107,11 +134,11 @@ export async function getMonthlyUsedDays(employeeCuid: string, month: number, ye
 
 	if (leaveCode === 'LOP') {
 		const cutoffDay = await getPayrollCutoffDay(tx);
-		cycleStart = new Date(year, month - 1, cutoffDay + 1);
-		cycleEnd = new Date(year, month, cutoffDay);
+		cycleStart = new Date(Date.UTC(year, month - 1, cutoffDay + 1));
+		cycleEnd = new Date(Date.UTC(year, month, cutoffDay));
 	} else {
-		cycleStart = new Date(year, month, 1);
-		cycleEnd = new Date(year, month + 1, 0);
+		cycleStart = new Date(Date.UTC(year, month, 1));
+		cycleEnd = new Date(Date.UTC(year, month + 1, 0));
 	}
 
 	const requests = await leaveDao.getApprovedRequestsInPeriod(employeeCuid, cycleStart, cycleEnd, tx);
@@ -125,10 +152,10 @@ export async function getMonthlyUsedDays(employeeCuid: string, month: number, ye
 		const daysFromLop = req.days_from_lop ? Number(req.days_from_lop) : 0;
 
 		if (req.is_half_day) {
-			const localStart = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+			const utcStart = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate()));
 			const belongsToPeriod = leaveCode === 'LOP'
-				? (localStart >= cycleStart && localStart <= cycleEnd)
-				: (localStart.getMonth() === month && localStart.getFullYear() === year);
+				? (utcStart >= cycleStart && utcStart <= cycleEnd)
+				: (utcStart.getUTCMonth() === month && utcStart.getUTCFullYear() === year);
 
 			if (belongsToPeriod) {
 				if (leaveCode === 'LOP') {
@@ -149,7 +176,7 @@ export async function getMonthlyUsedDays(employeeCuid: string, month: number, ye
 		const curr = new Date(start);
 		while (curr <= end) {
 			dates.push(new Date(curr));
-			curr.setDate(curr.getDate() + 1);
+			curr.setUTCDate(curr.getUTCDate() + 1);
 		}
 
 		const activeDates: Date[] = [];
@@ -166,10 +193,10 @@ export async function getMonthlyUsedDays(employeeCuid: string, month: number, ye
 		// Convention: primary days come first chronologically, then LWP days, then LOP days.
 		for (let i = 0; i < activeDates.length; i++) {
 			const d = activeDates[i];
-			const localD = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+			const utcD = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 			const belongsToPeriod = leaveCode === 'LOP'
-				? (localD >= cycleStart && localD <= cycleEnd)
-				: (localD.getMonth() === month && localD.getFullYear() === year);
+				? (utcD >= cycleStart && utcD <= cycleEnd)
+				: (utcD.getUTCMonth() === month && utcD.getUTCFullYear() === year);
 
 			if (belongsToPeriod) {
 				if (reqLeaveCode === 'LWP') {
@@ -202,7 +229,7 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 
 	if (!employee || !employment) return;
 
-	const joinDate = employment.date_of_joining ? new Date(employment.date_of_joining) : new Date();
+	const joinDate = employment.date_of_joining ? new Date(employment.date_of_joining) : getBusinessDate();
 	joinDate.setHours(0, 0, 0, 0);
 	const joinYear = joinDate.getFullYear();
 
@@ -215,7 +242,7 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 		relievingDate.setHours(0, 0, 0, 0);
 	}
 
-	const now = new Date();
+	const now = getBusinessDate();
 	now.setHours(0, 0, 0, 0);
 	const currentYear = now.getFullYear();
 
@@ -371,7 +398,7 @@ export async function getAvailableBalanceForMonth(
 	const employment = await leaveDao.getEmploymentByEmployeeCuid(employeeCuid, tx);
 	if (!employment) return 0;
 
-	const joinDate = employment.date_of_joining ? new Date(employment.date_of_joining) : new Date();
+	const joinDate = employment.date_of_joining ? new Date(employment.date_of_joining) : getBusinessDate();
 	joinDate.setHours(0, 0, 0, 0);
 
 	const relievingDate = employment.relieving_date ? new Date(employment.relieving_date) : null;
@@ -379,7 +406,7 @@ export async function getAvailableBalanceForMonth(
 		relievingDate.setHours(0, 0, 0, 0);
 	}
 
-	const now = new Date();
+	const now = getBusinessDate();
 	now.setHours(0, 0, 0, 0);
 	const currentYear = now.getFullYear();
 
@@ -446,7 +473,7 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 	const activePolicies = await leaveDao.listLeavePolicies();
 
 	// Dynamically calculate and append monthly LOP and LWP balances
-	const now = new Date();
+	const now = getBusinessDate();
 	const targetMonth = year === now.getFullYear() ? now.getMonth() : (year < now.getFullYear() ? 11 : 0);
 	const targetYear = year;
 
@@ -469,7 +496,7 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 			remaining = await getAvailableBalanceForMonth(employee.cuid, b.leave_type_cuid, targetYear, targetMonth);
 			
 			// Recalculate allocated (accrued) days up to targetMonth
-			const joinDate = employment?.date_of_joining ? new Date(employment.date_of_joining) : new Date();
+			const joinDate = employment?.date_of_joining ? new Date(employment.date_of_joining) : getBusinessDate();
 			joinDate.setHours(0, 0, 0, 0);
 			const yearStart = new Date(targetYear, 0, 1);
 
@@ -528,21 +555,7 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 	const lopUsed = await getMonthlyUsedDays(employee.cuid, targetMonth, targetYear, 'LOP');
 	const lwpUsed = await getMonthlyUsedDays(employee.cuid, targetMonth, targetYear, 'LWP');
 
-	const lopType = activeTypes.find((t: any) => t.code === 'LOP');
 	const lwpType = activeTypes.find((t: any) => t.code === 'LWP');
-
-	if (lopType) {
-		joinedBalances.push({
-			cuid: `mock-lop-${employee.cuid}`,
-			leave_type_cuid: lopType.cuid,
-			leave_name: lopType.name,
-			leave_code: 'LOP',
-			allocated_days: 0.0,
-			used_days: lopUsed,
-			remaining_days: 0.0,
-			carried_forward_days: 0.0
-		});
-	}
 
 	if (lwpType) {
 		const lwpPolicy = activePolicies.find((p: any) => p.leave_type_cuid === lwpType.cuid);
@@ -631,7 +644,8 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 		leaveTypes: joinedLeaveTypes,
 		isManager,
 		pendingApprovals,
-		payrollCutoffDay
+		payrollCutoffDay,
+		lopUsed
 	};
 }
 
@@ -693,7 +707,7 @@ export async function getEmployeeLeaveDetailsByCuid(employeeCuid: string, year: 
 	const activeTypes = await leaveDao.listLeaveTypes();
 	const activePolicies = await leaveDao.listLeavePolicies();
 
-	const now = new Date();
+	const now = getBusinessDate();
 	const targetMonth = year === now.getFullYear() ? now.getMonth() : (year < now.getFullYear() ? 11 : 0);
 	const targetYear = year;
 
@@ -714,7 +728,7 @@ export async function getEmployeeLeaveDetailsByCuid(employeeCuid: string, year: 
 		if (leaveCode === 'CL' || leaveCode === 'SL') {
 			remaining = await getAvailableBalanceForMonth(employee.cuid, b.leave_type_cuid, targetYear, targetMonth);
 
-			const joinDate = employment?.date_of_joining ? new Date(employment.date_of_joining) : new Date();
+			const joinDate = employment?.date_of_joining ? new Date(employment.date_of_joining) : getBusinessDate();
 			joinDate.setHours(0, 0, 0, 0);
 			const yearStart = new Date(targetYear, 0, 1);
 
@@ -772,21 +786,7 @@ export async function getEmployeeLeaveDetailsByCuid(employeeCuid: string, year: 
 	const lopUsed = await getMonthlyUsedDays(employee.cuid, targetMonth, targetYear, 'LOP');
 	const lwpUsed = await getMonthlyUsedDays(employee.cuid, targetMonth, targetYear, 'LWP');
 
-	const lopType = activeTypes.find((t: any) => t.code === 'LOP');
 	const lwpType = activeTypes.find((t: any) => t.code === 'LWP');
-
-	if (lopType) {
-		joinedBalances.push({
-			cuid: `mock-lop-${employee.cuid}`,
-			leave_type_cuid: lopType.cuid,
-			leave_name: lopType.name,
-			leave_code: 'LOP',
-			allocated_days: 0.0,
-			used_days: lopUsed,
-			remaining_days: 0.0,
-			carried_forward_days: 0.0
-		});
-	}
 
 	if (lwpType) {
 		const lwpPolicy = activePolicies.find((p: any) => p.leave_type_cuid === lwpType.cuid);
@@ -875,7 +875,8 @@ export async function getEmployeeLeaveDetailsByCuid(employeeCuid: string, year: 
 		leaveTypes: joinedLeaveTypes,
 		isManager,
 		pendingApprovals,
-		payrollCutoffDay
+		payrollCutoffDay,
+		lopUsed
 	};
 }
 
@@ -975,7 +976,7 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 		throw new ValidationError('startDate', 'Start Date cannot exceed End Date.');
 	}
 
-	const joinDate = employment?.date_of_joining ? new Date(employment.date_of_joining) : new Date();
+	const joinDate = employment?.date_of_joining ? new Date(employment.date_of_joining) : getBusinessDate();
 	joinDate.setHours(0, 0, 0, 0);
 	const serviceTimeDiff = startDate.getTime() - joinDate.getTime();
 	const serviceDays = serviceTimeDiff / (1000 * 60 * 60 * 24);
@@ -1036,7 +1037,7 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 
 	// CL/SL month validations
 	if (leaveType.code === 'CL' || leaveType.code === 'SL') {
-		const now = new Date();
+		const now = getBusinessDate();
 		const currentYear = now.getFullYear();
 		const currentMonth = now.getMonth();
 
@@ -1146,7 +1147,7 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 
 		// Must be submitted at least 8 weeks before expected delivery (except miscarriage)
 		if (!input.isMiscarriage) {
-			const now = new Date();
+			const now = getBusinessDate();
 			now.setHours(0, 0, 0, 0);
 			const minEdd = new Date(now);
 			minEdd.setDate(minEdd.getDate() + 56);
@@ -1375,7 +1376,7 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 				}
 			}
 			// Service days check
-			const joinDate = targetEmployment?.date_of_joining ? new Date(targetEmployment.date_of_joining) : new Date();
+			const joinDate = targetEmployment?.date_of_joining ? new Date(targetEmployment.date_of_joining) : getBusinessDate();
 			const serviceDays = (request.start_date.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24);
 			if (serviceDays < policy.min_service_days) {
 				throw new Error('Employee does not meet the minimum service days required for this leave type.');

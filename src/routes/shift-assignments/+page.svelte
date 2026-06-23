@@ -100,6 +100,48 @@
 		return '';
 	});
 
+	let backendEmployeeError = $derived.by(() => {
+		if (!backendError) return '';
+		const err = backendError.toLowerCase();
+		if (err.includes('already exists') || err.includes('overlap') || err.includes('specified period')) {
+			return '';
+		}
+		if (err.includes('employee') || err.includes('subordinate')) {
+			return backendError;
+		}
+		return '';
+	});
+
+	let backendShiftError = $derived.by(() => {
+		if (!backendError) return '';
+		const err = backendError.toLowerCase();
+		if (err.includes('already exists') || err.includes('overlap') || err.includes('specified period') || err.includes('shift')) {
+			return backendError;
+		}
+		if (!err.includes('employee') && !err.includes('subordinate') && !err.includes('date') && !err.includes('from') && !err.includes('to')) {
+			return backendError;
+		}
+		return '';
+	});
+
+	let backendEffectiveFromError = $derived.by(() => {
+		if (!backendError) return '';
+		const err = backendError.toLowerCase();
+		if (err.includes('effective_from') || (err.includes('from') && err.includes('date') && !err.includes('to'))) {
+			return backendError;
+		}
+		return '';
+	});
+
+	let backendEffectiveToError = $derived.by(() => {
+		if (!backendError) return '';
+		const err = backendError.toLowerCase();
+		if (err.includes('effective_to') || err.includes('greater than') || (err.includes('to') && err.includes('date'))) {
+			return backendError;
+		}
+		return '';
+	});
+
 	const dirtyChecker = createDirtyChecker<{
 		employee_cuid: string;
 		shift_cuid: string;
@@ -346,7 +388,7 @@
 			class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
 			onclick={openCreateModal}
 		>
-			<PlusIcon class="mr-2 size-4" /> Assign Shift
+			Assign Shift
 		</Button>
 	</div>
 
@@ -464,7 +506,7 @@
 							<TableRow 
 								onclick={(e) => {
 									if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
-									openViewModal(assignment);
+									openEditModal(assignment);
 								}} 
 								class="cursor-pointer"
 							>
@@ -514,10 +556,6 @@
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-4" onsubmit={handleSaveAssignment}>
-			
-			{#if backendError}
-				<p class="text-xs text-center font-medium" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{backendError}</p>
-			{/if}
 
 			<!-- Employee Dropdown -->
 			<div class="space-y-2">
@@ -535,6 +573,8 @@
 				/>
 				{#if employeeError}
 					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{employeeError}</p>
+				{:else if backendEmployeeError}
+					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{backendEmployeeError}</p>
 				{/if}
 			</div>
 
@@ -554,6 +594,8 @@
 				/>
 				{#if shiftError}
 					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{shiftError}</p>
+				{:else if backendShiftError}
+					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{backendShiftError}</p>
 				{/if}
 			</div>
 
@@ -567,11 +609,13 @@
 						type="date"
 						disabled={isViewOnly}
 						bind:value={formEffectiveFrom}
-						class={effectiveFromError ? 'border-destructive' : ''}
+						class={(effectiveFromError || backendEffectiveFromError) ? 'border-destructive' : ''}
 						oninput={() => { isEffectiveFromTouched = true; backendError = ''; }}
 					/>
 					{#if effectiveFromError}
 						<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{effectiveFromError}</p>
+					{:else if backendEffectiveFromError}
+						<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{backendEffectiveFromError}</p>
 					{/if}
 				</div>
 				<div class="space-y-2">
@@ -582,11 +626,13 @@
 						type="date"
 						disabled={isViewOnly}
 						bind:value={formEffectiveTo}
-						class={effectiveToError ? 'border-destructive' : ''}
+						class={(effectiveToError || backendEffectiveToError) ? 'border-destructive' : ''}
 						oninput={() => { isEffectiveToTouched = true; backendError = ''; }}
 					/>
 					{#if effectiveToError}
 						<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{effectiveToError}</p>
+					{:else if backendEffectiveToError}
+						<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{backendEffectiveToError}</p>
 					{/if}
 				</div>
 			</div>

@@ -1,12 +1,12 @@
-export function toLocalDateString(date: Date): string {
-	const yyyy = date.getFullYear();
-	const mm = String(date.getMonth() + 1).padStart(2, '0');
-	const dd = String(date.getDate()).padStart(2, '0');
+export function toUtcDateString(date: Date): string {
+	const yyyy = date.getUTCFullYear();
+	const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+	const dd = String(date.getUTCDate()).padStart(2, '0');
 	return `${yyyy}-${mm}-${dd}`;
 }
 
 export function isWeekend(date: Date): boolean {
-	const day = date.getDay();
+	const day = date.getUTCDay();
 	return day === 0 || day === 6; // 0 = Sunday, 6 = Saturday
 }
 
@@ -21,16 +21,16 @@ export const PUBLIC_HOLIDAYS_2026 = [
 ];
 
 export function isHoliday(date: Date): boolean {
-	const dateStr = toLocalDateString(date);
+	const dateStr = toUtcDateString(date);
 	return PUBLIC_HOLIDAYS_2026.includes(dateStr);
 }
 
 export function calculateLeaveDays(startDate: Date, endDate: Date, leaveCode: string): number {
 	let count = 0;
 	const current = new Date(startDate);
-	current.setHours(0, 0, 0, 0);
+	current.setUTCHours(0, 0, 0, 0);
 	const end = new Date(endDate);
-	end.setHours(0, 0, 0, 0);
+	end.setUTCHours(0, 0, 0, 0);
 
 	const code = leaveCode.toUpperCase();
 
@@ -42,7 +42,8 @@ export function calculateLeaveDays(startDate: Date, endDate: Date, leaveCode: st
 				count++;
 			}
 		}
-		current.setDate(current.getDate() + 1);
+		current.setUTCDate(current.getUTCDate() + 1);
 	}
 	return count;
 }
+

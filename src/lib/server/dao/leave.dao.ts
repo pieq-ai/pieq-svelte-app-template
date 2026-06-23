@@ -2,17 +2,20 @@ import { db } from '$lib/server/db.js';
 
 export async function listLeaveTypes(tx?: any) {
 	const client = tx || db;
-	return client.leaveType.findMany({
+	const types = await client.leaveType.findMany({
 		where: { status: true },
 		orderBy: { name: 'asc' }
 	});
+	return types.filter((t: any) => t.code !== 'LOP');
 }
 
 export async function getLeaveTypeByCuid(cuid: string, tx?: any) {
 	const client = tx || db;
-	return client.leaveType.findUnique({
+	const type = await client.leaveType.findUnique({
 		where: { cuid }
 	});
+	if (type?.code === 'LOP') return null;
+	return type;
 }
 
 export async function listLeavePolicies(tx?: any) {
@@ -296,6 +299,7 @@ export async function getApprovedRequestsOverlapping(start: Date, end: Date, tx?
 }
 
 export async function getLeaveTypeByCode(leaveCode: string, tx?: any) {
+	if (leaveCode === 'LOP') return null;
 	const client = tx || db;
 	return client.leaveType.findFirst({
 		where: { code: leaveCode }

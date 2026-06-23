@@ -7,7 +7,7 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 export async function GET(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
-		const year = new Date().getFullYear();
+		const year = leaveService.getBusinessDate().getFullYear();
 
 		// Prefer employeeCuid query param (employee dropdown pattern, same as Attendance page).
 		// Fall back to the logged-in user's email for backwards compatibility.

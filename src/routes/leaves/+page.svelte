@@ -150,6 +150,7 @@
 	let requests = $state<LeaveRequest[]>([]);
 	let leaveTypes = $state<LeaveType[]>([]);
 	let employee = $state<Employee | null>(null);
+	let lopUsed = $state(0);
 	let isLoading = $state(false);
 	let isSubmitting = $state(false);
 
@@ -394,6 +395,7 @@
 				pendingApprovals = res.data.pendingApprovals || [];
 				payrollCutoffDay = res.data.payrollCutoffDay ?? 25;
 				selectedCutoff = payrollCutoffDay;
+				lopUsed = res.data.lopUsed || 0;
 			}
 		} catch (err: any) {
 			toast.error(err.message || 'Failed to load leave details.');
@@ -418,6 +420,7 @@
 			payrollCutoffDay = 25;
 			selectedCutoff = 25;
 			activeTab = 'dashboard';
+			lopUsed = 0;
 		}
 	});
 
@@ -1552,12 +1555,8 @@
 						<Badge variant="outline" class="font-bold text-[10px] text-red-600 border-red-600/30 bg-red-50/50">LOP</Badge>
 					</CardHeader>
 					<CardContent class="pb-4 pt-1 px-4">
-						<div class="text-4xl font-extrabold tracking-tight tabular-nums text-red-600">{(balances.find(b => b.leave_code === 'LOP')?.remaining_days ?? 0).toFixed(1)}</div>
-						<p class="text-xs text-muted-foreground mt-1 font-medium">Available Days</p>
-						<div class="border-t border-border/40 mt-2.5 pt-2 flex justify-between text-xs text-muted-foreground">
-							<span>Quota: <strong class="font-semibold text-foreground">{(balances.find(b => b.leave_code === 'LOP')?.allocated_days ?? 0).toFixed(1)}</strong></span>
-							<span>Used: <strong class="font-semibold text-foreground">{(balances.find(b => b.leave_code === 'LOP')?.used_days ?? 0).toFixed(1)}</strong></span>
-						</div>
+						<div class="text-4xl font-extrabold tracking-tight tabular-nums text-red-600">{lopUsed.toFixed(1)}</div>
+						<p class="text-xs text-muted-foreground mt-1 font-medium">LOP Days Incurred</p>
 					</CardContent>
 				</Card>
 
