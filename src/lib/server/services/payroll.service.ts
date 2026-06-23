@@ -265,20 +265,7 @@ export async function uploadPayroll(
 			validated.year
 		);
 		if (existing) {
-			skipped++;
-			const errorMessage = 'Payroll already exists';
-			errors.push({
-				row: row.rowIndex,
-				employee_code: empCode,
-				reason: errorMessage
-			});
-			await failureDao.create({
-				payroll_upload_cuid: uploadRecord.cuid,
-				row_number: row.rowIndex,
-				employee_code: empCode,
-				error_type: 'Duplicate Payroll',
-				error_message: errorMessage
-			});
+			// Skip silently without creating failure records or counting as failure
 			continue;
 		}
 
@@ -310,20 +297,8 @@ export async function uploadPayroll(
 			// Catch unique constraint violations at DB level as a safety net (e.g. concurrent upload)
 			const message = err instanceof Error ? err.message : String(err);
 			if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
-				skipped++;
-				const errorMessage = 'Payroll already exists';
-				errors.push({
-					row: row.rowIndex,
-					employee_code: empCode,
-					reason: errorMessage
-				});
-				await failureDao.create({
-					payroll_upload_cuid: uploadRecord.cuid,
-					row_number: row.rowIndex,
-					employee_code: empCode,
-					error_type: 'Duplicate Payroll',
-					error_message: errorMessage
-				});
+				// Skip silently without creating failure records or counting as failure
+				continue;
 			} else {
 				skipped++;
 				errors.push({

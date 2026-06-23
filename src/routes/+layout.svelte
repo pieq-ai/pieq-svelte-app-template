@@ -298,3 +298,5 @@
 	onCancel={() => showGlobalUnsavedModal = false} 
 	onConfirm={confirmGlobalLeave} 
 />
+
+<ConfirmationModal />

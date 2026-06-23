@@ -43,6 +43,9 @@ export async function PUT({ params, request }) {
 		return json({ data: { cuid: updated.cuid, message: 'success' } });
 	} catch (error) {
 		console.error(`Error in PUT /api/salary-structures/${params.cuid}:`, error);
+		if ((error as Error).name === 'ConfirmationRequiredError') {
+			return json({ data: { confirmationRequired: true } }, { status: 200 });
+		}
 		const isNotFound = (error as Error).name === 'SalaryStructureNotFoundError';
 		const isValidationError =
 			(error as Error).name === 'InvalidEmployeeError' ||

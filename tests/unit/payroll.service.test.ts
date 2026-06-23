@@ -5,6 +5,7 @@ import {
 	getPayrollByCuid,
 	PayrollNotFoundError
 } from '$lib/server/services/payroll.service.js';
+import { Prisma } from '$lib/generated/prisma/client.js';
 
 // ─── Mock DAO ─────────────────────────────────────────────────────────────────
 
@@ -203,16 +204,17 @@ describe('Payroll Service', () => {
 			expect(result.errors[0].reason).toContain('Year is missing');
 		});
 
-		it('should skip a row when duplicate record exists', async () => {
+		it('should silently skip a row when duplicate record exists', async () => {
 			vi.mocked(findEmployeeByCode).mockResolvedValue(mockEmployee());
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(mockPayrollRecord() as never);
 
 			const result = await uploadPayroll([mockParsedRow()], 6, 2026);
 
 			expect(result.created).toBe(0);
-			expect(result.skipped).toBe(1);
-			expect(result.errors[0].reason).toContain('already exists');
+			expect(result.skipped).toBe(0);
+			expect(result.errors).toHaveLength(0);
 			expect(dao.create).not.toHaveBeenCalled();
+			expect(failureDao.create).not.toHaveBeenCalled();
 		});
 
 		it('should continue processing remaining rows after a skipped row', async () => {
@@ -390,6 +392,24 @@ describe('Payroll Service', () => {
 					error_type: 'Employee Not Found'
 				})
 			);
+		});
+
+		it('should silently skip a row when Prisma throws a P2002 unique constraint error on create', async () => {
+			vi.mocked(findEmployeeByCode).mockResolvedValue(mockEmployee());
+			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
+			
+			const prismaError = new Prisma.PrismaClientKnownRequestError('Duplicate key', {
+				code: 'P2002',
+				clientVersion: 'test'
+			});
+			vi.mocked(dao.create).mockRejectedValue(prismaError);
+
+			const result = await uploadPayroll([mockParsedRow()], 6, 2026);
+
+			expect(result.created).toBe(0);
+			expect(result.skipped).toBe(0);
+			expect(result.errors).toHaveLength(0);
+			expect(failureDao.create).not.toHaveBeenCalled();
 		});
 	});
 

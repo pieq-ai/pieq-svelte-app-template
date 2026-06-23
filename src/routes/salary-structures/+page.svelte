@@ -17,6 +17,7 @@
 	import { createDirtyChecker } from '$lib/utils';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import { validateEffectiveFrom, validateEffectiveDateRange, validateAmount } from '$lib/validators/salary-structure';
+	import { globalIsDirty } from '$lib/stores/navigationGuard';
 
 	import {
 		Badge,
@@ -38,7 +39,8 @@
 		Pagination,
 		SearchInput,
 		DatePicker,
-		TableActions
+		TableActions,
+		ConfirmModal
 	} from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
@@ -74,6 +76,41 @@
 	let isCreateOpen = $state(false);
 	let isSubmitting = $state(false);
 	let backendError = $state('');
+
+	let showConfirmClose = $state(false);
+	let confirmCloseCallback = $state<() => void>(() => {});
+	let showAdjustmentConfirm = $state(false);
+	let adjustmentConfirmCallback = $state<() => void | Promise<void>>(() => {});
+
+	function handleCloseCreate() {
+		if (isDirty) {
+			confirmCloseCallback = () => {
+				isCreateOpen = false;
+				$globalIsDirty = false;
+			};
+			showConfirmClose = true;
+		} else {
+			isCreateOpen = false;
+			$globalIsDirty = false;
+		}
+	}
+
+	function handleCloseEditDates() {
+		if (isEditDatesDirty) {
+			confirmCloseCallback = () => {
+				closeEditDates();
+				$globalIsDirty = false;
+			};
+			showConfirmClose = true;
+		} else {
+			closeEditDates();
+			$globalIsDirty = false;
+		}
+	}
+
+	$effect(() => {
+		$globalIsDirty = isDirty || isEditDatesDirty;
+	});
 
 	// ─── Form state ───────────────────────────────────────────────────────────────
 
@@ -411,7 +448,34 @@
 
 			const resData = await response.json();
 
-			if (response.ok && resData.data) {
+			if (response.ok && resData.data && resData.data.confirmationRequired) {
+				isSubmitting = false;
+				adjustmentConfirmCallback = async () => {
+					showAdjustmentConfirm = false;
+					isSubmitting = true;
+					try {
+						const retryResponse = await fetch('/api/salary-structures', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ ...payload, confirmAdjustment: true })
+						});
+						const retryData = await retryResponse.json();
+						if (retryResponse.ok && retryData.data) {
+							await loadStructures();
+							toast.success('Salary Structure created successfully');
+							closeModal();
+						} else {
+							backendError = retryData.data?.error || retryData.message || retryData.error || 'Failed to save salary structure.';
+						}
+					} catch (err) {
+						toast.error('An error occurred. Please try again.');
+						console.error(err);
+					} finally {
+						isSubmitting = false;
+					}
+				};
+				showAdjustmentConfirm = true;
+			} else if (response.ok && resData.data) {
 				await loadStructures();
 				toast.success('Salary Structure created successfully');
 				closeModal();
@@ -494,12 +558,12 @@
 
 		isSubmittingDates = true;
 
-		try {
-			const payload = {
-				effective_from: editEffectiveFrom,
-				effective_to: editEffectiveTo || null
-			};
+		const payload = {
+			effective_from: editEffectiveFrom,
+			effective_to: editEffectiveTo || null
+		};
 
+		try {
 			const response = await fetch(`/api/salary-structures/${editingStructureForDates.cuid}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
@@ -508,7 +572,33 @@
 
 			const resData = await response.json();
 
-			if (response.ok) {
+			if (response.ok && resData.data && resData.data.confirmationRequired) {
+				isSubmittingDates = false;
+				adjustmentConfirmCallback = async () => {
+					showAdjustmentConfirm = false;
+					isSubmittingDates = true;
+					try {
+						const retryResponse = await fetch(`/api/salary-structures/${editingStructureForDates!.cuid}`, {
+							method: 'PUT',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ ...payload, confirmAdjustment: true })
+						});
+						const retryData = await retryResponse.json();
+						if (retryResponse.ok) {
+							toast.success('Effective dates updated successfully');
+							closeEditDates();
+							await loadAll();
+						} else {
+							datesBackendError = retryData.data?.error || retryData.message || 'Failed to update effective dates';
+						}
+					} catch {
+						datesBackendError = 'An unexpected error occurred';
+					} finally {
+						isSubmittingDates = false;
+					}
+				};
+				showAdjustmentConfirm = true;
+			} else if (response.ok) {
 				toast.success('Effective dates updated successfully');
 				closeEditDates();
 				await loadAll();
@@ -697,7 +787,7 @@
 	open={isCreateOpen}
 	title="Add Salary Structure"
 	isSubmitting={isSubmitting}
-	onClose={closeModal}
+	onClose={handleCloseCreate}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-4" onsubmit={handleSave}>
@@ -919,7 +1009,7 @@
 	open={isEditDatesOpen}
 	title="Edit Effective Dates"
 	isSubmitting={isSubmittingDates}
-	onClose={closeEditDates}
+	onClose={handleCloseEditDates}
 >
 	<form class="space-y-4" onsubmit={handleSaveDates}>
 		<div class="space-y-1">
@@ -972,7 +1062,7 @@
 		{/if}
 
 		<div class="flex items-center justify-end gap-3 pt-4">
-			<Button type="button" variant="outline" onclick={closeEditDates} disabled={isSubmittingDates}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
+			<Button type="button" variant="outline" onclick={handleCloseEditDates} disabled={isSubmittingDates}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
 			<Button
 				type="submit"
 				class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
@@ -983,3 +1073,30 @@
 		</div>
 	</form>
 </CrudModal>
+
+<ConfirmModal
+	open={showConfirmClose}
+	title="Unsaved Changes"
+	description="You have unsaved changes. Are you sure you want to close this modal?"
+	confirmLabel="Cancel"
+	cancelLabel="Keep Editing"
+	onConfirm={() => {
+		showConfirmClose = false;
+		confirmCloseCallback();
+	}}
+	onCancel={() => {
+		showConfirmClose = false;
+	}}
+/>
+
+<ConfirmModal
+	open={showAdjustmentConfirm}
+	title="Effective Date Adjustment"
+	description="This effective date overlaps with an existing salary structure. Continuing will automatically update adjacent salary structure dates to maintain a continuous salary history. Do you want to proceed?"
+	cancelLabel="Cancel"
+	confirmLabel="Save"
+	onConfirm={adjustmentConfirmCallback}
+	onCancel={() => {
+		showAdjustmentConfirm = false;
+	}}
+/>

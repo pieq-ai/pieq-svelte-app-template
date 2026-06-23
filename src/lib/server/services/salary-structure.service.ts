@@ -8,6 +8,14 @@ import type {
 	UpdateSalaryStructureDto,
 	CreateRevisionDto
 } from '$lib/types/salary-structure.js';
+import { db } from '$lib/server/db.js';
+
+export class ConfirmationRequiredError extends Error {
+	constructor() {
+		super('Confirmation is required to adjust timeline.');
+		this.name = 'ConfirmationRequiredError';
+	}
+}
 
 // ─── Custom error classes ─────────────────────────────────────────────────────
 
@@ -103,9 +111,208 @@ async function assertComponentsValid(
  * Returns one day before the new effective_from as an ISO date string (YYYY-MM-DD).
  */
 function previousEffectiveTo(newEffectiveFrom: string): string {
-	const d = new Date(newEffectiveFrom);
-	d.setDate(d.getDate() - 1);
+	const [year, month, day] = newEffectiveFrom.split('-').map(Number);
+	const d = new Date(Date.UTC(year, month - 1, day));
+	d.setUTCDate(d.getUTCDate() - 1);
 	return d.toISOString().split('T')[0];
+}
+
+interface TimelineStructure {
+	cuid?: string;
+	employee_cuid: string;
+	effective_from: string;
+	effective_to: string | null;
+	status: boolean;
+}
+
+export async function processTimelineAdjustments(
+	employeeCuid: string,
+	targetCuid: string | null,
+	proposedFrom: string,
+	proposedTo: string | null,
+	confirmAdjustment: boolean
+): Promise<{
+	status: 'success' | 'confirm_required' | 'invalid';
+	error?: string;
+	updates?: Array<{ cuid: string; effective_from?: string; effective_to: string | null; status: boolean }>;
+}> {
+	const existingRaw = await dao.findByEmployeeCuid(employeeCuid);
+	
+	const existing: TimelineStructure[] = existingRaw.map(s => ({
+		cuid: s.cuid,
+		employee_cuid: s.employee_cuid,
+		effective_from: s.effective_from.toISOString().split('T')[0],
+		effective_to: s.effective_to ? s.effective_to.toISOString().split('T')[0] : null,
+		status: s.status
+	}));
+
+	let proposedList: TimelineStructure[];
+	if (targetCuid) {
+		proposedList = existing.map(s => {
+			if (s.cuid === targetCuid) {
+				return {
+					...s,
+					effective_from: proposedFrom,
+					effective_to: proposedTo
+				};
+			}
+			return s;
+		});
+	} else {
+		proposedList = [
+			...existing,
+			{
+				employee_cuid: employeeCuid,
+				effective_from: proposedFrom,
+				effective_to: proposedTo,
+				status: true
+			}
+		];
+	}
+
+	// Sort initially by effective_from to find the target structure's position
+	proposedList.sort((a, b) => a.effective_from.localeCompare(b.effective_from));
+
+	// If target structure's effective_to was updated to a date, adjust the next structure's effective_from
+	if (targetCuid) {
+		const idx = proposedList.findIndex(s => s.cuid === targetCuid);
+		if (idx !== -1) {
+			const target = proposedList[idx];
+			if (target.effective_to !== null) {
+				if (idx < proposedList.length - 1) {
+					// Adjust next structure's effective_from
+					const next = proposedList[idx + 1];
+					const [year, month, day] = target.effective_to.split('-').map(Number);
+					const nextFromDate = new Date(Date.UTC(year, month - 1, day));
+					nextFromDate.setUTCDate(nextFromDate.getUTCDate() + 1);
+					next.effective_from = nextFromDate.toISOString().split('T')[0];
+				}
+			} else {
+				// if proposedTo is null, but there is a next structure, it is invalid
+				if (idx < proposedList.length - 1) {
+					return {
+						status: 'invalid',
+						error: 'Only the last salary structure in the timeline can have an open-ended Effective To date.'
+					};
+				}
+			}
+		}
+	} else {
+		// For new structure creation, if proposedTo is null but it is inserted before another structure
+		const idx = proposedList.findIndex(s => !s.cuid);
+		if (idx !== -1) {
+			const target = proposedList[idx];
+			if (target.effective_to !== null) {
+				if (idx < proposedList.length - 1) {
+					const next = proposedList[idx + 1];
+					const [year, month, day] = target.effective_to.split('-').map(Number);
+					const nextFromDate = new Date(Date.UTC(year, month - 1, day));
+					nextFromDate.setUTCDate(nextFromDate.getUTCDate() + 1);
+					next.effective_from = nextFromDate.toISOString().split('T')[0];
+				}
+			} else {
+				if (idx < proposedList.length - 1) {
+					return {
+						status: 'invalid',
+						error: 'Only the last salary structure in the timeline can have an open-ended Effective To date.'
+					};
+				}
+			}
+		}
+	}
+
+	// Re-sort after potential next structure start date adjustments
+	proposedList.sort((a, b) => a.effective_from.localeCompare(b.effective_from));
+
+	// Check for duplicate effective_from
+	for (let i = 0; i < proposedList.length - 1; i++) {
+		if (proposedList[i].effective_from === proposedList[i + 1].effective_from) {
+			return {
+				status: 'invalid',
+				error: 'Duplicate structures with the same effective from date are not allowed.'
+			};
+		}
+	}
+
+	const calculatedList: TimelineStructure[] = [];
+	for (let i = 0; i < proposedList.length; i++) {
+		const current = proposedList[i];
+		const next = proposedList[i + 1];
+
+		let targetTo: string | null;
+		let targetStatus: boolean;
+
+		if (next) {
+			const [year, month, day] = next.effective_from.split('-').map(Number);
+			const nextDate = new Date(Date.UTC(year, month - 1, day));
+			nextDate.setUTCDate(nextDate.getUTCDate() - 1);
+			targetTo = nextDate.toISOString().split('T')[0];
+			targetStatus = false;
+
+			if (targetTo < current.effective_from) {
+				return {
+					status: 'invalid',
+					error: `Timeline adjustment results in an invalid date range for a salary structure starting on ${current.effective_from}.`
+				};
+			}
+		} else {
+			targetTo = current.effective_to;
+			targetStatus = true;
+
+			if (targetTo !== null && targetTo < current.effective_from) {
+				return {
+					status: 'invalid',
+					error: `Timeline adjustment results in an invalid date range for a salary structure starting on ${current.effective_from}.`
+				};
+			}
+		}
+
+		calculatedList.push({
+			...current,
+			effective_to: targetTo,
+			status: targetStatus
+		});
+	}
+
+	const updates: Array<{ cuid: string; effective_from?: string; effective_to: string | null; status: boolean }> = [];
+	let hasOverlapOrAdjustment = false;
+
+	for (const calc of calculatedList) {
+		if (!calc.cuid) {
+			continue;
+		}
+		
+		const original = existing.find(o => o.cuid === calc.cuid);
+		if (original) {
+			const fromChanged = original.effective_from !== calc.effective_from;
+			const dateChanged = original.effective_to !== calc.effective_to;
+			const statusChanged = original.status !== calc.status;
+			
+			if (fromChanged || dateChanged || statusChanged) {
+				hasOverlapOrAdjustment = true;
+				updates.push({
+					cuid: calc.cuid,
+					...(fromChanged && { effective_from: calc.effective_from }),
+					effective_to: calc.effective_to,
+					status: calc.status
+				});
+			}
+		}
+	}
+	
+	if (hasOverlapOrAdjustment) {
+		if (!confirmAdjustment) {
+			return {
+				status: 'confirm_required',
+				updates
+			};
+		}
+	}
+
+	return {
+		status: 'success',
+		updates
+	};
 }
 
 // ─── Service operations ───────────────────────────────────────────────────────
@@ -116,43 +323,89 @@ function previousEffectiveTo(newEffectiveFrom: string): string {
  * All component cuids are validated before writing to DB.
  */
 export async function createStructure(dto: CreateSalaryStructureDto) {
-	// Validate employee
 	await assertEmployeeExists(dto.employee_cuid);
 
-	// Enforce: only one Active structure per employee — Add Structure is blocked if one exists
-	const existingActive = await dao.findActiveByEmployeeCuid(dto.employee_cuid);
-	if (existingActive) {
-		const activeFrom = existingActive.effective_from.toISOString().split('T')[0];
-		const activeTo = existingActive.effective_to ? existingActive.effective_to.toISOString().split('T')[0] : null;
-
-		const isOverlap = activeTo !== null
-			? dto.effective_from <= activeTo
-			: dto.effective_from <= activeFrom;
-
-		if (isOverlap) {
-			throw new BusinessValidationError("The selected employee already has an active salary structure for the chosen period.");
-		}
-		throw new ActiveStructureExistsError(dto.employee_cuid);
-	}
-
-	// Validate all components and capture name snapshots
-	const nameMap = await assertComponentsValid(dto.components);
-
-	// Create the structure record (always Active when created via Add Structure)
-	const structure = await dao.create({ ...dto, status: true });
-
-	// Create all item rows with name snapshots
-	const items = await dao.createItems(
-		structure.cuid,
-		dto.components.map((item) => ({
-			salary_component_cuid: item.salary_component_cuid,
-			component_name_snapshot: nameMap.get(item.salary_component_cuid) ?? '',
-			amount: item.amount,
-			created_by: dto.created_by ?? null
-		}))
+	const timeline = await processTimelineAdjustments(
+		dto.employee_cuid,
+		null,
+		dto.effective_from,
+		dto.effective_to || null,
+		dto.confirmAdjustment ?? false
 	);
 
-	return serializeSalaryStructure(structure, items);
+	if (timeline.status === 'invalid') {
+		throw new BusinessValidationError(timeline.error!);
+	}
+
+	if (timeline.status === 'confirm_required') {
+		throw new ConfirmationRequiredError();
+	}
+
+	const nameMap = await assertComponentsValid(dto.components);
+
+	return db.$transaction(async (tx) => {
+		for (const update of timeline.updates || []) {
+			await tx.salaryStructure.update({
+				where: { cuid: update.cuid },
+				data: {
+					...(update.effective_from && { effective_from: new Date(update.effective_from) }),
+					effective_to: update.effective_to ? new Date(update.effective_to) : null,
+					status: update.status
+				}
+			});
+		}
+
+		const existingRaw = await tx.salaryStructure.findMany({
+			where: { employee_cuid: dto.employee_cuid }
+		});
+		const all = [
+			...existingRaw.map(e => ({ cuid: e.cuid, from: e.effective_from.toISOString().split('T')[0] })),
+			{ cuid: 'new', from: dto.effective_from }
+		].sort((a, b) => a.from.localeCompare(b.from));
+
+		const index = all.findIndex(a => a.cuid === 'new');
+		const next = all[index + 1];
+
+		let targetTo: Date | null;
+		let targetStatus: boolean;
+
+		if (next) {
+			const [year, month, day] = next.from.split('-').map(Number);
+			const nextDate = new Date(Date.UTC(year, month - 1, day));
+			nextDate.setUTCDate(nextDate.getUTCDate() - 1);
+			targetTo = nextDate;
+			targetStatus = false;
+		} else {
+			targetTo = dto.effective_to ? new Date(dto.effective_to) : null;
+			targetStatus = true;
+		}
+
+		const structure = await tx.salaryStructure.create({
+			data: {
+				employee_cuid: dto.employee_cuid,
+				effective_from: new Date(dto.effective_from),
+				effective_to: targetTo,
+				status: targetStatus,
+				created_by: dto.created_by ?? null
+			}
+		});
+
+		const createdItems = await Promise.all(
+			dto.components.map((item) =>
+				tx.salaryStructureItem.create({
+					data: {
+						salary_structure_cuid: structure.cuid,
+						salary_component_cuid: item.salary_component_cuid,
+						component_name_snapshot: nameMap.get(item.salary_component_cuid) ?? '',
+						amount: item.amount,
+						created_by: dto.created_by ?? null
+					}
+				})
+			)
+		);
+
+		return serializeSalaryStructure(structure, createdItems);
+	});
 }
 
 /**
@@ -224,13 +477,11 @@ export async function createRevision(sourceCuid: string, dto: CreateRevisionDto)
  * Does NOT perform the revision flow — use createRevision for salary changes.
  */
 export async function updateStructure(cuid: string, dto: UpdateSalaryStructureDto) {
-	// Check existence
 	const current = await dao.findByCuid(cuid);
 	if (!current) {
 		throw new SalaryStructureNotFoundError(cuid);
 	}
 
-	// Validate date range and overlaps
 	const proposedFrom = dto.effective_from !== undefined ? dto.effective_from : current.effective_from.toISOString().split('T')[0];
 	const proposedTo = dto.effective_to !== undefined ? dto.effective_to : (current.effective_to ? current.effective_to.toISOString().split('T')[0] : null);
 
@@ -241,57 +492,110 @@ export async function updateStructure(cuid: string, dto: UpdateSalaryStructureDt
 		}
 	}
 
-	// Check overlaps with other structures for this employee
 	const employeeCuid = dto.employee_cuid !== undefined ? dto.employee_cuid : current.employee_cuid;
-	const allStructures = await dao.findByEmployeeCuid(employeeCuid);
-	const otherStructures = allStructures.filter((s) => s.cuid !== cuid);
 
-	for (const other of otherStructures) {
-		const otherFrom = other.effective_from.toISOString().split('T')[0];
-		const otherTo = other.effective_to ? other.effective_to.toISOString().split('T')[0] : null;
+	const timeline = await processTimelineAdjustments(
+		employeeCuid,
+		cuid,
+		proposedFrom,
+		proposedTo,
+		dto.confirmAdjustment ?? false
+	);
 
-		const cond1 = otherTo === null || proposedFrom <= otherTo;
-		const cond2 = proposedTo === null || otherFrom <= proposedTo;
-		if (cond1 && cond2) {
-			throw new BusinessValidationError(
-				`The date range overlaps with another salary structure for this employee (${otherFrom} to ${otherTo ?? 'ongoing'}).`
-			);
-		}
+	if (timeline.status === 'invalid') {
+		throw new BusinessValidationError(timeline.error!);
 	}
 
-	// Validate employee if changing
+	if (timeline.status === 'confirm_required') {
+		throw new ConfirmationRequiredError();
+	}
+
 	if (dto.employee_cuid !== undefined) {
 		await assertEmployeeExists(dto.employee_cuid);
 	}
 
-	// Validate components if items are being updated
 	let nameMap: Map<string, string> | undefined;
 	if (dto.components !== undefined) {
 		nameMap = await assertComponentsValid(dto.components);
 	}
 
-	// Update structure fields
-	const { components, ...structureFields } = dto;
-	const updated = await dao.update(cuid, structureFields);
+	return db.$transaction(async (tx) => {
+		for (const update of timeline.updates || []) {
+			await tx.salaryStructure.update({
+				where: { cuid: update.cuid },
+				data: {
+					...(update.effective_from && { effective_from: new Date(update.effective_from) }),
+					effective_to: update.effective_to ? new Date(update.effective_to) : null,
+					status: update.status
+				}
+			});
+		}
 
-	// Replace items if provided
-	if (dto.components !== undefined && nameMap) {
-		await dao.deleteItemsByStructureCuid(cuid);
-		const createdItems = await dao.createItems(
-			cuid,
-			dto.components.map((item) => ({
-				salary_component_cuid: item.salary_component_cuid,
-				component_name_snapshot: nameMap!.get(item.salary_component_cuid) ?? '',
-				amount: item.amount,
-				created_by: dto.updated_by ?? null
-			}))
-		);
-		return serializeSalaryStructure(updated, createdItems);
-	}
+		const existingRaw = await tx.salaryStructure.findMany({
+			where: { employee_cuid: employeeCuid }
+		});
+		const all = existingRaw.map(e => {
+			if (e.cuid === cuid) {
+				return { cuid: e.cuid, from: proposedFrom };
+			}
+			return { cuid: e.cuid, from: e.effective_from.toISOString().split('T')[0] };
+		}).sort((a, b) => a.from.localeCompare(b.from));
 
-	// Return with existing items (no component changes)
-	const existingItems = await dao.findItemsByStructureCuid(cuid);
-	return serializeSalaryStructure(updated, existingItems);
+		const index = all.findIndex(a => a.cuid === cuid);
+		const next = all[index + 1];
+
+		let targetTo: Date | null;
+		let targetStatus: boolean;
+
+		if (next) {
+			const [year, month, day] = next.from.split('-').map(Number);
+			const nextDate = new Date(Date.UTC(year, month - 1, day));
+			nextDate.setUTCDate(nextDate.getUTCDate() - 1);
+			targetTo = nextDate;
+			targetStatus = false;
+		} else {
+			targetTo = proposedTo ? new Date(proposedTo) : null;
+			targetStatus = true;
+		}
+
+		const { components, confirmAdjustment, ...structureFields } = dto;
+		const updated = await tx.salaryStructure.update({
+			where: { cuid },
+			data: {
+				...(structureFields.employee_cuid !== undefined && { employee_cuid: structureFields.employee_cuid }),
+				effective_from: new Date(proposedFrom),
+				effective_to: targetTo,
+				status: targetStatus,
+				updated_by: structureFields.updated_by ?? null
+			}
+		});
+
+		if (dto.components !== undefined && nameMap) {
+			await tx.salaryStructureItem.deleteMany({
+				where: { salary_structure_cuid: cuid }
+			});
+			const createdItems = await Promise.all(
+				dto.components.map((item) =>
+					tx.salaryStructureItem.create({
+						data: {
+							salary_structure_cuid: cuid,
+							salary_component_cuid: item.salary_component_cuid,
+							component_name_snapshot: nameMap!.get(item.salary_component_cuid) ?? '',
+							amount: item.amount,
+							created_by: dto.updated_by ?? null
+						}
+					})
+				)
+			);
+			return serializeSalaryStructure(updated, createdItems);
+		}
+
+		const existingItems = await tx.salaryStructureItem.findMany({
+			where: { salary_structure_cuid: cuid },
+			orderBy: { cuid: 'asc' }
+		});
+		return serializeSalaryStructure(updated, existingItems);
+	});
 }
 
 /**

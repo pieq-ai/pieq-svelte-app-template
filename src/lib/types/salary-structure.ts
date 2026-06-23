@@ -44,6 +44,7 @@ export interface CreateSalaryStructureDto {
 	/** Renamed from `items` — the external API payload key is `components` */
 	components: CreateSalaryStructureItemDto[];
 	created_by?: string | null;
+	confirmAdjustment?: boolean;
 }
 
 export interface UpdateSalaryStructureItemDto {
@@ -59,6 +60,7 @@ export interface UpdateSalaryStructureDto {
 	/** Renamed from `items` — the external API payload key is `components` */
 	components?: UpdateSalaryStructureItemDto[];
 	updated_by?: string | null;
+	confirmAdjustment?: boolean;
 }
 
 /**

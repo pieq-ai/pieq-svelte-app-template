@@ -30,6 +30,9 @@ export async function POST({ request }) {
 		return json({ data: { cuid: created.cuid, message: 'success' } }, { status: 201 });
 	} catch (error) {
 		console.error('Error in POST /api/salary-structures:', error);
+		if ((error as Error).name === 'ConfirmationRequiredError') {
+			return json({ data: { confirmationRequired: true } }, { status: 200 });
+		}
 		const isValidationError =
 			(error as Error).name === 'InvalidEmployeeError' ||
 			(error as Error).name === 'InvalidSalaryComponentError' ||

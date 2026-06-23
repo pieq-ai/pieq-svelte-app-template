@@ -21,7 +21,8 @@ const CREATE_ALLOWED_KEYS = new Set<string>([
 	'employee_cuid',
 	'effective_from',
 	'effective_to',
-	'components'
+	'components',
+	'confirmAdjustment'
 ]);
 
 /** Keys allowed in PUT (update) body — unknown keys are rejected immediately. */
@@ -30,7 +31,8 @@ const UPDATE_ALLOWED_KEYS = new Set<string>([
 	'effective_from',
 	'effective_to',
 	'status',
-	'components'
+	'components',
+	'confirmAdjustment'
 ]);
 
 /** Keys allowed in POST revision body. */
@@ -202,7 +204,8 @@ export function validateCreateSalaryStructure(data: unknown): {
 			components: rawComponents.map((item) => ({
 				salary_component_cuid: (item.salary_component_cuid as string).trim(),
 				amount: item.amount as number
-			}))
+			})),
+			confirmAdjustment: body.confirmAdjustment as boolean | undefined
 		}
 	};
 }
@@ -314,6 +317,15 @@ export function validateUpdateSalaryStructure(data: unknown): {
 				salary_component_cuid: (item.salary_component_cuid as string).trim(),
 				amount: item.amount as number
 			}));
+		}
+	}
+
+	// Validate confirmAdjustment if provided
+	if (body.confirmAdjustment !== undefined) {
+		if (body.confirmAdjustment !== null && typeof body.confirmAdjustment === 'boolean') {
+			validatedData.confirmAdjustment = body.confirmAdjustment;
+		} else {
+			errors.push({ field: 'confirmAdjustment', message: 'confirmAdjustment must be a boolean' });
 		}
 	}
 
