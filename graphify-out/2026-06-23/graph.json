@@ -1341,7 +1341,7 @@
       "source_file": "@lucide/svelte/icons/loader-circle",
       "confidence": "EXTRACTED",
       "id": "loader_circle",
-      "community": 2,
+      "community": 82,
       "norm_label": "@lucide/svelte/icons/loader-circle"
     },
     {
@@ -1387,7 +1387,7 @@
       "source_file": "src/lib/permissions/mock-permissions",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_permissions_mock_permissions",
-      "community": 2,
+      "community": 82,
       "norm_label": "$lib/permissions/mock-permissions"
     },
     {
@@ -1734,7 +1734,7 @@
       "confidence": "EXTRACTED",
       "source_location": "L1",
       "id": "common_searchabledropdown",
-      "community": 2,
+      "community": 82,
       "norm_label": "searchabledropdown.svelte"
     },
     {
@@ -1806,7 +1806,7 @@
       "source_file": "@lucide/svelte/icons/chevron-up",
       "confidence": "EXTRACTED",
       "id": "chevron_up",
-      "community": 2,
+      "community": 82,
       "norm_label": "@lucide/svelte/icons/chevron-up"
     },
     {
@@ -1824,7 +1824,7 @@
       "source_file": "src/lib/components/ui/checkbox/index.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_components_ui_checkbox_index_js",
-      "community": 2,
+      "community": 82,
       "norm_label": "$lib/components/ui/checkbox/index.js"
     },
     {
@@ -1906,7 +1906,7 @@
       "source_file": "src/lib/components/common/TableActions.svelte",
       "source_location": "L1",
       "id": "common_tableactions",
-      "community": 2,
+      "community": 82,
       "norm_label": "tableactions.svelte"
     },
     {
@@ -1915,7 +1915,7 @@
       "source_file": "@lucide/svelte/icons/more-vertical",
       "confidence": "EXTRACTED",
       "id": "more_vertical",
-      "community": 2,
+      "community": 82,
       "norm_label": "@lucide/svelte/icons/more-vertical"
     },
     {
@@ -2886,7 +2886,7 @@
       "source_file": "src/lib/components/ui/multiselect/index.ts",
       "source_location": "L1",
       "id": "multiselect_index",
-      "community": 82,
+      "community": 10,
       "norm_label": "index.ts"
     },
     {
@@ -2895,7 +2895,7 @@
       "source_file": "src/lib/components/ui/multiselect/multiselect.svelte",
       "source_location": "L1",
       "id": "multiselect_multiselect",
-      "community": 82,
+      "community": 10,
       "norm_label": "multiselect.svelte"
     },
     {
@@ -2904,7 +2904,7 @@
       "source_file": "src/lib/components/ui/multiselect/multiselect.svelte",
       "source_location": "L54",
       "id": "multiselect_multiselect_handleclickoutside",
-      "community": 82,
+      "community": 10,
       "norm_label": "handleclickoutside()"
     },
     {
@@ -2913,7 +2913,7 @@
       "source_file": "src/lib/components/ui/multiselect/multiselect.svelte",
       "source_location": "L192",
       "id": "multiselect_multiselect_each",
-      "community": 82,
+      "community": 10,
       "norm_label": "#each()"
     },
     {
@@ -5751,7 +5751,7 @@
       "source_file": "src/lib/server/response.ts",
       "source_location": "L145",
       "id": "server_response_successresponse",
-      "community": 38,
+      "community": 40,
       "norm_label": "successresponse()"
     },
     {
@@ -6064,7 +6064,7 @@
       "label": "listAttendanceRecords()",
       "file_type": "code",
       "source_file": "src/lib/server/services/attendance-record.service.ts",
-      "source_location": "L280",
+      "source_location": "L272",
       "id": "services_attendance_record_service_listattendancerecords",
       "community": 13,
       "norm_label": "listattendancerecords()"
@@ -6073,7 +6073,7 @@
       "label": "getAttendanceRecordByCuid()",
       "file_type": "code",
       "source_file": "src/lib/server/services/attendance-record.service.ts",
-      "source_location": "L315",
+      "source_location": "L307",
       "id": "services_attendance_record_service_getattendancerecordbycuid",
       "community": 13,
       "norm_label": "getattendancerecordbycuid()"
@@ -6082,7 +6082,7 @@
       "label": "createAttendanceRecord()",
       "file_type": "code",
       "source_file": "src/lib/server/services/attendance-record.service.ts",
-      "source_location": "L322",
+      "source_location": "L314",
       "id": "services_attendance_record_service_createattendancerecord",
       "community": 13,
       "norm_label": "createattendancerecord()"
@@ -6091,7 +6091,7 @@
       "label": "updateAttendanceRecord()",
       "file_type": "code",
       "source_file": "src/lib/server/services/attendance-record.service.ts",
-      "source_location": "L338",
+      "source_location": "L330",
       "id": "services_attendance_record_service_updateattendancerecord",
       "community": 13,
       "norm_label": "updateattendancerecord()"
@@ -6100,7 +6100,7 @@
       "label": "deleteAttendanceRecord()",
       "file_type": "code",
       "source_file": "src/lib/server/services/attendance-record.service.ts",
-      "source_location": "L359",
+      "source_location": "L351",
       "id": "services_attendance_record_service_deleteattendancerecord",
       "community": 13,
       "norm_label": "deleteattendancerecord()"
@@ -6966,7 +6966,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L259",
       "id": "services_leave_policy_service_listleavepolicies",
-      "community": 38,
+      "community": 46,
       "norm_label": "listleavepolicies()"
     },
     {
@@ -9720,7 +9720,7 @@
       "source_file": "src/routes/api/attendance/[cuid]/+server.ts",
       "source_location": "L1",
       "id": "src_routes_api_attendance_cuid_server_ts_cuid_server",
-      "community": 38,
+      "community": 40,
       "norm_label": "+server.ts"
     },
     {
@@ -9729,7 +9729,7 @@
       "source_file": "src/routes/api/attendance/[cuid]/+server.ts",
       "source_location": "L6",
       "id": "src_routes_api_attendance_cuid_server_ts_cuid_server_get",
-      "community": 38,
+      "community": 40,
       "norm_label": "get()"
     },
     {
@@ -10314,7 +10314,7 @@
       "source_file": "src/routes/api/leave/policies/+server.ts",
       "source_location": "L1",
       "id": "policies_server",
-      "community": 38,
+      "community": 46,
       "norm_label": "+server.ts"
     },
     {
@@ -10323,7 +10323,7 @@
       "source_file": "src/routes/api/leave/policies/+server.ts",
       "source_location": "L16",
       "id": "policies_server_get",
-      "community": 38,
+      "community": 46,
       "norm_label": "get()"
     },
     {
@@ -11041,7 +11041,7 @@
       "label": "if()",
       "file_type": "code",
       "source_file": "src/routes/attendance-records/+page.svelte",
-      "source_location": "L629",
+      "source_location": "L599",
       "id": "attendance_records_page_if",
       "community": 10,
       "norm_label": "if()"
@@ -11277,7 +11277,7 @@
       "source_file": "src/routes/dashboard/[cuid=cuid]/+page.svelte",
       "source_location": "L1",
       "id": "cuid_cuid_page",
-      "community": 2,
+      "community": 82,
       "norm_label": "+page.svelte"
     },
     {
@@ -11376,7 +11376,7 @@
       "source_file": "src/routes/designations/+page.svelte",
       "source_location": "L1",
       "id": "designations_page",
-      "community": 2,
+      "community": 59,
       "norm_label": "+page.svelte"
     },
     {
@@ -11385,7 +11385,7 @@
       "source_file": "src/routes/designations/+page.svelte",
       "source_location": "L99",
       "id": "designations_page_totalcount",
-      "community": 2,
+      "community": 59,
       "norm_label": "totalcount"
     },
     {
@@ -11394,7 +11394,7 @@
       "source_file": "src/routes/designations/+page.svelte",
       "source_location": "L100",
       "id": "designations_page_paginateddesignations",
-      "community": 2,
+      "community": 59,
       "norm_label": "paginateddesignations"
     },
     {
@@ -11403,7 +11403,7 @@
       "source_file": "src/routes/designations/+page.svelte",
       "source_location": "L101",
       "id": "designations_page_activecount",
-      "community": 2,
+      "community": 59,
       "norm_label": "activecount"
     },
     {
@@ -11412,7 +11412,7 @@
       "source_file": "src/routes/designations/+page.svelte",
       "source_location": "L102",
       "id": "designations_page_inactivecount",
-      "community": 2,
+      "community": 59,
       "norm_label": "inactivecount"
     },
     {
@@ -11421,7 +11421,7 @@
       "source_file": "src/routes/designations/+page.svelte",
       "source_location": "L104",
       "id": "designations_page_loaddesignations",
-      "community": 2,
+      "community": 59,
       "norm_label": "loaddesignations()"
     },
     {
@@ -11430,7 +11430,7 @@
       "source_file": "src/routes/designations/+page.svelte",
       "source_location": "L123",
       "id": "designations_page_handlesort",
-      "community": 2,
+      "community": 59,
       "norm_label": "handlesort()"
     },
     {
@@ -11439,7 +11439,7 @@
       "source_file": "src/routes/designations/+page.svelte",
       "source_location": "L134",
       "id": "designations_page_opencreatemodal",
-      "community": 2,
+      "community": 59,
       "norm_label": "opencreatemodal()"
     },
     {
@@ -11448,7 +11448,7 @@
       "source_file": "src/routes/designations/+page.svelte",
       "source_location": "L139",
       "id": "designations_page_openeditmodal",
-      "community": 2,
+      "community": 59,
       "norm_label": "openeditmodal()"
     },
     {
@@ -11457,7 +11457,7 @@
       "source_file": "src/routes/designations/+page.svelte",
       "source_location": "L144",
       "id": "designations_page_confirmdelete",
-      "community": 2,
+      "community": 59,
       "norm_label": "confirmdelete()"
     },
     {
@@ -12079,7 +12079,7 @@
       "source_file": "src/routes/permissions/+page.svelte",
       "source_location": "L1",
       "id": "permissions_page",
-      "community": 2,
+      "community": 82,
       "norm_label": "+page.svelte"
     },
     {
@@ -12088,7 +12088,7 @@
       "source_file": "src/routes/role-permissions/+page.svelte",
       "source_location": "L1",
       "id": "role_permissions_page",
-      "community": 2,
+      "community": 82,
       "norm_label": "+page.svelte"
     },
     {
@@ -12097,7 +12097,7 @@
       "source_file": "src/routes/roles/+page.svelte",
       "source_location": "L1",
       "id": "roles_page",
-      "community": 59,
+      "community": 2,
       "norm_label": "+page.svelte"
     },
     {
@@ -12106,7 +12106,7 @@
       "source_file": "src/routes/roles/+page.svelte",
       "source_location": "L99",
       "id": "roles_page_totalcount",
-      "community": 59,
+      "community": 2,
       "norm_label": "totalcount"
     },
     {
@@ -12115,7 +12115,7 @@
       "source_file": "src/routes/roles/+page.svelte",
       "source_location": "L100",
       "id": "roles_page_paginatedroles",
-      "community": 59,
+      "community": 2,
       "norm_label": "paginatedroles"
     },
     {
@@ -12124,7 +12124,7 @@
       "source_file": "src/routes/roles/+page.svelte",
       "source_location": "L101",
       "id": "roles_page_activecount",
-      "community": 59,
+      "community": 2,
       "norm_label": "activecount"
     },
     {
@@ -12133,7 +12133,7 @@
       "source_file": "src/routes/roles/+page.svelte",
       "source_location": "L102",
       "id": "roles_page_inactivecount",
-      "community": 59,
+      "community": 2,
       "norm_label": "inactivecount"
     },
     {
@@ -12142,7 +12142,7 @@
       "source_file": "src/routes/roles/+page.svelte",
       "source_location": "L104",
       "id": "roles_page_loadroles",
-      "community": 59,
+      "community": 2,
       "norm_label": "loadroles()"
     },
     {
@@ -12151,7 +12151,7 @@
       "source_file": "src/routes/roles/+page.svelte",
       "source_location": "L123",
       "id": "roles_page_handlesort",
-      "community": 59,
+      "community": 2,
       "norm_label": "handlesort()"
     },
     {
@@ -12160,7 +12160,7 @@
       "source_file": "src/routes/roles/+page.svelte",
       "source_location": "L134",
       "id": "roles_page_opencreatemodal",
-      "community": 59,
+      "community": 2,
       "norm_label": "opencreatemodal()"
     },
     {
@@ -12169,7 +12169,7 @@
       "source_file": "src/routes/roles/+page.svelte",
       "source_location": "L139",
       "id": "roles_page_openeditmodal",
-      "community": 59,
+      "community": 2,
       "norm_label": "openeditmodal()"
     },
     {
@@ -12178,7 +12178,7 @@
       "source_file": "src/routes/roles/+page.svelte",
       "source_location": "L144",
       "id": "roles_page_confirmdelete",
-      "community": 59,
+      "community": 2,
       "norm_label": "confirmdelete()"
     },
     {
@@ -12187,7 +12187,7 @@
       "source_file": "src/routes/salary-components/+page.svelte",
       "source_location": "L1",
       "id": "salary_components_page",
-      "community": 2,
+      "community": 82,
       "norm_label": "+page.svelte"
     },
     {
@@ -12196,7 +12196,7 @@
       "source_file": "src/lib/types/salary-component",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_types_salary_component",
-      "community": 2,
+      "community": 82,
       "norm_label": "$lib/types/salary-component"
     },
     {
@@ -12205,7 +12205,7 @@
       "source_file": "src/lib/validators/salary-component",
       "confidence": "EXTRACTED",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_validators_salary_component",
-      "community": 2,
+      "community": 82,
       "norm_label": "$lib/validators/salary-component"
     },
     {
@@ -12250,7 +12250,7 @@
       "source_file": "src/routes/system-roles/+page.svelte",
       "source_location": "L1",
       "id": "system_roles_page",
-      "community": 2,
+      "community": 82,
       "norm_label": "+page.svelte"
     },
     {
@@ -13528,7 +13528,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L482",
       "id": "pieq_svelte_app_template_readme_code_quality",
-      "community": 49,
+      "community": 116,
       "norm_label": "code quality"
     },
     {
@@ -13537,7 +13537,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L484",
       "id": "pieq_svelte_app_template_readme_yarn_check",
-      "community": 49,
+      "community": 116,
       "norm_label": "`yarn check`"
     },
     {
@@ -13546,7 +13546,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L492",
       "id": "pieq_svelte_app_template_readme_yarn_check_watch",
-      "community": 49,
+      "community": 116,
       "norm_label": "`yarn check:watch`"
     },
     {
@@ -13555,7 +13555,7 @@
       "source_file": "C:/Users/user/Desktop/pieq-svelte-app-template/README.md",
       "source_location": "L498",
       "id": "pieq_svelte_app_template_readme_yarn_lint",
-      "community": 49,
+      "community": 116,
       "norm_label": "`yarn lint`"
     },
     {
@@ -13860,7 +13860,7 @@
       "file_type": "code",
       "source_file": "@lucide/svelte/icons/pencil",
       "confidence": "EXTRACTED",
-      "community": 2,
+      "community": 82,
       "norm_label": "@lucide/svelte/icons/pencil",
       "id": "pencil"
     },
@@ -14058,7 +14058,7 @@
       "file_type": "code",
       "source_file": "src/lib/types/role",
       "confidence": "EXTRACTED",
-      "community": 59,
+      "community": 2,
       "norm_label": "$lib/types/role",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_types_role"
     },
@@ -14067,7 +14067,7 @@
       "file_type": "code",
       "source_file": "src/lib/api/roles",
       "confidence": "EXTRACTED",
-      "community": 59,
+      "community": 2,
       "norm_label": "$lib/api/roles",
       "id": "c_users_user_pieq_svelte_app_template_src_lib_api_roles"
     },
@@ -14445,7 +14445,7 @@
       "file_type": "code",
       "source_file": "src/lib/components",
       "confidence": "EXTRACTED",
-      "community": 2,
+      "community": 82,
       "norm_label": "$lib/components",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_components"
     },
@@ -14454,7 +14454,7 @@
       "file_type": "code",
       "source_file": "src/lib/constants",
       "confidence": "EXTRACTED",
-      "community": 2,
+      "community": 82,
       "norm_label": "$lib/constants",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_constants"
     },
@@ -14472,7 +14472,7 @@
       "file_type": "code",
       "source_file": "src/lib/permissions/mock-permissions",
       "confidence": "EXTRACTED",
-      "community": 2,
+      "community": 82,
       "norm_label": "$lib/permissions/mock-permissions",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_permissions_mock_permissions"
     },
@@ -14508,7 +14508,7 @@
       "file_type": "code",
       "source_file": "src/lib/toast",
       "confidence": "EXTRACTED",
-      "community": 2,
+      "community": 82,
       "norm_label": "$lib/toast",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_toast"
     },
@@ -14517,7 +14517,7 @@
       "file_type": "code",
       "source_file": "src/lib/utils",
       "confidence": "EXTRACTED",
-      "community": 2,
+      "community": 82,
       "norm_label": "$lib/utils",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_utils"
     },
@@ -14535,7 +14535,7 @@
       "file_type": "code",
       "source_file": "src/lib/types/salary-component",
       "confidence": "EXTRACTED",
-      "community": 2,
+      "community": 82,
       "norm_label": "$lib/types/salary-component",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_types_salary_component"
     },
@@ -14544,7 +14544,7 @@
       "file_type": "code",
       "source_file": "src/lib/validators/salary-component",
       "confidence": "EXTRACTED",
-      "community": 2,
+      "community": 82,
       "norm_label": "$lib/validators/salary-component",
       "id": "c_users_user_desktop_pieq_svelte_app_template_src_lib_validators_salary_component"
     },
@@ -15030,7 +15030,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L452",
-      "community": 32,
+      "community": 126,
       "norm_label": "development",
       "id": "readme_development"
     },
@@ -15039,7 +15039,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L454",
-      "community": 32,
+      "community": 126,
       "norm_label": "`yarn dev`",
       "id": "readme_yarn_dev"
     },
@@ -15048,7 +15048,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L463",
-      "community": 32,
+      "community": 126,
       "norm_label": "`yarn build`",
       "id": "readme_yarn_build"
     },
@@ -15057,7 +15057,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L472",
-      "community": 32,
+      "community": 126,
       "norm_label": "`yarn preview`",
       "id": "readme_yarn_preview"
     },
@@ -15102,7 +15102,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L507",
-      "community": 116,
+      "community": 32,
       "norm_label": "testing",
       "id": "readme_testing"
     },
@@ -15111,7 +15111,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L509",
-      "community": 116,
+      "community": 32,
       "norm_label": "`yarn test:unit`",
       "id": "readme_yarn_test_unit"
     },
@@ -15120,7 +15120,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L517",
-      "community": 116,
+      "community": 32,
       "norm_label": "`yarn test:e2e`",
       "id": "readme_yarn_test_e2e"
     },
@@ -15129,7 +15129,7 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L525",
-      "community": 116,
+      "community": 32,
       "norm_label": "`yarn test`",
       "id": "readme_yarn_test"
     },
@@ -25246,9 +25246,9 @@
       "source_file": "src/lib/server/dao/attendance.dao.ts",
       "source_location": "L78",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "dao_attendance_dao",
-      "target": "dao_attendance_dao_findopenrecord"
+      "target": "dao_attendance_dao_findopenrecord",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -49759,5 +49759,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "385c0853c623bf45ce2965a98313147937d8abda"
+  "built_at_commit": "c0113ca94b06dcf0b3ebc364314ff8db4471c90e"
 }

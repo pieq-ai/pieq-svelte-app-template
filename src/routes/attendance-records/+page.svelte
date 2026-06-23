@@ -229,8 +229,18 @@
 
 		if (!mandatoryFieldsFilled) return true;
 
+		let checkOutDate = formAttendanceDate;
+		if (formCheckInTimeOnly && formCheckOutTimeOnly && formCheckOutTimeOnly < formCheckInTimeOnly) {
+			const d = new Date(formAttendanceDate);
+			d.setDate(d.getDate() + 1);
+			const year = d.getFullYear();
+			const month = String(d.getMonth() + 1).padStart(2, '0');
+			const day = String(d.getDate()).padStart(2, '0');
+			checkOutDate = `${year}-${month}-${day}`;
+		}
+
 		const checkInDateTimeStr = formAttendanceDate && formCheckInTimeOnly ? `${formAttendanceDate}T${formCheckInTimeOnly}` : '';
-		const checkOutDateTimeStr = formAttendanceDate && formCheckOutTimeOnly ? `${formAttendanceDate}T${formCheckOutTimeOnly}` : '';
+		const checkOutDateTimeStr = checkOutDate && formCheckOutTimeOnly ? `${checkOutDate}T${formCheckOutTimeOnly}` : '';
 
 		if (checkInDateTimeStr && checkOutDateTimeStr) {
 			const checkIn = new Date(checkInDateTimeStr);
@@ -464,8 +474,18 @@
 
 		if (!formAttendanceStatus) errs.status = 'Attendance status is required';
 
+		let checkOutDate = formAttendanceDate;
+		if (formCheckInTimeOnly && formCheckOutTimeOnly && formCheckOutTimeOnly < formCheckInTimeOnly) {
+			const d = new Date(formAttendanceDate);
+			d.setDate(d.getDate() + 1);
+			const year = d.getFullYear();
+			const month = String(d.getMonth() + 1).padStart(2, '0');
+			const day = String(d.getDate()).padStart(2, '0');
+			checkOutDate = `${year}-${month}-${day}`;
+		}
+
 		const checkInDateTimeStr = formAttendanceDate && formCheckInTimeOnly ? `${formAttendanceDate}T${formCheckInTimeOnly}` : '';
-		const checkOutDateTimeStr = formAttendanceDate && formCheckOutTimeOnly ? `${formAttendanceDate}T${formCheckOutTimeOnly}` : '';
+		const checkOutDateTimeStr = checkOutDate && formCheckOutTimeOnly ? `${checkOutDate}T${formCheckOutTimeOnly}` : '';
 
 		if (checkInDateTimeStr && checkOutDateTimeStr) {
 			const checkIn = new Date(checkInDateTimeStr);
@@ -481,7 +501,7 @@
 	function openAddModal() {
 		editCuid = null;
 		formEmployeeCuid = '';
-		formAttendanceDate = summaryDate; // pre-fill the currently viewed date
+		formAttendanceDate = ''; // reset to empty/blank state instead of pre-filling summaryDate
 		formCheckInTimeOnly = '';
 		formCheckOutTimeOnly = '';
 		formAttendanceStatus = '';
@@ -563,8 +583,18 @@
 
 		isSubmitting = true;
 
+		let checkOutDate = formAttendanceDate;
+		if (formCheckInTimeOnly && formCheckOutTimeOnly && formCheckOutTimeOnly < formCheckInTimeOnly) {
+			const d = new Date(formAttendanceDate);
+			d.setDate(d.getDate() + 1);
+			const year = d.getFullYear();
+			const month = String(d.getMonth() + 1).padStart(2, '0');
+			const day = String(d.getDate()).padStart(2, '0');
+			checkOutDate = `${year}-${month}-${day}`;
+		}
+
 		const checkInISO = formAttendanceDate && formCheckInTimeOnly ? `${formAttendanceDate}T${formCheckInTimeOnly}` : null;
-		const checkOutISO = formAttendanceDate && formCheckOutTimeOnly ? `${formAttendanceDate}T${formCheckOutTimeOnly}` : null;
+		const checkOutISO = checkOutDate && formCheckOutTimeOnly ? `${checkOutDate}T${formCheckOutTimeOnly}` : null;
 
 		const payload = {
 			employee_cuid: formEmployeeCuid,
