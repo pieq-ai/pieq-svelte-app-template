@@ -32,7 +32,6 @@ export async function replaceDocuments(employee_cuid: string, documents: UpsertD
         const results = [];
         for (const doc of documents) {
             if (doc.cuid) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const data: any = {
                     document_type_cuid: doc.document_type_cuid,
                     mime_type: doc.mime_type,

@@ -65,9 +65,6 @@
 	let minDate = $derived(min && min !== 'Invalid Date' ? parseDate(min.split('T')[0]) : undefined);
 	let maxDate = $derived(max && max !== 'Invalid Date' ? parseDate(max.split('T')[0]) : undefined);
 
-	const currentYear = new Date().getFullYear();
-	const yearsForDropdown = Array.from({ length: currentYear - 1900 + 50 }, (_, i) => 1900 + i);
-
 	$effect(() => {
 		if (open && !calendarValue) {
 			calendarPlaceholder = today(getLocalTimeZone());
@@ -311,15 +308,13 @@
 					</div>
 				{/snippet}
 			</Popover.Trigger>
-			<Popover.Content class="w-auto p-0 border border-border rounded-md shadow-md bg-popover z-50" align="end" sideOffset={4} strategy="fixed">
+			<Popover.Content class="w-auto p-0 border border-border rounded-md shadow-md bg-popover z-50" align="end" sideOffset={4}>
 				<Calendar 
 					type="single" 
 					bind:value={calendarValue} 
 					bind:placeholder={calendarPlaceholder}
 					minValue={minDate}
 					maxValue={maxDate}
-					captionLayout="dropdown"
-					years={yearsForDropdown}
 					{isDateDisabled}
 				/>
 				<div class="flex items-center justify-between p-2 border-t border-border mt-1">
@@ -349,15 +344,13 @@
 				<Popover.Trigger class="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-r-md">
 					<CalendarIcon class="size-4 shrink-0" />
 				</Popover.Trigger>
-				<Popover.Content class="w-auto p-0 border border-border rounded-md shadow-md bg-popover z-50" align="end" sideOffset={4} strategy="fixed">
+				<Popover.Content class="w-auto p-0 border border-border rounded-md shadow-md bg-popover z-50" align="end" sideOffset={4}>
 					<Calendar 
 						type="single" 
 						bind:value={calendarValue} 
 						bind:placeholder={calendarPlaceholder}
 						minValue={minDate}
 						maxValue={maxDate}
-						captionLayout="dropdown"
-						years={yearsForDropdown}
 						{isDateDisabled}
 					/>
 					<div class="flex items-center justify-between p-2 border-t border-border mt-1">

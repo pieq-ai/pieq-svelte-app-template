@@ -29,7 +29,6 @@ export async function PUT(event: RequestEvent) {
         }
         
         const user_id = event.locals.user?.id;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         body = body.map((bank: any) => ({ ...bank, updated_by: user_id }));
 
 		await bankDetailService.replaceBankDetails(employee_cuid, body);

@@ -976,7 +976,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
 						<DropdownMenu.Group>
 							{#each statusFilterOptions as opt}
 								<DropdownMenu.Item onclick={() => filterStatus = opt.value} class="justify-between cursor-pointer {filterStatus === opt.value ? 'bg-accent text-accent-foreground font-semibold' : ''}">
@@ -1000,7 +1000,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto">
 						<DropdownMenu.Group>
 							{#each sourceFilterOptions as opt}
 								<DropdownMenu.Item onclick={() => filterSourceCuid = opt.value} class="justify-between cursor-pointer {filterSourceCuid === opt.value ? 'bg-accent text-accent-foreground font-semibold' : ''}">
@@ -1166,7 +1166,7 @@
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
-							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none {errors.employee_cuid ? 'border-destructive' : ''} {!!editCuid ? 'opacity-60 pointer-events-none' : ''}" {...props}>
+							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none {errors.employee_cuid ? 'border-destructive' : ''} {editCuid ? 'opacity-60 pointer-events-none' : ''}" {...props}>
 								<span class="truncate pr-2">
 									{formEmployeeCuid ? (employeeFormOptions.find(o => o.id === formEmployeeCuid)?.label || 'Select Employee') : 'Select Employee'}
 								</span>
@@ -1174,7 +1174,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto">
 						<div class="flex items-center border-b border-border px-3 py-2 bg-transparent">
 							<SearchIcon class="mr-2 size-4 shrink-0 opacity-50" />
 							<input
@@ -1302,7 +1302,7 @@
 								</Button>
 							{/snippet}
 						</DropdownMenu.Trigger>
-						<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
+						<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto">
 							<DropdownMenu.Group>
 								{#each modalStatusOptions as opt}
 									<DropdownMenu.Item
