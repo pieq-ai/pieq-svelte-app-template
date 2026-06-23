@@ -470,5 +470,39 @@ describe('Payroll Service', () => {
 
 			await expect(getPayrollByCuid('nonexistent')).rejects.toThrow(PayrollNotFoundError);
 		});
+
+		it('should extract paid days from breakdown if present', async () => {
+			const record = mockPayrollRecord({
+				breakdown: { Basic: 30000, HRA: 12000, PF: 3600, 'Paid Days': 28 }
+			});
+			vi.mocked(dao.findByCuid).mockResolvedValue(record as never);
+			vi.mocked(employeeDao.findByEmpCode).mockResolvedValue({
+				cuid: 'emp_001',
+				pan_no: 'PAN12345',
+				uan_no: 'UAN12345',
+				esi_no: 'ESI12345'
+			} as any);
+			vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+				designation_cuid: 'des_001',
+				location_cuid: 'loc_001',
+				date_of_joining: new Date('2025-01-15')
+			} as any);
+			vi.mocked(bankDetailDao.findByEmployeeCuid).mockResolvedValue([
+				{
+					bank_name: 'Mock Bank',
+					account_number: '1234567890',
+					is_primary: true
+				}
+			] as any);
+			vi.mocked(designationDao.findByCuid2).mockResolvedValue({
+				name: 'Software Engineer Description'
+			} as any);
+			vi.mocked(locationDao.getLocationByCuid).mockResolvedValue({
+				name: 'HQ Office'
+			} as any);
+
+			const result = await getPayrollByCuid('pay_001');
+			expect(result.employee_details?.paid_days).toBe('28');
+		});
 	});
 });
