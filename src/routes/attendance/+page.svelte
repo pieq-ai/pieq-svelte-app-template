@@ -184,7 +184,7 @@
 		let result = [...historyRecords];
 
 		if (historyFilterStatus !== 'all') {
-			result = result.filter((r) => r.status === historyFilterStatus || (r.status === 'Absent' && historyFilterStatus === 'LOP'));
+			result = result.filter((r) => r.status === historyFilterStatus);
 		}
 
 		if (historyFilterStartDate) {
@@ -257,8 +257,22 @@
 		return data.todayStr > relieveStr;
 	});
 
+	let isBeforeJoining = $derived.by(() => {
+		if (!selectedEmployee || !selectedEmployee.date_of_joining) return false;
+		const joinStr = getISODateString(selectedEmployee.date_of_joining);
+		return data.todayStr < joinStr;
+	});
+
+	let hasNoEmploymentRecord = $derived(
+		selectedEmployee !== null && !selectedEmployee.date_of_joining
+	);
+
 	let todayRecord = $derived(
 		historyRecords.find((rec: any) => rec.date === data.todayStr) || null
+	);
+
+	let openRecord = $derived(
+		historyRecords.find((rec: any) => rec.check_in_time && !rec.check_out_time) || null
 	);
 
 	let employeeOptions = $derived(
@@ -387,7 +401,7 @@
 			if (status === 'On Leave' || status === 'Leave') {
 				return { status: 'Leave', color: 'bg-amber-500/15 text-amber-800 dark:bg-amber-500/25 dark:text-amber-300 border border-amber-500/30 dark:border-amber-500/40' };
 			}
-			if (status === 'LOP' || status === 'Absent') {
+			if (status === 'LOP') {
 				return { status: 'LOP', color: 'bg-red-500/15 text-red-800 dark:bg-red-500/25 dark:text-red-300 border border-red-500/30 dark:border-red-500/40' };
 			}
 			if (status === 'Week Off') {
@@ -558,7 +572,7 @@
 
 			// Exclude leaves and LOPs from both hours and days
 			const status = r.status;
-			if (status === 'Leave' || status === 'On Leave' || status === 'LOP' || status === 'Absent') {
+			if (status === 'Leave' || status === 'On Leave' || status === 'LOP') {
 				continue;
 			}
 
@@ -680,7 +694,6 @@
 			case 'Leave':
 				return 'bg-amber-500/15 text-amber-800 dark:bg-amber-500/25 dark:text-amber-300 border border-amber-500/30 dark:border-amber-500/40';
 			case 'LOP':
-			case 'Absent':
 				return 'bg-red-500/15 text-red-800 dark:bg-red-500/25 dark:text-red-300 border border-red-500/30 dark:border-red-500/40';
 			case 'Week Off':
 				return 'bg-slate-500/15 text-slate-700 dark:bg-slate-500/25 dark:text-slate-300 border border-slate-500/30 dark:border-slate-500/40';
@@ -1165,8 +1178,20 @@
 								{/if}
 
 								{#if cell.isToday && !holiday && !['Leave', 'LOP'].includes(dayStatus?.status ?? '')}
-									{#if !record}
-										{#if !isRelieved}
+									{#if openRecord}
+										{#if !isRelieved && !isBeforeJoining && !hasNoEmploymentRecord}
+											<Button
+												size="sm"
+												onclick={(e) => { e.stopPropagation(); triggerCheckOutConfirm(); }}
+												class="w-full mt-1 h-5 text-[9px] px-1 bg-[#800020] hover:bg-[#800020]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+												disabled={isSubmitting || !gpsValidation.isValid || isLoadingHistory}
+												title={!gpsValidation.isValid ? gpsValidation.message : (isLoadingHistory ? 'Loading history...' : '')}
+											>
+												Check Out
+											</Button>
+										{/if}
+									{:else if !todayRecord}
+										{#if !isRelieved && !isBeforeJoining && !hasNoEmploymentRecord}
 											<Button
 												size="sm"
 												onclick={(e) => { e.stopPropagation(); triggerCheckInConfirm(); }}
@@ -1177,16 +1202,6 @@
 												Check In
 											</Button>
 										{/if}
-									{:else if record && !record.check_out_time}
-										<Button
-											size="sm"
-											onclick={(e) => { e.stopPropagation(); triggerCheckOutConfirm(); }}
-											class="w-full mt-1 h-5 text-[9px] px-1 bg-[#800020] hover:bg-[#800020]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-											disabled={isSubmitting || !gpsValidation.isValid || isLoadingHistory}
-											title={!gpsValidation.isValid ? gpsValidation.message : (isLoadingHistory ? 'Loading history...' : '')}
-										>
-											Check Out
-										</Button>
 									{/if}
 								{/if}
 							</div>
@@ -1332,8 +1347,8 @@
 												<TableCell>{formatDisplayTime(rec.check_out_time)}</TableCell>
 												<TableCell>{formatDuration(rec.work_duration_minutes)}</TableCell>
 												<TableCell>
-													<Badge class={`border-none px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(rec.status === 'Absent' ? 'LOP' : rec.status)}`}>
-														{rec.status === 'Absent' ? 'LOP' : rec.status}
+													<Badge class={`border-none px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(rec.status)}`}>
+														{rec.status}
 													</Badge>
 												</TableCell>
 											</TableRow>

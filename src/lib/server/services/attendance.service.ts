@@ -76,6 +76,12 @@ export async function checkIn(
 		throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on holidays');
 	}
 
+	// Check for any open attendance record
+	const openRecord = await attendanceDao.findOpenRecord(employeeCuid);
+	if (openRecord) {
+		throw new AttendanceValidationError('employee_cuid', 'An open attendance record already exists. Please check out first.');
+	}
+
 	// Check if already checked in / on leave / LOP
 	const existing = await attendanceDao.findByEmployeeAndDate(employeeCuid, todayUTC);
 	if (existing) {
@@ -168,17 +174,13 @@ export async function checkOut(
 		throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on holidays');
 	}
 
-	const existing = await attendanceDao.findByEmployeeAndDate(employeeCuid, todayUTC);
+	const existing = await attendanceDao.findOpenRecord(employeeCuid);
 	if (!existing) {
-		throw new AttendanceValidationError('employee_cuid', 'No check-in record found for today');
+		throw new AttendanceValidationError('employee_cuid', 'No open check-in record found');
 	}
 
 	if (existing.status === 'Leave' || existing.status === 'On Leave' || existing.status === 'LOP') {
 		throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on leave or LOP days');
-	}
-
-	if (existing.check_out_time) {
-		throw new AttendanceValidationError('employee_cuid', 'Already checked out for today');
 	}
 
 	// Geofence Validation

@@ -392,8 +392,6 @@
 		switch (status) {
 			case 'Present':
 				return 'bg-emerald-500/15 text-emerald-800 dark:bg-emerald-500/25 dark:text-emerald-300 border border-emerald-500/30 dark:border-emerald-500/40';
-			case 'Absent':
-				return 'bg-red-500/15 text-red-800 dark:bg-red-500/25 dark:text-red-300 border border-red-500/30 dark:border-red-500/40';
 			case 'Late':
 				return 'bg-amber-500/15 text-amber-800 dark:bg-amber-500/25 dark:text-amber-300 border border-amber-500/30 dark:border-amber-500/40';
 			case 'Half Day':
@@ -657,7 +655,7 @@
 		const leave = recordsForDate.filter((rec) => rec.status === 'Leave' || rec.status === 'On Leave').length;
 		const wfh = recordsForDate.filter((rec) => rec.status === 'WFH').length;
 		const halfDay = recordsForDate.filter((rec) => rec.status === 'Half Day').length;
-		const lop = recordsForDate.filter((rec) => rec.status === 'LOP' || rec.status === 'Absent').length;
+		const lop = recordsForDate.filter((rec) => rec.status === 'LOP').length;
 		
 		const loggedInCuids = new Set(recordsForDate.map((rec) => rec.employee_cuid));
 		const activeEmployeesForDate = data.employees.filter((emp) => {
@@ -730,7 +728,7 @@
 		if (filterStatus !== 'all') {
 			if (filterStatus === 'LOP') {
 				result = result.filter(
-					(rec) => rec.status === 'LOP' || rec.status === 'Absent'
+					(rec) => rec.status === 'LOP'
 				);
 			} else if (filterStatus === 'Leave') {
 				result = result.filter(
@@ -1166,7 +1164,7 @@
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
-							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none {errors.employee_cuid ? 'border-destructive' : ''} {!!editCuid ? 'opacity-60 pointer-events-none' : ''}" {...props}>
+							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none {errors.employee_cuid ? 'border-destructive' : ''} {editCuid ? 'opacity-60 pointer-events-none' : ''}" {...props}>
 								<span class="truncate pr-2">
 									{formEmployeeCuid ? (employeeFormOptions.find(o => o.id === formEmployeeCuid)?.label || 'Select Employee') : 'Select Employee'}
 								</span>
