@@ -972,7 +972,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L1",
       "id": "api_local",
-      "community": 85,
+      "community": 79,
       "norm_label": "local.ts"
     },
     {
@@ -981,7 +981,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L8",
       "id": "api_local_apierror",
-      "community": 85,
+      "community": 79,
       "norm_label": "apierror"
     },
     {
@@ -990,7 +990,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L9",
       "id": "api_local_apierror_constructor",
-      "community": 85,
+      "community": 79,
       "norm_label": ".constructor()"
     },
     {
@@ -999,7 +999,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L19",
       "id": "api_local_extracterrormessage",
-      "community": 85,
+      "community": 79,
       "norm_label": "extracterrormessage()"
     },
     {
@@ -1008,7 +1008,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L28",
       "id": "api_local_localrequest",
-      "community": 85,
+      "community": 79,
       "norm_label": "localrequest()"
     },
     {
@@ -1017,7 +1017,7 @@
       "source_file": "src/lib/api/local.ts",
       "source_location": "L52",
       "id": "api_local_localapi",
-      "community": 85,
+      "community": 79,
       "norm_label": "localapi"
     },
     {
@@ -1026,7 +1026,7 @@
       "source_file": "src/lib/api/locations.ts",
       "source_location": "L1",
       "id": "api_locations",
-      "community": 44,
+      "community": 5,
       "norm_label": "locations.ts"
     },
     {
@@ -1035,7 +1035,7 @@
       "source_file": "src/lib/api/locations.ts",
       "source_location": "L10",
       "id": "api_locations_locationlistresponse",
-      "community": 65,
+      "community": 5,
       "norm_label": "locationlistresponse"
     },
     {
@@ -1044,7 +1044,7 @@
       "source_file": "src/lib/api/locations.ts",
       "source_location": "L17",
       "id": "api_locations_country",
-      "community": 44,
+      "community": 5,
       "norm_label": "country"
     },
     {
@@ -1053,7 +1053,7 @@
       "source_file": "src/lib/api/locations.ts",
       "source_location": "L22",
       "id": "api_locations_state",
-      "community": 44,
+      "community": 5,
       "norm_label": "state"
     },
     {
@@ -1062,7 +1062,7 @@
       "source_file": "src/lib/api/locations.ts",
       "source_location": "L28",
       "id": "api_locations_locationcreatepayload",
-      "community": 44,
+      "community": 5,
       "norm_label": "locationcreatepayload"
     },
     {
@@ -1071,7 +1071,7 @@
       "source_file": "src/lib/api/locations.ts",
       "source_location": "L39",
       "id": "api_locations_locationupdatepayload",
-      "community": 44,
+      "community": 5,
       "norm_label": "locationupdatepayload"
     },
     {
@@ -1080,7 +1080,7 @@
       "source_file": "src/lib/api/locations.ts",
       "source_location": "L44",
       "id": "api_locations_fetchalllocations",
-      "community": 44,
+      "community": 5,
       "norm_label": "fetchalllocations()"
     },
     {
@@ -1089,7 +1089,7 @@
       "source_file": "src/lib/api/locations.ts",
       "source_location": "L52",
       "id": "api_locations_fetchcountries",
-      "community": 44,
+      "community": 5,
       "norm_label": "fetchcountries()"
     },
     {
@@ -1098,7 +1098,7 @@
       "source_file": "src/lib/api/locations.ts",
       "source_location": "L58",
       "id": "api_locations_fetchstates",
-      "community": 44,
+      "community": 5,
       "norm_label": "fetchstates()"
     },
     {
@@ -1107,7 +1107,7 @@
       "source_file": "src/lib/api/locations.ts",
       "source_location": "L64",
       "id": "api_locations_createlocation",
-      "community": 44,
+      "community": 5,
       "norm_label": "createlocation()"
     },
     {
@@ -1116,7 +1116,7 @@
       "source_file": "src/lib/api/locations.ts",
       "source_location": "L73",
       "id": "api_locations_updatelocation",
-      "community": 44,
+      "community": 5,
       "norm_label": "updatelocation()"
     },
     {
@@ -1125,7 +1125,7 @@
       "source_file": "src/lib/api/locations.ts",
       "source_location": "L85",
       "id": "api_locations_deletelocation",
-      "community": 44,
+      "community": 5,
       "norm_label": "deletelocation()"
     },
     {
@@ -1134,7 +1134,7 @@
       "source_file": "src/lib/api/locations.ts",
       "source_location": "L93",
       "id": "api_locations_activatelocation",
-      "community": 44,
+      "community": 5,
       "norm_label": "activatelocation()"
     },
     {
@@ -1143,7 +1143,7 @@
       "source_file": "src/lib/api/locations.ts",
       "source_location": "L101",
       "id": "api_locations_createcountry",
-      "community": 44,
+      "community": 5,
       "norm_label": "createcountry()"
     },
     {
@@ -1152,7 +1152,7 @@
       "source_file": "src/lib/api/locations.ts",
       "source_location": "L110",
       "id": "api_locations_createstate",
-      "community": 44,
+      "community": 5,
       "norm_label": "createstate()"
     },
     {
@@ -1161,7 +1161,7 @@
       "source_file": "src/lib/api/roles.ts",
       "source_location": "L1",
       "id": "api_roles",
-      "community": 86,
+      "community": 79,
       "norm_label": "roles.ts"
     },
     {
@@ -1170,7 +1170,7 @@
       "source_file": "src/lib/api/roles.ts",
       "source_location": "L10",
       "id": "api_roles_rolelistresponse",
-      "community": 86,
+      "community": 79,
       "norm_label": "rolelistresponse"
     },
     {
@@ -1179,7 +1179,7 @@
       "source_file": "src/lib/api/roles.ts",
       "source_location": "L18",
       "id": "api_roles_fetchallroles",
-      "community": 86,
+      "community": 79,
       "norm_label": "fetchallroles()"
     },
     {
@@ -1188,7 +1188,7 @@
       "source_file": "src/lib/api/roles.ts",
       "source_location": "L24",
       "id": "api_roles_createrole",
-      "community": 86,
+      "community": 79,
       "norm_label": "createrole()"
     },
     {
@@ -1197,7 +1197,7 @@
       "source_file": "src/lib/api/roles.ts",
       "source_location": "L30",
       "id": "api_roles_updaterole",
-      "community": 86,
+      "community": 79,
       "norm_label": "updaterole()"
     },
     {
@@ -1206,7 +1206,7 @@
       "source_file": "src/lib/api/roles.ts",
       "source_location": "L39",
       "id": "api_roles_deleterole",
-      "community": 86,
+      "community": 79,
       "norm_label": "deleterole()"
     },
     {
@@ -1341,7 +1341,7 @@
       "source_file": "src/lib/confirmation.svelte.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_confirmation_svelte_js",
-      "community": 4,
+      "community": 80,
       "norm_label": "$lib/confirmation.svelte.js"
     },
     {
@@ -1350,7 +1350,7 @@
       "source_file": "svelte/transition",
       "confidence": "EXTRACTED",
       "id": "transition",
-      "community": 9,
+      "community": 80,
       "norm_label": "svelte/transition"
     },
     {
@@ -1368,7 +1368,7 @@
       "source_file": "@lucide/svelte/icons/loader-circle",
       "confidence": "EXTRACTED",
       "id": "loader_circle",
-      "community": 4,
+      "community": 80,
       "norm_label": "@lucide/svelte/icons/loader-circle"
     },
     {
@@ -1377,7 +1377,7 @@
       "source_file": "@lucide/svelte/icons/x",
       "confidence": "EXTRACTED",
       "id": "x",
-      "community": 9,
+      "community": 80,
       "norm_label": "@lucide/svelte/icons/x"
     },
     {
@@ -1414,7 +1414,7 @@
       "source_file": "src/lib/permissions/mock-permissions",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_permissions_mock_permissions",
-      "community": 4,
+      "community": 7,
       "norm_label": "$lib/permissions/mock-permissions"
     },
     {
@@ -1607,7 +1607,7 @@
       "source_location": "L1",
       "confidence": "EXTRACTED",
       "id": "common_filterdropdown",
-      "community": 9,
+      "community": 80,
       "norm_label": "./filterdropdown.svelte"
     },
     {
@@ -1616,7 +1616,7 @@
       "source_file": "src/lib/components/ui/dropdown-menu/index.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_components_ui_dropdown_menu_index_js",
-      "community": 9,
+      "community": 76,
       "norm_label": "$lib/components/ui/dropdown-menu/index.js"
     },
     {
@@ -1625,7 +1625,7 @@
       "source_file": "@lucide/svelte/icons/filter",
       "confidence": "EXTRACTED",
       "id": "filter",
-      "community": 9,
+      "community": 80,
       "norm_label": "@lucide/svelte/icons/filter"
     },
     {
@@ -1634,7 +1634,7 @@
       "source_file": "@lucide/svelte/icons/check",
       "confidence": "EXTRACTED",
       "id": "check",
-      "community": 9,
+      "community": 76,
       "norm_label": "@lucide/svelte/icons/check"
     },
     {
@@ -1643,7 +1643,7 @@
       "source_file": "src/lib/components/index.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_components_index_js",
-      "community": 9,
+      "community": 80,
       "norm_label": "$lib/components/index.js"
     },
     {
@@ -1832,7 +1832,7 @@
       "source_file": "svelte/reactivity",
       "confidence": "EXTRACTED",
       "id": "reactivity",
-      "community": 76,
+      "community": 7,
       "norm_label": "svelte/reactivity"
     },
     {
@@ -1842,7 +1842,7 @@
       "confidence": "EXTRACTED",
       "source_location": "L1",
       "id": "common_searchabledropdown",
-      "community": 80,
+      "community": 28,
       "norm_label": "searchabledropdown.svelte"
     },
     {
@@ -1860,7 +1860,7 @@
       "source_file": "src/lib/constants",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_constants",
-      "community": 4,
+      "community": 76,
       "norm_label": "$lib/constants"
     },
     {
@@ -1896,7 +1896,7 @@
       "source_file": "src/lib/components/common/SearchInput.svelte",
       "source_location": "L1",
       "id": "common_searchinput",
-      "community": 9,
+      "community": 80,
       "norm_label": "searchinput.svelte"
     },
     {
@@ -1905,7 +1905,7 @@
       "source_file": "@lucide/svelte/icons/search",
       "confidence": "EXTRACTED",
       "id": "search",
-      "community": 9,
+      "community": 80,
       "norm_label": "@lucide/svelte/icons/search"
     },
     {
@@ -1914,7 +1914,7 @@
       "source_file": "@lucide/svelte/icons/chevron-up",
       "confidence": "EXTRACTED",
       "id": "chevron_up",
-      "community": 80,
+      "community": 28,
       "norm_label": "@lucide/svelte/icons/chevron-up"
     },
     {
@@ -1923,7 +1923,7 @@
       "source_file": "@lucide/svelte/icons/chevron-down",
       "confidence": "EXTRACTED",
       "id": "chevron_down",
-      "community": 9,
+      "community": 76,
       "norm_label": "@lucide/svelte/icons/chevron-down"
     },
     {
@@ -1932,7 +1932,7 @@
       "source_file": "src/lib/components/ui/checkbox/index.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_components_ui_checkbox_index_js",
-      "community": 80,
+      "community": 28,
       "norm_label": "$lib/components/ui/checkbox/index.js"
     },
     {
@@ -1941,7 +1941,7 @@
       "source_file": "src/lib/components/ui/scroll-area/index.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_components_ui_scroll_area_index_js",
-      "community": 80,
+      "community": 28,
       "norm_label": "$lib/components/ui/scroll-area/index.js"
     },
     {
@@ -1951,7 +1951,7 @@
       "source_location": "L1",
       "confidence": "EXTRACTED",
       "id": "common_simplemastermodal",
-      "community": 4,
+      "community": 76,
       "norm_label": "$lib/components/common/simplemastermodal.svelte"
     },
     {
@@ -1960,7 +1960,7 @@
       "source_file": "src/lib/toast",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_toast",
-      "community": 4,
+      "community": 76,
       "norm_label": "$lib/toast"
     },
     {
@@ -1969,7 +1969,7 @@
       "source_file": "src/lib/api/local",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_api_local",
-      "community": 4,
+      "community": 76,
       "norm_label": "$lib/api/local"
     },
     {
@@ -1978,7 +1978,7 @@
       "source_file": "src/lib/utils",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_utils",
-      "community": 4,
+      "community": 76,
       "norm_label": "$lib/utils"
     },
     {
@@ -2005,7 +2005,7 @@
       "source_file": "src/lib/components/common/StatusDropdown.svelte",
       "source_location": "L1",
       "id": "common_statusdropdown",
-      "community": 9,
+      "community": 80,
       "norm_label": "statusdropdown.svelte"
     },
     {
@@ -2014,7 +2014,7 @@
       "source_file": "src/lib/components/common/TableActions.svelte",
       "source_location": "L1",
       "id": "common_tableactions",
-      "community": 7,
+      "community": 80,
       "norm_label": "tableactions.svelte"
     },
     {
@@ -2023,7 +2023,7 @@
       "source_file": "@lucide/svelte/icons/more-vertical",
       "confidence": "EXTRACTED",
       "id": "more_vertical",
-      "community": 7,
+      "community": 80,
       "norm_label": "@lucide/svelte/icons/more-vertical"
     },
     {
@@ -2078,7 +2078,7 @@
       "source_file": "@lucide/svelte/icons/arrow-left",
       "confidence": "EXTRACTED",
       "id": "arrow_left",
-      "community": 76,
+      "community": 9,
       "norm_label": "@lucide/svelte/icons/arrow-left"
     },
     {
@@ -2235,13 +2235,22 @@
       "norm_label": "if()"
     },
     {
+      "label": "async()",
+      "file_type": "code",
+      "source_file": "src/lib/components/employee/steps/StepEmployment.svelte",
+      "source_location": "L352",
+      "id": "steps_stepemployment_async",
+      "community": 7,
+      "norm_label": "async()"
+    },
+    {
       "label": "$lib/components/organization_locations/LocationModal.svelte",
       "file_type": "code",
       "source_file": "src/lib/components/organization_locations/LocationModal.svelte",
       "confidence": "EXTRACTED",
       "source_location": "L1",
       "id": "organization_locations_locationmodal",
-      "community": 4,
+      "community": 76,
       "norm_label": "$lib/components/organization_locations/locationmodal.svelte"
     },
     {
@@ -2257,7 +2266,7 @@
       "label": "if()",
       "file_type": "code",
       "source_file": "src/lib/components/employee/steps/StepPersonal.svelte",
-      "source_location": "L61",
+      "source_location": "L62",
       "id": "steps_steppersonal_if",
       "community": 7,
       "norm_label": "if()"
@@ -2266,7 +2275,7 @@
       "label": "errors",
       "file_type": "code",
       "source_file": "src/lib/components/employee/steps/StepPersonal.svelte",
-      "source_location": "L185",
+      "source_location": "L194",
       "id": "steps_steppersonal_errors",
       "community": 7,
       "norm_label": "errors"
@@ -2275,7 +2284,7 @@
       "label": "hasErrors",
       "file_type": "code",
       "source_file": "src/lib/components/employee/steps/StepPersonal.svelte",
-      "source_location": "L204",
+      "source_location": "L214",
       "id": "steps_steppersonal_haserrors",
       "community": 7,
       "norm_label": "haserrors"
@@ -2284,7 +2293,7 @@
       "label": "inputErrorClass()",
       "file_type": "code",
       "source_file": "src/lib/components/employee/steps/StepPersonal.svelte",
-      "source_location": "L208",
+      "source_location": "L218",
       "id": "steps_steppersonal_inputerrorclass",
       "community": 7,
       "norm_label": "inputerrorclass()"
@@ -2293,7 +2302,7 @@
       "label": "clearBackendError()",
       "file_type": "code",
       "source_file": "src/lib/components/employee/steps/StepPersonal.svelte",
-      "source_location": "L212",
+      "source_location": "L222",
       "id": "steps_steppersonal_clearbackenderror",
       "community": 7,
       "norm_label": "clearbackenderror()"
@@ -2302,7 +2311,7 @@
       "label": "save()",
       "file_type": "code",
       "source_file": "src/lib/components/employee/steps/StepPersonal.svelte",
-      "source_location": "L266",
+      "source_location": "L276",
       "id": "steps_steppersonal_save",
       "community": 7,
       "norm_label": "save()"
@@ -2322,7 +2331,7 @@
       "source_file": "src/lib/types/organization_location",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_types_organization_location",
-      "community": 4,
+      "community": 76,
       "norm_label": "$lib/types/organization_location"
     },
     {
@@ -2331,7 +2340,7 @@
       "source_file": "src/lib/api/locations",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_api_locations",
-      "community": 4,
+      "community": 76,
       "norm_label": "$lib/api/locations"
     },
     {
@@ -3586,7 +3595,7 @@
       "source_file": "src/lib/schemas/employee.schema.ts",
       "source_location": "L1",
       "id": "schemas_employee_schema",
-      "community": 63,
+      "community": 36,
       "norm_label": "employee.schema.ts"
     },
     {
@@ -3595,7 +3604,7 @@
       "source_file": "src/lib/schemas/employee.schema.ts",
       "source_location": "L4",
       "id": "schemas_employee_schema_digits",
-      "community": 63,
+      "community": 36,
       "norm_label": "digits()"
     },
     {
@@ -3604,7 +3613,7 @@
       "source_file": "src/lib/schemas/employee.schema.ts",
       "source_location": "L7",
       "id": "schemas_employee_schema_optionalstring",
-      "community": 63,
+      "community": 36,
       "norm_label": "optionalstring()"
     },
     {
@@ -3613,7 +3622,7 @@
       "source_file": "src/lib/schemas/employee.schema.ts",
       "source_location": "L11",
       "id": "schemas_employee_schema_optionaldate",
-      "community": 63,
+      "community": 36,
       "norm_label": "optionaldate()"
     },
     {
@@ -3622,23 +3631,23 @@
       "source_file": "src/lib/schemas/employee.schema.ts",
       "source_location": "L14",
       "id": "schemas_employee_schema_personalschema",
-      "community": 63,
+      "community": 71,
       "norm_label": "personalschema"
     },
     {
       "label": "employmentSchema",
       "file_type": "code",
       "source_file": "src/lib/schemas/employee.schema.ts",
-      "source_location": "L48",
+      "source_location": "L49",
       "id": "schemas_employee_schema_employmentschema",
-      "community": 0,
+      "community": 51,
       "norm_label": "employmentschema"
     },
     {
       "label": "addressSchema",
       "file_type": "code",
       "source_file": "src/lib/schemas/employee.schema.ts",
-      "source_location": "L74",
+      "source_location": "L75",
       "id": "schemas_employee_schema_addressschema",
       "community": 60,
       "norm_label": "addressschema"
@@ -3647,7 +3656,7 @@
       "label": "bankDetailSchema",
       "file_type": "code",
       "source_file": "src/lib/schemas/employee.schema.ts",
-      "source_location": "L87",
+      "source_location": "L88",
       "id": "schemas_employee_schema_bankdetailschema",
       "community": 63,
       "norm_label": "bankdetailschema"
@@ -3656,7 +3665,7 @@
       "label": "educationSchema",
       "file_type": "code",
       "source_file": "src/lib/schemas/employee.schema.ts",
-      "source_location": "L98",
+      "source_location": "L99",
       "id": "schemas_employee_schema_educationschema",
       "community": 62,
       "norm_label": "educationschema"
@@ -3665,7 +3674,7 @@
       "label": "experienceSchema",
       "file_type": "code",
       "source_file": "src/lib/schemas/employee.schema.ts",
-      "source_location": "L109",
+      "source_location": "L110",
       "id": "schemas_employee_schema_experienceschema",
       "community": 36,
       "norm_label": "experienceschema"
@@ -3674,7 +3683,7 @@
       "label": "documentSchema",
       "file_type": "code",
       "source_file": "src/lib/schemas/employee.schema.ts",
-      "source_location": "L124",
+      "source_location": "L125",
       "id": "schemas_employee_schema_documentschema",
       "community": 47,
       "norm_label": "documentschema"
@@ -3683,7 +3692,7 @@
       "label": "languageSchema",
       "file_type": "code",
       "source_file": "src/lib/schemas/employee.schema.ts",
-      "source_location": "L146",
+      "source_location": "L147",
       "id": "schemas_employee_schema_languageschema",
       "community": 64,
       "norm_label": "languageschema"
@@ -3692,7 +3701,7 @@
       "label": "skillSchema",
       "file_type": "code",
       "source_file": "src/lib/schemas/employee.schema.ts",
-      "source_location": "L156",
+      "source_location": "L157",
       "id": "schemas_employee_schema_skillschema",
       "community": 122,
       "norm_label": "skillschema"
@@ -4000,7 +4009,7 @@
       "source_file": "src/lib/server/dao/bank-detail.dao.ts",
       "source_location": "L1",
       "id": "dao_bank_detail_dao",
-      "community": 37,
+      "community": 27,
       "norm_label": "bank-detail.dao.ts"
     },
     {
@@ -4009,7 +4018,7 @@
       "source_file": "src/lib/server/dao/bank-detail.dao.ts",
       "source_location": "L3",
       "id": "dao_bank_detail_dao_upsertbankdetailinput",
-      "community": 37,
+      "community": 27,
       "norm_label": "upsertbankdetailinput"
     },
     {
@@ -4018,7 +4027,7 @@
       "source_file": "src/lib/server/dao/bank-detail.dao.ts",
       "source_location": "L15",
       "id": "dao_bank_detail_dao_findbyemployeecuid",
-      "community": 37,
+      "community": 27,
       "norm_label": "findbyemployeecuid()"
     },
     {
@@ -4027,7 +4036,7 @@
       "source_file": "src/lib/server/dao/bank-detail.dao.ts",
       "source_location": "L22",
       "id": "dao_bank_detail_dao_replacebankdetails",
-      "community": 37,
+      "community": 27,
       "norm_label": "replacebankdetails()"
     },
     {
@@ -4277,7 +4286,7 @@
       "label": "UpdateEmployeeInput",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employee.dao.ts",
-      "source_location": "L27",
+      "source_location": "L28",
       "id": "dao_employee_dao_updateemployeeinput",
       "community": 42,
       "norm_label": "updateemployeeinput"
@@ -4286,7 +4295,7 @@
       "label": "list()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employee.dao.ts",
-      "source_location": "L31",
+      "source_location": "L32",
       "id": "dao_employee_dao_list",
       "community": 42,
       "norm_label": "list()"
@@ -4295,7 +4304,7 @@
       "label": "findByCuid2()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employee.dao.ts",
-      "source_location": "L38",
+      "source_location": "L39",
       "id": "dao_employee_dao_findbycuid2",
       "community": 42,
       "norm_label": "findbycuid2()"
@@ -4304,7 +4313,7 @@
       "label": "findByEmpCode()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employee.dao.ts",
-      "source_location": "L45",
+      "source_location": "L46",
       "id": "dao_employee_dao_findbyempcode",
       "community": 42,
       "norm_label": "findbyempcode()"
@@ -4313,7 +4322,7 @@
       "label": "getLatestEmployeeCode()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employee.dao.ts",
-      "source_location": "L51",
+      "source_location": "L52",
       "id": "dao_employee_dao_getlatestemployeecode",
       "community": 42,
       "norm_label": "getlatestemployeecode()"
@@ -4322,7 +4331,7 @@
       "label": "findByEmail()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employee.dao.ts",
-      "source_location": "L69",
+      "source_location": "L70",
       "id": "dao_employee_dao_findbyemail",
       "community": 42,
       "norm_label": "findbyemail()"
@@ -4331,7 +4340,7 @@
       "label": "findByMobile()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employee.dao.ts",
-      "source_location": "L75",
+      "source_location": "L76",
       "id": "dao_employee_dao_findbymobile",
       "community": 42,
       "norm_label": "findbymobile()"
@@ -4340,16 +4349,25 @@
       "label": "findByAadhar()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employee.dao.ts",
-      "source_location": "L81",
+      "source_location": "L82",
       "id": "dao_employee_dao_findbyaadhar",
       "community": 42,
       "norm_label": "findbyaadhar()"
     },
     {
+      "label": "findByPfAccountNo()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L88",
+      "id": "dao_employee_dao_findbypfaccountno",
+      "community": 42,
+      "norm_label": "findbypfaccountno()"
+    },
+    {
       "label": "findByPan()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employee.dao.ts",
-      "source_location": "L87",
+      "source_location": "L94",
       "id": "dao_employee_dao_findbypan",
       "community": 42,
       "norm_label": "findbypan()"
@@ -4358,7 +4376,7 @@
       "label": "create()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employee.dao.ts",
-      "source_location": "L93",
+      "source_location": "L100",
       "id": "dao_employee_dao_create",
       "community": 42,
       "norm_label": "create()"
@@ -4367,7 +4385,7 @@
       "label": "update()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employee.dao.ts",
-      "source_location": "L102",
+      "source_location": "L109",
       "id": "dao_employee_dao_update",
       "community": 42,
       "norm_label": "update()"
@@ -4376,7 +4394,7 @@
       "label": "remove()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employee.dao.ts",
-      "source_location": "L109",
+      "source_location": "L116",
       "id": "dao_employee_dao_remove",
       "community": 42,
       "norm_label": "remove()"
@@ -4409,10 +4427,19 @@
       "norm_label": "findbyemployeecuid()"
     },
     {
-      "label": "list()",
+      "label": "findByOfficialEmail()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employment.dao.ts",
       "source_location": "L27",
+      "id": "dao_employment_dao_findbyofficialemail",
+      "community": 0,
+      "norm_label": "findbyofficialemail()"
+    },
+    {
+      "label": "list()",
+      "file_type": "code",
+      "source_file": "src/lib/server/dao/employment.dao.ts",
+      "source_location": "L34",
       "id": "dao_employment_dao_list",
       "community": 0,
       "norm_label": "list()"
@@ -4421,7 +4448,7 @@
       "label": "upsert()",
       "file_type": "code",
       "source_file": "src/lib/server/dao/employment.dao.ts",
-      "source_location": "L31",
+      "source_location": "L38",
       "id": "dao_employment_dao_upsert",
       "community": 0,
       "norm_label": "upsert()"
@@ -4432,7 +4459,7 @@
       "source_file": "src/lib/server/dao/experience.dao.ts",
       "source_location": "L1",
       "id": "dao_experience_dao",
-      "community": 36,
+      "community": 59,
       "norm_label": "experience.dao.ts"
     },
     {
@@ -4441,7 +4468,7 @@
       "source_file": "src/lib/server/dao/experience.dao.ts",
       "source_location": "L3",
       "id": "dao_experience_dao_upsertexperienceinput",
-      "community": 36,
+      "community": 59,
       "norm_label": "upsertexperienceinput"
     },
     {
@@ -4450,7 +4477,7 @@
       "source_file": "src/lib/server/dao/experience.dao.ts",
       "source_location": "L14",
       "id": "dao_experience_dao_findbyemployeecuid",
-      "community": 36,
+      "community": 59,
       "norm_label": "findbyemployeecuid()"
     },
     {
@@ -4459,7 +4486,7 @@
       "source_file": "src/lib/server/dao/experience.dao.ts",
       "source_location": "L21",
       "id": "dao_experience_dao_replaceexperiences",
-      "community": 36,
+      "community": 59,
       "norm_label": "replaceexperiences()"
     },
     {
@@ -4882,7 +4909,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L1",
       "id": "dao_organization_location_dao",
-      "community": 103,
+      "community": 5,
       "norm_label": "organization_location.dao.ts"
     },
     {
@@ -4891,7 +4918,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L9",
       "id": "dao_organization_location_dao_createlocation",
-      "community": 103,
+      "community": 5,
       "norm_label": "createlocation()"
     },
     {
@@ -4900,7 +4927,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L46",
       "id": "dao_organization_location_dao_getlocations",
-      "community": 103,
+      "community": 5,
       "norm_label": "getlocations()"
     },
     {
@@ -4909,7 +4936,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L72",
       "id": "dao_organization_location_dao_getalllocations",
-      "community": 103,
+      "community": 5,
       "norm_label": "getalllocations()"
     },
     {
@@ -4918,7 +4945,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L97",
       "id": "dao_organization_location_dao_countalllocations",
-      "community": 103,
+      "community": 5,
       "norm_label": "countalllocations()"
     },
     {
@@ -4927,7 +4954,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L104",
       "id": "dao_organization_location_dao_countlocations",
-      "community": 103,
+      "community": 5,
       "norm_label": "countlocations()"
     },
     {
@@ -4936,7 +4963,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L111",
       "id": "dao_organization_location_dao_getlocationbycuid",
-      "community": 103,
+      "community": 5,
       "norm_label": "getlocationbycuid()"
     },
     {
@@ -4945,7 +4972,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L136",
       "id": "dao_organization_location_dao_updatelocation",
-      "community": 103,
+      "community": 5,
       "norm_label": "updatelocation()"
     },
     {
@@ -4954,7 +4981,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L194",
       "id": "dao_organization_location_dao_deactivatelocation",
-      "community": 103,
+      "community": 5,
       "norm_label": "deactivatelocation()"
     },
     {
@@ -4963,7 +4990,7 @@
       "source_file": "src/lib/server/dao/organization_location.dao.ts",
       "source_location": "L220",
       "id": "dao_organization_location_dao_activatelocation",
-      "community": 103,
+      "community": 5,
       "norm_label": "activatelocation()"
     },
     {
@@ -5116,7 +5143,7 @@
       "source_file": "src/lib/server/dao/permission.dao.ts",
       "source_location": "L1",
       "id": "dao_permission_dao",
-      "community": 51,
+      "community": 78,
       "norm_label": "permission.dao.ts"
     },
     {
@@ -5125,7 +5152,7 @@
       "source_file": "src/lib/server/dao/permission.dao.ts",
       "source_location": "L3",
       "id": "dao_permission_dao_createpermissioninput",
-      "community": 51,
+      "community": 78,
       "norm_label": "createpermissioninput"
     },
     {
@@ -5134,7 +5161,7 @@
       "source_file": "src/lib/server/dao/permission.dao.ts",
       "source_location": "L11",
       "id": "dao_permission_dao_updatepermissioninput",
-      "community": 51,
+      "community": 78,
       "norm_label": "updatepermissioninput"
     },
     {
@@ -5143,7 +5170,7 @@
       "source_file": "src/lib/server/dao/permission.dao.ts",
       "source_location": "L18",
       "id": "dao_permission_dao_list",
-      "community": 51,
+      "community": 78,
       "norm_label": "list()"
     },
     {
@@ -5152,7 +5179,7 @@
       "source_file": "src/lib/server/dao/permission.dao.ts",
       "source_location": "L26",
       "id": "dao_permission_dao_findbyid",
-      "community": 51,
+      "community": 78,
       "norm_label": "findbyid()"
     },
     {
@@ -5161,7 +5188,7 @@
       "source_file": "src/lib/server/dao/permission.dao.ts",
       "source_location": "L34",
       "id": "dao_permission_dao_findbycuid2",
-      "community": 51,
+      "community": 78,
       "norm_label": "findbycuid2()"
     },
     {
@@ -5170,7 +5197,7 @@
       "source_file": "src/lib/server/dao/permission.dao.ts",
       "source_location": "L42",
       "id": "dao_permission_dao_create",
-      "community": 51,
+      "community": 78,
       "norm_label": "create()"
     },
     {
@@ -5179,7 +5206,7 @@
       "source_file": "src/lib/server/dao/permission.dao.ts",
       "source_location": "L55",
       "id": "dao_permission_dao_update",
-      "community": 51,
+      "community": 78,
       "norm_label": "update()"
     },
     {
@@ -5260,7 +5287,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L1",
       "id": "dao_role_dao",
-      "community": 86,
+      "community": 79,
       "norm_label": "role.dao.ts"
     },
     {
@@ -5269,7 +5296,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L8",
       "id": "dao_role_dao_createrole",
-      "community": 86,
+      "community": 79,
       "norm_label": "createrole()"
     },
     {
@@ -5278,7 +5305,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L29",
       "id": "dao_role_dao_getroles",
-      "community": 86,
+      "community": 79,
       "norm_label": "getroles()"
     },
     {
@@ -5287,7 +5314,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L47",
       "id": "dao_role_dao_getallroles",
-      "community": 86,
+      "community": 79,
       "norm_label": "getallroles()"
     },
     {
@@ -5296,7 +5323,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L63",
       "id": "dao_role_dao_countallroles",
-      "community": 86,
+      "community": 79,
       "norm_label": "countallroles()"
     },
     {
@@ -5305,7 +5332,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L70",
       "id": "dao_role_dao_countroles",
-      "community": 86,
+      "community": 79,
       "norm_label": "countroles()"
     },
     {
@@ -5314,7 +5341,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L77",
       "id": "dao_role_dao_getrolebycuid",
-      "community": 86,
+      "community": 79,
       "norm_label": "getrolebycuid()"
     },
     {
@@ -5323,7 +5350,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L93",
       "id": "dao_role_dao_updaterole",
-      "community": 86,
+      "community": 79,
       "norm_label": "updaterole()"
     },
     {
@@ -5332,7 +5359,7 @@
       "source_file": "src/lib/server/dao/role.dao.ts",
       "source_location": "L115",
       "id": "dao_role_dao_deactivaterole",
-      "community": 86,
+      "community": 79,
       "norm_label": "deactivaterole()"
     },
     {
@@ -5638,7 +5665,7 @@
       "source_file": "src/lib/server/dao/system-role.dao.ts",
       "source_location": "L1",
       "id": "dao_system_role_dao",
-      "community": 96,
+      "community": 75,
       "norm_label": "system-role.dao.ts"
     },
     {
@@ -5647,7 +5674,7 @@
       "source_file": "src/lib/server/dao/system-role.dao.ts",
       "source_location": "L3",
       "id": "dao_system_role_dao_createsystemroleinput",
-      "community": 96,
+      "community": 75,
       "norm_label": "createsystemroleinput"
     },
     {
@@ -5656,7 +5683,7 @@
       "source_file": "src/lib/server/dao/system-role.dao.ts",
       "source_location": "L11",
       "id": "dao_system_role_dao_updatesystemroleinput",
-      "community": 96,
+      "community": 75,
       "norm_label": "updatesystemroleinput"
     },
     {
@@ -5665,7 +5692,7 @@
       "source_file": "src/lib/server/dao/system-role.dao.ts",
       "source_location": "L18",
       "id": "dao_system_role_dao_list",
-      "community": 96,
+      "community": 75,
       "norm_label": "list()"
     },
     {
@@ -5674,7 +5701,7 @@
       "source_file": "src/lib/server/dao/system-role.dao.ts",
       "source_location": "L26",
       "id": "dao_system_role_dao_findbyid",
-      "community": 96,
+      "community": 75,
       "norm_label": "findbyid()"
     },
     {
@@ -5683,7 +5710,7 @@
       "source_file": "src/lib/server/dao/system-role.dao.ts",
       "source_location": "L34",
       "id": "dao_system_role_dao_findbycuid2",
-      "community": 96,
+      "community": 75,
       "norm_label": "findbycuid2()"
     },
     {
@@ -5692,7 +5719,7 @@
       "source_file": "src/lib/server/dao/system-role.dao.ts",
       "source_location": "L42",
       "id": "dao_system_role_dao_create",
-      "community": 96,
+      "community": 75,
       "norm_label": "create()"
     },
     {
@@ -5701,7 +5728,7 @@
       "source_file": "src/lib/server/dao/system-role.dao.ts",
       "source_location": "L55",
       "id": "dao_system_role_dao_update",
-      "community": 96,
+      "community": 75,
       "norm_label": "update()"
     },
     {
@@ -5908,7 +5935,7 @@
       "source_file": "src/lib/server/response.ts",
       "source_location": "L48",
       "id": "server_response_formatleavetype",
-      "community": 26,
+      "community": 22,
       "norm_label": "formatleavetype()"
     },
     {
@@ -5935,7 +5962,7 @@
       "source_file": "src/lib/server/response.ts",
       "source_location": "L96",
       "id": "server_response_formatleavepolicy",
-      "community": 26,
+      "community": 37,
       "norm_label": "formatleavepolicy()"
     },
     {
@@ -5971,7 +5998,7 @@
       "source_file": "src/lib/server/response.ts",
       "source_location": "L145",
       "id": "server_response_successresponse",
-      "community": 26,
+      "community": 19,
       "norm_label": "successresponse()"
     },
     {
@@ -5989,7 +6016,7 @@
       "source_file": "src/lib/server/response.ts",
       "source_location": "L158",
       "id": "server_response_createsuccessresponse",
-      "community": 23,
+      "community": 26,
       "norm_label": "createsuccessresponse()"
     },
     {
@@ -6007,7 +6034,7 @@
       "source_file": "src/lib/server/response.ts",
       "source_location": "L172",
       "id": "server_response_deletesuccessresponse",
-      "community": 26,
+      "community": 19,
       "norm_label": "deletesuccessresponse()"
     },
     {
@@ -6034,7 +6061,7 @@
       "source_file": "src/lib/server/response.ts",
       "source_location": "L188",
       "id": "server_response_sendcreated",
-      "community": 61,
+      "community": 1,
       "norm_label": "sendcreated()"
     },
     {
@@ -6061,7 +6088,7 @@
       "source_file": "src/lib/server/response.ts",
       "source_location": "L216",
       "id": "server_response_maprole",
-      "community": 61,
+      "community": 1,
       "norm_label": "maprole()"
     },
     {
@@ -6070,7 +6097,7 @@
       "source_file": "src/lib/server/response.ts",
       "source_location": "L226",
       "id": "server_response_mapshift",
-      "community": 61,
+      "community": 1,
       "norm_label": "mapshift()"
     },
     {
@@ -6079,7 +6106,7 @@
       "source_file": "src/lib/server/response.ts",
       "source_location": "L239",
       "id": "server_response_maplocation",
-      "community": 61,
+      "community": 1,
       "norm_label": "maplocation()"
     },
     {
@@ -6178,7 +6205,7 @@
       "source_file": "src/lib/server/serializers/payroll.serializer.ts",
       "source_location": "L1",
       "id": "serializers_payroll_serializer",
-      "community": 27,
+      "community": 44,
       "norm_label": "payroll.serializer.ts"
     },
     {
@@ -6187,7 +6214,7 @@
       "source_file": "src/lib/server/serializers/payroll.serializer.ts",
       "source_location": "L13",
       "id": "serializers_payroll_serializer_serializepayroll",
-      "community": 27,
+      "community": 44,
       "norm_label": "serializepayroll()"
     },
     {
@@ -6430,7 +6457,7 @@
       "source_file": "src/lib/server/services/attendance-record.service.ts",
       "source_location": "L307",
       "id": "services_attendance_record_service_getattendancerecordbycuid",
-      "community": 26,
+      "community": 23,
       "norm_label": "getattendancerecordbycuid()"
     },
     {
@@ -6457,7 +6484,7 @@
       "source_file": "src/lib/server/services/attendance-record.service.ts",
       "source_location": "L351",
       "id": "services_attendance_record_service_deleteattendancerecord",
-      "community": 26,
+      "community": 23,
       "norm_label": "deleteattendancerecord()"
     },
     {
@@ -6538,7 +6565,7 @@
       "source_file": "src/lib/server/services/attendance.service.ts",
       "source_location": "L214",
       "id": "services_attendance_service_getemployeehistory",
-      "community": 26,
+      "community": 35,
       "norm_label": "getemployeehistory()"
     },
     {
@@ -6905,7 +6932,7 @@
       "label": "UpdateEmployeeDto",
       "file_type": "code",
       "source_file": "src/lib/server/services/employee.service.ts",
-      "source_location": "L35",
+      "source_location": "L36",
       "id": "services_employee_service_updateemployeedto",
       "community": 71,
       "norm_label": "updateemployeedto"
@@ -6914,7 +6941,7 @@
       "label": "toPublicEmployee()",
       "file_type": "code",
       "source_file": "src/lib/server/services/employee.service.ts",
-      "source_location": "L39",
+      "source_location": "L40",
       "id": "services_employee_service_topublicemployee",
       "community": 71,
       "norm_label": "topublicemployee()"
@@ -6923,7 +6950,7 @@
       "label": "getEmployees()",
       "file_type": "code",
       "source_file": "src/lib/server/services/employee.service.ts",
-      "source_location": "L45",
+      "source_location": "L46",
       "id": "services_employee_service_getemployees",
       "community": 86,
       "norm_label": "getemployees()"
@@ -6932,7 +6959,7 @@
       "label": "getEmployeeByCuid2()",
       "file_type": "code",
       "source_file": "src/lib/server/services/employee.service.ts",
-      "source_location": "L60",
+      "source_location": "L61",
       "id": "services_employee_service_getemployeebycuid2",
       "community": 86,
       "norm_label": "getemployeebycuid2()"
@@ -6941,7 +6968,7 @@
       "label": "generateNextEmployeeCode()",
       "file_type": "code",
       "source_file": "src/lib/server/services/employee.service.ts",
-      "source_location": "L73",
+      "source_location": "L74",
       "id": "services_employee_service_generatenextemployeecode",
       "community": 71,
       "norm_label": "generatenextemployeecode()"
@@ -6950,7 +6977,7 @@
       "label": "createEmployee()",
       "file_type": "code",
       "source_file": "src/lib/server/services/employee.service.ts",
-      "source_location": "L86",
+      "source_location": "L87",
       "id": "services_employee_service_createemployee",
       "community": 71,
       "norm_label": "createemployee()"
@@ -6959,7 +6986,7 @@
       "label": "updateEmployee()",
       "file_type": "code",
       "source_file": "src/lib/server/services/employee.service.ts",
-      "source_location": "L160",
+      "source_location": "L167",
       "id": "services_employee_service_updateemployee",
       "community": 71,
       "norm_label": "updateemployee()"
@@ -6968,7 +6995,7 @@
       "label": "checkAndSetProfileCompletionStatus()",
       "file_type": "code",
       "source_file": "src/lib/server/services/employee.service.ts",
-      "source_location": "L218",
+      "source_location": "L233",
       "id": "services_employee_service_checkandsetprofilecompletionstatus",
       "community": 71,
       "norm_label": "checkandsetprofilecompletionstatus()"
@@ -6977,7 +7004,7 @@
       "label": "deleteEmployee()",
       "file_type": "code",
       "source_file": "src/lib/server/services/employee.service.ts",
-      "source_location": "L251",
+      "source_location": "L266",
       "id": "services_employee_service_deleteemployee",
       "community": 71,
       "norm_label": "deleteemployee()"
@@ -6986,7 +7013,7 @@
       "label": "getMinimalEmployeesForAttendance()",
       "file_type": "code",
       "source_file": "src/lib/server/services/employee.service.ts",
-      "source_location": "L258",
+      "source_location": "L273",
       "id": "services_employee_service_getminimalemployeesforattendance",
       "community": 71,
       "norm_label": "getminimalemployeesforattendance()"
@@ -6997,7 +7024,7 @@
       "source_file": "src/lib/server/services/employment.service.ts",
       "source_location": "L1",
       "id": "services_employment_service",
-      "community": 0,
+      "community": 51,
       "norm_label": "employment.service.ts"
     },
     {
@@ -7006,7 +7033,7 @@
       "source_file": "src/lib/server/services/employment.service.ts",
       "source_location": "L7",
       "id": "services_employment_service_upsertemploymentdto",
-      "community": 0,
+      "community": 51,
       "norm_label": "upsertemploymentdto"
     },
     {
@@ -7015,7 +7042,7 @@
       "source_file": "src/lib/server/services/employment.service.ts",
       "source_location": "L23",
       "id": "services_employment_service_topublicemployment",
-      "community": 0,
+      "community": 51,
       "norm_label": "topublicemployment()"
     },
     {
@@ -7024,7 +7051,7 @@
       "source_file": "src/lib/server/services/employment.service.ts",
       "source_location": "L29",
       "id": "services_employment_service_getemploymentbyemployeecuid",
-      "community": 0,
+      "community": 51,
       "norm_label": "getemploymentbyemployeecuid()"
     },
     {
@@ -7033,7 +7060,7 @@
       "source_file": "src/lib/server/services/employment.service.ts",
       "source_location": "L35",
       "id": "services_employment_service_upsertemployment",
-      "community": 0,
+      "community": 51,
       "norm_label": "upsertemployment()"
     },
     {
@@ -7285,7 +7312,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L1",
       "id": "services_leave_policy_service",
-      "community": 22,
+      "community": 37,
       "norm_label": "leave-policy.service.ts"
     },
     {
@@ -7294,7 +7321,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L6",
       "id": "services_leave_policy_service_createleavepolicyinput",
-      "community": 22,
+      "community": 37,
       "norm_label": "createleavepolicyinput"
     },
     {
@@ -7303,7 +7330,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L25",
       "id": "services_leave_policy_service_updateleavepolicyinput",
-      "community": 22,
+      "community": 37,
       "norm_label": "updateleavepolicyinput"
     },
     {
@@ -7312,7 +7339,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L43",
       "id": "services_leave_policy_service_validateandmappolicyinput",
-      "community": 22,
+      "community": 37,
       "norm_label": "validateandmappolicyinput()"
     },
     {
@@ -7321,7 +7348,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L259",
       "id": "services_leave_policy_service_listleavepolicies",
-      "community": 22,
+      "community": 26,
       "norm_label": "listleavepolicies()"
     },
     {
@@ -7330,7 +7357,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L263",
       "id": "services_leave_policy_service_getleavepolicybycuid",
-      "community": 26,
+      "community": 37,
       "norm_label": "getleavepolicybycuid()"
     },
     {
@@ -7339,7 +7366,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L267",
       "id": "services_leave_policy_service_createleavepolicy",
-      "community": 22,
+      "community": 37,
       "norm_label": "createleavepolicy()"
     },
     {
@@ -7348,7 +7375,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L276",
       "id": "services_leave_policy_service_updateleavepolicy",
-      "community": 22,
+      "community": 37,
       "norm_label": "updateleavepolicy()"
     },
     {
@@ -7357,7 +7384,7 @@
       "source_file": "src/lib/server/services/leave-policy.service.ts",
       "source_location": "L317",
       "id": "services_leave_policy_service_deleteleavepolicy",
-      "community": 22,
+      "community": 37,
       "norm_label": "deleteleavepolicy()"
     },
     {
@@ -7456,7 +7483,7 @@
       "source_file": "src/lib/server/services/leave-type.service.ts",
       "source_location": "L108",
       "id": "services_leave_type_service_getleavetypebycuid",
-      "community": 26,
+      "community": 22,
       "norm_label": "getleavetypebycuid()"
     },
     {
@@ -7753,7 +7780,7 @@
       "source_file": "src/lib/server/services/payroll.service.ts",
       "source_location": "L20",
       "id": "services_payroll_service_payrollnotfounderror",
-      "community": 37,
+      "community": 27,
       "norm_label": "payrollnotfounderror"
     },
     {
@@ -7762,7 +7789,7 @@
       "source_file": "src/lib/server/services/payroll.service.ts",
       "source_location": "L21",
       "id": "services_payroll_service_payrollnotfounderror_constructor",
-      "community": 37,
+      "community": 27,
       "norm_label": ".constructor()"
     },
     {
@@ -8059,7 +8086,7 @@
       "source_file": "src/lib/server/services/role.service.ts",
       "source_location": "L1",
       "id": "services_role_service",
-      "community": 86,
+      "community": 79,
       "norm_label": "role.service.ts"
     },
     {
@@ -8077,7 +8104,7 @@
       "source_file": "src/lib/server/services/role.service.ts",
       "source_location": "L13",
       "id": "services_role_service_listallroles",
-      "community": 86,
+      "community": 79,
       "norm_label": "listallroles()"
     },
     {
@@ -8086,7 +8113,7 @@
       "source_file": "src/lib/server/services/role.service.ts",
       "source_location": "L19",
       "id": "services_role_service_createrole",
-      "community": 86,
+      "community": 79,
       "norm_label": "createrole()"
     },
     {
@@ -8095,7 +8122,7 @@
       "source_file": "src/lib/server/services/role.service.ts",
       "source_location": "L32",
       "id": "services_role_service_updaterole",
-      "community": 86,
+      "community": 79,
       "norm_label": "updaterole()"
     },
     {
@@ -8104,7 +8131,7 @@
       "source_file": "src/lib/server/services/role.service.ts",
       "source_location": "L54",
       "id": "services_role_service_deleterole",
-      "community": 86,
+      "community": 79,
       "norm_label": "deleterole()"
     },
     {
@@ -9076,7 +9103,7 @@
       "source_file": "src/lib/server/validation.ts",
       "source_location": "L1",
       "id": "server_validation",
-      "community": 35,
+      "community": 26,
       "norm_label": "validation.ts"
     },
     {
@@ -9085,7 +9112,7 @@
       "source_file": "src/lib/server/validation.ts",
       "source_location": "L5",
       "id": "server_validation_trimstringfields",
-      "community": 35,
+      "community": 26,
       "norm_label": "trimstringfields()"
     },
     {
@@ -9094,7 +9121,7 @@
       "source_file": "src/lib/server/validation.ts",
       "source_location": "L27",
       "id": "server_validation_validatepayloadkeys",
-      "community": 35,
+      "community": 26,
       "norm_label": "validatepayloadkeys()"
     },
     {
@@ -9373,7 +9400,7 @@
       "source_file": "src/lib/server/validators/role.validator.ts",
       "source_location": "L1",
       "id": "validators_role_validator",
-      "community": 86,
+      "community": 79,
       "norm_label": "role.validator.ts"
     },
     {
@@ -9382,7 +9409,7 @@
       "source_file": "src/lib/server/validators/role.validator.ts",
       "source_location": "L7",
       "id": "validators_role_validator_sanitizestring",
-      "community": 86,
+      "community": 79,
       "norm_label": "sanitizestring()"
     },
     {
@@ -9391,7 +9418,7 @@
       "source_file": "src/lib/server/validators/role.validator.ts",
       "source_location": "L16",
       "id": "validators_role_validator_rejectunknownkeys",
-      "community": 86,
+      "community": 79,
       "norm_label": "rejectunknownkeys()"
     },
     {
@@ -9400,7 +9427,7 @@
       "source_file": "src/lib/server/validators/role.validator.ts",
       "source_location": "L29",
       "id": "validators_role_validator_validatepaginationparams",
-      "community": 86,
+      "community": 79,
       "norm_label": "validatepaginationparams()"
     },
     {
@@ -9409,7 +9436,7 @@
       "source_file": "src/lib/server/validators/role.validator.ts",
       "source_location": "L57",
       "id": "validators_role_validator_validatecreatepayload",
-      "community": 86,
+      "community": 79,
       "norm_label": "validatecreatepayload()"
     },
     {
@@ -9418,7 +9445,7 @@
       "source_file": "src/lib/server/validators/role.validator.ts",
       "source_location": "L94",
       "id": "validators_role_validator_validateupdatepayload",
-      "community": 86,
+      "community": 79,
       "norm_label": "validateupdatepayload()"
     },
     {
@@ -9652,7 +9679,7 @@
       "source_file": "src/lib/toast.svelte.ts",
       "source_location": "L1",
       "id": "lib_toast_svelte",
-      "community": 66,
+      "community": 86,
       "norm_label": "toast.svelte.ts"
     },
     {
@@ -9661,7 +9688,7 @@
       "source_file": "src/lib/toast.svelte.ts",
       "source_location": "L1",
       "id": "lib_toast_svelte_toast",
-      "community": 66,
+      "community": 86,
       "norm_label": "toast"
     },
     {
@@ -9670,7 +9697,7 @@
       "source_file": "src/lib/toast.svelte.ts",
       "source_location": "L8",
       "id": "lib_toast_svelte_toaststore",
-      "community": 66,
+      "community": 86,
       "norm_label": "toaststore"
     },
     {
@@ -9679,7 +9706,7 @@
       "source_file": "src/lib/toast.svelte.ts",
       "source_location": "L11",
       "id": "lib_toast_svelte_toaststore_add",
-      "community": 66,
+      "community": 86,
       "norm_label": ".add()"
     },
     {
@@ -9688,7 +9715,7 @@
       "source_file": "src/lib/toast.svelte.ts",
       "source_location": "L23",
       "id": "lib_toast_svelte_toaststore_success",
-      "community": 66,
+      "community": 86,
       "norm_label": ".success()"
     },
     {
@@ -9697,7 +9724,7 @@
       "source_file": "src/lib/toast.svelte.ts",
       "source_location": "L27",
       "id": "lib_toast_svelte_toaststore_error",
-      "community": 66,
+      "community": 86,
       "norm_label": ".error()"
     },
     {
@@ -9706,7 +9733,7 @@
       "source_file": "src/lib/toast.svelte.ts",
       "source_location": "L31",
       "id": "lib_toast_svelte_toaststore_info",
-      "community": 66,
+      "community": 86,
       "norm_label": ".info()"
     },
     {
@@ -9715,7 +9742,7 @@
       "source_file": "src/lib/toast.svelte.ts",
       "source_location": "L35",
       "id": "lib_toast_svelte_toaststore_warning",
-      "community": 66,
+      "community": 86,
       "norm_label": ".warning()"
     },
     {
@@ -9724,7 +9751,7 @@
       "source_file": "src/lib/toast.svelte.ts",
       "source_location": "L39",
       "id": "lib_toast_svelte_toaststore_dismiss",
-      "community": 66,
+      "community": 86,
       "norm_label": ".dismiss()"
     },
     {
@@ -9814,7 +9841,7 @@
       "source_file": "src/lib/types/organization_location.ts",
       "source_location": "L2",
       "id": "types_organization_location_companylocation",
-      "community": 65,
+      "community": 5,
       "norm_label": "companylocation"
     },
     {
@@ -9850,7 +9877,7 @@
       "source_file": "src/lib/types/payroll.ts",
       "source_location": "L9",
       "id": "types_payroll_payrollupload",
-      "community": 32,
+      "community": 25,
       "norm_label": "payrollupload"
     },
     {
@@ -9859,7 +9886,7 @@
       "source_file": "src/lib/types/payroll.ts",
       "source_location": "L29",
       "id": "types_payroll_payrollemployeedetails",
-      "community": 27,
+      "community": 44,
       "norm_label": "payrollemployeedetails"
     },
     {
@@ -9904,7 +9931,7 @@
       "source_file": "src/lib/types/payroll.ts",
       "source_location": "L107",
       "id": "types_payroll_payrolluploadfailure",
-      "community": 39,
+      "community": 25,
       "norm_label": "payrolluploadfailure"
     },
     {
@@ -9913,7 +9940,7 @@
       "source_file": "src/lib/types/payroll.ts",
       "source_location": "L117",
       "id": "types_payroll_payrolluploadresult",
-      "community": 25,
+      "community": 27,
       "norm_label": "payrolluploadresult"
     },
     {
@@ -9976,7 +10003,7 @@
       "source_file": "src/lib/types/role.ts",
       "source_location": "L1",
       "id": "types_role",
-      "community": 86,
+      "community": 79,
       "norm_label": "role.ts"
     },
     {
@@ -9985,7 +10012,7 @@
       "source_file": "src/lib/types/role.ts",
       "source_location": "L2",
       "id": "types_role_role",
-      "community": 86,
+      "community": 79,
       "norm_label": "role"
     },
     {
@@ -9994,7 +10021,7 @@
       "source_file": "src/lib/types/role.ts",
       "source_location": "L10",
       "id": "types_role_rolecreatedto",
-      "community": 86,
+      "community": 79,
       "norm_label": "rolecreatedto"
     },
     {
@@ -10003,7 +10030,7 @@
       "source_file": "src/lib/types/role.ts",
       "source_location": "L16",
       "id": "types_role_roleupdatedto",
-      "community": 86,
+      "community": 79,
       "norm_label": "roleupdatedto"
     },
     {
@@ -10448,10 +10475,19 @@
       "norm_label": "validateemail()"
     },
     {
-      "label": "validateDropdown()",
+      "label": "validatePfAccountRule()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
       "source_location": "L59",
+      "id": "utils_employeevalidationhelper_validatepfaccountrule",
+      "community": 6,
+      "norm_label": "validatepfaccountrule()"
+    },
+    {
+      "label": "validateDropdown()",
+      "file_type": "code",
+      "source_file": "src/lib/utils/employeeValidationHelper.ts",
+      "source_location": "L66",
       "id": "utils_employeevalidationhelper_validatedropdown",
       "community": 6,
       "norm_label": "validatedropdown()"
@@ -10460,7 +10496,7 @@
       "label": "validateDob()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L64",
+      "source_location": "L71",
       "id": "utils_employeevalidationhelper_validatedob",
       "community": 6,
       "norm_label": "validatedob()"
@@ -10469,7 +10505,7 @@
       "label": "validateDoj()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L82",
+      "source_location": "L89",
       "id": "utils_employeevalidationhelper_validatedoj",
       "community": 6,
       "norm_label": "validatedoj()"
@@ -10478,7 +10514,7 @@
       "label": "validateConfirmation()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L90",
+      "source_location": "L97",
       "id": "utils_employeevalidationhelper_validateconfirmation",
       "community": 6,
       "norm_label": "validateconfirmation()"
@@ -10487,7 +10523,7 @@
       "label": "validateRelieving()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L96",
+      "source_location": "L103",
       "id": "utils_employeevalidationhelper_validaterelieving",
       "community": 6,
       "norm_label": "validaterelieving()"
@@ -10496,7 +10532,7 @@
       "label": "validateRequired()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L102",
+      "source_location": "L109",
       "id": "utils_employeevalidationhelper_validaterequired",
       "community": 6,
       "norm_label": "validaterequired()"
@@ -10505,7 +10541,7 @@
       "label": "validatePinCode()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L106",
+      "source_location": "L113",
       "id": "utils_employeevalidationhelper_validatepincode",
       "community": 6,
       "norm_label": "validatepincode()"
@@ -10514,7 +10550,7 @@
       "label": "validatePercentage()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L112",
+      "source_location": "L119",
       "id": "utils_employeevalidationhelper_validatepercentage",
       "community": 6,
       "norm_label": "validatepercentage()"
@@ -10523,7 +10559,7 @@
       "label": "validatePastDate()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L119",
+      "source_location": "L126",
       "id": "utils_employeevalidationhelper_validatepastdate",
       "community": 6,
       "norm_label": "validatepastdate()"
@@ -10532,7 +10568,7 @@
       "label": "validateDates()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L127",
+      "source_location": "L134",
       "id": "utils_employeevalidationhelper_validatedates",
       "community": 6,
       "norm_label": "validatedates()"
@@ -10541,7 +10577,7 @@
       "label": "validateIfsc()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L140",
+      "source_location": "L147",
       "id": "utils_employeevalidationhelper_validateifsc",
       "community": 6,
       "norm_label": "validateifsc()"
@@ -10550,7 +10586,7 @@
       "label": "validateLettersSpaces()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L148",
+      "source_location": "L155",
       "id": "utils_employeevalidationhelper_validatelettersspaces",
       "community": 6,
       "norm_label": "validatelettersspaces()"
@@ -10559,7 +10595,7 @@
       "label": "validateLettersNumbersSpaces()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L155",
+      "source_location": "L162",
       "id": "utils_employeevalidationhelper_validatelettersnumbersspaces",
       "community": 6,
       "norm_label": "validatelettersnumbersspaces()"
@@ -10568,7 +10604,7 @@
       "label": "validateAccountNumber()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L162",
+      "source_location": "L169",
       "id": "utils_employeevalidationhelper_validateaccountnumber",
       "community": 6,
       "norm_label": "validateaccountnumber()"
@@ -10577,7 +10613,7 @@
       "label": "validateIfscInput()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L169",
+      "source_location": "L176",
       "id": "utils_employeevalidationhelper_validateifscinput",
       "community": 6,
       "norm_label": "validateifscinput()"
@@ -10586,7 +10622,7 @@
       "label": "SectionErrors",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L177",
+      "source_location": "L184",
       "id": "utils_employeevalidationhelper_sectionerrors",
       "community": 6,
       "norm_label": "sectionerrors"
@@ -10595,7 +10631,7 @@
       "label": "PersonalDetailsData",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L182",
+      "source_location": "L189",
       "id": "utils_employeevalidationhelper_personaldetailsdata",
       "community": 6,
       "norm_label": "personaldetailsdata"
@@ -10604,7 +10640,7 @@
       "label": "EmploymentDetailsData",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L200",
+      "source_location": "L210",
       "id": "utils_employeevalidationhelper_employmentdetailsdata",
       "community": 6,
       "norm_label": "employmentdetailsdata"
@@ -10613,7 +10649,7 @@
       "label": "AddressData",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L214",
+      "source_location": "L224",
       "id": "utils_employeevalidationhelper_addressdata",
       "community": 6,
       "norm_label": "addressdata"
@@ -10622,7 +10658,7 @@
       "label": "EducationData",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L223",
+      "source_location": "L233",
       "id": "utils_employeevalidationhelper_educationdata",
       "community": 6,
       "norm_label": "educationdata"
@@ -10631,7 +10667,7 @@
       "label": "ExperienceData",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L232",
+      "source_location": "L242",
       "id": "utils_employeevalidationhelper_experiencedata",
       "community": 6,
       "norm_label": "experiencedata"
@@ -10640,7 +10676,7 @@
       "label": "SkillData",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L239",
+      "source_location": "L249",
       "id": "utils_employeevalidationhelper_skilldata",
       "community": 6,
       "norm_label": "skilldata"
@@ -10649,7 +10685,7 @@
       "label": "LanguageData",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L244",
+      "source_location": "L254",
       "id": "utils_employeevalidationhelper_languagedata",
       "community": 6,
       "norm_label": "languagedata"
@@ -10658,7 +10694,7 @@
       "label": "DocumentData",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L249",
+      "source_location": "L259",
       "id": "utils_employeevalidationhelper_documentdata",
       "community": 6,
       "norm_label": "documentdata"
@@ -10667,7 +10703,7 @@
       "label": "BankData",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L254",
+      "source_location": "L264",
       "id": "utils_employeevalidationhelper_bankdata",
       "community": 6,
       "norm_label": "bankdata"
@@ -10676,7 +10712,7 @@
       "label": "validatePersonal()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L268",
+      "source_location": "L278",
       "id": "utils_employeevalidationhelper_validatepersonal",
       "community": 6,
       "norm_label": "validatepersonal()"
@@ -10685,7 +10721,7 @@
       "label": "validateEmployment()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L294",
+      "source_location": "L305",
       "id": "utils_employeevalidationhelper_validateemployment",
       "community": 6,
       "norm_label": "validateemployment()"
@@ -10694,7 +10730,7 @@
       "label": "validateAddresses()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L311",
+      "source_location": "L322",
       "id": "utils_employeevalidationhelper_validateaddresses",
       "community": 6,
       "norm_label": "validateaddresses()"
@@ -10703,7 +10739,7 @@
       "label": "validateEducations()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L330",
+      "source_location": "L341",
       "id": "utils_employeevalidationhelper_validateeducations",
       "community": 6,
       "norm_label": "validateeducations()"
@@ -10712,7 +10748,7 @@
       "label": "validateExperiences()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L345",
+      "source_location": "L356",
       "id": "utils_employeevalidationhelper_validateexperiences",
       "community": 6,
       "norm_label": "validateexperiences()"
@@ -10721,7 +10757,7 @@
       "label": "validateSkills()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L359",
+      "source_location": "L370",
       "id": "utils_employeevalidationhelper_validateskills",
       "community": 6,
       "norm_label": "validateskills()"
@@ -10730,7 +10766,7 @@
       "label": "validateLanguages()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L371",
+      "source_location": "L382",
       "id": "utils_employeevalidationhelper_validatelanguages",
       "community": 6,
       "norm_label": "validatelanguages()"
@@ -10739,7 +10775,7 @@
       "label": "validateDocuments()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L383",
+      "source_location": "L394",
       "id": "utils_employeevalidationhelper_validatedocuments",
       "community": 6,
       "norm_label": "validatedocuments()"
@@ -10748,7 +10784,7 @@
       "label": "validateBankDetails()",
       "file_type": "code",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
-      "source_location": "L394",
+      "source_location": "L405",
       "id": "utils_employeevalidationhelper_validatebankdetails",
       "community": 6,
       "norm_label": "validatebankdetails()"
@@ -10777,7 +10813,7 @@
       "source_file": "src/lib/utils/payroll.ts",
       "source_location": "L1",
       "id": "utils_payroll",
-      "community": 27,
+      "community": 44,
       "norm_label": "payroll.ts"
     },
     {
@@ -10786,7 +10822,7 @@
       "source_file": "src/lib/utils/payroll.ts",
       "source_location": "L5",
       "id": "utils_payroll_deduction_keywords",
-      "community": 27,
+      "community": 44,
       "norm_label": "deduction_keywords"
     },
     {
@@ -10795,7 +10831,7 @@
       "source_file": "src/lib/utils/payroll.ts",
       "source_location": "L14",
       "id": "utils_payroll_isdeductioncomponent",
-      "community": 27,
+      "community": 44,
       "norm_label": "isdeductioncomponent()"
     },
     {
@@ -10804,7 +10840,7 @@
       "source_file": "src/lib/utils/payroll.ts",
       "source_location": "L25",
       "id": "utils_payroll_ismeaningful",
-      "community": 27,
+      "community": 44,
       "norm_label": "ismeaningful()"
     },
     {
@@ -10813,7 +10849,7 @@
       "source_file": "src/lib/utils/payroll.ts",
       "source_location": "L34",
       "id": "utils_payroll_ones",
-      "community": 27,
+      "community": 44,
       "norm_label": "ones"
     },
     {
@@ -10822,7 +10858,7 @@
       "source_file": "src/lib/utils/payroll.ts",
       "source_location": "L37",
       "id": "utils_payroll_tens",
-      "community": 27,
+      "community": 44,
       "norm_label": "tens"
     },
     {
@@ -10831,7 +10867,7 @@
       "source_file": "src/lib/utils/payroll.ts",
       "source_location": "L39",
       "id": "utils_payroll_twodigitwords",
-      "community": 27,
+      "community": 44,
       "norm_label": "twodigitwords()"
     },
     {
@@ -10840,7 +10876,7 @@
       "source_file": "src/lib/utils/payroll.ts",
       "source_location": "L44",
       "id": "utils_payroll_numbertowords",
-      "community": 27,
+      "community": 44,
       "norm_label": "numbertowords()"
     },
     {
@@ -10849,7 +10885,7 @@
       "source_file": "src/lib/utils/payroll.ts",
       "source_location": "L64",
       "id": "utils_payroll_getearningsanddeductions",
-      "community": 27,
+      "community": 44,
       "norm_label": "getearningsanddeductions()"
     },
     {
@@ -11020,7 +11056,7 @@
       "source_file": "$app/paths",
       "confidence": "EXTRACTED",
       "id": "paths",
-      "community": 76,
+      "community": 9,
       "norm_label": "$app/paths"
     },
     {
@@ -11218,7 +11254,7 @@
       "source_file": "src/routes/api/attendance-records/+server.ts",
       "source_location": "L46",
       "id": "attendance_records_server_post",
-      "community": 23,
+      "community": 26,
       "norm_label": "post()"
     },
     {
@@ -11227,7 +11263,7 @@
       "source_file": "src/routes/api/attendance-records/[cuid]/+server.ts",
       "source_location": "L1",
       "id": "src_routes_api_attendance_records_cuid_server_ts_cuid_server",
-      "community": 26,
+      "community": 23,
       "norm_label": "+server.ts"
     },
     {
@@ -11236,7 +11272,7 @@
       "source_file": "src/routes/api/attendance-records/[cuid]/+server.ts",
       "source_location": "L18",
       "id": "src_routes_api_attendance_records_cuid_server_ts_cuid_server_get",
-      "community": 26,
+      "community": 23,
       "norm_label": "get()"
     },
     {
@@ -11254,7 +11290,7 @@
       "source_file": "src/routes/api/attendance-records/[cuid]/+server.ts",
       "source_location": "L103",
       "id": "src_routes_api_attendance_records_cuid_server_ts_cuid_server_delete",
-      "community": 26,
+      "community": 23,
       "norm_label": "delete()"
     },
     {
@@ -11263,7 +11299,7 @@
       "source_file": "src/routes/api/attendance/[cuid]/+server.ts",
       "source_location": "L1",
       "id": "src_routes_api_attendance_cuid_server_ts_cuid_server",
-      "community": 26,
+      "community": 35,
       "norm_label": "+server.ts"
     },
     {
@@ -11272,7 +11308,7 @@
       "source_file": "src/routes/api/attendance/[cuid]/+server.ts",
       "source_location": "L6",
       "id": "src_routes_api_attendance_cuid_server_ts_cuid_server_get",
-      "community": 26,
+      "community": 35,
       "norm_label": "get()"
     },
     {
@@ -11281,7 +11317,7 @@
       "source_file": "src/routes/api/attendance/check-in/+server.ts",
       "source_location": "L1",
       "id": "check_in_server",
-      "community": 35,
+      "community": 26,
       "norm_label": "+server.ts"
     },
     {
@@ -11290,7 +11326,7 @@
       "source_file": "src/routes/api/attendance/check-in/+server.ts",
       "source_location": "L10",
       "id": "check_in_server_post",
-      "community": 35,
+      "community": 26,
       "norm_label": "post()"
     },
     {
@@ -11299,7 +11335,7 @@
       "source_file": "src/routes/api/attendance/check-out/+server.ts",
       "source_location": "L1",
       "id": "check_out_server",
-      "community": 35,
+      "community": 26,
       "norm_label": "+server.ts"
     },
     {
@@ -11308,7 +11344,7 @@
       "source_file": "src/routes/api/attendance/check-out/+server.ts",
       "source_location": "L10",
       "id": "check_out_server_put",
-      "community": 35,
+      "community": 26,
       "norm_label": "put()"
     },
     {
@@ -11812,7 +11848,7 @@
       "source_file": "src/routes/api/holidays/+server.ts",
       "source_location": "L28",
       "id": "holidays_server_post",
-      "community": 19,
+      "community": 26,
       "norm_label": "post()"
     },
     {
@@ -11857,7 +11893,7 @@
       "source_file": "src/routes/api/leave/policies/+server.ts",
       "source_location": "L1",
       "id": "policies_server",
-      "community": 22,
+      "community": 26,
       "norm_label": "+server.ts"
     },
     {
@@ -11866,7 +11902,7 @@
       "source_file": "src/routes/api/leave/policies/+server.ts",
       "source_location": "L16",
       "id": "policies_server_get",
-      "community": 22,
+      "community": 26,
       "norm_label": "get()"
     },
     {
@@ -11875,7 +11911,7 @@
       "source_file": "src/routes/api/leave/policies/+server.ts",
       "source_location": "L27",
       "id": "policies_server_post",
-      "community": 35,
+      "community": 26,
       "norm_label": "post()"
     },
     {
@@ -11884,7 +11920,7 @@
       "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
       "source_location": "L1",
       "id": "src_routes_api_leave_policies_cuid_server_ts_cuid_server",
-      "community": 26,
+      "community": 37,
       "norm_label": "+server.ts"
     },
     {
@@ -11893,7 +11929,7 @@
       "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
       "source_location": "L17",
       "id": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_get",
-      "community": 26,
+      "community": 37,
       "norm_label": "get()"
     },
     {
@@ -11911,7 +11947,7 @@
       "source_file": "src/routes/api/leave/policies/[cuid]/+server.ts",
       "source_location": "L155",
       "id": "src_routes_api_leave_policies_cuid_server_ts_cuid_server_delete",
-      "community": 26,
+      "community": 37,
       "norm_label": "delete()"
     },
     {
@@ -11938,7 +11974,7 @@
       "source_file": "src/routes/api/leave/types/+server.ts",
       "source_location": "L28",
       "id": "types_server_post",
-      "community": 22,
+      "community": 26,
       "norm_label": "post()"
     },
     {
@@ -11947,7 +11983,7 @@
       "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
       "source_location": "L1",
       "id": "src_routes_api_leave_types_cuid_server_ts_cuid_server",
-      "community": 26,
+      "community": 22,
       "norm_label": "+server.ts"
     },
     {
@@ -11956,7 +11992,7 @@
       "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
       "source_location": "L18",
       "id": "src_routes_api_leave_types_cuid_server_ts_cuid_server_get",
-      "community": 26,
+      "community": 22,
       "norm_label": "get()"
     },
     {
@@ -11974,7 +12010,7 @@
       "source_file": "src/routes/api/leave/types/[cuid]/+server.ts",
       "source_location": "L97",
       "id": "src_routes_api_leave_types_cuid_server_ts_cuid_server_delete",
-      "community": 26,
+      "community": 22,
       "norm_label": "delete()"
     },
     {
@@ -12064,7 +12100,7 @@
       "source_file": "src/routes/api/organization_location/+server.ts",
       "source_location": "L1",
       "id": "organization_location_server",
-      "community": 61,
+      "community": 1,
       "norm_label": "+server.ts"
     },
     {
@@ -12073,7 +12109,7 @@
       "source_file": "src/routes/api/organization_location/+server.ts",
       "source_location": "L11",
       "id": "organization_location_server_get",
-      "community": 61,
+      "community": 1,
       "norm_label": "get()"
     },
     {
@@ -12082,7 +12118,7 @@
       "source_file": "src/routes/api/organization_location/+server.ts",
       "source_location": "L30",
       "id": "organization_location_server_post",
-      "community": 61,
+      "community": 1,
       "norm_label": "post()"
     },
     {
@@ -12406,7 +12442,7 @@
       "source_file": "src/routes/api/roles/+server.ts",
       "source_location": "L1",
       "id": "roles_server",
-      "community": 61,
+      "community": 1,
       "norm_label": "+server.ts"
     },
     {
@@ -12415,7 +12451,7 @@
       "source_file": "src/routes/api/roles/+server.ts",
       "source_location": "L11",
       "id": "roles_server_get",
-      "community": 61,
+      "community": 1,
       "norm_label": "get()"
     },
     {
@@ -12424,7 +12460,7 @@
       "source_file": "src/routes/api/roles/+server.ts",
       "source_location": "L30",
       "id": "roles_server_post",
-      "community": 61,
+      "community": 1,
       "norm_label": "post()"
     },
     {
@@ -12640,7 +12676,7 @@
       "source_file": "src/routes/api/shifts/+server.ts",
       "source_location": "L1",
       "id": "shifts_server",
-      "community": 61,
+      "community": 1,
       "norm_label": "+server.ts"
     },
     {
@@ -12649,7 +12685,7 @@
       "source_file": "src/routes/api/shifts/+server.ts",
       "source_location": "L11",
       "id": "shifts_server_get",
-      "community": 61,
+      "community": 1,
       "norm_label": "get()"
     },
     {
@@ -12658,7 +12694,7 @@
       "source_file": "src/routes/api/shifts/+server.ts",
       "source_location": "L30",
       "id": "shifts_server_post",
-      "community": 61,
+      "community": 1,
       "norm_label": "post()"
     },
     {
@@ -12811,7 +12847,7 @@
       "source_file": "src/routes/attendance-records/+page.svelte",
       "source_location": "L1",
       "id": "src_routes_attendance_records_page_svelte_attendance_records_page",
-      "community": 9,
+      "community": 76,
       "norm_label": "+page.svelte"
     },
     {
@@ -12820,7 +12856,7 @@
       "source_file": "src/routes/attendance-records/+page.svelte",
       "source_location": "L601",
       "id": "attendance_records_page_if",
-      "community": 9,
+      "community": 76,
       "norm_label": "if()"
     },
     {
@@ -12901,7 +12937,7 @@
       "source_file": "src/routes/attendance/+page.svelte",
       "source_location": "L1",
       "id": "src_routes_attendance_page_svelte_attendance_page",
-      "community": 9,
+      "community": 126,
       "norm_label": "+page.svelte"
     },
     {
@@ -12910,7 +12946,7 @@
       "source_file": "src/routes/attendance/+page.svelte",
       "source_location": "L441",
       "id": "attendance_page_if",
-      "community": 9,
+      "community": 126,
       "norm_label": "if()"
     },
     {
@@ -12919,7 +12955,7 @@
       "source_file": "@lucide/svelte/icons/alert-circle",
       "confidence": "EXTRACTED",
       "id": "alert_circle",
-      "community": 9,
+      "community": 126,
       "norm_label": "@lucide/svelte/icons/alert-circle"
     },
     {
@@ -12928,7 +12964,7 @@
       "source_file": "@lucide/svelte/icons/check-circle-2",
       "confidence": "EXTRACTED",
       "id": "check_circle_2",
-      "community": 9,
+      "community": 126,
       "norm_label": "@lucide/svelte/icons/check-circle-2"
     },
     {
@@ -12937,7 +12973,7 @@
       "source_file": "src/lib/geofence.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_geofence_js",
-      "community": 9,
+      "community": 126,
       "norm_label": "$lib/geofence.js"
     },
     {
@@ -13036,7 +13072,7 @@
       "source_file": "src/routes/dashboard/[cuid=cuid]/+page.server.ts",
       "source_location": "L1",
       "id": "cuid_cuid_page_server",
-      "community": 66,
+      "community": 86,
       "norm_label": "+page.server.ts"
     },
     {
@@ -13045,7 +13081,7 @@
       "source_file": "src/routes/dashboard/[cuid=cuid]/+page.server.ts",
       "source_location": "L4",
       "id": "cuid_cuid_page_server_load",
-      "community": 66,
+      "community": 86,
       "norm_label": "load()"
     },
     {
@@ -13261,7 +13297,7 @@
       "source_file": "src/routes/employees/+page.svelte",
       "source_location": "L1",
       "id": "employees_page",
-      "community": 120,
+      "community": 9,
       "norm_label": "+page.svelte"
     },
     {
@@ -13270,7 +13306,7 @@
       "source_file": "src/routes/employees/+page.svelte",
       "source_location": "L91",
       "id": "employees_page_handlesort",
-      "community": 120,
+      "community": 9,
       "norm_label": "handlesort()"
     },
     {
@@ -13279,7 +13315,7 @@
       "source_file": "src/routes/employees/+page.svelte",
       "source_location": "L102",
       "id": "employees_page_isinteractive",
-      "community": 120,
+      "community": 9,
       "norm_label": "isinteractive()"
     },
     {
@@ -13288,7 +13324,7 @@
       "source_file": "src/routes/employees/+page.svelte",
       "source_location": "L122",
       "id": "employees_page_handlerowclick",
-      "community": 120,
+      "community": 9,
       "norm_label": "handlerowclick()"
     },
     {
@@ -13369,7 +13405,7 @@
       "source_file": "src/routes/holidays/+page.svelte",
       "source_location": "L1",
       "id": "src_routes_holidays_page_svelte_holidays_page",
-      "community": 9,
+      "community": 80,
       "norm_label": "+page.svelte"
     },
     {
@@ -13378,7 +13414,7 @@
       "source_file": "src/routes/holidays/+page.svelte",
       "source_location": "L122",
       "id": "holidays_page_if",
-      "community": 9,
+      "community": 80,
       "norm_label": "if()"
     },
     {
@@ -13387,7 +13423,7 @@
       "source_file": "src/lib/components/ui",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_components_ui",
-      "community": 9,
+      "community": 80,
       "norm_label": "$lib/components/ui"
     },
     {
@@ -13432,7 +13468,7 @@
       "source_file": "src/routes/leave-policies/+page.svelte",
       "source_location": "L1",
       "id": "src_routes_leave_policies_page_svelte_leave_policies_page",
-      "community": 9,
+      "community": 80,
       "norm_label": "+page.svelte"
     },
     {
@@ -13441,7 +13477,7 @@
       "source_file": "src/lib/validators/employment-type.js",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_validators_employment_type_js",
-      "community": 9,
+      "community": 80,
       "norm_label": "$lib/validators/employment-type.js"
     },
     {
@@ -13450,7 +13486,7 @@
       "source_file": "src/routes/leave-policies/$types.ts",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_routes_leave_policies_types_ts",
-      "community": 9,
+      "community": 80,
       "norm_label": "./$types.js"
     },
     {
@@ -13838,7 +13874,7 @@
       "source_file": "src/routes/organization_locations/+page.svelte",
       "source_location": "L1",
       "id": "organization_locations_page",
-      "community": 4,
+      "community": 76,
       "norm_label": "+page.svelte"
     },
     {
@@ -13847,7 +13883,7 @@
       "source_file": "src/routes/organization_locations/+page.svelte",
       "source_location": "L198",
       "id": "organization_locations_page_if",
-      "community": 4,
+      "community": 76,
       "norm_label": "if()"
     },
     {
@@ -13856,7 +13892,7 @@
       "source_file": "src/routes/payroll-records/[cuid]/+page.svelte",
       "source_location": "L1",
       "id": "src_routes_payroll_records_cuid_page_svelte_cuid_page",
-      "community": 7,
+      "community": 9,
       "norm_label": "+page.svelte"
     },
     {
@@ -13883,7 +13919,7 @@
       "source_file": "src/routes/payroll-records/[cuid]/payslip/+page.svelte",
       "source_location": "L1",
       "id": "src_routes_payroll_records_cuid_payslip_page_svelte_payslip_page",
-      "community": 76,
+      "community": 9,
       "norm_label": "+page.svelte"
     },
     {
@@ -13892,7 +13928,7 @@
       "source_file": "src/routes/payroll-records/[cuid]/payslip/+page.svelte",
       "source_location": "L458",
       "id": "payslip_page_each",
-      "community": 76,
+      "community": 9,
       "norm_label": "#each()"
     },
     {
@@ -13910,7 +13946,7 @@
       "source_file": "src/lib/toast.svelte",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_toast_svelte",
-      "community": 76,
+      "community": 9,
       "norm_label": "$lib/toast.svelte"
     },
     {
@@ -14108,7 +14144,7 @@
       "source_file": "src/lib/types/payroll",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_types_payroll",
-      "community": 24,
+      "community": 9,
       "norm_label": "$lib/types/payroll"
     },
     {
@@ -14162,7 +14198,7 @@
       "source_file": "src/routes/permissions/+page.svelte",
       "source_location": "L1",
       "id": "permissions_page",
-      "community": 4,
+      "community": 7,
       "norm_label": "+page.svelte"
     },
     {
@@ -14171,7 +14207,7 @@
       "source_file": "src/routes/role-permissions/+page.svelte",
       "source_location": "L1",
       "id": "role_permissions_page",
-      "community": 4,
+      "community": 76,
       "norm_label": "+page.svelte"
     },
     {
@@ -14270,7 +14306,7 @@
       "source_file": "src/routes/salary-components/+page.svelte",
       "source_location": "L1",
       "id": "salary_components_page",
-      "community": 9,
+      "community": 76,
       "norm_label": "+page.svelte"
     },
     {
@@ -14279,7 +14315,7 @@
       "source_file": "src/lib/types/salary-component",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_types_salary_component",
-      "community": 9,
+      "community": 76,
       "norm_label": "$lib/types/salary-component"
     },
     {
@@ -14288,7 +14324,7 @@
       "source_file": "src/lib/validators/salary-component",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_validators_salary_component",
-      "community": 9,
+      "community": 76,
       "norm_label": "$lib/validators/salary-component"
     },
     {
@@ -14387,7 +14423,7 @@
       "source_file": "src/routes/salary-structures/[cuid]/+page.ts",
       "source_location": "L5",
       "id": "src_routes_salary_structures_cuid_page_ts_cuid_page_load",
-      "community": 66,
+      "community": 41,
       "norm_label": "load()"
     },
     {
@@ -14405,7 +14441,7 @@
       "source_file": "src/routes/shifts/+page.svelte",
       "source_location": "L1",
       "id": "shifts_page",
-      "community": 4,
+      "community": 9,
       "norm_label": "+page.svelte"
     },
     {
@@ -14414,7 +14450,7 @@
       "source_file": "src/lib/types/shift",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_types_shift",
-      "community": 4,
+      "community": 9,
       "norm_label": "$lib/types/shift"
     },
     {
@@ -14423,7 +14459,7 @@
       "source_file": "src/lib/api/shifts",
       "confidence": "EXTRACTED",
       "id": "c_users_user_abiney_workspace_pieq_svelte_app_template_src_lib_api_shifts",
-      "community": 4,
+      "community": 9,
       "norm_label": "$lib/api/shifts"
     },
     {
@@ -14432,7 +14468,7 @@
       "source_file": "src/routes/system-roles/+page.svelte",
       "source_location": "L1",
       "id": "system_roles_page",
-      "community": 4,
+      "community": 7,
       "norm_label": "+page.svelte"
     },
     {
@@ -14585,7 +14621,7 @@
       "source_file": "tests/unit/attendance.api.test.ts",
       "source_location": "L1",
       "id": "unit_attendance_api_test",
-      "community": 35,
+      "community": 26,
       "norm_label": "attendance.api.test.ts"
     },
     {
@@ -14594,7 +14630,7 @@
       "source_file": "tests/unit/attendance.api.test.ts",
       "source_location": "L11",
       "id": "unit_attendance_api_test_constructor",
-      "community": 35,
+      "community": 26,
       "norm_label": "constructor()"
     },
     {
@@ -14819,7 +14855,7 @@
       "source_file": "tests/unit/leave-policy.service.test.ts",
       "source_location": "L1",
       "id": "unit_leave_policy_service_test",
-      "community": 22,
+      "community": 37,
       "norm_label": "leave-policy.service.test.ts"
     },
     {
@@ -14828,7 +14864,7 @@
       "source_file": "tests/unit/leave-policy.service.test.ts",
       "source_location": "L35",
       "id": "unit_leave_policy_service_test_auditfields",
-      "community": 22,
+      "community": 37,
       "norm_label": "auditfields"
     },
     {
@@ -14882,7 +14918,7 @@
       "source_file": "tests/unit/locations_filter.test.ts",
       "source_location": "L1",
       "id": "unit_locations_filter_test",
-      "community": 65,
+      "community": 5,
       "norm_label": "locations_filter.test.ts"
     },
     {
@@ -14891,7 +14927,7 @@
       "source_file": "tests/unit/locations_filter.test.ts",
       "source_location": "L5",
       "id": "unit_locations_filter_test_runlocationfilters",
-      "community": 65,
+      "community": 5,
       "norm_label": "runlocationfilters()"
     },
     {
@@ -14900,7 +14936,7 @@
       "source_file": "tests/unit/locations_filter.test.ts",
       "source_location": "L60",
       "id": "unit_locations_filter_test_runlocationsorting",
-      "community": 65,
+      "community": 5,
       "norm_label": "runlocationsorting()"
     },
     {
@@ -14945,7 +14981,7 @@
       "source_file": "tests/unit/payroll.service.test.ts",
       "source_location": "L1",
       "id": "unit_payroll_service_test",
-      "community": 37,
+      "community": 27,
       "norm_label": "payroll.service.test.ts"
     },
     {
@@ -14954,7 +14990,7 @@
       "source_file": "tests/unit/payroll.service.test.ts",
       "source_location": "L87",
       "id": "unit_payroll_service_test_mockemployee",
-      "community": 37,
+      "community": 27,
       "norm_label": "mockemployee()"
     },
     {
@@ -14963,7 +14999,7 @@
       "source_file": "tests/unit/payroll.service.test.ts",
       "source_location": "L91",
       "id": "unit_payroll_service_test_mockpayrollrecord",
-      "community": 37,
+      "community": 27,
       "norm_label": "mockpayrollrecord()"
     },
     {
@@ -14972,7 +15008,7 @@
       "source_file": "tests/unit/payroll.service.test.ts",
       "source_location": "L114",
       "id": "unit_payroll_service_test_mockuploadrecord",
-      "community": 37,
+      "community": 27,
       "norm_label": "mockuploadrecord()"
     },
     {
@@ -14981,7 +15017,7 @@
       "source_file": "tests/unit/payroll.service.test.ts",
       "source_location": "L131",
       "id": "unit_payroll_service_test_mockparsedrow",
-      "community": 37,
+      "community": 27,
       "norm_label": "mockparsedrow()"
     },
     {
@@ -14990,7 +15026,7 @@
       "source_file": "tests/unit/payroll.utils.test.ts",
       "source_location": "L1",
       "id": "unit_payroll_utils_test",
-      "community": 27,
+      "community": 44,
       "norm_label": "payroll.utils.test.ts"
     },
     {
@@ -15035,7 +15071,7 @@
       "source_file": "tests/unit/permission.service.test.ts",
       "source_location": "L1",
       "id": "unit_permission_service_test",
-      "community": 51,
+      "community": 78,
       "norm_label": "permission.service.test.ts"
     },
     {
@@ -15179,7 +15215,7 @@
       "source_file": "tests/unit/system-role.service.test.ts",
       "source_location": "L1",
       "id": "unit_system_role_service_test",
-      "community": 96,
+      "community": 75,
       "norm_label": "system-role.service.test.ts"
     },
     {
@@ -15188,7 +15224,7 @@
       "source_file": "tests/unit/validation.test.ts",
       "source_location": "L1",
       "id": "unit_validation_test",
-      "community": 8,
+      "community": 5,
       "norm_label": "validation.test.ts"
     },
     {
@@ -21823,6 +21859,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/components/employee/steps/StepEmployment.svelte",
+      "source_location": "L372",
+      "weight": 1.0,
+      "source": "steps_stepemployment",
+      "target": "steps_stepemployment_async",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/components/employee/steps/StepEmployment.svelte",
       "source_location": "L73",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -26024,6 +26070,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/server/dao/employee.dao.ts",
+      "source_location": "L88",
+      "weight": 1.0,
+      "source": "dao_employee_dao",
+      "target": "dao_employee_dao_findbypfaccountno",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/employee.dao.ts",
       "source_location": "L51",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -26310,6 +26366,16 @@
       "confidence_score": 1.0,
       "source": "dao_employment_dao",
       "target": "dao_employment_dao_findbyemployeecuid"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/server/dao/employment.dao.ts",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "dao_employment_dao",
+      "target": "dao_employment_dao_findbyofficialemail",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -45473,6 +45539,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/utils/employeeValidationHelper.ts",
+      "source_location": "L59",
+      "weight": 1.0,
+      "source": "utils_employeevalidationhelper",
+      "target": "utils_employeevalidationhelper_validatepfaccountrule",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/utils/employeeValidationHelper.ts",
       "source_location": "L106",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -45585,6 +45661,17 @@
       "confidence_score": 1.0,
       "source": "utils_employeevalidationhelper_validatepersonal",
       "target": "utils_employeevalidationhelper_validateemail"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/utils/employeeValidationHelper.ts",
+      "source_location": "L287",
+      "weight": 1.0,
+      "source": "utils_employeevalidationhelper_validatepersonal",
+      "target": "utils_employeevalidationhelper_validatepfaccountrule",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -51869,5 +51956,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "a11d9314c3e04d88f62fcb4fa6015bf61469f4c9"
+  "built_at_commit": "2591bba12c93b0dd5332f6fadbec3af9c2d29239"
 }

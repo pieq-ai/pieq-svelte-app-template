@@ -481,7 +481,8 @@ describe('Payroll Service', () => {
 				last_name: 'Doe',
 				pan_no: 'PAN12345',
 				uan_no: 'UAN12345',
-				esi_no: 'ESI12345'
+				esi_no: 'ESI12345',
+				pf_account_no: 'PF00012345'
 			} as any);
 			vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
 				designation_cuid: 'des_001',
@@ -515,7 +516,7 @@ describe('Payroll Service', () => {
 				bank_name: 'Mock Bank',
 				bank_account_number: '1234567890',
 				pan: 'PAN12345',
-				pf_account_number: '1234567890',
+				pf_account_number: 'PF00012345',
 				uan: 'UAN12345',
 				paid_days: null
 			});
@@ -539,7 +540,8 @@ describe('Payroll Service', () => {
 				last_name: 'Doe',
 				pan_no: 'PAN12345',
 				uan_no: 'UAN12345',
-				esi_no: 'ESI12345'
+				esi_no: 'ESI12345',
+				pf_account_no: 'PF00012345'
 			} as any);
 			vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
 				designation_cuid: 'des_001',

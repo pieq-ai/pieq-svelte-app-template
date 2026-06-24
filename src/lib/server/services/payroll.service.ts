@@ -475,7 +475,7 @@ async function fetchEmployeeDetails(
 		bank_name: primaryBank?.bank_name ?? null,
 		bank_account_number: primaryBank?.account_number ?? null,
 		pan: employee.pan_no ?? null,
-		pf_account_number: primaryBank?.account_number ?? null,
+		pf_account_number: employee.pf_account_no ?? null,
 		uan: employee.uan_no ?? null,
 		paid_days: extractPaidDays(breakdown)
 	};
