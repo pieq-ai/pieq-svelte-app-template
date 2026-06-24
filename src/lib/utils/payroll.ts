@@ -13,6 +13,12 @@ const DEDUCTION_KEYWORDS = [
 
 export function isDeductionComponent(name: string): boolean {
 	const lower = name.toLowerCase().trim();
+
+	// "Others" or "Other" as standalone components are always deductions
+	if (lower === 'other' || lower === 'others') {
+		return true;
+	}
+
 	return DEDUCTION_KEYWORDS.some(kw => lower.includes(kw));
 }
 
