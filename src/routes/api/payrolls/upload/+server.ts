@@ -98,7 +98,25 @@ export async function POST({ request }) {
 			}
 		);
 
+		let message = 'Upload processed.';
+		if (result.created === 0 && result.skipped > 0) {
+			const isAllDuplicate = result.errors.length > 0 && result.errors.every(
+				(err) => err.reason && (
+					err.reason.toLowerCase().includes('already exists') ||
+					err.reason.toLowerCase().includes('duplicate')
+				)
+			);
+			message = isAllDuplicate
+				? 'Upload failed due to duplicate upload entries.'
+				: `Upload failed: No records were created. ${result.skipped} row(s) skipped/failed.`;
+		} else if (result.created > 0 && result.skipped > 0) {
+			message = `${result.created} payroll record(s) uploaded successfully. ${result.skipped} row(s) skipped/failed.`;
+		} else {
+			message = `${result.created} payroll record(s) uploaded successfully.`;
+		}
+
 		return json({
+			message,
 			data: {
 				created: result.created,
 				skipped: result.skipped,

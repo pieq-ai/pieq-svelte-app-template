@@ -1,16 +1,16 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-24)
 
 ## Corpus Check
-- 401 files · ~169,400 words
+- 402 files · ~169,119 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1786 nodes · 3497 edges · 123 communities (103 shown, 20 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 77 edges (avg confidence: 0.8)
+- 1797 nodes · 3517 edges · 130 communities (109 shown, 21 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 78 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6a4d13cf`
+- Built from commit: `5fcd3957`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -123,10 +123,14 @@
 - [[_COMMUNITY_Community 109|Community 109]]
 - [[_COMMUNITY_Community 110|Community 110]]
 - [[_COMMUNITY_Community 111|Community 111]]
+- [[_COMMUNITY_Community 121|Community 121]]
 - [[_COMMUNITY_Community 122|Community 122]]
 - [[_COMMUNITY_Community 123|Community 123]]
 - [[_COMMUNITY_Community 124|Community 124]]
 - [[_COMMUNITY_Community 125|Community 125]]
+- [[_COMMUNITY_Community 126|Community 126]]
+- [[_COMMUNITY_Community 127|Community 127]]
+- [[_COMMUNITY_Community 128|Community 128]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `$lib/utils.js` - 49 edges
@@ -155,7 +159,7 @@
 ## Import Cycles
 - 1-file cycle: `src/routes/leave-policies/+page.svelte -> src/routes/leave-policies/+page.svelte`
 
-## Communities (123 total, 20 thin omitted)
+## Communities (130 total, 21 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.15
@@ -166,19 +170,19 @@ Cohesion: 0.06
 Nodes (33): GET(), create(), createAttendanceSource(), MasterCreateInput, MasterUpdateInput, getMasterConfig(), isMasterKey(), MasterConfig (+25 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.11
-Nodes (9): RoleListResponse, Role, RoleCreateDTO, RoleUpdateDTO, rejectUnknownKeys(), sanitizeString(), validateCreatePayload(), validatePaginationParams() (+1 more)
+Cohesion: 0.27
+Nodes (7): RoleCreateDTO, RoleUpdateDTO, rejectUnknownKeys(), sanitizeString(), validateCreatePayload(), validatePaginationParams(), validateUpdatePayload()
 
 ### Community 3 - "Community 3"
 Cohesion: 0.06
 Nodes (23): POST(), SalaryComponentDto, serializeSalaryComponent(), BusinessValidationError, ComponentNotFoundError, DuplicateComponentError, GET(), PUT() (+15 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.09
-Nodes (32): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/api/local, $lib/api/locations, $lib/api/shifts, $lib/confirmation.svelte.js, $lib/constants (+24 more)
+Cohesion: 0.16
+Nodes (13): $lib/api/local, $lib/api/locations, $lib/types/organization_location, $lib/utils, @lucide/svelte/icons/chevron-down, $lib/components/common/SimpleMasterModal.svelte, activeCount, confirmDelete() (+5 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.11
+Cohesion: 0.18
 Nodes (5): CompanyLocationCreateDTO, CompanyLocationUpdateDTO, rejectUnknownKeys(), validateCreatePayload(), validateUpdatePayload()
 
 ### Community 6 - "Community 6"
@@ -186,16 +190,16 @@ Cohesion: 0.06
 Nodes (23): AddressData, BankData, DocumentData, EducationData, EmploymentDetailsData, ExperienceData, LanguageData, PersonalDetailsData (+15 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.13
-Nodes (15): @lucide/svelte/icons/arrow-left, $lib/components, $lib/stores/navigationGuard, $lib/toast.svelte, $lib/utils/employeeValidationHelper, $lib/utils/errors.js, $lib/components/common/AsyncDropdown.svelte, $lib/components/common/ConfirmModal.svelte (+7 more)
+Cohesion: 0.18
+Nodes (10): $lib/stores/navigationGuard, $lib/utils/employeeValidationHelper, $lib/utils/errors.js, $lib/components/common/AsyncDropdown.svelte, $lib/components/employee/EmployeeWizard.svelte, $app/navigation, svelte/reactivity, errors (+2 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.05
-Nodes (33): ApiError, extractErrorMessage(), localApi, localRequest(), ShiftCreatePayload, ShiftListResponse, ShiftUpdatePayload, createShift() (+25 more)
+Cohesion: 0.09
+Nodes (19): ShiftCreatePayload, ShiftListResponse, ShiftUpdatePayload, createShift(), getShiftByCuid(), parseTimeToDate(), updateShift(), activateShift() (+11 more)
 
 ### Community 9 - "Community 9"
-Cohesion: 0.07
-Nodes (27): @lucide/svelte/icons/alert-circle, @lucide/svelte/icons/alert-triangle, $lib/components/index.js, $lib/components/ui, $lib/components/ui/dropdown-menu/index.js, $lib/geofence.js, $lib/server/serializers/salary-component.serializer, $lib/types/payroll (+19 more)
+Cohesion: 0.11
+Nodes (26): @lucide/svelte/icons/alert-circle, @lucide/svelte/icons/alert-triangle, @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/api/shifts, $lib/components/ui, $lib/components/ui/dropdown-menu/index.js (+18 more)
 
 ### Community 10 - "Community 10"
 Cohesion: 0.12
@@ -246,32 +250,32 @@ Cohesion: 0.18
 Nodes (16): GET(), AttendanceMultiValidationError, AttendanceValidationError, capitalize(), createAttendanceRecord(), CreateAttendanceRecordDto, deleteAttendanceRecord(), getAttendanceRecordByCuid() (+8 more)
 
 ### Community 24 - "Community 24"
-Cohesion: 0.10
-Nodes (14): @lucide/svelte/icons/file-spreadsheet, currentYear, dragOver, employeesProcessed, filteredUploads, isUploading, monthOptions, paginatedUploads (+6 more)
+Cohesion: 0.08
+Nodes (18): @lucide/svelte/icons/arrow-left, $lib/toast.svelte, $lib/types/payroll, @lucide/svelte/icons/file-spreadsheet, $app/paths, currentYear, dragOver, employeesProcessed (+10 more)
 
 ### Community 25 - "Community 25"
-Cohesion: 0.15
-Nodes (13): load(), load(), load(), ListPayrollResponse, ListPayrollUploadResponse, Payroll, PayrollDetailResponse, PayrollOrFailure (+5 more)
+Cohesion: 0.11
+Nodes (13): load(), load(), load(), CreatePayrollUploadDto, ListPayrollResponse, ListPayrollUploadResponse, Payroll, PayrollDetailResponse (+5 more)
 
 ### Community 26 - "Community 26"
 Cohesion: 0.25
 Nodes (17): POST(), POST(), PUT(), POST(), GET(), POST(), createSuccessResponse(), errorResponse() (+9 more)
 
 ### Community 27 - "Community 27"
-Cohesion: 0.21
-Nodes (11): serializePayroll(), serializePayrollList(), DuplicatePayrollError, enrichPayrolls(), extractPaidDays(), fetchEmployeeDetails(), getPayrollByCuid(), getPayrolls() (+3 more)
+Cohesion: 0.12
+Nodes (11): UpsertBankDetailInput, serializePayrollList(), DuplicatePayrollError, enrichPayrolls(), extractPaidDays(), fetchEmployeeDetails(), getPayrollByCuid(), getPayrolls() (+3 more)
 
 ### Community 28 - "Community 28"
-Cohesion: 0.09
-Nodes (19): $lib/components/ui/checkbox/index.js, $lib/components/ui/scroll-area/index.js, $lib/master-data/master-config, @lucide/svelte/icons/chevron-up, backendError, displayOptions, errorMessage, getValidationError() (+11 more)
+Cohesion: 0.10
+Nodes (16): $lib/master-data/master-config, backendError, displayOptions, errorMessage, getValidationError(), isDirty, isLoading, isModalOpen (+8 more)
 
 ### Community 29 - "Community 29"
 Cohesion: 0.10
 Nodes (20): Changes, Harden `pieq-svelte-app-template` based on initial review, High-priority fixes (in this PR), Motivation, Out of scope (tracked as follow-ups), `README.md`, Reviewer notes, Risk & rollback (+12 more)
 
 ### Community 30 - "Community 30"
-Cohesion: 0.17
-Nodes (6): CreateDepartmentInput, UpdateDepartmentInput, createClient(), db, getDb(), isValidClient()
+Cohesion: 0.15
+Nodes (4): CreateDepartmentInput, UpdateDepartmentInput, UpsertEducationInput, db
 
 ### Community 31 - "Community 31"
 Cohesion: 0.16
@@ -279,7 +283,7 @@ Nodes (12): load(), auth, createAuth(), appUrlFromEnv, buildIssuer(), clearConfi
 
 ### Community 32 - "Community 32"
 Cohesion: 0.13
-Nodes (8): serializePayrollUploadRecordAsFailureList(), serializePayrollUpload(), serializePayrollUploadList(), getPayrollUploadByCuid(), getPayrollUploadFailures(), getPayrollUploads(), PayrollUploadNotFoundError, PayrollUpload
+Nodes (9): load(), serializePayrollUploadRecordAsFailureList(), serializePayrollUpload(), serializePayrollUploadList(), getPayrollUploadByCuid(), getPayrollUploadFailures(), getPayrollUploads(), PayrollUploadNotFoundError (+1 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.33
@@ -306,8 +310,8 @@ Cohesion: 0.14
 Nodes (3): normalizeSpaces(), validateName(), validateRemarks()
 
 ### Community 39 - "Community 39"
-Cohesion: 0.18
-Nodes (4): CreateRecordInput, PayrollUploadRecord, serializePayrollUploadRecordAsFailure(), getFailureByCuid()
+Cohesion: 0.16
+Nodes (5): CreateRecordInput, PayrollUploadRecord, serializePayrollUploadRecordAsFailure(), getFailureByCuid(), PayrollUploadFailure
 
 ### Community 40 - "Community 40"
 Cohesion: 0.13
@@ -349,10 +353,6 @@ Nodes (9): GET(), getStatus(), POST(), DELETE(), GET(), getStatus(), PUT(), Vali
 Cohesion: 0.15
 Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
 
-### Community 51 - "Community 51"
-Cohesion: 0.12
-Nodes (6): CreatePermissionInput, UpdatePermissionInput, assignPermissionsToRole(), AssignRolePermissionsDto, removePermissionFromRoleByCuid2(), validateCuid2()
-
 ### Community 53 - "Community 53"
 Cohesion: 0.29
 Nodes (5): $lib/components/ui/button/index.js, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/chevron-right, @lucide/svelte/icons/chevrons-left, @lucide/svelte/icons/chevrons-right
@@ -374,8 +374,8 @@ Cohesion: 0.29
 Nodes (9): AttendanceRecordFilters, create(), CreateAttendanceRecordInput, deleteRecord(), findByCuid(), findByEmployeeAndDate(), list(), update() (+1 more)
 
 ### Community 59 - "Community 59"
-Cohesion: 0.18
-Nodes (3): UpsertLanguageInput, languageSchema, UpsertLanguageDto
+Cohesion: 0.16
+Nodes (5): UpsertAddressInput, UpsertLanguageInput, createClient(), getDb(), isValidClient()
 
 ### Community 60 - "Community 60"
 Cohesion: 0.50
@@ -389,13 +389,9 @@ Nodes (8): EmploymentTypeDTO, EmploymentTypeInput, HolidayDTO, HolidayInput, Lea
 Cohesion: 0.26
 Nodes (11): formatLeavePolicy(), createLeavePolicy(), CreateLeavePolicyInput, deleteLeavePolicy(), getLeavePolicyByCuid(), updateLeavePolicy(), UpdateLeavePolicyInput, validateAndMapPolicyInput() (+3 more)
 
-### Community 63 - "Community 63"
-Cohesion: 0.18
-Nodes (3): UpsertBankDetailInput, bankDetailSchema, UpsertBankDetailDto
-
 ### Community 64 - "Community 64"
-Cohesion: 0.18
-Nodes (4): educationSchema, employmentSchema, personalSchema, UpsertEducationDto
+Cohesion: 0.09
+Nodes (7): addressSchema, educationSchema, languageSchema, personalSchema, UpsertAddressDto, UpsertEducationDto, UpsertLanguageDto
 
 ### Community 65 - "Community 65"
 Cohesion: 0.30
@@ -422,8 +418,8 @@ Cohesion: 0.38
 Nodes (9): createDesignation(), CreateDesignationDto, deleteDesignation(), ensureDesignationNameIsUnique(), getDesignationByCuid(), toPublicDesignation(), updateDesignation(), UpdateDesignationDto (+1 more)
 
 ### Community 71 - "Community 71"
-Cohesion: 0.29
-Nodes (7): createEmployee(), CreateEmployeeDto, deleteEmployee(), generateNextEmployeeCode(), toPublicEmployee(), updateEmployee(), UpdateEmployeeDto
+Cohesion: 0.17
+Nodes (10): findByEmployeeCuid(), upsert(), UpsertEmploymentInput, createEmployee(), CreateEmployeeDto, deleteEmployee(), generateNextEmployeeCode(), toPublicEmployee() (+2 more)
 
 ### Community 72 - "Community 72"
 Cohesion: 0.33
@@ -437,9 +433,13 @@ Nodes (6): @lucide/svelte/icons/circle-check, @lucide/svelte/icons/info, @lucide
 Cohesion: 0.39
 Nodes (7): create(), CreateLeavePolicyData, deletePolicy(), findActivePolicyForEmploymentType(), findByCuid(), list(), update()
 
+### Community 75 - "Community 75"
+Cohesion: 0.13
+Nodes (5): CreateRolePermissionInput, assignPermissionsToRole(), AssignRolePermissionsDto, removePermissionFromRoleByCuid2(), validateCuid2()
+
 ### Community 76 - "Community 76"
-Cohesion: 0.20
-Nodes (3): UpsertAddressInput, addressSchema, UpsertAddressDto
+Cohesion: 0.16
+Nodes (6): $lib/server/serializers/salary-component.serializer, $lib/types/salary-structure, $lib/validators/salary-structure, @internationalized/date, @lucide/svelte/icons/plus, @lucide/svelte/icons/trash-2
 
 ### Community 77 - "Community 77"
 Cohesion: 0.39
@@ -448,6 +448,14 @@ Nodes (6): create(), CreateAttendanceInput, findByEmployeeAndDate(), listByEmplo
 ### Community 78 - "Community 78"
 Cohesion: 0.29
 Nodes (11): createPermission(), CreatePermissionDto, deletePermission(), ensurePermissionKeyIsUnique(), getPermissionByCuid2(), getPermissionById(), toPublicPermission(), updatePermission() (+3 more)
+
+### Community 79 - "Community 79"
+Cohesion: 0.17
+Nodes (10): $app/environment, toast, createDirtyChecker(), WithElementRef, WithoutChild, WithoutChildren, WithoutChildrenOrChild, globalIsDirty (+2 more)
+
+### Community 80 - "Community 80"
+Cohesion: 0.13
+Nodes (12): $lib/components, $lib/components/index.js, $lib/components/ui/checkbox/index.js, $lib/components/ui/scroll-area/index.js, $lib/permissions/mock-permissions, @lucide/svelte/icons/check, @lucide/svelte/icons/chevron-up, $lib/components/common/ConfirmModal.svelte (+4 more)
 
 ### Community 81 - "Community 81"
 Cohesion: 0.29
@@ -462,12 +470,12 @@ Cohesion: 0.33
 Nodes (5): compilerOptions, types, exclude, extends, include
 
 ### Community 85 - "Community 85"
-Cohesion: 0.40
-Nodes (3): findByEmployeeCuid(), upsert(), UpsertEmploymentInput
+Cohesion: 0.19
+Nodes (6): ApiError, extractErrorMessage(), localApi, localRequest(), RoleListResponse, Role
 
 ### Community 86 - "Community 86"
-Cohesion: 0.16
-Nodes (17): ./$types, ./$types, load(), load(), load(), getDepartments(), getDesignations(), getEmployeeByCuid2() (+9 more)
+Cohesion: 0.15
+Nodes (18): ./$types, ./$types, load(), load(), load(), employmentSchema, getDepartments(), getDesignations() (+10 more)
 
 ### Community 87 - "Community 87"
 Cohesion: 0.33
@@ -501,6 +509,10 @@ Nodes (5): `Cannot read properties of undefined (reading 'create')` or `'findMan
 Cohesion: 0.40
 Nodes (5): Database (Prisma), `yarn db:generate`, `yarn db:migrate`, `yarn db:push`, `yarn db:studio`
 
+### Community 96 - "Community 96"
+Cohesion: 0.24
+Nodes (8): serializePayroll(), PayrollEmployeeDetails, DEDUCTION_KEYWORDS, getEarningsAndDeductions(), numberToWords(), ONES, TENS, twoDigitWords()
+
 ### Community 98 - "Community 98"
 Cohesion: 0.83
 Nodes (3): getMaster(), getStatus(), PUT()
@@ -512,6 +524,10 @@ Nodes (11): createSystemRole(), CreateSystemRoleDto, deleteSystemRole(), ensureR
 ### Community 107 - "Community 107"
 Cohesion: 0.67
 Nodes (3): API reference — Employees, GET — list employees, POST — create employee
+
+### Community 121 - "Community 121"
+Cohesion: 0.22
+Nodes (6): activeCount, confirmDelete(), inactiveCount, loadDepartments(), paginatedDepartments, totalCount
 
 ### Community 122 - "Community 122"
 Cohesion: 0.20
@@ -526,24 +542,24 @@ Cohesion: 0.33
 Nodes (7): EmployeeOption, findEmployeeByCode(), getAll(), MOCK_EMPLOYEES, MockEmployee, toOption(), GET()
 
 ## Knowledge Gaps
-- **406 isolated node(s):** `css.lint.unknownAtRules`, `$schema`, `css`, `baseColor`, `components` (+401 more)
+- **409 isolated node(s):** `css.lint.unknownAtRules`, `$schema`, `css`, `baseColor`, `components` (+404 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **20 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **21 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `db` connect `Community 30` to `Community 1`, `Community 2`, `Community 3`, `Community 5`, `Community 8`, `Community 27`, `Community 33`, `Community 36`, `Community 39`, `Community 42`, `Community 43`, `Community 47`, `Community 51`, `Community 52`, `Community 55`, `Community 56`, `Community 57`, `Community 59`, `Community 63`, `Community 74`, `Community 75`, `Community 76`, `Community 77`, `Community 79`, `Community 85`, `Community 96`, `Community 122`, `Community 123`, `Community 124`?**
-  _High betweenness centrality (0.059) - this node is a cross-community bridge._
-- **Why does `$lib/utils.js` connect `Community 16` to `Community 0`, `Community 9`, `Community 11`, `Community 45`, `Community 53`, `Community 58`?**
+- **Why does `db` connect `Community 30` to `Community 1`, `Community 3`, `Community 5`, `Community 8`, `Community 25`, `Community 27`, `Community 33`, `Community 36`, `Community 39`, `Community 42`, `Community 43`, `Community 47`, `Community 51`, `Community 52`, `Community 55`, `Community 56`, `Community 57`, `Community 59`, `Community 71`, `Community 74`, `Community 75`, `Community 77`, `Community 103`, `Community 120`, `Community 122`, `Community 123`, `Community 124`?**
+  _High betweenness centrality (0.061) - this node is a cross-community bridge._
+- **Why does `$lib/utils.js` connect `Community 16` to `Community 0`, `Community 128`, `Community 129`, `Community 9`, `Community 11`, `Community 76`, `Community 45`, `Community 53`, `Community 58`?**
   _High betweenness centrality (0.055) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `Community 13` to `Community 73`, `Community 92`?**
   _High betweenness centrality (0.043) - this node is a cross-community bridge._
 - **Are the 13 inferred relationships involving `errorResponse()` (e.g. with `GET()` and `DELETE()`) actually correct?**
   _`errorResponse()` has 13 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `css.lint.unknownAtRules`, `$schema`, `css` to the rest of the system?**
-  _406 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _409 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 1` be split into smaller, more focused modules?**
   _Cohesion score 0.06262626262626263 - nodes in this community are weakly interconnected._
-- **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.1103448275862069 - nodes in this community are weakly interconnected._
+- **Should `Community 3` be split into smaller, more focused modules?**
+  _Cohesion score 0.06108597285067873 - nodes in this community are weakly interconnected._

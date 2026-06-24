@@ -67,6 +67,10 @@ export interface Payroll {
 	uploaded_at: string;
 	/** Employee master details fetched at payslip time (optional — may be absent on list views) */
 	employee_details?: PayrollEmployeeDetails;
+	/** Pre-classified and sorted breakdown structures for payslips */
+	earnings?: [string, number][];
+	deductions?: [string, number][];
+	net_salary_words?: string;
 }
 
 // ─── DTO types ────────────────────────────────────────────────────────────────

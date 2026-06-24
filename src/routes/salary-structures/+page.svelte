@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import type { DateValue } from '@internationalized/date';
 	import { resolve } from '$app/paths';
-	import { onMount } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
@@ -47,19 +46,13 @@
 	import type { SalaryStructure } from '$lib/types/salary-structure';
 	import type { SalaryComponentDto } from '$lib/server/serializers/salary-component.serializer';
 
-	// ─── Data state ──────────────────────────────────────────────────────────────
+	// ─── Data from server (SSR) ──────────────────────────────────────────────────
 
-	interface MockEmployee {
-		cuid: string;
-		employee_id: string;
-		name: string;
-	}
-
-	let structuresList = $state<SalaryStructure[]>([]);
-	let employeesList = $state<MockEmployee[]>([]);
-	let componentsList = $state<SalaryComponentDto[]>([]);
-	let isLoading = $state(true);
-	let loadError = $state('');
+	let { data } = $props();
+	let structuresList = $derived(data.structures ?? []);
+	let employeesList = $derived(data.employees ?? []);
+	let componentsList = $derived(data.components ?? []);
+	let eligibleEmployeesList = $derived(data.eligibleEmployees ?? []);
 
 	// ─── Filter / sort / page state ──────────────────────────────────────────────
 
@@ -163,37 +156,7 @@
 		return employeesList.find((e) => e.cuid === cuid)?.employee_id ?? '';
 	}
 
-	function isStructureActive(s: { status: boolean; effective_from: string; effective_to: string | null }) {
-		const d = new Date();
-		const year = d.getFullYear();
-		const month = String(d.getMonth() + 1).padStart(2, '0');
-		const day = String(d.getDate()).padStart(2, '0');
-		const todayStr = `${year}-${month}-${day}`;
-
-		if (todayStr < s.effective_from) return false;
-		if (s.effective_to !== null && todayStr > s.effective_to) return false;
-		if (!s.status && s.effective_to === null) return false;
-		return true;
-	}
-
-	/**
-	 * Employees that currently have NO Active salary structure — eligible for Add Structure.
-	 */
-	let eligibleEmployees = $derived(
-		employeesList.filter(
-			(emp) => !structuresList.some((s) => s.employee_cuid === emp.cuid && s.status === true)
-		)
-	);
-
-	let selectedEmployeeActiveStructure = $derived(
-		formEmployeeCuid ? structuresList.find((s) => s.employee_cuid === formEmployeeCuid && s.status === true) : null
-	);
-
-	let selectedEmpMinDate = $derived(
-		selectedEmployeeActiveStructure
-			? (selectedEmployeeActiveStructure.effective_to ?? selectedEmployeeActiveStructure.effective_from)
-			: null
-	);
+	// eligibleEmployees is now provided by +page.server.ts — no business logic in the UI.
 
 	let filteredStructures = $derived.by(() => {
 		let result = [...structuresList];
@@ -208,7 +171,7 @@
 		}
 
 		if (statusFilter !== 'all') {
-			result = result.filter((s) => isStructureActive(s) === statusFilter);
+			result = result.filter((s) => s.is_active === statusFilter);
 		}
 
 		if (sortDirection && sortColumn) {
@@ -223,8 +186,8 @@
 					valA = a.effective_from;
 					valB = b.effective_from;
 				} else if (sortColumn === 'status') {
-					valA = String(isStructureActive(a));
-					valB = String(isStructureActive(b));
+					valA = String(a.is_active);
+					valB = String(b.is_active);
 				} else {
 					valA = String(a[sortColumn as keyof typeof a] ?? '');
 					valB = String(b[sortColumn as keyof typeof b] ?? '');
@@ -240,66 +203,12 @@
 	});
 
 	let totalCount = $derived(structuresList.length);
-	let activeCount = $derived(structuresList.filter(isStructureActive).length);
-	let inactiveCount = $derived(structuresList.filter((s) => !isStructureActive(s)).length);
+	let activeCount = $derived(structuresList.filter((s) => s.is_active).length);
+	let inactiveCount = $derived(structuresList.filter((s) => !s.is_active).length);
 	let paginatedStructures = $derived(
 		filteredStructures.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 	);
 
-	// ─── Fetch helpers ────────────────────────────────────────────────────────────
-
-	async function loadAll() {
-		isLoading = true;
-		loadError = '';
-		try {
-			const [structRes, empRes, compRes] = await Promise.all([
-				fetch('/api/salary-structures'),
-				fetch('/api/salary-structures/employees'),
-				fetch('/api/salary-structures/components')
-			]);
-
-			const [structData, empData, compData] = await Promise.all([
-				structRes.json(),
-				empRes.json(),
-				compRes.json()
-			]);
-
-			if (structRes.ok) {
-				structuresList = structData.data ?? [];
-			} else {
-				loadError = structData.message || 'Failed to load salary structures.';
-				toast.error(loadError);
-			}
-
-			if (empRes.ok) employeesList = empData.data ?? [];
-			if (compRes.ok) componentsList = compData.data ?? [];
-		} catch (err) {
-			loadError = 'An error occurred while loading data.';
-			toast.error(loadError);
-			console.error(err);
-		} finally {
-			isLoading = false;
-		}
-	}
-
-	async function loadStructures() {
-		try {
-			const res = await fetch('/api/salary-structures');
-			const data = await res.json();
-			if (res.ok) {
-				structuresList = data.data ?? [];
-			} else {
-				toast.error(data.message || 'Failed to reload salary structures.');
-			}
-		} catch (err) {
-			toast.error('An error occurred while reloading.');
-			console.error(err);
-		}
-	}
-
-	onMount(() => {
-		loadAll();
-	});
 
 	// ─── Sorting ──────────────────────────────────────────────────────────────────
 
@@ -381,38 +290,26 @@
 			errors['employee_cuid'] = 'Employee is required';
 		}
 
-		const efError = validateEffectiveFrom(formEffectiveFrom);
-		if (efError) {
-			errors['effective_from'] = efError;
-		} else if (formEffectiveFrom && selectedEmpMinDate && formEffectiveFrom <= selectedEmpMinDate) {
-			errors['effective_from'] = "The selected employee already has an active salary structure for the chosen period.";
-		}
-
-		if (!efError && formEffectiveTo) {
-			const rangeError = validateEffectiveDateRange(formEffectiveFrom, formEffectiveTo);
-			if (rangeError) errors['effective_to'] = rangeError;
+		if (!formEffectiveFrom) {
+			errors['effective_from'] = 'Effective From is required';
 		}
 
 		if (formItems.length === 0) {
 			errors['components'] = 'At least one component is required';
 		}
 
-		const seenCuids = new SvelteSet<string>();
 		formItems.forEach((item, i) => {
 			if (!item.salary_component_cuid) {
 				errors[`items[${i}].salary_component_cuid`] = 'Component is required';
-			} else if (seenCuids.has(item.salary_component_cuid)) {
-				errors[`items[${i}].salary_component_cuid`] = 'Duplicate component';
-			} else {
-				seenCuids.add(item.salary_component_cuid);
 			}
 
-			const amountNum = parseFloat(item.amount);
-			const amtError = validateAmount(isNaN(amountNum) ? undefined : amountNum);
 			if (item.amount === '') {
 				errors[`items[${i}].amount`] = 'Amount is required';
-			} else if (amtError) {
-				errors[`items[${i}].amount`] = amtError;
+			} else {
+				const amountNum = parseFloat(item.amount);
+				if (isNaN(amountNum) || amountNum <= 0) {
+					errors[`items[${i}].amount`] = 'Amount must be greater than 0';
+				}
 			}
 		});
 
@@ -461,7 +358,7 @@
 						});
 						const retryData = await retryResponse.json();
 						if (retryResponse.ok && retryData.data) {
-							await loadStructures();
+							await invalidateAll();
 							toast.success('Salary Structure created successfully');
 							closeModal();
 						} else {
@@ -476,7 +373,7 @@
 				};
 				showAdjustmentConfirm = true;
 			} else if (response.ok && resData.data) {
-				await loadStructures();
+				await invalidateAll();
 				toast.success('Salary Structure created successfully');
 				closeModal();
 			} else {
@@ -575,7 +472,7 @@
 			if (response.ok) {
 				toast.success('Effective dates updated successfully');
 				closeEditDates();
-				await loadAll();
+				await invalidateAll();
 			} else {
 				datesBackendError = resData.data?.error || resData.message || 'Failed to update effective dates';
 			}
@@ -694,14 +591,7 @@
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{#if isLoading}
-						<TableRow>
-							<TableCell colspan={6} class="py-8 text-center text-muted-foreground">
-								<LoaderCircleIcon class="mx-auto mb-2 size-6 animate-spin" />
-								Loading structures...
-							</TableCell>
-						</TableRow>
-					{:else if filteredStructures.length === 0}
+					{#if filteredStructures.length === 0}
 						<TableRow>
 							<TableCell colspan={6} class="py-8 text-center text-muted-foreground">
 								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
@@ -728,8 +618,8 @@
 									<span class="text-sm text-muted-foreground">{s.components.length} component{s.components.length === 1 ? '' : 's'}</span>
 								</TableCell>
 								<TableCell class="text-center">
-									<Badge variant={isStructureActive(s) ? 'default' : 'secondary'}>
-										{isStructureActive(s) ? 'Active' : 'Inactive'}
+									<Badge variant={s.is_active ? 'default' : 'secondary'}>
+										{s.is_active ? 'Active' : 'Inactive'}
 									</Badge>
 								</TableCell>
 								<TableCell class="text-right">
@@ -788,12 +678,12 @@
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content class="w-[300px] max-h-[300px] overflow-y-auto scrollbar-compact">
 						<DropdownMenu.Group>
-							{#if eligibleEmployees.length === 0}
+							{#if eligibleEmployeesList.length === 0}
 								<DropdownMenu.Item disabled class="text-muted-foreground text-sm">
 									All employees already have an Active structure
 								</DropdownMenu.Item>
 							{:else}
-								{#each eligibleEmployees as emp (emp.cuid)}
+								{#each eligibleEmployeesList as emp (emp.cuid)}
 									<DropdownMenu.Item
 										onclick={() => {
 											formEmployeeCuid = emp.cuid;
@@ -825,7 +715,6 @@
 						bind:value={formEffectiveFrom}
 						isDateDisabled={(date: DateValue) => {
 							const dateStr = date.toString();
-							if (selectedEmpMinDate && dateStr <= selectedEmpMinDate) return true;
 							if (formEffectiveTo && dateStr >= formEffectiveTo) return true;
 							return false;
 						}}

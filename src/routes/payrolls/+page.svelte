@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
@@ -39,8 +39,9 @@
 
 	// ─── Data state ──────────────────────────────────────────────────────────────
 
-	let uploadList = $state<PayrollUpload[]>([]);
-	let isLoading = $state(true);
+	let { data } = $props();
+	let uploadList = $derived(data.uploads ?? []);
+	let isLoading = $state(false);
 	let loadError = $state('');
 
 	// ─── Filter / sort / page state ──────────────────────────────────────────────
@@ -152,32 +153,7 @@
 		filteredUploads.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 	);
 
-	// ─── Data loading ─────────────────────────────────────────────────────────────
 
-	async function loadUploads() {
-		isLoading = true;
-		loadError = '';
-		try {
-			const res = await fetch('/api/payroll-uploads');
-			const data = await res.json();
-			if (res.ok) {
-				uploadList = data.data ?? [];
-			} else {
-				loadError = data.message || 'Failed to load payroll uploads.';
-				toast.error(loadError);
-			}
-		} catch (err) {
-			loadError = 'An error occurred while loading data.';
-			toast.error(loadError);
-			console.error(err);
-		} finally {
-			isLoading = false;
-		}
-	}
-
-	onMount(() => {
-		loadUploads();
-	});
 
 	// ─── Sorting ──────────────────────────────────────────────────────────────────
 
@@ -317,32 +293,15 @@
 			if (res.ok && resData.data) {
 				uploadResult = resData.data;
 				const createdCount = resData.data.created;
-				const skippedCount = resData.data.skipped;
 
 				if (createdCount > 0) {
-					if (skippedCount > 0) {
-						toast.success(`${createdCount} payroll record(s) uploaded successfully. ${skippedCount} row(s) skipped/failed.`);
-					} else {
-						toast.success(`${createdCount} payroll record(s) uploaded successfully.`);
-					}
+					toast.success(resData.message || `${createdCount} payroll record(s) uploaded successfully.`);
 					// Refresh list
-					await loadUploads();
+					await invalidateAll();
 					// Reset upload state so user can upload another file and see the updated list
 					resetUpload();
 				} else {
-					const errorsList = (resData.data.errors || []) as PayrollUploadError[];
-					const isAllDuplicate = errorsList.length > 0 && errorsList.every(
-						(err) => err.reason && (
-							err.reason.toLowerCase().includes('already exists') ||
-							err.reason.toLowerCase().includes('duplicate')
-						)
-					);
-
-					if (isAllDuplicate) {
-						toast.error('Upload failed due to duplicate upload entries.');
-					} else {
-						toast.error(`Upload failed: No records were created. ${skippedCount} row(s) skipped/failed.`);
-					}
+					toast.error(resData.message || 'Upload failed.');
 				}
 			} else {
 				uploadError = resData.message || 'Upload failed. Please try again.';

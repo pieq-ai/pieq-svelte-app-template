@@ -25,6 +25,7 @@ export interface SalaryStructure {
 	/** ISO date string or null */
 	effective_to: string | null;
 	status: boolean;
+	is_active: boolean;
 	components: SalaryStructureItem[];
 }
 
