@@ -43,8 +43,8 @@ function normalizeName(name: string | null | undefined, master: MasterKey) {
 
 	if (master === 'blood-groups') {
 		const bloodGroup = trimmed.toUpperCase();
-		if (!/^(A|B|AB|O)[+-]$/.test(bloodGroup)) {
-			throw new Error('Blood group must be one of A+, A-, B+, B-, AB+, AB-, O+, O-');
+		if (!/^[A-Za-z0-9\s()+-]+$/.test(bloodGroup)) {
+			throw new Error('Blood group contains invalid characters');
 		}
 		return bloodGroup;
 	}

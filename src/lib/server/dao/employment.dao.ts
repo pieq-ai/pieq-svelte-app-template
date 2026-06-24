@@ -24,6 +24,13 @@ export async function findByEmployeeCuid(employee_cuid: string) {
     });
 }
 
+export async function findByOfficialEmail(official_email: string) {
+    return db.employment.findFirst({
+        where: { official_email },
+        orderBy: { created_at: 'desc' }
+    });
+}
+
 export async function list() {
     return db.employment.findMany();
 }

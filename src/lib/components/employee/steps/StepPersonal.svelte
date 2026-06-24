@@ -37,6 +37,7 @@
 		pan_no: '',
 		uan_no: '',
 		esi_no: '',
+		pf_account_no: '',
 		emergency_contact_name: '',
 		emergency_contact_no: '',
 		relation_cuid: '',
@@ -71,6 +72,8 @@
 				sVal = sVal.toUpperCase().replace(/[^A-Z0-9]/g, '');
 			} else if (key === 'esi_no') {
 				sVal = sVal.replace(/\D/g, '');
+			} else if (key === 'pf_account_no') {
+				sVal = sVal.replace(/\s/g, '').toUpperCase();
 			}
 			res[key] = sVal;
 		}
@@ -159,6 +162,12 @@
 		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim())) return 'Invalid email format.';
 		return '';
 	}
+	function validatePfAccountRule(val: string | undefined | null) {
+		if (!val || !val.trim()) return '';
+		const upper = val.trim().toUpperCase();
+		if (!/^[A-Z]{5}\d{17}$/.test(upper)) return "PF Account Number must follow EPFO format.";
+		return '';
+	}
 	function validateDropdown(val: string | undefined | null) {
 		if (!val) return 'Required';
 		return '';
@@ -196,6 +205,7 @@
 		personal_email: backendErrors.personal_email || validateEmail(emp.personal_email),
 		aadhar_no: backendErrors.aadhar_no || validateAadharRule(emp.aadhar_no),
 		pan_no: backendErrors.pan_no || validatePanRule(emp.pan_no),
+		pf_account_no: backendErrors.pf_account_no || validatePfAccountRule(emp.pf_account_no),
 		emergency_contact_name: backendErrors.emergency_contact_name || validateName(emp.emergency_contact_name),
 		emergency_contact_no: backendErrors.emergency_contact_no || validateMobileRule(emp.emergency_contact_no),
 		relation_cuid: backendErrors.relation_cuid || validateDropdown(emp.relation_cuid)
@@ -344,6 +354,11 @@
 		<div class="space-y-2">
 			<Label>ESI Number</Label>
 			<Input bind:value={emp.esi_no} oninput={(e) => emp.esi_no = formatEsi(e.currentTarget.value)} placeholder="ESI Number" />
+		</div>
+		<div class="space-y-2">
+			<Label>PF Account Number</Label>
+			<Input bind:value={emp.pf_account_no} oninput={(e) => { emp.pf_account_no = e.currentTarget.value.toUpperCase(); clearBackendError('pf_account_no'); }} placeholder="MHBAN00000160000000134" class={(isTouched && errors.pf_account_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
+			{#if isTouched && errors.pf_account_no}<p class="text-xs text-destructive">{errors.pf_account_no}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Emergency Contact Name <span class="text-destructive">*</span></Label>

@@ -16,6 +16,7 @@ export interface CreateEmployeeInput {
 	pan_no?: string | null;
 	uan_no?: string | null;
 	esi_no?: string | null;
+	pf_account_no?: string | null;
 	emergency_contact_name?: string | null;
 	emergency_contact_no?: string | null;
 	relation_cuid?: string | null;
@@ -81,6 +82,12 @@ export async function findByMobile(mobile_no: string) {
 export async function findByAadhar(aadhar_no: string) {
 	return db.employee.findFirst({
 		where: { aadhar_no, is_deleted: false }
+	});
+}
+
+export async function findByPfAccountNo(pf_account_no: string) {
+	return db.employee.findFirst({
+		where: { pf_account_no, is_deleted: false }
 	});
 }
 
