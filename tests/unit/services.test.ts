@@ -199,9 +199,31 @@ describe('Service Layer Unit Tests', () => {
         });
       }
 
-      const leaveType = await db.leaveType.findFirst({ where: { status: true } });
+      let leaveType = await db.leaveType.findFirst({
+        where: {
+          status: true,
+          code: { notIn: ['ML', 'PL'] }
+        }
+      });
+      let createdTempType = false;
       if (!leaveType) {
-        throw new Error('No leave types found. Please run seeding first.');
+        leaveType = await db.leaveType.create({
+          data: {
+            name: 'Temp Document Test Leave',
+            code: 'TDTL',
+            is_paid: true,
+            requires_approval: true,
+            status: true
+          }
+        });
+        await db.leavePolicy.create({
+          data: {
+            leave_type_cuid: leaveType.cuid,
+            annual_limit: 10.0,
+            status: true
+          }
+        });
+        createdTempType = true;
       }
 
       // Cleanup any previous overlapping leave requests
@@ -238,6 +260,10 @@ describe('Service Layer Unit Tests', () => {
 
       // Cleanup
       await db.leaveRequest.delete({ where: { cuid: req.cuid } });
+      if (createdTempType && leaveType) {
+        await db.leavePolicy.deleteMany({ where: { leave_type_cuid: leaveType.cuid } });
+        await db.leaveType.delete({ where: { cuid: leaveType.cuid } });
+      }
       await db.employment.delete({ where: { cuid: employment.cuid } });
       await db.employee.delete({ where: { cuid: emp.cuid } });
     });

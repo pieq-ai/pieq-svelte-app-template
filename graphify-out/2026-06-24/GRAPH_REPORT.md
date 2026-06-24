@@ -1,11 +1,11 @@
-# Graph Report - pieq-svelte-app-template  (2026-06-24)
+# Graph Report - pieq-svelte-app-template  (2026-06-23)
 
 ## Corpus Check
-- 398 files · ~173,049 words
+- 398 files · ~172,679 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1898 nodes · 3757 edges · 128 communities (108 shown, 20 thin omitted)
+- 1898 nodes · 3757 edges · 127 communities (108 shown, 19 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 79 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -84,7 +84,6 @@
 - [[_COMMUNITY_Community 75|Community 75]]
 - [[_COMMUNITY_Community 76|Community 76]]
 - [[_COMMUNITY_Community 77|Community 77]]
-- [[_COMMUNITY_Community 78|Community 78]]
 - [[_COMMUNITY_Community 79|Community 79]]
 - [[_COMMUNITY_Community 80|Community 80]]
 - [[_COMMUNITY_Community 81|Community 81]]
@@ -160,7 +159,7 @@
 - 1-file cycle: `src/routes/leave-policies/+page.svelte -> src/routes/leave-policies/+page.svelte`
 - 3-file cycle: `src/lib/components/ui/calendar/calendar-caption.svelte -> src/lib/components/ui/calendar/calendar.svelte -> src/lib/components/ui/calendar/index.ts -> src/lib/components/ui/calendar/calendar-caption.svelte`
 
-## Communities (128 total, 20 thin omitted)
+## Communities (127 total, 19 thin omitted)
 
 ### Community 0 - "API Endpoints"
 Cohesion: 0.06
@@ -171,8 +170,8 @@ Cohesion: 0.08
 Nodes (24): @lucide/svelte/icons/alert-triangle, $lib/components, $lib/components/index.js, $lib/components/ui, $lib/components/ui/checkbox/index.js, $lib/components/ui/dropdown-menu/index.js, $lib/geofence.js, $lib/validators/employment-type.js (+16 more)
 
 ### Community 2 - "UI Components Index"
-Cohesion: 0.10
-Nodes (32): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/permissions/mock-permissions, $lib/toast, $lib/types/salary-component, $lib/utils (+24 more)
+Cohesion: 0.09
+Nodes (33): @lucide/svelte/icons/arrow-down, @lucide/svelte/icons/arrow-up, @lucide/svelte/icons/arrow-up-down, $lib/constants, $lib/permissions/mock-permissions, $lib/toast, $lib/types/salary-component, $lib/utils (+25 more)
 
 ### Community 4 - "Dependencies & Icons"
 Cohesion: 0.06
@@ -191,8 +190,8 @@ Cohesion: 0.13
 Nodes (15): scripts, build, check, check:watch, db:generate, db:migrate, db:push, db:studio (+7 more)
 
 ### Community 8 - "Layout & Toast"
-Cohesion: 0.06
-Nodes (28): @lucide/svelte/icons/building-2, $lib/assets/favicon.svg, $lib/auth, ./layout.css, $lib/assets/favicon.svg, $lib/auth, ./layout.css, @lucide/svelte/icons/calendar-cog (+20 more)
+Cohesion: 0.07
+Nodes (27): @lucide/svelte/icons/building-2, $lib/assets/favicon.svg, $lib/auth, ./layout.css, $lib/assets/favicon.svg, $lib/auth, ./layout.css, @lucide/svelte/icons/calendar-cog (+19 more)
 
 ### Community 9 - "Department Service DAO"
 Cohesion: 0.06
@@ -211,8 +210,8 @@ Cohesion: 0.12
 Nodes (16): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+8 more)
 
 ### Community 13 - "Permission Service"
-Cohesion: 0.17
-Nodes (15): @lucide/svelte/icons/alert-circle, $lib/api/leaves, ./$types, @lucide/svelte/icons/calendar, @lucide/svelte/icons/check-circle, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/chevron-right, @lucide/svelte/icons/clock (+7 more)
+Cohesion: 0.16
+Nodes (16): @lucide/svelte/icons/alert-circle, $lib/api/leaves, ./$types, @lucide/svelte/icons/calendar, @lucide/svelte/icons/check-circle, @lucide/svelte/icons/chevron-down, @lucide/svelte/icons/chevron-left, @lucide/svelte/icons/chevron-right (+8 more)
 
 ### Community 14 - "Community 14"
 Cohesion: 0.10
@@ -351,8 +350,8 @@ Cohesion: 0.17
 Nodes (4): getMaster(), getStatus(), PUT(), ValidationError
 
 ### Community 68 - "Community 68"
-Cohesion: 0.13
-Nodes (4): UpsertBankDetailInput, bankDetailSchema, personalSchema, UpsertBankDetailDto
+Cohesion: 0.18
+Nodes (3): UpsertBankDetailInput, bankDetailSchema, UpsertBankDetailDto
 
 ### Community 69 - "Community 69"
 Cohesion: 0.26
@@ -511,8 +510,8 @@ Cohesion: 0.40
 Nodes (5): `Cannot read properties of undefined (reading 'create')` or `'findMany'`, Empty employee list / database errors, Keycloak redirect error, Port mismatch / auth redirect fails, Troubleshooting
 
 ### Community 117 - "Community 117"
-Cohesion: 0.20
-Nodes (3): UpsertAddressInput, addressSchema, UpsertAddressDto
+Cohesion: 0.14
+Nodes (4): UpsertAddressInput, addressSchema, personalSchema, UpsertAddressDto
 
 ### Community 120 - "Community 120"
 Cohesion: 0.27
@@ -549,7 +548,7 @@ Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
 ## Knowledge Gaps
 - **480 isolated node(s):** `$schema`, `css`, `baseColor`, `components`, `utils` (+475 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **20 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **19 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -567,4 +566,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `API Endpoints` be split into smaller, more focused modules?**
   _Cohesion score 0.06031746031746032 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.08282828282828283 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0797979797979798 - nodes in this community are weakly interconnected._

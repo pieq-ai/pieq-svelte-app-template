@@ -154,6 +154,7 @@
   let leaveTypes = $state<LeaveType[]>([]);
   let employee = $state<Employee | null>(null);
   let lopUsed = $state(0);
+  let lwpUsed = $state(0);
   let isLoading = $state(false);
   let isSubmitting = $state(false);
 
@@ -428,6 +429,7 @@
         payrollCutoffDay = res.data.payrollCutoffDay ?? 25;
         selectedCutoff = payrollCutoffDay;
         lopUsed = res.data.lopUsed || 0;
+        lwpUsed = res.data.lwpUsed || 0;
       }
     } catch (err: any) {
       toast.error(err.message || "Failed to load leave details.");
@@ -453,6 +455,7 @@
       selectedCutoff = 25;
       activeTab = "dashboard";
       lopUsed = 0;
+      lwpUsed = 0;
     }
   });
 
@@ -882,7 +885,7 @@
     // Gender specific validation check
     if (selectedLeaveType?.policy?.gender_specific && employee) {
       const appGender = selectedLeaveType.policy.applicable_gender;
-      if (appGender && employee.gender && employee.gender !== appGender) {
+      if (appGender && employee.gender && employee.gender.toLowerCase() !== appGender.toLowerCase()) {
         errors.leaveTypeCuid = `This leave type is only applicable to ${appGender} employees.`;
       }
     }
@@ -911,6 +914,23 @@
       if (!formFileBase64) {
         errors.document =
           "A supporting medical certificate is mandatory for Maternity Leave";
+      }
+      if (formExpectedDeliveryDate && formStartDate && !formIsMiscarriage) {
+        const edd = new Date(formExpectedDeliveryDate + "T00:00:00");
+        const startDate = new Date(formStartDate + "T00:00:00");
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        // Use leave start date if retroactive, otherwise use today's date
+        const requestDate = startDate < today ? startDate : today;
+
+        const minEdd = new SvelteDate(requestDate);
+        minEdd.setDate(minEdd.getDate() + 56);
+
+        if (edd < minEdd) {
+          errors.expectedDeliveryDate =
+            "Maternity Leave request must be submitted at least 8 weeks before expected delivery.";
+        }
       }
     }
 
@@ -1875,34 +1895,11 @@
               <div
                 class="text-4xl font-extrabold tracking-tight tabular-nums text-blue-600"
               >
-                {(
-                  balances.find((b) => b.leave_code === "LWP")
-                    ?.remaining_days ?? 0
-                ).toFixed(1)}
+                {lwpUsed.toFixed(1)}
               </div>
               <p class="text-xs text-muted-foreground mt-1 font-medium">
-                Available Days
+                LWP Days Incurred
               </p>
-              <div
-                class="border-t border-border/40 mt-2.5 pt-2 flex justify-between text-xs text-muted-foreground"
-              >
-                <span
-                  >Quota: <strong class="font-semibold text-foreground"
-                    >{(
-                      balances.find((b) => b.leave_code === "LWP")
-                        ?.allocated_days ?? 0
-                    ).toFixed(1)}</strong
-                  ></span
-                >
-                <span
-                  >Used: <strong class="font-semibold text-foreground"
-                    >{(
-                      balances.find((b) => b.leave_code === "LWP")?.used_days ??
-                      0
-                    ).toFixed(1)}</strong
-                  ></span
-                >
-              </div>
             </CardContent>
           </Card>
         </div>

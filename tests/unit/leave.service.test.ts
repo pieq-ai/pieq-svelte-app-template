@@ -497,6 +497,228 @@ describe('Leave Service Unit Tests', () => {
 				})
 			);
 		});
+
+		it('should automatically credit Maternity Leave (ML) to Female employees only when meeting min_service_days', async () => {
+			vi.clearAllMocks();
+			vi.mocked(leaveDao.getLeaveBalance).mockResolvedValue(null);
+
+			// Female employee
+			const femaleEmployee = { ...mockEmployee, gender: 'Female' };
+			vi.mocked(db.employee.findUnique).mockResolvedValue(femaleEmployee as any);
+			vi.mocked(db.employee.findFirst).mockResolvedValue(femaleEmployee as any);
+
+			// Scenario 1: Meets min_service_days (80 days). Join date 90 days ago.
+			// mockPolicies has cuid-ml annual_limit: 180, min_service_days: 80
+			const testEmploymentMeets = {
+				...mockEmployment,
+				date_of_joining: new Date('2026-03-01T00:00:00.000Z') // March 1st 2026
+			};
+			vi.mocked(db.employment.findFirst).mockResolvedValue(testEmploymentMeets as any);
+
+			// System time is June 15th 2026 -> 106 days since joining.
+			vi.setSystemTime(new Date('2026-06-15T12:00:00.000Z'));
+			await leaveService.accrueLeaves('emp-cuid', 2026);
+
+			// Should create ML balance with annual_limit (180)
+			expect(leaveDao.createLeaveBalance).toHaveBeenCalledWith(
+				expect.objectContaining({
+					leave_type_cuid: 'cuid-ml',
+					allocated_days: 180.0,
+					remaining_days: 180.0
+				})
+			);
+
+			// Scenario 2: Does not meet min_service_days. Join date 10 days ago.
+			vi.clearAllMocks();
+			const testEmploymentFails = {
+				...mockEmployment,
+				date_of_joining: new Date('2026-06-05T00:00:00.000Z') // June 5th 2026 (10 days service)
+			};
+			vi.mocked(db.employment.findFirst).mockResolvedValue(testEmploymentFails as any);
+			await leaveService.accrueLeaves('emp-cuid', 2026);
+
+			// Should NOT create ML balance row
+			expect(leaveDao.createLeaveBalance).not.toHaveBeenCalledWith(
+				expect.objectContaining({
+					leave_type_cuid: 'cuid-ml'
+				})
+			);
+		});
+
+		it('should automatically credit Paternity Leave (PL) to Male employees meeting min_service_days', async () => {
+			vi.clearAllMocks();
+			vi.mocked(leaveDao.getLeaveBalance).mockResolvedValue(null);
+
+			// Male employee
+			const maleEmployee = { ...mockEmployee, gender: 'Male' };
+			vi.mocked(db.employee.findUnique).mockResolvedValue(maleEmployee as any);
+			vi.mocked(db.employee.findFirst).mockResolvedValue(maleEmployee as any);
+
+			// Scenario 1: Meets min_service_days (0 days). Join date 1 day ago.
+			const testEmployment = {
+				...mockEmployment,
+				date_of_joining: new Date('2026-06-14T00:00:00.000Z')
+			};
+			vi.mocked(db.employment.findFirst).mockResolvedValue(testEmployment as any);
+
+			vi.setSystemTime(new Date('2026-06-15T12:00:00.000Z'));
+			await leaveService.accrueLeaves('emp-cuid', 2026);
+
+			// Should create PL balance with annual_limit (5)
+			expect(leaveDao.createLeaveBalance).toHaveBeenCalledWith(
+				expect.objectContaining({
+					leave_type_cuid: 'cuid-pl',
+					allocated_days: 5.0,
+					remaining_days: 5.0
+				})
+			);
+		});
+
+		it('should evaluate eligibility timeline accurately: no credit just below threshold, credits exactly on threshold, and is idempotent on subsequent runs', async () => {
+			vi.clearAllMocks();
+
+			// Setup female employee for ML policy (min_service_days: 80, annual_limit: 180)
+			const femaleEmployee = { ...mockEmployee, gender: 'Female' };
+			vi.mocked(db.employee.findUnique).mockResolvedValue(femaleEmployee as any);
+			vi.mocked(db.employee.findFirst).mockResolvedValue(femaleEmployee as any);
+
+			// 1. Service days just below threshold (e.g. 79 days). Join date 79 days before current system time.
+			const systemTime = new Date('2026-06-15T12:00:00.000Z');
+			vi.setSystemTime(systemTime);
+
+			const testEmploymentBelow = {
+				...mockEmployment,
+				date_of_joining: new Date(systemTime.getTime() - 79 * 24 * 60 * 60 * 1000)
+			};
+			vi.mocked(db.employment.findFirst).mockResolvedValue(testEmploymentBelow as any);
+			vi.mocked(leaveDao.getLeaveBalance).mockResolvedValue(null);
+
+			await leaveService.accrueLeaves('emp-cuid', 2026);
+
+			// Should NOT credit (createLeaveBalance shouldn't be called for ML)
+			expect(leaveDao.createLeaveBalance).not.toHaveBeenCalledWith(
+				expect.objectContaining({ leave_type_cuid: 'cuid-ml' })
+			);
+
+			// 2. Exactly meeting minimum service days (80 days). Join date exactly 80 days before system time.
+			vi.clearAllMocks();
+			const testEmploymentOn = {
+				...mockEmployment,
+				date_of_joining: new Date(systemTime.getTime() - 80 * 24 * 60 * 60 * 1000)
+			};
+			vi.mocked(db.employment.findFirst).mockResolvedValue(testEmploymentOn as any);
+			vi.mocked(leaveDao.getLeaveBalance).mockResolvedValue(null);
+
+			await leaveService.accrueLeaves('emp-cuid', 2026);
+
+			// Should credit ML (createLeaveBalance called with 180 days)
+			expect(leaveDao.createLeaveBalance).toHaveBeenCalledWith(
+				expect.objectContaining({
+					leave_type_cuid: 'cuid-ml',
+					allocated_days: 180.0,
+					remaining_days: 180.0
+				})
+			);
+
+			// 3. Subsequent run: Re-run accrual when balance already exists.
+			vi.clearAllMocks();
+			// Mock that balance already exists (180 allocated, 5 used, 175 remaining)
+			const existingBal = {
+				cuid: 'existing-ml-bal-cuid',
+				employee_cuid: 'emp-cuid',
+				leave_type_cuid: 'cuid-ml',
+				year: 2026,
+				allocated_days: 180.0,
+				used_days: 5.0,
+				remaining_days: 175.0,
+				carried_forward_days: 0.0
+			};
+			vi.mocked(leaveDao.getLeaveBalance).mockResolvedValue(existingBal as any);
+			vi.mocked(db.employment.findFirst).mockResolvedValue(testEmploymentOn as any);
+
+			await leaveService.accrueLeaves('emp-cuid', 2026);
+
+			// Should NOT call createLeaveBalance (idempotent, no duplicates)
+			expect(leaveDao.createLeaveBalance).not.toHaveBeenCalled();
+
+			// Should update the balance but keep it correct (180 allocated, 175 remaining)
+			expect(leaveDao.updateLeaveBalance).toHaveBeenCalledWith(
+				'existing-ml-bal-cuid',
+				expect.objectContaining({
+					allocated_days: 180.0,
+					remaining_days: 175.0
+				})
+			);
+		});
+
+		it('should automatically credit generic policy-defined gender-specific leaves when employee matches conditions', async () => {
+			vi.clearAllMocks();
+
+			// Add a custom generic gender-specific leave type: Custom Gender Leave (CGL)
+			const customLeaveType = { cuid: 'cuid-cgl', code: 'CGL', name: 'Custom Gender Leave', is_paid: true, requires_approval: true };
+			const customPolicy = {
+				cuid: 'p-cgl',
+				leave_type_cuid: 'cuid-cgl',
+				annual_limit: 10,
+				max_per_month: null,
+				carry_forward_allowed: false,
+				min_service_days: 30,
+				allow_half_day: false,
+				gender_specific: true,
+				applicable_gender: 'Female',
+				status: true
+			};
+
+			const mockTypesExtended = [...mockLeaveTypes, customLeaveType];
+			const mockPoliciesExtended = { ...mockPolicies, 'cuid-cgl': customPolicy };
+
+			vi.mocked(leaveDao.listLeaveTypes).mockResolvedValue(mockTypesExtended as any);
+			vi.mocked(leaveDao.getLeavePolicyByLeaveType).mockImplementation(async (cuid: string) => {
+				return mockPoliciesExtended[cuid as keyof typeof mockPoliciesExtended] || null;
+			});
+
+			// Setup female employee (meets min_service_days)
+			const femaleEmployee = { ...mockEmployee, gender: 'Female' };
+			vi.mocked(db.employee.findUnique).mockResolvedValue(femaleEmployee as any);
+			vi.mocked(db.employee.findFirst).mockResolvedValue(femaleEmployee as any);
+
+			const systemTime = new Date('2026-06-15T12:00:00.000Z');
+			vi.setSystemTime(systemTime);
+
+			const testEmploymentMeets = {
+				...mockEmployment,
+				date_of_joining: new Date(systemTime.getTime() - 40 * 24 * 60 * 60 * 1000) // 40 days (> 30 days)
+			};
+			vi.mocked(db.employment.findFirst).mockResolvedValue(testEmploymentMeets as any);
+			vi.mocked(leaveDao.getLeaveBalance).mockResolvedValue(null);
+
+			await leaveService.accrueLeaves('emp-cuid', 2026);
+
+			// Female employee meeting conditions should get generic credit
+			expect(leaveDao.createLeaveBalance).toHaveBeenCalledWith(
+				expect.objectContaining({
+					leave_type_cuid: 'cuid-cgl',
+					allocated_days: 10.0,
+					remaining_days: 10.0
+				})
+			);
+
+			// Setup male employee
+			vi.clearAllMocks();
+			const maleEmployee = { ...mockEmployee, gender: 'Male' };
+			vi.mocked(db.employee.findUnique).mockResolvedValue(maleEmployee as any);
+			vi.mocked(db.employee.findFirst).mockResolvedValue(maleEmployee as any);
+			vi.mocked(db.employment.findFirst).mockResolvedValue(testEmploymentMeets as any);
+
+			await leaveService.accrueLeaves('emp-cuid', 2026);
+
+			// Male employee should NOT get generic credit
+			expect(leaveDao.createLeaveBalance).not.toHaveBeenCalledWith(
+				expect.objectContaining({
+					leave_type_cuid: 'cuid-cgl'
+				})
+			);
+		});
 	});
 
 	describe('applyLeave Validations', () => {
@@ -2318,6 +2540,194 @@ describe('Leave Service Unit Tests', () => {
 				endDate: '2026-06-15',
 				isHalfDay: false
 			})).rejects.toThrow('Selected Leave Type is invalid or inactive.');
+		});
+
+		it('should consume Maternity Leave (ML) balance and not convert to LOP when employee is eligible', async () => {
+			vi.clearAllMocks();
+
+			// Female employee
+			const femaleEmployee = { ...mockEmployee, gender: 'Female' };
+			vi.mocked(db.employee.findUnique).mockResolvedValue(femaleEmployee as any);
+			vi.mocked(db.employee.findFirst).mockResolvedValue(femaleEmployee as any);
+
+			// Satisfies service days (>80 days, e.g. joined in 2025)
+			const testEmployment = {
+				...mockEmployment,
+				date_of_joining: new Date('2025-01-01T00:00:00.000Z')
+			};
+			vi.mocked(db.employment.findFirst).mockResolvedValue(testEmployment as any);
+
+			// Mock ML balance is credited (e.g. 180 days remaining)
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (_emp: any, typeCuid: any) => {
+				if (typeCuid === 'cuid-ml') return { cuid: 'bal-ml', remaining_days: 180.0 } as any;
+				return null;
+			});
+
+			vi.mocked(leaveDao.createLeaveRequest).mockResolvedValue({ cuid: 'new-ml-req' } as any);
+
+			// Expected delivery date is in 10 weeks
+			const edd = new Date('2026-09-01T00:00:00.000Z');
+			const startDate = '2026-08-01'; // 4 weeks before EDD
+			const endDate = '2026-08-14';   // 2 weeks request (14 days)
+
+			await leaveService.applyLeave('john@pieq.ai', {
+				leaveTypeCuid: 'cuid-ml',
+				startDate,
+				endDate,
+				isHalfDay: false,
+				reason: 'Maternity Leave',
+				expectedDeliveryDate: '2026-09-01',
+				document: {
+					fileName: 'certificate.pdf',
+					mimeType: 'application/pdf',
+					base64Data: Buffer.from('mock data').toString('base64')
+				}
+			});
+
+			// Should create leave request consuming the primary balance completely
+			expect(leaveDao.createLeaveRequest).toHaveBeenCalledWith(
+				expect.objectContaining({
+					days_from_primary: 14.0,
+					days_from_lop: 0.0,
+					days_from_lwp: 0.0
+				})
+			);
+		});
+
+		describe('Maternity Leave 8-Week Submission Validation', () => {
+			beforeEach(() => {
+				vi.setSystemTime(new Date('2026-06-24T12:00:00.000Z'));
+				
+				// Female employee
+				const femaleEmployee = { ...mockEmployee, gender: 'Female' };
+				vi.mocked(db.employee.findUnique).mockResolvedValue(femaleEmployee as any);
+				vi.mocked(db.employee.findFirst).mockResolvedValue(femaleEmployee as any);
+
+				// Satisfies service days (>80 days, e.g. joined in 2025)
+				const testEmployment = {
+					...mockEmployment,
+					date_of_joining: new Date('2025-01-01T00:00:00.000Z')
+				};
+				vi.mocked(db.employment.findFirst).mockResolvedValue(testEmployment as any);
+
+				// Mock ML balance is credited
+				vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (_emp: any, typeCuid: any) => {
+					if (typeCuid === 'cuid-ml') return { cuid: 'bal-ml', remaining_days: 180.0 } as any;
+					return null;
+				});
+
+				vi.mocked(leaveDao.createLeaveRequest).mockResolvedValue({ cuid: 'new-ml-req' } as any);
+			});
+
+			it('Case 1: Should pass when expected delivery is 2026-07-01 and start date is 2026-03-01', async () => {
+				await expect(leaveService.applyLeave('john@pieq.ai', {
+					leaveTypeCuid: 'cuid-ml',
+					startDate: '2026-03-01',
+					endDate: '2026-03-14',
+					isHalfDay: false,
+					reason: 'Maternity Leave',
+					expectedDeliveryDate: '2026-07-01',
+					document: {
+						fileName: 'certificate.pdf',
+						mimeType: 'application/pdf',
+						base64Data: Buffer.from('mock data').toString('base64')
+					}
+				})).resolves.toBeDefined();
+			});
+
+			it('Case 2: Should pass when expected delivery is 2026-07-01 and start date is 2026-04-01', async () => {
+				await expect(leaveService.applyLeave('john@pieq.ai', {
+					leaveTypeCuid: 'cuid-ml',
+					startDate: '2026-04-01',
+					endDate: '2026-04-14',
+					isHalfDay: false,
+					reason: 'Maternity Leave',
+					expectedDeliveryDate: '2026-07-01',
+					document: {
+						fileName: 'certificate.pdf',
+						mimeType: 'application/pdf',
+						base64Data: Buffer.from('mock data').toString('base64')
+					}
+				})).resolves.toBeDefined();
+			});
+
+			it('Case 3: Should pass when expected delivery is 2026-07-01 and start date is 2026-05-05', async () => {
+				await expect(leaveService.applyLeave('john@pieq.ai', {
+					leaveTypeCuid: 'cuid-ml',
+					startDate: '2026-05-05',
+					endDate: '2026-05-14',
+					isHalfDay: false,
+					reason: 'Maternity Leave',
+					expectedDeliveryDate: '2026-07-01',
+					document: {
+						fileName: 'certificate.pdf',
+						mimeType: 'application/pdf',
+						base64Data: Buffer.from('mock data').toString('base64')
+					}
+				})).resolves.toBeDefined();
+			});
+
+			it('Case 4: Should fail when expected delivery is 2026-07-01 and start date is 2026-06-05', async () => {
+				await expect(leaveService.applyLeave('john@pieq.ai', {
+					leaveTypeCuid: 'cuid-ml',
+					startDate: '2026-06-05',
+					endDate: '2026-06-14',
+					isHalfDay: false,
+					reason: 'Maternity Leave',
+					expectedDeliveryDate: '2026-07-01',
+					document: {
+						fileName: 'certificate.pdf',
+						mimeType: 'application/pdf',
+						base64Data: Buffer.from('mock data').toString('base64')
+					}
+				})).rejects.toThrow('Maternity Leave request must be submitted at least 8 weeks before expected delivery.');
+			});
+		});
+
+		it('should consume Paternity Leave (PL) balance and not convert to LOP when employee is eligible', async () => {
+			vi.clearAllMocks();
+
+			// Male employee
+			const maleEmployee = { ...mockEmployee, gender: 'Male' };
+			vi.mocked(db.employee.findUnique).mockResolvedValue(maleEmployee as any);
+			vi.mocked(db.employee.findFirst).mockResolvedValue(maleEmployee as any);
+
+			const testEmployment = {
+				...mockEmployment,
+				date_of_joining: new Date('2025-01-01T00:00:00.000Z')
+			};
+			vi.mocked(db.employment.findFirst).mockResolvedValue(testEmployment as any);
+
+			// Mock PL balance is credited (5 days remaining)
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (_emp: any, typeCuid: any) => {
+				if (typeCuid === 'cuid-pl') return { cuid: 'bal-pl', remaining_days: 5.0 } as any;
+				return null;
+			});
+
+			vi.mocked(leaveDao.createLeaveRequest).mockResolvedValue({ cuid: 'new-pl-req' } as any);
+
+			// Child birth date
+			const childBirthDate = '2026-06-10';
+			const startDate = '2026-06-15'; // within 1 month
+			const endDate = '2026-06-17';   // 3 days request (Mon-Wed)
+
+			await leaveService.applyLeave('john@pieq.ai', {
+				leaveTypeCuid: 'cuid-pl',
+				startDate,
+				endDate,
+				isHalfDay: false,
+				reason: 'Paternity Leave',
+				childBirthDate
+			});
+
+			// Should create leave request consuming the PL balance
+			expect(leaveDao.createLeaveRequest).toHaveBeenCalledWith(
+				expect.objectContaining({
+					days_from_primary: 3.0,
+					days_from_lop: 0.0,
+					days_from_lwp: 0.0
+				})
+			);
 		});
 
 

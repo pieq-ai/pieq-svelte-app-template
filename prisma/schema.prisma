@@ -630,6 +630,7 @@ model LeavePolicy {
   updated_by                   String?  @db.Text
 
   @@index([leave_type_cuid])
+
   @@map("leave_policies")
 }
 

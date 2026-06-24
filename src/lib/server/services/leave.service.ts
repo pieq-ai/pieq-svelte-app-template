@@ -272,9 +272,43 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 				}
 			}
 		} else if (type.code === 'ML') {
-			initialAllocated = employee.gender === 'Female' ? 168.0 : 0.0;
+			if (employee.gender?.toLowerCase() !== 'female') {
+				continue;
+			}
+			const now = new Date();
+			now.setHours(0, 0, 0, 0);
+			const serviceDaysNow = (now.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24);
+			if (serviceDaysNow >= policy.min_service_days) {
+				initialAllocated = annualLimit;
+			} else {
+				continue;
+			}
 		} else if (type.code === 'PL') {
-			initialAllocated = employee.gender === 'Male' ? 5.0 : 0.0;
+			if (employee.gender?.toLowerCase() !== 'male') {
+				continue;
+			}
+			const now = new Date();
+			now.setHours(0, 0, 0, 0);
+			const serviceDaysNow = (now.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24);
+			if (serviceDaysNow >= policy.min_service_days) {
+				initialAllocated = annualLimit;
+			} else {
+				continue;
+			}
+		} else if (policy.gender_specific) {
+			const empGender = (employee.gender ?? '').toLowerCase();
+			const appGender = (policy.applicable_gender ?? '').toLowerCase();
+			if (empGender !== appGender) {
+				continue;
+			}
+			const now = new Date();
+			now.setHours(0, 0, 0, 0);
+			const serviceDaysNow = (now.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24);
+			if (serviceDaysNow >= policy.min_service_days) {
+				initialAllocated = annualLimit;
+			} else {
+				continue;
+			}
 		}
 
 		const existingBalance = await leaveDao.getLeaveBalance(employeeCuid, type.cuid, year);
@@ -529,23 +563,6 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 	const lopUsed = await getMonthlyUsedDays(employee.cuid, targetMonth, targetYear, 'LOP');
 	const lwpUsed = await getMonthlyUsedDays(employee.cuid, targetMonth, targetYear, 'LWP');
 
-	const lwpType = activeTypes.find((t: any) => t.code === 'LWP');
-
-	if (lwpType) {
-		const lwpPolicy = activePolicies.find((p: any) => p.leave_type_cuid === lwpType.cuid);
-		const lwpAllocated = lwpPolicy ? Number(lwpPolicy.annual_limit) : 365.0;
-		joinedBalances.push({
-			cuid: `mock-lwp-${employee.cuid}`,
-			leave_type_cuid: lwpType.cuid,
-			leave_name: lwpType.name,
-			leave_code: 'LWP',
-			allocated_days: lwpAllocated,
-			used_days: lwpUsed,
-			remaining_days: Math.max(0.0, lwpAllocated - lwpUsed),
-			carried_forward_days: 0.0
-		});
-	}
-
 	const joinedRequests = requests.map((r: any) => {
 		const type = activeTypes.find((t: any) => t.cuid === r.leave_type_cuid);
 		return {
@@ -619,7 +636,8 @@ export async function getEmployeeLeaveDetails(email: string, year: number) {
 		isManager,
 		pendingApprovals,
 		payrollCutoffDay,
-		lopUsed
+		lopUsed,
+		lwpUsed
 	};
 }
 
@@ -760,23 +778,6 @@ export async function getEmployeeLeaveDetailsByCuid(employeeCuid: string, year: 
 	const lopUsed = await getMonthlyUsedDays(employee.cuid, targetMonth, targetYear, 'LOP');
 	const lwpUsed = await getMonthlyUsedDays(employee.cuid, targetMonth, targetYear, 'LWP');
 
-	const lwpType = activeTypes.find((t: any) => t.code === 'LWP');
-
-	if (lwpType) {
-		const lwpPolicy = activePolicies.find((p: any) => p.leave_type_cuid === lwpType.cuid);
-		const lwpAllocated = lwpPolicy ? Number(lwpPolicy.annual_limit) : 365.0;
-		joinedBalances.push({
-			cuid: `mock-lwp-${employee.cuid}`,
-			leave_type_cuid: lwpType.cuid,
-			leave_name: lwpType.name,
-			leave_code: 'LWP',
-			allocated_days: lwpAllocated,
-			used_days: lwpUsed,
-			remaining_days: Math.max(0.0, lwpAllocated - lwpUsed),
-			carried_forward_days: 0.0
-		});
-	}
-
 	const joinedRequests = requests.map((r: any) => {
 		const type = activeTypes.find((t: any) => t.cuid === r.leave_type_cuid);
 		return {
@@ -850,7 +851,8 @@ export async function getEmployeeLeaveDetailsByCuid(employeeCuid: string, year: 
 		isManager,
 		pendingApprovals,
 		payrollCutoffDay,
-		lopUsed
+		lopUsed,
+		lwpUsed
 	};
 }
 
@@ -940,7 +942,9 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 
 	// 3. Service Days validation
 	const startDate = new Date(input.startDate);
+	startDate.setUTCHours(0, 0, 0, 0);
 	const endDate = new Date(input.endDate);
+	endDate.setUTCHours(0, 0, 0, 0);
 
 	if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
 		throw new ValidationError('startDate', 'Invalid start or end date format.');
@@ -951,7 +955,7 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 	}
 
 	const joinDate = employment?.date_of_joining ? new Date(employment.date_of_joining) : new Date();
-	joinDate.setHours(0, 0, 0, 0);
+	joinDate.setUTCHours(0, 0, 0, 0);
 	const serviceTimeDiff = startDate.getTime() - joinDate.getTime();
 	const serviceDays = serviceTimeDiff / (1000 * 60 * 60 * 24);
 
@@ -1006,7 +1010,7 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 
 	const relievingDate = employment?.relieving_date ? new Date(employment.relieving_date) : null;
 	if (relievingDate) {
-		relievingDate.setHours(0, 0, 0, 0);
+		relievingDate.setUTCHours(0, 0, 0, 0);
 	}
 
 	// CL/SL month validations
@@ -1081,20 +1085,18 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 
 	// ML specific validations
 	if (leaveType.code === 'ML') {
-		if (employee.gender !== 'Female') {
-			throw new ValidationError('leaveTypeCuid', 'Maternity Leave is only applicable to Female employees.');
-		}
 		if (!input.expectedDeliveryDate) {
 			throw new ValidationError('expectedDeliveryDate', 'Expected Delivery Date is required for Maternity Leave.');
 		}
 		const edd = new Date(input.expectedDeliveryDate);
+		edd.setUTCHours(0, 0, 0, 0);
 		if (isNaN(edd.getTime())) {
 			throw new ValidationError('expectedDeliveryDate', 'Invalid Expected Delivery Date format.');
 		}
 
 		// worked >= 80 days during previous 12 months before expected delivery
 		const eddStart = new Date(edd);
-		eddStart.setFullYear(eddStart.getFullYear() - 1);
+		eddStart.setUTCFullYear(eddStart.getUTCFullYear() - 1);
 		const serviceStart = joinDate > eddStart ? joinDate : eddStart;
 		const serviceEnd = relievingDate && relievingDate < edd ? relievingDate : edd;
 
@@ -1106,13 +1108,6 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 			throw new ValidationError('leaveTypeCuid', `Employee must have worked at least 80 days during the previous 12 months before expected delivery. Current service in period: ${activeServiceDays} days.`);
 		}
 
-		// Leave cannot begin earlier than 8 weeks before expected delivery
-		const minStartDate = new Date(edd);
-		minStartDate.setDate(minStartDate.getDate() - 56);
-		if (startDate < minStartDate) {
-			throw new ValidationError('startDate', 'Maternity Leave cannot begin earlier than 8 weeks before expected delivery.');
-		}
-
 		// Miscarriage/MTP paid leave limit is 4 weeks, normal ML limit is 24 weeks
 		const maxAllowedML = input.isMiscarriage ? 28.0 : 168.0;
 		if (totalDays > maxAllowedML) {
@@ -1122,9 +1117,12 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 		// Must be submitted at least 8 weeks before expected delivery (except miscarriage)
 		if (!input.isMiscarriage) {
 			const now = new Date();
-			now.setHours(0, 0, 0, 0);
-			const minEdd = new Date(now);
-			minEdd.setDate(minEdd.getDate() + 56);
+			const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+			
+			// For retroactive requests, we check from the start of the leave, otherwise from today.
+			const requestDate = startDate < todayUtc ? startDate : todayUtc;
+			const minEdd = new Date(requestDate);
+			minEdd.setUTCDate(minEdd.getUTCDate() + 56);
 			if (edd < minEdd) {
 				throw new ValidationError('expectedDeliveryDate', 'Maternity Leave request must be submitted at least 8 weeks before expected delivery.');
 			}
@@ -1138,9 +1136,6 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 
 	// PL specific validations
 	if (leaveType.code === 'PL') {
-		if (employee.gender !== 'Male') {
-			throw new ValidationError('leaveTypeCuid', 'Paternity Leave is only applicable to Male employees.');
-		}
 		if (!input.childBirthDate) {
 			throw new ValidationError('childBirthDate', "Child's Birth Date is required for Paternity Leave.");
 		}
