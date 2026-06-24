@@ -152,50 +152,7 @@
   let balances = $state<LeaveBalance[]>([]);
   let requests = $state<LeaveRequest[]>([]);
   let allActiveLeaveTypes = $state<any[]>([]);
-  let leaveTypes = $derived(
-    balances.map((b) => {
-      const activeType = allActiveLeaveTypes.find((t) => t.code === b.leave_code);
-      return {
-        cuid: b.leave_type_cuid,
-        leave_name: b.leave_name,
-        leave_code: b.leave_code,
-        is_paid: activeType ? activeType.is_paid : (b.leave_code !== "LWP" && b.leave_code !== "LOP"),
-        requires_approval: activeType ? activeType.requires_approval : true,
-        policy: {
-          annual_limit: b.allocated_days,
-          max_per_month: b.leave_code === "CL" ? 2 : null,
-          carry_forward_allowed: b.leave_code === "EL",
-          max_carry_forward_days: b.leave_code === "EL" ? 24 : null,
-          document_required: b.leave_code === "SL" || b.leave_code === "EL" || b.leave_code === "ML",
-          document_required_after_days: b.leave_code === "SL" ? 3 : (b.leave_code === "EL" ? 4 : null),
-          min_service_days: b.leave_code === "ML" ? 80 : 0,
-          allow_half_day: ["CL", "SL", "EL"].includes(b.leave_code),
-          gender_specific: b.leave_code === "ML" || b.leave_code === "PL",
-          applicable_gender: b.leave_code === "ML" ? "Female" : (b.leave_code === "PL" ? "Male" : null),
-        }
-      };
-    }).concat(
-      allActiveLeaveTypes.filter((t) => t.code === "LWP" && !balances.some((b) => b.leave_code === "LWP")).map((t) => ({
-        cuid: t.cuid,
-        leave_name: t.name,
-        leave_code: t.code,
-        is_paid: false,
-        requires_approval: t.requires_approval,
-        policy: {
-          annual_limit: 365,
-          max_per_month: null,
-          carry_forward_allowed: false,
-          max_carry_forward_days: null,
-          document_required: false,
-          document_required_after_days: null,
-          min_service_days: 0,
-          allow_half_day: true,
-          gender_specific: false,
-          applicable_gender: null,
-        }
-      }))
-    )
-  );
+  let leaveTypes = $state<any[]>([]);
   let employee = $state<Employee | null>(null);
   let lopUsed = $state(0);
   let lwpUsed = $state(0);
@@ -477,6 +434,7 @@
     isLoading = true;
     try {
       const res = await leavesApi.getDetails(cuid);
+      let dbLeaveTypes: any[] = [];
       if (res && res.data) {
         balances = res.data.balances || [];
         requests = res.data.requests || [];
@@ -487,13 +445,44 @@
         selectedCutoff = payrollCutoffDay;
         lopUsed = res.data.lopUsed || 0;
         lwpUsed = res.data.lwpUsed || 0;
+        dbLeaveTypes = res.data.leaveTypes ? [...res.data.leaveTypes] : [];
       }
 
       const typesRes = await fetch("/api/leave/types");
+      let activeTypesFromApi: any[] = [];
       if (typesRes.ok) {
         const typesJson = await typesRes.json();
-        allActiveLeaveTypes = typesJson.data || [];
+        activeTypesFromApi = typesJson.data || [];
+        allActiveLeaveTypes = activeTypesFromApi;
       }
+
+      // Check if LWP is present in dbLeaveTypes. If not, append fallback LWP type.
+      const hasLwp = dbLeaveTypes.some((t: any) => t.leave_code === "LWP");
+      if (!hasLwp) {
+        const lwpType = activeTypesFromApi.find((t) => t.code === "LWP");
+        if (lwpType) {
+          dbLeaveTypes.push({
+            cuid: lwpType.cuid,
+            leave_name: lwpType.name,
+            leave_code: lwpType.code,
+            is_paid: false,
+            requires_approval: lwpType.requires_approval,
+            policy: {
+              annual_limit: 365,
+              max_per_month: null,
+              carry_forward_allowed: false,
+              max_carry_forward_days: null,
+              document_required: false,
+              document_required_after_days: null,
+              min_service_days: 0,
+              allow_half_day: true,
+              gender_specific: false,
+              applicable_gender: null,
+            }
+          });
+        }
+      }
+      leaveTypes = dbLeaveTypes;
     } catch (err: any) {
       toast.error(err.message || "Failed to load leave details.");
       console.error(err);
@@ -511,6 +500,7 @@
       balances = [];
       requests = [];
       allActiveLeaveTypes = [];
+      leaveTypes = [];
       employee = null;
       isManager = false;
       pendingApprovals = [];
@@ -778,27 +768,27 @@
   });
 
   function getDaysInMonth(year: number, month: number): number {
-    return new Date(year, month + 1, 0).getDate();
+    return new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
   }
 
   function calculateFractionalMonths(start: Date, end: Date): number {
     if (start > end) return 0;
 
     let totalMonths = 0;
-    let current = new SvelteDate(start);
+    let current = new Date(start);
 
     while (current <= end) {
-      const year = current.getFullYear();
-      const month = current.getMonth();
+      const year = current.getUTCFullYear();
+      const month = current.getUTCMonth();
 
-      const startOfMonth = new SvelteDate(year, month, 1);
-      const endOfMonth = new SvelteDate(year, month + 1, 0);
+      const startOfMonth = new Date(Date.UTC(year, month, 1));
+      const endOfMonth = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
 
       const activeStart = current > startOfMonth ? current : startOfMonth;
       const activeEnd = end < endOfMonth ? end : endOfMonth;
 
-      activeStart.setHours(0, 0, 0, 0);
-      activeEnd.setHours(0, 0, 0, 0);
+      activeStart.setUTCHours(0, 0, 0, 0);
+      activeEnd.setUTCHours(0, 0, 0, 0);
 
       const activeDays =
         Math.ceil(
@@ -808,7 +798,7 @@
 
       totalMonths += activeDays / monthDays;
 
-      current = new SvelteDate(year, month + 1, 1);
+      current = new Date(Date.UTC(year, month + 1, 1));
     }
 
     return totalMonths;
@@ -834,25 +824,24 @@
     const targetMonth = parseInt(dateParts[1], 10) - 1;
     if (isNaN(targetYear) || isNaN(targetMonth)) return 0;
 
-    const joinDate = new SvelteDate(employee.date_of_joining);
-    joinDate.setHours(0, 0, 0, 0);
+    const joinDate = new Date(employee.date_of_joining);
+    joinDate.setUTCHours(0, 0, 0, 0);
 
     const relievingDate = employee.relieving_date
-      ? new SvelteDate(employee.relieving_date)
+      ? new Date(employee.relieving_date)
       : null;
     if (relievingDate) {
-      relievingDate.setHours(0, 0, 0, 0);
+      relievingDate.setUTCHours(0, 0, 0, 0);
     }
 
-    const now = new SvelteDate();
-    now.setHours(0, 0, 0, 0);
-    const currentYear = now.getFullYear();
+    const now = new Date();
+    const currentYear = now.getUTCFullYear();
 
-    const yearStart = new Date(targetYear, 0, 1);
+    const yearStart = new Date(Date.UTC(targetYear, 0, 1));
 
     let effectiveMonthLimit = targetMonth;
     if (targetYear === currentYear) {
-      effectiveMonthLimit = Math.min(targetMonth, now.getMonth());
+      effectiveMonthLimit = Math.min(targetMonth, now.getUTCMonth());
     } else if (targetYear > currentYear) {
       effectiveMonthLimit = -1;
     }
@@ -860,12 +849,12 @@
     let accrued = 0;
     if (effectiveMonthLimit >= 0) {
       // Enforce full-month credit rule for employee joining dates
-      const accrualJoinDate = new SvelteDate(joinDate);
-      accrualJoinDate.setDate(1);
+      const accrualJoinDate = new Date(joinDate);
+      accrualJoinDate.setUTCDate(1);
 
       const serviceStart =
         accrualJoinDate > yearStart ? accrualJoinDate : yearStart;
-      const accrualEnd = new Date(targetYear, effectiveMonthLimit + 1, 0);
+      const accrualEnd = new Date(Date.UTC(targetYear, effectiveMonthLimit + 1, 0, 23, 59, 59, 999));
       const serviceEnd =
         relievingDate && relievingDate < accrualEnd
           ? relievingDate
@@ -888,8 +877,8 @@
     const totalAccrued = accrued + carriedForward;
 
     // Sum actual CL/SL days deducted from balance up to targetMonth
-    const targetMonthEnd = new Date(targetYear, targetMonth + 1, 0);
-    const yearStartGte = new Date(targetYear, 0, 1);
+    const targetMonthEnd = new Date(Date.UTC(targetYear, targetMonth + 1, 0, 23, 59, 59, 999));
+    const yearStartGte = new Date(Date.UTC(targetYear, 0, 1));
 
     const usedUpToMonth = requests
       .filter((r) => {
@@ -1314,6 +1303,8 @@
     EL: { text: "text-[#F45310]" }, // Warm Orange
     CL: { text: "text-emerald-600" }, // Emerald Green
     SL: { text: "text-purple-600" }, // Purple
+    ML: { text: "text-pink-600" }, // Pink (Maternity)
+    PL: { text: "text-blue-600" }, // Blue (Paternity)
   };
 
   function formatDate(d: string | Date) {
@@ -1861,16 +1852,22 @@
         <div
           class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
         >
-          {#each balances.filter( (b) => ["EL", "CL", "SL"].includes(b.leave_code), ) as b (b.cuid)}
+          {#each balances as b (b.cuid)}
             {@const theme =
               cardThemes[b.leave_code as keyof typeof cardThemes] ||
-              cardThemes.EL}
+              { text: "text-neutral-600" }}
             {@const badgeColor =
               b.leave_code === "EL"
                 ? "text-[#F45310] border-[#F45310]/30 bg-orange-50/50"
                 : b.leave_code === "CL"
                   ? "text-emerald-600 border-emerald-600/30 bg-emerald-50/50"
-                  : "text-purple-600 border-purple-600/30 bg-purple-50/50"}
+                  : b.leave_code === "SL"
+                    ? "text-purple-600 border-purple-600/30 bg-purple-50/50"
+                    : b.leave_code === "ML"
+                      ? "text-pink-600 border-pink-600/30 bg-pink-50/50"
+                      : b.leave_code === "PL"
+                        ? "text-blue-600 border-blue-600/30 bg-blue-50/50"
+                        : "text-neutral-600 border-neutral-600/30 bg-neutral-50/50"}
             <Card
               class="bg-background border border-border/80 shadow-xs rounded-xl"
             >
@@ -2123,7 +2120,7 @@
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {#each balances.filter( (b) => ["EL", "CL", "SL"].includes(b.leave_code), ) as b (b.cuid)}
+                  {#each balances as b (b.cuid)}
                     <TableRow class="hover:bg-muted/10 transition-colors">
                       <TableCell class="font-semibold text-xs py-3"
                         >{b.leave_name} ({b.leave_code})</TableCell
@@ -2770,7 +2767,17 @@
               >
                 Select Leave Type...
               </DropdownMenu.Item>
-              {#each leaveTypes.filter((t) => t.leave_code !== "LOP") as type (type.cuid)}
+              {#each leaveTypes.filter((t) => {
+                if (t.leave_code === "LOP") return false;
+                if (t.policy && t.policy.gender_specific) {
+                  const empGender = (employee?.gender ?? "").toLowerCase();
+                  const appGender = (t.policy.applicable_gender ?? "").toLowerCase();
+                  if (empGender && appGender && empGender !== appGender) {
+                    return false;
+                  }
+                }
+                return true;
+              }) as type (type.cuid)}
                 <DropdownMenu.Item
                   onclick={() => {
                     formLeaveTypeCuid = type.cuid;

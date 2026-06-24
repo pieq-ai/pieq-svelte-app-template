@@ -69,24 +69,24 @@ function calculateFractionalMonths(start: Date, end: Date): number {
 	let current = new Date(start);
 
 	while (current <= end) {
-		const year = current.getFullYear();
-		const month = current.getMonth();
+		const year = current.getUTCFullYear();
+		const month = current.getUTCMonth();
 
-		const startOfMonth = new Date(year, month, 1);
-		const endOfMonth = new Date(year, month + 1, 0);
+		const startOfMonth = new Date(Date.UTC(year, month, 1));
+		const endOfMonth = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
 
 		const activeStart = current > startOfMonth ? current : startOfMonth;
 		const activeEnd = end < endOfMonth ? end : endOfMonth;
 
-		activeStart.setHours(0, 0, 0, 0);
-		activeEnd.setHours(0, 0, 0, 0);
+		activeStart.setUTCHours(0, 0, 0, 0);
+		activeEnd.setUTCHours(0, 0, 0, 0);
 
 		const activeDays = Math.ceil((activeEnd.getTime() - activeStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 		const monthDays = getDaysInMonth(year, month);
 
 		totalMonths += activeDays / monthDays;
 
-		current = new Date(year, month + 1, 1);
+		current = new Date(Date.UTC(year, month + 1, 1));
 	}
 
 	return totalMonths;
@@ -205,24 +205,23 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 	if (!employee || !employment) return;
 
 	const joinDate = employment.date_of_joining ? new Date(employment.date_of_joining) : new Date();
-	joinDate.setHours(0, 0, 0, 0);
-	const joinYear = joinDate.getFullYear();
+	joinDate.setUTCHours(0, 0, 0, 0);
+	const joinYear = joinDate.getUTCFullYear();
 
 	// Enforce the full-month credit rule for employee joining dates
 	const accrualJoinDate = new Date(joinDate);
-	accrualJoinDate.setDate(1);
+	accrualJoinDate.setUTCDate(1);
 
 	const relievingDate = employment.relieving_date ? new Date(employment.relieving_date) : null;
 	if (relievingDate) {
-		relievingDate.setHours(0, 0, 0, 0);
+		relievingDate.setUTCHours(0, 0, 0, 0);
 	}
 
 	const now = new Date();
-	now.setHours(0, 0, 0, 0);
-	const currentYear = now.getFullYear();
+	const currentYear = now.getUTCFullYear();
 
-	const yearStart = new Date(year, 0, 1);
-	const yearEnd = new Date(year, 11, 31);
+	const yearStart = new Date(Date.UTC(year, 0, 1));
+	const yearEnd = new Date(Date.UTC(year, 11, 31, 23, 59, 59, 999));
 
 	const serviceStart = accrualJoinDate > yearStart ? accrualJoinDate : yearStart;
 	const serviceEnd = relievingDate && relievingDate < yearEnd ? relievingDate : yearEnd;
@@ -231,7 +230,7 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 	if (serviceStart <= serviceEnd) {
 		let effectiveEnd = serviceEnd;
 		if (year === currentYear) {
-			const endOfCurrentMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+			const endOfCurrentMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59, 999));
 			effectiveEnd = endOfCurrentMonth < serviceEnd ? endOfCurrentMonth : serviceEnd;
 		} else if (year > currentYear) {
 			effectiveEnd = serviceStart;
@@ -264,8 +263,8 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 				initialAllocated = 0.0;
 			} else {
 				const eligibleDate = new Date(accrualJoinDate);
-				eligibleDate.setDate(eligibleDate.getDate() + policy.min_service_days);
-				eligibleDate.setHours(0, 0, 0, 0);
+				eligibleDate.setUTCDate(eligibleDate.getUTCDate() + policy.min_service_days);
+				eligibleDate.setUTCHours(0, 0, 0, 0);
 				const elEligibleStart = eligibleDate > yearStart ? eligibleDate : yearStart;
 				if (elEligibleStart <= serviceEnd) {
 					const totalServiceMonths = calculateFractionalMonths(elEligibleStart, serviceEnd);
@@ -276,9 +275,9 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 			if (employee.gender?.toLowerCase() !== 'female') {
 				continue;
 			}
-			const now = new Date();
-			now.setHours(0, 0, 0, 0);
-			const serviceDaysNow = (now.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24);
+			const nowUtc = new Date(now);
+			nowUtc.setUTCHours(0, 0, 0, 0);
+			const serviceDaysNow = (nowUtc.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24);
 			if (serviceDaysNow >= policy.min_service_days) {
 				initialAllocated = annualLimit;
 			} else {
@@ -288,9 +287,9 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 			if (employee.gender?.toLowerCase() !== 'male') {
 				continue;
 			}
-			const now = new Date();
-			now.setHours(0, 0, 0, 0);
-			const serviceDaysNow = (now.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24);
+			const nowUtc = new Date(now);
+			nowUtc.setUTCHours(0, 0, 0, 0);
+			const serviceDaysNow = (nowUtc.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24);
 			if (serviceDaysNow >= policy.min_service_days) {
 				initialAllocated = annualLimit;
 			} else {
@@ -302,9 +301,9 @@ export async function accrueLeaves(employeeCuid: string, year: number) {
 			if (empGender !== appGender) {
 				continue;
 			}
-			const now = new Date();
-			now.setHours(0, 0, 0, 0);
-			const serviceDaysNow = (now.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24);
+			const nowUtc = new Date(now);
+			nowUtc.setUTCHours(0, 0, 0, 0);
+			const serviceDaysNow = (nowUtc.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24);
 			if (serviceDaysNow >= policy.min_service_days) {
 				initialAllocated = annualLimit;
 			} else {
@@ -408,22 +407,21 @@ export async function getAvailableBalanceForMonth(
 	if (!employment) return 0;
 
 	const joinDate = employment.date_of_joining ? new Date(employment.date_of_joining) : new Date();
-	joinDate.setHours(0, 0, 0, 0);
+	joinDate.setUTCHours(0, 0, 0, 0);
 
 	const relievingDate = employment.relieving_date ? new Date(employment.relieving_date) : null;
 	if (relievingDate) {
-		relievingDate.setHours(0, 0, 0, 0);
+		relievingDate.setUTCHours(0, 0, 0, 0);
 	}
 
 	const now = new Date();
-	now.setHours(0, 0, 0, 0);
-	const currentYear = now.getFullYear();
+	const currentYear = now.getUTCFullYear();
 
-	const yearStart = new Date(year, 0, 1);
+	const yearStart = new Date(Date.UTC(year, 0, 1));
 
 	let effectiveMonthLimit = targetMonth;
 	if (year === currentYear) {
-		effectiveMonthLimit = Math.min(targetMonth, now.getMonth());
+		effectiveMonthLimit = Math.min(targetMonth, now.getUTCMonth());
 	} else if (year > currentYear) {
 		effectiveMonthLimit = -1;
 	}
@@ -432,10 +430,10 @@ export async function getAvailableBalanceForMonth(
 	if (effectiveMonthLimit >= 0) {
 		// Enforce full-month credit rule for employee joining dates
 		const accrualJoinDate = new Date(joinDate);
-		accrualJoinDate.setDate(1);
+		accrualJoinDate.setUTCDate(1);
 
 		const serviceStart = accrualJoinDate > yearStart ? accrualJoinDate : yearStart;
-		const accrualEnd = new Date(year, effectiveMonthLimit + 1, 0);
+		const accrualEnd = new Date(Date.UTC(year, effectiveMonthLimit + 1, 0, 23, 59, 59, 999));
 		const serviceEnd = relievingDate && relievingDate < accrualEnd ? relievingDate : accrualEnd;
 
 		if (serviceStart <= serviceEnd) {
@@ -454,8 +452,8 @@ export async function getAvailableBalanceForMonth(
 	const approvedRequests = await leaveDao.getApprovedRequestsInMonthRange(
 		employeeCuid,
 		leaveTypeCuid,
-		new Date(year, 0, 1),
-		new Date(year, targetMonth + 1, 0),
+		new Date(Date.UTC(year, 0, 1)),
+		new Date(Date.UTC(year, targetMonth + 1, 0, 23, 59, 59, 999)),
 		tx
 	);
 

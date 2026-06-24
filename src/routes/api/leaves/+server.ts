@@ -21,10 +21,6 @@ export async function GET(event: RequestEvent) {
 			details = await leaveService.getEmployeeLeaveDetails(email, year);
 		}
 
-		if (details && typeof details === 'object' && 'leaveTypes' in details) {
-			delete (details as any).leaveTypes;
-		}
-
 		return json({ data: details });
 	} catch (error) {
 		const message = (error as Error).message;
