@@ -253,7 +253,7 @@
 		/>
 		<MasterDataDropdown
 			master="pay-grades"
-			label="Pay Grade *"
+			label="Pay Grade"
 			value={employment.pay_grade_cuid}
 			onSelect={(val) => employment.pay_grade_cuid = val as string}
 			class={(isTouched && errors.pay_grade_cuid) ? 'border-destructive' : ''}

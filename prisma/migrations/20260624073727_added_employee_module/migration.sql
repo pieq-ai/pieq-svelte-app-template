@@ -1,3 +1,5 @@
+
+
 -- CreateTable
 CREATE TABLE "employees" (
     "id" BIGSERIAL NOT NULL,
@@ -17,6 +19,7 @@ CREATE TABLE "employees" (
     "pan_no" VARCHAR(10),
     "uan_no" VARCHAR(30),
     "esi_no" VARCHAR(30),
+    "pf_account_no" VARCHAR(22),
     "emergency_contact_name" VARCHAR(150),
     "emergency_contact_no" VARCHAR(20),
     "relation_cuid" TEXT,
@@ -190,6 +193,9 @@ CREATE UNIQUE INDEX "employees_cuid_key" ON "employees"("cuid");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "employees_emp_code_key" ON "employees"("emp_code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "employees_pf_account_no_key" ON "employees"("pf_account_no");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "employments_cuid_key" ON "employments"("cuid");

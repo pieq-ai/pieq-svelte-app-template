@@ -99,12 +99,15 @@ describe('Master Data Service', () => {
 			});
 
 			it('should validate blood groups strictly', async () => {
-				await expect(masterDataService.createMasterData('blood-groups', { name: 'C+' })).rejects.toThrow('Blood group must be one of A+, A-, B+, B-, AB+, AB-, O+, O-');
-				
 				vi.mocked(masterDataDao.list).mockResolvedValue([]);
-				vi.mocked(masterDataDao.create).mockResolvedValue({ cuid: 'bg3', name: 'O+', created_at: new Date('2026-05-29T12:00:00Z'), created_by: null, updated_at: new Date('2026-05-29T12:00:00Z'), updated_by: null } as any);
+				vi.mocked(masterDataDao.create).mockImplementation(async (master: any, data: any) => ({ cuid: 'bg_mock', name: data.name, created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null } as any));
 				const res = await masterDataService.createMasterData('blood-groups', { name: 'o+' }); // should uppercase
 				expect(res.label).toBe('O+');
+
+				const res2 = await masterDataService.createMasterData('blood-groups', { name: 'Bombay Blood Group (HH)' }); // should uppercase
+				expect(res2.label).toBe('BOMBAY BLOOD GROUP (HH)');
+				
+				await expect(masterDataService.createMasterData('blood-groups', { name: 'C+!@#' })).rejects.toThrow('Blood group contains invalid characters');
 			});
 
 			it('should validate languages strictly (letters and spaces only)', async () => {

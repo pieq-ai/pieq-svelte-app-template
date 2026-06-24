@@ -49,6 +49,13 @@ export async function upsertEmployment(employee_cuid: string, dto: UpsertEmploym
         throw new ValidationError("reporting_manager_cuid", "Employee cannot be their own reporting manager");
     }
 
+    if (validated.official_email) {
+        const existingEmployment = await employmentDao.findByOfficialEmail(validated.official_email);
+        if (existingEmployment && existingEmployment.employee_cuid !== employee_cuid) {
+            throw new ValidationError("official_email", "This official email address is already assigned to another employee.");
+        }
+    }
+
     const payload: employmentDao.UpsertEmploymentInput = {
         department_cuid: validated.department_cuid,
         role_cuid: validated.role_cuid,
