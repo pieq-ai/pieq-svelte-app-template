@@ -56,6 +56,13 @@ export function validateEmail(val: string | undefined | null) {
 	return '';
 }
 
+export function validatePfAccountRule(val: string | undefined | null) {
+	if (!val || !val.trim()) return '';
+	const upper = val.trim().toUpperCase();
+	if (!/^[A-Z]{5}\d{17}$/.test(upper)) return "PF Account Number must follow EPFO format.";
+	return '';
+}
+
 export function validateDropdown(val: string | undefined | null) {
 	if (!val) return 'Required';
 	return '';
@@ -192,6 +199,9 @@ export interface PersonalDetailsData {
 	personal_email?: string | null;
 	aadhar_no?: string | null;
 	pan_no?: string | null;
+	uan_no?: string | null;
+	esi_no?: string | null;
+	pf_account_no?: string | null;
 	emergency_contact_name?: string | null;
 	emergency_contact_no?: string | null;
 	relation_cuid?: string | null;
@@ -274,6 +284,7 @@ export function validatePersonal(emp: PersonalDetailsData): string[] {
 	if (validateMobileRule(emp.mobile_no)) errors.push(`Mobile Number: ${validateMobileRule(emp.mobile_no)}`);
 	if (validateAadharRule(emp.aadhar_no)) errors.push(`Aadhar Number: ${validateAadharRule(emp.aadhar_no)}`);
 	if (validatePanRule(emp.pan_no)) errors.push(`PAN Number: ${validatePanRule(emp.pan_no)}`);
+	if (validatePfAccountRule(emp.pf_account_no)) errors.push(`PF Account Number: ${validatePfAccountRule(emp.pf_account_no)}`);
 	// Optional — validate format only when present
 	if (validateDob(emp.dob || '')) errors.push(`Date of Birth: ${validateDob(emp.dob || '')}`);
 	if (validateEmail(emp.personal_email)) errors.push(`Personal Email: ${validateEmail(emp.personal_email)}`);

@@ -39,6 +39,7 @@ export const personalSchema = z.object({
   pan_no: optionalString(z.string().length(10, "Must be exactly 10 characters").regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Invalid PAN format")),
   uan_no: optionalString(z.unknown().transform(val => typeof val === 'string' ? val.replace(/\s/g, '') : val).pipe(z.string().regex(/^\d{12}$/, "Invalid UAN format (must be 12 digits)"))),
   esi_no: optionalString(z.string().regex(/^\d+$/, "ESI Number must contain only digits")),
+  pf_account_no: optionalString(z.string().regex(/^[A-Z]{5}\d{17}$/, "PF Account Number must follow EPFO format.")),
   emergency_contact_name: optionalString(z.string().min(3, "Min 3 characters").regex(/^[a-zA-Z\s]+$/, "Can only contain alphabets and spaces")),
   emergency_contact_no: optionalString(digits(10)),
   relation_cuid: optionalString(z.string().min(1, "Required")),
