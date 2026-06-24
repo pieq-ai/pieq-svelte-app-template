@@ -1,7 +1,7 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-24)
 
 ## Corpus Check
-- 399 files · ~173,934 words
+- 399 files · ~173,928 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -247,7 +247,7 @@ Nodes (11): Adding a new feature, Deployment, Keycloak client setup, pieq-svelte
 
 ### Community 32 - "Community 32"
 Cohesion: 0.15
-Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
+Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.10
@@ -393,6 +393,10 @@ Nodes (8): createDepartment(), CreateDepartmentDto, deleteDepartment(), getDepar
 Cohesion: 0.50
 Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
 
+### Community 78 - "Community 78"
+Cohesion: 0.50
+Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
+
 ### Community 79 - "Community 79"
 Cohesion: 0.22
 Nodes (6): @lucide/svelte/icons/circle-check, @lucide/svelte/icons/info, @lucide/svelte/icons/loader-2, @lucide/svelte/icons/octagon-x, mode-watcher, @lucide/svelte/icons/triangle-alert
@@ -492,10 +496,6 @@ Nodes (5): compilerOptions, types, exclude, extends, include
 ### Community 106 - "Community 106"
 Cohesion: 0.24
 Nodes (8): findByEmployeeCuid(), upsert(), UpsertEmploymentInput, employmentSchema, getEmploymentByEmployeeCuid(), toPublicEmployment(), upsertEmployment(), UpsertEmploymentDto
-
-### Community 107 - "Community 107"
-Cohesion: 0.50
-Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
 
 ### Community 108 - "Community 108"
 Cohesion: 0.40
