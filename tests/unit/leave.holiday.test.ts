@@ -26,7 +26,7 @@ describe('Leave Holiday Calculations & Caching', () => {
 		// Mock DB to return Jan 26, 2026 as a holiday
 		vi.mocked(db.holidayCalendar.findMany).mockResolvedValue([
 			{ date: new Date(Date.UTC(2026, 0, 26)) } // 2026-01-26
-		]);
+		] as any);
 
 		const holidaysSet = await getHolidaysCached();
 		expect(isHoliday(new Date('2026-01-26'), holidaysSet)).toBe(true);
@@ -49,7 +49,7 @@ describe('Leave Holiday Calculations & Caching', () => {
 		// Start with one holiday: 2026-01-26
 		vi.mocked(db.holidayCalendar.findMany).mockResolvedValue([
 			{ date: new Date(Date.UTC(2026, 0, 26)) }
-		]);
+		] as any);
 
 		let holidaysSet = await getHolidaysCached();
 		expect(isHoliday(new Date('2026-01-26'), holidaysSet)).toBe(true);
@@ -61,7 +61,7 @@ describe('Leave Holiday Calculations & Caching', () => {
 		vi.mocked(db.holidayCalendar.findMany).mockResolvedValue([
 			{ date: new Date(Date.UTC(2026, 0, 26)) },
 			{ date: new Date(Date.UTC(2026, 10, 14)) } // 2026-11-14
-		]);
+		] as any);
 
 		holidaysSet = await getHolidaysCached();
 		expect(isHoliday(new Date('2026-01-26'), holidaysSet)).toBe(true);
@@ -72,7 +72,7 @@ describe('Leave Holiday Calculations & Caching', () => {
 		invalidateHolidayCache();
 		vi.mocked(db.holidayCalendar.findMany).mockResolvedValue([
 			{ date: new Date(Date.UTC(2026, 10, 14)) }
-		]);
+		] as any);
 
 		holidaysSet = await getHolidaysCached();
 		expect(isHoliday(new Date('2026-01-26'), holidaysSet)).toBe(false);
@@ -83,7 +83,7 @@ describe('Leave Holiday Calculations & Caching', () => {
 		// Mock DB to return Jan 26, 2026 as a holiday
 		vi.mocked(db.holidayCalendar.findMany).mockResolvedValue([
 			{ date: new Date(Date.UTC(2026, 0, 26)) }
-		]);
+		] as any);
 
 		const holidaysSet = await getHolidaysCached();
 
