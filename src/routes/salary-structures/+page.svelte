@@ -52,7 +52,6 @@
 	let structuresList = $derived(data.structures ?? []);
 	let employeesList = $derived(data.employees ?? []);
 	let componentsList = $derived(data.components ?? []);
-	let eligibleEmployeesList = $derived(data.eligibleEmployees ?? []);
 
 	// ─── Filter / sort / page state ──────────────────────────────────────────────
 
@@ -74,6 +73,7 @@
 	let confirmCloseCallback = $state<() => void>(() => {});
 	let showAdjustmentConfirm = $state(false);
 	let adjustmentConfirmCallback = $state<() => void | Promise<void>>(() => {});
+	const ADJUSTMENT_CONFIRM_DESC = "This action will adjust the effective dates of existing salary structures to maintain a continuous timeline. Do you want to continue?";
 
 	function handleCloseCreate() {
 		if (isDirty) {
@@ -433,7 +433,8 @@
 
 	async function handleSaveDates(e: Event) {
 		e.preventDefault();
-		if (!editingStructureForDates) return;
+		const targetStructure = editingStructureForDates;
+		if (!targetStructure) return;
 
 		datesErrors = {};
 		datesBackendError = '';
@@ -461,7 +462,7 @@
 		};
 
 		try {
-			const response = await fetch(`/api/salary-structures/${editingStructureForDates.cuid}`, {
+			const response = await fetch(`/api/salary-structures/${targetStructure.cuid}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(payload)
@@ -469,7 +470,34 @@
 
 			const resData = await response.json();
 
-			if (response.ok) {
+			if (response.ok && resData.data && resData.data.confirmationRequired) {
+				isSubmittingDates = false;
+				adjustmentConfirmCallback = async () => {
+					showAdjustmentConfirm = false;
+					isSubmittingDates = true;
+					try {
+						const retryResponse = await fetch(`/api/salary-structures/${targetStructure.cuid}`, {
+							method: 'PUT',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ ...payload, confirmAdjustment: true })
+						});
+						const retryData = await retryResponse.json();
+						if (retryResponse.ok && retryData.data) {
+							toast.success('Effective dates updated successfully');
+							closeEditDates();
+							await invalidateAll();
+						} else {
+							datesBackendError = retryData.data?.error || retryData.message || retryData.error || 'Failed to update effective dates';
+						}
+					} catch (err) {
+						toast.error('An error occurred. Please try again.');
+						console.error(err);
+					} finally {
+						isSubmittingDates = false;
+					}
+				};
+				showAdjustmentConfirm = true;
+			} else if (response.ok && resData.data) {
 				toast.success('Effective dates updated successfully');
 				closeEditDates();
 				await invalidateAll();
@@ -678,12 +706,12 @@
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content class="w-[300px] max-h-[300px] overflow-y-auto scrollbar-compact">
 						<DropdownMenu.Group>
-							{#if eligibleEmployeesList.length === 0}
+							{#if employeesList.length === 0}
 								<DropdownMenu.Item disabled class="text-muted-foreground text-sm">
-									All employees already have an Active structure
+									No active employees found
 								</DropdownMenu.Item>
 							{:else}
-								{#each eligibleEmployeesList as emp (emp.cuid)}
+								{#each employeesList as emp (emp.cuid)}
 									<DropdownMenu.Item
 										onclick={() => {
 											formEmployeeCuid = emp.cuid;
@@ -955,7 +983,7 @@
 <ConfirmModal
 	open={showAdjustmentConfirm}
 	title="Effective Date Adjustment"
-	description="This effective date overlaps with an existing salary structure. Do you want to proceed?"
+	description={ADJUSTMENT_CONFIRM_DESC}
 	cancelLabel="Cancel"
 	confirmLabel="Save"
 	onConfirm={adjustmentConfirmCallback}

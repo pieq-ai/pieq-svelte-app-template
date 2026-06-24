@@ -210,13 +210,6 @@ export async function processTimelineAdjustments(
 					nextFromDate.setUTCDate(nextFromDate.getUTCDate() + 1);
 					next.effective_from = nextFromDate.toISOString().split('T')[0];
 				}
-			} else {
-				if (idx < proposedList.length - 1) {
-					return {
-						status: 'invalid',
-						error: 'Only the last salary structure in the timeline can have an open-ended Effective To date.'
-					};
-				}
 			}
 		}
 	}
@@ -301,7 +294,16 @@ export async function processTimelineAdjustments(
 	}
 	
 	if (hasOverlapOrAdjustment) {
-		if (!confirmAdjustment) {
+		let requiresConfirmation = false;
+		for (const update of updates) {
+			const original = existing.find((o) => o.cuid === update.cuid);
+			if (original && original.effective_to !== null) {
+				requiresConfirmation = true;
+				break;
+			}
+		}
+
+		if (requiresConfirmation && !confirmAdjustment) {
 			return {
 				status: 'confirm_required',
 				updates
@@ -499,11 +501,15 @@ export async function updateStructure(cuid: string, dto: UpdateSalaryStructureDt
 		cuid,
 		proposedFrom,
 		proposedTo,
-		true
+		dto.confirmAdjustment ?? false
 	);
 
 	if (timeline.status === 'invalid') {
 		throw new BusinessValidationError(timeline.error!);
+	}
+
+	if (timeline.status === 'confirm_required') {
+		throw new ConfirmationRequiredError();
 	}
 
 	if (dto.employee_cuid !== undefined) {

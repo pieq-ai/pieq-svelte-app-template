@@ -18,14 +18,7 @@ export const load: PageServerLoad = async () => {
 			.filter((c) => c.status)
 			.map(serializeSalaryComponent);
 
-		// Employees that currently have NO active salary structure are eligible for "Add Structure".
-		// This is a business rule — it belongs here in the server load, not in the client.
-		const activeEmployeeCuids = new Set(
-			structures.filter((s) => s.is_active).map((s) => s.employee_cuid)
-		);
-		const eligibleEmployees = employees.filter((e) => !activeEmployeeCuids.has(e.cuid));
-
-		return { structures, employees, components, eligibleEmployees };
+		return { structures, employees, components };
 	} catch (e) {
 		console.error('Failed to load salary structures page:', e);
 		throw error(500, 'Failed to load salary structures data');

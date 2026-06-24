@@ -1,39 +1,21 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import type { DateValue } from '@internationalized/date';
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
-	import { SvelteSet } from 'svelte/reactivity';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
-	import PlusIcon from '@lucide/svelte/icons/plus';
-	import TrashIcon from '@lucide/svelte/icons/trash-2';
-	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
-	import CheckIcon from '@lucide/svelte/icons/check';
-	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
-
-	import { toast } from '$lib/toast';
-	import { createDirtyChecker } from '$lib/utils';
-	import { UI_CONSTANTS } from '$lib/constants';
-	import { validateEffectiveFrom, validateAmount } from '$lib/validators/salary-structure';
 
 	import {
 		Badge,
 		Button,
 		Card,
 		CardContent,
-		Input,
-		Label,
 		Table,
 		TableBody,
 		TableCell,
 		TableHead,
 		TableHeader,
-		TableRow,
-		DatePicker,
-		CrudModal
+		TableRow
 	} from '$lib/components';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import type { SalaryComponentDto } from '$lib/server/serializers/salary-component.serializer';
 
 	// ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -62,48 +44,7 @@
 	}
 
 	let employeesList = $state<MockEmployee[]>([]);
-	let componentsList = $state<SalaryComponentDto[]>([]);
-
 	let employee = $derived(employeesList.find((e) => e.cuid === structure.employee_cuid) ?? null);
-
-	// ─── Revision modal state ─────────────────────────────────────────────────────
-
-	let isRevisionOpen = $state(false);
-	let isSubmitting = $state(false);
-	let backendError = $state('');
-
-	let minDate = $derived(structure.effective_to ?? structure.effective_from);
-
-	interface RevisionItem {
-		id: number;
-		salary_component_cuid: string;
-		amount: string;
-	}
-
-	let revisionEffectiveFrom = $state<string | null>('');
-	let revisionItems = $state<RevisionItem[]>([]);
-	let nextItemId = $state(0);
-	let fieldErrors = $state<Record<string, string>>({});
-
-	interface RevisionDirtySnapshot {
-		effective_from: string | null;
-		components: string;
-	}
-
-	const dirtyChecker = createDirtyChecker<RevisionDirtySnapshot>();
-
-	let isRevisionDirty = $derived(
-		isRevisionOpen &&
-			dirtyChecker.isDirty({
-				effective_from: revisionEffectiveFrom,
-				components: JSON.stringify(
-					revisionItems.map((i) => ({
-						salary_component_cuid: i.salary_component_cuid,
-						amount: i.amount
-					}))
-				)
-			})
-	);
 
 	// ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -124,144 +65,12 @@
 
 	onMount(async () => {
 		try {
-			const [empRes, compRes] = await Promise.all([
-				fetch('/api/salary-structures/employees'),
-				fetch('/api/salary-structures/components')
-			]);
+			const empRes = await fetch('/api/salary-structures/employees');
 			if (empRes.ok) employeesList = (await empRes.json()).data ?? [];
-			if (compRes.ok) componentsList = (await compRes.json()).data ?? [];
 		} catch (err) {
 			console.error('Failed to load reference data', err);
 		}
 	});
-
-	// ─── Revision modal helpers ───────────────────────────────────────────────────
-
-	function openRevision() {
-		backendError = '';
-		fieldErrors = {};
-		revisionEffectiveFrom = '';
-		// Pre-fill from current structure
-		revisionItems = structure.components.map((c) => ({
-			id: nextItemId++,
-			salary_component_cuid: c.salary_component_cuid,
-			amount: String(c.amount)
-		}));
-		dirtyChecker.snapshot({
-			effective_from: '',
-			components: JSON.stringify(
-				structure.components.map((c) => ({
-					salary_component_cuid: c.salary_component_cuid,
-					amount: String(c.amount)
-				}))
-			)
-		});
-		isRevisionOpen = true;
-	}
-
-	function closeRevision() {
-		isRevisionOpen = false;
-	}
-
-	function addRevisionItem() {
-		revisionItems = [...revisionItems, { id: nextItemId++, salary_component_cuid: '', amount: '' }];
-	}
-
-	function removeRevisionItem(id: number) {
-		revisionItems = revisionItems.filter((i) => i.id !== id);
-	}
-
-	function getUsedComponentCuids(excludeId: number): Set<string> {
-		return new Set(
-			revisionItems
-				.filter((i) => i.id !== excludeId && i.salary_component_cuid)
-				.map((i) => i.salary_component_cuid)
-		);
-	}
-
-	/** Only show Active components in the dropdown (inactive ones cannot be newly assigned). */
-	let activeComponents = $derived(componentsList.filter((c) => c.status));
-
-	function validateRevisionForm(): boolean {
-		const errors: Record<string, string> = {};
-
-		const efError = validateEffectiveFrom(revisionEffectiveFrom);
-		if (efError) {
-			errors['effective_from'] = efError;
-		} else if (revisionEffectiveFrom && revisionEffectiveFrom <= minDate) {
-			errors['effective_from'] = "New salary structures must start after the current active structure's effective period.";
-		}
-
-		if (revisionItems.length === 0) {
-			errors['components'] = 'At least one component is required';
-		}
-
-		const seenCuids = new SvelteSet<string>();
-		revisionItems.forEach((item, i) => {
-			if (!item.salary_component_cuid) {
-				errors[`items[${i}].salary_component_cuid`] = 'Component is required';
-			} else if (seenCuids.has(item.salary_component_cuid)) {
-				errors[`items[${i}].salary_component_cuid`] = 'Duplicate component';
-			} else {
-				seenCuids.add(item.salary_component_cuid);
-			}
-
-			const amountNum = parseFloat(item.amount);
-			const amtError = validateAmount(isNaN(amountNum) ? undefined : amountNum);
-			if (item.amount === '') {
-				errors[`items[${i}].amount`] = 'Amount is required';
-			} else if (amtError) {
-				errors[`items[${i}].amount`] = amtError;
-			}
-		});
-
-		fieldErrors = errors;
-		return Object.keys(errors).length === 0;
-	}
-
-	async function handleRevisionSubmit(e: Event) {
-		e.preventDefault();
-		if (!validateRevisionForm()) return;
-
-		isSubmitting = true;
-		backendError = '';
-
-		const payload = {
-			effective_from: revisionEffectiveFrom,
-			components: revisionItems.map((item) => ({
-				salary_component_cuid: item.salary_component_cuid,
-				amount: parseFloat(item.amount)
-			}))
-		};
-
-		try {
-			const res = await fetch(`/api/salary-structures/${structure.cuid}`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(payload)
-			});
-
-			const resData = await res.json();
-
-			if (res.ok && resData.data) {
-				toast.success('New salary structure added successfully');
-				closeRevision();
-				// Navigate to the new revision's detail page
-				goto(resolve(`/salary-structures/${resData.data.cuid}`));
-			} else {
-				if (res.status === 400 || res.status === 409) {
-					backendError = resData.data?.error || resData.message || resData.error || 'Validation failed';
-				} else {
-					toast.error(resData.data?.error || resData.message || resData.error || 'Failed to add new structure.');
-				}
-			}
-		} catch (err) {
-			toast.error('An error occurred. Please try again.');
-			console.error(err);
-		} finally {
-			isSubmitting = false;
-		}
-	}
 </script>
 
 <svelte:head>
@@ -287,15 +96,6 @@
 			</div>
 		</div>
 
-		{#if structure.status}
-			<Button
-				type="button"
-				class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
-				onclick={openRevision}
-			>
-				Add New Structure
-			</Button>
-		{/if}
 	</div>
 
 	<!-- Header card -->
@@ -376,162 +176,3 @@
 		</Card>
 	</div>
 </div>
-
-<!-- ─── Create Revision Modal ──────────────────────────────────────────────── -->
-
-<CrudModal
-	open={isRevisionOpen}
-	title="Add New Structure"
-	description="A new Active structure will be created. The current structure will be marked Inactive."
-	isSubmitting={isSubmitting}
-	onClose={closeRevision}
->
-	{#snippet children({ cancel })}
-		<form class="space-y-4" onsubmit={handleRevisionSubmit}>
-			<!-- New Effective From -->
-			<div class="space-y-2">
-				<Label for="revision_effective_from">New Effective From</Label>
-				<DatePicker
-					id="revision_effective_from"
-					name="revision_effective_from"
-					bind:value={revisionEffectiveFrom}
-					isDateDisabled={(date: DateValue) => date.toString() <= minDate}
-					class={fieldErrors['effective_from'] ? 'border-destructive' : ''}
-					onchange={() => { delete fieldErrors['effective_from']; fieldErrors = { ...fieldErrors }; }}
-				/>
-				{#if fieldErrors['effective_from']}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{fieldErrors['effective_from']}</p>
-				{/if}
-			</div>
-
-			<!-- Component items -->
-			<div class="space-y-2">
-				<div class="flex items-center justify-between">
-					<Label>Salary Components</Label>
-					<Button
-						type="button"
-						variant="outline"
-						size="sm"
-						class="h-7 gap-1 text-xs"
-						onclick={addRevisionItem}
-					>
-						<PlusIcon class="size-3" /> Add Component
-					</Button>
-				</div>
-
-				{#if fieldErrors['components']}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{fieldErrors['components']}</p>
-				{/if}
-
-				<div class="space-y-2 rounded-lg border bg-muted/20 p-3">
-					{#if revisionItems.length === 0}
-						<p class="text-sm text-muted-foreground text-center py-2">No components added yet.</p>
-					{/if}
-
-					{#each revisionItems as item (item.id)}
-						{@const usedCuids = getUsedComponentCuids(item.id)}
-						{@const itemIndex = revisionItems.findIndex((i) => i.id === item.id)}
-						<div class="flex items-start gap-2">
-							<!-- Component selector -->
-							<div class="flex-1 space-y-1">
-								<DropdownMenu.Root>
-									<DropdownMenu.Trigger>
-										{#snippet child({ props })}
-											<Button
-												variant="outline"
-												class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {fieldErrors[`items[${itemIndex}].salary_component_cuid`] ? 'border-destructive' : ''}"
-												{...props}
-											>
-												{item.salary_component_cuid
-													? (activeComponents.find((c) => c.cuid === item.salary_component_cuid)?.name
-														?? componentsList.find((c) => c.cuid === item.salary_component_cuid)?.name
-														?? item.salary_component_cuid)
-													: 'Select component...'}
-												<ChevronDownIcon class="ml-2 size-4 opacity-50" />
-											</Button>
-										{/snippet}
-									</DropdownMenu.Trigger>
-									<DropdownMenu.Content class="w-[220px] max-h-60 overflow-y-auto">
-										<DropdownMenu.Group>
-											{#each activeComponents as comp (comp.cuid)}
-												<DropdownMenu.Item
-													onclick={() => {
-														item.salary_component_cuid = comp.cuid;
-														delete fieldErrors[`items[${itemIndex}].salary_component_cuid`];
-														fieldErrors = { ...fieldErrors };
-													}}
-													disabled={usedCuids.has(comp.cuid)}
-													class="justify-between cursor-pointer {item.salary_component_cuid === comp.cuid ? 'bg-accent text-accent-foreground' : ''} {usedCuids.has(comp.cuid) ? 'opacity-40 cursor-not-allowed' : ''}"
-												>
-													<span class="truncate">{comp.name}</span>
-													{#if item.salary_component_cuid === comp.cuid}<CheckIcon class="size-4 shrink-0" />{/if}
-												</DropdownMenu.Item>
-											{/each}
-										</DropdownMenu.Group>
-									</DropdownMenu.Content>
-								</DropdownMenu.Root>
-								{#if fieldErrors[`items[${itemIndex}].salary_component_cuid`]}
-									<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{fieldErrors[`items[${itemIndex}].salary_component_cuid`]}</p>
-								{/if}
-							</div>
-
-							<!-- Amount input -->
-							<div class="w-32 space-y-1">
-								<Input
-									type="number"
-									min="0"
-									step="0.01"
-									placeholder="Amount"
-									bind:value={item.amount}
-									class="h-9 {fieldErrors[`items[${itemIndex}].amount`] ? 'border-destructive focus-visible:ring-destructive/30' : ''}"
-									oninput={() => {
-										delete fieldErrors[`items[${itemIndex}].amount`];
-										fieldErrors = { ...fieldErrors };
-									}}
-								/>
-								{#if fieldErrors[`items[${itemIndex}].amount`]}
-									<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{fieldErrors[`items[${itemIndex}].amount`]}</p>
-								{/if}
-							</div>
-
-							<!-- Remove button -->
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon-sm"
-								class="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
-								onclick={() => removeRevisionItem(item.id)}
-								aria-label="Remove component"
-								disabled={revisionItems.length <= 1}
-							>
-								<TrashIcon class="size-4" />
-							</Button>
-						</div>
-					{/each}
-				</div>
-			</div>
-
-			{#if backendError}
-				<p class="text-xs rounded bg-destructive/10 px-3 py-2" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{backendError}</p>
-			{/if}
-
-			<div class="flex items-center justify-end gap-3 pt-4">
-				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>
-					{UI_CONSTANTS.BUTTON_CANCEL}
-				</Button>
-				<Button
-					type="submit"
-					class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
-					disabled={isSubmitting}
-				>
-					{#if isSubmitting}
-						<LoaderCircleIcon class="mr-2 size-4 animate-spin" />
-						Creating...
-					{:else}
-						Add New Structure
-					{/if}
-				</Button>
-			</div>
-		</form>
-	{/snippet}
-</CrudModal>

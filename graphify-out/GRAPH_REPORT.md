@@ -1,16 +1,16 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-24)
 
 ## Corpus Check
-- 404 files · ~169,318 words
+- 404 files · ~168,592 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1800 nodes · 3531 edges · 129 communities (103 shown, 26 thin omitted)
+- 1800 nodes · 3531 edges · 128 communities (104 shown, 24 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 79 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0c22f8fb`
+- Built from commit: `a11d9314`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -127,7 +127,6 @@
 - [[_COMMUNITY_Community 121|Community 121]]
 - [[_COMMUNITY_Community 122|Community 122]]
 - [[_COMMUNITY_Community 123|Community 123]]
-- [[_COMMUNITY_Community 124|Community 124]]
 - [[_COMMUNITY_Community 125|Community 125]]
 - [[_COMMUNITY_Community 126|Community 126]]
 - [[_COMMUNITY_Community 127|Community 127]]
@@ -160,7 +159,7 @@
 ## Import Cycles
 - 1-file cycle: `src/routes/leave-policies/+page.svelte -> src/routes/leave-policies/+page.svelte`
 
-## Communities (129 total, 26 thin omitted)
+## Communities (128 total, 24 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.21
@@ -169,6 +168,10 @@ Nodes (8): findByEmployeeCuid(), upsert(), UpsertEmploymentInput, employmentSche
 ### Community 1 - "Community 1"
 Cohesion: 0.09
 Nodes (29): GET(), create(), createAttendanceSource(), MasterCreateInput, MasterUpdateInput, getMasterConfig(), isMasterKey(), MasterConfig (+21 more)
+
+### Community 2 - "Community 2"
+Cohesion: 0.21
+Nodes (13): sendDeleted(), sendUpdated(), DELETE(), parseCuid(), PATCH(), PUT(), DELETE(), parseCuid() (+5 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.06
@@ -292,11 +295,7 @@ Nodes (13): POST(), PUT(), calculateDistance(), GEOFENCE_CONFIG, POST(), trimStr
 
 ### Community 36 - "Community 36"
 Cohesion: 0.20
-Nodes (3): experienceSchema, personalSchema, UpsertExperienceDto
-
-### Community 37 - "Community 37"
-Cohesion: 0.21
-Nodes (13): sendDeleted(), sendUpdated(), DELETE(), parseCuid(), PATCH(), PUT(), DELETE(), parseCuid() (+5 more)
+Nodes (3): UpsertExperienceInput, experienceSchema, UpsertExperienceDto
 
 ### Community 38 - "Community 38"
 Cohesion: 0.14
@@ -344,7 +343,7 @@ Nodes (9): GET(), getStatus(), POST(), DELETE(), GET(), getStatus(), PUT(), Vali
 
 ### Community 50 - "Community 50"
 Cohesion: 0.15
-Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
+Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
 
 ### Community 53 - "Community 53"
 Cohesion: 0.25
@@ -382,6 +381,10 @@ Nodes (12): EmploymentTypeDTO, EmploymentTypeInput, HolidayDTO, HolidayInput, Le
 Cohesion: 0.20
 Nodes (3): UpsertEducationInput, educationSchema, UpsertEducationDto
 
+### Community 63 - "Community 63"
+Cohesion: 0.18
+Nodes (3): bankDetailSchema, personalSchema, UpsertBankDetailDto
+
 ### Community 64 - "Community 64"
 Cohesion: 0.18
 Nodes (3): UpsertLanguageInput, languageSchema, UpsertLanguageDto
@@ -401,6 +404,10 @@ Nodes (7): GET(), PUT(), GET(), PUT(), toEmployeeDTO(), sendDeleted(), sendItem(
 ### Community 69 - "Community 69"
 Cohesion: 0.27
 Nodes (5): requireAdmin(), requireAuth(), requirePermission(), DELETE(), getStatus()
+
+### Community 70 - "Community 70"
+Cohesion: 0.50
+Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
 
 ### Community 71 - "Community 71"
 Cohesion: 0.29
@@ -506,10 +513,6 @@ Nodes (11): createSystemRole(), CreateSystemRoleDto, deleteSystemRole(), ensureR
 Cohesion: 0.67
 Nodes (3): API reference — Employees, GET — list employees, POST — create employee
 
-### Community 120 - "Community 120"
-Cohesion: 0.50
-Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
-
 ### Community 121 - "Community 121"
 Cohesion: 0.22
 Nodes (6): activeCount, confirmDelete(), inactiveCount, loadDepartments(), paginatedDepartments, totalCount
@@ -529,12 +532,12 @@ Nodes (10): EmployeeOption, findEmployeeByCode(), findEmployeeByCuid(), getAll()
 ## Knowledge Gaps
 - **409 isolated node(s):** `css.lint.unknownAtRules`, `$schema`, `css`, `baseColor`, `components` (+404 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **26 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **24 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `db` connect `Community 59` to `Community 0`, `Community 1`, `Community 2`, `Community 3`, `Community 8`, `Community 25`, `Community 27`, `Community 30`, `Community 33`, `Community 39`, `Community 42`, `Community 43`, `Community 47`, `Community 51`, `Community 52`, `Community 55`, `Community 56`, `Community 57`, `Community 60`, `Community 62`, `Community 64`, `Community 70`, `Community 74`, `Community 75`, `Community 77`, `Community 86`, `Community 103`, `Community 122`, `Community 123`, `Community 124`?**
+- **Why does `db` connect `Community 59` to `Community 0`, `Community 1`, `Community 3`, `Community 8`, `Community 25`, `Community 27`, `Community 30`, `Community 33`, `Community 36`, `Community 37`, `Community 39`, `Community 42`, `Community 43`, `Community 47`, `Community 51`, `Community 52`, `Community 55`, `Community 56`, `Community 57`, `Community 60`, `Community 62`, `Community 64`, `Community 74`, `Community 75`, `Community 77`, `Community 86`, `Community 96`, `Community 103`, `Community 122`, `Community 123`?**
   _High betweenness centrality (0.061) - this node is a cross-community bridge._
 - **Why does `$lib/utils.js` connect `Community 16` to `Community 128`, `Community 9`, `Community 11`, `Community 45`, `Community 14`, `Community 80`, `Community 53`, `Community 58`?**
   _High betweenness centrality (0.055) - this node is a cross-community bridge._

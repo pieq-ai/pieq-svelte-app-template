@@ -199,29 +199,14 @@ describe('Salary Structure Service', () => {
 			).rejects.toThrow(DuplicateComponentInStructureError);
 		});
 
-		it('should throw ConfirmationRequiredError (Scenario B) when employee already has a structure and confirmAdjustment is false', async () => {
-			vi.mocked(findEmployeeByCuid).mockResolvedValue({ cuid: 'EMP001', employee_id: 'EMP001', name: 'John Doe' });
-			vi.mocked(structureDao.findByEmployeeCuid).mockResolvedValue([
-				mockStructureRecord({ cuid: 'struct_1', effective_from: new Date('2024-01-01'), effective_to: null, status: true })
-			] as never);
-
-			await expect(
-				createStructure({
-					employee_cuid: 'EMP001',
-					effective_from: '2024-05-01',
-					effective_to: null,
-					status: true,
-					components: [{ salary_component_cuid: 'comp_abc', amount: 100 }]
-				})
-			).rejects.toThrow(ConfirmationRequiredError);
-		});
-
-		it('should auto-adjust neighboring structures (Scenario B) when confirmAdjustment is true', async () => {
+		it('should create revision without throwing ConfirmationRequiredError when adjusting open-ended structure (Scenario A / Active Revision)', async () => {
 			vi.mocked(findEmployeeByCuid).mockResolvedValue({ cuid: 'EMP001', employee_id: 'EMP001', name: 'John Doe' });
 			vi.mocked(structureDao.findByEmployeeCuid).mockResolvedValue([
 				mockStructureRecord({ cuid: 'struct_1', effective_from: new Date('2024-01-01'), effective_to: null, status: true })
 			] as never);
 			vi.mocked(componentDao.findByCuid).mockResolvedValue(mockComponentRecord() as never);
+			mockTx.salaryStructure.create.mockResolvedValue(mockStructureRecord({ cuid: 'struct_2' }));
+			vi.mocked(structureDao.createItems).mockResolvedValue([mockItemRecord()] as never);
 
 			const result = await createStructure({
 				employee_cuid: 'EMP001',
@@ -229,14 +214,59 @@ describe('Salary Structure Service', () => {
 				effective_to: null,
 				status: true,
 				components: [{ salary_component_cuid: 'comp_abc', amount: 100 }],
-				confirmAdjustment: true
+				confirmAdjustment: false
 			});
 
 			expect(mockTx.salaryStructure.update).toHaveBeenCalledWith({
 				where: { cuid: 'struct_1' },
 				data: { effective_to: new Date('2024-04-30'), status: false }
 			});
-			expect(result.cuid).toBe('struct_1'); // from mockStructureRecord()
+			expect(result.cuid).toBe('struct_2');
+		});
+
+		it('should throw ConfirmationRequiredError when modifying historical structures (Scenario B / Historical modification) and confirmAdjustment is false', async () => {
+			vi.mocked(findEmployeeByCuid).mockResolvedValue({ cuid: 'EMP001', employee_id: 'EMP001', name: 'John Doe' });
+			vi.mocked(structureDao.findByEmployeeCuid).mockResolvedValue([
+				mockStructureRecord({ cuid: 'struct_A', effective_from: new Date('2024-01-01'), effective_to: new Date('2024-06-30'), status: false }),
+				mockStructureRecord({ cuid: 'struct_B', effective_from: new Date('2024-07-01'), effective_to: null, status: true })
+			] as never);
+
+			await expect(
+				createStructure({
+					employee_cuid: 'EMP001',
+					effective_from: '2024-04-01',
+					effective_to: null,
+					status: true,
+					components: [{ salary_component_cuid: 'comp_abc', amount: 100 }],
+					confirmAdjustment: false
+				})
+			).rejects.toThrow(ConfirmationRequiredError);
+		});
+
+		it('should allow modifying historical structures when confirmAdjustment is true', async () => {
+			vi.mocked(findEmployeeByCuid).mockResolvedValue({ cuid: 'EMP001', employee_id: 'EMP001', name: 'John Doe' });
+			vi.mocked(structureDao.findByEmployeeCuid).mockResolvedValue([
+				mockStructureRecord({ cuid: 'struct_A', effective_from: new Date('2024-01-01'), effective_to: new Date('2024-06-30'), status: false }),
+				mockStructureRecord({ cuid: 'struct_B', effective_from: new Date('2024-07-01'), effective_to: null, status: true })
+			] as never);
+			vi.mocked(componentDao.findByCuid).mockResolvedValue(mockComponentRecord() as never);
+			mockTx.salaryStructure.create.mockResolvedValue(mockStructureRecord({ cuid: 'struct_new' }));
+			vi.mocked(structureDao.createItems).mockResolvedValue([mockItemRecord()] as never);
+
+			const result = await createStructure({
+				employee_cuid: 'EMP001',
+				effective_from: '2024-04-01',
+				effective_to: null,
+				status: true,
+				components: [{ salary_component_cuid: 'comp_abc', amount: 100 }],
+				confirmAdjustment: true
+			});
+
+			expect(mockTx.salaryStructure.update).toHaveBeenCalledWith({
+				where: { cuid: 'struct_A' },
+				data: { effective_to: new Date('2024-03-31'), status: false }
+			});
+			expect(result.cuid).toBe('struct_new');
 		});
 
 		it('should throw BusinessValidationError (Scenario C) when dates cannot be resolved (duplicate effective_from)', async () => {
@@ -479,7 +509,7 @@ describe('Salary Structure Service', () => {
 			).rejects.toThrow('Effective To must be greater than Effective From.');
 		});
 
-		it('should auto-adjust neighboring structures (Scenario B) on update without requiring confirmation', async () => {
+		it('should auto-adjust neighboring structures (Scenario B) on update when confirmAdjustment is true', async () => {
 			vi.mocked(structureDao.findByCuid).mockResolvedValue(
 				mockStructureRecord({ cuid: 'struct_2', employee_cuid: 'EMP001', effective_from: new Date('2025-01-01'), effective_to: null, status: true }) as never
 			);
@@ -500,7 +530,7 @@ describe('Salary Structure Service', () => {
 			const updatedRecord = mockStructureRecord({ cuid: 'struct_2', employee_cuid: 'EMP001', effective_from: new Date('2024-06-01'), effective_to: null, status: true });
 			mockTx.salaryStructure.update.mockResolvedValue(updatedRecord);
 
-			const result = await updateStructure('struct_2', { effective_from: '2024-06-01' });
+			const result = await updateStructure('struct_2', { effective_from: '2024-06-01', confirmAdjustment: true });
 
 			expect(mockTx.salaryStructure.update).toHaveBeenCalledWith({
 				where: { cuid: 'struct_1' },
@@ -533,6 +563,18 @@ describe('Salary Structure Service', () => {
 			await expect(
 				updateStructure('struct_2', { effective_from: '2024-01-01' })
 			).rejects.toThrow(BusinessValidationError);
+		});
+
+		it('should throw ConfirmationRequiredError (Scenario B) on update when modifying historical structures and confirmAdjustment is false', async () => {
+			const structA = mockStructureRecord({ cuid: 'struct_A', employee_cuid: 'EMP001', effective_from: new Date('2024-01-01'), effective_to: new Date('2024-06-30'), status: false });
+			const structB = mockStructureRecord({ cuid: 'struct_B', employee_cuid: 'EMP001', effective_from: new Date('2024-07-01'), effective_to: null, status: true });
+
+			vi.mocked(structureDao.findByCuid).mockResolvedValue(structB as never);
+			vi.mocked(structureDao.findByEmployeeCuid).mockResolvedValue([structA, structB] as never);
+
+			await expect(
+				updateStructure('struct_B', { effective_from: '2024-06-01', confirmAdjustment: false })
+			).rejects.toThrow(ConfirmationRequiredError);
 		});
 	});
 
