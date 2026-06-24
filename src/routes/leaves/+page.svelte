@@ -214,15 +214,7 @@
   };
   const todayLocalStr = $derived(getTodayLocalString());
 
-  const PUBLIC_HOLIDAYS_2026 = [
-    "2026-01-01", // New Year's Day
-    "2026-01-26", // Republic Day
-    "2026-04-03", // Good Friday
-    "2026-05-01", // May Day
-    "2026-08-15", // Independence Day
-    "2026-10-02", // Gandhi Jayanti
-    "2026-12-25", // Christmas
-  ];
+  let holidayDatesSet = $derived(new Set((data.holidays || []).map((h: any) => h.date)));
 
   function isWeekendUI(d: Date): boolean {
     const day = d.getDay();
@@ -234,7 +226,7 @@
     const mm = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
     const dateStr = `${yyyy}-${mm}-${dd}`;
-    return PUBLIC_HOLIDAYS_2026.includes(dateStr);
+    return holidayDatesSet.has(dateStr);
   }
 
   function getPayrollCycleForDate(d: Date, cutoff: number): string {

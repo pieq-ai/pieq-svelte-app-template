@@ -6,9 +6,13 @@ import type { PageLoad } from './$types';
  * All leave data is loaded client-side after the user selects an employee from the dropdown.
  */
 export const load: PageLoad = async ({ fetch }) => {
-	const employeesRes = await fetch('/api/employees/attendance-view');
+	const [employeesRes, holidaysRes] = await Promise.all([
+		fetch('/api/employees/attendance-view'),
+		fetch('/api/holidays')
+	]);
 
 	let employees: any[] = [];
+	let holidays: any[] = [];
 
 	if (employeesRes.ok) {
 		const json = await employeesRes.json();
@@ -20,5 +24,11 @@ export const load: PageLoad = async ({ fetch }) => {
 		}));
 	}
 
-	return { employees };
+	if (holidaysRes.ok) {
+		const json = await holidaysRes.json();
+		holidays = json.data || [];
+	}
+
+	return { employees, holidays };
 };
+

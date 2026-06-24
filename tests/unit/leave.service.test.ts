@@ -36,6 +36,10 @@ vi.mock('$lib/server/db.js', () => {
 			findUnique: vi.fn(),
 			upsert: vi.fn()
 		},
+		holidayCalendar: {
+			findMany: vi.fn().mockResolvedValue([]),
+			findFirst: vi.fn()
+		},
 		$transaction: vi.fn()
 	};
 	return { db: mockDb };

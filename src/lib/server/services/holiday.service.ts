@@ -1,4 +1,5 @@
 import * as holidayDao from '$lib/server/dao/holiday.dao.js';
+import { invalidateHolidayCache } from '$lib/server/config/leave.config.js';
 
 export const HOLIDAY_NAME_MAX_LENGTH = 200;
 const VALID_HOLIDAY_TYPES = new Set<string>(['National', 'Regional', 'Restricted']);
@@ -178,7 +179,9 @@ export async function createHoliday(input: CreateHolidayInput) {
 		throw new HolidayMultiValidationError(errors);
 	}
 
-	return holidayDao.create({ name: holiday_name, date: holiday_date, type: holiday_type, created_by: input.created_by, updated_by: input.updated_by });
+	const result = await holidayDao.create({ name: holiday_name, date: holiday_date, type: holiday_type, created_by: input.created_by, updated_by: input.updated_by });
+	invalidateHolidayCache();
+	return result;
 }
 
 export async function updateHoliday(cuid: string, input: UpdateHolidayInput) {
@@ -216,7 +219,9 @@ export async function updateHoliday(cuid: string, input: UpdateHolidayInput) {
 		throw new HolidayMultiValidationError(errors);
 	}
 
-	return holidayDao.update(cuid, { name: holiday_name, date: holiday_date, type: holiday_type, updated_by: input.updated_by });
+	const result = await holidayDao.update(cuid, { name: holiday_name, date: holiday_date, type: holiday_type, updated_by: input.updated_by });
+	invalidateHolidayCache();
+	return result;
 }
 
 export async function deleteHoliday(cuid: string) {
@@ -229,5 +234,7 @@ export async function deleteHoliday(cuid: string) {
 		throw new Error('Holiday not found');
 	}
 
-	return holidayDao.deleteHoliday(cuid);
+	const result = await holidayDao.deleteHoliday(cuid);
+	invalidateHolidayCache();
+	return result;
 }

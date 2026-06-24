@@ -1,7 +1,7 @@
 import * as leaveDao from '$lib/server/dao/leave.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
-import { calculateLeaveDays, isWeekend, isHoliday } from '$lib/server/config/leave.config.js';
+import { calculateLeaveDays, isWeekend, isHoliday, getHolidaysCached } from '$lib/server/config/leave.config.js';
 
 
 export interface ApplyLeaveInput {
@@ -115,6 +115,7 @@ export async function getMonthlyUsedDays(employeeCuid: string, month: number, ye
 		cycleEnd = new Date(Date.UTC(year, month + 1, 0));
 	}
 
+	const holidaysSet = await getHolidaysCached();
 	const requests = await leaveDao.getApprovedRequestsInPeriod(employeeCuid, cycleStart, cycleEnd, tx);
 
 	let total = 0;
@@ -156,7 +157,7 @@ export async function getMonthlyUsedDays(employeeCuid: string, month: number, ye
 		const activeDates: Date[] = [];
 		for (const d of dates) {
 			if (reqLeaveCode !== 'ML' && reqLeaveCode !== 'LWP') {
-				if (isWeekend(d) || isHoliday(d)) {
+				if (isWeekend(d) || isHoliday(d, holidaysSet)) {
 					continue;
 				}
 			}
@@ -911,6 +912,7 @@ export async function applyLeave(email: string, input: ApplyLeaveInput) {
  * Internal shared implementation for applyLeave and applyLeaveByCuid.
  */
 async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeaveInput) {
+	const holidaysSet = await getHolidaysCached();
 
 	const leaveType = await leaveDao.getLeaveTypeByCuid(input.leaveTypeCuid);
 	if (!leaveType) {
@@ -976,7 +978,7 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 	// Calculate requested days
 	const totalDays = input.isHalfDay
 		? 0.5
-		: calculateLeaveDays(startDate, endDate, leaveType.code);
+		: calculateLeaveDays(startDate, endDate, leaveType.code, holidaysSet);
 
 	if (totalDays === 0) {
 		throw new ValidationError('startDate', 'Requested leave period contains only holidays or weekends and counts as 0 days.');
@@ -1071,7 +1073,7 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 			let workingDaysBetween = 0;
 			const temp = new Date(checkStart);
 			while (temp <= checkEnd) {
-				if (!isWeekend(temp) && !isHoliday(temp)) {
+				if (!isWeekend(temp) && !isHoliday(temp, holidaysSet)) {
 					workingDaysBetween++;
 				}
 				temp.setDate(temp.getDate() + 1);
@@ -1300,6 +1302,7 @@ export async function withdrawLeave(email: string, requestCuid: string) {
  */
 export async function approveLeaveRequest(requestCuid: string, approverUserCuid: string) {
 	return leaveDao.runTransaction(async (tx) => {
+		const holidaysSet = await getHolidaysCached();
 		const request = await leaveDao.getLeaveRequestByCuid(requestCuid, tx);
 
 		if (!request) {
@@ -1431,7 +1434,7 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 		for (const d of dates) {
 			const code = leaveType.code.toUpperCase();
 			if (code !== 'ML' && code !== 'LWP') {
-				if (isWeekend(d) || isHoliday(d)) {
+				if (isWeekend(d) || isHoliday(d, holidaysSet)) {
 					continue;
 				}
 			}

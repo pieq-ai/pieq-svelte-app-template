@@ -1,3 +1,5 @@
+import { db } from '$lib/server/db.js';
+
 export function toUtcDateString(date: Date): string {
 	const yyyy = date.getUTCFullYear();
 	const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
@@ -10,22 +12,46 @@ export function isWeekend(date: Date): boolean {
 	return day === 0 || day === 6; // 0 = Sunday, 6 = Saturday
 }
 
-export const PUBLIC_HOLIDAYS_2026 = [
-	'2026-01-01', // New Year's Day
-	'2026-01-26', // Republic Day
-	'2026-04-03', // Good Friday
-	'2026-05-01', // May Day
-	'2026-08-15', // Independence Day
-	'2026-10-02', // Gandhi Jayanti
-	'2026-12-25'  // Christmas
-];
+let cachedHolidays: Set<string> | null = null;
+let cachePromise: Promise<Set<string>> | null = null;
 
-export function isHoliday(date: Date): boolean {
-	const dateStr = toUtcDateString(date);
-	return PUBLIC_HOLIDAYS_2026.includes(dateStr);
+export async function getHolidaysCached(): Promise<Set<string>> {
+	if (cachedHolidays) return cachedHolidays;
+	if (cachePromise) return cachePromise;
+
+	cachePromise = db.holidayCalendar.findMany({
+		select: { date: true }
+	}).then(list => {
+		cachedHolidays = new Set(list.map(h => toUtcDateString(h.date)));
+		cachePromise = null;
+		return cachedHolidays;
+	}).catch(err => {
+		cachePromise = null;
+		throw err;
+	});
+
+	return cachePromise;
 }
 
-export function calculateLeaveDays(startDate: Date, endDate: Date, leaveCode: string): number {
+export function invalidateHolidayCache(): void {
+	cachedHolidays = null;
+	cachePromise = null;
+}
+
+export function isHoliday(date: Date, holidaysSet?: Set<string>): boolean {
+	const dateStr = toUtcDateString(date);
+	if (holidaysSet) {
+		return holidaysSet.has(dateStr);
+	}
+	return cachedHolidays ? cachedHolidays.has(dateStr) : false;
+}
+
+export function calculateLeaveDays(
+	startDate: Date,
+	endDate: Date,
+	leaveCode: string,
+	holidaysSet?: Set<string>
+): number {
 	let count = 0;
 	const current = new Date(startDate);
 	current.setUTCHours(0, 0, 0, 0);
@@ -33,12 +59,14 @@ export function calculateLeaveDays(startDate: Date, endDate: Date, leaveCode: st
 	end.setUTCHours(0, 0, 0, 0);
 
 	const code = leaveCode.toUpperCase();
+	const activeSet = holidaysSet || cachedHolidays || new Set<string>();
 
 	while (current <= end) {
 		if (code === 'ML' || code === 'LWP') {
 			count++;
 		} else {
-			if (!isWeekend(current) && !isHoliday(current)) {
+			const dateStr = toUtcDateString(current);
+			if (!isWeekend(current) && !activeSet.has(dateStr)) {
 				count++;
 			}
 		}
@@ -46,4 +74,5 @@ export function calculateLeaveDays(startDate: Date, endDate: Date, leaveCode: st
 	}
 	return count;
 }
+
 
