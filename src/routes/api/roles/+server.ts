@@ -27,13 +27,15 @@ export async function GET({ url }) {
  * POST /api/roles
  * Creates a new role.
  */
-export async function POST({ request }) {
-  try {
-    if (request.headers.get('content-type')?.includes('application/json') === false) {
-      return json({ error: 'Content-Type must be application/json' }, { status: 415 });
-    }
-    const payload = await request.json();
-    const role = await roleService.createRole(payload);
+export async function POST({ request, locals }) {
+	try {
+		if (request.headers.get('content-type')?.includes('application/json') === false) {
+			return json({ error: 'Content-Type must be application/json' }, { status: 415 });
+		}
+		const payload = await request.json();
+		payload.created_by = locals?.user?.id;
+		payload.updated_by = locals?.user?.id;
+		const role = await roleService.createRole(payload);
     return sendCreated('Role', role.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;

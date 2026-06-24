@@ -53,12 +53,12 @@ export async function updateRole(cuid: string, payload: unknown): Promise<Role> 
 }
 
 /** Soft delete a role. */
-export async function deleteRole(cuid: string): Promise<Role> {
+export async function deleteRole(cuid: string, updatedBy?: string): Promise<Role> {
   const role = await roleDao.getRoleByCuid(cuid);
   if (!role) {
     const err: any = new Error('Role not found');
     err.status = 404;
     throw err;
   }
-  return roleDao.deactivateRole(cuid);
+  return roleDao.deactivateRole(cuid, updatedBy);
 }

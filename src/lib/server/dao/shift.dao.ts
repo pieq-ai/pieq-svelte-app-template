@@ -209,10 +209,10 @@ export async function updateShift(cuid: string, data: ShiftUpdateDTO): Promise<S
 /**
  * Soft‑delete (deactivate) a shift.
  */
-export async function deactivateShift(cuid: string): Promise<Shift> {
+export async function deactivateShift(cuid: string, updatedBy?: string): Promise<Shift> {
   return db.shift.update({
     where: { cuid },
-    data: { status: false },
+    data: { status: false, updated_by: updatedBy ?? null },
     select: {
       cuid: true,
       name: true,
@@ -229,10 +229,10 @@ export async function deactivateShift(cuid: string): Promise<Shift> {
 /**
  * Activate a deactivated shift.
  */
-export async function activateShift(cuid: string): Promise<Shift> {
+export async function activateShift(cuid: string, updatedBy?: string): Promise<Shift> {
   return db.shift.update({
     where: { cuid },
-    data: { status: true },
+    data: { status: true, updated_by: updatedBy ?? null },
     select: {
       cuid: true,
       name: true,

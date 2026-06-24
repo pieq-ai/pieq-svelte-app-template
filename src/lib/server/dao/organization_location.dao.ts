@@ -209,10 +209,10 @@ export async function updateLocation(cuid: string, data: CompanyLocationUpdateDT
 /**
  * Soft‑delete (deactivate) a location.
  */
-export async function deactivateLocation(cuid: string): Promise<CompanyLocation> {
+export async function deactivateLocation(cuid: string, updatedBy?: string): Promise<CompanyLocation> {
   return db.companyLocation.update({
     where: { cuid },
-    data: { status: false },
+    data: { status: false, updated_by: updatedBy ?? null },
     select: {
       cuid: true,
       name: true,
@@ -237,10 +237,10 @@ export async function deactivateLocation(cuid: string): Promise<CompanyLocation>
 /**
  * Activate a deactivated location.
  */
-export async function activateLocation(cuid: string): Promise<CompanyLocation> {
+export async function activateLocation(cuid: string, updatedBy?: string): Promise<CompanyLocation> {
   return db.companyLocation.update({
     where: { cuid },
-    data: { status: true },
+    data: { status: true, updated_by: updatedBy ?? null },
     select: {
       cuid: true,
       name: true,

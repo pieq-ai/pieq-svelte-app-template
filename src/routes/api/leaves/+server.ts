@@ -21,6 +21,10 @@ export async function GET(event: RequestEvent) {
 			details = await leaveService.getEmployeeLeaveDetails(email, year);
 		}
 
+		if (details && typeof details === 'object' && 'leaveTypes' in details) {
+			delete (details as any).leaveTypes;
+		}
+
 		return json({ data: details });
 	} catch (error) {
 		const message = (error as Error).message;
@@ -52,7 +56,7 @@ export async function POST(event: RequestEvent) {
 				expectedDeliveryDate: body.expectedDeliveryDate,
 				isMiscarriage: body.isMiscarriage,
 				childBirthDate: body.childBirthDate
-			});
+			}, event.locals.user?.id);
 		} else {
 			const email = event.locals.user?.email || '';
 			newRequest = await leaveService.applyLeave(email, {
@@ -66,7 +70,7 @@ export async function POST(event: RequestEvent) {
 				expectedDeliveryDate: body.expectedDeliveryDate,
 				isMiscarriage: body.isMiscarriage,
 				childBirthDate: body.childBirthDate
-			});
+			}, event.locals.user?.id);
 		}
 
 		return json({ data: newRequest }, { status: 201 });

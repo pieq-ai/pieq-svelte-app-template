@@ -1,7 +1,7 @@
 # Graph Report - pieq-svelte-app-template  (2026-06-24)
 
 ## Corpus Check
-- 399 files · ~173,581 words
+- 399 files · ~173,928 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `63a761b9`
+- Built from commit: `11f84a78`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -247,7 +247,7 @@ Nodes (11): Adding a new feature, Deployment, Keycloak client setup, pieq-svelte
 
 ### Community 32 - "Community 32"
 Cohesion: 0.15
-Nodes (13): Common workflows, Development, Other, Quick reference, Scripts, Testing, `yarn build`, `yarn dev` (+5 more)
+Nodes (13): Code quality, Common workflows, Other, Quick reference, Scripts, Testing, `yarn check`, `yarn check:watch` (+5 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.10
@@ -323,7 +323,7 @@ Nodes (8): calculateAge(), create(), CreateEmployeeData, CreateEmployeeInput, Em
 
 ### Community 57 - "Community 57"
 Cohesion: 0.15
-Nodes (16): POST(), POST(), GET(), getStatus(), POST(), GET(), PUT(), GET() (+8 more)
+Nodes (17): POST(), POST(), GET(), getMaster(), getStatus(), POST(), GET(), PUT() (+9 more)
 
 ### Community 58 - "Community 58"
 Cohesion: 0.09
@@ -393,6 +393,10 @@ Nodes (8): createDepartment(), CreateDepartmentDto, deleteDepartment(), getDepar
 Cohesion: 0.50
 Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
 
+### Community 78 - "Community 78"
+Cohesion: 0.50
+Nodes (4): Development, `yarn build`, `yarn dev`, `yarn preview`
+
 ### Community 79 - "Community 79"
 Cohesion: 0.22
 Nodes (6): @lucide/svelte/icons/circle-check, @lucide/svelte/icons/info, @lucide/svelte/icons/loader-2, @lucide/svelte/icons/octagon-x, mode-watcher, @lucide/svelte/icons/triangle-alert
@@ -438,8 +442,8 @@ Cohesion: 0.22
 Nodes (9): dependencies, @auth/core, @auth/sveltekit, dotenv, @paralleldrive/cuid2, pg, @prisma/adapter-pg, @prisma/client (+1 more)
 
 ### Community 92 - "Community 92"
-Cohesion: 0.80
-Nodes (4): GET(), getMaster(), getStatus(), POST()
+Cohesion: 0.83
+Nodes (3): GET(), getStatus(), POST()
 
 ### Community 93 - "Community 93"
 Cohesion: 0.29
@@ -492,10 +496,6 @@ Nodes (5): compilerOptions, types, exclude, extends, include
 ### Community 106 - "Community 106"
 Cohesion: 0.24
 Nodes (8): findByEmployeeCuid(), upsert(), UpsertEmploymentInput, employmentSchema, getEmploymentByEmployeeCuid(), toPublicEmployment(), upsertEmployment(), UpsertEmploymentDto
-
-### Community 107 - "Community 107"
-Cohesion: 0.50
-Nodes (4): Code quality, `yarn check`, `yarn check:watch`, `yarn lint`
 
 ### Community 108 - "Community 108"
 Cohesion: 0.40

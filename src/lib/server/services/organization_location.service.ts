@@ -57,7 +57,7 @@ export async function updateLocation(cuid: string, payload: unknown): Promise<Co
 }
 
 /** Soft delete / deactivate a location. */
-export async function deleteLocation(cuid: string): Promise<CompanyLocation> {
+export async function deleteLocation(cuid: string, updatedBy?: string): Promise<CompanyLocation> {
   const location = await locationDao.getLocationByCuid(cuid);
   if (!location) {
     const err: any = new Error('Company Location not found');
@@ -65,11 +65,11 @@ export async function deleteLocation(cuid: string): Promise<CompanyLocation> {
     throw err;
   }
   
-  return locationDao.deactivateLocation(cuid);
+  return locationDao.deactivateLocation(cuid, updatedBy);
 }
 
 /** Activate an inactive location. */
-export async function activateLocation(cuid: string): Promise<CompanyLocation> {
+export async function activateLocation(cuid: string, updatedBy?: string): Promise<CompanyLocation> {
   const location = await locationDao.getLocationByCuid(cuid);
   if (!location) {
     const err: any = new Error('Company Location not found');
@@ -77,5 +77,5 @@ export async function activateLocation(cuid: string): Promise<CompanyLocation> {
     throw err;
   }
   
-  return locationDao.activateLocation(cuid);
+  return locationDao.activateLocation(cuid, updatedBy);
 }

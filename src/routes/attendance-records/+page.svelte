@@ -1166,7 +1166,7 @@
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
-							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none {errors.employee_cuid ? 'border-destructive' : ''} {!!editCuid ? 'opacity-60 pointer-events-none' : ''}" {...props}>
+							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none {errors.employee_cuid ? 'border-destructive' : ''} {editCuid ? 'opacity-60 pointer-events-none' : ''}" {...props}>
 								<span class="truncate pr-2">
 									{formEmployeeCuid ? (employeeFormOptions.find(o => o.id === formEmployeeCuid)?.label || 'Select Employee') : 'Select Employee'}
 								</span>
@@ -1475,7 +1475,7 @@
 <ConfirmModal
 	open={isConfirmOpen}
 	title="Delete Attendance Record"
-	description="Are you sure you want to delete this attendance record? This action cannot be undone."
+	description="Are you sure you want to delete this attendance record?"
 	confirmLabel="Delete"
 	isSubmitting={isSubmitting}
 	onCancel={() => {

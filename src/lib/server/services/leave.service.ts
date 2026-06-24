@@ -861,20 +861,20 @@ export async function getEmployeeLeaveDetailsByCuid(employeeCuid: string, year: 
  * Cuid-based variant of applyLeave.
  * Used by the Leave Management page (employee dropdown pattern, same as Attendance).
  */
-export async function applyLeaveByCuid(employeeCuid: string, input: ApplyLeaveInput) {
+export async function applyLeaveByCuid(employeeCuid: string, input: ApplyLeaveInput, creatorCuid?: string) {
 	const employee = await employeeDao.getEmployeeByCuid(employeeCuid);
 	if (!employee) {
 		throw new Error('Employee record not found.');
 	}
 	const employment = await leaveDao.getEmploymentByEmployeeCuid(employeeCuid);
-	return _applyLeaveCore(employee, employment, input);
+	return _applyLeaveCore(employee, employment, input, creatorCuid);
 }
 
 /**
  * Cuid-based variant of withdrawLeave.
  * Used by the Leave Management page (employee dropdown pattern).
  */
-export async function withdrawLeaveByCuid(employeeCuid: string, requestCuid: string) {
+export async function withdrawLeaveByCuid(employeeCuid: string, requestCuid: string, actorCuid?: string) {
 	const employee = await employeeDao.getEmployeeByCuid(employeeCuid);
 	if (!employee) {
 		throw new Error('Employee record not found.');
@@ -896,22 +896,22 @@ export async function withdrawLeaveByCuid(employeeCuid: string, requestCuid: str
 	return leaveDao.updateLeaveRequest(requestCuid, {
 		request_status: 'withdrawn',
 		withdrawn_at: new Date(),
-		updated_by: employee.emp_code
+		updated_by: actorCuid || employee.cuid
 	});
 }
 
-export async function applyLeave(email: string, input: ApplyLeaveInput) {
+export async function applyLeave(email: string, input: ApplyLeaveInput, creatorCuid?: string) {
 	const { employee, employment } = await resolveEmployee(email);
 	if (!employee) {
 		throw new Error('Employee record not found.');
 	}
-	return _applyLeaveCore(employee, employment, input);
+	return _applyLeaveCore(employee, employment, input, creatorCuid);
 }
 
 /**
  * Internal shared implementation for applyLeave and applyLeaveByCuid.
  */
-async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeaveInput) {
+async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeaveInput, creatorCuid?: string) {
 	const holidaysSet = await getHolidaysCached();
 
 	const leaveType = await leaveDao.getLeaveTypeByCuid(input.leaveTypeCuid);
@@ -1028,12 +1028,18 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 
 		const isStartFuture = startYear > currentYear || (startYear === currentYear && startMonth > currentMonth);
 		const isEndFuture = endYear > currentYear || (endYear === currentYear && endMonth > currentMonth);
-		if (isStartFuture || isEndFuture) {
-			throw new ValidationError('startDate', 'Casual Leave (CL) and Sick Leave (SL) cannot be applied for future months.');
-		}
 
-		if (startYear !== endYear || startMonth !== endMonth) {
-			throw new ValidationError('endDate', 'Casual Leave (CL) and Sick Leave (SL) requests cannot span multiple months.');
+		if (leaveType.code === 'CL') {
+			if (isStartFuture || isEndFuture) {
+				throw new ValidationError('startDate', 'Casual Leave (CL) and Sick Leave (SL) cannot be applied for future months.');
+			}
+			if (startYear !== endYear || startMonth !== endMonth) {
+				throw new ValidationError('endDate', 'Casual Leave (CL) and Sick Leave (SL) requests cannot span multiple months.');
+			}
+		} else if (leaveType.code === 'SL') {
+			if (isStartFuture) {
+				throw new ValidationError('startDate', 'Casual Leave (CL) and Sick Leave (SL) cannot be applied for future months.');
+			}
 		}
 	}
 
@@ -1266,11 +1272,11 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 		days_from_primary: daysFromPrimary,
 		days_from_lwp: daysFromLwp,
 		days_from_lop: daysFromLop,
-		created_by: employee.emp_code
+		created_by: creatorCuid || employee.cuid
 	});
 }
 
-export async function withdrawLeave(email: string, requestCuid: string) {
+export async function withdrawLeave(email: string, requestCuid: string, actorCuid?: string) {
 	const { employee } = await resolveEmployee(email);
 	if (!employee) {
 		throw new Error('Employee record not found.');
@@ -1292,7 +1298,7 @@ export async function withdrawLeave(email: string, requestCuid: string) {
 	return leaveDao.updateLeaveRequest(requestCuid, {
 		request_status: 'withdrawn',
 		withdrawn_at: new Date(),
-		updated_by: employee.emp_code
+		updated_by: actorCuid || employee.cuid
 	});
 }
 

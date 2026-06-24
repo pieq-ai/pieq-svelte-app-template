@@ -16,10 +16,10 @@ export async function POST(event: RequestEvent) {
 
 		let result;
 		if (employeeCuid) {
-			result = await leaveService.withdrawLeaveByCuid(employeeCuid, cuid);
+			result = await leaveService.withdrawLeaveByCuid(employeeCuid, cuid, event.locals.user?.id);
 		} else {
 			const email = event.locals.user?.email || '';
-			result = await leaveService.withdrawLeave(email, cuid);
+			result = await leaveService.withdrawLeave(email, cuid, event.locals.user?.id);
 		}
 
 		return json({ data: result });

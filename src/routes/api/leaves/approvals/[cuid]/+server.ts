@@ -30,10 +30,11 @@ export async function POST(event: RequestEvent) {
 		}
 
 		let result;
+		const approverActorCuid = event.locals.user?.id || manager.cuid || managerEmployeeCuid;
 		if (action === 'approve') {
-			result = await leaveService.approveLeaveRequest(cuid, managerEmployeeCuid || manager.emp_code);
+			result = await leaveService.approveLeaveRequest(cuid, approverActorCuid);
 		} else if (action === 'reject') {
-			result = await leaveService.rejectLeaveRequest(cuid, managerEmployeeCuid || manager.emp_code);
+			result = await leaveService.rejectLeaveRequest(cuid, approverActorCuid);
 		} else {
 			throw new Error('Invalid action.');
 		}

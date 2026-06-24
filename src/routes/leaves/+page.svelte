@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, untrack } from "svelte";
   import { SvelteDate } from "svelte/reactivity";
   import LoaderCircleIcon from "@lucide/svelte/icons/loader-circle";
   import CalendarIcon from "@lucide/svelte/icons/calendar";
@@ -151,7 +151,51 @@
 
   let balances = $state<LeaveBalance[]>([]);
   let requests = $state<LeaveRequest[]>([]);
-  let leaveTypes = $state<LeaveType[]>([]);
+  let allActiveLeaveTypes = $state<any[]>([]);
+  let leaveTypes = $derived(
+    balances.map((b) => {
+      const activeType = allActiveLeaveTypes.find((t) => t.code === b.leave_code);
+      return {
+        cuid: b.leave_type_cuid,
+        leave_name: b.leave_name,
+        leave_code: b.leave_code,
+        is_paid: activeType ? activeType.is_paid : (b.leave_code !== "LWP" && b.leave_code !== "LOP"),
+        requires_approval: activeType ? activeType.requires_approval : true,
+        policy: {
+          annual_limit: b.allocated_days,
+          max_per_month: b.leave_code === "CL" ? 2 : null,
+          carry_forward_allowed: b.leave_code === "EL",
+          max_carry_forward_days: b.leave_code === "EL" ? 24 : null,
+          document_required: b.leave_code === "SL" || b.leave_code === "EL" || b.leave_code === "ML",
+          document_required_after_days: b.leave_code === "SL" ? 3 : (b.leave_code === "EL" ? 4 : null),
+          min_service_days: b.leave_code === "ML" ? 80 : 0,
+          allow_half_day: ["CL", "SL", "EL"].includes(b.leave_code),
+          gender_specific: b.leave_code === "ML" || b.leave_code === "PL",
+          applicable_gender: b.leave_code === "ML" ? "Female" : (b.leave_code === "PL" ? "Male" : null),
+        }
+      };
+    }).concat(
+      allActiveLeaveTypes.filter((t) => t.code === "LWP" && !balances.some((b) => b.leave_code === "LWP")).map((t) => ({
+        cuid: t.cuid,
+        leave_name: t.name,
+        leave_code: t.code,
+        is_paid: false,
+        requires_approval: t.requires_approval,
+        policy: {
+          annual_limit: 365,
+          max_per_month: null,
+          carry_forward_allowed: false,
+          max_carry_forward_days: null,
+          document_required: false,
+          document_required_after_days: null,
+          min_service_days: 0,
+          allow_half_day: true,
+          gender_specific: false,
+          applicable_gender: null,
+        }
+      }))
+    )
+  );
   let employee = $state<Employee | null>(null);
   let lopUsed = $state(0);
   let lwpUsed = $state(0);
@@ -199,6 +243,28 @@
   let formExpectedDeliveryDate = $state("");
   let formIsMiscarriage = $state(false);
   let formChildBirthDate = $state("");
+
+  $effect(() => {
+    void [
+      formLeaveTypeCuid,
+      formStartDate,
+      formEndDate,
+      formIsHalfDay,
+      formHalfDaySession,
+      formReason,
+      formExpectedDeliveryDate,
+      formIsMiscarriage,
+      formChildBirthDate,
+      formFileBase64,
+      formFileSize
+    ];
+
+    untrack(() => {
+      if (formIsTouched) {
+        validateForm();
+      }
+    });
+  });
 
   // Custom Date Picker states
   let activeDatePicker = $state<string | null>(null);
@@ -414,7 +480,6 @@
       if (res && res.data) {
         balances = res.data.balances || [];
         requests = res.data.requests || [];
-        leaveTypes = res.data.leaveTypes || [];
         employee = res.data.employee || null;
         isManager = res.data.isManager || false;
         pendingApprovals = res.data.pendingApprovals || [];
@@ -422,6 +487,12 @@
         selectedCutoff = payrollCutoffDay;
         lopUsed = res.data.lopUsed || 0;
         lwpUsed = res.data.lwpUsed || 0;
+      }
+
+      const typesRes = await fetch("/api/leave/types");
+      if (typesRes.ok) {
+        const typesJson = await typesRes.json();
+        allActiveLeaveTypes = typesJson.data || [];
       }
     } catch (err: any) {
       toast.error(err.message || "Failed to load leave details.");
@@ -439,7 +510,7 @@
       // Reset all leave state when no employee is selected
       balances = [];
       requests = [];
-      leaveTypes = [];
+      allActiveLeaveTypes = [];
       employee = null;
       isManager = false;
       pendingApprovals = [];
@@ -677,8 +748,7 @@
 
   let end_date_max = $derived.by(() => {
     if (
-      selectedLeaveType?.leave_code === "CL" ||
-      selectedLeaveType?.leave_code === "SL"
+      selectedLeaveType?.leave_code === "CL"
     ) {
       if (formStartDate) {
         const start = new Date(formStartDate + "T00:00:00");
@@ -962,26 +1032,28 @@
         }
       }
 
-      if (formEndDate && !formIsHalfDay) {
-        const end = new Date(formEndDate + "T00:00:00");
-        const isEndFuture =
-          end.getFullYear() > currentYear ||
-          (end.getFullYear() === currentYear && end.getMonth() > currentMonth);
-        if (isEndFuture) {
-          errors.endDate =
-            "Casual Leave (CL) and Sick Leave (SL) cannot be applied for future months";
+      if (selectedLeaveType.leave_code === "CL") {
+        if (formEndDate && !formIsHalfDay) {
+          const end = new Date(formEndDate + "T00:00:00");
+          const isEndFuture =
+            end.getFullYear() > currentYear ||
+            (end.getFullYear() === currentYear && end.getMonth() > currentMonth);
+          if (isEndFuture) {
+            errors.endDate =
+              "Casual Leave (CL) and Sick Leave (SL) cannot be applied for future months";
+          }
         }
-      }
 
-      if (formStartDate && formEndDate && !formIsHalfDay) {
-        const start = new Date(formStartDate + "T00:00:00");
-        const end = new Date(formEndDate + "T00:00:00");
-        if (
-          start.getFullYear() !== end.getFullYear() ||
-          start.getMonth() !== end.getMonth()
-        ) {
-          errors.endDate =
-            "Casual Leave (CL) and Sick Leave (SL) requests cannot span multiple months";
+        if (formStartDate && formEndDate && !formIsHalfDay) {
+          const start = new Date(formStartDate + "T00:00:00");
+          const end = new Date(formEndDate + "T00:00:00");
+          if (
+            start.getFullYear() !== end.getFullYear() ||
+            start.getMonth() !== end.getMonth()
+          ) {
+            errors.endDate =
+              "Casual Leave (CL) and Sick Leave (SL) requests cannot span multiple months";
+          }
         }
       }
     }
@@ -1150,7 +1222,9 @@
       if (res) {
         toast.success("Leave request withdrawn successfully.");
         withdrawModalOpen = false;
+        isDetailsModalOpen = false;
         requestToWithdraw = null;
+        selectedApproval = null;
         await loadDetails();
       }
     } catch (err: any) {
@@ -1539,7 +1613,7 @@
       type="text"
       {id}
       readonly
-      placeholder="dd mmm yyyy"
+      placeholder="dd mm yyyy"
       value={formatDateForDisplay(value)}
       onclick={(e) => {
         if (disabled) return;
@@ -1798,7 +1872,7 @@
                   ? "text-emerald-600 border-emerald-600/30 bg-emerald-50/50"
                   : "text-purple-600 border-purple-600/30 bg-purple-50/50"}
             <Card
-              class="bg-background border border-border/80 shadow-xs transition-transform hover:-translate-y-0.5 rounded-xl"
+              class="bg-background border border-border/80 shadow-xs rounded-xl"
             >
               <CardHeader
                 class="pb-1 pt-4 px-4 flex flex-row items-center justify-between"
@@ -1841,7 +1915,7 @@
 
           <!-- Loss of Pay (LOP) Stats Card -->
           <Card
-            class="bg-background border border-border/80 shadow-xs transition-transform hover:-translate-y-0.5 rounded-xl"
+            class="bg-background border border-border/80 shadow-xs rounded-xl"
           >
             <CardHeader
               class="pb-1 pt-4 px-4 flex flex-row items-center justify-between"
@@ -1869,7 +1943,7 @@
 
           <!-- Leave Without Pay (LWP) Stats Card -->
           <Card
-            class="bg-background border border-border/80 shadow-xs transition-transform hover:-translate-y-0.5 rounded-xl"
+            class="bg-background border border-border/80 shadow-xs rounded-xl"
           >
             <CardHeader
               class="pb-1 pt-4 px-4 flex flex-row items-center justify-between"
@@ -3124,19 +3198,6 @@
   {/snippet}
 </CrudModal>
 
-<!-- Confirm Withdraw Modal -->
-<ConfirmModal
-  open={withdrawModalOpen}
-  title="Withdraw Leave Request"
-  description="Are you sure you want to withdraw this leave request? This action cannot be undone."
-  confirmLabel="Withdraw"
-  isSubmitting={isWithdrawing}
-  onCancel={() => {
-    withdrawModalOpen = false;
-    requestToWithdraw = null;
-  }}
-  onConfirm={confirmWithdraw}
-/>
 
 <!-- View Details Modal for Approvals -->
 <CrudModal
@@ -3152,19 +3213,19 @@
   {#if selectedApproval}
     <div class="space-y-5 py-2">
       <!-- Employee Details -->
-      <div class="rounded-lg bg-accent/40 px-4 py-3 border border-border/60">
+      <div class="space-y-3">
         <p
-          class="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1"
+          class="text-xs text-muted-foreground uppercase font-bold tracking-wider border-b border-border pb-1"
         >
           Employee Information
         </p>
-        <div class="grid grid-cols-2 gap-2 text-sm">
-          <div class="text-muted-foreground">Name:</div>
-          <div class="font-bold text-right">
+        <div class="grid grid-cols-2 gap-2.5 text-sm">
+          <div class="font-bold text-foreground">Name:</div>
+          <div class="text-muted-foreground text-right">
             {selectedApproval.employee_name}
           </div>
-          <div class="text-muted-foreground">Code:</div>
-          <div class="font-bold text-right">
+          <div class="font-bold text-foreground">Code:</div>
+          <div class="text-muted-foreground text-right">
             {selectedApproval.employee_code}
           </div>
         </div>
@@ -3178,23 +3239,23 @@
           Request Information
         </p>
         <div class="grid grid-cols-2 gap-2.5 text-sm">
-          <div class="text-muted-foreground">Leave Type:</div>
-          <div class="font-semibold text-right">
+          <div class="font-bold text-foreground">Leave Type:</div>
+          <div class="text-muted-foreground text-right">
             {selectedApproval.leave_name} ({selectedApproval.leave_code})
           </div>
 
-          <div class="text-muted-foreground">From Date:</div>
-          <div class="font-semibold text-right">
+          <div class="font-bold text-foreground">From Date:</div>
+          <div class="text-muted-foreground text-right">
             {formatDate(selectedApproval.start_date)}
           </div>
 
-          <div class="text-muted-foreground">To Date:</div>
-          <div class="font-semibold text-right">
+          <div class="font-bold text-foreground">To Date:</div>
+          <div class="text-muted-foreground text-right">
             {formatDate(selectedApproval.end_date)}
           </div>
 
-          <div class="text-muted-foreground">Total Days:</div>
-          <div class="font-bold text-right">
+          <div class="font-bold text-foreground">Total Days:</div>
+          <div class="text-muted-foreground text-right">
             {selectedApproval.total_days.toFixed(1)} days
             {#if selectedApproval.is_half_day}
               <Badge
@@ -3206,8 +3267,8 @@
           </div>
 
           {#if selectedApproval.leave_code !== "LWP" && selectedApproval.days_from_lwp > 0}
-            <div class="text-muted-foreground">Deduction Breakdown:</div>
-            <div class="font-semibold text-right text-xs">
+            <div class="font-bold text-foreground">Deduction Breakdown:</div>
+            <div class="text-muted-foreground text-right text-xs">
               {#if selectedApproval.days_from_primary === 0}
                 {selectedApproval.days_from_lwp} LWP
               {:else}
@@ -3219,8 +3280,8 @@
           {/if}
 
           {#if selectedApproval.leave_code !== "LOP" && selectedApproval.days_from_lop > 0}
-            <div class="text-muted-foreground">Deduction Breakdown:</div>
-            <div class="font-semibold text-right text-xs text-red-600">
+            <div class="font-bold text-foreground">Deduction Breakdown:</div>
+            <div class="text-muted-foreground text-right text-xs">
               {#if selectedApproval.days_from_primary === 0}
                 {selectedApproval.days_from_lop} LOP
               {:else}
@@ -3231,12 +3292,12 @@
             </div>
           {/if}
 
-          <div class="text-muted-foreground">Applied Date:</div>
-          <div class="font-semibold text-right">
+          <div class="font-bold text-foreground">Applied Date:</div>
+          <div class="text-muted-foreground text-right">
             {formatDate(selectedApproval.created_at)}
           </div>
 
-          <div class="text-muted-foreground">Status:</div>
+          <div class="font-bold text-foreground">Status:</div>
           <div class="text-right">
             <Badge
               variant={getStatusBadge(selectedApproval.request_status)}
@@ -3267,7 +3328,7 @@
         <div
           class="flex items-center justify-between border-t border-border pt-3"
         >
-          <span class="text-sm text-muted-foreground">Supporting Document</span>
+          <span class="text-sm font-bold text-foreground">Supporting Document</span>
           <a
             href={resolve(selectedApproval.document_url as any)}
             target="_blank"
@@ -3278,21 +3339,10 @@
         </div>
       {/if}
 
-      <!-- Action Buttons if Pending -->
+      <!-- Action Buttons -->
       <div
         class="flex items-center justify-end gap-3 pt-4 border-t border-border/50"
       >
-        <Button
-          type="button"
-          variant="outline"
-          onclick={() => {
-            isDetailsModalOpen = false;
-            selectedApproval = null;
-          }}
-          disabled={isActionSubmitting}
-        >
-          Close
-        </Button>
         {#if selectedApproval.request_status === "pending"}
           {#if selectedApproval.source === "my_leaves"}
             <Button
@@ -3300,7 +3350,6 @@
               variant="destructive"
               class="font-bold"
               onclick={() => {
-                isDetailsModalOpen = false;
                 openWithdrawModal(selectedApproval);
               }}
               disabled={isActionSubmitting}
@@ -3310,14 +3359,6 @@
           {:else if selectedApproval.source === "approvals"}
             <Button
               type="button"
-              class="bg-emerald-600 text-white hover:bg-emerald-700 font-bold"
-              onclick={() => openApproveConfirm(selectedApproval)}
-              disabled={isActionSubmitting}
-            >
-              Approve
-            </Button>
-            <Button
-              type="button"
               variant="destructive"
               class="font-bold"
               onclick={() => openRejectConfirm(selectedApproval)}
@@ -3325,7 +3366,17 @@
             >
               Reject
             </Button>
+            <Button
+              type="button"
+              class="bg-emerald-600 text-white hover:bg-emerald-700 font-bold"
+              onclick={() => openApproveConfirm(selectedApproval)}
+              disabled={isActionSubmitting}
+            >
+              Approve
+            </Button>
           {/if}
+        {:else}
+          <span class="text-xs text-muted-foreground italic">Status: {selectedApproval.request_status}</span>
         {/if}
       </div>
     </div>
@@ -3336,7 +3387,7 @@
 <ConfirmModal
   open={approveModalOpen}
   title="Approve Leave Request"
-  description="Are you sure you want to approve this leave request? Leave balance will be deducted, and attendance records will be updated."
+  description="Are you sure you want to approve this leave request?"
   confirmLabel="Approve"
   isSubmitting={isActionSubmitting}
   onCancel={() => {
@@ -3350,7 +3401,7 @@
 <ConfirmModal
   open={rejectModalOpen}
   title="Reject Leave Request"
-  description="Are you sure you want to reject this leave request? This action cannot be undone."
+  description="Are you sure you want to reject this leave request?"
   confirmLabel="Reject"
   isSubmitting={isActionSubmitting}
   onCancel={() => {
@@ -3358,4 +3409,18 @@
     approvalToAct = null;
   }}
   onConfirm={executeReject}
+/>
+
+<!-- Confirm Withdraw Modal -->
+<ConfirmModal
+  open={withdrawModalOpen}
+  title="Withdraw Leave Request"
+  description="Are you sure you want to withdraw this leave request?"
+  confirmLabel="Withdraw"
+  isSubmitting={isWithdrawing}
+  onCancel={() => {
+    withdrawModalOpen = false;
+    requestToWithdraw = null;
+  }}
+  onConfirm={confirmWithdraw}
 />

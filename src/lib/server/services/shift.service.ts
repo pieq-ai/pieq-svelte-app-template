@@ -176,7 +176,7 @@ export async function updateShift(cuid: string, payload: unknown): Promise<Shift
 }
 
 /** Soft delete / deactivate a shift. */
-export async function deleteShift(cuid: string): Promise<Shift> {
+export async function deleteShift(cuid: string, updatedBy?: string): Promise<Shift> {
   const shift = await shiftDao.getShiftByCuid(cuid);
   if (!shift) {
     const err: any = new Error('Shift not found');
@@ -184,11 +184,11 @@ export async function deleteShift(cuid: string): Promise<Shift> {
     throw err;
   }
   
-  return shiftDao.deactivateShift(cuid);
+  return shiftDao.deactivateShift(cuid, updatedBy);
 }
 
 /** Activate a shift. */
-export async function activateShift(cuid: string): Promise<Shift> {
+export async function activateShift(cuid: string, updatedBy?: string): Promise<Shift> {
   const shift = await shiftDao.getShiftByCuid(cuid);
   if (!shift) {
     const err: any = new Error('Shift not found');
@@ -211,5 +211,5 @@ export async function activateShift(cuid: string): Promise<Shift> {
     throw err;
   }
   
-  return shiftDao.activateShift(cuid);
+  return shiftDao.activateShift(cuid, updatedBy);
 }
