@@ -11,7 +11,7 @@ export async function create(data: CreatePayrollUploadDto) {
 			year: data.year,
 			status: data.status ?? 'processed',
 			file_name: data.file_name ?? null,
-			failure_reason: data.failure_reason ?? null,
+			errors: data.errors ?? null,
 			created_by: data.created_by ?? null
 		}
 	});
@@ -22,8 +22,8 @@ export async function findByCuid(cuid: string) {
 	const record = await db.payrollUpload.findUnique({ where: { cuid } });
 	if (!record) return null;
 
-	const failureCount = await db.payrollUploadFailure.count({
-		where: { payroll_upload_cuid: cuid }
+	const failureCount = await db.payrollUploadRecord.count({
+		where: { payroll_upload_cuid: cuid, status: 'failed' }
 	});
 
 	return {
@@ -32,19 +32,19 @@ export async function findByCuid(cuid: string) {
 	};
 }
 
-/** Update the employee_count, status, and failure_reason after processing. */
+/** Update the employee_count, status, and errors after processing. */
 export async function updateEmployeeCount(
 	cuid: string,
 	employee_count: number,
 	status?: string,
-	failure_reason?: string | null
+	errors?: string | null
 ) {
 	return db.payrollUpload.update({
 		where: { cuid },
 		data: {
 			employee_count,
 			...(status ? { status } : {}),
-			...(failure_reason !== undefined ? { failure_reason } : {})
+			...(errors !== undefined ? { errors } : {})
 		}
 	});
 }
@@ -57,8 +57,9 @@ export async function findMany() {
 		orderBy: [{ uploaded_at: 'desc' }]
 	});
 
-	const failureGroups = await db.payrollUploadFailure.groupBy({
+	const failureGroups = await db.payrollUploadRecord.groupBy({
 		by: ['payroll_upload_cuid'],
+		where: { status: 'failed' },
 		_count: {
 			id: true
 		}

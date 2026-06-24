@@ -35,8 +35,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260616161500_salary_tables\\migration.sql": {
-    "mtime": 1782136004.1714294,
-    "ast_hash": "6730f7d237aa1449494824db3c0864f8",
+    "mtime": 1782283932.7298045,
+    "ast_hash": "fad9ad69bbc9265126c3b966d192c76c",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\prisma\\migrations\\20260620160426_added_system_roles_and_permissions\\migration.sql": {
@@ -809,19 +809,14 @@
     "ast_hash": "0d8448c36bb23997cc3fee77929835b4",
     "semantic_hash": ""
   },
-  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\dao\\payroll-upload-failure.dao.ts": {
-    "mtime": 1782218374.1918795,
-    "ast_hash": "7c6e6dd2758674fac2e3c36048440962",
-    "semantic_hash": ""
-  },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\dao\\payroll-upload.dao.ts": {
-    "mtime": 1782218377.7412114,
-    "ast_hash": "6df378b9e424fb5fd661619edcdc1f23",
+    "mtime": 1782282870.9129362,
+    "ast_hash": "a766c8f4e0316b830ef0d70b2c3b1044",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\dao\\payroll.dao.ts": {
-    "mtime": 1782218381.58543,
-    "ast_hash": "b98cecb091e564cacdc6fa4b8d47f036",
+    "mtime": 1782282864.4717536,
+    "ast_hash": "2df4b9dad980d6f4f984b19f4588d275",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\dao\\permission.dao.ts": {
@@ -884,19 +879,14 @@
     "ast_hash": "96485382ceb15b9dc557788c957d36be",
     "semantic_hash": ""
   },
-  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\serializers\\payroll-upload-failure.serializer.ts": {
-    "mtime": 1782136004.658809,
-    "ast_hash": "c643e2521ec0113d18ab30ff921f4384",
-    "semantic_hash": ""
-  },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\serializers\\payroll-upload.serializer.ts": {
-    "mtime": 1782136004.6750288,
-    "ast_hash": "0c222c56241763b1cf4afa72e7b079fc",
+    "mtime": 1782282894.946728,
+    "ast_hash": "074ddbd9a4e27abbbd587e0aa6b57d9d",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\serializers\\payroll.serializer.ts": {
-    "mtime": 1782191698.0349422,
-    "ast_hash": "23145de5f4f13a34dc5a1757b50cc9b6",
+    "mtime": 1782282886.3291354,
+    "ast_hash": "931d499e1a26b037087034a5651e0b8c",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\serializers\\salary-component.serializer.ts": {
@@ -994,19 +984,14 @@
     "ast_hash": "557b36f9e0442a2e9fcc4c49d3aa5e15",
     "semantic_hash": ""
   },
-  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\services\\payroll-upload-failure.service.ts": {
-    "mtime": 1782136004.9112487,
-    "ast_hash": "dd93eed84a102d34ae117bd2873c3b1a",
-    "semantic_hash": ""
-  },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\services\\payroll-upload.service.ts": {
-    "mtime": 1782136004.9278564,
-    "ast_hash": "07f9d69729bb3b9ea62f6f8c303136b2",
+    "mtime": 1782282901.5117867,
+    "ast_hash": "e512b541499ecec1d166620362c45511",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\services\\payroll.service.ts": {
-    "mtime": 1782218997.217015,
-    "ast_hash": "6fa42c8779b2e3187ddcb8255685158b",
+    "mtime": 1782283075.547003,
+    "ast_hash": "310f78e8692e304d4ffbe997e5682096",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\services\\permission.service.ts": {
@@ -1030,8 +1015,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\services\\salary-structure.service.ts": {
-    "mtime": 1782223117.6538205,
-    "ast_hash": "89f37ba905842b4aa09a120374de961c",
+    "mtime": 1782279918.0266435,
+    "ast_hash": "e6c19d130564ad2f910a93770c6e1b41",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\services\\shift.service.ts": {
@@ -1145,8 +1130,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\types\\payroll.ts": {
-    "mtime": 1782218400.1181135,
-    "ast_hash": "b6135e5bd1502e5572e6154ab6cabd8c",
+    "mtime": 1782282880.0850673,
+    "ast_hash": "06569e1656d0c00a4d996a1be531283f",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\types\\role.ts": {
@@ -1420,8 +1405,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\api\\payrolls\\[cuid]\\+server.ts": {
-    "mtime": 1782136005.4728673,
-    "ast_hash": "8d73814f626668fbd3ba5c9ca9b2257e",
+    "mtime": 1782283085.315501,
+    "ast_hash": "4a45de3c9333533c53dba44d89e4f53f",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\api\\payrolls\\upload\\+server.ts": {
@@ -1660,8 +1645,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\payrolls\\[cuid]\\+page.svelte": {
-    "mtime": 1782218400.1459908,
-    "ast_hash": "6da5affa9606523993baa0d4e827da2d",
+    "mtime": 1782283120.8092463,
+    "ast_hash": "a9cf7a4bd661f4c270381d62d8f822ed",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\payrolls\\[cuid]\\+page.ts": {
@@ -1690,8 +1675,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\salary-structures\\+page.svelte": {
-    "mtime": 1782221197.91108,
-    "ast_hash": "a66a8415a062584643bc0b6ce7a19f4b",
+    "mtime": 1782279931.12296,
+    "ast_hash": "c0e2ae771189c5544f5f791dac474283",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\routes\\salary-structures\\[cuid]\\+page.svelte": {
@@ -1890,8 +1875,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\payroll.service.test.ts": {
-    "mtime": 1782219018.957248,
-    "ast_hash": "6cd852e6456aa4ff604a335286ddf5ca",
+    "mtime": 1782283231.7023063,
+    "ast_hash": "b4e751b54a6530f7b9d0945844f12986",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\payroll.validator.test.ts": {
@@ -1935,8 +1920,8 @@
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\salary-structure.service.test.ts": {
-    "mtime": 1782221653.77677,
-    "ast_hash": "9a648970197a296e3229edddfafd8e4b",
+    "mtime": 1782279925.040252,
+    "ast_hash": "64d56082fa7f3a6046da4afaa4f8e52c",
     "semantic_hash": ""
   },
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\tests\\unit\\salary-structure.validator.test.ts": {
@@ -2022,6 +2007,21 @@
   "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\assets\\favicon.svg": {
     "mtime": 1780903543.6063392,
     "ast_hash": "231158953131c094dfb5f3b7cc951a2d",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\dao\\payroll-upload-record.dao.ts": {
+    "mtime": 1782282846.4724598,
+    "ast_hash": "1a0f9eb7318b72751775b05805ea0488",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\serializers\\payroll-upload-record.serializer.ts": {
+    "mtime": 1782282852.7880569,
+    "ast_hash": "45e4dfe6f7d4ea761b5c98952f890d1f",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\user\\Abiney Workspace\\pieq-svelte-app-template\\src\\lib\\server\\services\\payroll-upload-record.service.ts": {
+    "mtime": 1782282857.7859614,
+    "ast_hash": "3b3f3754355a4334f27a48807342a9a9",
     "semantic_hash": ""
   }
 }

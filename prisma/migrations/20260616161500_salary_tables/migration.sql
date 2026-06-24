@@ -55,7 +55,7 @@ CREATE TABLE "payroll_uploads" (
     "employee_count" INTEGER NOT NULL DEFAULT 0,
     "status" VARCHAR(50) NOT NULL DEFAULT 'processed',
     "file_name" VARCHAR(255),
-    "failure_reason" TEXT,
+    "errors" TEXT,
     "uploaded_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_by" TEXT,
@@ -70,8 +70,6 @@ CREATE TABLE "payrolls" (
     "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
     "employee_cuid" TEXT NOT NULL,
-    "employee_code" VARCHAR(50) NOT NULL,
-    "employee_name" VARCHAR(200) NOT NULL,
     "month" INTEGER NOT NULL,
     "year" INTEGER NOT NULL,
     "gross_earnings" DECIMAL(15,2) NOT NULL,
@@ -89,17 +87,19 @@ CREATE TABLE "payrolls" (
 );
 
 -- CreateTable
-CREATE TABLE "payroll_upload_failures" (
+CREATE TABLE "payroll_upload_records" (
     "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
     "payroll_upload_cuid" TEXT NOT NULL,
     "row_number" INTEGER NOT NULL,
     "employee_code" VARCHAR(50),
-    "error_type" VARCHAR(100) NOT NULL,
-    "error_message" TEXT NOT NULL,
+    "employee_name" VARCHAR(200),
+    "status" VARCHAR(50) NOT NULL,
+    "row_data" JSONB NOT NULL,
+    "errors" JSONB,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "payroll_upload_failures_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "payroll_upload_records_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -157,10 +157,10 @@ CREATE INDEX "payrolls_cuid_idx" ON "payrolls"("cuid");
 CREATE UNIQUE INDEX "payrolls_employee_cuid_month_year_key" ON "payrolls"("employee_cuid", "month", "year");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "payroll_upload_failures_cuid_key" ON "payroll_upload_failures"("cuid");
+CREATE UNIQUE INDEX "payroll_upload_records_cuid_key" ON "payroll_upload_records"("cuid");
 
 -- CreateIndex
-CREATE INDEX "payroll_upload_failures_payroll_upload_cuid_idx" ON "payroll_upload_failures"("payroll_upload_cuid");
+CREATE INDEX "payroll_upload_records_payroll_upload_cuid_idx" ON "payroll_upload_records"("payroll_upload_cuid");
 
 -- CreateIndex
-CREATE INDEX "payroll_upload_failures_cuid_idx" ON "payroll_upload_failures"("cuid");
+CREATE INDEX "payroll_upload_records_cuid_idx" ON "payroll_upload_records"("cuid");

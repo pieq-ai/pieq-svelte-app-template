@@ -8,8 +8,6 @@ export async function create(data: CreatePayrollDto) {
 	return db.payroll.create({
 		data: {
 			employee_cuid: data.employee_cuid,
-			employee_code: data.employee_code,
-			employee_name: data.employee_name,
 			month: data.month,
 			year: data.year,
 			gross_earnings: data.gross_earnings,
@@ -43,14 +41,13 @@ export async function findByEmployeeMonthYear(
 /** Fetch all payroll records, most recent period first. */
 export async function findMany() {
 	return db.payroll.findMany({
-		orderBy: [{ year: 'desc' }, { month: 'desc' }, { employee_code: 'asc' }]
+		orderBy: [{ year: 'desc' }, { month: 'desc' }]
 	});
 }
 
 /** Fetch all payroll records belonging to a specific upload batch. */
 export async function findManyByUploadCuid(payroll_upload_cuid: string) {
 	return db.payroll.findMany({
-		where: { payroll_upload_cuid },
-		orderBy: [{ employee_code: 'asc' }]
+		where: { payroll_upload_cuid }
 	});
 }

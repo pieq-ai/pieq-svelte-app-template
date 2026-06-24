@@ -572,33 +572,7 @@
 
 			const resData = await response.json();
 
-			if (response.ok && resData.data && resData.data.confirmationRequired) {
-				isSubmittingDates = false;
-				adjustmentConfirmCallback = async () => {
-					showAdjustmentConfirm = false;
-					isSubmittingDates = true;
-					try {
-						const retryResponse = await fetch(`/api/salary-structures/${editingStructureForDates!.cuid}`, {
-							method: 'PUT',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({ ...payload, confirmAdjustment: true })
-						});
-						const retryData = await retryResponse.json();
-						if (retryResponse.ok) {
-							toast.success('Effective dates updated successfully');
-							closeEditDates();
-							await loadAll();
-						} else {
-							datesBackendError = retryData.data?.error || retryData.message || 'Failed to update effective dates';
-						}
-					} catch {
-						datesBackendError = 'An unexpected error occurred';
-					} finally {
-						isSubmittingDates = false;
-					}
-				};
-				showAdjustmentConfirm = true;
-			} else if (response.ok) {
+			if (response.ok) {
 				toast.success('Effective dates updated successfully');
 				closeEditDates();
 				await loadAll();
@@ -1092,7 +1066,7 @@
 <ConfirmModal
 	open={showAdjustmentConfirm}
 	title="Effective Date Adjustment"
-	description="This effective date overlaps with an existing salary structure. Continuing will automatically update adjacent salary structure dates to maintain a continuous salary history. Do you want to proceed?"
+	description="This effective date overlaps with an existing salary structure. Do you want to proceed?"
 	cancelLabel="Cancel"
 	confirmLabel="Save"
 	onConfirm={adjustmentConfirmCallback}

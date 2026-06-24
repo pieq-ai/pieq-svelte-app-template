@@ -9,8 +9,16 @@ import type { Payroll, PayrollEmployeeDetails } from '$lib/types/payroll.js';
  * - Casts `breakdown` Json to Record<string, number>
  * - Optionally attaches `employee_details` if provided by the service layer
  */
+/**
+ * Serialize a Prisma Payroll record for JSON transport.
+ * - Strips internal BigInt `id`
+ * - Converts Decimal fields to numbers
+ * - Converts DateTime fields to ISO strings
+ * - Casts `breakdown` Json to Record<string, number>
+ * - Optionally attaches `employee_details` if provided by the service layer
+ */
 export function serializePayroll(
-	record: PrismaPayroll,
+	record: PrismaPayroll & { employee_code: string; employee_name: string },
 	employeeDetails?: PayrollEmployeeDetails
 ): Payroll {
 	return {
@@ -31,6 +39,8 @@ export function serializePayroll(
 }
 
 /** Serialize a list of payroll records. */
-export function serializePayrollList(records: PrismaPayroll[]): Payroll[] {
+export function serializePayrollList(
+	records: (PrismaPayroll & { employee_code: string; employee_name: string })[]
+): Payroll[] {
 	return records.map((r) => serializePayroll(r));
 }

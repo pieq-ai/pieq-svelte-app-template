@@ -402,7 +402,7 @@ model PayrollUpload {
   file_name String? @db.VarChar(255)
 
   /// Failure reason if the upload-level validation failed
-  failure_reason String? @db.Text
+  errors String? @db.Text
 
   /// Timestamp when the file was uploaded
   uploaded_at DateTime @default(now()) @db.Timestamptz()
@@ -429,12 +429,6 @@ model Payroll {
 
   /// CUID of the employee (matched by employee_code at upload time; no FK constraint)
   employee_cuid String @db.Text
-
-  /// Human-readable employee code from Excel (e.g. "EMP001")
-  employee_code String @db.VarChar(50)
-
-  /// Employee display name captured from Excel
-  employee_name String @db.VarChar(200)
 
   /// Month as integer 1-12
   month Int
@@ -474,8 +468,8 @@ model Payroll {
   @@map("payrolls")
 }
 
-/// Represents one row-level failure in a payroll upload batch.
-model PayrollUploadFailure {
+/// Represents one processed or failed row in a payroll upload batch.
+model PayrollUploadRecord {
   /// Auto-incrementing surrogate primary key (internal use only)
   id BigInt @id @default(autoincrement())
 
@@ -491,18 +485,24 @@ model PayrollUploadFailure {
   /// The employee code associated with the row, if any
   employee_code String? @db.VarChar(50)
 
-  /// The error type/code (e.g., 'Validation Error', 'Employee Not Found', etc.)
-  error_type String @db.VarChar(100)
+  /// The employee name associated with the row, if any
+  employee_name String? @db.VarChar(200)
 
-  /// The detailed human-readable failure reason
-  error_message String @db.Text
+  /// Processing status: 'processed' | 'failed'
+  status String @db.VarChar(50)
 
-  /// Timestamp when this failure record was created
+  /// Raw row data from Excel
+  row_data Json
+
+  /// Validation/processing errors if any
+  errors Json?
+
+  /// Timestamp when this record was created
   created_at DateTime @default(now()) @db.Timestamptz()
 
   @@index([payroll_upload_cuid])
   @@index([cuid])
-  @@map("payroll_upload_failures")
+  @@map("payroll_upload_records")
 }
 
 

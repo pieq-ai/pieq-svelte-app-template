@@ -499,15 +499,11 @@ export async function updateStructure(cuid: string, dto: UpdateSalaryStructureDt
 		cuid,
 		proposedFrom,
 		proposedTo,
-		dto.confirmAdjustment ?? false
+		true
 	);
 
 	if (timeline.status === 'invalid') {
 		throw new BusinessValidationError(timeline.error!);
-	}
-
-	if (timeline.status === 'confirm_required') {
-		throw new ConfirmationRequiredError();
 	}
 
 	if (dto.employee_cuid !== undefined) {

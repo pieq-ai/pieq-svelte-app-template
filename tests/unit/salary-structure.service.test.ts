@@ -479,7 +479,7 @@ describe('Salary Structure Service', () => {
 			).rejects.toThrow('Effective To must be greater than Effective From.');
 		});
 
-		it('should throw ConfirmationRequiredError (Scenario B) on update when a neighbor structure requires adjustment', async () => {
+		it('should auto-adjust neighboring structures (Scenario B) on update without requiring confirmation', async () => {
 			vi.mocked(structureDao.findByCuid).mockResolvedValue(
 				mockStructureRecord({ cuid: 'struct_2', employee_cuid: 'EMP001', effective_from: new Date('2025-01-01'), effective_to: null, status: true }) as never
 			);
@@ -497,9 +497,19 @@ describe('Salary Structure Service', () => {
 				mockStructureRecord({ cuid: 'struct_2', employee_cuid: 'EMP001', effective_from: new Date('2025-01-01'), effective_to: null, status: true })
 			] as never);
 
-			await expect(
-				updateStructure('struct_2', { effective_from: '2024-06-01' })
-			).rejects.toThrow(ConfirmationRequiredError);
+			const updatedRecord = mockStructureRecord({ cuid: 'struct_2', employee_cuid: 'EMP001', effective_from: new Date('2024-06-01'), effective_to: null, status: true });
+			mockTx.salaryStructure.update.mockResolvedValue(updatedRecord);
+
+			const result = await updateStructure('struct_2', { effective_from: '2024-06-01' });
+
+			expect(mockTx.salaryStructure.update).toHaveBeenCalledWith({
+				where: { cuid: 'struct_1' },
+				data: {
+					effective_to: new Date('2024-05-31'),
+					status: false
+				}
+			});
+			expect(result.effective_from).toBe('2024-06-01');
 		});
 
 		it('should throw BusinessValidationError (Scenario C) on update when duplicate effective_from occurs', async () => {

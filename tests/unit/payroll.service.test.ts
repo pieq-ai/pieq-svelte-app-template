@@ -7,17 +7,29 @@ import {
 } from '$lib/server/services/payroll.service.js';
 import { Prisma } from '$lib/generated/prisma/client.js';
 
+// ─── Mock DB ──────────────────────────────────────────────────────────────────
+
+vi.mock('$lib/server/db.js', () => ({
+	db: {
+		employee: {
+			findMany: vi.fn()
+		}
+	}
+}));
+
 // ─── Mock DAO ─────────────────────────────────────────────────────────────────
 
 vi.mock('$lib/server/dao/payroll.dao.js', () => ({
 	create: vi.fn(),
 	findByCuid: vi.fn(),
 	findByEmployeeMonthYear: vi.fn(),
-	findMany: vi.fn()
+	findMany: vi.fn(),
+	findManyByUploadCuid: vi.fn()
 }));
 
 vi.mock('$lib/server/dao/employee.dao.js', () => ({
-	findByEmpCode: vi.fn()
+	findByEmpCode: vi.fn(),
+	findByCuid2: vi.fn()
 }));
 
 vi.mock('$lib/server/dao/employment.dao.js', () => ({
@@ -45,7 +57,7 @@ vi.mock('$lib/server/dao/payroll-upload.dao.js', () => ({
 	findMany: vi.fn()
 }));
 
-vi.mock('$lib/server/dao/payroll-upload-failure.dao.js', () => ({
+vi.mock('$lib/server/dao/payroll-upload-record.dao.js', () => ({
 	create: vi.fn(),
 	findManyByUploadCuid: vi.fn()
 }));
@@ -58,9 +70,10 @@ vi.mock('$lib/server/providers/employee.provider.js', () => ({
 
 // ─── Import mocked modules ────────────────────────────────────────────────────
 
+import { db } from '$lib/server/db.js';
 import * as dao from '$lib/server/dao/payroll.dao.js';
 import * as uploadDao from '$lib/server/dao/payroll-upload.dao.js';
-import * as failureDao from '$lib/server/dao/payroll-upload-failure.dao.js';
+import * as recordDao from '$lib/server/dao/payroll-upload-record.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import * as bankDetailDao from '$lib/server/dao/bank-detail.dao.js';
@@ -139,6 +152,20 @@ describe('Payroll Service', () => {
 		// Default: upload DAO create returns a mock upload record
 		vi.mocked(uploadDao.create).mockResolvedValue(mockUploadRecord() as never);
 		vi.mocked(uploadDao.updateEmployeeCount).mockResolvedValue(mockUploadRecord() as never);
+		vi.mocked(db.employee.findMany).mockResolvedValue([
+			{
+				cuid: 'EMP001',
+				emp_code: 'EMP001',
+				first_name: 'John',
+				last_name: 'Doe'
+			},
+			{
+				cuid: 'EMP002',
+				emp_code: 'EMP002',
+				first_name: 'Jane',
+				last_name: 'Doe'
+			}
+		] as any);
 	});
 
 	// ─── uploadPayroll ────────────────────────────────────────────────────────
@@ -148,6 +175,7 @@ describe('Payroll Service', () => {
 			vi.mocked(findEmployeeByCode).mockResolvedValue(mockEmployee());
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
 			vi.mocked(dao.create).mockResolvedValue(mockPayrollRecord() as never);
+			vi.mocked(recordDao.create).mockResolvedValue({} as any);
 
 			const result = await uploadPayroll([mockParsedRow()], 6, 2026);
 
@@ -158,7 +186,6 @@ describe('Payroll Service', () => {
 			expect(dao.create).toHaveBeenCalledWith(
 				expect.objectContaining({
 					employee_cuid: 'EMP001',
-					employee_code: 'EMP001',
 					month: 6,
 					year: 2026
 				})
@@ -214,7 +241,7 @@ describe('Payroll Service', () => {
 			expect(result.skipped).toBe(0);
 			expect(result.errors).toHaveLength(0);
 			expect(dao.create).not.toHaveBeenCalled();
-			expect(failureDao.create).not.toHaveBeenCalled();
+			expect(recordDao.create).not.toHaveBeenCalled();
 		});
 
 		it('should continue processing remaining rows after a skipped row', async () => {
@@ -260,10 +287,11 @@ describe('Payroll Service', () => {
 			vi.mocked(findEmployeeByCode).mockResolvedValue(mockEmployee({ name: 'John Doe Provider' }));
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
 			vi.mocked(dao.create).mockResolvedValue(mockPayrollRecord() as never);
+			vi.mocked(recordDao.create).mockResolvedValue({} as any);
 
 			await uploadPayroll([mockParsedRow({ employee_name: 'John Doe Excel' })], 6, 2026);
 
-			expect(dao.create).toHaveBeenCalledWith(
+			expect(recordDao.create).toHaveBeenCalledWith(
 				expect.objectContaining({ employee_name: 'John Doe Excel' })
 			);
 		});
@@ -272,10 +300,11 @@ describe('Payroll Service', () => {
 			vi.mocked(findEmployeeByCode).mockResolvedValue(mockEmployee({ name: 'John Doe Provider' }));
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
 			vi.mocked(dao.create).mockResolvedValue(mockPayrollRecord() as never);
+			vi.mocked(recordDao.create).mockResolvedValue({} as any);
 
 			await uploadPayroll([mockParsedRow({ employee_name: '' })], 6, 2026);
 
-			expect(dao.create).toHaveBeenCalledWith(
+			expect(recordDao.create).toHaveBeenCalledWith(
 				expect.objectContaining({ employee_name: 'John Doe Provider' })
 			);
 		});
@@ -377,6 +406,7 @@ describe('Payroll Service', () => {
 
 		it('should strictly follow validation order (Employee Not Found takes precedence over component Validation Error)', async () => {
 			vi.mocked(findEmployeeByCode).mockResolvedValue(null); // Employee does not exist
+			vi.mocked(recordDao.create).mockResolvedValue({} as any);
 			const row = mockParsedRow({
 				employee_code: 'EMP999',
 				rawComponents: { Basic: 'ABC' } // Non-numeric
@@ -387,9 +417,12 @@ describe('Payroll Service', () => {
 			expect(result.skipped).toBe(1);
 			expect(result.errors).toHaveLength(1);
 			expect(result.errors[0].reason).toContain('does not exist (not found)');
-			expect(failureDao.create).toHaveBeenCalledWith(
+			expect(recordDao.create).toHaveBeenCalledWith(
 				expect.objectContaining({
-					error_type: 'Employee Not Found'
+					status: 'failed',
+					errors: expect.objectContaining({
+						employee_code: expect.stringContaining('does not exist')
+					})
 				})
 			);
 		});
@@ -409,7 +442,7 @@ describe('Payroll Service', () => {
 			expect(result.created).toBe(0);
 			expect(result.skipped).toBe(0);
 			expect(result.errors).toHaveLength(0);
-			expect(failureDao.create).not.toHaveBeenCalled();
+			expect(recordDao.create).not.toHaveBeenCalled();
 		});
 	});
 
@@ -441,8 +474,11 @@ describe('Payroll Service', () => {
 	describe('getPayrollByCuid', () => {
 		it('should return a serialized payroll record when found', async () => {
 			vi.mocked(dao.findByCuid).mockResolvedValue(mockPayrollRecord() as never);
-			vi.mocked(employeeDao.findByEmpCode).mockResolvedValue({
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({
 				cuid: 'emp_001',
+				emp_code: 'EMP001',
+				first_name: 'John',
+				last_name: 'Doe',
 				pan_no: 'PAN12345',
 				uan_no: 'UAN12345',
 				esi_no: 'ESI12345'
@@ -496,8 +532,11 @@ describe('Payroll Service', () => {
 				breakdown: { Basic: 30000, HRA: 12000, PF: 3600, 'Paid Days': 28 }
 			});
 			vi.mocked(dao.findByCuid).mockResolvedValue(record as never);
-			vi.mocked(employeeDao.findByEmpCode).mockResolvedValue({
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({
 				cuid: 'emp_001',
+				emp_code: 'EMP001',
+				first_name: 'John',
+				last_name: 'Doe',
 				pan_no: 'PAN12345',
 				uan_no: 'UAN12345',
 				esi_no: 'ESI12345'

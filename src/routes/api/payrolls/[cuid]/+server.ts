@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/payroll.service.js';
-import * as failureService from '$lib/server/services/payroll-upload-failure.service.js';
+import * as failureService from '$lib/server/services/payroll-upload-record.service.js';
 
 export async function GET({ params }) {
 	try {

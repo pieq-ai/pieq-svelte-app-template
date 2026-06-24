@@ -1,11 +1,12 @@
 import * as dao from '$lib/server/dao/payroll.dao.js';
 import * as uploadDao from '$lib/server/dao/payroll-upload.dao.js';
-import * as failureDao from '$lib/server/dao/payroll-upload-failure.dao.js';
+import * as recordDao from '$lib/server/dao/payroll-upload-record.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import * as bankDetailDao from '$lib/server/dao/bank-detail.dao.js';
 import * as designationDao from '$lib/server/dao/designation.dao.js';
 import * as locationDao from '$lib/server/dao/organization_location.dao.js';
+import { db } from '$lib/server/db.js';
 import { findEmployeeByCode } from '$lib/server/providers/employee.provider.js';
 import { serializePayroll, serializePayrollList } from '$lib/server/serializers/payroll.serializer.js';
 import type { ParsedPayrollRow } from '$lib/server/utils/excel-parser.js';
@@ -180,12 +181,14 @@ export async function uploadPayroll(
 					employee_code: row.employee_code,
 					reason: errorMessage
 				});
-				await failureDao.create({
+				await recordDao.create({
 					payroll_upload_cuid: uploadRecord.cuid,
 					row_number: row.rowIndex,
 					employee_code: row.employee_code || null,
-					error_type: 'Duplicate Row',
-					error_message: errorMessage
+					employee_name: row.employee_name || null,
+					status: 'failed',
+					row_data: row,
+					errors: { employee_code: errorMessage }
 				});
 				continue;
 			}
@@ -205,12 +208,14 @@ export async function uploadPayroll(
 				employee_code: '(empty)',
 				reason: missingEmpCodeErr.reason
 			});
-			await failureDao.create({
+			await recordDao.create({
 				payroll_upload_cuid: uploadRecord.cuid,
 				row_number: missingEmpCodeErr.row,
 				employee_code: null,
-				error_type: missingEmpCodeErr.error_type,
-				error_message: missingEmpCodeErr.reason
+				employee_name: null,
+				status: 'failed',
+				row_data: row,
+				errors: { employee_code: missingEmpCodeErr.reason }
 			});
 			continue;
 		}
@@ -225,12 +230,14 @@ export async function uploadPayroll(
 				employee_code: empCode,
 				reason: errorMessage
 			});
-			await failureDao.create({
+			await recordDao.create({
 				payroll_upload_cuid: uploadRecord.cuid,
 				row_number: row.rowIndex,
 				employee_code: empCode,
-				error_type: 'Employee Not Found',
-				error_message: errorMessage
+				employee_name: row.employee_name || null,
+				status: 'failed',
+				row_data: row,
+				errors: { employee_code: errorMessage }
 			});
 			continue;
 		}
@@ -239,20 +246,34 @@ export async function uploadPayroll(
 		const formatErrors = validation.errors.filter(e => e.error_type === 'Validation Error');
 		if (formatErrors.length > 0) {
 			skipped++;
+			const rowErrors: Record<string, string> = {};
 			for (const err of formatErrors) {
 				errors.push({
 					row: err.row,
 					employee_code: err.employee_code,
 					reason: err.reason
 				});
-				await failureDao.create({
-					payroll_upload_cuid: uploadRecord.cuid,
-					row_number: err.row,
-					employee_code: err.employee_code,
-					error_type: err.error_type,
-					error_message: err.reason
-				});
+				
+				if (err.reason.includes('Month')) {
+					rowErrors['month'] = err.reason;
+				} else if (err.reason.includes('Year')) {
+					rowErrors['year'] = err.reason;
+				} else if (err.reason.includes('must be numeric')) {
+					const componentName = err.reason.split(' ')[0] || 'component';
+					rowErrors[componentName] = err.reason;
+				} else {
+					rowErrors['validation'] = err.reason;
+				}
 			}
+			await recordDao.create({
+				payroll_upload_cuid: uploadRecord.cuid,
+				row_number: row.rowIndex,
+				employee_code: empCode,
+				employee_name: row.employee_name || null,
+				status: 'failed',
+				row_data: row,
+				errors: rowErrors
+			});
 			continue;
 		}
 
@@ -281,8 +302,6 @@ export async function uploadPayroll(
 		try {
 			await dao.create({
 				employee_cuid: employee.cuid,
-				employee_code: empCode,
-				employee_name: validated.employee_name || employee.name,
 				month: validated.month,
 				year: validated.year,
 				gross_earnings,
@@ -292,6 +311,17 @@ export async function uploadPayroll(
 				payroll_upload_cuid: uploadRecord.cuid,
 				created_by: created_by ?? null
 			});
+
+			await recordDao.create({
+				payroll_upload_cuid: uploadRecord.cuid,
+				row_number: row.rowIndex,
+				employee_code: empCode,
+				employee_name: validated.employee_name || employee.name,
+				status: 'processed',
+				row_data: row,
+				errors: null
+			});
+
 			created++;
 		} catch (err) {
 			// Catch unique constraint violations at DB level as a safety net (e.g. concurrent upload)
@@ -306,12 +336,14 @@ export async function uploadPayroll(
 					employee_code: empCode,
 					reason: message
 				});
-				await failureDao.create({
+				await recordDao.create({
 					payroll_upload_cuid: uploadRecord.cuid,
 					row_number: row.rowIndex,
 					employee_code: empCode,
-					error_type: 'Database Error',
-					error_message: message
+					employee_name: validated.employee_name || employee.name,
+					status: 'failed',
+					row_data: row,
+					errors: { database: message }
 				});
 			}
 		}
@@ -324,12 +356,46 @@ export async function uploadPayroll(
 	return { created, skipped, errors, upload_cuid: uploadRecord.cuid };
 }
 
+async function enrichPayrolls(records: any[]): Promise<(any & { employee_code: string; employee_name: string })[]> {
+	if (records.length === 0) return [];
+	const cuids = Array.from(new Set(records.map(r => r.employee_cuid)));
+	const employees = await db.employee.findMany({
+		where: { cuid: { in: cuids } }
+	});
+	const empMap = new Map<string, { employee_code: string; employee_name: string }>();
+	for (const emp of employees) {
+		empMap.set(emp.cuid, {
+			employee_code: emp.emp_code,
+			employee_name: `${emp.first_name} ${emp.last_name}`
+		});
+	}
+
+	return records.map(record => {
+		const emp = empMap.get(record.employee_cuid);
+		return {
+			...record,
+			employee_code: emp?.employee_code ?? '(unknown)',
+			employee_name: emp?.employee_name ?? '(unknown)'
+		};
+	});
+}
+
 /**
  * Retrieve all payroll records.
  */
 export async function getPayrolls() {
 	const records = await dao.findMany();
-	return serializePayrollList(records);
+	const enriched = await enrichPayrolls(records);
+	enriched.sort((a, b) => {
+		if (b.year !== a.year) {
+			return b.year - a.year;
+		}
+		if (b.month !== a.month) {
+			return b.month - a.month;
+		}
+		return a.employee_code.localeCompare(b.employee_code);
+	});
+	return serializePayrollList(enriched);
 }
 
 // ─── Paid Days extraction ─────────────────────────────────────────────────────
@@ -358,24 +424,13 @@ function extractPaidDays(breakdown: Record<string, number>): string | null {
 /**
  * Fetch all Employee Master details required for payslip rendering.
  * Uses a controlled parallel query strategy to avoid N+1 problems.
- *
- * Query sequence (max 5 DB calls):
- *  1. employees      — by emp_code  → pan_no, uan_no, esi_no, cuid
- *  2. (parallel)
- *       employments  — by employee_cuid → designation_cuid, location_cuid, date_of_joining
- *       bank_details — by employee_cuid → primary bank (is_primary = true, or first)
- *  3. (parallel, only if CUIDs are non-null)
- *       designations → name
- *       company_locations → name
- *
- * All lookups are null-safe. A missing record yields null for each field.
  */
 async function fetchEmployeeDetails(
-	employeeCode: string,
+	employeeCuid: string,
 	breakdown: Record<string, number>
 ): Promise<PayrollEmployeeDetails> {
-	// Step 1 — find employee by code (statutory fields + cuid for joins)
-	const employee = await employeeDao.findByEmpCode(employeeCode.trim().toUpperCase());
+	// Step 1 — find employee by CUID
+	const employee = await employeeDao.findByCuid2(employeeCuid);
 
 	if (!employee) {
 		return {
@@ -436,9 +491,19 @@ export async function getPayrollByCuid(cuid: string) {
 	if (!record) {
 		throw new PayrollNotFoundError(cuid);
 	}
+	const employee = await employeeDao.findByCuid2(record.employee_cuid);
+	const employeeCode = employee?.emp_code ?? '(unknown)';
+	const employeeName = employee ? `${employee.first_name} ${employee.last_name}` : '(unknown)';
 	const breakdown = record.breakdown as Record<string, number>;
-	const employeeDetails = await fetchEmployeeDetails(record.employee_code, breakdown);
-	return serializePayroll(record, employeeDetails);
+	const employeeDetails = await fetchEmployeeDetails(record.employee_cuid, breakdown);
+	return serializePayroll(
+		{
+			...record,
+			employee_code: employeeCode,
+			employee_name: employeeName
+		},
+		employeeDetails
+	);
 }
 
 /**
@@ -446,5 +511,7 @@ export async function getPayrollByCuid(cuid: string) {
  */
 export async function getPayrollsByUploadCuid(uploadCuid: string) {
 	const records = await dao.findManyByUploadCuid(uploadCuid);
-	return serializePayrollList(records);
+	const enriched = await enrichPayrolls(records);
+	enriched.sort((a, b) => a.employee_code.localeCompare(b.employee_code));
+	return serializePayrollList(enriched);
 }

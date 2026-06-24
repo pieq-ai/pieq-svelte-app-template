@@ -222,7 +222,7 @@
 
 	</div>
 
-	{#if upload.status === 'failed' && upload.failure_reason}
+	{#if upload.status === 'failed' && upload.errors}
 		<!-- Custom Failure Layout (Upload-Level Failure Card) -->
 		<Card class="border-destructive/30 bg-destructive/5 p-6">
 			<div class="flex items-start gap-4">
@@ -232,7 +232,7 @@
 				<div class="space-y-1 flex-1">
 					<h2 class="text-xl font-bold text-destructive">Upload Failed</h2>
 					<p class="text-base text-foreground font-semibold mt-1">
-						{upload.failure_reason}
+						{upload.errors}
 					</p>
 					<p class="text-sm text-muted-foreground mt-2">
 						This error occurred before row-level processing could start. Please check the Excel file and try again.
