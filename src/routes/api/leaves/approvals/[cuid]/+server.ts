@@ -30,7 +30,7 @@ export async function POST(event: RequestEvent) {
 		}
 
 		let result;
-		const approverActorCuid = event.locals.user?.id || manager.cuid || managerEmployeeCuid;
+		const approverActorCuid = manager.cuid;
 		if (action === 'approve') {
 			result = await leaveService.approveLeaveRequest(cuid, approverActorCuid);
 		} else if (action === 'reject') {
