@@ -427,6 +427,10 @@
                 <p class="text-xs text-destructive mt-1">
                   This entry already exists
                 </p>
+              {:else if isTouched && validateRequired(doc.document_type_cuid)}
+                <p class="text-xs text-destructive mt-1">
+                  Document type is required
+                </p>
               {/if}
             </div>
             <div class="space-y-2">
@@ -476,6 +480,11 @@
                     ? "border-destructive focus-visible:ring-destructive/50"
                     : ""}
                 />
+                {#if isTouched && validateRequired(doc.file_name)}
+                  <p class="text-xs text-destructive mt-1">
+                    File is required
+                  </p>
+                {/if}
                 {#if doc.file_name && !doc.isReplacing}
                   <p class="text-xs text-muted-foreground mt-1 text-right">
                     Selected: {doc.file_name}

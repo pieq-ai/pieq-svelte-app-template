@@ -342,9 +342,6 @@
 				Save
 			</Button>
 		</div>
-		{#if hasErrors && isTouched}
-			<p class="text-xs text-destructive -mt-2">Please fix the errors above before proceeding.</p>
-		{/if}
 	</div>
 </div>
 
