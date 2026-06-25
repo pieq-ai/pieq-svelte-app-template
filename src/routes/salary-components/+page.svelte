@@ -241,17 +241,17 @@
 			);
 			const resData = await response.json();
 
-			if (response.ok && resData.data) {
+			if (response.ok && resData.data && !resData.data.error) {
 				await loadComponents();
 				toast.success(editingComp ? 'Salary Component updated successfully' : 'Salary Component created successfully');
 				isModalOpen = false;
-		$globalIsDirty = false;
+				$globalIsDirty = false;
 			} else {
 				if (response.status === 400 || response.status === 409) {
-					backendError = resData.message || resData.error || 'Validation failed';
+					backendError = resData.data?.error || resData.message || resData.error || 'Validation failed';
 					nameInput?.focus();
 				} else {
-					toast.error(resData.message || resData.error || 'Failed to save salary component.');
+					toast.error(resData.data?.error || resData.message || resData.error || 'Failed to save salary component.');
 				}
 			}
 		} catch (err) {

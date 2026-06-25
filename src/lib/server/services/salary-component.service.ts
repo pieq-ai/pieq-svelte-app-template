@@ -12,8 +12,8 @@ export class BusinessValidationError extends Error {
 }
 
 export class DuplicateComponentError extends BusinessValidationError {
-	constructor(name: string) {
-		super(`Salary component name "${name}" already exists.`);
+	constructor(_name?: string) {
+		super('Salary component already exists');
 		this.name = 'DuplicateComponentError';
 	}
 }

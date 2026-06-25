@@ -11,10 +11,10 @@ export function validateComponentName(name: unknown): string | null {
 		return 'Component name is required';
 	}
 	if (trimmed.length < 2) {
-		return 'Component name is too short';
+		return 'Component name is short';
 	}
 	if (trimmed.length > 150) {
-		return 'Component name is too long';
+		return 'Component name is long';
 	}
 	// Prevent multiple consecutive spaces
 	if (/\s{2,}/.test(trimmed)) {
