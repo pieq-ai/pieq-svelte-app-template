@@ -1,4 +1,9 @@
 // Validation helpers
+/** Trims and collapses multiple internal spaces to a single space */
+export function normalizeText(val: string): string {
+	return val.trim().replace(/\s+/g, ' ');
+}
+
 export function isDuplicateEntry<T>(list: T[], index: number, keyFn: (item: T) => string): boolean {
 	if (!list || !list[index]) return false;
 	const currentKey = keyFn(list[index])?.trim().toLowerCase();
@@ -48,6 +53,13 @@ export function validateAadharRule(val: string | undefined | null) {
 export function validateEmail(val: string | undefined | null) {
 	if (!val || !val.trim()) return ''; // optional — format-only when present
 	if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return "Invalid email.";
+	return '';
+}
+
+export function validatePfAccountRule(val: string | undefined | null) {
+	if (!val || !val.trim()) return '';
+	const upper = val.trim().toUpperCase();
+	if (!/^[A-Z]{5}\d{17}$/.test(upper)) return "PF Account Number must follow EPFO format.";
 	return '';
 }
 
@@ -139,6 +151,36 @@ export function validateIfsc(ifsc: string | undefined | null) {
 	return '';
 }
 
+/** Letters and spaces only (e.g. names, country, city, company) */
+export function validateLettersSpaces(val: string | undefined | null, fieldLabel: string = 'Field'): string {
+	if (!val || !val.trim()) return ''; // optional by default — caller decides required check
+	if (!/^[a-zA-Z\s]+$/.test(val.trim())) return `${fieldLabel} can contain only letters and spaces`;
+	return '';
+}
+
+/** Letters, numbers and spaces (e.g. skills like "Java 17", "Node.js 20") */
+export function validateLettersNumbersSpaces(val: string | undefined | null, fieldLabel: string = 'Field'): string {
+	if (!val || !val.trim()) return '';
+	if (!/^[a-zA-Z0-9\s]+$/.test(val.trim())) return `${fieldLabel} can contain only letters, numbers, and spaces`;
+	return '';
+}
+
+/** Digits only (account numbers) */
+export function validateAccountNumber(val: string | undefined | null): string {
+	if (!val || !val.trim()) return 'Required';
+	if (!/^\d+$/.test(val.trim())) return 'Account number can contain only digits';
+	return '';
+}
+
+/** IFSC input — strip and block special chars (letters + numbers only, no spaces) */
+export function validateIfscInput(val: string | undefined | null): string {
+	if (!val || !val.trim()) return 'Required';
+	const upper = val.trim().toUpperCase();
+	if (!/^[A-Z0-9]+$/.test(upper)) return 'IFSC code can contain only letters and numbers';
+	if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(upper)) return 'Invalid IFSC format (e.g. SBIN0123456)';
+	return '';
+}
+
 export interface SectionErrors {
 	section: string;
 	errors: string[];
@@ -157,6 +199,9 @@ export interface PersonalDetailsData {
 	personal_email?: string | null;
 	aadhar_no?: string | null;
 	pan_no?: string | null;
+	uan_no?: string | null;
+	esi_no?: string | null;
+	pf_account_no?: string | null;
 	emergency_contact_name?: string | null;
 	emergency_contact_no?: string | null;
 	relation_cuid?: string | null;
@@ -239,6 +284,7 @@ export function validatePersonal(emp: PersonalDetailsData): string[] {
 	if (validateMobileRule(emp.mobile_no)) errors.push(`Mobile Number: ${validateMobileRule(emp.mobile_no)}`);
 	if (validateAadharRule(emp.aadhar_no)) errors.push(`Aadhar Number: ${validateAadharRule(emp.aadhar_no)}`);
 	if (validatePanRule(emp.pan_no)) errors.push(`PAN Number: ${validatePanRule(emp.pan_no)}`);
+	if (validatePfAccountRule(emp.pf_account_no)) errors.push(`PF Account Number: ${validatePfAccountRule(emp.pf_account_no)}`);
 	// Optional — validate format only when present
 	if (validateDob(emp.dob || '')) errors.push(`Date of Birth: ${validateDob(emp.dob || '')}`);
 	if (validateEmail(emp.personal_email)) errors.push(`Personal Email: ${validateEmail(emp.personal_email)}`);

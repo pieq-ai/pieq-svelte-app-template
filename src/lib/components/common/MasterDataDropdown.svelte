@@ -64,8 +64,8 @@
 	function getValidationError(input: string) {
 		const trimmed = input.trim();
 		if (!trimmed) return `${config.label} is required`;
-		if (master === 'blood-groups' && !/^(A|B|AB|O)[+-]$/i.test(trimmed)) {
-			return 'Use A+, A-, B+, B-, AB+, AB-, O+, or O-';
+		if (master === 'blood-groups' && !/^[A-Za-z0-9\s()+-]+$/i.test(trimmed)) {
+			return 'Blood group contains invalid characters';
 		}
 		if (master === 'languages' && !/^[\p{L} ]+$/u.test(trimmed)) {
 			return 'Only letters and spaces are allowed';
@@ -140,6 +140,10 @@
 	});
 
 	function openCreateModal() {
+		if (master === 'states' && !countryCuid) {
+			toast.error('Please select a Country before creating a State');
+			return;
+		}
 		editingOption = null;
 		masterValue = '';
 		originalValue = '';
@@ -150,6 +154,10 @@
 	}
 
 	function openEditModal(id: string) {
+		if (master === 'states' && !countryCuid) {
+			toast.error('Please select a Country before editing a State');
+			return;
+		}
 		const option = options.find((item) => item.id === id);
 		if (!option) return;
 		editingOption = option;

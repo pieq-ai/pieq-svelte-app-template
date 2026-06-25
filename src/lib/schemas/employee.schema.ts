@@ -3,13 +3,13 @@ import { z } from 'zod';
 // Helper for exact digit string lengths
 const digits = (len: number) => z.string().regex(/^\d+$/, `Must contain only digits`).length(len, `Must be exactly ${len} digits`);
 
-// Helper to convert empty strings from frontend to undefined before validation
+// Helper to convert empty strings from frontend to null before validation
 export const optionalString = <T extends z.ZodTypeAny>(schema: T) =>
-  z.unknown().transform((val) => (val === '' ? undefined : val)).pipe(schema.optional().nullable());
+  z.unknown().transform((val) => (val === '' ? null : val)).pipe(schema.optional().nullable());
 
-// Helper to convert empty string dates from frontend to undefined before validation
+// Helper to convert empty string dates from frontend to null before validation
 export const optionalDate = <T extends z.ZodTypeAny>(schema: T) =>
-  z.unknown().transform((val) => (val === '' ? undefined : val)).pipe(schema);
+  z.unknown().transform((val) => (val === '' ? null : val)).pipe(schema);
 
 export const personalSchema = z.object({
   emp_code: optionalString(z.string().regex(/^PQ\d+$/, "Employee code must be in format PQ followed by digits (e.g. PQ001)")),
@@ -39,6 +39,7 @@ export const personalSchema = z.object({
   pan_no: optionalString(z.string().length(10, "Must be exactly 10 characters").regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Invalid PAN format")),
   uan_no: optionalString(z.unknown().transform(val => typeof val === 'string' ? val.replace(/\s/g, '') : val).pipe(z.string().regex(/^\d{12}$/, "Invalid UAN format (must be 12 digits)"))),
   esi_no: optionalString(z.string().regex(/^\d+$/, "ESI Number must contain only digits")),
+  pf_account_no: optionalString(z.string().regex(/^[A-Z]{5}\d{17}$/, "PF Account Number must follow EPFO format.")),
   emergency_contact_name: optionalString(z.string().min(3, "Min 3 characters").regex(/^[a-zA-Z\s]+$/, "Can only contain alphabets and spaces")),
   emergency_contact_no: optionalString(digits(10)),
   relation_cuid: optionalString(z.string().min(1, "Required")),
@@ -119,7 +120,7 @@ export const experienceSchema = z.object({
     return data.to_date >= data.from_date;
   }
   return true;
-}, { message: "To Date must be after From Date", path: ["to_date"] });
+}, { message: "To Date must be greater than or equal to From Date", path: ["to_date"] });
 
 export const documentSchema = z.object({
   cuid: z.string().optional().nullable(),

@@ -2,7 +2,7 @@
 CREATE TABLE "blood_groups" (
     "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
-    "name" VARCHAR(5) NOT NULL,
+    "name" VARCHAR(30) NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_by" VARCHAR(100),
     "updated_at" TIMESTAMPTZ NOT NULL,

@@ -9,6 +9,7 @@
 	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { onMount } from 'svelte';
 	import { parseBackendErrors } from '$lib/utils/errors.js';
+	import { normalizeText } from '$lib/utils/employeeValidationHelper';
 
 	let { mode, cuid, data, onNext, onPrev, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit';
@@ -252,7 +253,7 @@
 		/>
 		<MasterDataDropdown
 			master="pay-grades"
-			label="Pay Grade *"
+			label="Pay Grade"
 			value={employment.pay_grade_cuid}
 			onSelect={(val) => employment.pay_grade_cuid = val as string}
 			class={(isTouched && errors.pay_grade_cuid) ? 'border-destructive' : ''}
@@ -324,7 +325,7 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Official Email <span class="text-destructive">*</span></Label>
-			<Input type="email" bind:value={employment.official_email} oninput={() => clearBackendError('official_email')} placeholder="john.doe@company.com" class={(isTouched && errors.official_email) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
+			<Input type="email" bind:value={employment.official_email} oninput={() => clearBackendError('official_email')} onblur={() => employment.official_email = normalizeText(employment.official_email).toLowerCase()} placeholder="john.doe@company.com" class={(isTouched && errors.official_email) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
 			{#if isTouched && errors.official_email}<p class="text-xs text-destructive">{errors.official_email}</p>{/if}
 		</div>
 	</div>
@@ -341,9 +342,6 @@
 				Save
 			</Button>
 		</div>
-		{#if hasErrors && isTouched}
-			<p class="text-xs text-destructive -mt-2">Please fix the errors above before proceeding.</p>
-		{/if}
 	</div>
 </div>
 

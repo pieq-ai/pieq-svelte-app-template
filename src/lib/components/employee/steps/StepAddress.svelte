@@ -3,6 +3,7 @@
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
 	import { globalIsDirty } from '$lib/stores/navigationGuard';
+	import { normalizeText, validateLettersSpaces } from '$lib/utils/employeeValidationHelper';
 	import { onMount, untrack } from 'svelte';
 
 	let { mode, cuid, onNext, onPrev, onDirtyChange , onCancel} = $props<{
@@ -124,6 +125,9 @@
 	function validateRequired(val: string | undefined | null) {
 		return val && val.trim().length > 0 ? '' : 'Required';
 	}
+	function cityError(val: string) {
+		return validateRequired(val) || validateLettersSpaces(val, 'City');
+	}
 	function validatePinCode(val: string | undefined | null) {
 		if (!val || !val.trim()) return ''; // optional in Prisma
 		if (!/^[0-9]{6}$/.test(val)) return 'Must be 6 digits';
@@ -134,7 +138,7 @@
 		addresses.some(a =>
 			validateRequired(a.address_type) ||
 			validateRequired(a.address_line1) ||
-			validateRequired(a.city) ||
+			cityError(a.city) ||
 			validateRequired(a.country_cuid) ||
 			validateRequired(a.state_cuid) ||
 			validatePinCode(a.pin_code)
@@ -191,35 +195,42 @@
 			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
 				<div class="space-y-2 sm:col-span-2 md:col-span-3">
 					<Label>Door No</Label>
-					<Input bind:value={address.door_no} placeholder="Flat/Door No" readonly={address.address_type === 'permanent' && isPermSameAsComm} />
+					<Input bind:value={address.door_no} placeholder="Flat/Door No" onblur={() => address.door_no = normalizeText(address.door_no)} readonly={address.address_type === 'permanent' && isPermSameAsComm} />
 				</div>
 				<div class="space-y-2 sm:col-span-2 md:col-span-3">
 					<Label>Address Line 1 <span class="text-destructive">*</span></Label>
-					<Input bind:value={address.address_line1} placeholder="123 Main St" class={(isTouched && validateRequired(address.address_line1)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={address.address_type === 'permanent' && isPermSameAsComm} />
+					<Input bind:value={address.address_line1} placeholder="123 Main St" onblur={() => address.address_line1 = normalizeText(address.address_line1)} class={(isTouched && validateRequired(address.address_line1)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={address.address_type === 'permanent' && isPermSameAsComm} />
 					{#if isTouched && validateRequired(address.address_line1)}<p class="text-xs text-destructive">{validateRequired(address.address_line1)}</p>{/if}
 				</div>
 				<div class="space-y-2 sm:col-span-2 md:col-span-3">
 					<Label>Address Line 2</Label>
-					<Input bind:value={address.address_line2} placeholder="Landmark/Area" readonly={address.address_type === 'permanent' && isPermSameAsComm} />
+					<Input bind:value={address.address_line2} placeholder="Landmark/Area" onblur={() => address.address_line2 = normalizeText(address.address_line2)} readonly={address.address_type === 'permanent' && isPermSameAsComm} />
 				</div>
 				<div class="space-y-2">
 					<Label>City <span class="text-destructive">*</span></Label>
-					<Input bind:value={address.city} placeholder="City Name" class={(isTouched && validateRequired(address.city)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={address.address_type === 'permanent' && isPermSameAsComm} />
-					{#if isTouched && validateRequired(address.city)}<p class="text-xs text-destructive">{validateRequired(address.city)}</p>{/if}
+					<Input bind:value={address.city} placeholder="City Name" onblur={() => address.city = normalizeText(address.city)} class={(isTouched && cityError(address.city)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={address.address_type === 'permanent' && isPermSameAsComm} />
+					{#if isTouched && cityError(address.city)}<p class="text-xs text-destructive">{cityError(address.city)}</p>{/if}
 				</div>
 				<MasterDataDropdown
 					master="states"
 					label="State *"
 					value={address.state_cuid}
+					countryCuid={address.country_cuid}
+					placeholder={!address.country_cuid ? 'Select Country first' : 'Select State'}
 					onSelect={(val) => address.state_cuid = val as string}
-					disabled={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)}
+					disabled={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm) || !address.country_cuid}
 					class={(isTouched && validateRequired(address.state_cuid)) ? 'border-destructive' : ''}
 				/>
 				<MasterDataDropdown
 					master="countries"
 					label="Country *"
 					value={address.country_cuid}
-					onSelect={(val) => address.country_cuid = val as string}
+					onSelect={(val) => {
+						if (address.country_cuid !== val) {
+							address.country_cuid = val as string;
+							address.state_cuid = '';
+						}
+					}}
 					disabled={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)}
 					class={(isTouched && validateRequired(address.country_cuid)) ? 'border-destructive' : ''}
 				/>

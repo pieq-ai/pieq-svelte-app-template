@@ -28,7 +28,6 @@ export async function PUT(event: RequestEvent) {
         }
         
         const user_id = event.locals.user?.id;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         body = body.map((doc: any) => ({ ...doc, updated_by: user_id }));
 
 		await documentService.replaceDocuments(employee_cuid, body);
