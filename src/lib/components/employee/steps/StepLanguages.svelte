@@ -8,7 +8,6 @@
   import { toast } from "svelte-sonner";
   import { goto } from "$app/navigation";
   import { globalIsDirty } from "$lib/stores/navigationGuard";
-  import { isDuplicateEntry } from "$lib/utils/employeeValidationHelper";
   import { parseBackendErrors } from "$lib/utils/errors.js";
   import { onMount } from "svelte";
 
@@ -23,6 +22,7 @@
 
   let isSubmitting = $state(false);
   let isTouched = $state(false);
+  let backendErrors = $state<Record<string, string>>({});
 
   type LangItem = {
     language_cuid: string;
@@ -94,14 +94,15 @@
 
   let hasErrors = $derived(
     languages.some(
-      (l, i) =>
+      (l) =>
         validateRequired(l.language_cuid) ||
-        isDuplicateEntry(languages, i, (x) => x.language_cuid),
+        validateRequired(l.proficiency_level),
     ),
   );
 
   async function saveOnly(): Promise<{ success: boolean }> {
     isTouched = true;
+    backendErrors = {};
     if (hasErrors) {
       return { success: false };
     }
@@ -117,7 +118,12 @@
       if (!res.ok) {
         const body = await res.json();
         const parsed = parseBackendErrors(body);
-        throw new Error(parsed.message || "Failed to save languages");
+        if (parsed.field) {
+          backendErrors = { [parsed.field]: parsed.message };
+        } else {
+          toast.error(parsed.message || "Failed to save languages");
+        }
+        return { success: false };
       }
       originalData = JSON.stringify(normalizeLanguages(languages));
       toast.success("Updated successfully");
@@ -182,22 +188,16 @@
               value={lang.language_cuid}
               onSelect={(val) => (lang.language_cuid = val as string)}
               disabled={mode === "view"}
-              class={isTouched &&
-              (validateRequired(lang.language_cuid) ||
-                isDuplicateEntry(languages, index, (x) => x.language_cuid))
-                ? "border-destructive"
-                : ""}
+              class={isTouched && validateRequired(lang.language_cuid) ? "border-destructive" : ""}
             />
             {#if isTouched && validateRequired(lang.language_cuid)}<p
                 class="text-xs text-destructive mt-1"
               >
                 {validateRequired(lang.language_cuid)}
               </p>{/if}
-            {#if isTouched && isDuplicateEntry(languages, index, (x) => x.language_cuid)}<p
-                class="text-xs text-destructive mt-1"
-              >
-                This entry already exists
-              </p>{/if}
+            {#if backendErrors.root}
+              <p class="text-xs text-destructive mt-1">{backendErrors.root}</p>
+            {/if}
           </div>
           <div class="flex-1 w-full">
             <SearchableDropdown
@@ -210,7 +210,11 @@
               ]}
               onSelect={(val) => (lang.proficiency_level = val as string)}
               disabled={mode === "view"}
+              class={isTouched && validateRequired(lang.proficiency_level) ? "border-destructive" : ""}
             />
+            {#if isTouched && validateRequired(lang.proficiency_level)}
+              <p class="text-xs text-destructive mt-1">Required</p>
+            {/if}
           </div>
         </div>
         <div class="flex gap-6 mt-2">

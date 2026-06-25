@@ -221,6 +221,9 @@
 					disabled={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm) || !address.country_cuid}
 					class={(isTouched && validateRequired(address.state_cuid)) ? 'border-destructive' : ''}
 				/>
+				{#if isTouched && validateRequired(address.state_cuid)}
+					<p class="text-xs text-destructive">{validateRequired(address.state_cuid)}</p>
+				{/if}
 				<MasterDataDropdown
 					master="countries"
 					label="Country *"
@@ -234,6 +237,9 @@
 					disabled={mode === 'view' || (address.address_type === 'permanent' && isPermSameAsComm)}
 					class={(isTouched && validateRequired(address.country_cuid)) ? 'border-destructive' : ''}
 				/>
+				{#if isTouched && validateRequired(address.country_cuid)}
+					<p class="text-xs text-destructive">{validateRequired(address.country_cuid)}</p>
+				{/if}
 				<div class="space-y-2">
 					<Label>Pin Code</Label>
 					<Input bind:value={address.pin_code} placeholder="123456" class={(isTouched && validatePinCode(address.pin_code)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} readonly={address.address_type === 'permanent' && isPermSameAsComm} />

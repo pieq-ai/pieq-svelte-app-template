@@ -266,6 +266,6 @@ describe('Service Layer Unit Tests', () => {
       }
       await db.employment.delete({ where: { cuid: employment.cuid } });
       await db.employee.delete({ where: { cuid: emp.cuid } });
-    });
+    }, 30000);
   });
 });

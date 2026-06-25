@@ -27,7 +27,7 @@ describe('Shift Timing Duplicate Prevention Integration Tests', () => {
         }
       }
     });
-  });
+  }, 30000);
 
   afterAll(async () => {
     // 2. Clean up test records

@@ -15,7 +15,6 @@
     validateLanguages,
     validateDocuments,
     validateBankDetails,
-    isDuplicateEntry,
     normalizeText,
     validateLettersSpaces,
     validateAccountNumber,
@@ -32,6 +31,7 @@
 
   let isSubmitting = $state(false);
   let isTouched = $state(false);
+  let backendErrors = $state<Record<string, string>>({});
   let isValidating = $state(false);
   let showValidationModal = $state(false);
   let validationErrors = $state<{ section: string; errors: string[] }[]>([]);
@@ -127,21 +127,17 @@
 
   let hasErrors = $derived(
     bankDetails.some(
-      (b, i) =>
+      (b) =>
         bankNameError(b.bank_name) ||
         holderNameError(b.account_holder_name) ||
         accountNumberError(b.account_number) ||
-        ifscError(b.ifsc_code) ||
-        isDuplicateEntry(
-          bankDetails,
-          i,
-          (x) => `${x.ifsc_code}|${x.account_number}`,
-        ),
+        ifscError(b.ifsc_code),
     ),
   );
 
   async function saveOnly(): Promise<{ success: boolean }> {
     isTouched = true;
+    backendErrors = {};
     if (hasErrors) {
       return { success: false };
     }
@@ -157,10 +153,16 @@
       if (!res.ok) {
         const body = await res.json();
         const parsed = parseBackendErrors(body);
-        throw new Error(parsed.message || "Failed to save bank details");
+        if (parsed.field) {
+          backendErrors = { [parsed.field]: parsed.message };
+        } else {
+          toast.error(parsed.message || "Failed to save bank details");
+        }
+        return { success: false };
       }
 
       originalData = JSON.stringify(normalizeBankDetails(bankDetails));
+      toast.success("Updated successfully");
       return { success: true };
     } catch (e: unknown) {
       toast.error((e as Error).message);
@@ -275,13 +277,7 @@
               bind:value={bank.account_number}
               placeholder="000123456789"
               oninput={(e) => (bank.account_number = e.currentTarget.value.replace(/\D/g, ''))}
-              class={isTouched &&
-              (accountNumberError(bank.account_number) ||
-                isDuplicateEntry(
-                  bankDetails,
-                  index,
-                  (x) => `${x.ifsc_code}|${x.account_number}`,
-                ))
+              class={isTouched && accountNumberError(bank.account_number)
                 ? "border-destructive focus-visible:ring-destructive/50"
                 : ""}
               required
@@ -302,13 +298,7 @@
               oninput={(e) =>
                 (bank.ifsc_code = e.currentTarget.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase())}
               placeholder="SBIN0123456"
-              class={isTouched &&
-              (ifscError(bank.ifsc_code) ||
-                isDuplicateEntry(
-                  bankDetails,
-                  index,
-                  (x) => `${x.ifsc_code}|${x.account_number}`,
-                ))
+              class={isTouched && ifscError(bank.ifsc_code)
                 ? "border-destructive focus-visible:ring-destructive/50"
                 : ""}
               required
@@ -319,12 +309,8 @@
                 {ifscError(bank.ifsc_code)}
               </p>{/if}
           </div>
-          {#if isTouched && isDuplicateEntry(bankDetails, index, (x) => `${x.ifsc_code}|${x.account_number}`)}
-            <p
-              class="text-xs text-destructive sm:col-span-2 md:col-span-3 -mt-2"
-            >
-              This bank account (IFSC + Account Number) already exists.
-            </p>
+          {#if backendErrors.root}
+            <p class="text-xs text-destructive sm:col-span-2 md:col-span-3 -mt-2">{backendErrors.root}</p>
           {/if}
           <div class="space-y-2 flex items-end pb-2">
             <label class="flex items-center gap-2 text-sm cursor-pointer">

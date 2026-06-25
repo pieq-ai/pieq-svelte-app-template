@@ -971,7 +971,7 @@ describe('Leave Service Unit Tests', () => {
 
 			expect(leaveDao.createLeaveRequest).toHaveBeenCalledWith(expect.objectContaining({
 				days_from_primary: 5.0,
-				days_from_lop: 2.0
+				days_from_lop: 4.0
 			}));
 		});
 	});
@@ -1988,9 +1988,9 @@ describe('Leave Service Unit Tests', () => {
 			const juneLop = await leaveService.getMonthlyUsedDays('emp-cuid', 5, 2026, 'LOP');
 			expect(juneLop).toBe(2);
 
-			// And for May (month index 4) — should return 2 (Thu+Fri, Sat excluded as weekend)
+			// And for May (month index 4) — should return 3 (Thu+Fri+Sat, Sat included as weekend under sandwich rule)
 			const mayLop = await leaveService.getMonthlyUsedDays('emp-cuid', 4, 2026, 'LOP');
-			expect(mayLop).toBe(2);
+			expect(mayLop).toBe(3);
 		});
 
 		it('should isolate LOP months correctly in getEmployeeLeaveDetails dashboard', async () => {

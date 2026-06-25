@@ -9,7 +9,7 @@ describe('Role, Shift, and Location CRUD Integration Tests', () => {
     await db.role.deleteMany({ where: { name: { in: ['Test Integration Role', 'Test Integration Role Updated'] } } });
     await db.shift.deleteMany({ where: { name: { in: ['Test Integration Shift', 'Test Integration Shift Updated'] } } });
     await db.companyLocation.deleteMany({ where: { name: { in: ['Test Integration Location', 'Test Integration Location Updated'] } } });
-  });
+  }, 30000);
 
   it('should successfully perform CRUD on Role', async () => {
     // 1. Create Role

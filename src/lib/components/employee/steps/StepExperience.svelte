@@ -3,7 +3,7 @@
   import { toast } from "svelte-sonner";
   import { goto } from "$app/navigation";
   import { globalIsDirty } from "$lib/stores/navigationGuard";
-  import { isDuplicateEntry, normalizeText, validateLettersSpaces } from "$lib/utils/employeeValidationHelper";
+  import { normalizeText, validateLettersSpaces } from "$lib/utils/employeeValidationHelper";
   import { SvelteDate } from "svelte/reactivity";
   import { parseBackendErrors } from "$lib/utils/errors.js";
   import { onMount } from "svelte";
@@ -166,8 +166,7 @@
         companyNameError(e.company_name) ||
         roleError(e.role) ||
         getFromDateError(e.from_date, i) ||
-        getToDateError(e.from_date, e.to_date, i) ||
-        isDuplicateEntry(experiences, i, (x) => `${x.company_name}|${x.role}`),
+        getToDateError(e.from_date, e.to_date, i),
     ),
   );
 
@@ -255,13 +254,7 @@
             bind:value={exp.company_name}
             placeholder="Company Name"
             onblur={() => (exp.company_name = normalizeText(exp.company_name))}
-            class={isTouched &&
-            (companyNameError(exp.company_name) ||
-              isDuplicateEntry(
-                experiences,
-                index,
-                (x) => `${x.company_name}|${x.role}`,
-              ))
+            class={isTouched && companyNameError(exp.company_name)
               ? "border-destructive focus-visible:ring-destructive/50"
               : ""}
           />
@@ -278,13 +271,7 @@
             bind:value={exp.role}
             placeholder="e.g. Software Engineer"
             onblur={() => (exp.role = normalizeText(exp.role))}
-            class={isTouched &&
-            (roleError(exp.role) ||
-              isDuplicateEntry(
-                experiences,
-                index,
-                (x) => `${x.company_name}|${x.role}`,
-              ))
+            class={isTouched && roleError(exp.role)
               ? "border-destructive focus-visible:ring-destructive/50"
               : ""}
           />
@@ -294,10 +281,8 @@
               {roleError(exp.role)}
             </p>{/if}
         </div>
-        {#if isTouched && isDuplicateEntry(experiences, index, (x) => `${x.company_name}|${x.role}`)}
-          <p class="text-xs text-destructive sm:col-span-2 -mt-2">
-            This entry already exists
-          </p>
+        {#if backendErrors.root}
+          <p class="text-xs text-destructive sm:col-span-2 -mt-2">{backendErrors.root}</p>
         {/if}
         <div class="space-y-2">
           <Label>From Date <span class="text-destructive">*</span></Label>
