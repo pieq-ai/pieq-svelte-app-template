@@ -156,7 +156,7 @@ export async function getMonthlyUsedDays(employeeCuid: string, month: number, ye
 
 		const activeDates: Date[] = [];
 		for (const d of dates) {
-			if (reqLeaveCode !== 'ML' && reqLeaveCode !== 'LWP') {
+			if (reqLeaveCode !== 'ML' && reqLeaveCode !== 'LWP' && !(daysFromLop > 0 || daysFromLwp > 0)) {
 				if (isWeekend(d) || isHoliday(d, holidaysSet)) {
 					continue;
 				}
@@ -974,13 +974,57 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 	}
 
 	// Calculate requested days
-	const totalDays = input.isHalfDay
+	const workingDaysCount = input.isHalfDay
 		? 0.5
 		: calculateLeaveDays(startDate, endDate, leaveType.code, holidaysSet);
 
-	if (totalDays === 0) {
+	if (workingDaysCount === 0) {
 		throw new ValidationError('startDate', 'Requested leave period contains only holidays or weekends and counts as 0 days.');
 	}
+
+	const targetYear = startDate.getFullYear();
+	await accrueLeaves(employee.cuid, targetYear);
+	const balance = await leaveDao.getLeaveBalance(employee.cuid, leaveType.cuid, targetYear);
+
+	let remainingBalance: number;
+	if (leaveType.code === 'CL' || leaveType.code === 'SL') {
+		const targetMonth = startDate.getMonth();
+		remainingBalance = await getAvailableBalanceForMonth(employee.cuid, leaveType.cuid, targetYear, targetMonth);
+	} else {
+		remainingBalance = balance ? Number(balance.remaining_days) : 0;
+	}
+
+	let calendarDaysCount = 0;
+	if (input.isHalfDay) {
+		calendarDaysCount = 0.5;
+	} else {
+		const current = new Date(startDate);
+		current.setUTCHours(0, 0, 0, 0);
+		const end = new Date(endDate);
+		end.setUTCHours(0, 0, 0, 0);
+		while (current <= end) {
+			calendarDaysCount++;
+			current.setDate(current.getDate() + 1);
+		}
+	}
+
+	let daysFromPrimary = workingDaysCount;
+	let daysFromLwp = 0;
+	let daysFromLop = 0;
+	let totalDays = workingDaysCount;
+
+	if (leaveType.code === 'LWP') {
+		daysFromPrimary = 0.0;
+		daysFromLwp = calendarDaysCount;
+		totalDays = calendarDaysCount;
+	} else {
+		if (workingDaysCount > remainingBalance) {
+			daysFromPrimary = Math.max(0, remainingBalance);
+			daysFromLop = calendarDaysCount - daysFromPrimary;
+			totalDays = calendarDaysCount;
+		}
+	}
+
 
 	// 5. Overlapping validation
 	const overlaps = await leaveDao.getOverlappingRequests(employee.cuid, startDate, endDate);
@@ -1043,14 +1087,14 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 
 	// CL specific validations
 	if (leaveType.code === 'CL') {
-		if (totalDays > 2) {
+		if (workingDaysCount > 2) {
 			throw new ValidationError('leaveTypeCuid', 'Maximum 2 days can be applied in a single Casual Leave request. For longer leaves, please apply using Sick Leave (SL) or Earned Leave (EL) instead.');
 		}
 	}
 
 	// EL specific validations
 	if (leaveType.code === 'EL') {
-		if (totalDays > 24) {
+		if (workingDaysCount > 24) {
 			throw new ValidationError('endDate', 'A single Earned Leave (EL) request must not exceed 24 days.');
 		}
 	}
@@ -1166,37 +1210,7 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 		}
 	}
 
-	// 6. Leave Balance and LOP Split calculations
-	// Rule: For LWP requests, all days are explicitly LWP.
-	// For ALL other leave types (CL, SL, EL, ML, PL ...), any days that exceed the
-	// available balance are automatically treated as Loss of Pay (LOP), never as LWP.
-	const targetYear = startDate.getFullYear();
-	await accrueLeaves(employee.cuid, targetYear);
-	const balance = await leaveDao.getLeaveBalance(employee.cuid, leaveType.cuid, targetYear);
-
-	let daysFromPrimary = totalDays;
-	let daysFromLwp = 0;
-	let daysFromLop = 0;
-
-	if (leaveType.code === 'LWP') {
-		// Explicit LWP request: employee chose to apply LWP directly
-		daysFromPrimary = 0.0;
-		daysFromLwp = totalDays;
-	} else {
-		// All other leave types: available balance first, excess → LOP
-		let remainingBalance: number;
-		if (leaveType.code === 'CL' || leaveType.code === 'SL') {
-			const targetMonth = startDate.getMonth();
-			remainingBalance = await getAvailableBalanceForMonth(employee.cuid, leaveType.cuid, targetYear, targetMonth);
-		} else {
-			remainingBalance = balance ? Number(balance.remaining_days) : 0;
-		}
-
-		if (totalDays > remainingBalance) {
-			daysFromPrimary = Math.max(0, remainingBalance);
-			daysFromLop = totalDays - daysFromPrimary;
-		}
-	}
+	// 6. Leave Balance and LOP Split calculations (Calculated at the start of the function)
 
 	// Monthly LWP cap check — only applies when the employee explicitly applies for LWP
 	if (leaveType.code === 'LWP' && daysFromLwp > 0) {
@@ -1437,7 +1451,8 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 
 		for (const d of dates) {
 			const code = leaveType.code.toUpperCase();
-			if (code !== 'ML' && code !== 'LWP') {
+			const isSandwiched = lopDays > 0 || lwpSplitDays > 0;
+			if (code !== 'ML' && code !== 'LWP' && !isSandwiched) {
 				if (isWeekend(d) || isHoliday(d, holidaysSet)) {
 					continue;
 				}

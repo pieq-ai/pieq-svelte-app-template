@@ -332,38 +332,46 @@
     if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end)
       return null;
 
-    // Collect active dates
-    const activeDates: Date[] = [];
+    // Collect working dates and calendar dates
+    const workingDates: Date[] = [];
+    const calendarDates: Date[] = [];
     const curr = new SvelteDate(start);
     while (curr <= end) {
+      calendarDates.push(new Date(curr));
       if (code === "ML" || code === "LWP") {
-        activeDates.push(new Date(curr));
+        workingDates.push(new Date(curr));
       } else {
         if (!isWeekendUI(curr) && !isHolidayUI(curr)) {
-          activeDates.push(new Date(curr));
+          workingDates.push(new Date(curr));
         }
       }
       curr.setDate(curr.getDate() + 1);
     }
 
-    const totalActive = activeDates.length;
     const remaining = getAvailableBalanceForMonth(
       formLeaveTypeCuid,
       code,
       formStartDate,
     );
 
+    let activeDates = workingDates;
+    let totalActive = workingDates.length;
     let primaryDays = totalActive;
     let lopDays = 0;
     let lwpDays = 0;
 
     if (code === "LWP") {
       primaryDays = 0;
-      lwpDays = totalActive;
+      lwpDays = calendarDates.length;
+      totalActive = calendarDates.length;
+      activeDates = calendarDates;
     } else {
-      if (totalActive > remaining) {
+      if (workingDates.length > remaining) {
+        // Insufficient balance, sandwich rule applies!
         primaryDays = Math.max(0, remaining);
-        lopDays = totalActive - primaryDays;
+        lopDays = calendarDates.length - primaryDays;
+        totalActive = calendarDates.length;
+        activeDates = calendarDates;
       }
     }
 
@@ -711,15 +719,7 @@
   });
 
   // Calculated Duration (days)
-  let computedDuration = $derived.by(() => {
-    if (formIsHalfDay) return 0.5;
-    if (!formStartDate || !formEndDate) return 0;
-    const start = new Date(formStartDate);
-    const end = new Date(formEndDate);
-    if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) return 0;
-    const diff = end.getTime() - start.getTime();
-    return Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
-  });
+  let computedDuration = $derived(leaveImpactBreakdown ? leaveImpactBreakdown.totalActive : 0);
 
   let start_date_max = $derived.by(() => {
     if (
@@ -3121,7 +3121,7 @@
             </div>
             <div class="grid grid-cols-2 gap-2 text-xs">
               <div class="text-muted-foreground">
-                Requested Duration (Working Days):
+                Requested Duration (incl. sandwiched days):
               </div>
               <div class="font-bold text-right">
                 {leaveImpactBreakdown.totalActive.toFixed(1)} days
@@ -3160,7 +3160,7 @@
           {:else}
             <div class="grid grid-cols-2 gap-2 text-xs">
               <div class="text-muted-foreground">
-                Requested Duration (Working Days):
+                {selectedLeaveType?.leave_code === "LWP" ? 'Requested Duration (incl. sandwiched days):' : 'Requested Duration (Working Days):'}
               </div>
               <div class="font-bold text-right">
                 {leaveImpactBreakdown.totalActive.toFixed(1)} days
