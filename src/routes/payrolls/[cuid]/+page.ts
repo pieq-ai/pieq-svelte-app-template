@@ -2,12 +2,7 @@ import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 import type { PayrollUpload, Payroll, PayrollUploadFailure } from '$lib/types/payroll';
 
-export const load: PageLoad = async ({ params, fetch, parent }) => {
-	const { user } = await parent();
-	if (!user) {
-		error(401, 'Unauthorized');
-	}
-
+export const load: PageLoad = async ({ params, fetch }) => {
 	const res = await fetch(`/api/payroll-uploads/${params.cuid}`);
 
 	if (res.status === 404) {

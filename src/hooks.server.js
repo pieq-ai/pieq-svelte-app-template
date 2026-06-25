@@ -46,10 +46,7 @@ const routeGuard = async ({ event, resolve }) => {
 		'/settings',
 		'/leave-types',
 		'/leave-policies',
-		'/holidays',
-		'/salary-structures',
-		'/payrolls',
-		'/payroll-records'
+		'/holidays'
 	];
 	const isProtectedRoute = protectedRoutes.some(
 		(path) => event.url.pathname === path || event.url.pathname.startsWith(`${path}/`)
