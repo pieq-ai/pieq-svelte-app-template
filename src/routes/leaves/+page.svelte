@@ -1579,7 +1579,7 @@
 <!-- Declarative click-outside handlers managed via Svelte actions locally on date pickers -->
 
 <svelte:head>
-  <title>Employee Leave Management</title>
+  <title>Leave Overview</title>
   {#if isApplyModalOpen}
     <style>
       body {
@@ -1716,7 +1716,7 @@
   <!-- Page Header matching design system -->
   <div class="space-y-1 border-b border-border pb-6">
     <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
-      Leave Management
+      Leave Overview
     </h1>
   </div>
 
