@@ -775,14 +775,14 @@
     if (start > end) return 0;
 
     let totalMonths = 0;
-    let current = new Date(start);
+    let current = new SvelteDate(start);
 
     while (current <= end) {
       const year = current.getUTCFullYear();
       const month = current.getUTCMonth();
 
-      const startOfMonth = new Date(Date.UTC(year, month, 1));
-      const endOfMonth = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
+      const startOfMonth = new SvelteDate(Date.UTC(year, month, 1));
+      const endOfMonth = new SvelteDate(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
 
       const activeStart = current > startOfMonth ? current : startOfMonth;
       const activeEnd = end < endOfMonth ? end : endOfMonth;
@@ -798,7 +798,7 @@
 
       totalMonths += activeDays / monthDays;
 
-      current = new Date(Date.UTC(year, month + 1, 1));
+      current = new SvelteDate(Date.UTC(year, month + 1, 1));
     }
 
     return totalMonths;
@@ -824,11 +824,11 @@
     const targetMonth = parseInt(dateParts[1], 10) - 1;
     if (isNaN(targetYear) || isNaN(targetMonth)) return 0;
 
-    const joinDate = new Date(employee.date_of_joining);
+    const joinDate = new SvelteDate(employee.date_of_joining);
     joinDate.setUTCHours(0, 0, 0, 0);
 
     const relievingDate = employee.relieving_date
-      ? new Date(employee.relieving_date)
+      ? new SvelteDate(employee.relieving_date)
       : null;
     if (relievingDate) {
       relievingDate.setUTCHours(0, 0, 0, 0);
@@ -849,7 +849,7 @@
     let accrued = 0;
     if (effectiveMonthLimit >= 0) {
       // Enforce full-month credit rule for employee joining dates
-      const accrualJoinDate = new Date(joinDate);
+      const accrualJoinDate = new SvelteDate(joinDate);
       accrualJoinDate.setUTCDate(1);
 
       const serviceStart =
@@ -1567,6 +1567,13 @@
       approveModalOpen ||
       rejectModalOpen,
   );
+
+  let summaryBalances = $derived(
+    balances.filter((b) => {
+      const type = leaveTypes.find((t) => t.cuid === b.leave_type_cuid);
+      return !(type?.policy?.gender_specific);
+    })
+  );
 </script>
 
 <!-- Declarative click-outside handlers managed via Svelte actions locally on date pickers -->
@@ -1852,7 +1859,7 @@
         <div
           class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
         >
-          {#each balances as b (b.cuid)}
+          {#each summaryBalances as b (b.cuid)}
             {@const theme =
               cardThemes[b.leave_code as keyof typeof cardThemes] ||
               { text: "text-neutral-600" }}
