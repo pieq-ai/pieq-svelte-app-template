@@ -95,7 +95,7 @@ export async function DELETE({ params }) {
 			);
 		}
 
-		// Perform soft delete by setting is_active to false
+		// Perform soft delete by setting status to false
 		await service.toggleComponentStatus(cuid, false);
 
 		return json({

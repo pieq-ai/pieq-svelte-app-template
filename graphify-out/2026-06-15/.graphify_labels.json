@@ -9,7 +9,11 @@
   "7": "Package Dependencies",
   "8": "Layout & Toast",
   "9": "Department Service DAO",
+<<<<<<< HEAD
+  "10": "Community 10",
+=======
   "10": "Designation Service DAO",
+>>>>>>> main
   "11": "Server Authentication",
   "12": "Component Configuration",
   "13": "Permission Service",
@@ -65,6 +69,9 @@
   "63": "Community 63",
   "64": "Community 64",
   "65": "Community 65",
+<<<<<<< HEAD
+  "66": "Community 66"
+=======
   "66": "Community 66",
   "67": "Community 67",
   "68": "Community 68",
@@ -97,4 +104,5 @@
   "95": "Community 95",
   "96": "Community 96",
   "97": "Community 97"
+>>>>>>> main
 }

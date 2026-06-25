@@ -3,6 +3,8 @@
 	import { Button } from '$lib/components';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 
+	import type { Snippet } from 'svelte';
+
 	export interface TableAction {
 		label: string;
 		onClick: () => void;
@@ -22,6 +24,7 @@
 		canDelete?: boolean;
 		onDelete?: () => void;
 		deleteLabel?: string;
+		children?: Snippet;
 	}
 
 	let { 
@@ -35,7 +38,8 @@
 		editLabel = 'Edit',
 		canDelete = false,
 		onDelete,
-		deleteLabel = 'Delete'
+		deleteLabel = 'Delete',
+		children
 	}: Props = $props();
 
 	let finalActions = $derived.by(() => {
@@ -78,5 +82,8 @@
 				{action.label}
 			</DropdownMenu.Item>
 		{/each}
+		{#if children}
+			{@render children()}
+		{/if}
 	</DropdownMenu.Content>
 </DropdownMenu.Root>

@@ -9,9 +9,9 @@ export async function create(data: CreateSalaryComponentDto) {
 	return db.salaryComponent.create({
 		data: {
 			name: data.name,
-			component_type: data.component_type,
+			type: data.type,
 			is_taxable: data.is_taxable ?? false,
-			is_active: data.is_active ?? true,
+			status: data.status ?? true,
 			created_by: data.created_by ?? null
 		}
 	});
@@ -68,8 +68,8 @@ export async function findMany() {
 export async function getStats() {
 	const [total, earningsCount, deductionsCount] = await Promise.all([
 		db.salaryComponent.count(),
-		db.salaryComponent.count({ where: { component_type: 'earning', is_active: true } }),
-		db.salaryComponent.count({ where: { component_type: 'deduction', is_active: true } })
+		db.salaryComponent.count({ where: { type: 'earning', status: true } }),
+		db.salaryComponent.count({ where: { type: 'deduction', status: true } })
 	]);
 
 	return { total, earningsCount, deductionsCount };

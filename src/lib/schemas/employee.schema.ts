@@ -120,7 +120,7 @@ export const experienceSchema = z.object({
     return data.to_date >= data.from_date;
   }
   return true;
-}, { message: "To Date must be after From Date", path: ["to_date"] });
+}, { message: "To Date must be greater than or equal to From Date", path: ["to_date"] });
 
 export const documentSchema = z.object({
   cuid: z.string().optional().nullable(),

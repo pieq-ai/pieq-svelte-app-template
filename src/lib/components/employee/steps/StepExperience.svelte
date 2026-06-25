@@ -91,6 +91,25 @@
     onDirtyChange?.(isDirty);
   });
 
+  let backendErrors = $state<Record<string, string>>({});
+
+  function getBackendError(index: number, field: "from_date" | "to_date"): string {
+    return backendErrors[`${index}.${field}`] || 
+           backendErrors[`experience[${index}].${field}`] || 
+           "";
+  }
+
+  function clearBackendError(index: number, field: "from_date" | "to_date") {
+    const keys = [`${index}.${field}`, `experience[${index}].${field}`];
+    let updated = { ...backendErrors };
+    for (const key of keys) {
+      if (updated[key]) {
+        updated[key] = "";
+      }
+    }
+    backendErrors = updated;
+  }
+
   // Validations
   function validateRequired(val: string | undefined | null) {
     return val && val.trim().length > 0 ? "" : "Required";
@@ -101,16 +120,43 @@
   function roleError(val: string) {
     return validateRequired(val) || validateLettersSpaces(val, 'Role/Designation');
   }
-  function validateDates(from: string, to: string) {
-    // Both dates are optional in Prisma
-    if (!from && !to) return ""; // both empty is fine
-    if (from && !to) return ""; // from without to is fine
-    if (!from && to) return ""; // to without from is fine
+  function getFromDateError(from: string, index: number): string {
+    const be = getBackendError(index, "from_date");
+    if (be) return be;
+
+    if (!from) return "Required";
     const dFrom = new SvelteDate(from);
+    if (isNaN(dFrom.getTime())) return "Invalid date.";
+    
+    const today = new SvelteDate();
+    today.setHours(0, 0, 0, 0);
+    const dFromDate = new SvelteDate(dFrom.getTime());
+    dFromDate.setHours(0, 0, 0, 0);
+    if (dFromDate > today) return "Cannot be a future date.";
+    
+    return "";
+  }
+  function getToDateError(from: string, to: string, index: number): string {
+    const be = getBackendError(index, "to_date");
+    if (be) return be;
+
+    if (!to) return "Required";
     const dTo = new SvelteDate(to);
-    if (isNaN(dFrom.getTime()) || isNaN(dTo.getTime())) return "Invalid date.";
-    if (dTo > new SvelteDate()) return "To Date cannot be a future date.";
-    if (dFrom > dTo) return "From Date cannot be after To Date.";
+    if (isNaN(dTo.getTime())) return "Invalid date.";
+
+    const today = new SvelteDate();
+    today.setHours(0, 0, 0, 0);
+    const dToDate = new SvelteDate(dTo.getTime());
+    dToDate.setHours(0, 0, 0, 0);
+    if (dToDate > today) return "Cannot be a future date.";
+
+    if (from) {
+      const dFrom = new SvelteDate(from);
+      if (!isNaN(dFrom.getTime()) && dFrom > dTo) {
+        return "To Date must be greater than or equal to From Date";
+      }
+    }
+    
     return "";
   }
 
@@ -119,13 +165,15 @@
       (e, i) =>
         companyNameError(e.company_name) ||
         roleError(e.role) ||
-        validateDates(e.from_date, e.to_date) ||
+        getFromDateError(e.from_date, i) ||
+        getToDateError(e.from_date, e.to_date, i) ||
         isDuplicateEntry(experiences, i, (x) => `${x.company_name}|${x.role}`),
     ),
   );
 
   async function saveOnly(): Promise<{ success: boolean }> {
     isTouched = true;
+    backendErrors = {};
     if (hasErrors) {
       return { success: false };
     }
@@ -141,7 +189,12 @@
       if (!res.ok) {
         const body = await res.json();
         const parsed = parseBackendErrors(body);
-        throw new Error(parsed.message || "Failed to save experiences");
+        if (parsed.field) {
+          backendErrors = { [parsed.field]: parsed.message };
+          return { success: false };
+        }
+        toast.error(parsed.message || "Failed to save experiences");
+        return { success: false };
       }
       originalData = JSON.stringify(normalizeExperiences(experiences));
       toast.success("Updated successfully");
@@ -250,24 +303,31 @@
           <Label>From Date <span class="text-destructive">*</span></Label>
           <DatePicker
             bind:value={exp.from_date}
-            class={isTouched && validateDates(exp.from_date, exp.to_date)
+            onchange={() => clearBackendError(index, "from_date")}
+            class={isTouched && getFromDateError(exp.from_date, index)
               ? "border-destructive"
               : ""}
           />
+          {#if isTouched && getFromDateError(exp.from_date, index)}
+            <p class="text-xs text-destructive">
+              {getFromDateError(exp.from_date, index)}
+            </p>
+          {/if}
         </div>
         <div class="space-y-2">
           <Label>To Date <span class="text-destructive">*</span></Label>
           <DatePicker
             bind:value={exp.to_date}
-            class={isTouched && validateDates(exp.from_date, exp.to_date)
+            onchange={() => clearBackendError(index, "to_date")}
+            class={isTouched && getToDateError(exp.from_date, exp.to_date, index)
               ? "border-destructive"
               : ""}
           />
-          {#if isTouched && validateDates(exp.from_date, exp.to_date)}<p
-              class="text-xs text-destructive"
-            >
-              {validateDates(exp.from_date, exp.to_date)}
-            </p>{/if}
+          {#if isTouched && getToDateError(exp.from_date, exp.to_date, index)}
+            <p class="text-xs text-destructive">
+              {getToDateError(exp.from_date, exp.to_date, index)}
+            </p>
+          {/if}
         </div>
         <div class="space-y-2 sm:col-span-2">
           <Label>Description</Label>

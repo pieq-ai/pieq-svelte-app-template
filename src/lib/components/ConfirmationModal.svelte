@@ -89,7 +89,7 @@
 				<button
 					type="button"
 					onclick={handleConfirm}
-					class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border-none text-white text-[13px] font-semibold cursor-pointer transition-colors duration-150 disabled:opacity-70 disabled:cursor-not-allowed {confirmation.isDestructive ? 'bg-pieq-tertiary hover:bg-[#600018]' : 'bg-pieq-primary hover:bg-[#d4430c]'}"
+					class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border-none text-white text-[13px] font-semibold cursor-pointer transition-colors duration-150 disabled:opacity-70 disabled:cursor-not-allowed {confirmation.isDestructive ? 'bg-[#800020] hover:bg-[#600018]' : 'bg-[#F45310] hover:bg-[#d4430a]'}"
 					disabled={loading}
 				>
 					{#if loading}

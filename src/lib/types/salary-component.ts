@@ -11,10 +11,10 @@ export interface SalaryComponent {
 	cuid: string;
 
 	name: string;
-	component_type: SalaryComponentType;
+	type: SalaryComponentType;
 
 	is_taxable: boolean;
-	is_active: boolean;
+	status: boolean;
 
 	created_at: Date;
 	/** cuid of the user who created this record */
@@ -27,18 +27,18 @@ export interface SalaryComponent {
 
 export interface CreateSalaryComponentDto {
 	name: string;
-	component_type: SalaryComponentType;
+	type: SalaryComponentType;
 	is_taxable?: boolean;
-	is_active?: boolean;
+	status?: boolean;
 	/** cuid of the authenticated user performing the action */
 	created_by?: string | null;
 }
 
 export interface UpdateSalaryComponentDto {
 	name?: string;
-	component_type?: SalaryComponentType;
+	type?: SalaryComponentType;
 	is_taxable?: boolean;
-	is_active?: boolean;
+	status?: boolean;
 	/** cuid of the authenticated user performing the action */
 	updated_by?: string | null;
 }
@@ -47,7 +47,7 @@ export interface SalaryComponentFilters {
 	search?: string;
 	page?: number;
 	pageSize?: number;
-	sortBy?: 'name' | 'component_type' | 'is_active';
+	sortBy?: 'name' | 'type' | 'status';
 	sortOrder?: 'asc' | 'desc';
 }
 

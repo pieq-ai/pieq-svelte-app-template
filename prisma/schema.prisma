@@ -7,6 +7,38 @@ datasource db {
   provider = "postgresql"
 }
 
+/// Salary Component master — component_type is validated as 'earning' | 'deduction' at the application layer
+model SalaryComponent {
+  /// Auto-incrementing surrogate primary key (internal use only)
+  id             BigInt   @id @default(autoincrement())
+
+  /// Externally-exposed, non-guessable identifier — used in all API routes
+  cuid           String   @unique @default(cuid(2)) @db.Text
+
+  name String   @db.VarChar(150)
+
+  /// Stored as plain string: 'earning' | 'deduction' — validated at application layer
+  type String   @db.VarChar(20)
+
+  is_taxable     Boolean  @default(false)
+
+  status         Boolean  @default(true)
+
+  created_at     DateTime @default(now()) @db.Timestamptz()
+
+  /// cuid of the user who created this record
+  created_by     String?  @db.Text
+
+  updated_at     DateTime @updatedAt @db.Timestamptz()
+
+  /// cuid of the user who last updated this record
+  updated_by     String?  @db.Text
+
+  @@unique([name])
+
+  @@map("salary_components")
+}
+
 model SystemRoles {
   id BigInt @id @default(autoincrement())
 
@@ -272,6 +304,207 @@ model Languages {
 
   @@map("languages")
 }
+
+/// Salary Structure — links an employee to a set of salary components with monetary amounts
+/// References are stored as plain CUID strings; no DB foreign key constraints.
+model SalaryStructure {
+  /// Auto-incrementing surrogate primary key (internal use only)
+  id BigInt @id @default(autoincrement())
+
+  /// Externally-exposed, non-guessable identifier — used in all API routes
+  cuid String @unique @default(cuid(2)) @db.Text
+
+  /// CUID of the employee this structure belongs to (no FK constraint — resolved at application layer)
+  employee_cuid String @db.Text
+
+  /// The date from which this salary structure is effective
+  effective_from DateTime @db.Date
+
+  /// Optional end date; null means the structure is open-ended
+  effective_to DateTime? @db.Date
+
+  status Boolean @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  /// cuid of the user who created this record
+  created_by String? @db.Text
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+
+  /// cuid of the user who last updated this record
+  updated_by String? @db.Text
+
+  @@index([employee_cuid])
+  @@index([cuid])
+  @@map("salary_structures")
+}
+
+/// Individual salary component line items within a Salary Structure
+/// References salary_structure_cuid and salary_component_cuid as plain CUID strings (no FK constraints).
+model SalaryStructureItem {
+  /// Auto-incrementing surrogate primary key (internal use only)
+  id BigInt @id @default(autoincrement())
+
+  /// Externally-exposed, non-guessable identifier — used in all API routes
+  cuid String @unique @default(cuid(2)) @db.Text
+
+  /// CUID of the parent salary structure (no FK constraint)
+  salary_structure_cuid String @db.Text
+
+  /// CUID of the salary component (no FK constraint — resolved at application layer)
+  salary_component_cuid String @db.Text
+
+  /// Snapshot of the component name at the time of structure creation/revision
+  /// Preserved even if the component is later renamed.
+  component_name_snapshot String @db.VarChar(150)
+
+  /// Monetary amount for this component in the structure
+  amount Decimal @db.Decimal(15, 2)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  /// cuid of the user who created this record
+  created_by String? @db.Text
+
+  updated_at DateTime @updatedAt @db.Timestamptz()
+
+  /// cuid of the user who last updated this record
+  updated_by String? @db.Text
+
+  @@unique([salary_structure_cuid, salary_component_cuid])
+  @@index([salary_structure_cuid])
+  @@index([cuid])
+  @@map("salary_structure_items")
+}
+
+/// Represents one uploaded payroll file — the parent of N Payroll records.
+model PayrollUpload {
+  /// Auto-incrementing surrogate primary key (internal use only)
+  id BigInt @id @default(autoincrement())
+
+  /// Externally-exposed, non-guessable identifier — used in all API routes
+  cuid String @unique @default(cuid(2)) @db.Text
+
+  /// Pay period month (1-12)
+  month Int
+
+  /// Pay period year (4-digit, e.g. 2026)
+  year Int
+
+  /// Number of employee payroll records successfully created in this batch
+  employee_count Int @default(0)
+
+  /// Processing status: 'processed' | 'partial'
+  status String @default("processed") @db.VarChar(50)
+
+  /// The original name of the uploaded Excel file
+  file_name String? @db.VarChar(255)
+
+  /// Failure reason if the upload-level validation failed
+  errors String? @db.Text
+
+  /// Timestamp when the file was uploaded
+  uploaded_at DateTime @default(now()) @db.Timestamptz()
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.Text
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.Text
+
+  @@index([cuid])
+  @@index([year, month])
+  @@map("payroll_uploads")
+}
+
+/// Payroll record — one row per employee per month/year.
+/// Payroll data comes directly from the uploaded Excel file (Excel always wins).
+/// Component breakdown is stored as JSON for schema flexibility.
+model Payroll {
+  /// Auto-incrementing surrogate primary key (internal use only)
+  id BigInt @id @default(autoincrement())
+
+  /// Externally-exposed, non-guessable identifier — used in all API routes
+  cuid String @unique @default(cuid(2)) @db.Text
+
+  /// CUID of the employee (matched by employee_code at upload time; no FK constraint)
+  employee_cuid String @db.Text
+
+  /// Month as integer 1-12
+  month Int
+
+  /// 4-digit year (e.g. 2026)
+  year Int
+
+  /// Sum of all earning components
+  gross_earnings Decimal @db.Decimal(15, 2)
+
+  /// Sum of all deduction components
+  total_deduction Decimal @db.Decimal(15, 2)
+
+  /// gross_earnings - total_deduction
+  net_salary Decimal @db.Decimal(15, 2)
+
+  /// Full payroll component breakdown as JSON: { "Basic": 30000, "HRA": 12000, "PF": 1800 }
+  breakdown Json
+
+  /// CUID of the parent PayrollUpload batch (nullable for backwards-compat with records created before this refactor)
+  payroll_upload_cuid String? @db.Text
+
+  /// Timestamp when this payroll record was created via upload
+  uploaded_at DateTime @default(now()) @db.Timestamptz()
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.Text
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.Text
+
+  /// Enforce one payroll record per employee per month/year
+  @@unique([employee_cuid, month, year])
+  @@index([employee_cuid])
+  @@index([year, month])
+  @@index([payroll_upload_cuid])
+  @@index([cuid])
+  @@map("payrolls")
+}
+
+/// Represents one processed or failed row in a payroll upload batch.
+model PayrollUploadRecord {
+  /// Auto-incrementing surrogate primary key (internal use only)
+  id BigInt @id @default(autoincrement())
+
+  /// Externally-exposed, non-guessable identifier — used in all API routes
+  cuid String @unique @default(cuid(2)) @db.Text
+
+  /// CUID of the parent PayrollUpload batch (no FK constraint)
+  payroll_upload_cuid String @db.Text
+
+  /// The row number of the failure in the sheet (1-indexed)
+  row_number Int
+
+  /// The employee code associated with the row, if any
+  employee_code String? @db.VarChar(50)
+
+  /// The employee name associated with the row, if any
+  employee_name String? @db.VarChar(200)
+
+  /// Processing status: 'processed' | 'failed'
+  status String @db.VarChar(50)
+
+  /// Raw row data from Excel
+  row_data Json
+
+  /// Validation/processing errors if any
+  errors Json?
+
+  /// Timestamp when this record was created
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  @@index([payroll_upload_cuid])
+  @@index([cuid])
+  @@map("payroll_upload_records")
+}
+
 
 model Employee {
   id BigInt @id @default(autoincrement())
@@ -767,35 +1000,4 @@ model CompanyLocation {
   updated_by String?  @db.VarChar(100)
 
   @@map("company_locations")
-}
-
-/// Salary Component master — component_type is validated as 'earning' | 'deduction' at the application layer
-model SalaryComponent {
-  /// Auto-incrementing surrogate primary key (internal use only)
-  id BigInt @id @default(autoincrement())
-
-  /// Externally-exposed, non-guessable identifier — used in all API routes
-  cuid String @unique @default(cuid(2)) @db.Text
-
-  name String @db.VarChar(150)
-
-  /// Stored as plain string: 'earning' | 'deduction' — validated at application layer
-  component_type String @db.VarChar(20)
-
-  is_taxable Boolean @default(false)
-
-  is_active Boolean @default(true)
-
-  created_at DateTime @default(now()) @db.Timestamptz()
-
-  /// cuid of the user who created this record
-  created_by String? @db.Text
-
-  updated_at DateTime @updatedAt @db.Timestamptz()
-
-  /// cuid of the user who last updated this record
-  updated_by String? @db.Text
-
-  @@unique([name])
-  @@map("salary_components")
 }
