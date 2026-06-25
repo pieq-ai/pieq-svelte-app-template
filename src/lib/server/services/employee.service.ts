@@ -25,6 +25,7 @@ export interface CreateEmployeeDto {
     pan_no?: string | null;
     uan_no?: string | null;
     esi_no?: string | null;
+    pf_account_no?: string | null;
     emergency_contact_name?: string | null;
     emergency_contact_no?: string | null;
     relation_cuid?: string | null;
@@ -98,6 +99,7 @@ export async function createEmployee(dto: CreateEmployeeDto) {
         aadhar_no,
         uan_no,
         esi_no,
+        pf_account_no,
         dob,
         remarks,
         ...restDto
@@ -106,7 +108,7 @@ export async function createEmployee(dto: CreateEmployeeDto) {
     if (personal_email) {
         const existingEmail = await employeeDao.findByEmail(personal_email);
         if (existingEmail) {
-            throw new ValidationError("personal_email", "Email already exists.");
+            throw new ValidationError("personal_email", "This email address is already assigned to another employee.");
         }
     }
 
@@ -125,6 +127,11 @@ export async function createEmployee(dto: CreateEmployeeDto) {
     const existingPan = pan_no ? await employeeDao.findByPan(pan_no) : null;
     if (existingPan) {
         throw new ValidationError("pan_no", "PAN number already exists.");
+    }
+
+    const existingPf = pf_account_no ? await employeeDao.findByPfAccountNo(pf_account_no) : null;
+    if (existingPf) {
+        throw new ValidationError("pf_account_no", "This PF Account Number is already assigned to another employee.");
     }
 
     let retries = 0;
@@ -176,6 +183,7 @@ export async function updateEmployee(cuid: string, dto: UpdateEmployeeDto) {
         aadhar_no,
         uan_no,
         esi_no,
+        pf_account_no,
         dob,
         remarks,
         ...restDto
@@ -184,7 +192,7 @@ export async function updateEmployee(cuid: string, dto: UpdateEmployeeDto) {
     if (personal_email && personal_email !== emp.personal_email) {
         const existingEmail = await employeeDao.findByEmail(personal_email);
         if (existingEmail && existingEmail.cuid !== cuid) {
-            throw new ValidationError("personal_email", "Email already exists.");
+            throw new ValidationError("personal_email", "This email address is already assigned to another employee.");
         }
     }
 
@@ -206,6 +214,13 @@ export async function updateEmployee(cuid: string, dto: UpdateEmployeeDto) {
         const existingPan = await employeeDao.findByPan(pan_no);
         if (existingPan && existingPan.cuid !== cuid) {
             throw new ValidationError("pan_no", "PAN number already exists.");
+        }
+    }
+
+    if (pf_account_no && pf_account_no !== emp.pf_account_no) {
+        const existingPf = await employeeDao.findByPfAccountNo(pf_account_no);
+        if (existingPf && existingPf.cuid !== cuid) {
+            throw new ValidationError("pf_account_no", "This PF Account Number is already assigned to another employee.");
         }
     }
 

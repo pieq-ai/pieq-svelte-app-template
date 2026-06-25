@@ -253,7 +253,7 @@
 		/>
 		<MasterDataDropdown
 			master="pay-grades"
-			label="Pay Grade *"
+			label="Pay Grade"
 			value={employment.pay_grade_cuid}
 			onSelect={(val) => employment.pay_grade_cuid = val as string}
 			class={(isTouched && errors.pay_grade_cuid) ? 'border-destructive' : ''}
@@ -342,9 +342,6 @@
 				Save
 			</Button>
 		</div>
-		{#if hasErrors && isTouched}
-			<p class="text-xs text-destructive -mt-2">Please fix the errors above before proceeding.</p>
-		{/if}
 	</div>
 </div>
 

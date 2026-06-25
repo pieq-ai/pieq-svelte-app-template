@@ -9,17 +9,17 @@ export interface ValidationError {
 // Keys that are allowed in the POST (create) body — no others may be present.
 const CREATE_ALLOWED_KEYS = new Set<string>([
 	'name',
-	'component_type',
+	'type',
 	'is_taxable',
-	'is_active'
+	'status'
 ]);
 
 // Keys that are allowed in the PUT (update) body — no others may be present.
 const UPDATE_ALLOWED_KEYS = new Set<string>([
 	'name',
-	'component_type',
+	'type',
 	'is_taxable',
-	'is_active'
+	'status'
 ]);
 
 /** Return the unknown keys present in `body` that are not in `allowed`. */
@@ -61,18 +61,18 @@ export function validateCreateSalaryComponent(data: unknown): {
 		errors.push({ field: 'name', message: nameError });
 	}
 
-	// Validate component_type
-	const rawType = body.component_type;
-	let component_type = '';
+	// Validate type
+	const rawType = body.type;
+	let type = '';
 	if (rawType === undefined || rawType === null) {
-		errors.push({ field: 'component_type', message: 'Component type is required' });
+		errors.push({ field: 'type', message: 'Component type is required' });
 	} else if (typeof rawType !== 'string') {
-		errors.push({ field: 'component_type', message: 'Component type must be a string' });
+		errors.push({ field: 'type', message: 'Component type must be a string' });
 	} else {
-		component_type = rawType.trim();
-		if (component_type !== 'earning' && component_type !== 'deduction') {
+		type = rawType.trim();
+		if (type !== 'earning' && type !== 'deduction') {
 			errors.push({
-				field: 'component_type',
+				field: 'type',
 				message: 'Component type must be either "earning" or "deduction"'
 			});
 		}
@@ -86,12 +86,12 @@ export function validateCreateSalaryComponent(data: unknown): {
 		errors.push({ field: 'is_taxable', message: 'is_taxable must be a boolean' });
 	}
 
-	// Validate is_active — must be boolean if present; defaults to true if absent
-	let is_active = body.is_active;
-	if (is_active === undefined || is_active === null) {
-		is_active = true;
-	} else if (typeof is_active !== 'boolean') {
-		errors.push({ field: 'is_active', message: 'is_active must be a boolean' });
+	// Validate status — must be boolean if present; defaults to true if absent
+	let status = body.status;
+	if (status === undefined || status === null) {
+		status = true;
+	} else if (typeof status !== 'boolean') {
+		errors.push({ field: 'status', message: 'status must be a boolean' });
 	}
 
 	if (errors.length > 0) {
@@ -102,9 +102,9 @@ export function validateCreateSalaryComponent(data: unknown): {
 		errors,
 		validatedData: {
 			name: (body.name as string).trim(),
-			component_type: component_type as 'earning' | 'deduction',
+			type: type as 'earning' | 'deduction',
 			is_taxable: is_taxable as boolean,
-			is_active: is_active as boolean
+			status: status as boolean
 		}
 	};
 }
@@ -153,22 +153,22 @@ export function validateUpdateSalaryComponent(data: unknown): {
 		}
 	}
 
-	// Validate component_type if provided
-	if (body.component_type !== undefined) {
-		const rawType = body.component_type;
+	// Validate type if provided
+	if (body.type !== undefined) {
+		const rawType = body.type;
 		if (rawType === null) {
-			errors.push({ field: 'component_type', message: 'Component type cannot be null' });
+			errors.push({ field: 'type', message: 'Component type cannot be null' });
 		} else if (typeof rawType !== 'string') {
-			errors.push({ field: 'component_type', message: 'Component type must be a string' });
+			errors.push({ field: 'type', message: 'Component type must be a string' });
 		} else {
 			const trimmed = rawType.trim();
 			if (trimmed !== 'earning' && trimmed !== 'deduction') {
 				errors.push({
-					field: 'component_type',
+					field: 'type',
 					message: 'Component type must be either "earning" or "deduction"'
 				});
 			} else {
-				validatedData.component_type = trimmed;
+				validatedData.type = trimmed;
 			}
 		}
 	}
@@ -183,15 +183,15 @@ export function validateUpdateSalaryComponent(data: unknown): {
 		}
 	}
 
-	// Validate is_active if provided
-	if (body.is_active !== undefined) {
-		const rawActive = body.is_active;
-		if (rawActive === null) {
-			errors.push({ field: 'is_active', message: 'is_active cannot be null' });
-		} else if (typeof rawActive !== 'boolean') {
-			errors.push({ field: 'is_active', message: 'is_active must be a boolean' });
+	// Validate status if provided
+	if (body.status !== undefined) {
+		const rawStatus = body.status;
+		if (rawStatus === null) {
+			errors.push({ field: 'status', message: 'status cannot be null' });
+		} else if (typeof rawStatus !== 'boolean') {
+			errors.push({ field: 'status', message: 'status must be a boolean' });
 		} else {
-			validatedData.is_active = rawActive;
+			validatedData.status = rawStatus;
 		}
 	}
 

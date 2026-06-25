@@ -77,7 +77,7 @@
 			<CardHeader class="flex-col items-start gap-1 px-6 pr-12">
 				<CardTitle>{title}</CardTitle>
 				{#if description}
-					<CardDescription>{description}</CardDescription>
+					<CardDescription class="whitespace-pre-line">{description}</CardDescription>
 				{/if}
 			</CardHeader>
 			<Button 

@@ -92,12 +92,12 @@ export async function getComponents() {
 }
 
 /**
- * Toggles or sets the active state of a Salary Component (soft delete/deactivation).
+ * Toggles or sets the status of a Salary Component (soft delete/deactivation).
  * @param cuid - The externally-exposed cuid of the salary component
  */
 export async function toggleComponentStatus(
 	cuid: string,
-	is_active: boolean,
+	status: boolean,
 	updated_by?: string | null
 ) {
 	const current = await dao.findByCuid(cuid);
@@ -105,7 +105,7 @@ export async function toggleComponentStatus(
 		throw new ComponentNotFoundError(cuid);
 	}
 
-	return dao.update(cuid, { is_active, updated_by });
+	return dao.update(cuid, { status, updated_by });
 }
 
 /**

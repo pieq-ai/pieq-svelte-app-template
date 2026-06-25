@@ -81,17 +81,17 @@
 
 	const dirtyChecker = createDirtyChecker<{
 		name: string;
-		component_type: SalaryComponentType;
+		type: SalaryComponentType;
 		is_taxable: boolean;
-		is_active: boolean;
+		status: boolean;
 	}>();
 
 	let isDirty = $derived(
 		isModalOpen && dirtyChecker.isDirty({
 			name: formName.trim(),
-			component_type: formType,
+			type: formType,
 			is_taxable: formIsTaxable,
-			is_active: formIsActive
+			status: formIsActive
 		})
 	);
 	$effect(() => { $globalIsDirty = isDirty; });
@@ -107,11 +107,11 @@
 		}
 
 		if (statusFilter !== 'all') {
-			result = result.filter((comp) => comp.is_active === statusFilter);
+			result = result.filter((comp) => comp.status === statusFilter);
 		}
 
 		if (typeFilter !== 'all') {
-			result = result.filter((comp) => comp.component_type === typeFilter);
+			result = result.filter((comp) => comp.type === typeFilter);
 		}
 
 		if (sortDirection && sortColumn) {
@@ -133,10 +133,10 @@
 		filteredComponents.slice((currentPage - 1) * pageSize, currentPage * pageSize)
 	);
 	let activeEarningsCount = $derived(
-		componentsList.filter((c) => c.component_type === 'earning' && c.is_active).length
+		componentsList.filter((c) => c.type === 'earning' && c.status).length
 	);
 	let activeDeductionsCount = $derived(
-		componentsList.filter((c) => c.component_type === 'deduction' && c.is_active).length
+		componentsList.filter((c) => c.type === 'deduction' && c.status).length
 	);
 
 	async function loadComponents() {
@@ -184,9 +184,9 @@
 		backendError = '';
 		dirtyChecker.snapshot({
 			name: '',
-			component_type: 'earning',
+			type: 'earning',
 			is_taxable: false,
-			is_active: true
+			status: true
 		});
 		isModalOpen = true;
 	}
@@ -194,15 +194,15 @@
 	function openEditModal(comp: SalaryComponent) {
 		editingComp = comp;
 		formName = comp.name;
-		formType = comp.component_type;
+		formType = comp.type;
 		formIsTaxable = comp.is_taxable;
-		formIsActive = comp.is_active;
+		formIsActive = comp.status;
 		backendError = '';
 		dirtyChecker.snapshot({
 			name: comp.name,
-			component_type: comp.component_type,
+			type: comp.type,
 			is_taxable: comp.is_taxable,
-			is_active: comp.is_active
+			status: comp.status
 		});
 		isModalOpen = true;
 	}
@@ -224,9 +224,9 @@
 		try {
 			const payload = {
 				name: formName.trim(),
-				component_type: formType,
+				type: formType,
 				is_taxable: formIsTaxable,
-				is_active: formIsActive
+				status: formIsActive
 			};
 
 			const response = await fetch(
@@ -354,11 +354,11 @@
 							</Button>
 						</TableHead>
 						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('component_type')}>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('type')}>
 								Type
-							{#if sortColumn === 'component_type' && sortDirection === 'asc'}
+							{#if sortColumn === 'type' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortColumn === 'component_type' && sortDirection === 'desc'}
+							{:else if sortColumn === 'type' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
@@ -367,11 +367,11 @@
 						</TableHead>
 						<TableHead class="font-bold text-foreground text-[15px]">Taxable</TableHead>
 						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
-							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('is_active')}>
+							<Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('status')}>
 								Status
-							{#if sortColumn === 'is_active' && sortDirection === 'asc'}
+							{#if sortColumn === 'status' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortColumn === 'is_active' && sortDirection === 'desc'}
+							{:else if sortColumn === 'status' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
@@ -408,13 +408,13 @@
 									<span class="font-semibold">{comp.name}</span>
 								</TableCell>
 								<TableCell>
-									<span class="capitalize">{comp.component_type}</span>
+									<span class="capitalize">{comp.type}</span>
 								</TableCell>
 								<TableCell>
 									<span>{comp.is_taxable ? "Taxable" : "Non-taxable"}</span>
 								</TableCell>
 								<TableCell class="text-center">
-									<Badge variant={comp.is_active === true ? 'default' : 'secondary'}>{comp.is_active ? 'Active' : 'Inactive'}</Badge>
+									<Badge variant={comp.status === true ? 'default' : 'secondary'}>{comp.status ? 'Active' : 'Inactive'}</Badge>
 								</TableCell>
 								<TableCell class="text-right">
 									<TableActions

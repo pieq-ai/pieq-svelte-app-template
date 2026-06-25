@@ -9,7 +9,7 @@
 	import { untrack } from "svelte";
 
 	interface Props {
-		value?: string;
+		value?: string | null;
 		placeholder?: string;
 		class?: string;
 		isError?: boolean;
@@ -21,6 +21,7 @@
 		required?: boolean;
 		onchange?: () => void;
 		isFilter?: boolean;
+		isDateDisabled?: (date: DateValue) => boolean;
 	}
 
 	let { 
@@ -35,14 +36,15 @@
 		max,
 		required,
 		onchange,
-		isFilter = false
+		isFilter = false,
+		isDateDisabled
 	}: Props = $props();
 
 	let open = $state(false);
 	let prevValue = $state(value);
 	let prevTextValue = $state('');
 	
-	function formatDate(val: string): string {
+	function formatDate(val: string | null | undefined): string {
 		if (!val || val === 'Invalid Date') return '';
 		try {
 			const d = parseDate(val.split('T')[0]);
@@ -62,9 +64,6 @@
 
 	let minDate = $derived(min && min !== 'Invalid Date' ? parseDate(min.split('T')[0]) : undefined);
 	let maxDate = $derived(max && max !== 'Invalid Date' ? parseDate(max.split('T')[0]) : undefined);
-
-	const currentYear = new Date().getFullYear();
-	const yearsForDropdown = Array.from({ length: currentYear - 1900 + 50 }, (_, i) => 1900 + i);
 
 	$effect(() => {
 		if (open && !calendarValue) {
@@ -89,7 +88,7 @@
 						textValue = value;
 						prevTextValue = textValue;
 					}
-				} else if (value === '') {
+				} else if (value === '' || value === null) {
 					calendarValue = undefined;
 					textValue = '';
 					prevTextValue = '';
@@ -141,9 +140,11 @@
 	}
 
 	let isTodayDisabled = $derived.by(() => {
-		const tStr = today(getLocalTimeZone()).toString();
+		const t = today(getLocalTimeZone());
+		const tStr = t.toString();
 		if (min && tStr < min) return true;
 		if (max && tStr > max) return true;
+		if (isDateDisabled && isDateDisabled(t)) return true;
 		return false;
 	});
 
@@ -314,8 +315,7 @@
 					bind:placeholder={calendarPlaceholder}
 					minValue={minDate}
 					maxValue={maxDate}
-					captionLayout="dropdown"
-					years={yearsForDropdown}
+					{isDateDisabled}
 				/>
 				<div class="flex items-center justify-between p-2 border-t border-border mt-1">
 					<Button variant="ghost" size="sm" onclick={handleToday} disabled={isTodayDisabled}>Today</Button>
@@ -351,8 +351,7 @@
 						bind:placeholder={calendarPlaceholder}
 						minValue={minDate}
 						maxValue={maxDate}
-						captionLayout="dropdown"
-						years={yearsForDropdown}
+						{isDateDisabled}
 					/>
 					<div class="flex items-center justify-between p-2 border-t border-border mt-1">
 						<Button variant="ghost" size="sm" onclick={handleToday} disabled={isTodayDisabled}>Today</Button>
