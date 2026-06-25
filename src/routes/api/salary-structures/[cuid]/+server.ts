@@ -4,9 +4,12 @@ import {
 	validateUpdateSalaryStructure,
 	validateCreateRevision
 } from '$lib/server/validators/salary-structure.validator.js';
+import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 
-export async function GET({ params }) {
+export async function GET(event) {
+	const params = event.params;
 	try {
+		await permissionGuard.requirePermission(event.locals.user, event.locals.roles, 'salary_structure_view');
 		const cuid = params.cuid;
 		if (!cuid) {
 			return json({ success: false, message: 'Invalid salary structure ID' }, { status: 400 });
@@ -16,16 +19,23 @@ export async function GET({ params }) {
 		return json({ data: structure });
 	} catch (error) {
 		console.error(`Error in GET /api/salary-structures/${params.cuid}:`, error);
+		const message = (error as Error).message;
+		if (message === 'Unauthorized' || message === 'Forbidden') {
+			return json({ success: false, message }, { status: message === 'Unauthorized' ? 401 : 403 });
+		}
 		const isNotFound = (error as Error).name === 'SalaryStructureNotFoundError';
 		return json(
-			{ success: false, message: (error as Error).message || 'Failed to retrieve salary structure' },
+			{ success: false, message: message || 'Failed to retrieve salary structure' },
 			{ status: isNotFound ? 404 : 500 }
 		);
 	}
 }
 
-export async function PUT({ params, request }) {
+export async function PUT(event) {
+	const params = event.params;
+	const request = event.request;
 	try {
+		await permissionGuard.requirePermission(event.locals.user, event.locals.roles, 'salary_structure_edit');
 		const cuid = params.cuid;
 		if (!cuid) {
 			return json({ message: 'Invalid salary structure ID' }, { status: 400 });
@@ -43,6 +53,10 @@ export async function PUT({ params, request }) {
 		return json({ data: { cuid: updated.cuid, message: 'success' } });
 	} catch (error) {
 		console.error(`Error in PUT /api/salary-structures/${params.cuid}:`, error);
+		const message = (error as Error).message;
+		if (message === 'Unauthorized' || message === 'Forbidden') {
+			return json({ message }, { status: message === 'Unauthorized' ? 401 : 403 });
+		}
 		if ((error as Error).name === 'ConfirmationRequiredError') {
 			return json({ data: { confirmationRequired: true } }, { status: 200 });
 		}
@@ -54,14 +68,16 @@ export async function PUT({ params, request }) {
 			(error as Error).name === 'BusinessValidationError';
 
 		return json(
-			{ message: (error as Error).message || 'Failed to update salary structure' },
+			{ message: message || 'Failed to update salary structure' },
 			{ status: isNotFound ? 404 : isValidationError ? 400 : 500 }
 		);
 	}
 }
 
-export async function DELETE({ params }) {
+export async function DELETE(event) {
+	const params = event.params;
 	try {
+		await permissionGuard.requirePermission(event.locals.user, event.locals.roles, 'salary_structure_edit');
 		const cuid = params.cuid;
 		if (!cuid) {
 			return json({ success: false, message: 'Invalid salary structure ID' }, { status: 400 });
@@ -71,24 +87,23 @@ export async function DELETE({ params }) {
 		return json({ data: { message: 'success' } });
 	} catch (error) {
 		console.error(`Error in DELETE /api/salary-structures/${params.cuid}:`, error);
+		const message = (error as Error).message;
+		if (message === 'Unauthorized' || message === 'Forbidden') {
+			return json({ success: false, message }, { status: message === 'Unauthorized' ? 401 : 403 });
+		}
 		const isNotFound = (error as Error).name === 'SalaryStructureNotFoundError';
 		return json(
-			{ success: false, message: (error as Error).message || 'Failed to deactivate salary structure' },
+			{ success: false, message: message || 'Failed to deactivate salary structure' },
 			{ status: isNotFound ? 404 : 500 }
 		);
 	}
 }
 
-/**
- * POST /api/salary-structures/:cuid
- *
- * Creates a new Salary Structure revision from the given Active source structure.
- * Automatically closes the previous structure (status=Inactive, effective_to = newFrom - 1 day).
- *
- * Body: { effective_from: string, components: [{ salary_component_cuid, amount }] }
- */
-export async function POST({ params, request }) {
+export async function POST(event) {
+	const params = event.params;
+	const request = event.request;
 	try {
+		await permissionGuard.requirePermission(event.locals.user, event.locals.roles, 'salary_structure_create');
 		const cuid = params.cuid;
 		if (!cuid) {
 			return json({ message: 'Invalid salary structure ID' }, { status: 400 });
@@ -107,6 +122,10 @@ export async function POST({ params, request }) {
 		return json({ data: { cuid: revision.cuid, message: 'success' } }, { status: 201 });
 	} catch (error) {
 		console.error(`Error in POST /api/salary-structures/${params.cuid}:`, error);
+		const message = (error as Error).message;
+		if (message === 'Unauthorized' || message === 'Forbidden') {
+			return json({ message }, { status: message === 'Unauthorized' ? 401 : 403 });
+		}
 		const isNotFound = (error as Error).name === 'SalaryStructureNotFoundError';
 		const isValidationError =
 			(error as Error).name === 'InvalidSalaryComponentError' ||
@@ -115,7 +134,7 @@ export async function POST({ params, request }) {
 			(error as Error).name === 'BusinessValidationError';
 
 		return json(
-			{ message: (error as Error).message || 'Failed to create salary revision' },
+			{ message: message || 'Failed to create salary revision' },
 			{ status: isNotFound ? 404 : isValidationError ? 400 : 500 }
 		);
 	}

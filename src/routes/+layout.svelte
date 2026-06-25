@@ -70,7 +70,6 @@
 		resolve('/salary-structures'),
 		resolve('/payrolls')
 	];
-
 	const salaryManagementItems = [
 		{ label: 'Salary Components', href: resolve('/salary-components'), icon: WalletIcon },
 		{ label: 'Salary Structures', href: resolve('/salary-structures'), icon: ReceiptTextIcon },

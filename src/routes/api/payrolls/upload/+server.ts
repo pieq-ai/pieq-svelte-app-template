@@ -3,6 +3,7 @@ import { parsePayrollExcel } from '$lib/server/utils/excel-parser.js';
 import type { ParsedPayrollRow, ParseResult } from '$lib/server/utils/excel-parser.js';
 import { uploadPayroll } from '$lib/server/services/payroll.service.js';
 import { validateExcelExtension, validateExcelMimeType } from '$lib/server/validators/payroll.validator.js';
+import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 
 /**
  * POST /api/payrolls/upload
@@ -14,9 +15,10 @@ import { validateExcelExtension, validateExcelMimeType } from '$lib/server/valid
  * Returns:
  *   { data: { created, skipped, errors, upload_cuid, warnings } }
  */
-export async function POST({ request }) {
+export async function POST(event) {
 	try {
-		const formData = await request.formData();
+		await permissionGuard.requirePermission(event.locals.user, event.locals.roles, 'payroll_upload');
+		const formData = await event.request.formData();
 		const file = formData.get('file') as File | null;
 
 		if (!file) {
@@ -127,8 +129,12 @@ export async function POST({ request }) {
 		});
 	} catch (error) {
 		console.error('Error in POST /api/payrolls/upload:', error);
+		const message = (error as Error).message;
+		if (message === 'Unauthorized' || message === 'Forbidden') {
+			return json({ message }, { status: message === 'Unauthorized' ? 401 : 403 });
+		}
 		return json(
-			{ message: (error as Error).message || 'Failed to process payroll upload.' },
+			{ message: message || 'Failed to process payroll upload.' },
 			{ status: 500 }
 		);
 	}

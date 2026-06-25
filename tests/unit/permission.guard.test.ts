@@ -1,52 +1,27 @@
- 
-import { describe, it, expect } from 'vitest';
-import * as permissionGuard from '$lib/server/guards/permission.guard.js';
+import { describe, test, expect } from 'vitest';
+import { requirePermission, requireAdmin } from '$lib/server/guards/permission.guard.js';
+import type { User } from '$lib/types/user';
 
-describe('Permission Guard', () => {
-	const UNAUTHORIZED_MESSAGE = 'Unauthorized';
+describe('Permission Guard (Authentication-only)', () => {
+	const testUser: User = {
+		id: 'test-user-id',
+		email: 'test@example.com',
+		name: 'Test User'
+	};
 
-	describe('requireAuth', () => {
-		it('should throw an error if user is null', () => {
-			expect(() => permissionGuard.requireAuth(null)).toThrow(UNAUTHORIZED_MESSAGE);
-		});
-
-		it('should throw an error if user is undefined', () => {
-			expect(() => permissionGuard.requireAuth(undefined)).toThrow(UNAUTHORIZED_MESSAGE);
-		});
-
-		it('should not throw if user is provided', () => {
-			const mockUser = { id: '1', name: 'Test User' } as any;
-			expect(() => permissionGuard.requireAuth(mockUser)).not.toThrow();
-		});
+	test('should block unauthenticated user in requirePermission', async () => {
+		await expect(requirePermission(null, [], 'salary_structure_view')).rejects.toThrow('Unauthorized');
 	});
 
-	describe('requireAdmin', () => {
-		it('should throw an error if user is null', () => {
-			expect(() => permissionGuard.requireAdmin(null)).toThrow(UNAUTHORIZED_MESSAGE);
-		});
-
-		it('should throw an error if user is undefined', () => {
-			expect(() => permissionGuard.requireAdmin(undefined)).toThrow(UNAUTHORIZED_MESSAGE);
-		});
-
-		it('should not throw if user is provided', () => {
-			const mockUser = { id: '1', name: 'Admin User' } as any;
-			expect(() => permissionGuard.requireAdmin(mockUser)).not.toThrow();
-		});
+	test('should allow authenticated user in requirePermission', async () => {
+		await expect(requirePermission(testUser, [], 'salary_structure_view')).resolves.not.toThrow();
 	});
 
-	describe('requirePermission', () => {
-		it('should throw an error if user is null', () => {
-			expect(() => permissionGuard.requirePermission(null, 'some_permission')).toThrow(UNAUTHORIZED_MESSAGE);
-		});
+	test('should block unauthenticated user in requireAdmin', async () => {
+		await expect(requireAdmin(null, [])).rejects.toThrow('Unauthorized');
+	});
 
-		it('should throw an error if user is undefined', () => {
-			expect(() => permissionGuard.requirePermission(undefined, 'some_permission')).toThrow(UNAUTHORIZED_MESSAGE);
-		});
-
-		it('should not throw if user is provided', () => {
-			const mockUser = { id: '1', name: 'Test User' } as any;
-			expect(() => permissionGuard.requirePermission(mockUser, 'some_permission')).not.toThrow();
-		});
+	test('should allow authenticated user in requireAdmin', async () => {
+		await expect(requireAdmin(testUser, [])).resolves.not.toThrow();
 	});
 });
