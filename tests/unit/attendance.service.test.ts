@@ -11,6 +11,13 @@ import {
 	AttendanceValidationError
 } from '$lib/server/services/attendance.service.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
+import * as locationDao from '$lib/server/dao/organization_location.dao.js';
+
+vi.mock('$lib/server/dao/organization_location.dao.js', () => ({
+	getLocationByCuid: vi.fn(),
+	getAllLocations: vi.fn(),
+	getLocations: vi.fn()
+}));
 
 vi.mock('$lib/server/dao/employment.dao.js', () => ({
 	findByEmployeeCuid: vi.fn(),
@@ -52,7 +59,13 @@ describe('attendance service', () => {
 		vi.clearAllMocks();
 		vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
 			date_of_joining: new Date(Date.UTC(2026, 0, 1)), // Jan 1, 2026
-			relieving_date: null
+			relieving_date: null,
+			location_cuid: 'location-uuid-123'
+		} as any);
+		vi.mocked(locationDao.getLocationByCuid).mockResolvedValue({
+			cuid: 'location-uuid-123',
+			latitude: 13.038734640855532,
+			longitude: 80.2346649817288
 		} as any);
 		vi.mocked(attendanceDao.findOpenRecord).mockResolvedValue(null);
 	});
@@ -143,6 +156,41 @@ describe('attendance service', () => {
 
 			await expect(checkIn(employeeCuid, null, null, invalidGps)).rejects.toThrowError(
 				new AttendanceValidationError('employee_cuid', 'You are outside the office zone')
+			);
+		});
+
+		it('should reject if employee has no location_cuid assigned', async () => {
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue(null);
+			vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+				date_of_joining: new Date(Date.UTC(2026, 0, 1)),
+				relieving_date: null,
+				location_cuid: null
+			} as any);
+
+			await expect(checkIn(employeeCuid, null, null, validGps)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'No company location has been assigned')
+			);
+		});
+
+		it('should reject if company location has no valid coordinates configured', async () => {
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue(null);
+			vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+				date_of_joining: new Date(Date.UTC(2026, 0, 1)),
+				relieving_date: null,
+				location_cuid: 'location-uuid-123'
+			} as any);
+			vi.mocked(locationDao.getLocationByCuid).mockResolvedValue({
+				cuid: 'location-uuid-123',
+				latitude: null,
+				longitude: null
+			} as any);
+
+			await expect(checkIn(employeeCuid, null, null, validGps)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'Company location is not properly configured')
 			);
 		});
 
@@ -247,6 +295,45 @@ describe('attendance service', () => {
 
 			await expect(checkOut(employeeCuid, null, invalidGps)).rejects.toThrowError(
 				new AttendanceValidationError('employee_cuid', 'You are outside the office zone')
+			);
+		});
+
+		it('should reject if employee has no location_cuid assigned on check-out', async () => {
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(attendanceDao.findOpenRecord).mockResolvedValue({
+				cuid: 'record-123',
+				check_in_time: new Date()
+			} as any);
+			vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+				date_of_joining: new Date(Date.UTC(2026, 0, 1)),
+				relieving_date: null,
+				location_cuid: null
+			} as any);
+
+			await expect(checkOut(employeeCuid, null, validGps)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'No company location has been assigned')
+			);
+		});
+
+		it('should reject if company location has no valid coordinates configured on check-out', async () => {
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(attendanceDao.findOpenRecord).mockResolvedValue({
+				cuid: 'record-123',
+				check_in_time: new Date()
+			} as any);
+			vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+				date_of_joining: new Date(Date.UTC(2026, 0, 1)),
+				relieving_date: null,
+				location_cuid: 'location-uuid-123'
+			} as any);
+			vi.mocked(locationDao.getLocationByCuid).mockResolvedValue({
+				cuid: 'location-uuid-123',
+				latitude: null,
+				longitude: null
+			} as any);
+
+			await expect(checkOut(employeeCuid, null, validGps)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'Company location is not properly configured')
 			);
 		});
 

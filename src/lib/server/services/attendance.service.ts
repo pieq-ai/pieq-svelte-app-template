@@ -4,6 +4,7 @@ import * as holidayDao from '$lib/server/dao/holiday.dao.js';
 import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import { GEOFENCE_CONFIG, calculateDistance } from '$lib/geofence.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
+import * as locationDao from '$lib/server/dao/organization_location.dao.js';
 
 export class AttendanceValidationError extends Error {
 	readonly field: string;
@@ -100,9 +101,25 @@ export async function checkIn(
 		throw new AttendanceValidationError('employee_cuid', 'GPS coordinates are required to mark attendance');
 	}
 
+	if (!employment.location_cuid) {
+		throw new AttendanceValidationError('employee_cuid', 'No company location has been assigned');
+	}
+
+	const location = await locationDao.getLocationByCuid(employment.location_cuid);
+	if (!location) {
+		throw new AttendanceValidationError('employee_cuid', 'No company location has been assigned');
+	}
+
+	const officeLat = location.latitude !== null && location.latitude !== undefined ? Number(location.latitude) : null;
+	const officeLon = location.longitude !== null && location.longitude !== undefined ? Number(location.longitude) : null;
+
+	if (officeLat === null || officeLon === null || isNaN(officeLat) || isNaN(officeLon)) {
+		throw new AttendanceValidationError('employee_cuid', 'Company location is not properly configured');
+	}
+
 	const { latitude, longitude } = gpsData;
 
-	const dist = calculateDistance(latitude, longitude, GEOFENCE_CONFIG.OFFICE_LATITUDE, GEOFENCE_CONFIG.OFFICE_LONGITUDE);
+	const dist = calculateDistance(latitude, longitude, officeLat, officeLon);
 	if (dist > GEOFENCE_CONFIG.ALLOWED_RADIUS_METERS) {
 		throw new AttendanceValidationError('employee_cuid', 'You are outside the office zone');
 	}
@@ -192,9 +209,25 @@ export async function checkOut(
 		throw new AttendanceValidationError('employee_cuid', 'GPS coordinates are required to mark attendance');
 	}
 
+	if (!employment.location_cuid) {
+		throw new AttendanceValidationError('employee_cuid', 'No company location has been assigned');
+	}
+
+	const location = await locationDao.getLocationByCuid(employment.location_cuid);
+	if (!location) {
+		throw new AttendanceValidationError('employee_cuid', 'No company location has been assigned');
+	}
+
+	const officeLat = location.latitude !== null && location.latitude !== undefined ? Number(location.latitude) : null;
+	const officeLon = location.longitude !== null && location.longitude !== undefined ? Number(location.longitude) : null;
+
+	if (officeLat === null || officeLon === null || isNaN(officeLat) || isNaN(officeLon)) {
+		throw new AttendanceValidationError('employee_cuid', 'Company location is not properly configured');
+	}
+
 	const { latitude, longitude } = gpsData;
 
-	const dist = calculateDistance(latitude, longitude, GEOFENCE_CONFIG.OFFICE_LATITUDE, GEOFENCE_CONFIG.OFFICE_LONGITUDE);
+	const dist = calculateDistance(latitude, longitude, officeLat, officeLon);
 	if (dist > GEOFENCE_CONFIG.ALLOWED_RADIUS_METERS) {
 		throw new AttendanceValidationError('employee_cuid', 'You are outside the office zone');
 	}

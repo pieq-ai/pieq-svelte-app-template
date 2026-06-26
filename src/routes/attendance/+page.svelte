@@ -54,62 +54,6 @@
 	let locationPermissionDenied = $state(false);
 	let isLocating = $state(false);
 
-	let distanceFromOffice = $derived.by(() => {
-		if (gpsLatitude === null || gpsLongitude === null) return null;
-		return calculateDistance(
-			gpsLatitude,
-			gpsLongitude,
-			GEOFENCE_CONFIG.OFFICE_LATITUDE,
-			GEOFENCE_CONFIG.OFFICE_LONGITUDE
-		);
-	});
-
-	let gpsValidation = $derived.by(() => {
-		if (locationPermissionDenied) {
-			return {
-				isValid: false,
-				status: 'Outside Office Zone',
-				message: 'Location permission denied. Please allow location access to mark attendance.'
-			};
-		}
-		if (locationError) {
-			return {
-				isValid: false,
-				status: 'Location Error',
-				message: `Location error: ${locationError}`
-			};
-		}
-		if (isLocating && gpsLatitude === null) {
-			return {
-				isValid: false,
-				status: 'Determining Location...',
-				message: 'Getting your current location...'
-			};
-		}
-		if (gpsLatitude === null || gpsLongitude === null) {
-			return {
-				isValid: false,
-				status: 'Location Unavailable',
-				message: 'Unable to determine your location.'
-			};
-		}
-
-		const dist = calculateDistance(
-			gpsLatitude,
-			gpsLongitude,
-			GEOFENCE_CONFIG.OFFICE_LATITUDE,
-			GEOFENCE_CONFIG.OFFICE_LONGITUDE
-		);
-		const isInside = dist <= GEOFENCE_CONFIG.ALLOWED_RADIUS_METERS;
-
-		return {
-			isValid: isInside,
-			status: isInside ? 'Inside Office Zone' : 'Outside Office Zone',
-			message: isInside
-				? 'You are within the office zone. Attendance marking is enabled.'
-				: `You are outside the office zone (Distance: ${Math.round(dist)}m).`
-		};
-	});
 
 	onMount(() => {
 		if (!navigator.geolocation) {
@@ -250,6 +194,87 @@
 	let selectedEmployee = $derived(
 		data.employees.find((emp: any) => emp.uuid === selectedEmployeeUuid) || null
 	);
+
+	let distanceFromOffice = $derived.by(() => {
+		if (gpsLatitude === null || gpsLongitude === null) return null;
+		const officeLat = selectedEmployee?.latitude !== undefined && selectedEmployee?.latitude !== null ? Number(selectedEmployee.latitude) : null;
+		const officeLon = selectedEmployee?.longitude !== undefined && selectedEmployee?.longitude !== null ? Number(selectedEmployee.longitude) : null;
+		if (officeLat === null || officeLon === null) return null;
+		return calculateDistance(
+			gpsLatitude,
+			gpsLongitude,
+			officeLat,
+			officeLon
+		);
+	});
+
+	let gpsValidation = $derived.by(() => {
+		if (!selectedEmployeeUuid) {
+			return {
+				isValid: false,
+				status: 'No Employee Selected',
+				message: 'Please select an employee to validate location.'
+			};
+		}
+		if (locationPermissionDenied) {
+			return {
+				isValid: false,
+				status: 'Outside Office Zone',
+				message: 'Location permission denied. Please allow location access to mark attendance.'
+			};
+		}
+		if (locationError) {
+			return {
+				isValid: false,
+				status: 'Location Error',
+				message: `Location error: ${locationError}`
+			};
+		}
+		if (isLocating && gpsLatitude === null) {
+			return {
+				isValid: false,
+				status: 'Determining Location...',
+				message: 'Getting your current location...'
+			};
+		}
+		if (gpsLatitude === null || gpsLongitude === null) {
+			return {
+				isValid: false,
+				status: 'Location Unavailable',
+				message: 'Unable to determine your location.'
+			};
+		}
+
+		const officeLat = selectedEmployee?.latitude !== undefined && selectedEmployee?.latitude !== null ? Number(selectedEmployee.latitude) : null;
+		const officeLon = selectedEmployee?.longitude !== undefined && selectedEmployee?.longitude !== null ? Number(selectedEmployee.longitude) : null;
+
+		if (officeLat === null || officeLon === null) {
+			const hasLocation = selectedEmployee?.location_cuid !== undefined && selectedEmployee?.location_cuid !== null;
+			return {
+				isValid: false,
+				status: 'Location Not Configured',
+				message: hasLocation 
+					? 'Company location coordinates are not properly configured.'
+					: 'No company location has been assigned to this employee.'
+			};
+		}
+
+		const dist = calculateDistance(
+			gpsLatitude,
+			gpsLongitude,
+			officeLat,
+			officeLon
+		);
+		const isInside = dist <= GEOFENCE_CONFIG.ALLOWED_RADIUS_METERS;
+
+		return {
+			isValid: isInside,
+			status: isInside ? 'Inside Office Zone' : 'Outside Office Zone',
+			message: isInside
+				? 'You are within the office zone. Attendance marking is enabled.'
+				: `You are outside the office zone (Distance: ${Math.round(dist)}m).`
+		};
+	});
 
 	let isRelieved = $derived.by(() => {
 		if (!selectedEmployee || !selectedEmployee.relieving_date) return false;
