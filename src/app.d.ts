@@ -24,6 +24,10 @@ declare global {
 		__PIEQ_CONFIG__?: AppConfig;
 	}
 
+	interface BigInt {
+		toJSON(): string;
+	}
+
 	var __db: import('$lib/generated/prisma/client').PrismaClient | undefined;
 	var __dbSchemaVersion: string | undefined;
 }

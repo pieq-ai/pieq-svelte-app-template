@@ -24,7 +24,7 @@ function parseCuid(param: string | undefined): string {
  * PUT /api/organization_location/:cuid
  * Updates an existing company location (partial update allowed).
  */
-export async function PUT({ request, params }) {
+export async function PUT({ request, params, locals }) {
   try {
     const cuid = parseCuid(params.cuid);
     const contentType = request.headers.get('content-type');
@@ -39,6 +39,7 @@ export async function PUT({ request, params }) {
       return json({ error: 'Malformed or invalid JSON' }, { status: 400 });
     }
 
+    payload.updated_by = locals?.user?.id;
     const location = await locationService.updateLocation(cuid, payload);
     return sendUpdated('Company Location', location.cuid);
   } catch (err: any) {
@@ -51,10 +52,10 @@ export async function PUT({ request, params }) {
  * PATCH /api/organization_location/:cuid
  * Activates a deactivated location.
  */
-export async function PATCH({ params }) {
+export async function PATCH({ params, locals }) {
   try {
     const cuid = parseCuid(params.cuid);
-    const location = await locationService.activateLocation(cuid);
+    const location = await locationService.activateLocation(cuid, locals?.user?.id);
     return sendUpdated('Company Location', location.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
@@ -66,10 +67,10 @@ export async function PATCH({ params }) {
  * DELETE /api/organization_location/:cuid
  * Soft‑deletes (deactivates) a company location.
  */
-export async function DELETE({ params }) {
+export async function DELETE({ params, locals }) {
   try {
     const cuid = parseCuid(params.cuid);
-    const location = await locationService.deleteLocation(cuid);
+    const location = await locationService.deleteLocation(cuid, locals?.user?.id);
     return sendDeleted('Company Location', location.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;

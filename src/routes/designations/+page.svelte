@@ -35,11 +35,11 @@
 	} from '$lib/components';
 	import SimpleMasterModal from '$lib/components/common/SimpleMasterModal.svelte';
 
-	interface Designation {
-		cuid: string;
-		name: string;
-		status: boolean;
-	}
+  interface Designation {
+    cuid: string;
+    name: string;
+    status: boolean;
+  }
 
 	let designationsList = $state<Designation[]>([]);
 	let isLoading = $state(true);

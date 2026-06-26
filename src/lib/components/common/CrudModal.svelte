@@ -16,6 +16,7 @@
 		onClose: () => void;
 		children?: import('svelte').Snippet<[{ cancel: () => void }]>;
 		preventOutsideClickClose?: boolean;
+		cardClass?: string;
 	}
 
 	let {

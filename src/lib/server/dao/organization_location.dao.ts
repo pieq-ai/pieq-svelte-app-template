@@ -17,6 +17,8 @@ export async function createLocation(data: CompanyLocationCreateDTO): Promise<Co
       country_cuid: data.country_cuid !== undefined ? data.country_cuid : '',
       pin_code: data.pin_code !== undefined ? data.pin_code : '',
       timezone: data.timezone !== undefined ? data.timezone : 'UTC',
+      latitude: data.latitude,
+      longitude: data.longitude,
       status: true,
       created_by: data.created_by ?? null,
       updated_by: data.updated_by ?? null
@@ -31,6 +33,8 @@ export async function createLocation(data: CompanyLocationCreateDTO): Promise<Co
       country_cuid: true,
       pin_code: true,
       timezone: true,
+      latitude: true,
+      longitude: true,
       status: true,
       created_by: true,
       updated_by: true,
@@ -57,6 +61,8 @@ export async function getLocations(): Promise<CompanyLocation[]> {
       country_cuid: true,
       pin_code: true,
       timezone: true,
+      latitude: true,
+      longitude: true,
       status: true,
       created_by: true,
       updated_by: true,
@@ -82,6 +88,8 @@ export async function getAllLocations(): Promise<CompanyLocation[]> {
       country_cuid: true,
       pin_code: true,
       timezone: true,
+      latitude: true,
+      longitude: true,
       status: true,
       created_by: true,
       updated_by: true,
@@ -121,6 +129,8 @@ export async function getLocationByCuid(cuid: string): Promise<CompanyLocation |
       country_cuid: true,
       pin_code: true,
       timezone: true,
+      latitude: true,
+      longitude: true,
       status: true,
       created_by: true,
       updated_by: true,
@@ -159,6 +169,12 @@ export async function updateLocation(cuid: string, data: CompanyLocationUpdateDT
   if (data.timezone !== undefined) {
     updateData.timezone = data.timezone;
   }
+  if (data.latitude !== undefined) {
+    updateData.latitude = data.latitude;
+  }
+  if (data.longitude !== undefined) {
+    updateData.longitude = data.longitude;
+  }
   if (data.status !== undefined) {
     updateData.status = data.status;
   }
@@ -179,6 +195,8 @@ export async function updateLocation(cuid: string, data: CompanyLocationUpdateDT
       country_cuid: true,
       pin_code: true,
       timezone: true,
+      latitude: true,
+      longitude: true,
       status: true,
       created_by: true,
       updated_by: true,
@@ -191,10 +209,10 @@ export async function updateLocation(cuid: string, data: CompanyLocationUpdateDT
 /**
  * Soft‑delete (deactivate) a location.
  */
-export async function deactivateLocation(cuid: string): Promise<CompanyLocation> {
+export async function deactivateLocation(cuid: string, updatedBy?: string): Promise<CompanyLocation> {
   return db.companyLocation.update({
     where: { cuid },
-    data: { status: false },
+    data: { status: false, updated_by: updatedBy ?? null },
     select: {
       cuid: true,
       name: true,
@@ -205,6 +223,8 @@ export async function deactivateLocation(cuid: string): Promise<CompanyLocation>
       country_cuid: true,
       pin_code: true,
       timezone: true,
+      latitude: true,
+      longitude: true,
       status: true,
       created_by: true,
       updated_by: true,
@@ -217,10 +237,10 @@ export async function deactivateLocation(cuid: string): Promise<CompanyLocation>
 /**
  * Activate a deactivated location.
  */
-export async function activateLocation(cuid: string): Promise<CompanyLocation> {
+export async function activateLocation(cuid: string, updatedBy?: string): Promise<CompanyLocation> {
   return db.companyLocation.update({
     where: { cuid },
-    data: { status: true },
+    data: { status: true, updated_by: updatedBy ?? null },
     select: {
       cuid: true,
       name: true,
@@ -231,6 +251,8 @@ export async function activateLocation(cuid: string): Promise<CompanyLocation> {
       country_cuid: true,
       pin_code: true,
       timezone: true,
+      latitude: true,
+      longitude: true,
       status: true,
       created_by: true,
       updated_by: true,

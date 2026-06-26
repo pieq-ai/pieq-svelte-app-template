@@ -2,7 +2,7 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg'
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
-	import { Button, ConfirmationModal } from '$lib/components';
+	import { Button } from '$lib/components';
 	import Toaster from '$lib/components/ui/toaster.svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
@@ -29,6 +29,8 @@
 	import ClockIcon from '@lucide/svelte/icons/clock';
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
 	import CalendarCogIcon from '@lucide/svelte/icons/calendar-cog';
+	import FingerprintIcon from '@lucide/svelte/icons/fingerprint';
+	import CalendarClockIcon from '@lucide/svelte/icons/calendar-clock';
 
 	let { children, data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);
@@ -60,9 +62,38 @@
 		{ label: 'Employees', href: resolve('/employees'), icon: UsersRoundIcon },
 		{ label: 'Departments', href: resolve('/departments'), icon: Building2Icon },
 		{ label: 'Designations', href: resolve('/designations'), icon: UserRoundIcon },
-		{ label: 'Roles', href: resolve('/roles'), icon: UserCheckIcon },
-		{ label: 'Shifts', href: resolve('/shifts'), icon: ClockIcon },
-		{ label: 'Locations', href: resolve('/organization_locations'), icon: MapPinIcon }
+		{ label: 'Roles', href: resolve('/roles'), icon: UserCheckIcon }
+	];
+
+	const leaveRoutes = [
+		resolve('/leaves'),
+		resolve('/leave-types'),
+		resolve('/leave-policies'),
+		resolve('/holidays')
+	];
+
+	const leaveManagementItems = [
+		{ label: 'Leave Overview', href: resolve('/leaves'), icon: CalendarIcon },
+		{ label: 'Leave Types', href: resolve('/leave-types'), icon: CalendarCogIcon },
+		{ label: 'Leave Policies', href: resolve('/leave-policies'), icon: ShieldCheckIcon },
+		{ label: 'Holiday Calendar', href: resolve('/holidays'), icon: CalendarIcon }
+	];
+
+	const attendanceRoutes = [
+		resolve('/organization_locations'),
+		resolve('/attendance'),
+		resolve('/attendance-records')
+	];
+
+	const attendanceManagementItems = [
+		{ label: 'Locations', href: resolve('/organization_locations'), icon: MapPinIcon },
+		{ label: 'Attendance', href: resolve('/attendance'), icon: ClockIcon },
+		{ label: 'Attendance Records', href: resolve('/attendance-records'), icon: CalendarIcon }
+	];
+
+	const shiftRoutes = [
+		resolve('/shifts'),
+		resolve('/shift-assignments')
 	];
 
 	const salaryRoutes = [
@@ -78,23 +109,48 @@
 	];
 
 	const protectedNavItems2 = [
-		{ label: 'Leave Types', href: resolve('/leave-types'), icon: CalendarCogIcon },
-		{ label: 'Leave Policies', href: resolve('/leave-policies'), icon: ShieldCheckIcon },
-		{ label: 'Holiday Calendar', href: resolve('/holidays'), icon: CalendarIcon },
-		{ label: 'Attendance', href: resolve('/attendance'), icon: ClockIcon },
-		{ label: 'Attendance Records', href: resolve('/attendance-records'), icon: CalendarIcon },
 		{ label: 'System Roles', href: resolve('/system-roles'), icon: ShieldCheckIcon },
 		{ label: 'Permissions', href: resolve('/permissions'), icon: KeyRoundIcon },
 		{ label: 'Role Permissions', href: resolve('/role-permissions'), icon: LinkIcon }
 	];
 
+	let isLeaveManagementExpanded = $state(false);
+	let isAttendanceManagementExpanded = $state(false);
+	let isShiftManagementExpanded = $state(false);
 	let isSalaryManagementExpanded = $state(false);
 
 	$effect(() => {
 		const path = $page.url.pathname;
+		if (leaveRoutes.some(r => path === r || path.startsWith(r + '/'))) {
+			isLeaveManagementExpanded = true;
+		}
+		if (attendanceRoutes.some(r => path === r || path.startsWith(r + '/'))) {
+			isAttendanceManagementExpanded = true;
+		}
+		if (shiftRoutes.some(r => path === r || path.startsWith(r + '/'))) {
+			isShiftManagementExpanded = true;
+		}
 		if (salaryRoutes.some(r => path === r || path.startsWith(r + '/'))) {
 			isSalaryManagementExpanded = true;
 		}
+	});
+
+	let isManager = $derived(data.isManager ?? false);
+
+	let navItems = $derived(protectedNavItems1);
+
+	let shiftManagementItems = $derived.by(() => {
+		const items = [
+			{ label: 'Shifts', href: resolve('/shifts'), icon: ClockIcon }
+		];
+		if (isManager) {
+			items.push({
+				label: 'Shift Assignment',
+				href: resolve('/shift-assignments'),
+				icon: CalendarCogIcon
+			});
+		}
+		return items;
 	});
 
 	$effect(() => {
@@ -158,7 +214,7 @@
 		<!-- Main nav -->
 		<nav class="flex flex-1 flex-col gap-1 px-3 py-4 overflow-y-auto">
 			{#if authenticatedUser}
-				{#each protectedNavItems1 as item (item.href)}
+				{#each navItems as item (item.href)}
 					{@const Icon = item.icon}
 					{@const isActive = $page.url.pathname === item.href || $page.url.pathname.startsWith(item.href + '/')}
 					<Button
@@ -174,6 +230,132 @@
 						{/if}
 					</Button>
 				{/each}
+
+				<!-- Leave Management expandable group -->
+				<div class="flex flex-col gap-1">
+					<Button
+						variant="ghost"
+						class={`h-10 justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						onclick={() => {
+							if (isSidebarCollapsed) {
+								isSidebarCollapsed = false;
+								isLeaveManagementExpanded = true;
+							} else {
+								isLeaveManagementExpanded = !isLeaveManagementExpanded;
+							}
+						}}
+						title={isSidebarCollapsed ? 'Leave Management' : undefined}
+						aria-label="Leave Management"
+					>
+						<CalendarIcon class="size-4 shrink-0" />
+						{#if !isSidebarCollapsed}
+							<span class="flex-1 text-left">Leave Management</span>
+							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ${isLeaveManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
+						{/if}
+					</Button>
+
+					{#if isLeaveManagementExpanded && !isSidebarCollapsed}
+						<div class="flex flex-col gap-1 pl-4 border-l border-white/10 ml-5">
+							{#each leaveManagementItems as child (child.href)}
+								{@const ChildIcon = child.icon}
+								{@const isChildActive = $page.url.pathname === child.href || $page.url.pathname.startsWith(child.href + '/')}
+								<Button
+									href={child.href}
+									variant="ghost"
+									class={`h-9 justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
+									aria-label={child.label}
+								>
+									<ChildIcon class="size-3.5 shrink-0" />
+									<span>{child.label}</span>
+								</Button>
+							{/each}
+						</div>
+					{/if}
+				</div>
+
+				<!-- Attendance Management expandable group -->
+				<div class="flex flex-col gap-1">
+					<Button
+						variant="ghost"
+						class={`h-10 justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						onclick={() => {
+							if (isSidebarCollapsed) {
+								isSidebarCollapsed = false;
+								isAttendanceManagementExpanded = true;
+							} else {
+								isAttendanceManagementExpanded = !isAttendanceManagementExpanded;
+							}
+						}}
+						title={isSidebarCollapsed ? 'Attendance Management' : undefined}
+						aria-label="Attendance Management"
+					>
+						<FingerprintIcon class="size-4 shrink-0" />
+						{#if !isSidebarCollapsed}
+							<span class="flex-1 text-left">Attendance Management</span>
+							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ${isAttendanceManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
+						{/if}
+					</Button>
+
+					{#if isAttendanceManagementExpanded && !isSidebarCollapsed}
+						<div class="flex flex-col gap-1 pl-4 border-l border-white/10 ml-5">
+							{#each attendanceManagementItems as child (child.href)}
+								{@const ChildIcon = child.icon}
+								{@const isChildActive = $page.url.pathname === child.href || $page.url.pathname.startsWith(child.href + '/')}
+								<Button
+									href={child.href}
+									variant="ghost"
+									class={`h-9 justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
+									aria-label={child.label}
+								>
+									<ChildIcon class="size-3.5 shrink-0" />
+									<span>{child.label}</span>
+								</Button>
+							{/each}
+						</div>
+					{/if}
+				</div>
+
+				<!-- Shift Management expandable group -->
+				<div class="flex flex-col gap-1">
+					<Button
+						variant="ghost"
+						class={`h-10 justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						onclick={() => {
+							if (isSidebarCollapsed) {
+								isSidebarCollapsed = false;
+								isShiftManagementExpanded = true;
+							} else {
+								isShiftManagementExpanded = !isShiftManagementExpanded;
+							}
+						}}
+						title={isSidebarCollapsed ? 'Shift Management' : undefined}
+						aria-label="Shift Management"
+					>
+						<CalendarClockIcon class="size-4 shrink-0" />
+						{#if !isSidebarCollapsed}
+							<span class="flex-1 text-left">Shift Management</span>
+							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ${isShiftManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
+						{/if}
+					</Button>
+
+					{#if isShiftManagementExpanded && !isSidebarCollapsed}
+						<div class="flex flex-col gap-1 pl-4 border-l border-white/10 ml-5">
+							{#each shiftManagementItems as child (child.href)}
+								{@const ChildIcon = child.icon}
+								{@const isChildActive = $page.url.pathname === child.href || $page.url.pathname.startsWith(child.href + '/')}
+								<Button
+									href={child.href}
+									variant="ghost"
+									class={`h-9 justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
+									aria-label={child.label}
+								>
+									<ChildIcon class="size-3.5 shrink-0" />
+									<span>{child.label}</span>
+								</Button>
+							{/each}
+						</div>
+					{/if}
+				</div>
 
 				<!-- Salary Management expandable group -->
 				<div class="flex flex-col gap-1">
@@ -298,5 +480,3 @@
 	onCancel={() => showGlobalUnsavedModal = false} 
 	onConfirm={confirmGlobalLeave} 
 />
-
-<ConfirmationModal />

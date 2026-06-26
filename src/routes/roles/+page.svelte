@@ -26,14 +26,15 @@
 		TableHead,
 		TableHeader,
 		TableRow,
-		ConfirmModal,
 		TableActions,
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
 		SearchInput
 	} from '$lib/components';
+	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 	import SimpleMasterModal from '$lib/components/common/SimpleMasterModal.svelte';
+	import type { PageData } from './$types';
 
 	interface Role {
 		cuid: string;
@@ -41,8 +42,10 @@
 		status: boolean;
 	}
 
-	let rolesList = $state<Role[]>([]);
-	let isLoading = $state(true);
+	let { data }: { data: PageData } = $props();
+
+	let rolesList = $derived<Role[]>(data.roles);
+	let isLoading = $state(false);
 	let loadError = $state('');
 
 	let searchQuery = $state('');
@@ -117,7 +120,7 @@
 	}
 
 	onMount(() => {
-		loadRoles();
+		// Initial load provided via SSR (+page.server.ts)
 	});
 
 	function handleSort(column: string) {
@@ -223,13 +226,13 @@
 						<TableHead class="font-bold text-foreground text-[15px]">
 							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
 								Role Name
-							{#if sortColumn === 'name' && sortDirection === 'asc'}
-								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortColumn === 'name' && sortDirection === 'desc'}
-								<ArrowDownIcon class="ml-2 size-4" />
-							{:else}
-								<ArrowUpDownIcon class="ml-2 size-4" />
-							{/if}
+								{#if sortColumn === 'name' && sortDirection === 'asc'}
+									<ArrowUpIcon class="ml-2 size-4" />
+								{:else if sortColumn === 'name' && sortDirection === 'desc'}
+									<ArrowDownIcon class="ml-2 size-4" />
+								{:else}
+									<ArrowUpDownIcon class="ml-2 size-4" />
+								{/if}
 							</Button>
 						</TableHead>
 						<TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">

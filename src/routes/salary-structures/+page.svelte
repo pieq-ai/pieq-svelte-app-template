@@ -967,8 +967,8 @@
 
 <ConfirmModal
 	open={showConfirmClose}
-	title="Unsaved Changes"
-	description="You have unsaved changes. Are you sure you want to close this modal?"
+	title="Cancel Changes"
+	description="Are you sure you want to cancel? All unsaved changes will be lost."
 	confirmLabel="Cancel"
 	cancelLabel="Keep Editing"
 	onConfirm={() => {

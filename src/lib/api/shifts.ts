@@ -15,14 +15,14 @@ interface ShiftListResponse {
 }
 
 export interface ShiftCreatePayload {
-  shift_name: string;
+  name: string;
   start_time: string;
   end_time: string;
   minimum_work_hours: number;
 }
 
 export interface ShiftUpdatePayload {
-  shift_name?: string;
+  name?: string;
   start_time?: string;
   end_time?: string;
   minimum_work_hours?: number;

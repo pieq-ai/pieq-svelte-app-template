@@ -23,7 +23,7 @@ describe('Department DAO', () => {
 
 	describe('list', () => {
 		it('should call db.department.findMany with order by name', async () => {
-			const mockData = [{ id: 1n, name: 'IT' }];
+			const mockData = [{ id: 1, name: 'IT' }];
 			vi.mocked(db.department.findMany).mockResolvedValue(mockData as never);
 
 			const result = await departmentDao.list();
@@ -62,7 +62,7 @@ describe('Department DAO', () => {
 
 	describe('findByName', () => {
 		it('should call db.department.findFirst with case-insensitive search', async () => {
-			const mockData = { id: 1n, name: 'Human Resources' };
+			const mockData = { id: 1, name: 'Human Resources' };
 			vi.mocked(db.department.findFirst).mockResolvedValue(mockData as never);
 
 			const result = await departmentDao.findByName('human resources');
@@ -82,7 +82,7 @@ describe('Department DAO', () => {
 	describe('create', () => {
 		it('should create a department with default true status if not provided', async () => {
 			const input = { name: 'New Dept' };
-			const mockResult = { id: 1n, name: 'New Dept', status: true };
+			const mockResult = { id: 1, name: 'New Dept', status: true };
 			vi.mocked(db.department.create).mockResolvedValue(mockResult as never);
 
 			const result = await departmentDao.create(input);
@@ -98,7 +98,7 @@ describe('Department DAO', () => {
 
 		it('should create a department with provided status', async () => {
 			const input = { name: 'Old Dept', status: false };
-			vi.mocked(db.department.create).mockResolvedValue({ ...input, id: 2n } as never);
+			vi.mocked(db.department.create).mockResolvedValue({ ...input, id: 2 } as never);
 
 			await departmentDao.create(input);
 
@@ -114,7 +114,7 @@ describe('Department DAO', () => {
 	describe('update', () => {
 		it('should update department with provided data', async () => {
 			const data = { name: 'Updated Dept', status: false };
-			const mockResult = { id: 1n, cuid: 'abc', ...data };
+			const mockResult = { id: 1, cuid: 'abc', ...data };
 			vi.mocked(db.department.update).mockResolvedValue(mockResult as never);
 
 			const result = await departmentDao.update('abc', data);

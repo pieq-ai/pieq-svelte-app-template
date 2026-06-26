@@ -1,0 +1,243 @@
+// src/lib/server/services/shift-assignment.service.ts
+import * as shiftAssignmentDao from '$lib/server/dao/shift-assignment.dao.js';
+import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as shiftDao from '$lib/server/dao/shift.dao.js';
+import * as leaveDao from '$lib/server/dao/leave.dao.js';
+import { resolveEmployee } from '$lib/server/services/leave.service.js';
+import { validateCreatePayload, validateUpdatePayload } from '$lib/server/validators/shift-assignment.validator.js';
+import type { ShiftAssignment, ShiftAssignmentCreateDTO, ShiftAssignmentUpdateDTO } from '$lib/types/shift-assignment';
+
+/**
+ * Parses a date string (YYYY-MM-DD) or Date object into a UTC Date.
+ */
+export function parseDateUTC(raw: string | Date): Date {
+  if (raw instanceof Date) {
+    return new Date(Date.UTC(raw.getUTCFullYear(), raw.getUTCMonth(), raw.getUTCDate()));
+  }
+  const parts = String(raw).split('-');
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1; // 0-indexed
+  const day = parseInt(parts[2], 10);
+  return new Date(Date.UTC(year, month, day));
+}
+
+/**
+ * Helper to retrieve manager details and their direct subordinates.
+ */
+export async function getManagerSubordinates(managerEmail: string) {
+  const { employee } = await resolveEmployee(managerEmail);
+  if (!employee) {
+    throw new Error('Manager employee profile not found');
+  }
+
+  const subordinates = await leaveDao.getSubordinates(employee.cuid);
+  return { manager: employee, subordinates };
+}
+
+/**
+ * List all shift assignments of subordinates reporting to the manager.
+ */
+export async function listAssignments(managerEmail: string): Promise<ShiftAssignment[]> {
+  const { subordinates } = await getManagerSubordinates(managerEmail);
+  if (subordinates.length === 0) {
+    return [];
+  }
+
+  const subordinateCuids = subordinates.map((s: any) => s.employee_cuid);
+  return shiftAssignmentDao.listForSubordinates(subordinateCuids);
+}
+
+/**
+ * Get details of a single shift assignment, verifying it belongs to a subordinate.
+ */
+export async function getAssignmentDetails(cuid: string, managerEmail: string): Promise<ShiftAssignment> {
+  const { subordinates } = await getManagerSubordinates(managerEmail);
+  const subordinateCuids = new Set(subordinates.map((s: any) => s.employee_cuid));
+
+  const assignment = await shiftAssignmentDao.findByCuid(cuid);
+  if (!assignment) {
+    const err: any = new Error('Shift assignment not found');
+    err.status = 404;
+    throw err;
+  }
+
+  if (!subordinateCuids.has(assignment.employee_cuid)) {
+    const err: any = new Error('Unauthorized: Assignment belongs to an employee who is not your direct report');
+    err.status = 403;
+    throw err;
+  }
+
+  return assignment;
+}
+
+/**
+ * Create a new shift assignment.
+ */
+export async function createAssignment(payload: unknown, managerEmail: string): Promise<ShiftAssignment> {
+  // 1. Validate payload structure
+  const validated = validateCreatePayload(payload);
+
+  // 2. Authorize manager & subordinate relationship
+  const { subordinates } = await getManagerSubordinates(managerEmail);
+  const subordinateCuids = new Set(subordinates.map((s: any) => s.employee_cuid));
+
+  if (!subordinateCuids.has(validated.employee_cuid)) {
+    const err: any = new Error('Unauthorized: You can only assign shifts to your reporting direct subordinates');
+    err.status = 403;
+    throw err;
+  }
+
+  // 3. Verify target employee exists
+  const employee = await employeeDao.getEmployeeByCuid(validated.employee_cuid);
+  if (!employee) {
+    const err: any = new Error('Target employee not found');
+    err.status = 404;
+    throw err;
+  }
+
+  // 4. Verify target shift exists and is active
+  const shift = await shiftDao.getShiftByCuid(validated.shift_cuid);
+  if (!shift) {
+    const err: any = new Error('Target shift not found');
+    err.status = 404;
+    throw err;
+  }
+  if (!shift.status) {
+    const err: any = new Error('Cannot assign an inactive shift');
+    err.status = 400;
+    throw err;
+  }
+
+  // 5. Parse dates and check for overlaps (only if status is true)
+  const fromUTC = parseDateUTC(validated.effective_from);
+  const toUTC = parseDateUTC(validated.effective_to);
+
+  if (validated.status) {
+    const overlap = await shiftAssignmentDao.findOverlapping(validated.employee_cuid, fromUTC, toUTC);
+    if (overlap) {
+      const err: any = new Error('An active shift assignment already exists for this employee in the specified period');
+      err.status = 409;
+      throw err;
+    }
+  }
+
+  return shiftAssignmentDao.create({
+    ...validated,
+    effective_from: fromUTC,
+    effective_to: toUTC
+  });
+}
+
+/**
+ * Update an existing shift assignment.
+ */
+export async function updateAssignment(
+  cuid: string,
+  payload: unknown,
+  managerEmail: string
+): Promise<ShiftAssignment> {
+  // 1. Validate payload structure
+  const validated = validateUpdatePayload(payload);
+
+  // 2. Fetch existing assignment and authorize
+  const existing = await shiftAssignmentDao.findByCuid(cuid);
+  if (!existing) {
+    const err: any = new Error('Shift assignment not found');
+    err.status = 404;
+    throw err;
+  }
+
+  const { subordinates } = await getManagerSubordinates(managerEmail);
+  const subordinateCuids = new Set(subordinates.map((s: any) => s.employee_cuid));
+
+  if (!subordinateCuids.has(existing.employee_cuid)) {
+    const err: any = new Error('Unauthorized: Assignment belongs to an employee who is not your direct report');
+    err.status = 403;
+    throw err;
+  }
+
+  // 3. If employee is changing, authorize the new target employee
+  const targetEmployeeCuid = validated.employee_cuid ?? existing.employee_cuid;
+  if (validated.employee_cuid !== undefined && !subordinateCuids.has(validated.employee_cuid)) {
+    const err: any = new Error('Unauthorized: You can only assign shifts to your reporting direct subordinates');
+    err.status = 403;
+    throw err;
+  }
+
+  // 4. Verify target shift if changing
+  const targetShiftCuid = validated.shift_cuid ?? existing.shift_cuid;
+  if (validated.shift_cuid !== undefined) {
+    const shift = await shiftDao.getShiftByCuid(validated.shift_cuid);
+    if (!shift) {
+      const err: any = new Error('Target shift not found');
+      err.status = 404;
+      throw err;
+    }
+    if (!shift.status) {
+      const err: any = new Error('Cannot assign an inactive shift');
+      err.status = 400;
+      throw err;
+    }
+  }
+
+  // 5. Build and validate merged dates
+  const fromStr = validated.effective_from ?? existing.effective_from;
+  const toStr = validated.effective_to ?? existing.effective_to;
+
+  const fromUTC = parseDateUTC(fromStr);
+  const toUTC = parseDateUTC(toStr);
+
+  if (toUTC.getTime() < fromUTC.getTime()) {
+    const err: any = new Error('Effective To date must be greater than or equal to Effective From date');
+    err.status = 400;
+    throw err;
+  }
+
+  // 6. Check for overlaps if status is active (either already active or turning active)
+  const targetStatus = validated.status !== undefined ? validated.status : existing.status;
+  if (targetStatus) {
+    const overlap = await shiftAssignmentDao.findOverlapping(
+      targetEmployeeCuid,
+      fromUTC,
+      toUTC,
+      cuid
+    );
+    if (overlap) {
+      const err: any = new Error('An active shift assignment already exists for this employee in the specified period');
+      err.status = 409;
+      throw err;
+    }
+  }
+
+  return shiftAssignmentDao.update(cuid, {
+    employee_cuid: targetEmployeeCuid,
+    shift_cuid: targetShiftCuid,
+    effective_from: fromUTC,
+    effective_to: toUTC,
+    status: targetStatus,
+    updated_by: validated.updated_by
+  });
+}
+
+/**
+ * Delete a shift assignment.
+ */
+export async function deleteAssignment(cuid: string, managerEmail: string): Promise<void> {
+  const existing = await shiftAssignmentDao.findByCuid(cuid);
+  if (!existing) {
+    const err: any = new Error('Shift assignment not found');
+    err.status = 404;
+    throw err;
+  }
+
+  const { subordinates } = await getManagerSubordinates(managerEmail);
+  const subordinateCuids = new Set(subordinates.map((s: any) => s.employee_cuid));
+
+  if (!subordinateCuids.has(existing.employee_cuid)) {
+    const err: any = new Error('Unauthorized: Assignment belongs to an employee who is not your direct report');
+    err.status = 403;
+    throw err;
+  }
+
+  await shiftAssignmentDao.deleteAssignment(cuid);
+}
