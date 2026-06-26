@@ -7,9 +7,9 @@ import { db } from '../../src/lib/server/db.js';
 describe('Role, Shift, and Location CRUD Integration Tests', () => {
   beforeAll(async () => {
     await db.role.deleteMany({ where: { name: { in: ['Test Integration Role', 'Test Integration Role Updated'] } } });
-    await db.shift.deleteMany({ where: { shift_name: { in: ['Test Integration Shift', 'Test Integration Shift Updated'] } } });
+    await db.shift.deleteMany({ where: { name: { in: ['Test Integration Shift', 'Test Integration Shift Updated'] } } });
     await db.companyLocation.deleteMany({ where: { name: { in: ['Test Integration Location', 'Test Integration Location Updated'] } } });
-  });
+  }, 30000);
 
   it('should successfully perform CRUD on Role', async () => {
     // 1. Create Role
@@ -44,20 +44,20 @@ describe('Role, Shift, and Location CRUD Integration Tests', () => {
     // 1. Create Shift
     const shiftName = 'Test Integration Shift';
     const newShift = await shiftDao.createShift({
-      shift_name: shiftName,
+      name: shiftName,
       start_time: '1970-01-01T08:00:00.000Z',
       end_time: '1970-01-01T17:00:00.000Z',
       minimum_work_hours: 8.0
     });
     expect(newShift).toBeDefined();
-    expect(newShift.shift_name).toBe(shiftName);
+    expect(newShift.name).toBe(shiftName);
     expect(newShift.status).toBe(true);
     expect(newShift.cuid).toBeDefined();
 
     // 2. Read Shift
     const fetchedShift = await shiftDao.getShiftByCuid(newShift.cuid);
     expect(fetchedShift).not.toBeNull();
-    expect(fetchedShift!.shift_name).toBe(shiftName);
+    expect(fetchedShift!.name).toBe(shiftName);
     expect(fetchedShift!.status).toBe(true);
 
     // 3. Update Shift (Change status to false)

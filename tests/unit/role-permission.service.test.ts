@@ -1,9 +1,9 @@
  
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as rolePermissionService from '$lib/server/services/role-permission.service.js';
-import * as permissionDao from '$lib/server/dao/permission.dao.js';
-import * as rolePermissionDao from '$lib/server/dao/role-permission.dao.js';
-import * as systemRoleDao from '$lib/server/dao/system-role.dao.js';
+import * as rolePermissionService from '../../src/lib/server/services/role-permission.service.js';
+import * as permissionDao from '../../src/lib/server/dao/permission.dao.js';
+import * as rolePermissionDao from '../../src/lib/server/dao/role-permission.dao.js';
+import * as systemRoleDao from '../../src/lib/server/dao/system-role.dao.js';
 
 vi.mock('$lib/server/dao/permission.dao.js', () => ({
 	list: vi.fn(),
@@ -95,7 +95,7 @@ describe('Role Permission Service', () => {
 		it('should create new mappings and skip existing ones', async () => {
 			vi.mocked(systemRoleDao.findByCuid2).mockResolvedValue({ id: 1n, cuid: 'role1' } as any);
 			
-			vi.mocked(permissionDao.findByCuid2).mockImplementation(async (cuid) => {
+			vi.mocked(permissionDao.findByCuid2).mockImplementation(async (cuid: any) => {
 				return { id: cuid === 'perm1' ? 1 : 2, cuid: cuid } as any;
 			});
 

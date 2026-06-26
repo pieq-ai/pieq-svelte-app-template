@@ -21,8 +21,7 @@ function toPublicDepartment(department: { cuid: string; name: string; status: bo
 	return {
 		cuid: department.cuid,
 		name: department.name,
-		status: department.status
-	,
+		status: department.status,
 		created_at: department.created_at,
 		created_by: department.created_by,
 		updated_at: department.updated_at,

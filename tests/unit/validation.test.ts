@@ -43,23 +43,23 @@ describe('Validation Unit Tests', () => {
   describe('Shift Validator', () => {
     it('should validate a correct create payload', () => {
       const payload = {
-        shift_name: 'Night Shift',
+        name: 'Night Shift',
         start_time: '1970-01-01T22:00:00Z',
         end_time: '1970-01-01T06:00:00Z',
         minimum_work_hours: 8
       };
       const valid = shiftValidator.validateCreatePayload(payload);
-      expect(valid.shift_name).toBe('Night Shift');
+      expect(valid.name).toBe('Night Shift');
       expect(valid.minimum_work_hours).toBe(8);
     });
 
     it('should reject shift name with numbers or special characters', () => {
-      expect(() => shiftValidator.validateCreatePayload({ shift_name: 'Night Shift 9' })).toThrow('Shift name cannot contain numbers');
-      expect(() => shiftValidator.validateCreatePayload({ shift_name: 'Night-Shift' })).toThrow('Shift name cannot contain special characters');
+      expect(() => shiftValidator.validateCreatePayload({ name: 'Night Shift 9' })).toThrow('Shift name cannot contain numbers');
+      expect(() => shiftValidator.validateCreatePayload({ name: 'Night-Shift' })).toThrow('Shift name cannot contain special characters');
     });
 
     it('should reject unknown keys in shift create', () => {
-      expect(() => shiftValidator.validateCreatePayload({ shift_name: 'Night', unknown_key: true })).toThrow('Unknown field(s) in request payload');
+      expect(() => shiftValidator.validateCreatePayload({ name: 'Night', unknown_key: true })).toThrow('Unknown field(s) in request payload');
     });
 
     it('should validate a correct update payload', () => {

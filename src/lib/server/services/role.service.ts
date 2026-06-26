@@ -18,9 +18,11 @@ export async function listAllRoles(query?: Record<string, unknown>): Promise<{ d
 /** Create a new role after validation and duplicate check. */
 export async function createRole(payload: unknown): Promise<Role> {
   const valid = validateCreatePayload(payload);
-  // Ensure unique active name
-  const existing = await roleDao.getRoles();
-  if (existing.some((r) => r.name.toLowerCase() === valid.name.toLowerCase() && r.status)) {
+  const nameToCheck = valid.name.trim().toLowerCase();
+  
+  // Ensure unique name across active and inactive roles
+  const existing = await roleDao.getAllRoles();
+  if (existing.some((r) => r.name.trim().toLowerCase() === nameToCheck)) {
     const err: any = new Error('Role name already exists');
     err.status = 409;
     throw err;
@@ -39,9 +41,9 @@ export async function updateRole(cuid: string, payload: unknown): Promise<Role> 
   }
   // Duplicate name check if name provided
   if (valid.name) {
-    const nameToCheck = valid.name.toLowerCase();
-    const existing = await roleDao.getRoles();
-    if (existing.some((r) => r.name.toLowerCase() === nameToCheck && r.status && r.cuid !== cuid)) {
+    const nameToCheck = valid.name.trim().toLowerCase();
+    const existing = await roleDao.getAllRoles();
+    if (existing.some((r) => r.name.trim().toLowerCase() === nameToCheck && r.cuid !== cuid)) {
       const err: any = new Error('Role name already exists');
       err.status = 409;
       throw err;
@@ -51,12 +53,12 @@ export async function updateRole(cuid: string, payload: unknown): Promise<Role> 
 }
 
 /** Soft delete a role. */
-export async function deleteRole(cuid: string): Promise<Role> {
+export async function deleteRole(cuid: string, updatedBy?: string): Promise<Role> {
   const role = await roleDao.getRoleByCuid(cuid);
   if (!role) {
     const err: any = new Error('Role not found');
     err.status = 404;
     throw err;
   }
-  return roleDao.deactivateRole(cuid);
+  return roleDao.deactivateRole(cuid, updatedBy);
 }

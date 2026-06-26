@@ -93,7 +93,22 @@ describe('Employee Create Page Load', () => {
 
 		expect(result).toHaveProperty('roles');
 		expect(result.roles).toEqual([{ id: 1n, cuid: 'role_1', name: 'HR Manager', status: true }]);
-		expect(result.locations).toEqual([{ id: 2n, cuid: 'loc_1', name: 'Office 1', status: true }]);
+		expect(result.locations).toEqual([{
+			cuid: 'loc_1',
+			name: 'Office 1',
+			address_line1: undefined,
+			address_line2: undefined,
+			city: undefined,
+			state_cuid: undefined,
+			country_cuid: undefined,
+			pin_code: undefined,
+			timezone: undefined,
+			latitude: null,
+			longitude: null,
+			status: true,
+			created_by: null,
+			updated_by: null
+		}]);
 		expect(result.employees).toEqual([{ cuid: 'emp_1', first_name: 'John', last_name: 'Doe' }]);
 	});
 });
@@ -138,7 +153,22 @@ describe('Employee Edit Page Load', () => {
 		expect(result.employee.first_name).toBe('John');
 		expect(result.employment.department_cuid).toBe('dept_1');
 		expect(result.roles).toEqual([{ id: 3n, cuid: 'role_1', name: 'Role 1', status: true }]);
-		expect(result.locations).toEqual([{ id: 4n, cuid: 'loc_1', name: 'Location 1', status: true }]);
+		expect(result.locations).toEqual([{
+			cuid: 'loc_1',
+			name: 'Location 1',
+			address_line1: undefined,
+			address_line2: undefined,
+			city: undefined,
+			state_cuid: undefined,
+			country_cuid: undefined,
+			pin_code: undefined,
+			timezone: undefined,
+			latitude: null,
+			longitude: null,
+			status: true,
+			created_by: null,
+			updated_by: null
+		}]);
 		expect(result.employees).toEqual([{ cuid: 'emp_999', first_name: 'Manager', last_name: 'Bob' }]);
 	});
 });

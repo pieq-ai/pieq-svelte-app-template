@@ -188,3 +188,49 @@ export async function updateMasterData(masterKey: string, cuid: string, dto: Mas
 
 	return toOption(updated, master);
 }
+
+export async function getCountries() {
+	let list = await masterDataDao.list('countries');
+	if (list.length === 0) {
+		await masterDataDao.create('countries', { name: 'India' });
+		await masterDataDao.create('countries', { name: 'United States' });
+		await masterDataDao.create('countries', { name: 'United Kingdom' });
+		list = await masterDataDao.list('countries');
+	}
+	return list.map((c: any) => ({
+		cuid: c.cuid,
+		name: c.name
+	}));
+}
+
+export async function getStates() {
+	let list = await masterDataDao.list('states');
+	if (list.length === 0) {
+		const countriesList = await getCountries();
+		const india = countriesList.find((c) => c.name === 'India');
+		const usa = countriesList.find((c) => c.name === 'United States');
+		const uk = countriesList.find((c) => c.name === 'United Kingdom');
+
+		if (india) {
+			await masterDataDao.create('states', { country_cuid: india.cuid, name: 'Tamil Nadu' });
+			await masterDataDao.create('states', { country_cuid: india.cuid, name: 'Karnataka' });
+			await masterDataDao.create('states', { country_cuid: india.cuid, name: 'Maharashtra' });
+		}
+		if (usa) {
+			await masterDataDao.create('states', { country_cuid: usa.cuid, name: 'California' });
+			await masterDataDao.create('states', { country_cuid: usa.cuid, name: 'New York' });
+			await masterDataDao.create('states', { country_cuid: usa.cuid, name: 'Texas' });
+		}
+		if (uk) {
+			await masterDataDao.create('states', { country_cuid: uk.cuid, name: 'England' });
+			await masterDataDao.create('states', { country_cuid: uk.cuid, name: 'Scotland' });
+			await masterDataDao.create('states', { country_cuid: uk.cuid, name: 'Wales' });
+		}
+		list = await masterDataDao.list('states');
+	}
+	return list.map((s: any) => ({
+		cuid: s.cuid,
+		name: s.name,
+		country_cuid: s.country_cuid
+	}));
+}

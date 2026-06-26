@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { Alert, AlertDescription, SearchableDropdown } from '$lib/components';
-	import { getMasterPermissions, type MasterPermissionConfig } from '$lib/permissions/mock-permissions';
+
 
 	interface Props {
 		label?: string;
 		value: string | string[];
 		multiple?: boolean;
 		placeholder?: string;
-		permissions?: Partial<MasterPermissionConfig>;
+
 		disabled?: boolean;
 		class?: string;
 		apiEndpoint: string;
@@ -23,7 +23,7 @@
 		value,
 		multiple = false,
 		placeholder = 'Select option',
-		permissions = getMasterPermissions(),
+
 		disabled = false,
 		class: className = '',
 		apiEndpoint,
@@ -70,7 +70,6 @@
 		{placeholder}
 		{disabled}
 		class={className}
-		{permissions}
 		{onSelect}
 		{onAdd}
 	/>

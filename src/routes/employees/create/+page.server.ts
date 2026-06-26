@@ -7,6 +7,7 @@ import { getDesignations } from '$lib/server/services/designation.service.js';
 import { listRoles } from '$lib/server/services/role.service.js';
 import { listLocations } from '$lib/server/services/organization_location.service.js';
 import { getEmployees } from '$lib/server/services/employee.service.js';
+import { mapLocation } from '$lib/server/response.js';
 
 export const load: PageServerLoad = async () => {
 	try {
@@ -58,8 +59,8 @@ export const load: PageServerLoad = async () => {
 			languages,
 			countries,
 			states,
-            locations: locations.data,
-			employees: employees.map((e) => ({ cuid: e.cuid, first_name: e.first_name, last_name: e.last_name }))
+            locations: locations.data.map(mapLocation),
+			employees: employees.map((e: any) => ({ cuid: e.cuid, first_name: e.first_name, last_name: e.last_name }))
 		};
 	} catch (e) {
 		console.error('Failed to load employee dependencies:', e);

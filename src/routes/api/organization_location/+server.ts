@@ -27,7 +27,7 @@ export async function GET({ url }) {
  * POST /api/organization_location
  * Creates a new company location.
  */
-export async function POST({ request }) {
+export async function POST({ request, locals }) {
   try {
     const contentType = request.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
@@ -41,6 +41,8 @@ export async function POST({ request }) {
       return json({ error: 'Malformed or invalid JSON' }, { status: 400 });
     }
 
+    payload.created_by = locals?.user?.id;
+    payload.updated_by = locals?.user?.id;
     const location = await locationService.createLocation(payload);
     return sendCreated('Company Location', location.cuid);
   } catch (err: any) {

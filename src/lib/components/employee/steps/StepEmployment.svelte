@@ -150,11 +150,11 @@
 	let errors = $derived({
 		department_cuid: backendErrors.department_cuid || validateDropdown(employment.department_cuid),
 		designation_cuid: backendErrors.designation_cuid || validateDropdown(employment.designation_cuid),
-		role_cuid: backendErrors.role_cuid || '', // optional
+		role_cuid: backendErrors.role_cuid || validateDropdown(employment.role_cuid),
 		pay_grade_cuid: backendErrors.pay_grade_cuid || '', // optional
-		employment_type_cuid: backendErrors.employment_type_cuid || '', // optional
-		location_cuid: backendErrors.location_cuid || '', // optional
-		employment_status: backendErrors.employment_status || '', // optional
+		employment_type_cuid: backendErrors.employment_type_cuid || validateDropdown(employment.employment_type_cuid),
+		location_cuid: backendErrors.location_cuid || validateDropdown(employment.location_cuid),
+		employment_status: backendErrors.employment_status || validateDropdown(employment.employment_status),
 		official_email: backendErrors.official_email || validateEmail(employment.official_email),
 		date_of_joining: backendErrors.date_of_joining || validateDoj(employment.date_of_joining),
 		confirmation_date: backendErrors.confirmation_date || validateConfirmation(employment.date_of_joining, employment.confirmation_date),
@@ -190,8 +190,9 @@
 				const parsed = parseBackendErrors(body);
 				if (parsed.field) {
 					backendErrors = { [parsed.field]: parsed.message };
+				} else {
+					toast.error(parsed.message);
 				}
-				toast.error(parsed.message);
 				return { success: false };
 			}
 			originalData = JSON.stringify(normalizeEmployment(employment));
@@ -218,84 +219,121 @@
 
 <div class="space-y-4">
 	<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-		<AsyncDropdown
-			bind:this={deptDropdown}
-			apiEndpoint="/api/departments"
-			label="Department *"
-			value={employment.department_cuid}
-			loadingText="Loading departments..."
-			errorText="Unable to load departments."
-			onSelect={(val) => employment.department_cuid = val as string}
-			onAdd={() => isDeptModalOpen = true}
-			class={(isTouched && errors.department_cuid) ? 'border-destructive' : ''}
-		/>
-		<AsyncDropdown
-			bind:this={desigDropdown}
-			apiEndpoint="/api/designations"
-			label="Designation *"
-			value={employment.designation_cuid}
-			loadingText="Loading designations..."
-			errorText="Unable to load designations."
-			onSelect={(val) => employment.designation_cuid = val as string}
-			onAdd={() => isDesignationModalOpen = true}
-			class={(isTouched && errors.designation_cuid) ? 'border-destructive' : ''}
-		/>
-		<AsyncDropdown
-			bind:this={roleDropdown}
-			apiEndpoint="/api/roles"
-			label="Role *"
-			value={employment.role_cuid}
-			loadingText="Loading roles..."
-			errorText="Unable to load roles."
-			onSelect={(val) => employment.role_cuid = val as string}
-			onAdd={() => isRoleModalOpen = true}
-			class={(isTouched && errors.role_cuid) ? 'border-destructive' : ''}
-		/>
-		<MasterDataDropdown
-			master="pay-grades"
-			label="Pay Grade"
-			value={employment.pay_grade_cuid}
-			onSelect={(val) => employment.pay_grade_cuid = val as string}
-			class={(isTouched && errors.pay_grade_cuid) ? 'border-destructive' : ''}
-		/>
-		<MasterDataDropdown
-			master="employment-types"
-			label="Employment Type *"
-			value={employment.employment_type_cuid}
-			onSelect={(val) => employment.employment_type_cuid = val as string}
-			class={(isTouched && errors.employment_type_cuid) ? 'border-destructive' : ''}
-		/>
-		<SearchableDropdown
-			label="Employment Status *"
-			value={employment.employment_status}
-			options={[
-				{ id: 'onboarding', label: 'Onboarding' },
-				{ id: 'active', label: 'Active' },
-				{ id: 'probation', label: 'Probation' },
-				{ id: 'notice_period', label: 'Notice Period' },
-				{ id: 'terminated', label: 'Terminated' },
-				{ id: 'resigned', label: 'Resigned' }
-			]}
-			onSelect={(val) => employment.employment_status = val as string}
-			class={(isTouched && errors.employment_status) ? 'border-destructive' : ''}
-		/>
-		<AsyncDropdown
-			bind:this={locationDropdown}
-			apiEndpoint="/api/organization_location"
-			label="Company Location *"
-			value={employment.location_cuid}
-			loadingText="Loading locations..."
-			errorText="Unable to load locations."
-			onSelect={(val) => employment.location_cuid = val as string}
-			onAdd={() => isLocationModalOpen = true}
-			class={(isTouched && errors.location_cuid) ? 'border-destructive' : ''}
-		/>
-		<SearchableDropdown
-			label="Reporting Manager"
-			value={employment.reporting_manager_cuid}
-			options={Array.isArray(data?.employees) ? data.employees.filter((e: any) => e.cuid !== cuid).map((e: { cuid: string, first_name: string, last_name: string }) => ({id: e.cuid, label: e.first_name + ' ' + e.last_name})) : []}
-			onSelect={(val) => employment.reporting_manager_cuid = val as string}
-		/>
+		<div class="space-y-2">
+			<AsyncDropdown
+				bind:this={deptDropdown}
+				apiEndpoint="/api/departments"
+				label="Department *"
+				value={employment.department_cuid}
+				loadingText="Loading departments..."
+				errorText="Unable to load departments."
+				onSelect={(val) => employment.department_cuid = val as string}
+				onAdd={() => isDeptModalOpen = true}
+				class={(isTouched && errors.department_cuid) ? 'border-destructive' : ''}
+			/>
+			{#if isTouched && errors.department_cuid}
+				<p class="text-xs text-destructive">{errors.department_cuid}</p>
+			{/if}
+		</div>
+		<div class="space-y-2">
+			<AsyncDropdown
+				bind:this={desigDropdown}
+				apiEndpoint="/api/designations"
+				label="Designation *"
+				value={employment.designation_cuid}
+				loadingText="Loading designations..."
+				errorText="Unable to load designations."
+				onSelect={(val) => employment.designation_cuid = val as string}
+				onAdd={() => isDesignationModalOpen = true}
+				class={(isTouched && errors.designation_cuid) ? 'border-destructive' : ''}
+			/>
+			{#if isTouched && errors.designation_cuid}
+				<p class="text-xs text-destructive">{errors.designation_cuid}</p>
+			{/if}
+		</div>
+		<div class="space-y-2">
+			<AsyncDropdown
+				bind:this={roleDropdown}
+				apiEndpoint="/api/roles"
+				label="Role *"
+				value={employment.role_cuid}
+				loadingText="Loading roles..."
+				errorText="Unable to load roles."
+				onSelect={(val) => employment.role_cuid = val as string}
+				onAdd={() => isRoleModalOpen = true}
+				class={(isTouched && errors.role_cuid) ? 'border-destructive' : ''}
+			/>
+			{#if isTouched && errors.role_cuid}
+				<p class="text-xs text-destructive">{errors.role_cuid}</p>
+			{/if}
+		</div>
+		<div class="space-y-2">
+			<MasterDataDropdown
+				master="pay-grades"
+				label="Pay Grade"
+				value={employment.pay_grade_cuid}
+				onSelect={(val) => employment.pay_grade_cuid = val as string}
+				class={(isTouched && errors.pay_grade_cuid) ? 'border-destructive' : ''}
+			/>
+			{#if isTouched && errors.pay_grade_cuid}
+				<p class="text-xs text-destructive">{errors.pay_grade_cuid}</p>
+			{/if}
+		</div>
+		<div class="space-y-2">
+			<MasterDataDropdown
+				master="employment-types"
+				label="Employment Type *"
+				value={employment.employment_type_cuid}
+				onSelect={(val) => employment.employment_type_cuid = val as string}
+				class={(isTouched && errors.employment_type_cuid) ? 'border-destructive' : ''}
+			/>
+			{#if isTouched && errors.employment_type_cuid}
+				<p class="text-xs text-destructive">{errors.employment_type_cuid}</p>
+			{/if}
+		</div>
+		<div class="space-y-2">
+			<SearchableDropdown
+				label="Employment Status *"
+				value={employment.employment_status}
+				options={[
+					{ id: 'onboarding', label: 'Onboarding' },
+					{ id: 'active', label: 'Active' },
+					{ id: 'probation', label: 'Probation' },
+					{ id: 'notice_period', label: 'Notice Period' },
+					{ id: 'terminated', label: 'Terminated' },
+					{ id: 'resigned', label: 'Resigned' }
+				]}
+				onSelect={(val) => employment.employment_status = val as string}
+				class={(isTouched && errors.employment_status) ? 'border-destructive' : ''}
+			/>
+			{#if isTouched && errors.employment_status}
+				<p class="text-xs text-destructive">{errors.employment_status}</p>
+			{/if}
+		</div>
+		<div class="space-y-2">
+			<AsyncDropdown
+				bind:this={locationDropdown}
+				apiEndpoint="/api/organization_location"
+				label="Company Location *"
+				value={employment.location_cuid}
+				loadingText="Loading locations..."
+				errorText="Unable to load locations."
+				onSelect={(val) => employment.location_cuid = val as string}
+				onAdd={() => isLocationModalOpen = true}
+				class={(isTouched && errors.location_cuid) ? 'border-destructive' : ''}
+			/>
+			{#if isTouched && errors.location_cuid}
+				<p class="text-xs text-destructive">{errors.location_cuid}</p>
+			{/if}
+		</div>
+		<div class="space-y-2">
+			<SearchableDropdown
+				label="Reporting Manager"
+				value={employment.reporting_manager_cuid}
+				options={Array.isArray(data?.employees) ? data.employees.filter((e: any) => e.cuid !== cuid).map((e: { cuid: string, first_name: string, last_name: string }) => ({id: e.cuid, label: e.first_name + ' ' + e.last_name})) : []}
+				onSelect={(val) => employment.reporting_manager_cuid = val as string}
+			/>
+		</div>
 		<div class="space-y-2">
 			<Label>Date of Joining <span class="text-destructive">*</span></Label>
 			<DatePicker bind:value={employment.date_of_joining} bind:isError={dateErrors.doj} class={(isTouched && errors.date_of_joining) || dateErrors.doj ? 'border-destructive' : ''} />
@@ -325,8 +363,8 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Official Email <span class="text-destructive">*</span></Label>
-			<Input type="email" bind:value={employment.official_email} oninput={() => clearBackendError('official_email')} onblur={() => employment.official_email = normalizeText(employment.official_email).toLowerCase()} placeholder="john.doe@company.com" class={(isTouched && errors.official_email) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
-			{#if isTouched && errors.official_email}<p class="text-xs text-destructive">{errors.official_email}</p>{/if}
+			<Input type="email" bind:value={employment.official_email} oninput={() => clearBackendError('official_email')} onblur={() => employment.official_email = normalizeText(employment.official_email).toLowerCase()} placeholder="john.doe@company.com" class={(backendErrors.official_email || (isTouched && errors.official_email)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
+			{#if backendErrors.official_email}<p class="text-xs text-destructive">{backendErrors.official_email}</p>{:else if isTouched && errors.official_email}<p class="text-xs text-destructive">{errors.official_email}</p>{/if}
 		</div>
 	</div>
 

@@ -1383,7 +1383,7 @@
 	open={isDiscardModalOpen}
 	title="Cancel Changes"
 	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Discard Changes"
+	confirmLabel="Cancel"
 	cancelLabel="Keep Editing"
 	onConfirm={confirmDiscard}
 	onCancel={() => (isDiscardModalOpen = false)}

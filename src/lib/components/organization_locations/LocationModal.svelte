@@ -12,6 +12,7 @@
   import { ApiError } from "$lib/api/local";
   import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
   import CheckIcon from "@lucide/svelte/icons/check";
+  import LoaderCircleIcon from "@lucide/svelte/icons/loader-circle";
   import { toast } from "$lib/toast";
   import { createDirtyChecker } from "$lib/utils";
   import { UI_CONSTANTS } from "$lib/constants";
@@ -22,9 +23,9 @@
     Input,
     Label,
     CrudModal,
-    StatusDropdown,
-    ConfirmModal
+    StatusDropdown
   } from "$lib/components";
+  import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 
   let { 
     open = $bindable(false), 
@@ -57,6 +58,13 @@
   let formLoading = $state(false);
   let showConfirmClose = $state(false);
 
+  let formLatitude = $state("");
+  let formLongitude = $state("");
+  let latitudeError = $state("");
+  let longitudeError = $state("");
+
+
+
   const dirtyChecker = createDirtyChecker<{
     name: string;
     address_line1: string;
@@ -66,6 +74,8 @@
     country_cuid: string;
     pin_code: string;
     timezone: string;
+    latitude: string;
+    longitude: string;
     status: boolean;
   }>();
 
@@ -80,6 +90,8 @@
       country_cuid: formCountryCuid,
       pin_code: formPinCode.trim(),
       timezone: formTimezone.trim(),
+      latitude: formLatitude.trim(),
+      longitude: formLongitude.trim(),
       status: formStatus
     })
   );
@@ -103,6 +115,8 @@
       let initPinCode = "";
       let initTimezone = "UTC";
       let initStatus = true;
+      let initLatitude = "";
+      let initLongitude = "";
 
       if (editLocation) {
         initName = editLocation.name;
@@ -114,6 +128,8 @@
         initPinCode = editLocation.pin_code ?? "";
         initTimezone = editLocation.timezone ?? "UTC";
         initStatus = editLocation.status;
+        initLatitude = editLocation.latitude !== null && editLocation.latitude !== undefined ? String(editLocation.latitude) : "";
+        initLongitude = editLocation.longitude !== null && editLocation.longitude !== undefined ? String(editLocation.longitude) : "";
       }
 
       formName = initName;
@@ -125,6 +141,8 @@
       formPinCode = initPinCode;
       formTimezone = initTimezone;
       formStatus = initStatus;
+      formLatitude = initLatitude;
+      formLongitude = initLongitude;
 
       formError = "";
       nameError = "";
@@ -135,6 +153,8 @@
       stateError = "";
       pinCodeError = "";
       timezoneError = "";
+      latitudeError = "";
+      longitudeError = "";
       
       dirtyChecker.snapshot({
         name: initName,
@@ -145,6 +165,8 @@
         country_cuid: initCountry,
         pin_code: initPinCode,
         timezone: initTimezone,
+        latitude: initLatitude,
+        longitude: initLongitude,
         status: initStatus
       });
     }
@@ -167,6 +189,16 @@
     states.filter((s) => s.country_cuid === formCountryCuid)
   );
 
+  function getCountryName(countryCuid: string): string {
+    const country = countries.find((c) => c.cuid === countryCuid);
+    return country ? country.name : countryCuid;
+  }
+
+  function getStateName(stateCuid: string): string {
+    const state = states.find((s) => s.cuid === stateCuid);
+    return state ? state.name : stateCuid;
+  }
+
   async function fetchDropdowns() {
     try {
       countries = await fetchCountries();
@@ -185,6 +217,51 @@
     fetchDropdowns();
   });
 
+  // Automatically capture coordinates using browser's Geolocation API
+  function captureGeolocation() {
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          formLatitude = position.coords.latitude.toFixed(8);
+          formLongitude = position.coords.longitude.toFixed(8);
+          latitudeError = "";
+          longitudeError = "";
+        },
+        (error) => {
+          console.warn("Geolocation permission denied or failed:", error);
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      );
+    }
+  }
+
+  async function captureCoordinates(): Promise<{ latitude: string; longitude: string }> {
+    return new Promise((resolve) => {
+      if (typeof navigator !== "undefined" && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const lat = position.coords.latitude.toFixed(8);
+            const lon = position.coords.longitude.toFixed(8);
+            resolve({ latitude: lat, longitude: lon });
+          },
+          (error) => {
+            console.warn("Error getting geolocation:", error);
+            resolve({ latitude: formLatitude, longitude: formLongitude });
+          },
+          { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        );
+      } else {
+        resolve({ latitude: formLatitude, longitude: formLongitude });
+      }
+    });
+  }
+
+  $effect(() => {
+    if (open) {
+      captureGeolocation();
+    }
+  });
+
   async function submitForm(e: Event) {
     e.preventDefault();
     formError = "";
@@ -196,6 +273,8 @@
     stateError = "";
     pinCodeError = "";
     timezoneError = "";
+    latitudeError = "";
+    longitudeError = "";
 
     const nameTrimmed = formName.trim();
     if (!nameTrimmed) {
@@ -273,6 +352,22 @@
       return;
     }
 
+    if (formLatitude.trim() !== "") {
+      const latVal = Number(formLatitude);
+      if (isNaN(latVal) || latVal < -90 || latVal > 90) {
+        latitudeError = "Latitude must be a valid number between -90 and 90.";
+        return;
+      }
+    }
+
+    if (formLongitude.trim() !== "") {
+      const lonVal = Number(formLongitude);
+      if (isNaN(lonVal) || lonVal < -180 || lonVal > 180) {
+        longitudeError = "Longitude must be a valid number between -180 and 180.";
+        return;
+      }
+    }
+
     const lower = nameTrimmed.toLowerCase();
     if (
       lower.includes("<script") ||
@@ -304,6 +399,15 @@
     formLoading = true;
     formError = "";
     try {
+      if (typeof navigator !== "undefined" && navigator.geolocation) {
+        try {
+          const coords = await captureCoordinates();
+          formLatitude = coords.latitude;
+          formLongitude = coords.longitude;
+        } catch (err) {
+          console.warn("Latest coordinate capture failed:", err);
+        }
+      }
       const payload: any = {
         name: nameTrimmed,
         address_line1: address1Trimmed,
@@ -313,6 +417,8 @@
         country_cuid: formCountryCuid,
         pin_code: pinTrimmed,
         timezone: tzTrimmed,
+        latitude: formLatitude.trim() !== "" ? Number(formLatitude) : null,
+        longitude: formLongitude.trim() !== "" ? Number(formLongitude) : null
       };
       let res: any;
       if (editLocation) {
@@ -330,8 +436,32 @@
       );
       onSuccess?.(res);
     } catch (e) {
-      formError = e instanceof ApiError ? e.message : "Something went wrong.";
-      toast.error(formError);
+      const errMsg = e instanceof ApiError ? e.message : "Something went wrong.";
+      formError = errMsg;
+      if (e instanceof ApiError && (e.status === 400 || e.status === 409 || e.status === 422)) {
+        const lowerMsg = errMsg.toLowerCase();
+        if (lowerMsg.includes("location name") || lowerMsg.includes("security threat")) {
+          nameError = errMsg;
+        } else if (lowerMsg.includes("address line 1") || lowerMsg.includes("address 1")) {
+          address1Error = errMsg;
+        } else if (lowerMsg.includes("address line 2") || lowerMsg.includes("address 2")) {
+          address2Error = errMsg;
+        } else if (lowerMsg.includes("city")) {
+          cityError = errMsg;
+        } else if (lowerMsg.includes("state")) {
+          stateError = errMsg;
+        } else if (lowerMsg.includes("country")) {
+          countryError = errMsg;
+        } else if (lowerMsg.includes("pin code") || lowerMsg.includes("pincode")) {
+          pinCodeError = errMsg;
+        } else if (lowerMsg.includes("timezone")) {
+          timezoneError = errMsg;
+        } else {
+          nameError = errMsg;
+        }
+      } else {
+        toast.error(errMsg);
+      }
     } finally {
       formLoading = false;
     }
@@ -459,6 +589,8 @@
 >
   {#snippet children({ cancel })}
     <form class="space-y-4" onsubmit={submitForm}>
+
+
       <div class="space-y-2">
         <Label for="name">Location Name <span class="text-destructive">*</span></Label>
         <Input
@@ -649,6 +781,39 @@
         {/if}
       </div>
 
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <Label for="location_latitude">Latitude</Label>
+          <Input
+            id="location_latitude"
+            name="location_latitude"
+            bind:value={formLatitude}
+            class={latitudeError ? 'border-destructive' : ''}
+            placeholder="e.g. 12.9716"
+            oninput={() => { latitudeError = ''; }}
+            readonly
+          />
+          {#if latitudeError}
+            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{latitudeError}</p>
+          {/if}
+        </div>
+        <div class="space-y-2">
+          <Label for="location_longitude">Longitude</Label>
+          <Input
+            id="location_longitude"
+            name="location_longitude"
+            bind:value={formLongitude}
+            class={longitudeError ? 'border-destructive' : ''}
+            placeholder="e.g. 77.5946"
+            oninput={() => { longitudeError = ''; }}
+            readonly
+          />
+          {#if longitudeError}
+            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{longitudeError}</p>
+          {/if}
+        </div>
+      </div>
+
       {#if editLocation}
         <StatusDropdown id="location_status" name="location_status" value={formStatus} onChange={(val) => (formStatus = val)} />
       {/if}
@@ -665,8 +830,8 @@
 
 <ConfirmModal
   open={showConfirmClose}
-  title="Unsaved Changes"
-  description="You have unsaved changes. Are you sure you want to close this modal?"
+  title="Cancel Changes"
+  description="Are you sure you want to cancel? All unsaved changes will be lost."
   confirmLabel="Cancel"
   cancelLabel="Keep Editing"
   onConfirm={() => {

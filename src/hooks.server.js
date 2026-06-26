@@ -2,9 +2,8 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { redirect } from '@sveltejs/kit';
 import { handle as authHandle } from '$lib/server/auth.js';
 
-// Polyfill for BigInt JSON serialization to prevent runtime errors
+
 if (typeof BigInt !== 'undefined') {
-	// @ts-expect-error - BigInt.prototype.toJSON is not defined in standard TS libs
 	BigInt.prototype.toJSON = function () {
 		return this.toString();
 	};
@@ -43,13 +42,18 @@ const routeGuard = async ({ event, resolve }) => {
 		'/roles',
 		'/shifts',
 		'/organization_locations',
+		'/organization_location',
 		'/settings',
+		'/shift-assignments',
+		'/salary-structures',
+		'/payrolls',
+		'/payroll-records',
+		'/leaves',
 		'/leave-types',
 		'/leave-policies',
 		'/holidays',
-		'/salary-structures',
-		'/payrolls',
-		'/payroll-records'
+		'/attendance',
+		'/attendance-records'
 	];
 	const isProtectedRoute = protectedRoutes.some(
 		(path) => event.url.pathname === path || event.url.pathname.startsWith(`${path}/`)
@@ -66,7 +70,6 @@ const routeGuard = async ({ event, resolve }) => {
 
 	return resolve(event);
 };
-
 
 
 /** @type {import('@sveltejs/kit').Handle} */
@@ -134,3 +137,4 @@ const errorHandler = async ({ event, resolve }) => {
 };
 
 export const handle = sequence(authHandle, injectLocals, routeGuard, errorHandler);
+

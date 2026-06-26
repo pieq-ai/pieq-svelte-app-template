@@ -1503,7 +1503,7 @@
 <ConfirmModal
 	open={isConfirmOpen}
 	title="Delete Attendance Record"
-	description="Are you sure you want to delete this attendance record? This action cannot be undone."
+	description="Are you sure you want to delete this attendance record?"
 	confirmLabel="Delete"
 	isSubmitting={isSubmitting}
 	onCancel={() => {
@@ -1518,7 +1518,7 @@
 	open={isDiscardModalOpen}
 	title="Cancel Changes"
 	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Discard Changes"
+	confirmLabel="Cancel"
 	cancelLabel="Keep Editing"
 	onConfirm={confirmDiscard}
 	onCancel={() => (isDiscardModalOpen = false)}

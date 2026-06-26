@@ -53,6 +53,7 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
   }
 
   const raw = payload as Record<string, unknown>;
+
   const allowedKeys = [
     'name',
     'address_line1',
@@ -62,6 +63,8 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
     'country_cuid',
     'pin_code',
     'timezone',
+    'latitude',
+    'longitude',
     'created_by',
     'updated_by'
   ];
@@ -301,6 +304,30 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
     throw err;
   }
 
+  // latitude
+  let latitude: number | null = null;
+  if (raw.latitude !== undefined && raw.latitude !== null) {
+    const parsedLat = Number(raw.latitude);
+    if (isNaN(parsedLat) || parsedLat < -90 || parsedLat > 90) {
+      const err: any = new Error('Latitude must be a valid number between -90 and 90');
+      err.status = 400;
+      throw err;
+    }
+    latitude = parsedLat;
+  }
+
+  // longitude
+  let longitude: number | null = null;
+  if (raw.longitude !== undefined && raw.longitude !== null) {
+    const parsedLon = Number(raw.longitude);
+    if (isNaN(parsedLon) || parsedLon < -180 || parsedLon > 180) {
+      const err: any = new Error('Longitude must be a valid number between -180 and 180');
+      err.status = 400;
+      throw err;
+    }
+    longitude = parsedLon;
+  }
+
   return {
     name: name,
     address_line1: address1,
@@ -310,6 +337,8 @@ export function validateCreatePayload(payload: unknown): CompanyLocationCreateDT
     country_cuid: countryCuid,
     pin_code: pinCode,
     timezone: timezone,
+    latitude: latitude,
+    longitude: longitude,
     created_by: raw.created_by !== undefined ? (raw.created_by as string | null) : undefined,
     updated_by: raw.updated_by !== undefined ? (raw.updated_by as string | null) : undefined
   };
@@ -336,6 +365,8 @@ export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDT
     'pin_code',
     'timezone',
     'status',
+    'latitude',
+    'longitude',
     'created_by',
     'updated_by'
   ];
@@ -563,6 +594,34 @@ export function validateUpdatePayload(payload: unknown): CompanyLocationUpdateDT
       throw err;
     }
     result.timezone = val;
+  }
+
+  if (raw.latitude !== undefined) {
+    if (raw.latitude === null) {
+      result.latitude = null;
+    } else {
+      const parsedLat = Number(raw.latitude);
+      if (isNaN(parsedLat) || parsedLat < -90 || parsedLat > 90) {
+        const err: any = new Error('Latitude must be a valid number between -90 and 90');
+        err.status = 400;
+        throw err;
+      }
+      result.latitude = parsedLat;
+    }
+  }
+
+  if (raw.longitude !== undefined) {
+    if (raw.longitude === null) {
+      result.longitude = null;
+    } else {
+      const parsedLon = Number(raw.longitude);
+      if (isNaN(parsedLon) || parsedLon < -180 || parsedLon > 180) {
+        const err: any = new Error('Longitude must be a valid number between -180 and 180');
+        err.status = 400;
+        throw err;
+      }
+      result.longitude = parsedLon;
+    }
   }
 
   if (raw.status !== undefined) {

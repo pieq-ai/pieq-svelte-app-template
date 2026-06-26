@@ -13,7 +13,7 @@
 	import { Alert, AlertDescription, Button, CrudModal, Input, Label, SearchableDropdown } from '$lib/components';
 	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 	import { getMasterConfig, type MasterKey } from '$lib/master-data/master-config';
-	import { getMasterPermissions, type MasterPermissionConfig } from '$lib/permissions/mock-permissions';
+
 
 	interface Props {
 		master: MasterKey;
@@ -22,7 +22,7 @@
 		multiple?: boolean;
 		countryCuid?: string;
 		placeholder?: string;
-		permissions?: Partial<MasterPermissionConfig>;
+
 		disabled?: boolean;
 		class?: string;
 		exclude?: string[];
@@ -36,7 +36,7 @@
 		multiple = false,
 		countryCuid,
 		placeholder,
-		permissions = getMasterPermissions(),
+
 		disabled = false,
 		class: className = '',
 		exclude = [],
@@ -237,10 +237,9 @@
 		{placeholder}
 		{disabled}
 		class={className}
-		{permissions}
 		onSelect={onSelect}
-		onAdd={permissions.canCreate ? openCreateModal : undefined}
-		onEdit={permissions.canEdit ? openEditModal : undefined}
+		onAdd={openCreateModal}
+		onEdit={openEditModal}
 	/>
 	{#if isLoading}
 		<p class="text-xs text-muted-foreground">Loading {config.label.toLowerCase()} options...</p>

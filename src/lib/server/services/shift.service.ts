@@ -70,9 +70,10 @@ export async function listAllShifts(query?: Record<string, unknown>): Promise<{ 
 export async function createShift(payload: unknown): Promise<Shift> {
   const valid = validateCreatePayload(payload);
   
-  // Ensure unique active name
-  const existing = await shiftDao.getShifts();
-  if (existing.some((s) => s.shift_name.toLowerCase() === valid.shift_name.toLowerCase())) {
+  // Ensure unique name across active and inactive shifts
+  const nameToCheck = valid.name.trim().toLowerCase();
+  const existing = await shiftDao.getAllShifts();
+  if (existing.some((s) => s.name.trim().toLowerCase() === nameToCheck)) {
     const err: any = new Error('Shift name already exists');
     err.status = 409;
     throw err;
@@ -98,9 +99,9 @@ export async function createShift(payload: unknown): Promise<Shift> {
     let diffHrs = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
     if (diffHrs < 0) diffHrs += 24;
     const maxHrs = Math.round(diffHrs * 100) / 100;
-    if (valid.minimum_work_hours > maxHrs) {
+    if (valid.minimum_work_hours < 0 || valid.minimum_work_hours > maxHrs) {
       const err: any = new Error(
-        `Minimum work hours (${valid.minimum_work_hours}) cannot exceed the total shift duration (${maxHrs} hrs)`
+        `Minimum work hours must be between 0 and the total shift duration (${maxHrs} hrs)`
       );
       err.status = 422;
       throw err;
@@ -122,10 +123,10 @@ export async function updateShift(cuid: string, payload: unknown): Promise<Shift
   }
   
   // Duplicate name check if name provided
-  if (valid.shift_name) {
-    const nameToCheck = valid.shift_name.toLowerCase();
-    const existing = await shiftDao.getShifts();
-    if (existing.some((s) => s.shift_name.toLowerCase() === nameToCheck && s.cuid !== cuid)) {
+  if (valid.name) {
+    const nameToCheck = valid.name.trim().toLowerCase();
+    const existing = await shiftDao.getAllShifts();
+    if (existing.some((s) => s.name.trim().toLowerCase() === nameToCheck && s.cuid !== cuid)) {
       const err: any = new Error('Shift name already exists');
       err.status = 409;
       throw err;
@@ -162,9 +163,9 @@ export async function updateShift(cuid: string, payload: unknown): Promise<Shift
     let diffHrs = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
     if (diffHrs < 0) diffHrs += 24;
     const maxHrs = Math.round(diffHrs * 100) / 100;
-    if (valid.minimum_work_hours > maxHrs) {
+    if (valid.minimum_work_hours < 0 || valid.minimum_work_hours > maxHrs) {
       const err: any = new Error(
-        `Minimum work hours (${valid.minimum_work_hours}) cannot exceed the total shift duration (${maxHrs} hrs)`
+        `Minimum work hours must be between 0 and the total shift duration (${maxHrs} hrs)`
       );
       err.status = 422;
       throw err;
@@ -175,7 +176,7 @@ export async function updateShift(cuid: string, payload: unknown): Promise<Shift
 }
 
 /** Soft delete / deactivate a shift. */
-export async function deleteShift(cuid: string): Promise<Shift> {
+export async function deleteShift(cuid: string, updatedBy?: string): Promise<Shift> {
   const shift = await shiftDao.getShiftByCuid(cuid);
   if (!shift) {
     const err: any = new Error('Shift not found');
@@ -183,11 +184,11 @@ export async function deleteShift(cuid: string): Promise<Shift> {
     throw err;
   }
   
-  return shiftDao.deactivateShift(cuid);
+  return shiftDao.deactivateShift(cuid, updatedBy);
 }
 
 /** Activate a shift. */
-export async function activateShift(cuid: string): Promise<Shift> {
+export async function activateShift(cuid: string, updatedBy?: string): Promise<Shift> {
   const shift = await shiftDao.getShiftByCuid(cuid);
   if (!shift) {
     const err: any = new Error('Shift not found');
@@ -210,5 +211,5 @@ export async function activateShift(cuid: string): Promise<Shift> {
     throw err;
   }
   
-  return shiftDao.activateShift(cuid);
+  return shiftDao.activateShift(cuid, updatedBy);
 }

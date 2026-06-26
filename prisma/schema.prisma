@@ -865,6 +865,7 @@ model LeavePolicy {
   updated_by                   String?  @db.Text
 
   @@index([leave_type_cuid])
+
   @@map("leave_policies")
 }
 
@@ -933,7 +934,7 @@ model Shift {
 
   cuid String @unique @default(cuid())
 
-  shift_name String @unique @db.VarChar(100)
+  name String @unique @db.VarChar(100)
 
   start_time DateTime @db.Time(6)
 
@@ -979,13 +980,16 @@ model CompanyLocation {
 
   name String @unique @db.VarChar(150)
 
-  address_line1 String  @db.VarChar(255)
+  address_line1 String @db.VarChar(255)
   address_line2 String? @db.VarChar(255)
 
   city String @db.VarChar(100)
 
-  state_cuid   String
+  state_cuid String
   country_cuid String
+
+  latitude     Decimal? @db.Decimal(10, 8)
+  longitude    Decimal? @db.Decimal(11, 8)
 
   pin_code String @db.VarChar(15)
 
@@ -994,10 +998,112 @@ model CompanyLocation {
   status Boolean @default(true)
 
   created_at DateTime @default(now()) @db.Timestamptz()
-  created_by String?  @db.VarChar(100)
+  created_by String? @db.VarChar(100)
 
   updated_at DateTime @updatedAt @db.Timestamptz()
-  updated_by String?  @db.VarChar(100)
+  updated_by String? @db.VarChar(100)
 
   @@map("company_locations")
 }
+
+model LeaveBalance {
+  id                    BigInt   @id @default(autoincrement())
+  cuid                  String   @unique @default(cuid())
+
+  employee_cuid         String   @db.Text
+  leave_type_cuid       String   @db.Text
+
+  year                  Int
+
+  allocated_days        Decimal  @default(0) @db.Decimal(8, 2)
+  used_days             Decimal  @default(0) @db.Decimal(8, 2)
+  remaining_days        Decimal  @default(0) @db.Decimal(8, 2)
+  carried_forward_days  Decimal  @default(0) @db.Decimal(8, 2)
+
+  created_at            DateTime @default(now()) @db.Timestamptz(3)
+  updated_at            DateTime @default(now()) @updatedAt @db.Timestamptz(3)
+
+  created_by            String?  @db.Text
+  updated_by            String?  @db.Text
+
+  @@unique([employee_cuid, leave_type_cuid, year])
+
+  @@index([employee_cuid])
+  @@index([leave_type_cuid])
+  @@index([year])
+
+  @@map("leave_balances")
+}
+
+model LeaveRequest {
+  id                    BigInt   @id @default(autoincrement())
+  cuid                  String   @unique @default(cuid())
+
+  employee_cuid         String   @db.Text
+  leave_type_cuid       String   @db.Text
+
+  start_date            DateTime @db.Date
+  end_date              DateTime @db.Date
+
+  total_days            Decimal  @db.Decimal(8, 2)
+
+  is_half_day           Boolean  @default(false)
+  half_day_session      String?  @db.VarChar(10) // FN / AN
+
+  reason                String?  @db.Text
+  file_name     String?  @db.VarChar(255)
+  mime_type     String?  @db.VarChar(100)
+  file_size     Int?
+  document_data Bytes?
+
+
+  request_status        String   @default("pending") @db.VarChar(30)
+
+  days_from_primary     Decimal? @db.Decimal(8, 2)
+  days_from_lwp         Decimal? @db.Decimal(8, 2)
+  days_from_lop         Decimal? @db.Decimal(8, 2)
+
+  approved_by           String?  @db.Text
+  approved_at           DateTime? @db.Timestamptz(3)
+
+  rejected_by           String?  @db.Text
+  rejected_at           DateTime? @db.Timestamptz(3)
+
+  withdrawn_at          DateTime? @db.Timestamptz(3)
+
+  created_at            DateTime @default(now()) @db.Timestamptz(3)
+  updated_at            DateTime @default(now()) @updatedAt @db.Timestamptz(3)
+
+  created_by            String?  @db.Text
+  updated_by            String?  @db.Text
+
+  @@index([employee_cuid])
+  @@index([leave_type_cuid])
+  @@index([request_status])
+
+  @@map("leave_requests")
+}
+
+model ShiftAssignment {
+  id BigInt @id @default(autoincrement())
+
+  cuid String @unique @default(cuid())
+
+  employee_cuid String @db.VarChar(100)
+  shift_cuid    String @db.VarChar(100)
+
+  effective_from DateTime @db.Date
+  effective_to   DateTime @db.Date
+
+  status Boolean @default(true)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
+  created_by String?  @db.VarChar(100)
+  updated_at DateTime @updatedAt @db.Timestamptz()
+  updated_by String?  @db.VarChar(100)
+
+  @@index([employee_cuid])
+  @@index([shift_cuid])
+  @@map("shift_assignments")
+}
+
