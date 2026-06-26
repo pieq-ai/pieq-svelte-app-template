@@ -54,62 +54,6 @@
 	let locationPermissionDenied = $state(false);
 	let isLocating = $state(false);
 
-	let distanceFromOffice = $derived.by(() => {
-		if (gpsLatitude === null || gpsLongitude === null) return null;
-		return calculateDistance(
-			gpsLatitude,
-			gpsLongitude,
-			GEOFENCE_CONFIG.OFFICE_LATITUDE,
-			GEOFENCE_CONFIG.OFFICE_LONGITUDE
-		);
-	});
-
-	let gpsValidation = $derived.by(() => {
-		if (locationPermissionDenied) {
-			return {
-				isValid: false,
-				status: 'Outside Office Zone',
-				message: 'Location permission denied. Please allow location access to mark attendance.'
-			};
-		}
-		if (locationError) {
-			return {
-				isValid: false,
-				status: 'Location Error',
-				message: `Location error: ${locationError}`
-			};
-		}
-		if (isLocating && gpsLatitude === null) {
-			return {
-				isValid: false,
-				status: 'Determining Location...',
-				message: 'Getting your current location...'
-			};
-		}
-		if (gpsLatitude === null || gpsLongitude === null) {
-			return {
-				isValid: false,
-				status: 'Location Unavailable',
-				message: 'Unable to determine your location.'
-			};
-		}
-
-		const dist = calculateDistance(
-			gpsLatitude,
-			gpsLongitude,
-			GEOFENCE_CONFIG.OFFICE_LATITUDE,
-			GEOFENCE_CONFIG.OFFICE_LONGITUDE
-		);
-		const isInside = dist <= GEOFENCE_CONFIG.ALLOWED_RADIUS_METERS;
-
-		return {
-			isValid: isInside,
-			status: isInside ? 'Inside Office Zone' : 'Outside Office Zone',
-			message: isInside
-				? 'You are within the office zone. Attendance marking is enabled.'
-				: `You are outside the office zone (Distance: ${Math.round(dist)}m).`
-		};
-	});
 
 	onMount(() => {
 		if (!navigator.geolocation) {
@@ -184,7 +128,7 @@
 		let result = [...historyRecords];
 
 		if (historyFilterStatus !== 'all') {
-			result = result.filter((r) => r.status === historyFilterStatus || (r.status === 'Absent' && historyFilterStatus === 'LOP'));
+			result = result.filter((r) => r.status === historyFilterStatus);
 		}
 
 		if (historyFilterStartDate) {
@@ -251,14 +195,109 @@
 		data.employees.find((emp: any) => emp.uuid === selectedEmployeeUuid) || null
 	);
 
+	let distanceFromOffice = $derived.by(() => {
+		if (gpsLatitude === null || gpsLongitude === null) return null;
+		const officeLat = selectedEmployee?.latitude !== undefined && selectedEmployee?.latitude !== null ? Number(selectedEmployee.latitude) : null;
+		const officeLon = selectedEmployee?.longitude !== undefined && selectedEmployee?.longitude !== null ? Number(selectedEmployee.longitude) : null;
+		if (officeLat === null || officeLon === null) return null;
+		return calculateDistance(
+			gpsLatitude,
+			gpsLongitude,
+			officeLat,
+			officeLon
+		);
+	});
+
+	let gpsValidation = $derived.by(() => {
+		if (!selectedEmployeeUuid) {
+			return {
+				isValid: false,
+				status: 'No Employee Selected',
+				message: 'Please select an employee to validate location.'
+			};
+		}
+		if (locationPermissionDenied) {
+			return {
+				isValid: false,
+				status: 'Outside Office Zone',
+				message: 'Location permission denied. Please allow location access to mark attendance.'
+			};
+		}
+		if (locationError) {
+			return {
+				isValid: false,
+				status: 'Location Error',
+				message: `Location error: ${locationError}`
+			};
+		}
+		if (isLocating && gpsLatitude === null) {
+			return {
+				isValid: false,
+				status: 'Determining Location...',
+				message: 'Getting your current location...'
+			};
+		}
+		if (gpsLatitude === null || gpsLongitude === null) {
+			return {
+				isValid: false,
+				status: 'Location Unavailable',
+				message: 'Unable to determine your location.'
+			};
+		}
+
+		const officeLat = selectedEmployee?.latitude !== undefined && selectedEmployee?.latitude !== null ? Number(selectedEmployee.latitude) : null;
+		const officeLon = selectedEmployee?.longitude !== undefined && selectedEmployee?.longitude !== null ? Number(selectedEmployee.longitude) : null;
+
+		if (officeLat === null || officeLon === null) {
+			const hasLocation = selectedEmployee?.location_cuid !== undefined && selectedEmployee?.location_cuid !== null;
+			return {
+				isValid: false,
+				status: 'Location Not Configured',
+				message: hasLocation 
+					? 'Company location coordinates are not properly configured.'
+					: 'No company location has been assigned to this employee.'
+			};
+		}
+
+		const dist = calculateDistance(
+			gpsLatitude,
+			gpsLongitude,
+			officeLat,
+			officeLon
+		);
+		const isInside = dist <= GEOFENCE_CONFIG.ALLOWED_RADIUS_METERS;
+
+		return {
+			isValid: isInside,
+			status: isInside ? 'Inside Office Zone' : 'Outside Office Zone',
+			message: isInside
+				? 'You are within the office zone. Attendance marking is enabled.'
+				: `You are outside the office zone (Distance: ${Math.round(dist)}m).`
+		};
+	});
+
 	let isRelieved = $derived.by(() => {
 		if (!selectedEmployee || !selectedEmployee.relieving_date) return false;
 		const relieveStr = getISODateString(selectedEmployee.relieving_date);
 		return data.todayStr > relieveStr;
 	});
 
+	let isBeforeJoining = $derived.by(() => {
+		if (!selectedEmployee || !selectedEmployee.date_of_joining) return false;
+		const joinStr = getISODateString(selectedEmployee.date_of_joining);
+		return data.todayStr < joinStr;
+	});
+
+	let hasNoEmploymentRecord = $derived(
+		selectedEmployee !== null && !selectedEmployee.date_of_joining
+	);
+
 	let todayRecord = $derived(
 		historyRecords.find((rec: any) => rec.date === data.todayStr) || null
+	);
+
+	let openRecord = $derived(
+		historyRecords.find((rec: any) => rec.check_in_time && !rec.check_out_time) || null
 	);
 
 	let employeeOptions = $derived(
@@ -387,7 +426,7 @@
 			if (status === 'On Leave' || status === 'Leave') {
 				return { status: 'Leave', color: 'bg-amber-500/15 text-amber-800 dark:bg-amber-500/25 dark:text-amber-300 border border-amber-500/30 dark:border-amber-500/40' };
 			}
-			if (status === 'LOP' || status === 'Absent') {
+			if (status === 'LOP') {
 				return { status: 'LOP', color: 'bg-red-500/15 text-red-800 dark:bg-red-500/25 dark:text-red-300 border border-red-500/30 dark:border-red-500/40' };
 			}
 			if (status === 'Week Off') {
@@ -558,7 +597,7 @@
 
 			// Exclude leaves and LOPs from both hours and days
 			const status = r.status;
-			if (status === 'Leave' || status === 'On Leave' || status === 'LOP' || status === 'Absent') {
+			if (status === 'Leave' || status === 'On Leave' || status === 'LOP') {
 				continue;
 			}
 
@@ -680,7 +719,6 @@
 			case 'Leave':
 				return 'bg-amber-500/15 text-amber-800 dark:bg-amber-500/25 dark:text-amber-300 border border-amber-500/30 dark:border-amber-500/40';
 			case 'LOP':
-			case 'Absent':
 				return 'bg-red-500/15 text-red-800 dark:bg-red-500/25 dark:text-red-300 border border-red-500/30 dark:border-red-500/40';
 			case 'Week Off':
 				return 'bg-slate-500/15 text-slate-700 dark:bg-slate-500/25 dark:text-slate-300 border border-slate-500/30 dark:border-slate-500/40';
@@ -1165,8 +1203,20 @@
 								{/if}
 
 								{#if cell.isToday && !holiday && !['Leave', 'LOP'].includes(dayStatus?.status ?? '')}
-									{#if !record}
-										{#if !isRelieved}
+									{#if openRecord}
+										{#if !isRelieved && !isBeforeJoining && !hasNoEmploymentRecord}
+											<Button
+												size="sm"
+												onclick={(e) => { e.stopPropagation(); triggerCheckOutConfirm(); }}
+												class="w-full mt-1 h-5 text-[9px] px-1 bg-[#800020] hover:bg-[#800020]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+												disabled={isSubmitting || !gpsValidation.isValid || isLoadingHistory}
+												title={!gpsValidation.isValid ? gpsValidation.message : (isLoadingHistory ? 'Loading history...' : '')}
+											>
+												Check Out
+											</Button>
+										{/if}
+									{:else if !todayRecord}
+										{#if !isRelieved && !isBeforeJoining && !hasNoEmploymentRecord}
 											<Button
 												size="sm"
 												onclick={(e) => { e.stopPropagation(); triggerCheckInConfirm(); }}
@@ -1177,16 +1227,6 @@
 												Check In
 											</Button>
 										{/if}
-									{:else if record && !record.check_out_time}
-										<Button
-											size="sm"
-											onclick={(e) => { e.stopPropagation(); triggerCheckOutConfirm(); }}
-											class="w-full mt-1 h-5 text-[9px] px-1 bg-[#800020] hover:bg-[#800020]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-											disabled={isSubmitting || !gpsValidation.isValid || isLoadingHistory}
-											title={!gpsValidation.isValid ? gpsValidation.message : (isLoadingHistory ? 'Loading history...' : '')}
-										>
-											Check Out
-										</Button>
 									{/if}
 								{/if}
 							</div>
@@ -1332,8 +1372,8 @@
 												<TableCell>{formatDisplayTime(rec.check_out_time)}</TableCell>
 												<TableCell>{formatDuration(rec.work_duration_minutes)}</TableCell>
 												<TableCell>
-													<Badge class={`border-none px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(rec.status === 'Absent' ? 'LOP' : rec.status)}`}>
-														{rec.status === 'Absent' ? 'LOP' : rec.status}
+													<Badge class={`border-none px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(rec.status)}`}>
+														{rec.status}
 													</Badge>
 												</TableCell>
 											</TableRow>

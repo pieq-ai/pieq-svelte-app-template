@@ -101,7 +101,7 @@ describe('attendance-records API', () => {
 				check_in_time: null,
 				check_out_time: null,
 				work_duration_minutes: null,
-				status: 'Absent',
+				status: 'LOP',
 				attendance_source_cuid: null,
 				remarks: null
 			};

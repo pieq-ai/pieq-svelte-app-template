@@ -11,6 +11,13 @@ import {
 	AttendanceValidationError
 } from '$lib/server/services/attendance.service.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
+import * as locationDao from '$lib/server/dao/organization_location.dao.js';
+
+vi.mock('$lib/server/dao/organization_location.dao.js', () => ({
+	getLocationByCuid: vi.fn(),
+	getAllLocations: vi.fn(),
+	getLocations: vi.fn()
+}));
 
 vi.mock('$lib/server/dao/employment.dao.js', () => ({
 	findByEmployeeCuid: vi.fn(),
@@ -36,7 +43,8 @@ vi.mock('$lib/server/dao/attendance.dao.js', () => {
 		findByEmployeeAndDate: vi.fn(),
 		listByEmployee: vi.fn(),
 		create: vi.fn(),
-		update: vi.fn()
+		update: vi.fn(),
+		findOpenRecord: vi.fn()
 	};
 });
 
@@ -51,8 +59,15 @@ describe('attendance service', () => {
 		vi.clearAllMocks();
 		vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
 			date_of_joining: new Date(Date.UTC(2026, 0, 1)), // Jan 1, 2026
-			relieving_date: null
+			relieving_date: null,
+			location_cuid: 'location-uuid-123'
 		} as any);
+		vi.mocked(locationDao.getLocationByCuid).mockResolvedValue({
+			cuid: 'location-uuid-123',
+			latitude: 13.038734640855532,
+			longitude: 80.2346649817288
+		} as any);
+		vi.mocked(attendanceDao.findOpenRecord).mockResolvedValue(null);
 	});
 
 	afterEach(() => {
@@ -90,6 +105,16 @@ describe('attendance service', () => {
 
 			await expect(checkIn(employeeCuid, null, null, validGps)).rejects.toThrowError(
 				new AttendanceValidationError('employee_cuid', 'Already checked in for today')
+			);
+		});
+
+		it('should reject if an open attendance record already exists', async () => {
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(attendanceDao.findOpenRecord).mockResolvedValue({ cuid: 'existing-open-rec', status: 'Present' } as any);
+
+			await expect(checkIn(employeeCuid, null, null, validGps)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'An open attendance record already exists. Please check out first.')
 			);
 		});
 
@@ -131,6 +156,41 @@ describe('attendance service', () => {
 
 			await expect(checkIn(employeeCuid, null, null, invalidGps)).rejects.toThrowError(
 				new AttendanceValidationError('employee_cuid', 'You are outside the office zone')
+			);
+		});
+
+		it('should reject if employee has no location_cuid assigned', async () => {
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue(null);
+			vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+				date_of_joining: new Date(Date.UTC(2026, 0, 1)),
+				relieving_date: null,
+				location_cuid: null
+			} as any);
+
+			await expect(checkIn(employeeCuid, null, null, validGps)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'No company location has been assigned')
+			);
+		});
+
+		it('should reject if company location has no valid coordinates configured', async () => {
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue(null);
+			vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+				date_of_joining: new Date(Date.UTC(2026, 0, 1)),
+				relieving_date: null,
+				location_cuid: 'location-uuid-123'
+			} as any);
+			vi.mocked(locationDao.getLocationByCuid).mockResolvedValue({
+				cuid: 'location-uuid-123',
+				latitude: null,
+				longitude: null
+			} as any);
+
+			await expect(checkIn(employeeCuid, null, null, validGps)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'Company location is not properly configured')
 			);
 		});
 
@@ -195,26 +255,12 @@ describe('attendance service', () => {
 			);
 		});
 
-		it('should reject if no check-in record exists for today', async () => {
+		it('should reject if no open check-in record exists', async () => {
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
-			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue(null);
+			vi.mocked(attendanceDao.findOpenRecord).mockResolvedValue(null);
 
 			await expect(checkOut(employeeCuid, null, validGps)).rejects.toThrowError(
-				new AttendanceValidationError('employee_cuid', 'No check-in record found for today')
-			);
-		});
-
-		it('should reject if already checked out today', async () => {
-			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
-			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({
-				cuid: 'record-1',
-				status: 'Present',
-				check_in_time: new Date(Date.UTC(2026, 5, 1, 9, 0, 0)),
-				check_out_time: new Date(Date.UTC(2026, 5, 1, 17, 0, 0))
-			} as any);
-
-			await expect(checkOut(employeeCuid, null, validGps)).rejects.toThrowError(
-				new AttendanceValidationError('employee_cuid', 'Already checked out for today')
+				new AttendanceValidationError('employee_cuid', 'No open check-in record found')
 			);
 		});
 
@@ -222,7 +268,7 @@ describe('attendance service', () => {
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 
 			// Leave status check
-			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({
+			vi.mocked(attendanceDao.findOpenRecord).mockResolvedValue({
 				cuid: 'record-1',
 				status: 'Leave'
 			} as any);
@@ -231,7 +277,7 @@ describe('attendance service', () => {
 			);
 
 			// LOP status check
-			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({
+			vi.mocked(attendanceDao.findOpenRecord).mockResolvedValue({
 				cuid: 'record-1',
 				status: 'LOP'
 			} as any);
@@ -242,7 +288,7 @@ describe('attendance service', () => {
 
 		it('should reject if gps is invalid or outside office zone', async () => {
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
-			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({
+			vi.mocked(attendanceDao.findOpenRecord).mockResolvedValue({
 				cuid: 'record-1',
 				check_in_time: new Date(Date.UTC(2026, 5, 1, 9, 0, 0))
 			} as any);
@@ -252,12 +298,51 @@ describe('attendance service', () => {
 			);
 		});
 
+		it('should reject if employee has no location_cuid assigned on check-out', async () => {
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(attendanceDao.findOpenRecord).mockResolvedValue({
+				cuid: 'record-123',
+				check_in_time: new Date()
+			} as any);
+			vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+				date_of_joining: new Date(Date.UTC(2026, 0, 1)),
+				relieving_date: null,
+				location_cuid: null
+			} as any);
+
+			await expect(checkOut(employeeCuid, null, validGps)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'No company location has been assigned')
+			);
+		});
+
+		it('should reject if company location has no valid coordinates configured on check-out', async () => {
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(attendanceDao.findOpenRecord).mockResolvedValue({
+				cuid: 'record-123',
+				check_in_time: new Date()
+			} as any);
+			vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+				date_of_joining: new Date(Date.UTC(2026, 0, 1)),
+				relieving_date: null,
+				location_cuid: 'location-uuid-123'
+			} as any);
+			vi.mocked(locationDao.getLocationByCuid).mockResolvedValue({
+				cuid: 'location-uuid-123',
+				latitude: null,
+				longitude: null
+			} as any);
+
+			await expect(checkOut(employeeCuid, null, validGps)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'Company location is not properly configured')
+			);
+		});
+
 		it('should successfully check out and calculate duration', async () => {
 			const checkInTime = new Date(Date.UTC(2026, 5, 1, 9, 0, 0)); // 9:00 AM
 			const checkOutTime = new Date(Date.UTC(2026, 5, 1, 17, 30, 0)); // 5:30 PM (8.5 hours / 510 minutes later)
 
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
-			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({
+			vi.mocked(attendanceDao.findOpenRecord).mockResolvedValue({
 				cuid: 'record-123',
 				check_in_time: checkInTime
 			} as any);
