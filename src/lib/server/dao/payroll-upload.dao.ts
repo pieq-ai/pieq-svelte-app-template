@@ -1,11 +1,13 @@
 import { db } from '$lib/server/db.js';
 import type { CreatePayrollUploadDto } from '$lib/types/payroll.js';
+import type { Prisma } from '$lib/generated/prisma/client.js';
 
 // ─── Single record queries ─────────────────────────────────────────────────────
 
 /** Create a new payroll upload batch record. */
-export async function create(data: CreatePayrollUploadDto) {
-	return db.payrollUpload.create({
+export async function create(data: CreatePayrollUploadDto, tx?: Prisma.TransactionClient) {
+	const client = tx ?? db;
+	return client.payrollUpload.create({
 		data: {
 			month: data.month,
 			year: data.year,
@@ -37,9 +39,11 @@ export async function updateEmployeeCount(
 	cuid: string,
 	employee_count: number,
 	status?: string,
-	errors?: string | null
+	errors?: string | null,
+	tx?: Prisma.TransactionClient
 ) {
-	return db.payrollUpload.update({
+	const client = tx ?? db;
+	return client.payrollUpload.update({
 		where: { cuid },
 		data: {
 			employee_count,

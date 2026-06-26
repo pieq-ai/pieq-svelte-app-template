@@ -296,10 +296,6 @@
 
 				if (createdCount > 0) {
 					toast.success(resData.message || `${createdCount} payroll record(s) uploaded successfully.`);
-					// Refresh list
-					await invalidateAll();
-					// Reset upload state so user can upload another file and see the updated list
-					resetUpload();
 				} else {
 					toast.error(resData.message || 'Upload failed.');
 				}
@@ -313,6 +309,15 @@
 			console.error(err);
 		} finally {
 			isUploading = false;
+			await invalidateAll();
+			// Reset the upload form to its initial state
+			selectedFile = null;
+			uploadMonth = currentMonth;
+			uploadYear = currentYear;
+			const input = document.getElementById('payroll_file_input') as HTMLInputElement;
+			if (input) {
+				input.value = '';
+			}
 		}
 	}
 
@@ -320,6 +325,12 @@
 		selectedFile = null;
 		uploadResult = null;
 		uploadError = '';
+		uploadMonth = currentMonth;
+		uploadYear = currentYear;
+		const input = document.getElementById('payroll_file_input') as HTMLInputElement;
+		if (input) {
+			input.value = '';
+		}
 	}
 
 	// ─── File size helper ─────────────────────────────────────────────────────────
