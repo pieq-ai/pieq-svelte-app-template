@@ -112,10 +112,10 @@ export async function updateRole(cuid: string, data: RoleUpdateDTO): Promise<Rol
 /**
  * Soft‑delete (deactivate) a role.
  */
-export async function deactivateRole(cuid: string): Promise<Role> {
+export async function deactivateRole(cuid: string, updatedBy?: string): Promise<Role> {
   return db.role.update({
     where: { cuid },
-    data: { status: false },
+    data: { status: false, updated_by: updatedBy ?? null },
     select: {
       cuid: true,
       name: true,

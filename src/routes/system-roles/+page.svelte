@@ -34,7 +34,7 @@
 		Pagination,
 		SearchInput
 	} from '$lib/components';
-	import { getMasterPermissions } from '$lib/permissions/mock-permissions';
+
 
 	interface SystemRole {
 		cuid: string;
@@ -42,7 +42,7 @@
 		status: boolean;
 	}
 
-	const permissions = getMasterPermissions();
+
 	let roles = $state<SystemRole[]>([]);
 	let isLoading = $state(true);
 	let loadError = $state('');
@@ -194,7 +194,7 @@
 				{
 					method: editingRole ? 'PUT' : 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify(editingRole ? { name: roleName.trim(), status: roleStatus } : { name: roleName.trim() })
+					body: JSON.stringify({ name: roleName.trim(), status: roleStatus })
 				}
 			);
 			const body = await response.json();
@@ -248,11 +248,9 @@
 		<div class="space-y-1">
 			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">System Roles</h1>
 		</div>
-		{#if permissions.canCreate}
 			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={openCreateModal}>
 				Add Role
 			</Button>
-		{/if}
 	</div>
 
 	<!-- Metrics Cards -->
@@ -335,7 +333,7 @@
 							<TableCell class="text-center"><Badge variant={role.status === true ? 'default' : 'secondary'}>{role.status ? 'Active' : 'Inactive'}</Badge></TableCell>
 							<TableCell class="text-right">
 								<TableActions
-									canEdit={permissions.canEdit}
+									canEdit={true}
 									onEdit={() => openEditModal(role)}
 								/>
 							</TableCell>
@@ -397,8 +395,8 @@
 
 <ConfirmModal
 	open={showConfirmClose}
-	title="Unsaved Changes"
-	description="You have unsaved changes. Are you sure you want to close this modal?"
+	title="Cancel Changes"
+	description="Are you sure you want to cancel? All unsaved changes will be lost."
 	confirmLabel="Cancel"
 	cancelLabel="Keep Editing"
 	onConfirm={() => {

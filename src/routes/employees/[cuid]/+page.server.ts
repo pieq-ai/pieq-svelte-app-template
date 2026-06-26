@@ -5,6 +5,7 @@ import { listRoles } from '$lib/server/services/role.service.js';
 import { listLocations } from '$lib/server/services/organization_location.service.js';
 import { getEmployeeByCuid2, getEmployees } from '$lib/server/services/employee.service.js';
 import { getEmploymentByEmployeeCuid } from '$lib/server/services/employment.service.js';
+import { mapLocation } from '$lib/server/response.js';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const employeeCuid = params.cuid;
@@ -27,7 +28,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		employee: serialize(employee),
 		employment: serialize(employment),
 		roles: roles.data,
-		locations: locations.data,
+		locations: locations.data.map(mapLocation),
 		employees: employees.map((e) => ({ cuid: e.cuid, first_name: e.first_name, last_name: e.last_name }))
 	};
 };

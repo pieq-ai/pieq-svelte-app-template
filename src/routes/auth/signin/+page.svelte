@@ -27,23 +27,27 @@
 	<title>Sign in</title>
 </svelte:head>
 
-<Card>
-	<CardHeader>
-		<CardTitle>Sign in</CardTitle>
+<Card class="w-full max-w-md mx-auto shadow-xl border-border/40 bg-card/60 backdrop-blur-md">
+	<CardHeader class="space-y-1 pb-4">
+		<CardTitle class="text-2xl font-bold tracking-tight text-center">Sign in</CardTitle>
+		<CardDescription class="text-center">Choose an authentication method to access the HRMS portal</CardDescription>
 	</CardHeader>
-	<CardContent>
-		{#if configReady && oidc}
-			<CardDescription class="mb-4">
-				Authenticate with Keycloak realm <strong>{oidc.realm}</strong> (client: {oidc.clientId}).
-			</CardDescription>
-			<Button onclick={handleSignIn}>Sign in with Keycloak</Button>
-		{:else}
-			<Alert variant="destructive">
-				<AlertDescription>
-					Authentication configuration is missing. Ensure <code>API_BASE_URL</code> and OIDC settings are
-					set in <code>.env</code> and reload the app.
-				</AlertDescription>
-			</Alert>
-		{/if}
+	<CardContent class="space-y-6">
+		<div class="space-y-4">
+			{#if configReady && oidc}
+				<div class="p-4 rounded-lg bg-muted/40 border border-border/50 space-y-3">
+					<p class="text-xs text-muted-foreground text-center">
+						Standard single sign-on via Keycloak realm <strong>{oidc.realm}</strong>
+					</p>
+					<Button class="w-full" onclick={handleSignIn}>Sign in with Keycloak</Button>
+				</div>
+			{:else}
+				<Alert variant="destructive">
+					<AlertDescription>
+						Production SSO (Keycloak) configuration is not active. Ensure your environment variables are configured if needed.
+					</AlertDescription>
+				</Alert>
+			{/if}
+		</div>
 	</CardContent>
 </Card>

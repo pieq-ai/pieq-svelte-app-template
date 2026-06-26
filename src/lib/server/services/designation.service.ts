@@ -45,8 +45,8 @@ async function ensureDesignationNameIsUnique(name: string, currentCuid2?: string
 
 	const isDuplicate = existingList.some(
 		(designation) =>
-			designation.name.trim().toLowerCase() === normalizedName &&
-			designation.cuid !== currentCuid2
+			designation.cuid !== currentCuid2 &&
+			designation.name.trim().toLowerCase() === normalizedName
 	);
 
 	if (isDuplicate) {

@@ -24,7 +24,7 @@ function parseCuid(param: string | undefined): string {
  * PUT /api/shifts/:cuid
  * Updates an existing shift (partial update allowed).
  */
-export async function PUT({ request, params }) {
+export async function PUT({ request, params, locals }) {
   try {
     const cuid = parseCuid(params.cuid);
     const contentType = request.headers.get('content-type');
@@ -39,6 +39,7 @@ export async function PUT({ request, params }) {
       return json({ error: 'Malformed or invalid JSON' }, { status: 400 });
     }
 
+    payload.updated_by = locals?.user?.id;
     const shift = await shiftService.updateShift(cuid, payload);
     return sendUpdated('Shift', shift.cuid);
   } catch (err: any) {
@@ -51,10 +52,10 @@ export async function PUT({ request, params }) {
  * PATCH /api/shifts/:cuid
  * Activates a deactivated shift.
  */
-export async function PATCH({ params }) {
+export async function PATCH({ params, locals }) {
   try {
     const cuid = parseCuid(params.cuid);
-    const shift = await shiftService.activateShift(cuid);
+    const shift = await shiftService.activateShift(cuid, locals?.user?.id);
     return sendUpdated('Shift', shift.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
@@ -66,10 +67,10 @@ export async function PATCH({ params }) {
  * DELETE /api/shifts/:cuid
  * Soft‑deletes (deactivates) a shift.
  */
-export async function DELETE({ params }) {
+export async function DELETE({ params, locals }) {
   try {
     const cuid = parseCuid(params.cuid);
-    const shift = await shiftService.deleteShift(cuid);
+    const shift = await shiftService.deleteShift(cuid, locals?.user?.id);
     return sendDeleted('Shift', shift.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;

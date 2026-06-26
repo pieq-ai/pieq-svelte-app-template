@@ -3,7 +3,7 @@
   import { toast } from "svelte-sonner";
   import { goto } from "$app/navigation";
   import { globalIsDirty } from "$lib/stores/navigationGuard";
-  import { isDuplicateEntry } from "$lib/utils/employeeValidationHelper";
+  import { parseBackendErrors } from "$lib/utils/errors.js";
   import { onMount } from "svelte";
 
   let { mode, cuid, onNext, onPrev, onDirtyChange, onCancel } = $props<{
@@ -18,6 +18,7 @@
   let isSubmitting = $state(false);
   let isTouched = $state(false);
   let readingCount = $state(0);
+  let backendErrors = $state<Record<string, string>>({});
 
   interface DocumentItem {
     _id: string; // stable local identity, never sent to server
@@ -111,10 +112,9 @@
 
   let hasErrors = $derived(
     documents.some(
-      (d, i) =>
+      (d) =>
         validateRequired(d.document_type_cuid) ||
-        validateRequired(d.file_name) ||
-        isDuplicateEntry(documents, i, (x) => x.document_type_cuid),
+        validateRequired(d.file_name),
     ),
   );
 
@@ -161,6 +161,7 @@
 
   async function saveOnly(): Promise<{ success: boolean }> {
     isTouched = true;
+    backendErrors = {};
     if (hasErrors) {
       return { success: false };
     }
@@ -189,9 +190,13 @@
       });
       if (!res.ok) {
         const body = await res.json();
-        throw new Error(
-          body.data?.message || body.error || "Failed to save documents",
-        );
+        const parsed = parseBackendErrors(body);
+        if (parsed.field) {
+          backendErrors = { [parsed.field]: parsed.message };
+        } else {
+          toast.error(parsed.message || "Failed to save documents");
+        }
+        return { success: false };
       }
 
       // Clear document_base64 from in-memory state after save to free memory
@@ -363,11 +368,7 @@
                     variant="outline"
                     size="sm"
                     class="h-7 px-3 bg-green-50 text-green-700 hover:bg-green-100 border-green-200"
-                    disabled={isDuplicateEntry(
-                      documents,
-                      documents.indexOf(doc),
-                      (x) => x.document_type_cuid,
-                    ) || validateRequired(doc.document_type_cuid) !== ""}
+                    disabled={validateRequired(doc.document_type_cuid) !== ""}
                     onclick={() => {
                       doc.isReplacing = false;
                     }}
@@ -413,20 +414,12 @@
                 exclude={documents
                   .filter((d) => d._id !== doc._id && d.document_type_cuid)
                   .map((d) => d.document_type_cuid)}
-                class={isTouched &&
-                (validateRequired(doc.document_type_cuid) ||
-                  isDuplicateEntry(
-                    documents,
-                    documents.indexOf(doc),
-                    (x) => x.document_type_cuid,
-                  ))
+                class={isTouched && validateRequired(doc.document_type_cuid)
                   ? "border-destructive"
                   : ""}
               />
-              {#if isTouched && isDuplicateEntry(documents, documents.indexOf(doc), (x) => x.document_type_cuid)}
-                <p class="text-xs text-destructive mt-1">
-                  This entry already exists
-                </p>
+              {#if backendErrors.root}
+                <p class="text-xs text-destructive mt-1">{backendErrors.root}</p>
               {:else if isTouched && validateRequired(doc.document_type_cuid)}
                 <p class="text-xs text-destructive mt-1">
                   Document type is required
@@ -435,11 +428,13 @@
             </div>
             <div class="space-y-2">
               {#if mode !== "view"}
-                <Label
-                  >{doc.isReplacing
-                    ? "Choose New File *"
-                    : "File Upload *"}</Label
-                >
+                <Label>
+                  {#if doc.isReplacing}
+                    Choose New File <span class="text-destructive">*</span>
+                  {:else}
+                    File Upload <span class="text-destructive">*</span>
+                  {/if}
+                </Label>
                 <Input
                   type="file"
                   accept=".pdf,application/pdf"

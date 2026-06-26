@@ -9,7 +9,7 @@
   import { toast } from "svelte-sonner";
   import { goto } from "$app/navigation";
   import { globalIsDirty } from "$lib/stores/navigationGuard";
-  import { isDuplicateEntry } from "$lib/utils/employeeValidationHelper";
+  import { parseBackendErrors } from "$lib/utils/errors.js";
   import { onMount } from "svelte";
 
   let { mode, cuid, onNext, onPrev, onDirtyChange, onCancel } = $props<{
@@ -23,6 +23,7 @@
 
   let isSubmitting = $state(false);
   let isTouched = $state(false);
+  let backendErrors = $state<Record<string, string>>({});
 
   type SkillItem = {
     skill_cuid: string;
@@ -91,14 +92,15 @@
 
   let hasErrors = $derived(
     skills.some(
-      (s, i) =>
+      (s) =>
         validateRequired(s.skill_cuid) ||
-        isDuplicateEntry(skills, i, (x) => x.skill_cuid),
+        validateRequired(s.proficiency_level),
     ),
   );
 
   async function saveOnly(): Promise<{ success: boolean }> {
     isTouched = true;
+    backendErrors = {};
     if (hasErrors) {
       return { success: false };
     }
@@ -113,9 +115,13 @@
       });
       if (!res.ok) {
         const body = await res.json();
-        throw new Error(
-          body.data?.message || body.error || "Failed to save skills",
-        );
+        const parsed = parseBackendErrors(body);
+        if (parsed.field) {
+          backendErrors = { [parsed.field]: parsed.message };
+        } else {
+          toast.error(parsed.message || "Failed to save skills");
+        }
+        return { success: false };
       }
       originalData = JSON.stringify(normalizeSkills(skills));
       toast.success("Updated successfully");
@@ -176,22 +182,16 @@
             value={skill.skill_cuid}
             onSelect={(val) => (skill.skill_cuid = val as string)}
             disabled={mode === "view"}
-            class={isTouched &&
-            (validateRequired(skill.skill_cuid) ||
-              isDuplicateEntry(skills, index, (x) => x.skill_cuid))
-              ? "border-destructive"
-              : ""}
+            class={isTouched && validateRequired(skill.skill_cuid) ? "border-destructive" : ""}
           />
           {#if isTouched && validateRequired(skill.skill_cuid)}<p
               class="text-xs text-destructive mt-1"
             >
               {validateRequired(skill.skill_cuid)}
             </p>{/if}
-          {#if isTouched && isDuplicateEntry(skills, index, (x) => x.skill_cuid)}<p
-              class="text-xs text-destructive mt-1"
-            >
-              This entry already exists
-            </p>{/if}
+          {#if backendErrors.root}
+            <p class="text-xs text-destructive mt-1">{backendErrors.root}</p>
+          {/if}
         </div>
         <div class="flex-1 w-full">
           <SearchableDropdown
@@ -204,7 +204,11 @@
             ]}
             onSelect={(val) => (skill.proficiency_level = val as string)}
             disabled={mode === "view"}
+            class={isTouched && validateRequired(skill.proficiency_level) ? "border-destructive" : ""}
           />
+          {#if isTouched && validateRequired(skill.proficiency_level)}
+            <p class="text-xs text-destructive mt-1">Required</p>
+          {/if}
         </div>
         <div class="space-y-2 w-full sm:w-32">
           <Label>Years of Exp</Label>

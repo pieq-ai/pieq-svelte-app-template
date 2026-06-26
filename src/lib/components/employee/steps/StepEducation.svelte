@@ -9,7 +9,7 @@
   import { toast } from "svelte-sonner";
   import { goto } from "$app/navigation";
   import { globalIsDirty } from "$lib/stores/navigationGuard";
-  import { isDuplicateEntry, normalizeText, validateLettersSpaces } from "$lib/utils/employeeValidationHelper";
+  import { normalizeText, validateLettersSpaces } from "$lib/utils/employeeValidationHelper";
   import { SvelteDate } from "svelte/reactivity";
   import { parseBackendErrors } from "$lib/utils/errors.js";
   import { onMount } from "svelte";
@@ -25,6 +25,7 @@
 
   let isSubmitting = $state(false);
   let isTouched = $state(false);
+  let backendErrors = $state<Record<string, string>>({});
 
   type EduItem = {
     education_level: string;
@@ -108,15 +109,15 @@
     return val && val.trim().length > 0 ? "" : "Required";
   }
   function specializationError(val: string) {
-    // optional — validate format only when present
+    if (!val || !val.trim()) return "Required";
     return validateLettersSpaces(val, 'Specialization');
   }
   function institutionError(val: string) {
-    // optional — validate format only when present
+    if (!val || !val.trim()) return "Required";
     return validateLettersSpaces(val, 'Institution name');
   }
   function universityBoardError(val: string) {
-    // optional — validate format only when present
+    if (!val || !val.trim()) return "Required";
     return validateLettersSpaces(val, 'University/Board');
   }
   function validatePercentage(val: string | undefined | null) {
@@ -126,7 +127,7 @@
     return "";
   }
   function validatePastDate(date: string) {
-    if (!date) return ""; // optional
+    if (!date) return "Required";
     const dt = new SvelteDate(date);
     if (isNaN(dt.getTime())) return "Invalid date.";
     if (dt > new SvelteDate()) return "Cannot be a future date.";
@@ -135,19 +136,19 @@
 
   let hasErrors = $derived(
     educations.some(
-      (e, i) =>
+      (e) =>
         validateRequired(e.education_level) ||
         specializationError(e.specialization) ||
         institutionError(e.institution) ||
         universityBoardError(e.university_board) ||
         validatePercentage(e.percentage?.toString()) ||
-        validatePastDate(e.completed_at) ||
-        isDuplicateEntry(educations, i, (x) => x.education_level),
+        validatePastDate(e.completed_at),
     ),
   );
 
   async function saveOnly(): Promise<{ success: boolean }> {
     isTouched = true;
+    backendErrors = {};
     if (hasErrors) {
       return { success: false };
     }
@@ -163,7 +164,12 @@
       if (!res.ok) {
         const body = await res.json();
         const parsed = parseBackendErrors(body);
-        throw new Error(parsed.message || "Failed to save educations");
+        if (parsed.field) {
+          backendErrors = { [parsed.field]: parsed.message };
+        } else {
+          toast.error(parsed.message || "Failed to save educations");
+        }
+        return { success: false };
       }
       originalData = JSON.stringify(normalizeEducations(educations));
       toast.success("Updated successfully");
@@ -217,37 +223,34 @@
           </Button>
         </div>
       {/if}
+      {#if backendErrors.root}
+        <p class="text-sm text-destructive font-medium -mb-2 col-span-full">{backendErrors.root}</p>
+      {/if}
       <div
         class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"
       >
-        <SearchableDropdown
-          label="Education Level *"
-          value={edu.education_level}
-          options={[
-            { id: "10th", label: "10th Standard" },
-            { id: "12th", label: "12th Standard" },
-            { id: "diploma", label: "Diploma" },
-            { id: "bachelors", label: "Bachelors Degree" },
-            { id: "masters", label: "Masters Degree" },
-            { id: "doctorate", label: "Doctorate (Ph.D)" },
-          ]}
-          onSelect={(val) => (edu.education_level = val as string)}
-          disabled={mode === "view"}
-          class={isTouched &&
-          (validateRequired(edu.education_level) ||
-            isDuplicateEntry(educations, index, (x) => x.education_level))
-            ? "border-destructive"
-            : ""}
-        />
-        {#if isTouched && isDuplicateEntry(educations, index, (x) => x.education_level)}
-          <p class="text-xs text-destructive mt-1 -mb-2 col-span-full">
-            This entry already exists
-          </p>
-        {/if}
         <div class="space-y-2">
-          <Label
-            >Specialization/Major</Label
-          >
+          <SearchableDropdown
+            label="Education Level *"
+            value={edu.education_level}
+            options={[
+              { id: "10th", label: "10th Standard" },
+              { id: "12th", label: "12th Standard" },
+              { id: "diploma", label: "Diploma" },
+              { id: "bachelors", label: "Bachelors Degree" },
+              { id: "masters", label: "Masters Degree" },
+              { id: "doctorate", label: "Doctorate (Ph.D)" },
+            ]}
+            onSelect={(val) => (edu.education_level = val as string)}
+            disabled={mode === "view"}
+            class={isTouched && validateRequired(edu.education_level) ? "border-destructive" : ""}
+          />
+          {#if isTouched && validateRequired(edu.education_level)}
+            <p class="text-xs text-destructive">Required</p>
+          {/if}
+        </div>
+        <div class="space-y-2">
+          <Label>Specialization/Major <span class="text-destructive">*</span></Label>
           <Input
             bind:value={edu.specialization}
             placeholder="e.g. Computer Science"
@@ -263,9 +266,7 @@
             </p>{/if}
         </div>
         <div class="space-y-2 xl:col-span-2">
-          <Label
-            >Institution/School</Label
-          >
+          <Label>Institution/School <span class="text-destructive">*</span></Label>
           <Input
             bind:value={edu.institution}
             placeholder="Institution Name"
@@ -281,8 +282,7 @@
             </p>{/if}
         </div>
         <div class="space-y-2 xl:col-span-2">
-          <Label>University/Board</Label
-          >
+          <Label>University/Board <span class="text-destructive">*</span></Label>
           <Input
             bind:value={edu.university_board}
             placeholder="University/Board Name"
@@ -315,7 +315,7 @@
             </p>{/if}
         </div>
         <div class="space-y-2">
-          <Label>Completion Date</Label>
+          <Label>Completion Date <span class="text-destructive">*</span></Label>
           <DatePicker
             bind:value={edu.completed_at}
             class={isTouched && validatePastDate(edu.completed_at)

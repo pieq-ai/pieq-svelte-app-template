@@ -17,7 +17,7 @@ describe('Shift Timing Duplicate Prevention Integration Tests', () => {
     // 1. Cleanup existing test data if any
     await db.shift.deleteMany({
       where: {
-        shift_name: {
+        name: {
           in: [
             activeShiftName1,
             activeShiftName2,
@@ -27,7 +27,7 @@ describe('Shift Timing Duplicate Prevention Integration Tests', () => {
         }
       }
     });
-  });
+  }, 30000);
 
   afterAll(async () => {
     // 2. Clean up test records
@@ -42,14 +42,14 @@ describe('Shift Timing Duplicate Prevention Integration Tests', () => {
 
   it('1. Should allow creating a unique active shift', async () => {
     const shift = await shiftService.createShift({
-      shift_name: activeShiftName1,
+      name: activeShiftName1,
       start_time: '1970-01-01T06:30:00.000Z',
       end_time: '1970-01-01T15:30:00.000Z',
       minimum_work_hours: 9
     });
 
     expect(shift).toBeDefined();
-    expect(shift.shift_name).toBe(activeShiftName1);
+    expect(shift.name).toBe(activeShiftName1);
     expect(shift.status).toBe(true);
     cuid1 = shift.cuid;
   });
@@ -57,7 +57,7 @@ describe('Shift Timing Duplicate Prevention Integration Tests', () => {
   it('2. Should reject creating a duplicate timing active shift (409)', async () => {
     await expect(
       shiftService.createShift({
-        shift_name: activeShiftName2,
+        name: activeShiftName2,
         start_time: '1970-01-01T06:30:00.000Z',
         end_time: '1970-01-01T15:30:00.000Z',
         minimum_work_hours: 9
@@ -76,7 +76,7 @@ describe('Shift Timing Duplicate Prevention Integration Tests', () => {
   it('4. Should allow duplicate timing range on inactive shifts', async () => {
     // Create first shift with a unique active timing range initially
     const shift3 = await shiftService.createShift({
-      shift_name: inactiveShiftName1,
+      name: inactiveShiftName1,
       start_time: '1970-01-01T12:00:00.000Z',
       end_time: '1970-01-01T21:00:00.000Z',
       minimum_work_hours: 9
@@ -97,7 +97,7 @@ describe('Shift Timing Duplicate Prevention Integration Tests', () => {
 
     // Create second shift with unique active timing range initially
     const shift4 = await shiftService.createShift({
-      shift_name: inactiveShiftName2,
+      name: inactiveShiftName2,
       start_time: '1970-01-01T12:00:00.000Z',
       end_time: '1970-01-01T21:00:00.000Z',
       minimum_work_hours: 9

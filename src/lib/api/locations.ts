@@ -26,7 +26,7 @@ export interface State {
 }
 
 export interface LocationCreatePayload {
-  location_name: string;
+  name: string;
   address_line1: string;
   address_line2?: string | null;
   city: string;
@@ -34,10 +34,12 @@ export interface LocationCreatePayload {
   country_cuid: string;
   pin_code: string;
   timezone: string;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface LocationUpdatePayload extends Partial<LocationCreatePayload> {
-  is_active?: boolean;
+  status?: boolean;
 }
 
 /** Fetch all locations (active + inactive). */

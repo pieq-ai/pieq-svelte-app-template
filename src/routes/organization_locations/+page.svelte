@@ -22,7 +22,7 @@
   import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
   import CheckIcon from "@lucide/svelte/icons/check";
   import { toast } from "$lib/toast";
-  import { confirmation } from "$lib/confirmation.svelte.js";
+  import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
   import { createDirtyChecker } from "$lib/utils";
   import { UI_CONSTANTS } from "$lib/constants";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
@@ -49,95 +49,34 @@
     SearchInput
   } from "$lib/components";
 
-  let locations = $state<CompanyLocation[]>([]);
+  import type { PageData } from "./$types";
+
+  let { data }: { data: PageData } = $props();
+
+  let confirmModalOpen = $state(false);
+  let confirmModalTitle = $state('');
+  let confirmModalDescription = $state('');
+  let confirmModalConfirmLabel = $state('Confirm');
+  let confirmModalCancelLabel = $state('Cancel');
+  let confirmModalIsSubmitting = $state(false);
+  let confirmModalOnConfirm = $state<() => void | Promise<void>>(() => {});
+  let confirmModalOnCancel = $state<() => void>(() => {});
+
+  let locations = $derived<CompanyLocation[]>(data.locations);
   let page = $state(1);
   let limit = $state(10);
   let loading = $state(false);
   let searchQuery = $state("");
+  let editLocation = $state<CompanyLocation | null>(null);
 
   // Modal state
   let showForm = $state(false);
 
-  let editLocation = $state<CompanyLocation | null>(null);
-  let formName = $state("");
-  let formAddress1 = $state("");
-  let formAddress2 = $state("");
-  let formCity = $state("");
-  let formStateCuid = $state("");
-  let formCountryCuid = $state("");
-  let formPinCode = $state("");
-  let formTimezone = $state("");
-  let formStatus = $state(true);
-  let formError = $state("");
-  let nameError = $state("");
-  let address1Error = $state("");
-  let address2Error = $state("");
-  let cityError = $state("");
-  let countryError = $state("");
-  let stateError = $state("");
-  let pinCodeError = $state("");
-  let timezoneError = $state("");
-  let formLoading = $state(false);
-
-  const dirtyChecker = createDirtyChecker<{
-    name: string;
-    address_line1: string;
-    address_line2: string;
-    city: string;
-    state_cuid: string;
-    country_cuid: string;
-    pin_code: string;
-    timezone: string;
-    status: boolean;
-  }>();
-
-  let isDirty = $derived(
-    showForm &&
-    dirtyChecker.isDirty({
-      name: formName.trim(),
-      address_line1: formAddress1.trim(),
-      address_line2: formAddress2.trim(),
-      city: formCity.trim(),
-      state_cuid: formStateCuid,
-      country_cuid: formCountryCuid,
-      pin_code: formPinCode.trim(),
-      timezone: formTimezone.trim(),
-      status: formStatus
-    })
-  );
-
-  // Create enablement: enabled once required fields contain any value
-  let isCreateEnabled = $derived(
-    formName.trim() !== "" &&
-      formAddress1.trim() !== "" &&
-      formCity.trim() !== "" &&
-      formCountryCuid !== "" &&
-      formStateCuid !== "" &&
-      formPinCode.trim() !== "" &&
-      formTimezone.trim() !== ""
-  );
-
   // Dropdown choices
-  let countries = $state<any[]>([]);
-  let states = $state<any[]>([]);
+  let countries = $derived(data.countries);
+  let states = $derived(data.states);
 
-  let filteredStates = $derived(
-    states.filter((s) => s.country_cuid === formCountryCuid)
-  );
 
-  async function fetchDropdowns() {
-    try {
-      countries = await fetchCountries();
-      states = await fetchStates();
-    } catch (e) {
-      console.error("Failed to fetch dropdown choices", e);
-      toast.error(
-        e instanceof ApiError
-          ? e.message
-          : "Failed to load countries or states"
-      );
-    }
-  }
 
   function getCountryName(countryCuid: string): string {
     const country = countries.find((c) => c.cuid === countryCuid);
@@ -313,401 +252,67 @@
 
   function openCreate() {
     editLocation = null;
-    formName = "";
-    formAddress1 = "";
-    formAddress2 = "";
-    formCity = "";
-    formCountryCuid = "";
-    formStateCuid = "";
-    formPinCode = "";
-    formTimezone = "UTC";
-    formStatus = true;
-    formError = "";
-    nameError = "";
-    address1Error = "";
-    cityError = "";
-    countryError = "";
-    stateError = "";
-    pinCodeError = "";
-    timezoneError = "";
-    address2Error = "";
-    dirtyChecker.snapshot({
-      name: "",
-      address_line1: "",
-      address_line2: "",
-      city: "",
-      state_cuid: "",
-      country_cuid: "",
-      pin_code: "",
-      timezone: "UTC",
-      status: true
-    });
     showForm = true;
   }
 
   function openEdit(loc: CompanyLocation) {
     editLocation = loc;
-    formName = loc.name;
-    formAddress1 = loc.address_line1 ?? "";
-    formAddress2 = loc.address_line2 ?? "";
-    formCity = loc.city ?? "";
-    formCountryCuid = loc.country_cuid ?? "";
-    formStateCuid = loc.state_cuid ?? "";
-    formPinCode = loc.pin_code ?? "";
-    formTimezone = loc.timezone ?? "UTC";
-    formStatus = loc.status;
-    formError = "";
-    nameError = "";
-    address1Error = "";
-    cityError = "";
-    countryError = "";
-    stateError = "";
-    pinCodeError = "";
-    timezoneError = "";
-    address2Error = "";
-    dirtyChecker.snapshot({
-      name: loc.name,
-      address_line1: loc.address_line1 ?? "",
-      address_line2: loc.address_line2 ?? "",
-      city: loc.city ?? "",
-      state_cuid: loc.state_cuid ?? "",
-      country_cuid: loc.country_cuid ?? "",
-      pin_code: loc.pin_code ?? "",
-      timezone: loc.timezone ?? "UTC",
-      status: loc.status
-    });
     showForm = true;
   }
 
   function closeForm() {
     showForm = false;
-    formName = "";
-    formAddress1 = "";
-    formAddress2 = "";
-    formCity = "";
-    formCountryCuid = "";
-    formStateCuid = "";
-    formPinCode = "";
-    formTimezone = "";
-    formError = "";
-    nameError = "";
-    address1Error = "";
-    cityError = "";
-    countryError = "";
-    stateError = "";
-    pinCodeError = "";
-    timezoneError = "";
-    address2Error = "";
     editLocation = null;
   }
 
-  function attemptCloseForm() {
-    closeForm();
-  }
-
-  async function submitForm(e: Event) {
-    e.preventDefault();
-    formError = "";
-    nameError = "";
-    address1Error = "";
-    address2Error = "";
-    cityError = "";
-    countryError = "";
-    stateError = "";
-    pinCodeError = "";
-    timezoneError = "";
-
-    const nameTrimmed = formName.trim();
-    if (!nameTrimmed) {
-      nameError = "Company Location name is required.";
-      return;
-    }
-    if (nameTrimmed.length < 2) {
-      nameError = "Company Location name must be at least 2 characters.";
-      return;
-    }
-    if (nameTrimmed.length > 150) {
-      nameError =
-        "Company Location name cannot exceed 150 characters.";
-      return;
-    }
-
-    const address1Trimmed = formAddress1.trim();
-    const cityTrimmed = formCity.trim();
-    const pinTrimmed = formPinCode.trim();
-    const tzTrimmed = formTimezone.trim();
-
-    if (!address1Trimmed) {
-      address1Error = "Address Line 1 is required.";
-      return;
-    }
-    if (address1Trimmed.length > 255) {
-      address1Error = "Address Line 1 cannot exceed 255 characters.";
-      return;
-    }
-
-    const address2Trimmed = formAddress2 ? formAddress2.trim() : "";
-    if (address2Trimmed.length > 255) {
-      address2Error = "Address Line 2 cannot exceed 255 characters.";
-      return;
-    }
-
-    if (!cityTrimmed) {
-      cityError = "City is required.";
-      return;
-    }
-    if (cityTrimmed.length < 2) {
-      cityError = "City must be at least 2 characters.";
-      return;
-    }
-    if (cityTrimmed.length > 100) {
-      cityError = "City cannot exceed 100 characters.";
-      return;
-    }
-    if (!/^[a-zA-Z\s.-]+$/.test(cityTrimmed)) {
-      cityError = "City can contain only letters, spaces, hyphens, and periods.";
-      return;
-    }
-
-    if (!formCountryCuid) {
-      countryError = "Country is required.";
-      return;
-    }
-    if (!formStateCuid) {
-      stateError = "State is required.";
-      return;
-    }
-    if (!pinTrimmed) {
-      pinCodeError = "Pin Code is required.";
-      return;
-    }
-    if (!/^\d+$/.test(pinTrimmed)) {
-      pinCodeError = "Pin Code must contain numeric values only.";
-      return;
-    }
-    if (pinTrimmed.length > 10) {
-      pinCodeError = "Pin Code cannot exceed 10 characters.";
-      return;
-    }
-    if (!tzTrimmed) {
-      timezoneError = "Timezone is required.";
-      return;
-    }
-
-    const lower = nameTrimmed.toLowerCase();
-    if (
-      lower.includes("<script") ||
-      lower.includes("script>") ||
-      lower.includes("drop table") ||
-      lower.includes("select ") ||
-      lower.includes("--") ||
-      lower.includes("/*")
-    ) {
-      nameError = "Company Location name contains potential security threat.";
-      return;
-    }
-
-    if (/^\d+$/.test(nameTrimmed)) {
-      nameError = "Company Location name cannot contain only numbers.";
-      return;
-    }
-
-    if (!/[A-Za-z]/.test(nameTrimmed)) {
-      nameError = "Company Location name must contain at least one alphabet.";
-      return;
-    }
-
-    if (/[A-Za-z]\d|\d[A-Za-z]/.test(nameTrimmed)) {
-      nameError = "Company Location name cannot contain numbers.";
-      return;
-    }
-
-    formLoading = true;
-    formError = "";
-    try {
-      const payload: any = {
-        name: nameTrimmed,
-        address_line1: address1Trimmed,
-        address_line2: formAddress2 ? formAddress2.trim() : null,
-        city: cityTrimmed,
-        state_cuid: formStateCuid,
-        country_cuid: formCountryCuid,
-        pin_code: pinTrimmed,
-        timezone: tzTrimmed,
-      };
-      if (editLocation) {
-        payload.status = formStatus;
-        await updateLocation(editLocation.cuid, payload);
-      } else {
-        await createLocation(payload);
-      }
-      const isEdit = !!editLocation;
-      closeForm();
-      await fetchLocations();
-      toast.success(
-        isEdit
-          ? "Company Location updated successfully"
-          : "Company Location created successfully"
-      );
-    } catch (e) {
-      formError = e instanceof ApiError ? e.message : "Something went wrong.";
-      toast.error(formError);
-    } finally {
-      formLoading = false;
-    }
-  }
-
   async function deactivateLocation(cuid: string) {
-    confirmation.ask({
-      title: "Deactivate Location",
-      message:
-        "Deactivate this location? It will remain visible but marked as inactive.",
-      confirmText: "Deactivate",
-      cancelText: "Cancel",
-      isDestructive: true,
-      onConfirm: async () => {
-        try {
-          await deleteLocation(cuid);
-          await fetchLocations();
-          toast.success("Company Location deactivated successfully");
-        } catch (e) {
-          toast.error(
-            e instanceof ApiError ? e.message : "Failed to deactivate location"
-          );
-        }
-      },
-    });
+    const loc = locations.find((l) => l.cuid === cuid);
+    const name = loc ? loc.name : '';
+    confirmModalTitle = "Deactivate Location";
+    confirmModalDescription = `Are you sure you want to deactivate ${name}?`;
+    confirmModalConfirmLabel = "Deactivate";
+    confirmModalCancelLabel = "Cancel";
+    confirmModalOnConfirm = async () => {
+      try {
+        await deleteLocation(cuid);
+        await fetchLocations();
+        toast.success("Company Location deactivated successfully");
+      } catch (e) {
+        toast.error(
+          e instanceof ApiError ? e.message : "Failed to deactivate location"
+        );
+      }
+    };
+    confirmModalOnCancel = () => {};
+    confirmModalOpen = true;
   }
 
   async function activateLocation(cuid: string) {
-    confirmation.ask({
-      title: "Activate Location",
-      message: "Activate this location? It will be marked as active.",
-      confirmText: "Activate",
-      cancelText: "Cancel",
-      isDestructive: false,
-      onConfirm: async () => {
-        try {
-          await activateLocationApi(cuid);
-          await fetchLocations();
-          toast.success("Company Location activated successfully");
-        } catch (e) {
-          toast.error(
-            e instanceof ApiError ? e.message : "Failed to activate location"
-          );
-        }
-      },
-    });
+    const loc = locations.find((l) => l.cuid === cuid);
+    const name = loc ? loc.name : '';
+    confirmModalTitle = "Activate Location";
+    confirmModalDescription = `Are you sure you want to activate ${name}?`;
+    confirmModalConfirmLabel = "Activate";
+    confirmModalCancelLabel = "Cancel";
+    confirmModalOnConfirm = async () => {
+      try {
+        await activateLocationApi(cuid);
+        await fetchLocations();
+        toast.success("Company Location activated successfully");
+      } catch (e) {
+        toast.error(
+          e instanceof ApiError ? e.message : "Failed to activate location"
+        );
+      }
+    };
+    confirmModalOnCancel = () => {};
+    confirmModalOpen = true;
   }
 
-  // Add Country / State Modal states
-  let showAddCountry = $state(false);
-  let showAddState = $state(false);
-  let newCountryName = $state("");
-  let newStateName = $state("");
-  let addCountryError = $state("");
-  let addStateError = $state("");
-  let addCountryLoading = $state(false);
-  let addStateLoading = $state(false);
 
-  function openAddCountryModal() {
-    newCountryName = "";
-    addCountryError = "";
-    showAddCountry = true;
-  }
-
-  function openAddStateModal() {
-    if (!formCountryCuid) {
-      toast.error("Please select a country first");
-      return;
-    }
-    newStateName = "";
-    addStateError = "";
-    showAddState = true;
-  }
-
-  async function handleAddCountrySubmit(e: Event) {
-    e.preventDefault();
-    const nameTrimmed = newCountryName.trim();
-    if (!nameTrimmed) {
-      addCountryError = "Country name is required.";
-      return;
-    }
-    if (nameTrimmed.length < 2) {
-      addCountryError = "Country name must be at least 2 characters.";
-      return;
-    }
-    if (!/^[A-Za-z\s]+$/.test(nameTrimmed)) {
-      addCountryError = "Country name can contain only letters and spaces.";
-      return;
-    }
-    if (nameTrimmed.length > 255) {
-      addCountryError = "Country name exceeds maximum length of 255 characters.";
-      return;
-    }
-
-    addCountryLoading = true;
-    addCountryError = "";
-    try {
-      const result = await createCountry(nameTrimmed);
-      await fetchDropdowns();
-      formCountryCuid = result.cuid;
-      formStateCuid = "";
-      showAddCountry = false;
-      newCountryName = "";
-      toast.success("Country created successfully");
-    } catch (e) {
-      addCountryError = e instanceof ApiError ? e.message : "Failed to create country.";
-      toast.error(addCountryError);
-    } finally {
-      addCountryLoading = false;
-    }
-  }
-
-  async function handleAddStateSubmit(e: Event) {
-    e.preventDefault();
-    const nameTrimmed = newStateName.trim();
-    if (!nameTrimmed) {
-      addStateError = "State name is required.";
-      return;
-    }
-    if (nameTrimmed.length < 2) {
-      addStateError = "State name must be at least 2 characters.";
-      return;
-    }
-    if (!/^[A-Za-z\s]+$/.test(nameTrimmed)) {
-      addStateError = "State name can contain only letters and spaces.";
-      return;
-    }
-    if (nameTrimmed.length > 255) {
-      addStateError = "State name exceeds maximum length of 255 characters.";
-      return;
-    }
-    if (!formCountryCuid) {
-      addStateError = "Please select a country first.";
-      return;
-    }
-
-    addStateLoading = true;
-    addStateError = "";
-    try {
-      const result = await createState(nameTrimmed, formCountryCuid);
-      await fetchDropdowns();
-      formStateCuid = result.cuid;
-      showAddState = false;
-      newStateName = "";
-      toast.success("State created successfully");
-    } catch (e) {
-      addStateError = e instanceof ApiError ? e.message : "Failed to create state.";
-      toast.error(addStateError);
-    } finally {
-      addStateLoading = false;
-    }
-  }
 
   onMount(async () => {
-    await fetchLocations();
-    await fetchDropdowns();
+    // Initial load provided via SSR (+page.server.ts)
   });
 </script>
 
@@ -893,6 +498,7 @@
                 {/if}
               </Button>
             </TableHead>
+            <TableHead class="font-bold text-foreground text-[15px]">Coordinates</TableHead>
             <TableHead class="text-center font-bold text-foreground text-[15px] whitespace-nowrap">
               <Button variant="ghost" size="sm" class="h-8 font-bold text-foreground text-[15px]" onclick={() => toggleSort('status')}>
                 Status
@@ -911,14 +517,14 @@
         <TableBody>
           {#if loading}
             <TableRow>
-              <TableCell colspan={9} class="py-8 text-center text-muted-foreground">
+              <TableCell colspan={10} class="py-8 text-center text-muted-foreground">
                 <LoaderCircleIcon class="mx-auto mb-2 size-6 animate-spin" />
                 Loading locations...
               </TableCell>
             </TableRow>
           {:else if filteredLocations.length === 0}
             <TableRow>
-              <TableCell colspan={9} class="py-8 text-center text-muted-foreground">
+              <TableCell colspan={10} class="py-8 text-center text-muted-foreground">
                 {UI_CONSTANTS.EMPTY_STATE_MESSAGE}
               </TableCell>
             </TableRow>
@@ -942,6 +548,13 @@
                 <TableCell>{getCountryName(loc.country_cuid)}</TableCell>
                 <TableCell>{loc.pin_code}</TableCell>
                 <TableCell>{loc.timezone}</TableCell>
+                <TableCell class="text-[14px]">
+                  {#if loc.latitude !== null && loc.longitude !== null}
+                    {Number(loc.latitude).toFixed(4)}, {Number(loc.longitude).toFixed(4)}
+                  {:else}
+                    -
+                  {/if}
+                </TableCell>
                 <TableCell class="text-center">
                   <Badge variant={loc.status === true ? 'default' : 'secondary'}>{loc.status ? 'Active' : 'Inactive'}</Badge>
                 </TableCell>
@@ -961,280 +574,28 @@
   </div>
 </div>
 
-<CrudModal
-  open={showForm}
-  title={editLocation ? 'Edit Location' : 'Create Location'}
-  isSubmitting={formLoading}
-  onClose={attemptCloseForm}
->
-  {#snippet children({ cancel })}
-    <form class="space-y-4" onsubmit={submitForm}>
-      <div class="space-y-2">
-        <Label for="name">Location Name <span class="text-destructive">*</span></Label>
-        <Input
-          id="name"
-          name="name"
-          bind:value={formName}
-          class={formError || nameError ? 'border-destructive' : ''}
-          placeholder="e.g. Chennai - HQ"
-          oninput={() => { formError = ''; nameError = ''; }}
-        />
-        {#if nameError || formError}
-          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameError || formError}</p>
-        {/if}
-      </div>
 
-      <div class="space-y-2">
-        <Label for="location_address1">Address Line 1 <span class="text-destructive">*</span></Label>
-        <Input
-          id="location_address1"
-          name="location_address1"
-          bind:value={formAddress1}
-          class={address1Error ? 'border-destructive' : ''}
-          placeholder="e.g. 123 Enterprise Way"
-          oninput={() => { address1Error = ''; }}
-        />
-        {#if address1Error}
-          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{address1Error}</p>
-        {/if}
-      </div>
-
-      <div class="space-y-2">
-        <Label for="location_address2">Address Line 2 (Optional)</Label>
-        <Input
-          id="location_address2"
-          name="location_address2"
-          bind:value={formAddress2}
-          class={address2Error ? 'border-destructive' : ''}
-          placeholder="e.g. Suite 400"
-          oninput={() => { address2Error = ''; }}
-        />
-        {#if address2Error}
-          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{address2Error}</p>
-        {/if}
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div class="space-y-2">
-          <Label for="location_city">City <span class="text-destructive">*</span></Label>
-          <Input
-            id="location_city"
-            name="location_city"
-            bind:value={formCity}
-            class={cityError ? 'border-destructive' : ''}
-            placeholder="e.g. Chennai"
-            oninput={() => { cityError = ''; }}
-          />
-          {#if cityError}
-            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{cityError}</p>
-          {/if}
-        </div>
-        <div class="space-y-2">
-          <Label for="location_pincode">Pin Code <span class="text-destructive">*</span></Label>
-          <Input
-            id="location_pincode"
-            name="location_pincode"
-            bind:value={formPinCode}
-            class={pinCodeError ? 'border-destructive' : ''}
-            placeholder="e.g. 600001"
-            oninput={() => { pinCodeError = ''; }}
-          />
-          {#if pinCodeError}
-            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{pinCodeError}</p>
-          {/if}
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div class="space-y-2 flex flex-col justify-end">
-          <Label for="location_country" class="mb-2">Country <span class="text-destructive">*</span></Label>
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger>
-              {#snippet child({ props })}
-                <Button
-                  id="location_country"
-                  variant="outline"
-                  class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none {countryError ? 'border-destructive' : ''}"
-                  {...props}
-                >
-                  <span class="truncate">{countries.find((c) => c.cuid === formCountryCuid)?.name || "Select Country"}</span>
-                  <ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
-                </Button>
-              {/snippet}
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content class="max-h-56 overflow-y-auto w-[200px]">
-              <DropdownMenu.Group>
-                <DropdownMenu.Item
-                  onclick={() => { formCountryCuid = ''; formStateCuid = ''; countryError = ''; }}
-                  class="cursor-pointer justify-between {!formCountryCuid ? 'bg-accent font-semibold' : ''}"
-                >
-                  Select Country
-                </DropdownMenu.Item>
-                {#each countries as country}
-                  <DropdownMenu.Item
-                    onclick={() => { formCountryCuid = country.cuid; formStateCuid = ''; countryError = ''; }}
-                    class="cursor-pointer justify-between {formCountryCuid === country.cuid ? 'bg-accent font-semibold' : ''}"
-                  >
-                    {country.name}
-                    {#if formCountryCuid === country.cuid}<CheckIcon class="size-4" />{/if}
-                  </DropdownMenu.Item>
-                {/each}
-              </DropdownMenu.Group>
-              <DropdownMenu.Separator />
-              <DropdownMenu.Item
-                onclick={openAddCountryModal}
-                class="cursor-pointer font-medium text-[#F45310] hover:text-[#F45310]/90 focus:text-[#F45310]"
-              >
-                Add Country
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
-          {#if countryError}
-            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{countryError}</p>
-          {/if}
-        </div>
-        <div class="space-y-2 flex flex-col justify-end">
-          <Label for="location_state" class="mb-2">State <span class="text-destructive">*</span></Label>
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger>
-              {#snippet child({ props })}
-                <Button
-                  id="location_state"
-                  variant="outline"
-                  disabled={!formCountryCuid}
-                  class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 transition-[color,box-shadow] outline-none disabled:opacity-50 disabled:cursor-not-allowed {stateError ? 'border-destructive' : ''}"
-                  {...props}
-                >
-                  <span class="truncate">{filteredStates.find((s) => s.cuid === formStateCuid)?.name || "Select State"}</span>
-                  <ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
-                </Button>
-              {/snippet}
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content class="max-h-56 overflow-y-auto w-[200px]">
-              <DropdownMenu.Group>
-                <DropdownMenu.Item
-                  onclick={() => { formStateCuid = ''; stateError = ''; }}
-                  class="cursor-pointer justify-between {!formStateCuid ? 'bg-accent font-semibold' : ''}"
-                >
-                  Select State
-                </DropdownMenu.Item>
-                {#each filteredStates as state}
-                  <DropdownMenu.Item
-                    onclick={() => { formStateCuid = state.cuid; stateError = ''; }}
-                    class="cursor-pointer justify-between {formStateCuid === state.cuid ? 'bg-accent font-semibold' : ''}"
-                  >
-                    {state.name}
-                    {#if formStateCuid === state.cuid}<CheckIcon class="size-4" />{/if}
-                  </DropdownMenu.Item>
-                {/each}
-              </DropdownMenu.Group>
-              <DropdownMenu.Separator />
-              <DropdownMenu.Item
-                onclick={openAddStateModal}
-                disabled={!formCountryCuid}
-                class="cursor-pointer font-medium text-[#F45310] hover:text-[#F45310]/90 focus:text-[#F45310] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Add State
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
-          {#if stateError}
-            <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{stateError}</p>
-          {/if}
-        </div>
-      </div>
-
-      <div class="space-y-2">
-        <Label for="location_timezone">Timezone <span class="text-destructive">*</span></Label>
-        <Input
-          id="location_timezone"
-          name="location_timezone"
-          bind:value={formTimezone}
-          class={timezoneError ? 'border-destructive' : ''}
-          placeholder="e.g. Asia/Kolkata or UTC"
-          oninput={() => { timezoneError = ''; }}
-        />
-        {#if timezoneError}
-          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{timezoneError}</p>
-        {/if}
-      </div>
-
-      {#if editLocation}
-        <StatusDropdown id="location_status" name="location_status" value={formStatus} onChange={(val) => (formStatus = val)} />
-      {/if}
-
-      <div class="flex items-center justify-end gap-3 pt-4">
-        <Button type="button" variant="outline" onclick={cancel} disabled={formLoading}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={formLoading || (!!editLocation && !isDirty) || (!editLocation && !isCreateEnabled)}>
-          {formLoading ? UI_CONSTANTS.BUTTON_SAVING : (editLocation ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
-        </Button>
-      </div>
-    </form>
-  {/snippet}
-</CrudModal>
-
-<CrudModal
-  open={showAddCountry}
-  title="Add Country"
-  isSubmitting={addCountryLoading}
-  onClose={() => { showAddCountry = false; newCountryName = ""; addCountryError = ""; }}
->
-  {#snippet children({ cancel })}
-    <form class="space-y-4" onsubmit={handleAddCountrySubmit}>
-      <div class="space-y-2">
-        <Label for="new_country_name">Country Name <span class="text-destructive">*</span></Label>
-        <Input
-          id="new_country_name"
-          name="new_country_name"
-          bind:value={newCountryName}
-          class={addCountryError ? 'border-destructive' : ''}
-          placeholder="Enter country name"
-          oninput={() => { addCountryError = ''; }}
-        />
-        {#if addCountryError}
-          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{addCountryError}</p>
-        {/if}
-      </div>
-      <div class="flex items-center justify-end gap-3 pt-4">
-        <Button type="button" variant="outline" onclick={cancel} disabled={addCountryLoading}>Cancel</Button>
-        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={addCountryLoading || !newCountryName.trim()}>
-          {addCountryLoading ? 'Saving...' : 'Save'}
-        </Button>
-      </div>
-    </form>
-  {/snippet}
-</CrudModal>
-
-<CrudModal
-  open={showAddState}
-  title="Add State"
-  isSubmitting={addStateLoading}
-  onClose={() => { showAddState = false; newStateName = ""; addStateError = ""; }}
->
-  {#snippet children({ cancel })}
-    <form class="space-y-4" onsubmit={handleAddStateSubmit}>
-      <div class="space-y-2">
-        <Label for="new_state_name">State Name <span class="text-destructive">*</span></Label>
-        <Input
-          id="new_state_name"
-          name="new_state_name"
-          bind:value={newStateName}
-          class={addStateError ? 'border-destructive' : ''}
-          placeholder="Enter state name"
-          oninput={() => { addStateError = ''; }}
-        />
-        {#if addStateError}
-          <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{addStateError}</p>
-        {/if}
-      </div>
-      <div class="flex items-center justify-end gap-3 pt-4">
-        <Button type="button" variant="outline" onclick={cancel} disabled={addStateLoading}>Cancel</Button>
-        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={addStateLoading || !newStateName.trim()}>
-          {addStateLoading ? 'Saving...' : 'Save'}
-        </Button>
-      </div>
-    </form>
-  {/snippet}
-</CrudModal>
 
 <LocationModal bind:open={showForm} {editLocation} onSuccess={fetchLocations} />
+
+<ConfirmModal
+  open={confirmModalOpen}
+  title={confirmModalTitle}
+  description={confirmModalDescription}
+  confirmLabel={confirmModalConfirmLabel}
+  cancelLabel={confirmModalCancelLabel}
+  isSubmitting={confirmModalIsSubmitting}
+  onConfirm={async () => {
+    confirmModalIsSubmitting = true;
+    try {
+      await confirmModalOnConfirm();
+    } finally {
+      confirmModalIsSubmitting = false;
+      confirmModalOpen = false;
+    }
+  }}
+  onCancel={() => {
+    confirmModalOnCancel();
+    confirmModalOpen = false;
+  }}
+/>

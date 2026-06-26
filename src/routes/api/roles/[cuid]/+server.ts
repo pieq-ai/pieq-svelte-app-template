@@ -24,13 +24,14 @@ function parseCuid(param: string | undefined): string {
  * PUT /api/roles/:cuid
  * Updates an existing role (partial update allowed).
  */
-export async function PUT({ request, params }) {
+export async function PUT({ request, params, locals }) {
   try {
     const cuid = parseCuid(params.cuid);
     if (request.headers.get('content-type')?.includes('application/json') === false) {
       return json({ error: 'Content-Type must be application/json' }, { status: 415 });
     }
     const payload = await request.json();
+    payload.updated_by = locals?.user?.id;
     const role = await roleService.updateRole(cuid, payload);
     return sendUpdated('Role', role.cuid);
   } catch (err: any) {
@@ -43,10 +44,10 @@ export async function PUT({ request, params }) {
  * DELETE /api/roles/:cuid
  * Soft‑deletes (deactivates) a role.
  */
-export async function DELETE({ params }) {
+export async function DELETE({ params, locals }) {
   try {
     const cuid = parseCuid(params.cuid);
-    const result = await roleService.deleteRole(cuid);
+    const result = await roleService.deleteRole(cuid, locals?.user?.id);
     return sendDeleted('Role', result.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;

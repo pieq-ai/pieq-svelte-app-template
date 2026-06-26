@@ -31,9 +31,9 @@
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
-		SearchInput,
-		ConfirmModal
+		SearchInput
 	} from '$lib/components';
+	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 	import type { Shift } from '$lib/types/shift';
 	import {
 		fetchAllShifts,
@@ -43,26 +43,44 @@
 		activateShift as activateShiftApi
 	} from '$lib/api/shifts';
 	import { ApiError } from '$lib/api/local';
-	import { confirmation } from '$lib/confirmation.svelte.js';
 
-	let showConfirmClose = $state(false);
+	let confirmModalOpen = $state(false);
+	let confirmModalTitle = $state('');
+	let confirmModalDescription = $state('');
+	let confirmModalConfirmLabel = $state('Confirm');
+	let confirmModalCancelLabel = $state('Cancel');
+	let confirmModalIsSubmitting = $state(false);
+	let confirmModalOnConfirm = $state<() => void | Promise<void>>(() => {});
+	let confirmModalOnCancel = $state<() => void>(() => {});
 
 	function handleClose() {
 		if (isDirty) {
-			showConfirmClose = true;
+			confirmModalTitle = 'Cancel Changes';
+			confirmModalDescription = 'Are you sure you want to cancel? All unsaved changes will be lost.';
+			confirmModalConfirmLabel = 'Cancel';
+			confirmModalCancelLabel = 'Keep Editing';
+			confirmModalOnConfirm = () => {
+				isModalOpen = false;
+				$globalIsDirty = false;
+			};
+			confirmModalOnCancel = () => {};
+			confirmModalOpen = true;
 		} else {
 			isModalOpen = false;
 			$globalIsDirty = false;
 		}
 	}
+	import type { PageData } from './$types';
 
-	let shiftsList = $state<Shift[]>([]);
-	let isLoading = $state(true);
+	let { data }: { data: PageData } = $props();
+
+	let shiftsList = $derived<Shift[]>(data.shifts);
+	let isLoading = $state(false);
 	let loadError = $state('');
 
 	let searchQuery = $state('');
 	let statusFilter = $state<'all' | boolean>('all');
-	let sortColumn = $state('shift_name');
+	let sortColumn = $state('name');
 	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	let currentPage = $state(1);
@@ -80,13 +98,14 @@
 	let isMinHoursTouched = $state(false);
 	let backendError = $state('');
 	let formMinHoursError = $state('');
+	let timingError = $state('');
 	let shiftNameInput = $state<HTMLInputElement | null>(null);
 
 	let isMinHoursManuallyEdited = $state(false);
 	let formMinHours = $state(0);
 
 	const dirtyChecker = createDirtyChecker<{
-		shift_name: string;
+		name: string;
 		start_time: string;
 		end_time: string;
 		minimum_work_hours: number;
@@ -96,7 +115,7 @@
 	let isDirty = $derived(
 		isModalOpen &&
 		dirtyChecker.isDirty({
-			shift_name: formName.trim(),
+			name: formName.trim(),
 			start_time: formStartTime,
 			end_time: formEndTime,
 			minimum_work_hours: formMinHours,
@@ -166,7 +185,7 @@
 
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase().trim();
-			result = result.filter((shift) => shift.shift_name.toLowerCase().includes(query));
+			result = result.filter((shift) => shift.name.toLowerCase().includes(query));
 		}
 
 		if (statusFilter !== 'all') {
@@ -237,7 +256,7 @@
 	}
 
 	onMount(() => {
-		loadShifts();
+		// Initial load provided via SSR (+page.server.ts)
 	});
 
 	function handleSort(column: string) {
@@ -286,10 +305,11 @@
 		isMinHoursTouched = false;
 		backendError = '';
 		formMinHoursError = '';
+		timingError = '';
 		isMinHoursManuallyEdited = false;
 		formMinHours = 9.0; // calculated for 09:00 - 18:00
 		dirtyChecker.snapshot({
-			shift_name: '',
+			name: '',
 			start_time: '09:00',
 			end_time: '18:00',
 			minimum_work_hours: 9.0,
@@ -300,7 +320,7 @@
 
 	function openEditModal(shift: Shift) {
 		editingShift = shift;
-		formName = shift.shift_name;
+		formName = shift.name;
 		formStartTime = formatTimeForInput(shift.start_time);
 		formEndTime = formatTimeForInput(shift.end_time);
 		formStatus = shift.status;
@@ -308,10 +328,11 @@
 		isMinHoursTouched = false;
 		backendError = '';
 		formMinHoursError = '';
+		timingError = '';
 		isMinHoursManuallyEdited = Number(shift.minimum_work_hours) !== calculatedMinHours;
 		formMinHours = Number(shift.minimum_work_hours);
 		dirtyChecker.snapshot({
-			shift_name: shift.shift_name,
+			name: shift.name,
 			start_time: formStartTime,
 			end_time: formEndTime,
 			minimum_work_hours: formMinHours,
@@ -331,8 +352,8 @@
 			return;
 		}
 
-		if (formMinHours > calculatedMinHours) {
-			formMinHoursError = `Minimum work hours cannot exceed the total shift duration (${formatHoursReadable(calculatedMinHours)}).`;
+		if (formMinHours < 0 || formMinHours > calculatedMinHours) {
+			formMinHoursError = `Minimum work hours must be between 0 and the total shift duration (${formatHoursReadable(calculatedMinHours)}).`;
 			return;
 		}
 
@@ -355,7 +376,7 @@
 
 			if (editingShift) {
 				await updateShift(editingShift.cuid, {
-					shift_name: formName.trim(),
+					name: formName.trim(),
 					start_time: startTimeOnly,
 					end_time: endTimeOnly,
 					minimum_work_hours: formMinHours,
@@ -363,7 +384,7 @@
 				});
 			} else {
 				await createShift({
-					shift_name: formName.trim(),
+					name: formName.trim(),
 					start_time: startTimeOnly,
 					end_time: endTimeOnly,
 					minimum_work_hours: formMinHours
@@ -373,8 +394,21 @@
 			toast.success(editingShift ? 'Shift updated successfully' : 'Shift created successfully');
 			isModalOpen = false;
 		} catch (err) {
-			backendError = err instanceof ApiError ? err.message : 'Something went wrong.';
-			toast.error(backendError);
+			const errMsg = err instanceof ApiError ? err.message : 'Something went wrong.';
+			if (err instanceof ApiError && (err.status === 400 || err.status === 409 || err.status === 422)) {
+				const msg = errMsg.toLowerCase();
+				if (msg.includes('name')) {
+					backendError = errMsg;
+				} else if (msg.includes('time') || msg.includes('timing')) {
+					timingError = errMsg;
+				} else if (msg.includes('hour') || msg.includes('duration')) {
+					formMinHoursError = errMsg;
+				} else {
+					backendError = errMsg;
+				}
+			} else {
+				toast.error(errMsg);
+			}
 			console.error(err);
 		} finally {
 			isSubmitting = false;
@@ -382,43 +416,45 @@
 	}
 
 	async function deactivateShift(cuid: string) {
-		confirmation.ask({
-			title: 'Deactivate Shift',
-			message: 'Deactivate this shift? It will remain visible but marked as inactive.',
-			confirmText: 'Deactivate',
-			cancelText: 'Cancel',
-			isDestructive: true,
-			onConfirm: async () => {
-				try {
-					await deleteShift(cuid);
-					await loadShifts();
-					toast.success('Shift deactivated successfully');
-				} catch (err) {
-					console.error(err);
-					toast.error(err instanceof ApiError ? err.message : 'Failed to deactivate shift.');
-				}
+		const shift = shiftsList.find((s) => s.cuid === cuid);
+		const name = shift ? shift.name : '';
+		confirmModalTitle = 'Deactivate Shift';
+		confirmModalDescription = `Are you sure you want to deactivate ${name}?`;
+		confirmModalConfirmLabel = 'Deactivate';
+		confirmModalCancelLabel = 'Cancel';
+		confirmModalOnConfirm = async () => {
+			try {
+				await deleteShift(cuid);
+				await loadShifts();
+				toast.success('Shift deactivated successfully');
+			} catch (err) {
+				console.error(err);
+				toast.error(err instanceof ApiError ? err.message : 'Failed to deactivate shift.');
 			}
-		});
+		};
+		confirmModalOnCancel = () => {};
+		confirmModalOpen = true;
 	}
 
 	async function activateShift(cuid: string) {
-		confirmation.ask({
-			title: 'Activate Shift',
-			message: 'Activate this shift? It will be marked as active.',
-			confirmText: 'Activate',
-			cancelText: 'Cancel',
-			isDestructive: false,
-			onConfirm: async () => {
-				try {
-					await activateShiftApi(cuid);
-					await loadShifts();
-					toast.success('Shift activated successfully');
-				} catch (err) {
-					console.error(err);
-					toast.error(err instanceof ApiError ? err.message : 'Failed to activate shift.');
-				}
+		const shift = shiftsList.find((s) => s.cuid === cuid);
+		const name = shift ? shift.name : '';
+		confirmModalTitle = 'Activate Shift';
+		confirmModalDescription = `Are you sure you want to activate ${name}?`;
+		confirmModalConfirmLabel = 'Activate';
+		confirmModalCancelLabel = 'Cancel';
+		confirmModalOnConfirm = async () => {
+			try {
+				await activateShiftApi(cuid);
+				await loadShifts();
+				toast.success('Shift activated successfully');
+			} catch (err) {
+				console.error(err);
+				toast.error(err instanceof ApiError ? err.message : 'Failed to activate shift.');
 			}
-		});
+		};
+		confirmModalOnCancel = () => {};
+		confirmModalOpen = true;
 	}
 </script>
 
@@ -473,11 +509,11 @@
 				<TableHeader class="bg-muted">
 					<TableRow>
 						<TableHead class="font-bold text-foreground text-[15px]">
-							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('shift_name')}>
+							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('name')}>
 								Shift Name
-							{#if sortColumn === 'shift_name' && sortDirection === 'asc'}
+							{#if sortColumn === 'name' && sortDirection === 'asc'}
 								<ArrowUpIcon class="ml-2 size-4" />
-							{:else if sortColumn === 'shift_name' && sortDirection === 'desc'}
+							{:else if sortColumn === 'name' && sortDirection === 'desc'}
 								<ArrowDownIcon class="ml-2 size-4" />
 							{:else}
 								<ArrowUpDownIcon class="ml-2 size-4" />
@@ -526,7 +562,7 @@
 								class="cursor-pointer"
 							>
 								<TableCell>
-									<span class="font-semibold">{shift.shift_name}</span>
+									<span class="font-semibold">{shift.name}</span>
 								</TableCell>
 								<TableCell class="text-center">{formatTimeForDisplay(shift.start_time)}</TableCell>
 								<TableCell class="text-center">{formatTimeForDisplay(shift.end_time)}</TableCell>
@@ -559,10 +595,10 @@
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={handleSaveShift}>
 			<div class="space-y-2">
-				<Label for="shift_name">Shift Name</Label>
+				<Label for="name">Shift Name</Label>
 				<Input
-					id="shift_name"
-					name="shift_name"
+					id="name"
+					name="name"
 					bind:ref={shiftNameInput}
 					bind:value={formName}
 					class={nameValidationError || backendError ? 'border-destructive' : ''}
@@ -582,6 +618,8 @@
 						name="start_time"
 						type="time"
 						bind:value={formStartTime}
+						class={timingError ? 'border-destructive' : ''}
+						oninput={() => { timingError = ''; }}
 					/>
 				</div>
 				<div class="space-y-2">
@@ -591,9 +629,14 @@
 						name="end_time"
 						type="time"
 						bind:value={formEndTime}
+						class={timingError ? 'border-destructive' : ''}
+						oninput={() => { timingError = ''; }}
 					/>
 				</div>
 			</div>
+			{#if timingError}
+				<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}; margin-top: -4px; margin-bottom: 4px;">{timingError}</p>
+			{/if}
 
 			<div class="space-y-2">
 				<div class="flex justify-between items-center">
@@ -640,17 +683,23 @@
 </CrudModal>
 
 <ConfirmModal
-	open={showConfirmClose}
-	title="Unsaved Changes"
-	description="You have unsaved changes. Are you sure you want to close this modal?"
-	confirmLabel="Cancel"
-	cancelLabel="Keep Editing"
-	onConfirm={() => {
-		showConfirmClose = false;
-		isModalOpen = false;
-		$globalIsDirty = false;
+	open={confirmModalOpen}
+	title={confirmModalTitle}
+	description={confirmModalDescription}
+	confirmLabel={confirmModalConfirmLabel}
+	cancelLabel={confirmModalCancelLabel}
+	isSubmitting={confirmModalIsSubmitting}
+	onConfirm={async () => {
+		confirmModalIsSubmitting = true;
+		try {
+			await confirmModalOnConfirm();
+		} finally {
+			confirmModalIsSubmitting = false;
+			confirmModalOpen = false;
+		}
 	}}
 	onCancel={() => {
-		showConfirmClose = false;
+		confirmModalOnCancel();
+		confirmModalOpen = false;
 	}}
 />

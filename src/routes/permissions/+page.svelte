@@ -34,7 +34,6 @@
 		Pagination,
 		SearchInput
 	} from '$lib/components';
-	import { getMasterPermissions } from '$lib/permissions/mock-permissions';
 
 	interface Permission {
 		cuid: string;
@@ -42,7 +41,7 @@
 		status: boolean;
 	}
 
-	const masterPermissions = getMasterPermissions();
+
 	let permissions = $state<Permission[]>([]);
 	let isLoading = $state(true);
 	let loadError = $state('');
@@ -249,11 +248,9 @@
 		<div class="space-y-1">
 			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Permissions</h1>
 		</div>
-		{#if masterPermissions.canCreate}
 			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={openCreateModal}>
 				Add Permission
 			</Button>
-		{/if}
 	</div>
 
 	<!-- Metrics Cards -->
@@ -336,7 +333,7 @@
 							<TableCell class="text-center"><Badge variant={permission.status === true ? 'default' : 'secondary'}>{permission.status ? 'Active' : 'Inactive'}</Badge></TableCell>
 							<TableCell class="text-right">
 								<TableActions
-									canEdit={masterPermissions.canEdit}
+									canEdit={true}
 									onEdit={() => openEditModal(permission)}
 								/>
 							</TableCell>
@@ -398,8 +395,8 @@
 
 <ConfirmModal
 	open={showConfirmClose}
-	title="Unsaved Changes"
-	description="You have unsaved changes. Are you sure you want to close this modal?"
+	title="Cancel Changes"
+	description="Are you sure you want to cancel? All unsaved changes will be lost."
 	confirmLabel="Cancel"
 	cancelLabel="Keep Editing"
 	onConfirm={() => {

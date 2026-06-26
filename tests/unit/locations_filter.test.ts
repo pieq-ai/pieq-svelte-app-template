@@ -8,8 +8,8 @@ function runLocationFilters(
   filterCountry: string,
   filterState: string,
   searchQuery: string,
-  countries: Array<{ cuid: string; country_name: string }>,
-  states: Array<{ cuid: string; state_name: string; country_cuid: string }>
+  countries: Array<{ cuid: string; name: string }>,
+  states: Array<{ cuid: string; name: string; country_cuid: string }>
 ): CompanyLocation[] {
   let list = locations;
 
@@ -33,8 +33,8 @@ function runLocationFilters(
   // Search Filter
   if (searchQuery.trim() !== '') {
     const query = searchQuery.toLowerCase().trim();
-    const getCountryName = (cuid: string) => countries.find(c => c.cuid === cuid)?.country_name ?? cuid;
-    const getStateName = (cuid: string) => states.find(s => s.cuid === cuid)?.state_name ?? cuid;
+    const getCountryName = (cuid: string) => countries.find(c => c.cuid === cuid)?.name ?? cuid;
+    const getStateName = (cuid: string) => states.find(s => s.cuid === cuid)?.name ?? cuid;
 
     list = list.filter((loc) => {
       const locName = (loc.name ?? '').toLowerCase();
@@ -87,14 +87,14 @@ function runLocationSorting(
 
 describe('Company Locations Client-side Filtering & Sorting Tests', () => {
   const mockCountries = [
-    { cuid: 'country-usa', country_name: 'United States' },
-    { cuid: 'country-can', country_name: 'Canada' }
+    { cuid: 'country-usa', name: 'United States' },
+    { cuid: 'country-can', name: 'Canada' }
   ];
 
   const mockStates = [
-    { cuid: 'state-ny', state_name: 'New York', country_cuid: 'country-usa' },
-    { cuid: 'state-ca', state_name: 'California', country_cuid: 'country-usa' },
-    { cuid: 'state-on', state_name: 'Ontario', country_cuid: 'country-can' }
+    { cuid: 'state-ny', name: 'New York', country_cuid: 'country-usa' },
+    { cuid: 'state-ca', name: 'California', country_cuid: 'country-usa' },
+    { cuid: 'state-on', name: 'Ontario', country_cuid: 'country-can' }
   ];
 
   const mockLocations: CompanyLocation[] = [

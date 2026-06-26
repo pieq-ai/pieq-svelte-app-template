@@ -226,7 +226,7 @@ export function mapRole(role: any) {
 export function mapShift(shift: any) {
   return {
     cuid: shift.cuid,
-    shift_name: shift.shift_name,
+    name: shift.name,
     start_time: shift.start_time,
     end_time: shift.end_time,
     minimum_work_hours: Number(shift.minimum_work_hours),
@@ -247,6 +247,8 @@ export function mapLocation(loc: any) {
     country_cuid: loc.country_cuid,
     pin_code: loc.pin_code,
     timezone: loc.timezone,
+    latitude: loc.latitude ? Number(loc.latitude) : null,
+    longitude: loc.longitude ? Number(loc.longitude) : null,
     status: loc.status,
     created_by: loc.created_by ?? null,
     updated_by: loc.updated_by ?? null
@@ -256,14 +258,14 @@ export function mapLocation(loc: any) {
 export function mapCountry(country: any) {
   return {
     cuid: country.cuid,
-    country_name: country.country_name
+    name: country.name
   };
 }
 
 export function mapState(state: any) {
   return {
     cuid: state.cuid,
-    state_name: state.state_name,
+    name: state.name,
     country_cuid: state.country_cuid
   };
 }

@@ -20,7 +20,7 @@ function toPublicSystemRole(role: {
 	cuid: string;
 	name: string;
 	status: boolean;
- created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
+	created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
 	return {
 		cuid: role.cuid,
 		name: role.name,

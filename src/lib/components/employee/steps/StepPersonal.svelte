@@ -250,8 +250,9 @@
 				const parsed = parseBackendErrors(body);
 				if (parsed.field) {
 					backendErrors = { [parsed.field]: parsed.message };
+				} else {
+					toast.error(parsed.message);
 				}
-				toast.error(parsed.message);
 				return { success: false };
 			}
 
@@ -329,23 +330,23 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Mobile Number <span class="text-destructive">*</span></Label>
-			<Input type="tel" bind:value={emp.mobile_no} oninput={(e) => { emp.mobile_no = formatMobile(e.currentTarget.value); clearBackendError('mobile_no'); }} placeholder="1234567890" class={(isTouched && errors.mobile_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
-			{#if isTouched && errors.mobile_no}<p class="text-xs text-destructive">{errors.mobile_no}</p>{/if}
+			<Input type="tel" bind:value={emp.mobile_no} oninput={(e) => { emp.mobile_no = formatMobile(e.currentTarget.value); clearBackendError('mobile_no'); }} placeholder="1234567890" class={(backendErrors.mobile_no || (isTouched && errors.mobile_no)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
+			{#if backendErrors.mobile_no}<p class="text-xs text-destructive">{backendErrors.mobile_no}</p>{:else if isTouched && errors.mobile_no}<p class="text-xs text-destructive">{errors.mobile_no}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Personal Email <span class="text-destructive">*</span></Label>
-			<Input type="email" bind:value={emp.personal_email} oninput={() => clearBackendError('personal_email')} onblur={() => emp.personal_email = normalizeText(emp.personal_email).toLowerCase()} placeholder="john@example.com" class={(isTouched && errors.personal_email) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
-			{#if isTouched && errors.personal_email}<p class="text-xs text-destructive">{errors.personal_email}</p>{/if}
+			<Input type="email" bind:value={emp.personal_email} oninput={() => clearBackendError('personal_email')} onblur={() => emp.personal_email = normalizeText(emp.personal_email).toLowerCase()} placeholder="john@example.com" class={(backendErrors.personal_email || (isTouched && errors.personal_email)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
+			{#if backendErrors.personal_email}<p class="text-xs text-destructive">{backendErrors.personal_email}</p>{:else if isTouched && errors.personal_email}<p class="text-xs text-destructive">{errors.personal_email}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Aadhar Number <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.aadhar_no} oninput={(e) => { emp.aadhar_no = formatAadharUan(e.currentTarget.value); clearBackendError('aadhar_no'); }} placeholder="0000 0000 0000" class={(isTouched && errors.aadhar_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
-			{#if isTouched && errors.aadhar_no}<p class="text-xs text-destructive">{errors.aadhar_no}</p>{/if}
+			<Input bind:value={emp.aadhar_no} oninput={(e) => { emp.aadhar_no = formatAadharUan(e.currentTarget.value); clearBackendError('aadhar_no'); }} placeholder="0000 0000 0000" class={(backendErrors.aadhar_no || (isTouched && errors.aadhar_no)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
+			{#if backendErrors.aadhar_no}<p class="text-xs text-destructive">{backendErrors.aadhar_no}</p>{:else if isTouched && errors.aadhar_no}<p class="text-xs text-destructive">{errors.aadhar_no}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>PAN Number <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.pan_no} oninput={(e) => { emp.pan_no = formatPan(e.currentTarget.value); clearBackendError('pan_no'); }} placeholder="ABCDE1234F" class={(isTouched && errors.pan_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
-			{#if isTouched && errors.pan_no}<p class="text-xs text-destructive">{errors.pan_no}</p>{/if}
+			<Input bind:value={emp.pan_no} oninput={(e) => { emp.pan_no = formatPan(e.currentTarget.value); clearBackendError('pan_no'); }} placeholder="ABCDE1234F" class={(backendErrors.pan_no || (isTouched && errors.pan_no)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
+			{#if backendErrors.pan_no}<p class="text-xs text-destructive">{backendErrors.pan_no}</p>{:else if isTouched && errors.pan_no}<p class="text-xs text-destructive">{errors.pan_no}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>UAN Number</Label>
@@ -357,8 +358,8 @@
 		</div>
 		<div class="space-y-2">
 			<Label>PF Account Number</Label>
-			<Input bind:value={emp.pf_account_no} oninput={(e) => { emp.pf_account_no = e.currentTarget.value.toUpperCase(); clearBackendError('pf_account_no'); }} placeholder="MHBAN00000160000000134" class={(isTouched && errors.pf_account_no) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
-			{#if isTouched && errors.pf_account_no}<p class="text-xs text-destructive">{errors.pf_account_no}</p>{/if}
+			<Input bind:value={emp.pf_account_no} oninput={(e) => { emp.pf_account_no = e.currentTarget.value.toUpperCase(); clearBackendError('pf_account_no'); }} placeholder="MHBAN00000160000000134" class={(backendErrors.pf_account_no || (isTouched && errors.pf_account_no)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
+			{#if backendErrors.pf_account_no}<p class="text-xs text-destructive">{backendErrors.pf_account_no}</p>{:else if isTouched && errors.pf_account_no}<p class="text-xs text-destructive">{errors.pf_account_no}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>Emergency Contact Name <span class="text-destructive">*</span></Label>
