@@ -172,6 +172,22 @@
 			clearOidcUser(issuer, clientId);
 		}
 	});
+
+	function handleMouseEnter(e: MouseEvent, label: string) {
+		if (isSidebarCollapsed) return;
+		const btn = e.currentTarget as HTMLElement;
+		const span = btn.querySelector('.truncate') as HTMLElement;
+		if (span && span.scrollWidth > span.clientWidth) {
+			btn.title = label;
+		} else {
+			btn.title = '';
+		}
+	}
+
+	function handleMouseLeave(e: MouseEvent) {
+		if (isSidebarCollapsed) return;
+		(e.currentTarget as HTMLElement).removeAttribute('title');
+	}
 </script>
 
 <svelte:head>
@@ -182,7 +198,7 @@
 <div class="flex min-h-screen bg-background text-foreground">
 	<Toaster />
 	<aside
-		class={`sticky top-0 h-screen z-30 flex shrink-0 flex-col border-r border-[#737373]/25 bg-[#262626] text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
+		class={`sticky top-0 h-screen z-30 flex shrink-0 flex-col border-r border-[#737373]/25 bg-[#262626] text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-[261px]'}`}
 		aria-label="Primary navigation"
 		data-sveltekit-preload-data="off"
 	>
@@ -220,13 +236,15 @@
 					<Button
 						href={item.href}
 						variant="ghost"
-						class={`h-10 justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-[#F45310]' : ''}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-[#F45310]' : ''}`}
 						title={isSidebarCollapsed ? item.label : undefined}
 						aria-label={item.label}
+						onmouseenter={(e) => handleMouseEnter(e, item.label)}
+						onmouseleave={handleMouseLeave}
 					>
 						<Icon class="size-4 shrink-0" />
 						{#if !isSidebarCollapsed}
-							<span>{item.label}</span>
+							<span class="truncate">{item.label}</span>
 						{/if}
 					</Button>
 				{/each}
@@ -235,7 +253,7 @@
 				<div class="flex flex-col gap-1">
 					<Button
 						variant="ghost"
-						class={`h-10 justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 						onclick={() => {
 							if (isSidebarCollapsed) {
 								isSidebarCollapsed = false;
@@ -246,11 +264,13 @@
 						}}
 						title={isSidebarCollapsed ? 'Leave Management' : undefined}
 						aria-label="Leave Management"
+						onmouseenter={(e) => handleMouseEnter(e, 'Leave Management')}
+						onmouseleave={handleMouseLeave}
 					>
 						<CalendarIcon class="size-4 shrink-0" />
 						{#if !isSidebarCollapsed}
-							<span class="flex-1 text-left">Leave Management</span>
-							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ${isLeaveManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
+							<span class="flex-1 text-left truncate">Leave Management</span>
+							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ml-auto ${isLeaveManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
 						{/if}
 					</Button>
 
@@ -262,11 +282,13 @@
 								<Button
 									href={child.href}
 									variant="ghost"
-									class={`h-9 justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
+									class={`h-9 w-full justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
 									aria-label={child.label}
+									onmouseenter={(e) => handleMouseEnter(e, child.label)}
+									onmouseleave={handleMouseLeave}
 								>
 									<ChildIcon class="size-3.5 shrink-0" />
-									<span>{child.label}</span>
+									<span class="truncate">{child.label}</span>
 								</Button>
 							{/each}
 						</div>
@@ -277,7 +299,7 @@
 				<div class="flex flex-col gap-1">
 					<Button
 						variant="ghost"
-						class={`h-10 justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 						onclick={() => {
 							if (isSidebarCollapsed) {
 								isSidebarCollapsed = false;
@@ -288,11 +310,13 @@
 						}}
 						title={isSidebarCollapsed ? 'Attendance Management' : undefined}
 						aria-label="Attendance Management"
+						onmouseenter={(e) => handleMouseEnter(e, 'Attendance Management')}
+						onmouseleave={handleMouseLeave}
 					>
 						<FingerprintIcon class="size-4 shrink-0" />
 						{#if !isSidebarCollapsed}
-							<span class="flex-1 text-left">Attendance Management</span>
-							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ${isAttendanceManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
+							<span class="flex-1 text-left truncate">Attendance Management</span>
+							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ml-auto ${isAttendanceManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
 						{/if}
 					</Button>
 
@@ -304,11 +328,13 @@
 								<Button
 									href={child.href}
 									variant="ghost"
-									class={`h-9 justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
+									class={`h-9 w-full justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
 									aria-label={child.label}
+									onmouseenter={(e) => handleMouseEnter(e, child.label)}
+									onmouseleave={handleMouseLeave}
 								>
 									<ChildIcon class="size-3.5 shrink-0" />
-									<span>{child.label}</span>
+									<span class="truncate">{child.label}</span>
 								</Button>
 							{/each}
 						</div>
@@ -319,7 +345,7 @@
 				<div class="flex flex-col gap-1">
 					<Button
 						variant="ghost"
-						class={`h-10 justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 						onclick={() => {
 							if (isSidebarCollapsed) {
 								isSidebarCollapsed = false;
@@ -330,11 +356,13 @@
 						}}
 						title={isSidebarCollapsed ? 'Shift Management' : undefined}
 						aria-label="Shift Management"
+						onmouseenter={(e) => handleMouseEnter(e, 'Shift Management')}
+						onmouseleave={handleMouseLeave}
 					>
 						<CalendarClockIcon class="size-4 shrink-0" />
 						{#if !isSidebarCollapsed}
-							<span class="flex-1 text-left">Shift Management</span>
-							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ${isShiftManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
+							<span class="flex-1 text-left truncate">Shift Management</span>
+							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ml-auto ${isShiftManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
 						{/if}
 					</Button>
 
@@ -346,11 +374,13 @@
 								<Button
 									href={child.href}
 									variant="ghost"
-									class={`h-9 justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
+									class={`h-9 w-full justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
 									aria-label={child.label}
+									onmouseenter={(e) => handleMouseEnter(e, child.label)}
+									onmouseleave={handleMouseLeave}
 								>
 									<ChildIcon class="size-3.5 shrink-0" />
-									<span>{child.label}</span>
+									<span class="truncate">{child.label}</span>
 								</Button>
 							{/each}
 						</div>
@@ -361,7 +391,7 @@
 				<div class="flex flex-col gap-1">
 					<Button
 						variant="ghost"
-						class={`h-10 justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 						onclick={() => {
 							if (isSidebarCollapsed) {
 								isSidebarCollapsed = false;
@@ -372,11 +402,13 @@
 						}}
 						title={isSidebarCollapsed ? 'Salary Management' : undefined}
 						aria-label="Salary Management"
+						onmouseenter={(e) => handleMouseEnter(e, 'Salary Management')}
+						onmouseleave={handleMouseLeave}
 					>
 						<WalletIcon class="size-4 shrink-0" />
 						{#if !isSidebarCollapsed}
-							<span class="flex-1 text-left">Salary Management</span>
-							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ${isSalaryManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
+							<span class="flex-1 text-left truncate">Salary Management</span>
+							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ml-auto ${isSalaryManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
 						{/if}
 					</Button>
 
@@ -388,11 +420,13 @@
 								<Button
 									href={child.href}
 									variant="ghost"
-									class={`h-9 justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
+									class={`h-9 w-full justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
 									aria-label={child.label}
+									onmouseenter={(e) => handleMouseEnter(e, child.label)}
+									onmouseleave={handleMouseLeave}
 								>
 									<ChildIcon class="size-3.5 shrink-0" />
-									<span>{child.label}</span>
+									<span class="truncate">{child.label}</span>
 								</Button>
 							{/each}
 						</div>
@@ -405,13 +439,15 @@
 					<Button
 						href={item.href}
 						variant="ghost"
-						class={`h-10 justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-[#F45310]' : ''}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-[#F45310]' : ''}`}
 						title={isSidebarCollapsed ? item.label : undefined}
 						aria-label={item.label}
+						onmouseenter={(e) => handleMouseEnter(e, item.label)}
+						onmouseleave={handleMouseLeave}
 					>
 						<Icon class="size-4 shrink-0" />
 						{#if !isSidebarCollapsed}
-							<span>{item.label}</span>
+							<span class="truncate">{item.label}</span>
 						{/if}
 					</Button>
 				{/each}
@@ -419,13 +455,15 @@
 				<Button
 					href={resolve('/')}
 					variant="ghost"
-					class={`h-10 justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+					class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 					title={isSidebarCollapsed ? 'Sign in' : undefined}
 					aria-label="Sign in"
+					onmouseenter={(e) => handleMouseEnter(e, 'Sign in')}
+					onmouseleave={handleMouseLeave}
 				>
 					<LogInIcon class="size-4 shrink-0" />
 					{#if !isSidebarCollapsed}
-						<span>Sign in</span>
+						<span class="truncate">Sign in</span>
 					{/if}
 				</Button>
 			{/if}
@@ -439,10 +477,12 @@
 					class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#F45310]/90 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isSettingsActive ? 'bg-[#F45310]/90' : ''}`}
 					title={isSidebarCollapsed ? 'Settings' : undefined}
 					aria-label="Settings"
+					onmouseenter={(e) => handleMouseEnter(e, 'Settings')}
+					onmouseleave={handleMouseLeave}
 				>
 					<SettingsIcon class="size-4 shrink-0" />
 					{#if !isSidebarCollapsed}
-						<span>Settings</span>
+						<span class="truncate">Settings</span>
 					{/if}
 				</Button>
 				<form method="POST" action="/auth/signout">
@@ -452,10 +492,12 @@
 						class={`h-10 w-full justify-start gap-3 text-white hover:bg-danger hover:text-danger-foreground focus-visible:ring-danger/50 focus-visible:border-danger ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 						title={isSidebarCollapsed ? 'Sign out' : undefined}
 						aria-label="Sign out"
+						onmouseenter={(e) => handleMouseEnter(e, 'Sign out')}
+						onmouseleave={handleMouseLeave}
 					>
 						<LogOutIcon class="size-4 shrink-0" />
 						{#if !isSidebarCollapsed}
-							<span>Sign out</span>
+							<span class="truncate">Sign out</span>
 						{/if}
 					</Button>
 				</form>
