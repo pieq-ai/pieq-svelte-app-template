@@ -17,12 +17,14 @@
 		editingRecord = null, 
         entityName,
         apiEndpoint,
+		centered = false,
 		onSuccess 
 	}: { 
 		open: boolean; 
 		editingRecord?: SimpleMaster | null; 
         entityName: string;
         apiEndpoint: string;
+		centered?: boolean;
 		onSuccess?: (record: any) => void;
 	} = $props();
 
@@ -128,6 +130,7 @@
 	{open}
 	title={editingRecord ? `Edit ${entityName}` : `Create ${entityName}`}
 	{isSubmitting}
+	{centered}
 	onClose={handleClose}
 >
 	{#snippet children({ cancel })}

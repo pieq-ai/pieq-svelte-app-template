@@ -296,7 +296,7 @@
 </div>
 
 <SimpleMasterModal
-	open={isModalOpen}
+	bind:open={isModalOpen}
 	entityName="Department"
 	apiEndpoint="/api/departments"
 	editingRecord={editingDept}

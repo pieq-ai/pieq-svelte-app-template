@@ -347,6 +347,7 @@
 
 <SimpleMasterModal
 	bind:open={isDeptModalOpen}
+	centered={true}
 	entityName="Department"
 	apiEndpoint="/api/departments"
 	onSuccess={async (dept) => {
@@ -357,6 +358,7 @@
 
 <SimpleMasterModal
 	bind:open={isDesignationModalOpen}
+	centered={true}
 	entityName="Designation"
 	apiEndpoint="/api/designations"
 	onSuccess={async (desig) => {
@@ -367,6 +369,7 @@
 
 <SimpleMasterModal
 	bind:open={isRoleModalOpen}
+	centered={true}
 	entityName="Role"
 	apiEndpoint="/api/roles"
 	onSuccess={async (role) => {
