@@ -246,22 +246,30 @@ async function validateRecordFields(
 	}
 
 	let work_duration_minutes: number | null | undefined = undefined;
-	if (finalCheckIn && finalCheckOut) {
-		if (finalCheckOut < finalCheckIn) {
+	let resolvedCheckIn = finalCheckIn;
+	let resolvedCheckOut = finalCheckOut;
+
+	if (resolvedCheckIn && resolvedCheckOut) {
+		let adjustedCheckOut = new Date(resolvedCheckOut);
+		if (adjustedCheckOut < resolvedCheckIn) {
+			adjustedCheckOut.setDate(adjustedCheckOut.getDate() + 1);
+		}
+		if (adjustedCheckOut < resolvedCheckIn) {
 			errors.check_out_time = 'Check out time cannot be before check in time';
 			throw new AttendanceMultiValidationError(errors);
 		}
-		const diffMs = finalCheckOut.getTime() - finalCheckIn.getTime();
+		const diffMs = adjustedCheckOut.getTime() - resolvedCheckIn.getTime();
 		work_duration_minutes = Math.round(diffMs / 1000 / 60);
-	} else if (finalCheckIn === null || finalCheckOut === null) {
+		resolvedCheckOut = adjustedCheckOut;
+	} else if (resolvedCheckIn === null || resolvedCheckOut === null) {
 		work_duration_minutes = null;
 	}
 
 	return {
 		employee_cuid: employee_cuid!,
 		date: date!,
-		check_in_time,
-		check_out_time,
+		check_in_time: resolvedCheckIn,
+		check_out_time: resolvedCheckOut,
 		work_duration_minutes,
 		status: status!,
 		attendance_source_cuid,
@@ -336,8 +344,8 @@ export async function updateAttendanceRecord(cuid: string, dto: UpdateAttendance
 	const updateData: any = {};
 	if (dto.employee_cuid !== undefined) updateData.employee_cuid = validated.employee_cuid;
 	if (dto.date !== undefined) updateData.date = validated.date;
-	if (dto.check_in_time !== undefined) updateData.check_in_time = validated.check_in_time;
-	if (dto.check_out_time !== undefined) updateData.check_out_time = validated.check_out_time;
+	updateData.check_in_time = validated.check_in_time;
+	updateData.check_out_time = validated.check_out_time;
 	if (validated.work_duration_minutes !== undefined) updateData.work_duration_minutes = validated.work_duration_minutes;
 	if (dto.status !== undefined) updateData.status = validated.status;
 	if (dto.attendance_source_cuid !== undefined) updateData.attendance_source_cuid = validated.attendance_source_cuid;

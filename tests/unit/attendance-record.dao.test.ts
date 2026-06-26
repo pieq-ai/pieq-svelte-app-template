@@ -124,7 +124,7 @@ describe('attendance-record DAO', () => {
 		it('should update record with direct generic inputs on update', async () => {
 			const input = {
 				date: new Date(),
-				status: 'Absent'
+				status: 'LOP'
 			};
 			vi.mocked(db.attendanceRecord.update).mockResolvedValue({ id: 1n } as any);
 
@@ -133,7 +133,7 @@ describe('attendance-record DAO', () => {
 				where: { cuid: 'c1' },
 				data: {
 					date: input.date,
-					status: 'Absent'
+					status: 'LOP'
 				}
 			});
 		});
