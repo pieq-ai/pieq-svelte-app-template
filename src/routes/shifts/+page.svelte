@@ -31,7 +31,8 @@
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
-		SearchInput
+		SearchInput,
+		TimePicker
 	} from '$lib/components';
 	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 	import type { Shift } from '$lib/types/shift';
@@ -613,24 +614,22 @@
 			<div class="grid grid-cols-2 gap-4">
 				<div class="space-y-2">
 					<Label for="start_time">Start Time</Label>
-					<Input
+					<TimePicker
 						id="start_time"
 						name="start_time"
-						type="time"
 						bind:value={formStartTime}
-						class={timingError ? 'border-destructive' : ''}
-						oninput={() => { timingError = ''; }}
+						isError={!!timingError}
+						onchange={() => { timingError = ''; }}
 					/>
 				</div>
 				<div class="space-y-2">
 					<Label for="end_time">End Time</Label>
-					<Input
+					<TimePicker
 						id="end_time"
 						name="end_time"
-						type="time"
 						bind:value={formEndTime}
-						class={timingError ? 'border-destructive' : ''}
-						oninput={() => { timingError = ''; }}
+						isError={!!timingError}
+						onchange={() => { timingError = ''; }}
 					/>
 				</div>
 			</div>

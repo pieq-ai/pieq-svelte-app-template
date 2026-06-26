@@ -34,6 +34,7 @@
     Pagination,
     SearchInput,
     SearchableDropdown,
+    DatePicker,
   } from "$lib/components";
   import ConfirmModal from "$lib/components/common/ConfirmModal.svelte";
 
@@ -64,7 +65,6 @@
 
   // Shared Form State
   let editingAssignment = $state<ShiftAssignment | null>(null);
-  let isViewOnly = $state(false);
   let formEmployeeCuid = $state("");
   let formShiftCuid = $state("");
   let formEffectiveFrom = $state("");
@@ -91,9 +91,30 @@
     isShiftTouched && !formShiftCuid ? "Shift selection is required" : "",
   );
 
+  function formatDateForDisplay(dateStr: string): string {
+    if (!dateStr) return "";
+    const parts = dateStr.split("-");
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
+  }
+
   let effectiveFromError = $derived.by(() => {
     if (!isEffectiveFromTouched) return "";
     if (!formEffectiveFrom) return "Effective from date is required";
+    
+    if (formEmployeeCuid) {
+      const empOpt = data.employeeOptions.find((e: any) => e.id === formEmployeeCuid);
+      if (empOpt) {
+        if (empOpt.joiningDate && formEffectiveFrom < empOpt.joiningDate) {
+          return `Effective from date cannot be before employee's joining date (${formatDateForDisplay(empOpt.joiningDate)})`;
+        }
+        if (empOpt.relievingDate && formEffectiveFrom > empOpt.relievingDate) {
+          return `Effective from date cannot be after employee's relieving date (${formatDateForDisplay(empOpt.relievingDate)})`;
+        }
+      }
+    }
     return "";
   });
 
@@ -102,6 +123,18 @@
     if (!formEffectiveTo) return "Effective to date is required";
     if (formEffectiveFrom && formEffectiveTo < formEffectiveFrom) {
       return "Effective to date must be greater than or equal to Effective from date";
+    }
+    
+    if (formEmployeeCuid) {
+      const empOpt = data.employeeOptions.find((e: any) => e.id === formEmployeeCuid);
+      if (empOpt) {
+        if (empOpt.joiningDate && formEffectiveTo < empOpt.joiningDate) {
+          return `Effective to date cannot be before employee's joining date (${formatDateForDisplay(empOpt.joiningDate)})`;
+        }
+        if (empOpt.relievingDate && formEffectiveTo > empOpt.relievingDate) {
+          return `Effective to date cannot be after employee's relieving date (${formatDateForDisplay(empOpt.relievingDate)})`;
+        }
+      }
     }
     return "";
   });
@@ -180,7 +213,6 @@
 
   let isDirty = $derived(
     isModalOpen &&
-      !isViewOnly &&
       dirtyChecker.isDirty({
         employee_cuid: formEmployeeCuid,
         shift_cuid: formShiftCuid,
@@ -305,7 +337,6 @@
 
   function openCreateModal() {
     editingAssignment = null;
-    isViewOnly = false;
     formEmployeeCuid = "";
     formShiftCuid = "";
     formEffectiveFrom = "";
@@ -330,7 +361,6 @@
 
   function openEditModal(assignment: ShiftAssignment) {
     editingAssignment = assignment;
-    isViewOnly = false;
     formEmployeeCuid = assignment.employee_cuid;
     formShiftCuid = assignment.shift_cuid;
     formEffectiveFrom = String(assignment.effective_from);
@@ -353,27 +383,8 @@
     isModalOpen = true;
   }
 
-  function openViewModal(assignment: ShiftAssignment) {
-    editingAssignment = assignment;
-    isViewOnly = true;
-    formEmployeeCuid = assignment.employee_cuid;
-    formShiftCuid = assignment.shift_cuid;
-    formEffectiveFrom = String(assignment.effective_from);
-    formEffectiveTo = String(assignment.effective_to);
-    formStatus = assignment.status;
-
-    isEmployeeTouched = false;
-    isShiftTouched = false;
-    isEffectiveFromTouched = false;
-    isEffectiveToTouched = false;
-    backendError = "";
-
-    isModalOpen = true;
-  }
-
   async function handleSaveAssignment(e: Event) {
     e.preventDefault();
-    if (isViewOnly) return;
     if (editingAssignment && !isDirty) return;
 
     isEmployeeTouched = true;
@@ -656,12 +667,6 @@
                   <TableActions
                     canEdit={true}
                     onEdit={() => openEditModal(assignment)}
-                    customActions={[
-                      {
-                        label: "View Details",
-                        onClick: () => openViewModal(assignment),
-                      },
-                    ]}
                   />
                 </TableCell>
               </TableRow>
@@ -680,9 +685,7 @@
 
 <CrudModal
   open={isModalOpen}
-  title={isViewOnly
-    ? "View Assignment Details"
-    : editingAssignment
+  title={editingAssignment
       ? "Edit Shift Assignment"
       : "Assign Shift"}
   {isSubmitting}
@@ -696,11 +699,12 @@
           label="Employee *"
           options={data.employeeOptions}
           value={formEmployeeCuid}
-          disabled={isViewOnly}
           placeholder="Select employee..."
           onSelect={(val) => {
             formEmployeeCuid = String(val);
             isEmployeeTouched = true;
+            if (formEffectiveFrom) isEffectiveFromTouched = true;
+            if (formEffectiveTo) isEffectiveToTouched = true;
             backendError = "";
           }}
         />
@@ -727,7 +731,6 @@
           label="Shift *"
           options={data.shiftOptions}
           value={formShiftCuid}
-          disabled={isViewOnly}
           placeholder="Select shift..."
           onSelect={(val) => {
             formShiftCuid = String(val);
@@ -758,16 +761,12 @@
           <Label for="effective_from"
             >Effective From <span class="text-destructive">*</span></Label
           >
-          <Input
+          <DatePicker
             id="effective_from"
             name="effective_from"
-            type="date"
-            disabled={isViewOnly}
             bind:value={formEffectiveFrom}
-            class={effectiveFromError || backendEffectiveFromError
-              ? "border-destructive"
-              : ""}
-            oninput={() => {
+            isError={isEffectiveFromTouched && (!!effectiveFromError || !!backendEffectiveFromError)}
+            onchange={() => {
               isEffectiveFromTouched = true;
               backendError = "";
             }}
@@ -792,16 +791,12 @@
           <Label for="effective_to"
             >Effective To <span class="text-destructive">*</span></Label
           >
-          <Input
+          <DatePicker
             id="effective_to"
             name="effective_to"
-            type="date"
-            disabled={isViewOnly}
             bind:value={formEffectiveTo}
-            class={effectiveToError || backendEffectiveToError
-              ? "border-destructive"
-              : ""}
-            oninput={() => {
+            isError={isEffectiveToTouched && (!!effectiveToError || !!backendEffectiveToError)}
+            onchange={() => {
               isEffectiveToTouched = true;
               backendError = "";
             }}
@@ -825,26 +820,18 @@
       </div>
 
       <!-- Status Toggle -->
-      {#if isViewOnly || editingAssignment}
+      {#if editingAssignment}
         <div class="space-y-2">
           <Label for="assignment_status"></Label>
-          {#if isViewOnly}
-            <div>
-              <Badge variant={formStatus ? "default" : "secondary"}>
-                {formStatus ? "Active" : "Inactive"}
-              </Badge>
-            </div>
-          {:else}
-            <StatusDropdown
-              id="assignment_status"
-              name="assignment_status"
-              value={formStatus}
-              onChange={(val) => {
-                formStatus = val;
-                backendError = "";
-              }}
-            />
-          {/if}
+          <StatusDropdown
+            id="assignment_status"
+            name="assignment_status"
+            value={formStatus}
+            onChange={(val) => {
+              formStatus = val;
+              backendError = "";
+            }}
+          />
         </div>
       {/if}
 
@@ -852,28 +839,23 @@
       <div
         class="flex items-center justify-end gap-3 pt-4 border-t border-border mt-6"
       >
-        {#if isViewOnly}
-          <Button type="button" variant="outline" onclick={cancel}>Close</Button
-          >
-        {:else}
-          <Button
-            type="button"
-            variant="outline"
-            onclick={cancel}
-            disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button
-          >
-          <Button
-            type="submit"
-            class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
-            disabled={isSubmitting || (!!editingAssignment && !isDirty)}
-          >
-            {isSubmitting
-              ? UI_CONSTANTS.BUTTON_SAVING
-              : editingAssignment
-                ? UI_CONSTANTS.BUTTON_UPDATE
-                : UI_CONSTANTS.BUTTON_SAVE}
-          </Button>
-        {/if}
+        <Button
+          type="button"
+          variant="outline"
+          onclick={cancel}
+          disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button
+        >
+        <Button
+          type="submit"
+          class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+          disabled={isSubmitting || (!!editingAssignment && !isDirty)}
+        >
+          {isSubmitting
+            ? UI_CONSTANTS.BUTTON_SAVING
+            : editingAssignment
+              ? UI_CONSTANTS.BUTTON_UPDATE
+              : UI_CONSTANTS.BUTTON_SAVE}
+        </Button>
       </div>
     </form>
   {/snippet}

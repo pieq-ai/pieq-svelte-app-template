@@ -47,6 +47,7 @@
     Pagination,
     SearchInput,
     TableActions,
+    DatePicker,
   } from "$lib/components";
   import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 
@@ -227,8 +228,6 @@
 
   // Custom Date Picker states
   let activeDatePicker = $state<string | null>(null);
-  let calendarYear = $state(new Date().getFullYear());
-  let calendarMonth = $state(new Date().getMonth());
 
   const getTodayLocalString = () => {
     const d = new Date();
@@ -1346,157 +1345,7 @@
   }
 
   // Custom Date Picker Helper Functions
-  const MONTHS = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
 
-  interface CalendarDay {
-    date: Date;
-    isCurrentMonth: boolean;
-    isToday: boolean;
-    isSelected: boolean;
-    isDisabled: boolean;
-  }
-
-  function getCalendarDays(
-    year: number,
-    month: number,
-    selectedDateStr: string,
-    minStr?: string,
-    maxStr?: string,
-  ): CalendarDay[] {
-    const days: CalendarDay[] = [];
-    const firstDayIndex = new Date(year, month, 1).getDay();
-    const totalDays = new Date(year, month + 1, 0).getDate();
-    const prevMonthTotalDays = new Date(year, month, 0).getDate();
-
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-    let selectedDate: Date | null = null;
-    if (selectedDateStr) {
-      selectedDate = new Date(selectedDateStr + "T00:00:00");
-    }
-
-    const minDate = minStr ? new Date(minStr + "T00:00:00") : null;
-    const maxDate = maxStr ? new Date(maxStr + "T00:00:00") : null;
-
-    for (let i = firstDayIndex - 1; i >= 0; i--) {
-      const d = new Date(year, month - 1, prevMonthTotalDays - i);
-      days.push({
-        date: d,
-        isCurrentMonth: false,
-        isToday: d.getTime() === today.getTime(),
-        isSelected: selectedDate
-          ? d.getTime() === selectedDate.getTime()
-          : false,
-        isDisabled:
-          (minDate ? d < minDate : false) || (maxDate ? d > maxDate : false),
-      });
-    }
-
-    for (let i = 1; i <= totalDays; i++) {
-      const d = new Date(year, month, i);
-      days.push({
-        date: d,
-        isCurrentMonth: true,
-        isToday: d.getTime() === today.getTime(),
-        isSelected: selectedDate
-          ? d.getTime() === selectedDate.getTime()
-          : false,
-        isDisabled:
-          (minDate ? d < minDate : false) || (maxDate ? d > maxDate : false),
-      });
-    }
-
-    const remainingCells = 42 - days.length;
-    for (let i = 1; i <= remainingCells; i++) {
-      const d = new Date(year, month + 1, i);
-      days.push({
-        date: d,
-        isCurrentMonth: false,
-        isToday: d.getTime() === today.getTime(),
-        isSelected: selectedDate
-          ? d.getTime() === selectedDate.getTime()
-          : false,
-        isDisabled:
-          (minDate ? d < minDate : false) || (maxDate ? d > maxDate : false),
-      });
-    }
-
-    return days;
-  }
-
-  function prevMonth() {
-    if (calendarMonth === 0) {
-      calendarMonth = 11;
-      calendarYear--;
-    } else {
-      calendarMonth--;
-    }
-  }
-
-  // Make sure calendar navigation functions stop propagation to keep modal from reacting
-  function prevMonthClick(e: Event) {
-    e.stopPropagation();
-    prevMonth();
-  }
-
-  function nextMonthClick(e: Event) {
-    e.stopPropagation();
-    nextMonth();
-  }
-
-  function nextMonth() {
-    if (calendarMonth === 11) {
-      calendarMonth = 0;
-      calendarYear++;
-    } else {
-      calendarMonth++;
-    }
-  }
-
-  function formatDateForDisplay(dateStr: string): string {
-    if (!dateStr) return "";
-    const date = new Date(dateStr + "T00:00:00");
-    if (isNaN(date.getTime())) return dateStr;
-    const day = String(date.getDate()).padStart(2, "0");
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
-  }
-
-  function formatDateString(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  }
 
   function clickOutsideAction(node: HTMLElement, callback: () => void) {
     const handleClick = (event: MouseEvent) => {
@@ -1610,127 +1459,7 @@
   {/if}
 </svelte:head>
 
-{#snippet CustomDatePicker(
-  id: string,
-  value: string,
-  onSelect: (val: string) => void,
-  min: string | undefined,
-  max: string | undefined,
-  disabled: boolean,
-  error: string | undefined,
-)}
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div
-    class="relative w-full"
-    use:clickOutsideAction={() => {
-      if (activeDatePicker === id) activeDatePicker = null;
-    }}
-  >
-    <Input
-      type="text"
-      {id}
-      readonly
-      placeholder="dd mm yyyy"
-      value={formatDateForDisplay(value)}
-      onclick={(e) => {
-        if (disabled) return;
-        if (activeDatePicker === id) {
-          activeDatePicker = null;
-        } else {
-          activeDatePicker = id;
-          const initialDate = value
-            ? new Date(value + "T00:00:00")
-            : new Date();
-          calendarYear = isNaN(initialDate.getTime())
-            ? new Date().getFullYear()
-            : initialDate.getFullYear();
-          calendarMonth = isNaN(initialDate.getTime())
-            ? new Date().getMonth()
-            : initialDate.getMonth();
-        }
-      }}
-      class="w-full pl-9 cursor-pointer {error ? 'border-destructive' : ''}"
-      {disabled}
-    />
-    <CalendarIcon
-      class="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none"
-    />
 
-    {#if activeDatePicker === id}
-      <!-- svelte-ignore a11y_click_events_have_key_events -->
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <div
-        class="absolute {id === 'end_date'
-          ? 'right-0'
-          : 'left-0'} top-full z-100 mt-1 w-[280px] rounded-md border border-border bg-popover p-3 text-popover-foreground shadow-md outline-none"
-        onclick={(e) => e.stopPropagation()}
-      >
-        <div
-          class="flex items-center justify-between pb-2 mb-2 border-b border-border"
-        >
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            class="h-7 w-7 p-0 hover:bg-accent"
-            onclick={prevMonthClick}
-          >
-            <ChevronLeftIcon class="h-4 w-4" />
-          </Button>
-          <span class="text-sm font-semibold select-none"
-            >{MONTHS[calendarMonth]} {calendarYear}</span
-          >
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            class="h-7 w-7 p-0 hover:bg-accent"
-            onclick={nextMonthClick}
-          >
-            <ChevronRightIcon class="h-4 w-4" />
-          </Button>
-        </div>
-
-        <div
-          class="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground mb-1 select-none"
-        >
-          {#each ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"] as day}
-            <div class="h-6 flex items-center justify-center">{day}</div>
-          {/each}
-        </div>
-
-        <div class="grid grid-cols-7 gap-1">
-          {#each getCalendarDays(calendarYear, calendarMonth, value, min, max) as day}
-            <button
-              type="button"
-              disabled={day.isDisabled}
-              class="h-8 w-8 text-xs rounded-md flex items-center justify-center p-0 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring
-								{day.isDisabled
-                ? 'opacity-30 cursor-not-allowed'
-                : 'cursor-pointer hover:bg-accent hover:text-accent-foreground'}
-								{day.isSelected
-                ? 'bg-[#F45310] text-white hover:bg-[#F45310]/90 font-bold'
-                : ''}
-								{!day.isSelected && day.isToday ? 'border border-[#F45310] text-[#F45310]' : ''}
-								{!day.isSelected && !day.isToday && !day.isCurrentMonth
-                ? 'text-muted-foreground'
-                : ''}"
-              onclick={(e) => {
-                e.stopPropagation();
-                if (day.isDisabled) return;
-                onSelect(formatDateString(day.date));
-                activeDatePicker = null;
-              }}
-            >
-              {day.date.getDate()}
-            </button>
-          {/each}
-        </div>
-      </div>
-    {/if}
-  </div>
-{/snippet}
 
 <div class="w-full space-y-6 px-1 py-0">
   <!-- Page Header matching design system -->
@@ -2853,19 +2582,13 @@
               >Expected Delivery Date <span class="text-destructive">*</span
               ></Label
             >
-            {@render CustomDatePicker(
-              "expected_delivery_date",
-              formExpectedDeliveryDate,
-              (val) => {
-                formExpectedDeliveryDate = val;
-              },
-              undefined,
-              undefined,
-              isSubmitting,
-              formIsTouched && formValidationErrors.expectedDeliveryDate
-                ? formValidationErrors.expectedDeliveryDate
-                : undefined,
-            )}
+            <DatePicker
+              id="expected_delivery_date"
+              name="expected_delivery_date"
+              bind:value={formExpectedDeliveryDate}
+              disabled={isSubmitting}
+              isError={formIsTouched && !!formValidationErrors.expectedDeliveryDate}
+            />
             {#if formIsTouched && formValidationErrors.expectedDeliveryDate}
               <p
                 class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1"
@@ -2901,19 +2624,13 @@
           <Label for="child_birth_date"
             >Child's Birth Date <span class="text-destructive">*</span></Label
           >
-          {@render CustomDatePicker(
-            "child_birth_date",
-            formChildBirthDate,
-            (val) => {
-              formChildBirthDate = val;
-            },
-            undefined,
-            undefined,
-            isSubmitting,
-            formIsTouched && formValidationErrors.childBirthDate
-              ? formValidationErrors.childBirthDate
-              : undefined,
-          )}
+          <DatePicker
+            id="child_birth_date"
+            name="child_birth_date"
+            bind:value={formChildBirthDate}
+            disabled={isSubmitting}
+            isError={formIsTouched && !!formValidationErrors.childBirthDate}
+          />
           {#if formIsTouched && formValidationErrors.childBirthDate}
             <p
               class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1"
@@ -2931,25 +2648,22 @@
           <Label for="start_date"
             >Start Date <span class="text-destructive">*</span></Label
           >
-          {@render CustomDatePicker(
-            "start_date",
-            formStartDate,
-            (val) => {
-              formStartDate = val;
+          <DatePicker
+            id="start_date"
+            name="start_date"
+            bind:value={formStartDate}
+            max={start_date_max || undefined}
+            disabled={isSubmitting}
+            isError={formIsTouched && !!formValidationErrors.startDate}
+            onchange={() => {
               if (
                 !formStartDate ||
                 (formEndDate && formStartDate > formEndDate)
               ) {
                 formEndDate = "";
               }
-            },
-            undefined,
-            start_date_max || undefined,
-            isSubmitting,
-            formIsTouched && formValidationErrors.startDate
-              ? formValidationErrors.startDate
-              : undefined,
-          )}
+            }}
+          />
           {#if formIsTouched && formValidationErrors.startDate}
             <p
               class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1"
@@ -2964,19 +2678,15 @@
           <Label for="end_date"
             >End Date <span class="text-destructive">*</span></Label
           >
-          {@render CustomDatePicker(
-            "end_date",
-            formEndDate,
-            (val) => {
-              formEndDate = val;
-            },
-            formStartDate || undefined,
-            end_date_max || undefined,
-            isSubmitting || formIsHalfDay || !formStartDate,
-            formIsTouched && formValidationErrors.endDate
-              ? formValidationErrors.endDate
-              : undefined,
-          )}
+          <DatePicker
+            id="end_date"
+            name="end_date"
+            bind:value={formEndDate}
+            min={formStartDate || undefined}
+            max={end_date_max || undefined}
+            disabled={isSubmitting || formIsHalfDay || !formStartDate}
+            isError={formIsTouched && !!formValidationErrors.endDate}
+          />
           {#if formIsTouched && formValidationErrors.endDate}
             <p
               class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1"
