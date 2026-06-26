@@ -40,6 +40,11 @@ vi.mock('$lib/server/db.js', () => {
 			findMany: vi.fn().mockResolvedValue([]),
 			findFirst: vi.fn()
 		},
+		settings: {
+			findFirst: vi.fn(),
+			create: vi.fn(),
+			update: vi.fn()
+		},
 		$transaction: vi.fn()
 	};
 	return { db: mockDb };
@@ -117,10 +122,25 @@ describe('Leave Service Unit Tests', () => {
 		'cuid-lop': { cuid: 'p-lop', leave_type_cuid: 'cuid-lop', annual_limit: 365, max_per_month: null, carry_forward_allowed: false, min_service_days: 0, allow_half_day: false, gender_specific: false, status: true }
 	};
 
+	let mockPayrollCutoff = 25;
+
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date('2026-06-15T12:00:00.000Z'));
 		vi.clearAllMocks();
+
+		mockPayrollCutoff = 25;
+		vi.mocked(db.settings.findFirst as any).mockImplementation(async () => {
+			return { id: 1n, cuid: 'settings-cuid', payroll_cutoff: mockPayrollCutoff, created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null };
+		});
+		vi.mocked(db.settings.create as any).mockImplementation(async (args: any) => {
+			mockPayrollCutoff = args.data?.payroll_cutoff ?? 25;
+			return { id: 1n, cuid: 'settings-cuid', payroll_cutoff: mockPayrollCutoff, created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null };
+		});
+		vi.mocked(db.settings.update as any).mockImplementation(async (args: any) => {
+			mockPayrollCutoff = args.data?.payroll_cutoff ?? mockPayrollCutoff;
+			return { id: 1n, cuid: 'settings-cuid', payroll_cutoff: mockPayrollCutoff, created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null };
+		});
 
 		// Default DB mocks
 		vi.mocked(db.employment.findFirst).mockResolvedValue(mockEmployment as any);
@@ -2277,7 +2297,7 @@ describe('Leave Service Unit Tests', () => {
 			};
 
 			vi.mocked(db.leaveRequest.findMany as any).mockResolvedValue([mockRequest]);
-			leaveService.setPayrollCutoffDay(25);
+			await leaveService.setPayrollCutoffDay(25);
 
 			// June LOP (month index 5, cycle May 26 - June 25)
 			const juneLop = await leaveService.getMonthlyUsedDays('emp-cuid', 5, 2026, 'LOP');
@@ -2361,7 +2381,7 @@ describe('Leave Service Unit Tests', () => {
 			};
 
 			vi.mocked(db.leaveRequest.findMany as any).mockResolvedValue([mockRequest1, mockRequest2]);
-			leaveService.setPayrollCutoffDay(25);
+			await leaveService.setPayrollCutoffDay(25);
 
 			// June LOP:
 			// Request 1 LOP days (June 22, 23, 24) = 3 days
@@ -2476,12 +2496,12 @@ describe('Leave Service Unit Tests', () => {
 			expect(fallbackVal).toBe(25);
 
 			// Test configured setting
-			leaveService.setPayrollCutoffDay(20);
+			await leaveService.setPayrollCutoffDay(20);
 			const configuredVal = await leaveService.getPayrollCutoffDay();
 			expect(configuredVal).toBe(20);
 
 			// Reset to default
-			leaveService.setPayrollCutoffDay(25);
+			await leaveService.setPayrollCutoffDay(25);
 		});
 
 		it('should assign LOP days to June or July payroll cycle based on cutoff day 25', async () => {
@@ -2520,7 +2540,7 @@ describe('Leave Service Unit Tests', () => {
 				mockLopRequestJune24,
 				mockLopRequestJune29
 			]);
-			leaveService.setPayrollCutoffDay(25);
+			await leaveService.setPayrollCutoffDay(25);
 
 			// Check LOP for June 2026 (month index 5).
 			// June payroll cycle starts May 26 and ends June 25.

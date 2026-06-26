@@ -26,6 +26,7 @@
   import { toast } from "$lib/toast";
   import { leavesApi } from "$lib/api/leaves";
   import { UI_CONSTANTS } from "$lib/constants";
+  import { ApiError } from "$lib/api/local";
   import {
     Badge,
     Button,
@@ -175,6 +176,7 @@
   // Modals State
   let isApplyModalOpen = $state(false);
   let withdrawModalOpen = $state(false);
+  let showApplyUnsavedModal = $state(false);
 
   // Approvals Modals State
   let isDetailsModalOpen = $state(false);
@@ -447,9 +449,9 @@
         balances = res.data.balances || [];
         requests = res.data.requests || [];
         employee = res.data.employee || null;
-        isManager = res.data.isManager || false;
+         isManager = res.data.isManager || false;
         pendingApprovals = res.data.pendingApprovals || [];
-        payrollCutoffDay = res.data.payrollCutoffDay ?? 25;
+        payrollCutoffDay = res.data.payroll_cutoff ?? res.data.payrollCutoffDay ?? 25;
         selectedCutoff = payrollCutoffDay;
         lopUsed = res.data.lopUsed || 0;
         lwpUsed = res.data.lwpUsed || 0;
@@ -521,19 +523,27 @@
   });
 
   async function saveCutoffDay() {
+    const currentVal = parseInt(String(payrollCutoffDay).trim(), 10);
+    const selectedVal = parseInt(String(selectedCutoff).trim(), 10);
+
+    if (currentVal === selectedVal) {
+      activeDatePicker = null;
+      return;
+    }
+
     isSavingCutoff = true;
     activeDatePicker = null;
     try {
       const res = await fetch("/api/leaves/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payrollCutoffDay: selectedCutoff }),
+        body: JSON.stringify({ payroll_cutoff: selectedVal }),
       });
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || "Failed to update cutoff setting");
       }
-      payrollCutoffDay = data.data.payrollCutoffDay;
+      payrollCutoffDay = data.data.payroll_cutoff;
       selectedCutoff = payrollCutoffDay;
       toast.success(
         `Payroll cutoff day updated to ${payrollCutoffDay}th successfully.`,
@@ -1103,7 +1113,6 @@
     formIsTouched = true;
 
     if (!validateForm()) {
-      toast.error("Please correct the validation errors before submitting.");
       return;
     }
 
@@ -1146,8 +1155,11 @@
       if (err.field) {
         const fieldName = err.field === "documentUrl" ? "document" : err.field;
         formValidationErrors = { [fieldName]: err.message };
+      } else if (err instanceof ApiError && err.status === 400) {
+        formValidationErrors = { leaveTypeCuid: err.message };
+      } else {
+        toast.error(err.message || "Failed to submit leave request.");
       }
-      toast.error(err.message || "Failed to submit leave request.");
       console.error(err);
     } finally {
       isSubmitting = false;
@@ -1190,6 +1202,14 @@
     formExpectedDeliveryDate = "";
     formIsMiscarriage = false;
     formChildBirthDate = "";
+  }
+
+  function handleCloseApplyModal() {
+    if (isFormDirty) {
+      showApplyUnsavedModal = true;
+    } else {
+      closeApplyModal();
+    }
   }
 
   // Open Confirm Withdraw Modal
@@ -2067,7 +2087,7 @@
                   <Button
                     type="button"
                     onclick={saveCutoffDay}
-                    disabled={isSavingCutoff}
+                    disabled={isSavingCutoff || parseInt(String(selectedCutoff).trim(), 10) === parseInt(String(payrollCutoffDay).trim(), 10)}
                     class="bg-[#F45310] text-white hover:bg-[#F45310]/90 font-bold"
                   >
                     {#if isSavingCutoff}
@@ -2729,7 +2749,7 @@
   title="Apply Leave"
   description="Fill out the details below to submit a leave request."
   {isSubmitting}
-  onClose={closeApplyModal}
+  onClose={handleCloseApplyModal}
   cardClass="overflow-visible my-auto"
 >
   {#snippet children({ cancel })}
@@ -3212,6 +3232,22 @@
   {/snippet}
 </CrudModal>
 
+<!-- Apply Leave Unsaved Changes Modal -->
+<ConfirmModal
+  open={showApplyUnsavedModal}
+  title="Cancel Changes"
+  description="Are you sure you want to cancel? All unsaved changes will be lost."
+  cancelLabel="Keep Editing"
+  confirmLabel="Cancel"
+  onCancel={() => {
+    showApplyUnsavedModal = false;
+  }}
+  onConfirm={() => {
+    showApplyUnsavedModal = false;
+    closeApplyModal();
+  }}
+/>
+
 
 <!-- View Details Modal for Approvals -->
 <CrudModal
@@ -3373,8 +3409,7 @@
           {:else if selectedApproval.source === "approvals"}
             <Button
               type="button"
-              variant="destructive"
-              class="font-bold"
+              class="bg-red-600 text-white hover:bg-red-700 font-bold focus-visible:ring-red-500/50 focus-visible:border-red-600"
               onclick={() => openRejectConfirm(selectedApproval)}
               disabled={isActionSubmitting}
             >

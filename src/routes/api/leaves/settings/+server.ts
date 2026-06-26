@@ -7,7 +7,7 @@ export async function GET(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
 		const cutoff = await leaveService.getPayrollCutoffDay();
-		return json({ data: { payrollCutoffDay: cutoff } });
+		return json({ data: { payroll_cutoff: cutoff } });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : 400;
@@ -31,17 +31,18 @@ export async function POST(event: RequestEvent) {
 		}
 
 		const body = await event.request.json();
-		const cutoffDay = parseInt(body.payrollCutoffDay, 10);
+		const cutoffDay = parseInt(body.payroll_cutoff, 10);
 		if (isNaN(cutoffDay) || cutoffDay < 1 || cutoffDay > 28) {
 			return json({ error: 'Invalid payroll cutoff day. Must be between 1 and 28.' }, { status: 400 });
 		}
 
-		leaveService.setPayrollCutoffDay(cutoffDay);
+		await leaveService.setPayrollCutoffDay(cutoffDay, event.locals.user?.id);
 
-		return json({ data: { payrollCutoffDay: cutoffDay } });
+		return json({ data: { payroll_cutoff: cutoffDay } });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : 400;
 		return json({ error: message }, { status });
 	}
 }
+

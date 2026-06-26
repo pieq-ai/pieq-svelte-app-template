@@ -1,5 +1,6 @@
 import * as leaveDao from '$lib/server/dao/leave.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import * as settingsDao from '$lib/server/dao/settings.dao.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
 import { calculateLeaveDays, isWeekend, isHoliday, getHolidaysCached } from '$lib/server/config/leave.config.js';
 
@@ -92,14 +93,13 @@ function calculateFractionalMonths(start: Date, end: Date): number {
 	return totalMonths;
 }
 
-let payrollCutoffDayValue = 25;
-
 export async function getPayrollCutoffDay(tx?: any): Promise<number> {
-	return payrollCutoffDayValue;
+	const settings = await settingsDao.getSettings(tx);
+	return settings.payroll_cutoff;
 }
 
-export function setPayrollCutoffDay(value: number) {
-	payrollCutoffDayValue = value;
+export async function setPayrollCutoffDay(value: number, userId?: string | null, tx?: any) {
+	await settingsDao.updateSettings(value, userId, tx);
 }
 
 export async function getMonthlyUsedDays(employeeCuid: string, month: number, year: number, leaveCode: 'LOP' | 'LWP', tx?: any) {

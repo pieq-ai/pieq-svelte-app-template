@@ -190,6 +190,8 @@
 				const parsed = parseBackendErrors(body);
 				if (parsed.field) {
 					backendErrors = { [parsed.field]: parsed.message };
+				} else if (res.status === 409 || parsed.message.toLowerCase().includes('already exists') || parsed.message.toLowerCase().includes('duplicate') || parsed.message.toLowerCase().includes('email')) {
+					backendErrors = { official_email: parsed.message };
 				} else {
 					toast.error(parsed.message);
 				}
