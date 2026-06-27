@@ -75,7 +75,10 @@ export function toEmployeeAttendanceViewDTO(employee: any) {
 		first_name: employee.first_name,
 		last_name: employee.last_name,
 		date_of_joining: employee.date_of_joining || null,
-		relieving_date: employee.relieving_date || null
+		relieving_date: employee.relieving_date || null,
+		location_cuid: employee.location_cuid || null,
+		latitude: employee.latitude !== undefined && employee.latitude !== null ? Number(employee.latitude) : null,
+		longitude: employee.longitude !== undefined && employee.longitude !== null ? Number(employee.longitude) : null
 	});
 }
 

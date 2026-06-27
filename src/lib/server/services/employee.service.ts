@@ -1,5 +1,6 @@
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
+import * as locationDao from '$lib/server/dao/organization_location.dao.js';
 import * as addressDao from '$lib/server/dao/address.dao.js';
 import * as bankDetailDao from '$lib/server/dao/bank-detail.dao.js';
 import * as educationDao from '$lib/server/dao/education.dao.js';
@@ -273,16 +274,22 @@ export async function deleteEmployee(cuid: string) {
 export async function getMinimalEmployeesForAttendance() {
     const employees = await employeeDao.list();
     const employments = await employmentDao.list();
+    const locations = await locationDao.getAllLocations();
+    const locMap = new Map(locations.map(l => [l.cuid, l]));
     const empMap = new Map(employments.map(e => [e.employee_cuid, e]));
     return employees.map(emp => {
         const empl = empMap.get(emp.cuid);
+        const loc = empl?.location_cuid ? locMap.get(empl.location_cuid) : null;
         return {
             cuid: emp.cuid,
             emp_code: emp.emp_code,
             first_name: emp.first_name,
             last_name: emp.last_name,
             date_of_joining: empl?.date_of_joining || null,
-            relieving_date: empl?.relieving_date || null
+            relieving_date: empl?.relieving_date || null,
+            location_cuid: empl?.location_cuid || null,
+            latitude: loc?.latitude ? Number(loc.latitude) : null,
+            longitude: loc?.longitude ? Number(loc.longitude) : null
         };
     });
 }

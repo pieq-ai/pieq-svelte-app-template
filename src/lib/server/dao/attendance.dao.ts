@@ -74,3 +74,14 @@ export async function update(cuid: string, data: UpdateAttendanceInput) {
 		data
 	});
 }
+
+export async function findOpenRecord(employee_cuid: string) {
+	return db.attendanceRecord.findFirst({
+		where: {
+			employee_cuid,
+			check_in_time: { not: null },
+			check_out_time: null
+		}
+	});
+}
+
