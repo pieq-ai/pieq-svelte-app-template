@@ -8,10 +8,8 @@
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
-	import PlusIcon from '@lucide/svelte/icons/plus';
 	import FilterIcon from '@lucide/svelte/icons/filter';
 	import CheckIcon from '@lucide/svelte/icons/check';
-	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import {
@@ -34,7 +32,6 @@
 		CrudModal,
 		Pagination,
 		TableActions,
-		CardContent,
 		SearchInput
 	} from '$lib/components';
 	import { toast } from '$lib/toast';

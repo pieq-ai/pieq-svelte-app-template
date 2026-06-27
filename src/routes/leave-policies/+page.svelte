@@ -3,16 +3,13 @@
 	import { slide } from 'svelte/transition';
 	import { untrack } from 'svelte';
 	import { goto, invalidate, beforeNavigate } from '$app/navigation';
-	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
-	import SearchIcon from '@lucide/svelte/icons/search';
-	import XIcon from '@lucide/svelte/icons/x';
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
-	
-	import FilterIcon from '@lucide/svelte/icons/filter';
+	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import FilterIcon from '@lucide/svelte/icons/filter';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import {
 		Alert,

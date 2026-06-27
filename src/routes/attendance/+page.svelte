@@ -18,21 +18,15 @@
 		TableHead,
 		TableHeader,
 		TableRow,
-		Input,
-		CrudModal,
 		Pagination,
 		DatePicker,
 		ConfirmModal
 	} from '$lib/components';
-	import ClockIcon from '@lucide/svelte/icons/clock';
-	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
-	import CheckCircle2Icon from '@lucide/svelte/icons/check-circle-2';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
-	import PlusIcon from '@lucide/svelte/icons/plus';
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';

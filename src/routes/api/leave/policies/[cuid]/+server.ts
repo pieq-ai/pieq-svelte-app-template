@@ -96,7 +96,6 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 		status
 	} = trimmedBody;
 
-	console.log(`PUT /api/leave/policies/${cuid} request payload:`, trimmedBody);
 
 	try {
 		let userId: string | null = null;
@@ -124,7 +123,6 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 			status,
 			updated_by: userId
 		});
-		console.log(`PUT /api/leave/policies/${cuid} success, updated policy:`, data);
 		return updateSuccessResponse('Leave policy', data.cuid);
 	} catch (error) {
 		console.error(`PUT /api/leave/policies/${cuid} failed. Full error stack:`, error);
@@ -143,7 +141,6 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
 		if (isValidationError) {
 			const valError = error as { field?: string; message: string };
-			console.log('Validation failed:', { field: valError.field, message: valError.message });
 			return json({ data: { error: { [valError.field || 'general']: valError.message } } }, { status: 400 });
 		}
 

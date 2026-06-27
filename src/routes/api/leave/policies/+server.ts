@@ -89,8 +89,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		status
 	} = trimmedBody;
 
-	console.log('POST /api/leave/policies request payload:', trimmedBody);
-
 	try {
 		let userId: string | null = null;
 		try {
@@ -118,7 +116,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			created_by: userId,
 			updated_by: userId
 		});
-		console.log('POST /api/leave/policies success, created policy:', data);
 		return createSuccessResponse('Leave policy', data.cuid);
 	} catch (error) {
 		console.error('POST /api/leave/policies failed. Full error stack:', error);
@@ -137,7 +134,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 		if (isValidationError) {
 			const valError = error as { field?: string; message: string };
-			console.log('Validation failed:', { field: valError.field, message: valError.message });
 			return json({ data: { error: { [valError.field || 'general']: valError.message } } }, { status: 400 });
 		}
 
