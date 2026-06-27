@@ -41,6 +41,17 @@ export const GET: RequestHandler = async ({ params }) => {
 
 export const PUT: RequestHandler = async ({ params, request, locals }) => {
 	const { cuid } = params;
+
+	try {
+		const existing = await getAttendanceRecordByCuid(cuid);
+		if (!existing) {
+			return errorResponse('Attendance record not found', 404);
+		}
+	} catch (err) {
+		console.error(`Failed to verify attendance record existence for ${cuid}`, err);
+		return errorResponse('Failed to update attendance record', 500);
+	}
+
 	let body: unknown;
 
 	try {
@@ -87,10 +98,13 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 			(error !== null && typeof error === 'object' && 'name' in error && error.name === 'AttendanceMultiValidationError');
 
 		if (isMultiError) {
-			return json({ data: { error: (error as any).fields } }, { status: 400 });
+			const fields = (error as any).fields;
+			const isConflict = Object.values(fields).some((msg: any) => String(msg).toLowerCase().includes('already exists'));
+			return json({ data: { error: fields } }, { status: isConflict ? 409 : 400 });
 		}
 		if (error instanceof AttendanceValidationError) {
-			return json({ data: { error: { [error.field]: error.message } } }, { status: 400 });
+			const isConflict = error.message.toLowerCase().includes('already exists');
+			return json({ data: { error: { [error.field]: error.message } } }, { status: isConflict ? 409 : 400 });
 		}
 
 		console.error(`PUT /api/attendance-records/${cuid} failed`, error);

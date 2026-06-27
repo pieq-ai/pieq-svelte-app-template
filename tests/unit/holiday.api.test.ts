@@ -87,6 +87,24 @@ describe('holidays API', () => {
 			const res = await holidaysApi.POST(mockEvent as any);
 			expect(res.status).toBe(400);
 		});
+
+		it('should return 409 for duplicate holiday conflict error', async () => {
+			const mockEvent = {
+				request: {
+					json: vi.fn().mockResolvedValue({ name: 'Independence Day', date: '2026-07-04' })
+				},
+				locals: mockLocals
+			};
+
+			vi.mocked(holidayService.createHoliday).mockRejectedValue(
+				new holidayService.HolidayMultiValidationError({
+					date: 'Holiday already scheduled for this date'
+				})
+			);
+
+			const res = await holidaysApi.POST(mockEvent as any);
+			expect(res.status).toBe(409);
+		});
 	});
 
 	describe('GET /api/holidays/[cuid]', () => {
@@ -119,6 +137,42 @@ describe('holidays API', () => {
 
 			const res = await holidaysCuidApi.PUT(mockEvent as any);
 			expect(res.status).toBe(200);
+		});
+
+		it('should return 404 if holiday to update is not found', async () => {
+			const mockEvent = {
+				params: { cuid: 'h1' },
+				request: {
+					json: vi.fn().mockResolvedValue({ name: 'New Year' })
+				},
+				locals: mockLocals
+			};
+
+			vi.mocked(holidayService.updateHoliday).mockRejectedValue(
+				new Error('Holiday not found')
+			);
+
+			const res = await holidaysCuidApi.PUT(mockEvent as any);
+			expect(res.status).toBe(404);
+		});
+
+		it('should return 409 if holiday update conflicts with existing holiday', async () => {
+			const mockEvent = {
+				params: { cuid: 'h1' },
+				request: {
+					json: vi.fn().mockResolvedValue({ name: 'New Year' })
+				},
+				locals: mockLocals
+			};
+
+			vi.mocked(holidayService.updateHoliday).mockRejectedValue(
+				new holidayService.HolidayMultiValidationError({
+					name: 'Holiday Name already exists'
+				})
+			);
+
+			const res = await holidaysCuidApi.PUT(mockEvent as any);
+			expect(res.status).toBe(409);
 		});
 	});
 

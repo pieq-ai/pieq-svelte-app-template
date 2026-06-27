@@ -83,6 +83,24 @@ describe('attendance-records API', () => {
 			const body = await res.json();
 			expect(body.data.cuid).toBe('rec-123');
 		});
+
+		it('should return 409 for duplicate record conflict error', async () => {
+			const mockEvent = {
+				request: {
+					json: vi.fn().mockResolvedValue({ employee_cuid: 'emp-1', date: '2026-06-01' })
+				},
+				locals: mockLocals
+			};
+
+			vi.mocked(attendanceRecordService.createAttendanceRecord).mockRejectedValue(
+				new attendanceRecordService.AttendanceMultiValidationError({
+					date: 'An attendance record already exists for this employee on this date'
+				})
+			);
+
+			const res = await recordsApi.POST(mockEvent as any);
+			expect(res.status).toBe(409);
+		});
 	});
 
 	describe('GET /api/attendance-records/[cuid]', () => {
@@ -123,10 +141,44 @@ describe('attendance-records API', () => {
 				locals: mockLocals
 			};
 
+			vi.mocked(attendanceRecordService.getAttendanceRecordByCuid).mockResolvedValue({ cuid: 'r1' } as any);
 			vi.mocked(attendanceRecordService.updateAttendanceRecord).mockResolvedValue({ cuid: 'r1' } as any);
 
 			const res = await recordsCuidApi.PUT(mockEvent as any);
 			expect(res.status).toBe(200);
+		});
+
+		it('should return 404 if attendance record to update is not found', async () => {
+			const mockEvent = {
+				params: { cuid: 'r1' },
+				request: {
+					json: vi.fn().mockResolvedValue({ status: 'Present' })
+				},
+				locals: mockLocals
+			};
+
+			vi.mocked(attendanceRecordService.getAttendanceRecordByCuid).mockResolvedValue(null);
+
+			const res = await recordsCuidApi.PUT(mockEvent as any);
+			expect(res.status).toBe(404);
+		});
+
+		it('should return 409 if attendance record update conflicts with existing record', async () => {
+			const mockEvent = {
+				params: { cuid: 'r1' },
+				request: {
+					json: vi.fn().mockResolvedValue({ status: 'Present' })
+				},
+				locals: mockLocals
+			};
+
+			vi.mocked(attendanceRecordService.getAttendanceRecordByCuid).mockResolvedValue({ cuid: 'r1' } as any);
+			vi.mocked(attendanceRecordService.updateAttendanceRecord).mockRejectedValue(
+				new attendanceRecordService.AttendanceValidationError('date', 'An attendance record already exists for this employee on this date')
+			);
+
+			const res = await recordsCuidApi.PUT(mockEvent as any);
+			expect(res.status).toBe(409);
 		});
 	});
 

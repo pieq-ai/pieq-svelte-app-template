@@ -101,6 +101,24 @@ describe('leave-policies API', () => {
 			const res = await policiesApi.POST(mockEvent as any);
 			expect(res.status).toBe(400);
 		});
+
+		it('should return 409 for duplicate policy conflict error', async () => {
+			const mockEvent = {
+				request: {
+					json: vi.fn().mockResolvedValue({ leave_type_cuid: 't1' })
+				},
+				locals: mockLocals
+			};
+
+			vi.mocked(leavePolicyService.createLeavePolicy).mockRejectedValue(
+				new LeaveMultiValidationError({
+					employment_type_cuids: 'Leave Policy already exists for this employment type and leave type'
+				})
+			);
+
+			const res = await policiesApi.POST(mockEvent as any);
+			expect(res.status).toBe(409);
+		});
 	});
 
 	describe('GET /api/leave/policies/[cuid]', () => {
@@ -144,6 +162,42 @@ describe('leave-policies API', () => {
 
 			const res = await policiesCuidApi.PUT(mockEvent as any);
 			expect(res.status).toBe(200);
+		});
+
+		it('should return 404 if leave policy to update is not found', async () => {
+			const mockEvent = {
+				params: { cuid: 'p1' },
+				request: {
+					json: vi.fn().mockResolvedValue({ annual_limit: 20 })
+				},
+				locals: mockLocals
+			};
+
+			vi.mocked(leavePolicyService.updateLeavePolicy).mockRejectedValue(
+				new Error('Leave policy not found')
+			);
+
+			const res = await policiesCuidApi.PUT(mockEvent as any);
+			expect(res.status).toBe(404);
+		});
+
+		it('should return 409 if leave policy update conflicts with existing policy', async () => {
+			const mockEvent = {
+				params: { cuid: 'p1' },
+				request: {
+					json: vi.fn().mockResolvedValue({ annual_limit: 20 })
+				},
+				locals: mockLocals
+			};
+
+			vi.mocked(leavePolicyService.updateLeavePolicy).mockRejectedValue(
+				new LeaveMultiValidationError({
+					employment_type_cuids: 'Leave Policy already exists for this employment type and leave type'
+				})
+			);
+
+			const res = await policiesCuidApi.PUT(mockEvent as any);
+			expect(res.status).toBe(409);
 		});
 	});
 

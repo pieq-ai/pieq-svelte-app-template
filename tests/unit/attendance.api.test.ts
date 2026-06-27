@@ -62,6 +62,23 @@ describe('attendance API', () => {
 			const body = await res.json();
 			expect(body.data.error.employee_cuid).toBe('Employee is required');
 		});
+
+		it('should return 409 for check-in conflict when already checked in', async () => {
+			const payload = { employee_cuid: 'emp-1' };
+			const mockEvent = {
+				request: {
+					json: vi.fn().mockResolvedValue(payload)
+				},
+				locals: mockLocals
+			};
+
+			vi.mocked(attendanceService.checkIn).mockRejectedValue(
+				new attendanceService.AttendanceValidationError('employee_cuid', 'Already checked in for today')
+			);
+
+			const res = await checkInApi.POST(mockEvent as any);
+			expect(res.status).toBe(409);
+		});
 	});
 
 	describe('PUT /api/attendance/check-out', () => {
@@ -98,6 +115,23 @@ describe('attendance API', () => {
 
 			const res = await checkOutApi.PUT(mockEvent as any);
 			expect(res.status).toBe(400);
+		});
+
+		it('should return 409 for check-out conflict when no open check-in record exists', async () => {
+			const payload = { employee_cuid: 'emp-1' };
+			const mockEvent = {
+				request: {
+					json: vi.fn().mockResolvedValue(payload)
+				},
+				locals: mockLocals
+			};
+
+			vi.mocked(attendanceService.checkOut).mockRejectedValue(
+				new attendanceService.AttendanceValidationError('employee_cuid', 'No open check-in record found')
+			);
+
+			const res = await checkOutApi.PUT(mockEvent as any);
+			expect(res.status).toBe(409);
 		});
 	});
 });

@@ -43,7 +43,8 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
 		}, 200);
 	} catch (error: any) {
 		if (error instanceof AttendanceValidationError) {
-			return json({ data: { error: { [error.field]: error.message } } }, { status: 400 });
+			const isConflict = error.message.toLowerCase().includes('already') || error.message.toLowerCase().includes('no open check-in');
+			return json({ data: { error: { [error.field]: error.message } } }, { status: isConflict ? 409 : 400 });
 		}
 
 		console.error('PUT /api/attendance/check-out failed', error);

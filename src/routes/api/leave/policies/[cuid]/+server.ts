@@ -124,6 +124,10 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 		});
 		return updateSuccessResponse('Leave policy', data.cuid);
 	} catch (error) {
+		if (error instanceof Error && error.message === 'Leave policy not found') {
+			return errorResponse(error.message, 404);
+		}
+
 		console.error(`PUT /api/leave/policies/${cuid} failed. Full error stack:`, error);
 
 		const isMultiError =
@@ -131,7 +135,9 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 			(error !== null && typeof error === 'object' && 'name' in error && error.name === 'LeaveMultiValidationError');
 
 		if (isMultiError) {
-			return json({ data: { error: (error as any).fields } }, { status: 400 });
+			const fields = (error as any).fields;
+			const isConflict = Object.values(fields).some((msg: any) => String(msg).toLowerCase().includes('already exists'));
+			return json({ data: { error: fields } }, { status: isConflict ? 409 : 400 });
 		}
 
 		const isValidationError =
