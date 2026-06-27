@@ -51,6 +51,6 @@ export async function replaceExperiences(employee_cuid: string, dtos: UpsertExpe
     }));
 
     const results = await experienceDao.replaceExperiences(employee_cuid, payload);
-    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
+    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid);
     return results.map(toPublicExperience);
 }

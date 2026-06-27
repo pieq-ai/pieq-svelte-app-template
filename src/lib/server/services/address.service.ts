@@ -44,6 +44,6 @@ export async function replaceAddresses(employee_cuid: string, dtos: UpsertAddres
     }));
 
     const results = await addressDao.replaceAddresses(employee_cuid, payload);
-    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
+    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid);
     return results.map(toPublicAddress);
 }

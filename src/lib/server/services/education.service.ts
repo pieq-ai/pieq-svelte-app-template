@@ -53,6 +53,6 @@ export async function replaceEducations(employee_cuid: string, dtos: UpsertEduca
     }));
 
     const results = await educationDao.replaceEducations(employee_cuid, payload);
-    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
+    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid);
     return results.map(toPublicEducation);
 }

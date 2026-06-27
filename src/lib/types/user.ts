@@ -2,6 +2,14 @@ export interface User {
 	id: string;
 	email: string;
 	name: string | null;
+	keycloak_sub?: string;
+	employee_cuid?: string;
+	employment_cuid?: string;
+	emp_code?: string;
+	employee_name?: string;
+	official_email?: string;
+	system_role_cuid?: string;
+	profile_completion_status?: string;
 	createdAt?: Date;
 	updatedAt?: Date;
 }

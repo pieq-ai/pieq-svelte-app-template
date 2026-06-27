@@ -13,6 +13,8 @@ export interface UpsertEmploymentInput {
     confirmation_date?: Date | null;
     relieving_date?: Date | null;
     official_email?: string | null;
+    keycloak_sub?: string | null;
+    system_role_cuid?: string | null;
     created_by?: string;
     updated_by?: string;
 }

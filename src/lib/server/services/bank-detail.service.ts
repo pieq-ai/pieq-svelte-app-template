@@ -61,6 +61,6 @@ export async function replaceBankDetails(employee_cuid: string, dtos: UpsertBank
     }));
 
     const results = await bankDetailDao.replaceBankDetails(employee_cuid, payload);
-    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
+    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid);
     return results.map(toPublicBankDetail);
 }

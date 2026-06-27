@@ -57,6 +57,6 @@ export async function replaceLanguages(employee_cuid: string, dtos: UpsertLangua
     }));
 
     const results = await languageDao.replaceLanguages(employee_cuid, payload);
-    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
+    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid);
     return results.map(toPublicLanguage);
 }

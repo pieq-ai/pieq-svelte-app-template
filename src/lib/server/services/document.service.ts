@@ -90,7 +90,7 @@ export async function replaceDocuments(employee_cuid: string, dtos: UpsertDocume
     });
 
     const results = await documentDao.replaceDocuments(employee_cuid, payload);
-    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
+    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid);
     return results.map(toPublicDocument);
 }
 

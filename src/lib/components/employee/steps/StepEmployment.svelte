@@ -33,12 +33,14 @@
 	let isDeptModalOpen = $state(false);
 	let isDesignationModalOpen = $state(false);
 	let isRoleModalOpen = $state(false);
+	let isSystemRoleModalOpen = $state(false);
 	let isLocationModalOpen = $state(false);
 	
 	let deptDropdown = $state<ReturnType<typeof AsyncDropdown>>();
 	let desigDropdown = $state<ReturnType<typeof AsyncDropdown>>();
 	let roleDropdown = $state<ReturnType<typeof AsyncDropdown>>();
 	let locationDropdown = $state<ReturnType<typeof AsyncDropdown>>();
+	let systemRoleDropdown = $state<ReturnType<typeof AsyncDropdown>>();
 
 	const defaultEmployment = {
 		department_cuid: '',
@@ -52,7 +54,8 @@
 		confirmation_date: '',
 		relieving_date: '',
 		official_email: '',
-		employment_status: 'onboarding'
+		employment_status: 'onboarding',
+		system_role_cuid: ''
 	};
 
 	let employment = $state({ ...defaultEmployment });
@@ -154,6 +157,7 @@
 		pay_grade_cuid: backendErrors.pay_grade_cuid || '', // optional
 		employment_type_cuid: backendErrors.employment_type_cuid || validateDropdown(employment.employment_type_cuid),
 		location_cuid: backendErrors.location_cuid || validateDropdown(employment.location_cuid),
+		system_role_cuid: backendErrors.system_role_cuid || '', // optional
 		employment_status: backendErrors.employment_status || validateDropdown(employment.employment_status),
 		official_email: backendErrors.official_email || validateEmail(employment.official_email),
 		date_of_joining: backendErrors.date_of_joining || validateDoj(employment.date_of_joining),
@@ -265,6 +269,22 @@
 			/>
 			{#if isTouched && errors.role_cuid}
 				<p class="text-xs text-destructive">{errors.role_cuid}</p>
+			{/if}
+		</div>
+		<div class="space-y-2">
+			<AsyncDropdown
+				bind:this={systemRoleDropdown}
+				apiEndpoint="/api/system-roles"
+				label="System Role"
+				value={employment.system_role_cuid}
+				loadingText="Loading system roles..."
+				errorText="Unable to load system roles."
+				onSelect={(val) => employment.system_role_cuid = val as string}
+				onAdd={() => isSystemRoleModalOpen = true}
+				class={(isTouched && errors.system_role_cuid) ? 'border-destructive' : ''}
+			/>
+			{#if isTouched && errors.system_role_cuid}
+				<p class="text-xs text-destructive">{errors.system_role_cuid}</p>
 			{/if}
 		</div>
 		<div class="space-y-2">
@@ -410,6 +430,16 @@
 	onSuccess={async (role) => {
 		if (roleDropdown) await roleDropdown.loadOptions();
 		employment.role_cuid = role.cuid;
+	}}
+/>
+
+<SimpleMasterModal
+	bind:open={isSystemRoleModalOpen}
+	entityName="System Role"
+	apiEndpoint="/api/system-roles"
+	onSuccess={async (role) => {
+		if (systemRoleDropdown) await systemRoleDropdown.loadOptions();
+		employment.system_role_cuid = role.cuid;
 	}}
 />
 

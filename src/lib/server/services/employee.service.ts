@@ -1,5 +1,6 @@
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
+import * as keycloakProvisionService from '$lib/server/services/keycloak-provision.service.js';
 import * as addressDao from '$lib/server/dao/address.dao.js';
 import * as bankDetailDao from '$lib/server/dao/bank-detail.dao.js';
 import * as educationDao from '$lib/server/dao/education.dao.js';
@@ -230,9 +231,9 @@ export async function updateEmployee(cuid: string, dto: UpdateEmployeeDto) {
     } as employeeDao.UpdateEmployeeInput));
 }
 
-export async function checkAndSetProfileCompletionStatus(employee_cuid: string) {
-    if (!employee_cuid) return;
-
+export async function isProfileComplete(employee_cuid: string): Promise<boolean> {
+    if (!employee_cuid) return false;
+    
     try {
         const [
             emp,
@@ -246,20 +247,77 @@ export async function checkAndSetProfileCompletionStatus(employee_cuid: string) 
             bankDetailDao.findByEmployeeCuid(employee_cuid)
         ]);
 
-        if (!emp) return;
+        if (!emp) return false;
 
-        const isCompleted = 
+        return (
             employment !== null &&
             addresses.length > 0 &&
-            banks.length > 0;
-
-        const newStatus = isCompleted ? 'completed' : 'pending';
-
-        if (emp.profile_completion_status !== newStatus) {
-            await employeeDao.update(employee_cuid, { profile_completion_status: newStatus } as employeeDao.UpdateEmployeeInput);
-        }
+            banks.length > 0
+        );
     } catch (error) {
-        console.error('Failed to calculate profile completion status', error);
+        console.error('Failed to validate if profile is complete', error);
+        return false;
+    }
+}
+
+export async function checkAndSetProfileCompletionStatus(employee_cuid: string) {
+    if (!employee_cuid) return;
+
+    try {
+        const emp = await employeeDao.findByCuid2(employee_cuid);
+        if (!emp) return;
+
+        // If already completed, do nothing
+        if (emp.profile_completion_status === 'completed') return;
+
+        const profileReady = await isProfileComplete(employee_cuid);
+
+        if (profileReady) {
+            console.log(`Employee onboarding complete.\nWaiting for Keycloak provisioning.`);
+            
+            const employment = await employmentDao.findByEmployeeCuid(employee_cuid);
+            if (!employment) {
+                throw new Error("Cannot provision user: employment record is missing.");
+            }
+            
+            if (employment?.keycloak_sub) {
+                console.log('Employee already provisioned.');
+                throw new Error('Employee already provisioned.');
+            }
+
+            if (!employment?.official_email) {
+                throw new Error("Cannot provision user: official_email is missing.");
+            }
+
+            // Provision Keycloak User
+            const keycloak_sub = await keycloakProvisionService.provisionUser({
+                first_name: emp.first_name,
+                last_name: emp.last_name,
+                official_email: employment.official_email,
+                system_role_cuid: employment.system_role_cuid
+            });
+
+            console.log("keycloak_sub to store:", keycloak_sub);
+
+            // Save keycloak_sub
+            await employmentDao.upsert(employee_cuid, {
+                ...employment,
+                keycloak_sub
+            } as employmentDao.UpsertEmploymentInput);
+            
+            const employmentAfterUpdate = await employmentDao.findByEmployeeCuid(employee_cuid);
+            console.log("Employment after update:", employmentAfterUpdate);
+            console.log('keycloak_sub Stored');
+
+            // Mark employee completed
+            await employeeDao.update(employee_cuid, { profile_completion_status: 'completed' } as employeeDao.UpdateEmployeeInput);
+            console.log('Employee Completed');
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Failed to process profile completion transition', error);
+        throw error;
     }
 }
 

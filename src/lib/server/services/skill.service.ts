@@ -47,6 +47,6 @@ export async function replaceSkills(employee_cuid: string, dtos: UpsertSkillDto[
     }));
 
     const results = await skillDao.replaceSkills(employee_cuid, payload);
-    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
+    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid);
     return results.map(toPublicSkill);
 }
