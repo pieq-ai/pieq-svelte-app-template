@@ -155,7 +155,7 @@
 			{/if}
 			<div class="flex items-center justify-end gap-3 pt-4">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingRecord && !isDirty)}>
+				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSubmitting || (!!editingRecord && !isDirty)}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingRecord ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>
 			</div>

@@ -198,7 +198,7 @@
 <div class="flex min-h-screen bg-background text-foreground">
 	<Toaster />
 	<aside
-		class={`sticky top-0 h-screen z-30 flex shrink-0 flex-col border-r border-[#737373]/25 bg-[#262626] text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-[261px]'}`}
+		class={`sticky top-0 h-screen z-30 flex shrink-0 flex-col border-r border-hrms-neutral/25 bg-hrms-secondary text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-[261px]'}`}
 		aria-label="Primary navigation"
 		data-sveltekit-preload-data="off"
 	>
@@ -209,7 +209,7 @@
 					class="flex min-w-0 items-center gap-3 font-semibold tracking-tight"
 					title="PieQ HRMS"
 				>
-					<span class="flex size-8 shrink-0 items-center justify-center rounded-md bg-[#F45310] text-white">
+					<span class="flex size-8 shrink-0 items-center justify-center rounded-md bg-hrms-primary text-white">
 						<Building2Icon class="size-4" />
 					</span>
 					<span class="truncate text-base">PieQ HRMS</span>
@@ -236,7 +236,7 @@
 					<Button
 						href={item.href}
 						variant="ghost"
-						class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-[#F45310]' : ''}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-hrms-primary hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-hrms-primary' : ''}`}
 						title={isSidebarCollapsed ? item.label : undefined}
 						aria-label={item.label}
 						onmouseenter={(e) => handleMouseEnter(e, item.label)}
@@ -282,7 +282,7 @@
 								<Button
 									href={child.href}
 									variant="ghost"
-									class={`h-9 w-full justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
+									class={`h-9 w-full justify-start gap-3 text-white/80 hover:bg-hrms-primary hover:text-white px-3 text-sm ${isChildActive ? 'bg-hrms-primary text-white font-semibold' : ''}`}
 									aria-label={child.label}
 									onmouseenter={(e) => handleMouseEnter(e, child.label)}
 									onmouseleave={handleMouseLeave}
@@ -328,7 +328,7 @@
 								<Button
 									href={child.href}
 									variant="ghost"
-									class={`h-9 w-full justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
+									class={`h-9 w-full justify-start gap-3 text-white/80 hover:bg-hrms-primary hover:text-white px-3 text-sm ${isChildActive ? 'bg-hrms-primary text-white font-semibold' : ''}`}
 									aria-label={child.label}
 									onmouseenter={(e) => handleMouseEnter(e, child.label)}
 									onmouseleave={handleMouseLeave}
@@ -374,7 +374,7 @@
 								<Button
 									href={child.href}
 									variant="ghost"
-									class={`h-9 w-full justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
+									class={`h-9 w-full justify-start gap-3 text-white/80 hover:bg-hrms-primary hover:text-white px-3 text-sm ${isChildActive ? 'bg-hrms-primary text-white font-semibold' : ''}`}
 									aria-label={child.label}
 									onmouseenter={(e) => handleMouseEnter(e, child.label)}
 									onmouseleave={handleMouseLeave}
@@ -420,7 +420,7 @@
 								<Button
 									href={child.href}
 									variant="ghost"
-									class={`h-9 w-full justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
+									class={`h-9 w-full justify-start gap-3 text-white/80 hover:bg-hrms-primary hover:text-white px-3 text-sm ${isChildActive ? 'bg-hrms-primary text-white font-semibold' : ''}`}
 									aria-label={child.label}
 									onmouseenter={(e) => handleMouseEnter(e, child.label)}
 									onmouseleave={handleMouseLeave}
@@ -439,7 +439,7 @@
 					<Button
 						href={item.href}
 						variant="ghost"
-						class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-[#F45310]' : ''}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-hrms-primary hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-hrms-primary' : ''}`}
 						title={isSidebarCollapsed ? item.label : undefined}
 						aria-label={item.label}
 						onmouseenter={(e) => handleMouseEnter(e, item.label)}
@@ -455,7 +455,7 @@
 				<Button
 					href={resolve('/')}
 					variant="ghost"
-					class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+					class={`h-10 w-full justify-start gap-3 text-white hover:bg-hrms-primary hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 					title={isSidebarCollapsed ? 'Sign in' : undefined}
 					aria-label="Sign in"
 					onmouseenter={(e) => handleMouseEnter(e, 'Sign in')}
@@ -474,7 +474,7 @@
 				<Button
 					href={resolve('/settings')}
 					variant="ghost"
-					class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#F45310]/90 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isSettingsActive ? 'bg-[#F45310]/90' : ''}`}
+					class={`h-10 w-full justify-start gap-3 text-white hover:bg-hrms-primary/90 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isSettingsActive ? 'bg-hrms-primary/90' : ''}`}
 					title={isSidebarCollapsed ? 'Settings' : undefined}
 					aria-label="Settings"
 					onmouseenter={(e) => handleMouseEnter(e, 'Settings')}
@@ -503,7 +503,7 @@
 				</form>
 			{/if}
 			{#if authenticatedUser && !isSidebarCollapsed}
-				<p class="px-3 text-xs text-[#737373] wrap-break-word line-clamp-2" title={authenticatedUser.email}>{authenticatedUser.email}</p>
+				<p class="px-3 text-xs text-hrms-neutral wrap-break-word line-clamp-2" title={authenticatedUser.email}>{authenticatedUser.email}</p>
 			{/if}
 		</div>
 	</aside>

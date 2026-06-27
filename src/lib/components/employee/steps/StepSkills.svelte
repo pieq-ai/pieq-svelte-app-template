@@ -145,7 +145,7 @@
   {#if mode !== "view"}
     <div class="flex justify-end">
       <Button
-        class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+        class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
         onclick={addSkill}
         disabled={isSubmitting}
       >
@@ -233,7 +233,7 @@
           Cancel
         </Button>
         <Button
-          class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+          class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
           onclick={() => save()}
           disabled={isSubmitting}
         >

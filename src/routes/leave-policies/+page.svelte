@@ -807,7 +807,7 @@
 		</div>
 		<Button
 			type="button"
-			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
+			class="bg-hrms-primary text-white hover:bg-hrms-primary/90 border-0"
 			onclick={openAddModal}
 		>
 			Add Leave Policy
@@ -819,19 +819,19 @@
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription class="text-black dark:text-white">Total Policies</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-[#262626] dark:text-neutral-200">{totalPolicies}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-hrms-secondary dark:text-neutral-200">{totalPolicies}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription class="text-black dark:text-white">Active Policies</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-[#F45310]">{activePoliciesCount}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-hrms-primary">{activePoliciesCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription class="text-black dark:text-white">Inactive Policies</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-[#800020] dark:text-[#b83d58]">{inactivePoliciesCount}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-hrms-destructive dark:text-[#b83d58]">{inactivePoliciesCount}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
@@ -1365,7 +1365,7 @@
 				</Button>
 				<Button
 					type="submit"
-					class="flex-1 sm:flex-initial sm:min-w-28 font-medium bg-[#F45310] text-white hover:bg-[#F45310]/90"
+					class="flex-1 sm:flex-initial sm:min-w-28 font-medium bg-hrms-primary text-white hover:bg-hrms-primary/90"
 					disabled={isSubmitDisabled}
 				>
 					{#if isSubmitting}
@@ -1419,7 +1419,7 @@
 
 			<div class="flex items-center justify-end gap-3 pt-6">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSavingNewEmp}>Cancel</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSavingNewEmp || !newEmpName.trim()}>
+				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSavingNewEmp || !newEmpName.trim()}>
 					{#if isSavingNewEmp}
 						<LoaderCircleIcon class="size-4 animate-spin" />
 						Saving...
