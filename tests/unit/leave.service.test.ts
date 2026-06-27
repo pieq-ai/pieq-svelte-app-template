@@ -1067,7 +1067,7 @@ describe('Leave Service Unit Tests', () => {
 			expect(db.attendanceRecord.upsert).toHaveBeenCalledTimes(2);
 			expect(db.attendanceRecord.upsert).toHaveBeenNthCalledWith(1, expect.objectContaining({
 				create: expect.objectContaining({
-					attendance_status: 'Absent'
+					attendance_status: 'Leave'
 				})
 			}));
 		});
@@ -1193,7 +1193,7 @@ describe('Leave Service Unit Tests', () => {
 
 			expect(db.attendanceRecord.upsert).toHaveBeenCalledWith(expect.objectContaining({
 				create: expect.objectContaining({
-					attendance_status: 'HalfDay'
+					attendance_status: 'Half Day'
 				})
 			}));
 		});

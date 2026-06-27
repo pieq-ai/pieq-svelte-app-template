@@ -3,6 +3,7 @@ import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as holidayDao from '$lib/server/dao/holiday.dao.js';
 import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
+import { getLeaveStatusOnDate } from './attendance.service.js';
 
 export class AttendanceValidationError extends Error {
 	readonly field: string;
@@ -229,6 +230,16 @@ async function validateRecordFields(
 	const finalCheckOut = check_out_time !== undefined ? check_out_time : (isUpdate ? existingRecord?.check_out_time : null);
 	const finalStatus = status !== undefined ? status : (isUpdate ? existingRecord?.status : undefined);
 	const finalSource = attendance_source_cuid !== undefined ? attendance_source_cuid : (isUpdate ? existingRecord?.attendance_source_cuid : null);
+
+	if (finalEmployee && finalDate && finalStatus) {
+		if (['Present', 'Late', 'WFH', 'Half Day'].includes(finalStatus)) {
+			const leaveStatus = await getLeaveStatusOnDate(finalEmployee, finalDate);
+			if (leaveStatus.hasLeave && !leaveStatus.isHalfDay) {
+				errors.date = 'Attendance cannot be marked on leave or LOP days';
+				throw new AttendanceMultiValidationError(errors);
+			}
+		}
+	}
 
 	if (finalStatus && ['Leave', 'Holiday', 'LOP'].includes(finalStatus)) {
 		if (finalCheckIn) {

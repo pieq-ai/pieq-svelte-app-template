@@ -446,8 +446,20 @@
 						rec.employee_cuid === formEmployeeCuid &&
 						(rec.date || rec.attendance_date) === formAttendanceDate
 				);
-				if (existing && (!editCuid || existing.cuid !== editCuid)) {
+				if (existing && existing.status !== 'Half Day' && (!editCuid || existing.cuid !== editCuid)) {
 					errs.date = 'An attendance record already exists for this employee on this date';
+				}
+			}
+
+			// Leave check
+			if (formEmployeeCuid && formAttendanceStatus && ['Present', 'Late', 'WFH', 'Half Day'].includes(formAttendanceStatus)) {
+				const existing = data.records.find(
+					(rec: any) =>
+						rec.employee_cuid === formEmployeeCuid &&
+						(rec.date || rec.attendance_date) === formAttendanceDate
+				);
+				if (existing && (existing.status === 'Leave' || existing.status === 'LOP') && (!editCuid || existing.cuid === editCuid)) {
+					errs.date = 'Attendance cannot be marked on leave or LOP days';
 				}
 			}
 

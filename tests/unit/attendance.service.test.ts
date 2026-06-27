@@ -12,6 +12,11 @@ import {
 } from '$lib/server/services/attendance.service.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import * as locationDao from '$lib/server/dao/organization_location.dao.js';
+import * as leaveDao from '$lib/server/dao/leave.dao.js';
+
+vi.mock('$lib/server/dao/leave.dao.js', () => ({
+	getApprovedRequestsInPeriod: vi.fn()
+}));
 
 vi.mock('$lib/server/dao/organization_location.dao.js', () => ({
 	getLocationByCuid: vi.fn(),
@@ -57,6 +62,7 @@ describe('attendance service', () => {
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date(Date.UTC(2026, 5, 1, 9, 0, 0))); // June 1, 2026 09:00 UTC (Monday)
 		vi.clearAllMocks();
+		vi.mocked(leaveDao.getApprovedRequestsInPeriod).mockResolvedValue([]);
 		vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
 			date_of_joining: new Date(Date.UTC(2026, 0, 1)), // Jan 1, 2026
 			relieving_date: null,
@@ -238,6 +244,40 @@ describe('attendance service', () => {
 			await checkIn(employeeCuid, null, 'admin', validGps);
 			expect(masterDataDao.createAttendanceSource).toHaveBeenCalledWith('Web');
 		});
+
+		it('should allow check-in on weekends', async () => {
+			vi.setSystemTime(new Date(Date.UTC(2026, 5, 6, 9, 0, 0))); // June 6, 2026 (Saturday)
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue(null);
+			vi.mocked(masterDataDao.findAttendanceSourceByName).mockResolvedValue(null);
+			vi.mocked(masterDataDao.createAttendanceSource).mockResolvedValue({ cuid: 'web-source-cuid' } as any);
+			vi.mocked(attendanceDao.create).mockResolvedValue({ cuid: 'created-attendance' } as any);
+
+			const result = await checkIn(employeeCuid, null, 'admin', validGps);
+			expect(result).toEqual({ cuid: 'created-attendance' });
+		});
+
+		it('should allow check-in on half-day leaves', async () => {
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(leaveDao.getApprovedRequestsInPeriod).mockResolvedValue([{ is_half_day: true } as any]);
+			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({ cuid: 'existing-half-day', status: 'Half Day', check_in_time: null } as any);
+			vi.mocked(attendanceDao.update).mockResolvedValue({ cuid: 'updated-attendance' } as any);
+
+			const result = await checkIn(employeeCuid, null, 'admin', validGps);
+			expect(result).toEqual({ cuid: 'updated-attendance' });
+		});
+
+		it('should reject check-in on approved full-day leaves', async () => {
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(leaveDao.getApprovedRequestsInPeriod).mockResolvedValue([{ is_half_day: false } as any]);
+
+			await expect(checkIn(employeeCuid, null, 'admin', validGps)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on leave or LOP days')
+			);
+		});
 	});
 
 	describe('checkOut', () => {
@@ -361,6 +401,42 @@ describe('attendance service', () => {
 				check_out_latitude: validGps.latitude,
 				check_out_longitude: validGps.longitude
 			});
+		});
+
+		it('should allow check-out on weekends', async () => {
+			vi.setSystemTime(new Date(Date.UTC(2026, 5, 6, 17, 30, 0))); // June 6, 2026 (Saturday)
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(attendanceDao.findOpenRecord).mockResolvedValue({
+				cuid: 'record-123',
+				check_in_time: new Date(Date.UTC(2026, 5, 6, 9, 0, 0))
+			} as any);
+			vi.mocked(attendanceDao.update).mockResolvedValue({ cuid: 'record-123' } as any);
+
+			const result = await checkOut(employeeCuid, 'admin', validGps);
+			expect(result).toEqual({ cuid: 'record-123' });
+		});
+
+		it('should allow check-out on half-day leaves', async () => {
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(leaveDao.getApprovedRequestsInPeriod).mockResolvedValue([{ is_half_day: true } as any]);
+			vi.mocked(attendanceDao.findOpenRecord).mockResolvedValue({
+				cuid: 'record-123',
+				check_in_time: new Date(Date.UTC(2026, 5, 1, 9, 0, 0)),
+				status: 'Half Day'
+			} as any);
+			vi.mocked(attendanceDao.update).mockResolvedValue({ cuid: 'record-123' } as any);
+
+			const result = await checkOut(employeeCuid, 'admin', validGps);
+			expect(result).toEqual({ cuid: 'record-123' });
+		});
+
+		it('should reject check-out on approved full-day leaves', async () => {
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(leaveDao.getApprovedRequestsInPeriod).mockResolvedValue([{ is_half_day: false } as any]);
+
+			await expect(checkOut(employeeCuid, 'admin', validGps)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on leave or LOP days')
+			);
 		});
 	});
 

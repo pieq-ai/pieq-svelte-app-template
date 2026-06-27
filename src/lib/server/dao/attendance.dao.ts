@@ -16,6 +16,10 @@ export interface CreateAttendanceInput {
 }
 
 export interface UpdateAttendanceInput {
+	check_in_time?: Date | null;
+	check_in_latitude?: number | null;
+	check_in_longitude?: number | null;
+	attendance_source_cuid?: string | null;
 	check_out_time?: Date | null;
 	work_duration_minutes?: number | null;
 	updated_by?: string | null;

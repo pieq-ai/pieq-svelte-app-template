@@ -5,6 +5,50 @@ import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import { GEOFENCE_CONFIG, calculateDistance } from '$lib/geofence.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import * as locationDao from '$lib/server/dao/organization_location.dao.js';
+import * as leaveDao from '$lib/server/dao/leave.dao.js';
+
+export async function getLeaveStatusOnDate(employeeCuid: string, date: Date, tx?: any) {
+	const dateUTC = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+
+	const approvedLeaves = await leaveDao.getApprovedRequestsInPeriod(employeeCuid, dateUTC, dateUTC, tx);
+	const approvedLeave = approvedLeaves[0] || null;
+
+	if (approvedLeave) {
+		return {
+			hasLeave: true,
+			isHalfDay: approvedLeave.is_half_day
+		};
+	}
+
+	return {
+		hasLeave: false,
+		isHalfDay: false
+	};
+}
+
+export async function getAttendanceEligibility(employeeCuid: string, date: Date, tx?: any) {
+	const dateUTC = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+
+	// 1. Holiday check
+	const isHoliday = await holidayDao.findByDate(dateUTC);
+	if (isHoliday) {
+		return { eligible: false, reason: 'Attendance cannot be marked on holidays' };
+	}
+
+	// 2. Existing attendance record check (Leave, On Leave, LOP status)
+	const existing = await attendanceDao.findByEmployeeAndDate(employeeCuid, dateUTC);
+	if (existing && (existing.status === 'Leave' || existing.status === 'On Leave' || existing.status === 'LOP')) {
+		return { eligible: false, reason: 'Attendance cannot be marked on leave or LOP days' };
+	}
+
+	// 3. Approved leave request check
+	const leaveStatus = await getLeaveStatusOnDate(employeeCuid, dateUTC, tx);
+	if (leaveStatus.hasLeave && !leaveStatus.isHalfDay) {
+		return { eligible: false, reason: 'Attendance cannot be marked on leave or LOP days' };
+	}
+
+	return { eligible: true, reason: null };
+}
 
 export class AttendanceValidationError extends Error {
 	readonly field: string;
@@ -71,10 +115,10 @@ export async function checkIn(
 		}
 	}
 
-	// Check if today is a holiday
-	const isHoliday = await holidayDao.findByDate(todayUTC);
-	if (isHoliday) {
-		throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on holidays');
+	// Check attendance eligibility (holiday, full-day leave)
+	const eligibility = await getAttendanceEligibility(employeeCuid, todayUTC);
+	if (!eligibility.eligible) {
+		throw new AttendanceValidationError('employee_cuid', eligibility.reason!);
 	}
 
 	// Check for any open attendance record
@@ -83,13 +127,12 @@ export async function checkIn(
 		throw new AttendanceValidationError('employee_cuid', 'An open attendance record already exists. Please check out first.');
 	}
 
-	// Check if already checked in / on leave / LOP
+	// Check if already checked in
 	const existing = await attendanceDao.findByEmployeeAndDate(employeeCuid, todayUTC);
 	if (existing) {
-		if (existing.status === 'Leave' || existing.status === 'On Leave' || existing.status === 'LOP') {
-			throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on leave or LOP days');
+		if (existing.status !== 'Half Day' || existing.check_in_time) {
+			throw new AttendanceValidationError('employee_cuid', 'Already checked in for today');
 		}
-		throw new AttendanceValidationError('employee_cuid', 'Already checked in for today');
 	}
 
 	// Geofence Validation
@@ -133,6 +176,17 @@ export async function checkIn(
 		if (!sourceExists) {
 			throw new AttendanceValidationError('attendance_source_cuid', 'Selected source does not exist');
 		}
+	}
+
+	if (existing && existing.status === 'Half Day') {
+		return attendanceDao.update(existing.cuid, {
+			check_in_time: today,
+			check_in_latitude: latitude,
+			check_in_longitude: longitude,
+			attendance_source_cuid: sourceCuid,
+			updated_by: createdBy,
+			updated_at: today
+		});
 	}
 
 	return attendanceDao.create({
@@ -185,10 +239,10 @@ export async function checkOut(
 		}
 	}
 
-	// Check if today is a holiday
-	const isHoliday = await holidayDao.findByDate(todayUTC);
-	if (isHoliday) {
-		throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on holidays');
+	// Check attendance eligibility (holiday, full-day leave)
+	const eligibility = await getAttendanceEligibility(employeeCuid, todayUTC);
+	if (!eligibility.eligible) {
+		throw new AttendanceValidationError('employee_cuid', eligibility.reason!);
 	}
 
 	const existing = await attendanceDao.findOpenRecord(employeeCuid);

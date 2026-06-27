@@ -400,11 +400,6 @@
 	}
 
 	function getDayStatus(dateStr: string) {
-		const isHoliday = data.holidays.some((h: any) => getISODateString(h.date) === dateStr);
-		if (isHoliday) {
-			return { status: 'Holiday', color: 'bg-blue-500/15 text-blue-800 dark:bg-blue-500/25 dark:text-blue-300 border border-blue-500/30 dark:border-blue-500/40' };
-		}
-
 		const record = historyRecords.find((rec) => rec.date === dateStr);
 		if (record) {
 			const status = record.status;
@@ -426,6 +421,11 @@
 			if (status === 'Week Off') {
 				return { status: 'Week Off', color: 'bg-slate-500/15 text-slate-700 dark:bg-slate-500/25 dark:text-slate-300 border border-slate-500/30 dark:border-slate-500/40' };
 			}
+		}
+
+		const isHoliday = data.holidays.some((h: any) => getISODateString(h.date) === dateStr);
+		if (isHoliday) {
+			return { status: 'Holiday', color: 'bg-blue-500/15 text-blue-800 dark:bg-blue-500/25 dark:text-blue-300 border border-blue-500/30 dark:border-blue-500/40' };
 		}
 
 		// Detect Week Off (Saturday & Sunday)
@@ -627,7 +627,7 @@
 	let attendancePercentage = $derived.by(() => {
 		const total = monthlyStats.presentDays + monthlyStats.lopDays + monthlyStats.leaveDays + monthlyStats.halfDays + monthlyStats.wfhDays;
 		if (total === 0) return 0;
-		return Math.round(((monthlyStats.presentDays + monthlyStats.wfhDays + monthlyStats.halfDays) / total) * 100);
+		return Math.round(((monthlyStats.presentDays + monthlyStats.wfhDays + (monthlyStats.halfDays * 0.5)) / total) * 100);
 	});
 
 	// Load employee specific data
@@ -1209,7 +1209,7 @@
 												Check Out
 											</Button>
 										{/if}
-									{:else if !todayRecord}
+									{:else if !todayRecord || (todayRecord.status === 'Half Day' && !todayRecord.check_in_time)}
 										{#if !isRelieved && !isBeforeJoining && !hasNoEmploymentRecord}
 											<Button
 												size="sm"

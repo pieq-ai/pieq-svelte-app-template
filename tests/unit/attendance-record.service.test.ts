@@ -12,6 +12,11 @@ import {
 	AttendanceMultiValidationError
 } from '$lib/server/services/attendance-record.service.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
+import * as leaveDao from '$lib/server/dao/leave.dao.js';
+
+vi.mock('$lib/server/dao/leave.dao.js', () => ({
+	getApprovedRequestsInPeriod: vi.fn()
+}));
 
 vi.mock('$lib/server/dao/employment.dao.js', () => ({
 	findByEmployeeCuid: vi.fn(),
@@ -54,6 +59,7 @@ describe('attendance-record service', () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		vi.mocked(leaveDao.getApprovedRequestsInPeriod).mockResolvedValue([]);
 		vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ cuid: 'source-1', name: 'Web' } as any);
 		vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
 			date_of_joining: new Date(Date.UTC(2026, 0, 1)), // Jan 1, 2026
