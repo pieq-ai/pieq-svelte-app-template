@@ -70,7 +70,7 @@ function parseDateOnly(raw: unknown, fieldName: string): Date {
 			date = new Date(trimmed);
 		}
 	} else if (raw instanceof Date) {
-		date = new Date(Date.UTC(raw.getFullYear(), raw.getMonth(), raw.getDate()));
+		date = new Date(Date.UTC(raw.getUTCFullYear(), raw.getUTCMonth(), raw.getUTCDate()));
 	} else {
 		const display = fieldName === 'date' ? 'Attendance date' : capitalize(fieldName.replace('_', ' '));
 		throw new AttendanceValidationError(fieldName, `${display} must be a valid date`);

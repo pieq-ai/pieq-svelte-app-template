@@ -94,7 +94,7 @@ function validateHolidayDate(raw: unknown): Date {
 			date = new Date(trimmed);
 		}
 	} else if (raw instanceof Date) {
-		date = new Date(Date.UTC(raw.getFullYear(), raw.getMonth(), raw.getDate()));
+		date = new Date(Date.UTC(raw.getUTCFullYear(), raw.getUTCMonth(), raw.getUTCDate()));
 	} else {
 		throw new HolidayValidationError('date', 'Holiday date must be a valid date');
 	}
