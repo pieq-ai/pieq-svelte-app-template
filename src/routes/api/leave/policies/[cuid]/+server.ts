@@ -10,7 +10,6 @@ import {
 	successResponse,
 	errorResponse,
 	updateSuccessResponse,
-	deleteSuccessResponse,
 	formatLeavePolicy
 } from '$lib/server/response.js';
 
@@ -146,35 +145,5 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
 		const errMsg = error instanceof Error ? error.message : 'Unknown server error';
 		return errorResponse(`Failed to update leave policy: ${errMsg}`, 500);
-	}
-};
-
-export const DELETE: RequestHandler = async ({ params, locals }) => {
-	const { cuid } = params;
-
-	try {
-		const existing = await getLeavePolicyByCuid(cuid);
-		if (!existing) {
-			return errorResponse('Leave policy not found', 404);
-		}
-
-		let userId: string | null = null;
-		try {
-			const session = await locals.auth();
-			userId = session?.user?.id ?? null;
-		} catch (authError) {
-			console.warn('Failed to retrieve session from locals.auth():', authError);
-		}
-
-		const updated = await updateLeavePolicy(cuid, {
-			status: !existing.status,
-			updated_by: userId
-		});
-
-		const message = updated.status ? 'Leave policy reactivated successfully' : 'Leave policy deactivated successfully';
-		return deleteSuccessResponse('Leave policy', updated.cuid, message);
-	} catch (error) {
-		console.error(`DELETE /api/leave/policies/${cuid} failed`, error);
-		return errorResponse('Failed to delete leave policy', 500);
 	}
 };

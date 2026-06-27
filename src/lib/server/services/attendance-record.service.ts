@@ -355,10 +355,3 @@ export async function updateAttendanceRecord(cuid: string, dto: UpdateAttendance
 
 	return attendanceRecordDao.update(cuid, updateData);
 }
-
-export async function deleteAttendanceRecord(cuid: string) {
-	if (!cuid) {
-		throw new Error('Attendance Record CUID is required for deletion');
-	}
-	return attendanceRecordDao.deleteRecord(cuid);
-}

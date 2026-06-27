@@ -223,18 +223,3 @@ export async function updateHoliday(cuid: string, input: UpdateHolidayInput) {
 	invalidateHolidayCache();
 	return result;
 }
-
-export async function deleteHoliday(cuid: string) {
-	if (!cuid || typeof cuid !== 'string') {
-		throw new Error('Holiday CUID is required for deletion');
-	}
-
-	const existingHoliday = await holidayDao.findByCuid(cuid);
-	if (!existingHoliday) {
-		throw new Error('Holiday not found');
-	}
-
-	const result = await holidayDao.deleteHoliday(cuid);
-	invalidateHolidayCache();
-	return result;
-}

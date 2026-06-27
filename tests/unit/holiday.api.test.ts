@@ -8,7 +8,6 @@ vi.mock('$lib/server/services/holiday.service.js', () => ({
 	getHolidayByCuid: vi.fn(),
 	createHoliday: vi.fn(),
 	updateHoliday: vi.fn(),
-	deleteHoliday: vi.fn(),
 	HolidayValidationError: class extends Error {
 		field: string;
 		constructor(field: string, msg: string) {
@@ -123,17 +122,4 @@ describe('holidays API', () => {
 		});
 	});
 
-	describe('DELETE /api/holidays/[cuid]', () => {
-		it('should delete successfully', async () => {
-			const mockEvent = {
-				params: { cuid: 'h1' },
-				locals: mockLocals
-			};
-
-			vi.mocked(holidayService.deleteHoliday).mockResolvedValue({ cuid: 'h1' } as any);
-
-			const res = await holidaysCuidApi.DELETE(mockEvent as any);
-			expect(res.status).toBe(200);
-		});
-	});
 });

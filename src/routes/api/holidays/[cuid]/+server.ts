@@ -3,7 +3,6 @@ import type { RequestHandler } from './$types.js';
 import {
 	getHolidayByCuid,
 	updateHoliday,
-	deleteHoliday,
 	HolidayValidationError,
 	HolidayMultiValidationError
 } from '$lib/server/services/holiday.service.js';
@@ -12,7 +11,6 @@ import {
 	successResponse,
 	errorResponse,
 	updateSuccessResponse,
-	deleteSuccessResponse,
 	formatHoliday
 } from '$lib/server/response.js';
 
@@ -85,17 +83,5 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
 		console.error(`PUT /api/holidays/${cuid} failed`, error);
 		return errorResponse('Failed to update holiday', 500);
-	}
-};
-
-export const DELETE: RequestHandler = async ({ params }) => {
-	const { cuid } = params;
-
-	try {
-		const holiday = await deleteHoliday(cuid);
-		return deleteSuccessResponse('Holiday', holiday.cuid);
-	} catch (error) {
-		console.error(`DELETE /api/holidays/${cuid} failed`, error);
-		return errorResponse('Failed to delete holiday', 500);
 	}
 };

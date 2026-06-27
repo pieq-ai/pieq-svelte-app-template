@@ -313,11 +313,3 @@ export async function updateLeavePolicy(cuid: string, input: UpdateLeavePolicyIn
 		updated_by: input.updated_by
 	}, employmentTypeCuids);
 }
-
-export async function deleteLeavePolicy(cuid: string) {
-	if (!cuid || typeof cuid !== 'string') {
-		throw new Error('Leave policy CUID is required for deletion');
-	}
-
-	return leavePolicyDao.deletePolicy(cuid);
-}

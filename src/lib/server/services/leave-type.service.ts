@@ -192,16 +192,3 @@ export async function updateLeaveType(cuid: string, input: UpdateLeaveTypeInput)
 		updated_by: input.updated_by
 	});
 }
-
-export async function deleteLeaveType(cuid: string) {
-	if (!cuid || typeof cuid !== 'string') {
-		throw new Error('Leave type CUID is required for deletion');
-	}
-
-	const existingType = await leaveTypeDao.findByCuid(cuid);
-	if (!existingType) {
-		throw new Error('Leave type not found');
-	}
-
-	return leaveTypeDao.deleteLeaveType(cuid);
-}

@@ -227,39 +227,4 @@ describe('leave-types API', () => {
 		});
 	});
 
-	describe('DELETE /api/leave/types/[cuid]', () => {
-		it('should toggle status successfully', async () => {
-			const mockEvent = {
-				params: { cuid: 'c1' },
-				locals: mockLocals
-			};
-
-			vi.mocked(leaveTypeService.getLeaveTypeByCuid).mockResolvedValue({
-				cuid: 'c1',
-				status: true
-			} as any);
-
-			vi.mocked(leaveTypeService.updateLeaveType).mockResolvedValue({
-				cuid: 'c1',
-				status: false
-			} as any);
-
-			const res = await typesCuidApi.DELETE(mockEvent as any);
-			expect(res.status).toBe(200);
-			const body = await res.json();
-			expect(body.data.message).toContain('deactivated');
-		});
-
-		it('should return 404 if leave type not found', async () => {
-			const mockEvent = {
-				params: { cuid: 'c1' },
-				locals: mockLocals
-			};
-
-			vi.mocked(leaveTypeService.getLeaveTypeByCuid).mockResolvedValue(null);
-
-			const res = await typesCuidApi.DELETE(mockEvent as any);
-			expect(res.status).toBe(404);
-		});
-	});
 });

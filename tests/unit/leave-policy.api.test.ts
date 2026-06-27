@@ -8,8 +8,7 @@ vi.mock('$lib/server/services/leave-policy.service.js', () => ({
 	listLeavePolicies: vi.fn(),
 	getLeavePolicyByCuid: vi.fn(),
 	createLeavePolicy: vi.fn(),
-	updateLeavePolicy: vi.fn(),
-	deleteLeavePolicy: vi.fn()
+	updateLeavePolicy: vi.fn()
 }));
 
 describe('leave-policies API', () => {
@@ -148,17 +147,4 @@ describe('leave-policies API', () => {
 		});
 	});
 
-	describe('DELETE /api/leave/policies/[cuid]', () => {
-		it('should delete successfully', async () => {
-			const mockEvent = {
-				params: { cuid: 'p1' },
-				locals: mockLocals
-			};
-
-			vi.mocked(leavePolicyService.deleteLeavePolicy).mockResolvedValue({ cuid: 'p1' } as any);
-
-			const res = await policiesCuidApi.DELETE(mockEvent as any);
-			expect(res.status).toBe(200);
-		});
-	});
 });

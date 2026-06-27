@@ -99,9 +99,3 @@ export async function update(cuid: string, data: UpdateAttendanceRecordInput) {
 		data
 	});
 }
-
-export async function deleteRecord(cuid: string) {
-	return db.attendanceRecord.delete({
-		where: { cuid }
-	});
-}

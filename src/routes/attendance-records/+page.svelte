@@ -62,12 +62,10 @@
 
 	// Modal States
 	let isFormModalOpen = $state(false);
-	let isConfirmOpen = $state(false);
 	let isSubmitting = $state(false);
 
-	// Record to Edit/Delete
+	// Record to Edit
 	let editCuid = $state<string | null>(null);
-	let activeDeleteCuid = $state<string | null>(null);
 
 	// Form local state
 	let formEmployeeCuid = $state('');
@@ -637,31 +635,6 @@
 		}
 	}
 
-	async function handleDelete() {
-		if (!activeDeleteCuid) return;
-		isSubmitting = true;
-
-		try {
-			const res = await fetch(`/api/attendance-records/${activeDeleteCuid}`, {
-				method: 'DELETE'
-			});
-
-			const body = await res.json();
-			if (res.ok) {
-				toast.success(body.data?.message || 'Record deleted successfully');
-				isConfirmOpen = false;
-				activeDeleteCuid = null;
-				await invalidate('/api/attendance-records');
-			} else {
-				toast.error(body.data?.error || 'Failed to delete record');
-			}
-		} catch (error) {
-			console.error(error);
-			toast.error('An unexpected error occurred');
-		} finally {
-			isSubmitting = false;
-		}
-	}
 
 	function handleSort(key: string) {
 		currentPage = 1;
@@ -1495,20 +1468,6 @@
 		</form>
 	{/snippet}
 </CrudModal>
-
-<!-- Delete Confirmation Modal -->
-<ConfirmModal
-	open={isConfirmOpen}
-	title="Delete Attendance Record"
-	description="Are you sure you want to delete this attendance record?"
-	confirmLabel="Delete"
-	isSubmitting={isSubmitting}
-	onCancel={() => {
-		isConfirmOpen = false;
-		activeDeleteCuid = null;
-	}}
-	onConfirm={handleDelete}
-/>
 
 <!-- Discard Changes Confirmation Modal -->
 <ConfirmModal

@@ -11,7 +11,6 @@ import {
 	successResponse,
 	errorResponse,
 	updateSuccessResponse,
-	deleteSuccessResponse,
 	formatLeaveType
 } from '$lib/server/response.js';
 
@@ -91,35 +90,5 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
 		console.error(`PUT /api/leave/types/${cuid} failed`, error);
 		return errorResponse('Failed to update leave type', 500);
-	}
-};
-
-export const DELETE: RequestHandler = async ({ params, locals }) => {
-	const { cuid } = params;
-
-	try {
-		const existing = await getLeaveTypeByCuid(cuid);
-		if (!existing) {
-			return errorResponse('Leave type not found', 404);
-		}
-
-		let userId: string | null = null;
-		try {
-			const session = await locals.auth();
-			userId = session?.user?.id ?? null;
-		} catch (authError) {
-			console.warn('Failed to retrieve session from locals.auth():', authError);
-		}
-
-		const updated = await updateLeaveType(cuid, {
-			status: !existing.status,
-			updated_by: userId
-		});
-
-		const message = updated.status ? 'Leave type reactivated successfully' : 'Leave type deactivated successfully';
-		return deleteSuccessResponse('Leave type', updated.cuid, message);
-	} catch (error) {
-		console.error(`DELETE /api/leave/types/${cuid} failed`, error);
-		return errorResponse('Failed to delete leave type', 500);
 	}
 };

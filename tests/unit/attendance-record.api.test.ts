@@ -8,7 +8,6 @@ vi.mock('$lib/server/services/attendance-record.service.js', () => ({
 	getAttendanceRecordByCuid: vi.fn(),
 	createAttendanceRecord: vi.fn(),
 	updateAttendanceRecord: vi.fn(),
-	deleteAttendanceRecord: vi.fn(),
 	AttendanceValidationError: class extends Error {
 		field: string;
 		constructor(field: string, msg: string) {
@@ -131,17 +130,4 @@ describe('attendance-records API', () => {
 		});
 	});
 
-	describe('DELETE /api/attendance-records/[cuid]', () => {
-		it('should delete successfully', async () => {
-			const mockEvent = {
-				params: { cuid: 'r1' },
-				locals: mockLocals
-			};
-
-			vi.mocked(attendanceRecordService.deleteAttendanceRecord).mockResolvedValue({ cuid: 'r1' } as any);
-
-			const res = await recordsCuidApi.DELETE(mockEvent as any);
-			expect(res.status).toBe(200);
-		});
-	});
 });

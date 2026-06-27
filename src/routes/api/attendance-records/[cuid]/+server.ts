@@ -3,7 +3,6 @@ import type { RequestHandler } from './$types.js';
 import {
 	getAttendanceRecordByCuid,
 	updateAttendanceRecord,
-	deleteAttendanceRecord,
 	AttendanceValidationError,
 	AttendanceMultiValidationError
 } from '$lib/server/services/attendance-record.service.js';
@@ -11,8 +10,7 @@ import { validatePayloadKeys, trimStringFields } from '$lib/server/validation.js
 import {
 	successResponse,
 	errorResponse,
-	updateSuccessResponse,
-	deleteSuccessResponse
+	updateSuccessResponse
 } from '$lib/server/response.js';
 
 export const GET: RequestHandler = async ({ params }) => {
@@ -97,17 +95,5 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
 		console.error(`PUT /api/attendance-records/${cuid} failed`, error);
 		return errorResponse('Failed to update attendance record', 500);
-	}
-};
-
-export const DELETE: RequestHandler = async ({ params }) => {
-	const { cuid } = params;
-
-	try {
-		const record = await deleteAttendanceRecord(cuid);
-		return deleteSuccessResponse('Attendance record', record.cuid);
-	} catch (error) {
-		console.error(`DELETE /api/attendance-records/${cuid} failed`, error);
-		return errorResponse('Failed to delete attendance record', 500);
 	}
 };

@@ -6,7 +6,6 @@ import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import {
 	createAttendanceRecord,
 	updateAttendanceRecord,
-	deleteAttendanceRecord,
 	listAttendanceRecords,
 	getAttendanceRecordByCuid,
 	AttendanceValidationError,
@@ -36,7 +35,6 @@ vi.mock('$lib/server/dao/attendance-record.dao.js', () => {
 		list: vi.fn(),
 		create: vi.fn(),
 		update: vi.fn(),
-		deleteRecord: vi.fn(),
 		findByCuid: vi.fn(),
 		findByEmployeeAndDate: vi.fn()
 	};
@@ -269,19 +267,7 @@ describe('attendance-record service', () => {
 		});
 	});
 
-	describe('retrieval and deletion', () => {
-		it('should call deleteRecord from DAO', async () => {
-			vi.mocked(attendanceRecordDao.deleteRecord).mockResolvedValue({ cuid: 'deleted-rec' } as any);
-
-			const result = await deleteAttendanceRecord('cuid-1');
-			expect(result).toEqual({ cuid: 'deleted-rec' });
-			expect(attendanceRecordDao.deleteRecord).toHaveBeenCalledWith('cuid-1');
-		});
-
-		it('should fail delete without CUID', async () => {
-			await expect(deleteAttendanceRecord('')).rejects.toThrow('Attendance Record CUID is required');
-		});
-
+	describe('retrieval', () => {
 		it('should list records with parsed date filter', async () => {
 			const expectedRecord = { cuid: 'rec', employee_cuid: employeeCuid, date: new Date(Date.UTC(2026, 5, 1)) };
 			vi.mocked(attendanceRecordDao.list).mockResolvedValue([expectedRecord] as any);
