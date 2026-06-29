@@ -2511,7 +2511,7 @@
               </Button>
             {/snippet}
           </DropdownMenu.Trigger>
-          <DropdownMenu.Content class="max-h-56 overflow-y-auto w-[250px]">
+          <DropdownMenu.Content class="max-h-56 overflow-y-auto w-(--bits-dropdown-menu-anchor-width)">
             <DropdownMenu.Group>
               <DropdownMenu.Item
                 onclick={() => {

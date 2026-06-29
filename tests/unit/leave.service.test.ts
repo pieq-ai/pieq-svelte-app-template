@@ -1552,6 +1552,32 @@ describe('Leave Service Unit Tests', () => {
 			}));
 		});
 
+		it('should automatically split SL request into LOP when primary balance is 1.5 and requesting 3 days', async () => {
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid: any, typeCuid: any) => {
+				if (typeCuid === 'cuid-sl') {
+					return { cuid: 'bal-sl', remaining_days: 1.5 } as any;
+				}
+				return null;
+			});
+
+			vi.mocked(db.leaveRequest.findMany as any).mockResolvedValue([
+				{ days_from_primary: 1.5, start_date: new Date('2026-01-10T00:00:00Z'), request_status: 'approved' }
+			]);
+			vi.mocked(leaveDao.createLeaveRequest).mockResolvedValue({ cuid: 'new-req-cuid' } as any);
+
+			await leaveService.applyLeave('john@pieq.ai', {
+				leaveTypeCuid: 'cuid-sl',
+				startDate: '2026-06-15', // Monday
+				endDate: '2026-06-17',   // Wednesday
+				isHalfDay: false
+			});
+
+			expect(leaveDao.createLeaveRequest).toHaveBeenCalledWith(expect.objectContaining({
+				days_from_primary: 1.5,
+				days_from_lop: 1.5
+			}));
+		});
+
 		it('should not update or create leaveBalance records for LOP/LWP in approveLeaveRequest', async () => {
 			const mockRequest = {
 				cuid: 'req-lop-123',
@@ -2011,6 +2037,27 @@ describe('Leave Service Unit Tests', () => {
 			// And for May (month index 4) — should return 3 (Thu+Fri+Sat, Sat included as weekend under sandwich rule)
 			const mayLop = await leaveService.getMonthlyUsedDays('emp-cuid', 4, 2026, 'LOP');
 			expect(mayLop).toBe(3);
+		});
+
+		it('should return correct decimal LOP days in getMonthlyUsedDays', async () => {
+			const splitRequest = {
+				cuid: 'req-split-dec',
+				employee_cuid: 'emp-cuid',
+				leave_type_cuid: 'cuid-sl',
+				start_date: new Date('2026-06-15T00:00:00Z'), // Mon
+				end_date: new Date('2026-06-17T00:00:00Z'),   // Wed — 3 working days
+				total_days: 3.0,
+				is_half_day: false,
+				request_status: 'approved',
+				days_from_primary: 1.5,
+				days_from_lwp: 0.0,
+				days_from_lop: 1.5
+			};
+
+			vi.mocked(db.leaveRequest.findMany as any).mockResolvedValue([splitRequest]);
+
+			const lopUsed = await leaveService.getMonthlyUsedDays('emp-cuid', 5, 2026, 'LOP');
+			expect(lopUsed).toBe(1.5);
 		});
 
 		it('should isolate LOP months correctly in getEmployeeLeaveDetails dashboard', async () => {

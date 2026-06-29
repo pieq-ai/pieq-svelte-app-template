@@ -182,12 +182,12 @@ export async function getMonthlyUsedDays(employeeCuid: string, month: number, ye
 					if (leaveCode === 'LOP') total += 1;
 				} else {
 					// Split request: first daysFromPrimary are primary, then LWP, then LOP
-					if (i < daysFromPrimary) {
-						// Primary leave day — not counted for LOP or LWP
-					} else if (i < daysFromPrimary + daysFromLwp) {
-						if (leaveCode === 'LWP') total += 1;
-					} else if (i < daysFromPrimary + daysFromLwp + daysFromLop) {
-						if (leaveCode === 'LOP') total += 1;
+					if (leaveCode === 'LWP') {
+						const lwpContribution = Math.max(0, Math.min(i + 1, daysFromPrimary + daysFromLwp) - Math.max(i, daysFromPrimary));
+						total += lwpContribution;
+					} else if (leaveCode === 'LOP') {
+						const lopContribution = Math.max(0, Math.min(i + 1, daysFromPrimary + daysFromLwp + daysFromLop) - Math.max(i, daysFromPrimary + daysFromLwp));
+						total += lopContribution;
 					}
 				}
 			}
