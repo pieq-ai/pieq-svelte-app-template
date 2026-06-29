@@ -2,7 +2,7 @@
 CREATE TABLE "shifts" (
     "id" BIGSERIAL NOT NULL,
     "cuid" TEXT NOT NULL,
-    "shift_name" VARCHAR(100) NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
     "start_time" TIME(6) NOT NULL,
     "end_time" TIME(6) NOT NULL,
     "minimum_work_hours" DECIMAL(4,2) NOT NULL,
@@ -39,6 +39,8 @@ CREATE TABLE "company_locations" (
     "city" VARCHAR(100) NOT NULL,
     "state_cuid" TEXT NOT NULL,
     "country_cuid" TEXT NOT NULL,
+    "latitude" DECIMAL(10,8),
+    "longitude" DECIMAL(11,8),
     "pin_code" VARCHAR(15) NOT NULL,
     "timezone" VARCHAR(100) NOT NULL,
     "status" BOOLEAN NOT NULL DEFAULT true,
@@ -54,7 +56,7 @@ CREATE TABLE "company_locations" (
 CREATE UNIQUE INDEX "shifts_cuid_key" ON "shifts"("cuid");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "shifts_shift_name_key" ON "shifts"("shift_name");
+CREATE UNIQUE INDEX "shifts_name_key" ON "shifts"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "roles_cuid_key" ON "roles"("cuid");
