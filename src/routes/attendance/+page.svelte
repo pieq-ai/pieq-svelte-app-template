@@ -1232,8 +1232,49 @@
 
 		<!-- Employee Specific Table -->
 		<Card>
-			<CardHeader class="pb-2">
+			<CardHeader class="pb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 				<CardTitle>Attendance History</CardTitle>
+				<!-- Filters -->
+				<div class="flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full sm:w-auto">
+					<div class="w-full sm:w-40">
+						<DatePicker
+							placeholder="Start Date"
+							bind:value={historyFilterStartDate}
+							max={historyFilterEndDate || '2099-12-31'}
+							isFilter={true}
+						/>
+					</div>
+					<div class="w-full sm:w-40">
+						<DatePicker
+							placeholder="End Date"
+							bind:value={historyFilterEndDate}
+							min={historyFilterStartDate}
+							isFilter={true}
+						/>
+					</div>
+					<div class="w-full sm:w-48">
+						<DropdownMenu.Root>
+							<DropdownMenu.Trigger>
+								{#snippet child({ props })}
+									<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
+										<span class="truncate pr-2">{historyFilterStatusOptions.find(o => o.value === historyFilterStatus)?.label || 'All Status'}</span>
+										<FilterIcon class="ml-2 size-4 opacity-50 shrink-0" />
+									</Button>
+								{/snippet}
+							</DropdownMenu.Trigger>
+							<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
+								<DropdownMenu.Group>
+									{#each historyFilterStatusOptions as opt}
+										<DropdownMenu.Item onclick={() => { historyFilterStatus = opt.value; historyCurrentPage = 1; }} class="justify-between cursor-pointer {historyFilterStatus === opt.value ? 'bg-accent text-accent-foreground' : ''}">
+											<span class="truncate pr-2">{opt.label}</span>
+											{#if historyFilterStatus === opt.value}<CheckIcon class="size-4 shrink-0 text-[#F45310]" />{/if}
+										</DropdownMenu.Item>
+									{/each}
+								</DropdownMenu.Group>
+							</DropdownMenu.Content>
+						</DropdownMenu.Root>
+					</div>
+				</div>
 			</CardHeader>
 			<CardContent>
 				{#if isLoadingHistory}
@@ -1243,48 +1284,6 @@
 					</div>
 				{:else}
 					<div class="space-y-3">
-						<!-- Filters -->
-						<div class="flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full lg:w-auto mt-2 mb-4">
-							<div class="w-full sm:w-40">
-								<DatePicker
-									placeholder="Start Date"
-									bind:value={historyFilterStartDate}
-									max={historyFilterEndDate || '2099-12-31'}
-									isFilter={true}
-								/>
-							</div>
-							<div class="w-full sm:w-40">
-								<DatePicker
-									placeholder="End Date"
-									bind:value={historyFilterEndDate}
-									min={historyFilterStartDate}
-									isFilter={true}
-								/>
-							</div>
-							<div class="w-full sm:w-48">
-								<DropdownMenu.Root>
-									<DropdownMenu.Trigger>
-										{#snippet child({ props })}
-											<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
-												<span class="truncate pr-2">{historyFilterStatusOptions.find(o => o.value === historyFilterStatus)?.label || 'All Status'}</span>
-												<FilterIcon class="ml-2 size-4 opacity-50 shrink-0" />
-											</Button>
-										{/snippet}
-									</DropdownMenu.Trigger>
-									<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
-										<DropdownMenu.Group>
-											{#each historyFilterStatusOptions as opt}
-												<DropdownMenu.Item onclick={() => { historyFilterStatus = opt.value; historyCurrentPage = 1; }} class="justify-between cursor-pointer {historyFilterStatus === opt.value ? 'bg-accent text-accent-foreground' : ''}">
-													<span class="truncate pr-2">{opt.label}</span>
-													{#if historyFilterStatus === opt.value}<CheckIcon class="size-4 shrink-0 text-[#F45310]" />{/if}
-												</DropdownMenu.Item>
-											{/each}
-										</DropdownMenu.Group>
-									</DropdownMenu.Content>
-								</DropdownMenu.Root>
-							</div>
-						</div>
-
 						<Card class="py-0">
 							<Table>
 								<TableHeader class="bg-muted">
