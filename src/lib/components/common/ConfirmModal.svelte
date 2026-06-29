@@ -78,7 +78,7 @@
 	>
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<div
-			class="bg-card border border-border rounded-[14px] w-full max-w-[400px] shadow-xl flex flex-col overflow-hidden"
+			class="bg-card border border-border rounded-xl w-full max-w-[400px] shadow-xl flex flex-col overflow-hidden"
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="confirm-modal-title"
