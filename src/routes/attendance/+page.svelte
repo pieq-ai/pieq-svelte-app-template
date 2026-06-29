@@ -559,7 +559,7 @@
 		{ value: 'overall', label: 'Overall' }
 	];
 
-	let averageWorkingHours = $derived.by(() => {
+	let averageWorkingHoursMinutes = $derived.by(() => {
 		let totalMinutes = 0;
 		let totalWorkingDays = 0;
 
@@ -616,12 +616,24 @@
 			}
 		}
 
-		if (totalWorkingDays === 0) return '0h 00m';
+		if (totalWorkingDays === 0) return 0;
+		return totalMinutes / totalWorkingDays;
+	});
 
-		const avgMinutes = Math.round(totalMinutes / totalWorkingDays);
+	let averageWorkingHours = $derived.by(() => {
+		if (averageWorkingHoursMinutes === 0) return '0h 00m';
+		const avgMinutes = Math.round(averageWorkingHoursMinutes);
 		const hrs = Math.floor(avgMinutes / 60);
 		const mins = avgMinutes % 60;
 		return `${hrs}h ${String(mins).padStart(2, '0')}m`;
+	});
+
+	let isBelowMinimumHours = $derived.by(() => {
+		if (!selectedEmployee || selectedEmployee.minimum_work_hours === undefined || selectedEmployee.minimum_work_hours === null) {
+			return false;
+		}
+		const avgHoursDecimal = averageWorkingHoursMinutes / 60;
+		return avgHoursDecimal < Number(selectedEmployee.minimum_work_hours);
 	});
 
 	let attendancePercentage = $derived.by(() => {
@@ -988,6 +1000,11 @@
 						<p class="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Average Working Hours</p>
 						<div class="text-3xl font-bold">{averageWorkingHours}</div>
 						<p class="text-xs text-muted-foreground font-medium">Filter: {filterPeriodLabel}</p>
+						{#if isBelowMinimumHours}
+							<p class="text-xs text-destructive font-semibold mt-1">
+								Warning: You are working below the required minimum working hours.
+							</p>
+						{/if}
 					</div>
 					<div>
 						<DropdownMenu.Root>

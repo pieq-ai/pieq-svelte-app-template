@@ -16,6 +16,7 @@
 		Badge,
 		Button,
 		Card,
+		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle,
@@ -660,6 +661,92 @@
 			sortDirection = null;
 		}
 	}
+	function parseLocalDate(dateStr: string): Date {
+		const [year, month, day] = dateStr.split('-').map(Number);
+		return new Date(year, month - 1, day);
+	}
+
+	function isInCurrentMonth(dateStr: string, targetDateStr: string): boolean {
+		const [rYear, rMonth] = dateStr.split('-');
+		const [tYear, tMonth] = targetDateStr.split('-');
+		return rYear === tYear && rMonth === tMonth;
+	}
+
+	let employeesBelowMinHours = $derived.by(() => {
+		const resultList: { name: string; emp_code: string; avgHours: string }[] = [];
+
+		for (const emp of data.employees) {
+			if (emp.minimum_work_hours === undefined || emp.minimum_work_hours === null) {
+				continue;
+			}
+
+			const empRecords = data.records.filter((r: any) => r.employee_cuid === emp.uuid);
+
+			let totalMinutes = 0;
+			let totalWorkingDays = 0;
+
+			for (const r of empRecords) {
+				if (!r.date) continue;
+				if (r.date > todayStr) continue;
+
+				const dateObj = parseLocalDate(r.date);
+				const dayOfWeek = dateObj.getDay();
+				if (dayOfWeek === 0 || dayOfWeek === 6) {
+					continue;
+				}
+
+				const isHoliday = data.holidays.some((h: any) => getISODateString(h.date) === r.date);
+				if (isHoliday) {
+					continue;
+				}
+
+				const status = r.status;
+				if (status === 'Leave' || status === 'On Leave' || status === 'LOP') {
+					continue;
+				}
+
+				if (!r.check_out_time || r.work_duration_minutes === null || r.work_duration_minutes === undefined) {
+					continue;
+				}
+
+				const duration = r.work_duration_minutes;
+				if (duration !== null && duration !== undefined && duration >= 0) {
+					totalMinutes += duration;
+				}
+
+				if (status === 'Present' || status === 'Late' || status === 'WFH') {
+					totalWorkingDays += 1;
+				} else if (status === 'Half Day') {
+					totalWorkingDays += 0.5;
+				}
+			}
+
+			if (totalWorkingDays === 0) {
+				const avgHoursDecimal = 0;
+				if (avgHoursDecimal < Number(emp.minimum_work_hours)) {
+					resultList.push({
+						name: `${emp.first_name} ${emp.last_name}`,
+						emp_code: emp.emp_code,
+						avgHours: '0h 00m'
+					});
+				}
+			} else {
+				const avgMinutes = Math.round(totalMinutes / totalWorkingDays);
+				const avgHoursDecimal = avgMinutes / 60;
+				if (avgHoursDecimal < Number(emp.minimum_work_hours)) {
+					const hrs = Math.floor(avgMinutes / 60);
+					const mins = avgMinutes % 60;
+					resultList.push({
+						name: `${emp.first_name} ${emp.last_name}`,
+						emp_code: emp.emp_code,
+						avgHours: `${hrs}h ${String(mins).padStart(2, '0')}m`
+					});
+				}
+			}
+		}
+
+		return resultList;
+	});
 
 	let summaryCounts = $derived.by(() => {
 		const recordsForDate = data.records.filter((rec) => rec.date === summaryDate);
@@ -959,6 +1046,7 @@
 		</div>
 	{/if}
 
+
 	<!-- Filters & Search -->
 	<div class="space-y-3">
 		<div class="flex flex-col gap-3 lg:flex-row lg:items-center">
@@ -1158,6 +1246,36 @@
 		</Card>
 
 		<Pagination totalItems={filteredRecords.length} bind:currentPage={currentPage} pageSize={pageSize} />
+
+		<!-- Employees working below minimum hours warning section -->
+		{#if employeesBelowMinHours.length > 0}
+			<Card class="border-destructive/30 shadow-xs mt-6 bg-destructive/5 dark:bg-destructive/10">
+				<CardHeader class="pb-2">
+					<CardTitle class="text-lg font-bold text-destructive flex items-center gap-2">
+						⚠️ Employees Working Below Required Hours
+					</CardTitle>
+					<CardDescription class="text-destructive/80 dark:text-destructive/90 text-xs">
+						The following employees have average working hours below the minimum required for their assigned shifts.
+					</CardDescription>
+				</CardHeader>
+				<CardContent class="pt-0">
+					<div class="border rounded-md divide-y divide-border bg-background">
+						{#each employeesBelowMinHours as emp}
+							<div class="flex items-center justify-between p-3 text-sm hover:bg-muted/40 transition-colors">
+								<div class="flex flex-col">
+									<span class="font-semibold text-foreground">{emp.name}</span>
+									<span class="text-xs text-muted-foreground">Code: {emp.emp_code}</span>
+								</div>
+								<div class="text-right">
+									<span class="text-xs font-medium text-muted-foreground block">Average Working Hours</span>
+									<span class="text-sm font-bold text-destructive">{emp.avgHours}</span>
+								</div>
+							</div>
+						{/each}
+					</div>
+				</CardContent>
+			</Card>
+		{/if}
 	</div>
 </div>
 

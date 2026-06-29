@@ -78,7 +78,8 @@ export function toEmployeeAttendanceViewDTO(employee: any) {
 		relieving_date: employee.relieving_date || null,
 		location_cuid: employee.location_cuid || null,
 		latitude: employee.latitude !== undefined && employee.latitude !== null ? Number(employee.latitude) : null,
-		longitude: employee.longitude !== undefined && employee.longitude !== null ? Number(employee.longitude) : null
+		longitude: employee.longitude !== undefined && employee.longitude !== null ? Number(employee.longitude) : null,
+		minimum_work_hours: employee.minimum_work_hours !== undefined && employee.minimum_work_hours !== null ? Number(employee.minimum_work_hours) : null
 	});
 }
 

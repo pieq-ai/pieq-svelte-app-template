@@ -21,6 +21,7 @@ export interface ShiftAssignment {
     name: string;
     start_time: Date | string;
     end_time: Date | string;
+    minimum_work_hours?: number;
   };
 }
 
