@@ -8,7 +8,6 @@
 	import {
 		Alert,
 		AlertDescription,
-		Badge,
 		Button,
 		Card,
 		CardDescription,
@@ -24,7 +23,7 @@
 		TableRow,
 		toast
 	} from '$lib/components/ui';
-	import { ConfirmModal, CrudModal, Pagination, TableActions, FilterDropdown, StatusDropdown, StatusBadge, SearchInput } from '$lib/components';
+	import { ConfirmModal, CrudModal, Pagination, TableActions, FilterDropdown, StatusDropdown, StatusBadge, SearchInput, Checkbox } from '$lib/components';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import type { PageData } from './$types.js';
 
@@ -669,14 +668,14 @@
 				></textarea>
 			</div>
 
-			<div class="flex items-center space-x-2 pt-1">
-				<input type="checkbox" id="modal_is_paid" name="is_paid" bind:checked={isPaid} onchange={() => { if (form && form.field === 'is_paid') form = null; errors.is_paid = ''; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
-				<Label for="modal_is_paid" class="cursor-pointer select-none">Paid Leave</Label>
+			<div class="flex items-center gap-2 pt-1">
+				<Checkbox id="modal_is_paid" bind:checked={isPaid} onCheckedChange={() => { if (form && form.field === 'is_paid') form = null; errors.is_paid = ''; }} />
+				<Label for="modal_is_paid" class="cursor-pointer font-medium">Paid Leave</Label>
 			</div>
 
-			<div class="flex items-center space-x-2">
-				<input type="checkbox" id="modal_requires_approval" name="requires_approval" bind:checked={requiresApproval} onchange={() => { if (form && form.field === 'requires_approval') form = null; errors.requires_approval = ''; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
-				<Label for="modal_requires_approval" class="cursor-pointer select-none">Requires Approval</Label>
+			<div class="flex items-center gap-2">
+				<Checkbox id="modal_requires_approval" bind:checked={requiresApproval} onCheckedChange={() => { if (form && form.field === 'requires_approval') form = null; errors.requires_approval = ''; }} />
+				<Label for="modal_requires_approval" class="cursor-pointer font-medium">Requires Approval</Label>
 			</div>
 
 			<!-- Status Dropdown -->
