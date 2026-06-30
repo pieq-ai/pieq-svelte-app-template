@@ -15,9 +15,7 @@
 		TableRow
 	} from '$lib/components';
 
-	function goToPayslip() {
-		goto(resolve(`/payroll-records/${payroll.cuid}/payslip`));
-	}
+
 
 	// ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -156,19 +154,7 @@
 			</div>
 		</div>
 
-		<!-- Payslip actions -->
-		<div class="flex items-center gap-2">
-			<Button
-				id="btn_view_payslip"
-				type="button"
-				variant="default"
-				class="gap-2 bg-[#F45310] text-white hover:bg-[#d4430a]"
-				onclick={goToPayslip}
-				aria-label="View Payslip"
-			>
-				View Payslip
-			</Button>
-		</div>
+
 	</div>
 
 	<!-- Employee Information -->

@@ -174,13 +174,13 @@
 				<span class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mt-1.5">Pending Leave</span>
 			</div>
 
-			<!-- Attendance -->
+			<!-- Avg Work Hours -->
 			<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs hover:-translate-y-0.5 transition-all duration-200">
 				<div class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]">
-					<PercentIcon class="size-5" />
+					<ClockIcon class="size-5" />
 				</div>
-				<span class="text-3xl font-extrabold text-[#F45310] mt-3">{data.stats.attendancePercent}%</span>
-				<span class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mt-1.5">Attendance</span>
+				<span class="text-2xl font-extrabold text-[#F45310] mt-3">{data.stats.averageWorkingHours}</span>
+				<span class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mt-1.5">Avg Work Hours</span>
 			</div>
 
 			<!-- This Month -->
@@ -296,19 +296,19 @@
 						</a>
 
 						<!-- Payslip -->
-						<a href="/payroll-records/{data.employee.cuid}" class="flex flex-col items-center gap-2 group text-center decoration-none">
+						<div class="flex flex-col items-center gap-2 group text-center cursor-default select-none">
 							<div class="size-12 rounded-2xl border border-neutral-100 flex items-center justify-center text-neutral-600 bg-white group-hover:bg-[#FFF4EE] group-hover:border-[#FFE2D3] group-hover:text-[#F45310] transition-colors">
 								<FileTextIcon class="size-5.5" />
 							</div>
 							<span class="text-[11px] font-bold text-neutral-500 group-hover:text-[#F45310] transition-colors leading-tight">Payslip</span>
-						</a>
+						</div>
 
-						<!-- Calendar -->
-						<a href="/holidays" class="flex flex-col items-center gap-2 group text-center decoration-none">
+						<!-- Attendance -->
+						<a href="/attendance" class="flex flex-col items-center gap-2 group text-center decoration-none">
 							<div class="size-12 rounded-2xl border border-neutral-100 flex items-center justify-center text-neutral-600 bg-white group-hover:bg-[#FFF4EE] group-hover:border-[#FFE2D3] group-hover:text-[#F45310] transition-colors">
-								<CalendarIcon class="size-5.5" />
+								<ClockIcon class="size-5.5" />
 							</div>
-							<span class="text-[11px] font-bold text-neutral-500 group-hover:text-[#F45310] transition-colors leading-tight">Calendar</span>
+							<span class="text-[11px] font-bold text-neutral-500 group-hover:text-[#F45310] transition-colors leading-tight">Attendance</span>
 						</a>
 
 						<!-- Profile -->

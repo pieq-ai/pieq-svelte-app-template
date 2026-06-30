@@ -391,9 +391,7 @@
 											<DropdownMenu.Item onclick={() => goto(resolve(`/payroll-records/${r.cuid}`))} class="cursor-pointer whitespace-nowrap">
 												View Details
 											</DropdownMenu.Item>
-											<DropdownMenu.Item onclick={() => goto(resolve(`/payroll-records/${r.cuid}/payslip`))} class="cursor-pointer whitespace-nowrap">
-												View Payslip
-											</DropdownMenu.Item>
+
 										</TableActions>
 									{:else}
 										<span class="text-xs text-muted-foreground">-</span>

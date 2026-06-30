@@ -337,25 +337,18 @@ describe('Leave Service Unit Tests', () => {
 			expect(result.employment).toEqual(mockEmployment);
 		});
 
-		it('should resolve employee by personal email', async () => {
-			vi.mocked(db.employment.findFirst)
-				.mockResolvedValueOnce(null) // first check by official email returns null
-				.mockResolvedValueOnce(mockEmployment as any); // second check for personal email's employment returns match
-			vi.mocked(db.employee.findFirst).mockResolvedValueOnce(mockEmployee as any);
-
-			const result = await leaveService.resolveEmployee('john.personal@example.com');
-			expect(result.employee).toEqual(mockEmployee);
-			expect(result.employment).toEqual(mockEmployment);
+		it('should reject employee lookup by personal email', async () => {
+			vi.mocked(db.employment.findFirst).mockResolvedValueOnce(null);
+			await expect(leaveService.resolveEmployee('john.personal@example.com')).rejects.toThrow(
+				'Employee record not found for email "john.personal@example.com"'
+			);
 		});
 
-		it('should fall back to first employee in database if email not matched', async () => {
+		it('should reject when email is not matched', async () => {
 			vi.mocked(db.employment.findFirst).mockResolvedValue(null);
-			vi.mocked(db.employee.findFirst).mockResolvedValueOnce(mockEmployee as any); // fallback
-			vi.mocked(db.employment.findFirst).mockResolvedValueOnce(mockEmployment as any); // fallback employment
-
-			const result = await leaveService.resolveEmployee('unmatched@example.com');
-			expect(result.employee).toEqual(mockEmployee);
-			expect(result.employment).toEqual(mockEmployment);
+			await expect(leaveService.resolveEmployee('unmatched@example.com')).rejects.toThrow(
+				'Employee record not found for email "unmatched@example.com"'
+			);
 		});
 	});
 

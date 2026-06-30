@@ -1,6 +1,7 @@
 import * as leaveDao from '$lib/server/dao/leave.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as settingsDao from '$lib/server/dao/settings.dao.js';
+import { db } from '$lib/server/db.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
 import { calculateLeaveDays, isWeekend, isHoliday, getHolidaysCached } from '$lib/server/config/leave.config.js';
 
@@ -28,27 +29,17 @@ export interface ApplyLeaveInput {
  */
 export async function resolveEmployee(email: string) {
 	if (email) {
-		const employment = await employeeDao.getActiveEmploymentByOfficialEmail(email);
+		const employment = await db.employment.findFirst({
+			where: {
+				official_email: email,
+				employment_status: { in: ['active', 'onboarding'] }
+			}
+		});
 		if (employment) {
 			const employee = await employeeDao.getEmployeeByCuid(employment.employee_cuid);
 			if (employee) {
 				return { employee, employment };
 			}
-		}
-
-		const employeeByPersonal = await employeeDao.getEmployeeByPersonalEmail(email);
-		if (employeeByPersonal) {
-			const employment = await leaveDao.getActiveEmploymentByEmployeeCuid(employeeByPersonal.cuid);
-			return { employee: employeeByPersonal, employment: employment ?? null };
-		}
-	}
-
-	// Falls back to the first employee in the database during local dev/testing.
-	if (process.env.NODE_ENV !== 'production' || !email) {
-		const firstEmployee = await employeeDao.getFirstEmployee();
-		if (firstEmployee) {
-			const employment = await leaveDao.getActiveEmploymentByEmployeeCuid(firstEmployee.cuid);
-			return { employee: firstEmployee, employment: employment ?? null };
 		}
 	}
 

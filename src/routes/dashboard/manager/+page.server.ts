@@ -165,7 +165,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	let pendingLeaveRequestsCount = 0;
 
 	try {
-		const leaveDetails = await getEmployeeLeaveDetails(employee.personal_email || email, today.getFullYear());
+		const leaveDetails = await getEmployeeLeaveDetails(employment?.official_email || email, today.getFullYear());
 		leaveBalanceCount = leaveDetails.balances.reduce(
 			(sum: number, b: any) => sum + (Number(b.remaining_days) || 0),
 			0

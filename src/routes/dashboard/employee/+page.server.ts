@@ -165,9 +165,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 		tempDate.setDate(tempDate.getDate() + 1);
 	}
 
-	const attendancePercentage = workingDaysSoFar > 0
-		? Math.min(100, Math.round((presentDaysCount / workingDaysSoFar) * 100))
-		: 100;
+	const workedDaysCount = attendanceRecordsThisMonth.filter(r => r.work_duration_minutes && r.work_duration_minutes > 0).length;
+	const avgWorkMinutes = workedDaysCount > 0 ? Math.round(totalWorkMinutes / workedDaysCount) : 0;
+	const avgHours = Math.floor(avgWorkMinutes / 60);
+	const avgMins = avgWorkMinutes % 60;
+	const averageWorkingHours = `${avgHours}h ${avgMins}m`;
 
 	const thisMonthHours = Math.round(totalWorkMinutes / 60);
 
@@ -176,7 +178,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	let pendingLeaveRequestsCount = 0;
 
 	try {
-		const leaveDetails = await getEmployeeLeaveDetails(employee.personal_email || email, today.getFullYear());
+		const leaveDetails = await getEmployeeLeaveDetails(employment?.official_email || email, today.getFullYear());
 		leaveBalanceCount = leaveDetails.balances.reduce(
 			(sum: number, b: any) => sum + (Number(b.remaining_days) || 0),
 			0
@@ -263,7 +265,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	// 8. Fetch Team Details
-	let teamMembers = [];
+	let teamMembers: {
+		cuid: string;
+		name: string;
+		role: string;
+		department: string;
+		designation: string;
+	}[] = [];
 	if (employment) {
 		const teamEmployments = await db.employment.findMany({
 			where: {
@@ -311,7 +319,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 					designation: desigMap.get(emp.designation_cuid) || '—'
 				};
 			})
-			.filter(Boolean);
+			.filter((m): m is Exclude<typeof m, null> => m !== null);
 	}
 
 	// 9. Determine if this employee is a manager (has active subordinates)
@@ -349,7 +357,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			presentDays: presentDaysCount,
 			leaveBalance: leaveBalanceCount,
 			pendingLeave: pendingLeaveRequestsCount,
-			attendancePercent: attendancePercentage,
+			averageWorkingHours,
 			thisMonthHours,
 			upcomingHolidaysCount
 		},
