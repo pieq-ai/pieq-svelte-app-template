@@ -13,7 +13,8 @@ vi.mock('$lib/server/db.js', () => ({
 	db: {
 		employee: {
 			findMany: vi.fn()
-		}
+		},
+		$transaction: vi.fn((cb) => cb({}))
 	}
 }));
 
@@ -188,7 +189,8 @@ describe('Payroll Service', () => {
 					employee_cuid: 'EMP001',
 					month: 6,
 					year: 2026
-				})
+				}),
+				expect.any(Object)
 			);
 		});
 
@@ -231,17 +233,27 @@ describe('Payroll Service', () => {
 			expect(result.errors[0].reason).toContain('Year is missing');
 		});
 
-		it('should silently skip a row when duplicate record exists', async () => {
+		it('should skip and report a row when duplicate record exists', async () => {
 			vi.mocked(findEmployeeByCode).mockResolvedValue(mockEmployee());
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(mockPayrollRecord() as never);
+			vi.mocked(recordDao.create).mockResolvedValue({} as any);
 
 			const result = await uploadPayroll([mockParsedRow()], 6, 2026);
 
 			expect(result.created).toBe(0);
-			expect(result.skipped).toBe(0);
-			expect(result.errors).toHaveLength(0);
+			expect(result.skipped).toBe(1);
+			expect(result.errors).toHaveLength(1);
+			expect(result.errors[0].reason).toContain('already exists');
 			expect(dao.create).not.toHaveBeenCalled();
-			expect(recordDao.create).not.toHaveBeenCalled();
+			expect(recordDao.create).toHaveBeenCalledWith(
+				expect.objectContaining({
+					status: 'failed',
+					errors: expect.objectContaining({
+						employee_code: expect.stringContaining('already exists')
+					})
+				}),
+				expect.any(Object)
+			);
 		});
 
 		it('should continue processing remaining rows after a skipped row', async () => {
@@ -292,7 +304,8 @@ describe('Payroll Service', () => {
 			await uploadPayroll([mockParsedRow({ employee_name: 'John Doe Excel' })], 6, 2026);
 
 			expect(recordDao.create).toHaveBeenCalledWith(
-				expect.objectContaining({ employee_name: 'John Doe Excel' })
+				expect.objectContaining({ employee_name: 'John Doe Excel' }),
+				expect.any(Object)
 			);
 		});
 
@@ -305,7 +318,8 @@ describe('Payroll Service', () => {
 			await uploadPayroll([mockParsedRow({ employee_name: '' })], 6, 2026);
 
 			expect(recordDao.create).toHaveBeenCalledWith(
-				expect.objectContaining({ employee_name: 'John Doe Provider' })
+				expect.objectContaining({ employee_name: 'John Doe Provider' }),
+				expect.any(Object)
 			);
 		});
 
@@ -320,7 +334,8 @@ describe('Payroll Service', () => {
 				expect.any(String),
 				0,
 				'failed',
-				'Unreadable workbook'
+				'Unreadable workbook',
+				expect.any(Object)
 			);
 		});
 
@@ -332,7 +347,8 @@ describe('Payroll Service', () => {
 				expect.any(String),
 				0,
 				'failed',
-				'Empty workbook'
+				'Empty workbook',
+				expect.any(Object)
 			);
 		});
 
@@ -345,7 +361,8 @@ describe('Payroll Service', () => {
 				expect.any(String),
 				0,
 				'failed',
-				"Required column 'Emp No' is missing."
+				"Required column 'Emp No' is missing.",
+				expect.any(Object)
 			);
 		});
 
@@ -366,7 +383,8 @@ describe('Payroll Service', () => {
 				expect.any(String),
 				0,
 				'failed',
-				'Selected payroll period does not match uploaded file period.'
+				'Selected payroll period does not match uploaded file period.',
+				expect.any(Object)
 			);
 		});
 
@@ -380,7 +398,8 @@ describe('Payroll Service', () => {
 				expect.any(String),
 				0,
 				'failed',
-				'Payroll period could not be extracted from the report header.'
+				'Payroll period could not be extracted from the report header.',
+				expect.any(Object)
 			);
 		});
 
@@ -423,13 +442,15 @@ describe('Payroll Service', () => {
 					errors: expect.objectContaining({
 						employee_code: expect.stringContaining('does not exist')
 					})
-				})
+				}),
+				expect.any(Object)
 			);
 		});
 
-		it('should silently skip a row when Prisma throws a P2002 unique constraint error on create', async () => {
+		it('should skip and report a row when Prisma throws a P2002 unique constraint error on create', async () => {
 			vi.mocked(findEmployeeByCode).mockResolvedValue(mockEmployee());
 			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
+			vi.mocked(recordDao.create).mockResolvedValue({} as any);
 			
 			const prismaError = new Prisma.PrismaClientKnownRequestError('Duplicate key', {
 				code: 'P2002',
@@ -440,9 +461,29 @@ describe('Payroll Service', () => {
 			const result = await uploadPayroll([mockParsedRow()], 6, 2026);
 
 			expect(result.created).toBe(0);
-			expect(result.skipped).toBe(0);
-			expect(result.errors).toHaveLength(0);
-			expect(recordDao.create).not.toHaveBeenCalled();
+			expect(result.skipped).toBe(1);
+			expect(result.errors).toHaveLength(1);
+			expect(result.errors[0].reason).toContain('already exists');
+			expect(recordDao.create).toHaveBeenCalledWith(
+				expect.objectContaining({
+					status: 'failed',
+					errors: expect.objectContaining({
+						employee_code: expect.stringContaining('already exists')
+					})
+				}),
+				expect.any(Object)
+			);
+		});
+
+		it('should propagate unexpected database errors to trigger transaction rollback', async () => {
+			vi.mocked(findEmployeeByCode).mockResolvedValue(mockEmployee());
+			vi.mocked(dao.findByEmployeeMonthYear).mockResolvedValue(null);
+			
+			const dbError = new Error('Database connection failed');
+			// Throw unexpected error on recordDao.create so it propagates outside the try-catch or mock uploadDao.create to throw
+			vi.mocked(uploadDao.create).mockRejectedValue(dbError);
+
+			await expect(uploadPayroll([mockParsedRow()], 6, 2026)).rejects.toThrow('Database connection failed');
 		});
 	});
 

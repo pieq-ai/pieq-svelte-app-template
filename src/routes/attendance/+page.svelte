@@ -871,7 +871,7 @@
 							</Button>
 						{/snippet}
 					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)] max-h-60 overflow-y-auto">
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto">
 						<div class="flex items-center border-b border-border px-3 py-2 bg-transparent">
 							<SearchIcon class="mr-2 size-4 shrink-0 opacity-50" />
 							<input
@@ -903,7 +903,7 @@
 								>
 									<span class="truncate">{opt.label}</span>
 									{#if selectedEmployeeUuid === opt.id}
-										<CheckIcon class="size-4 shrink-0 text-[#F45310]" />
+										<CheckIcon class="size-4 shrink-0 text-hrms-primary" />
 									{/if}
 								</DropdownMenu.Item>
 							{:else}
@@ -1016,7 +1016,7 @@
 										>
 											<span>{opt.label}</span>
 											{#if filterPeriod === opt.value}
-												<CheckIcon class="size-4 shrink-0 text-[#F45310]" />
+												<CheckIcon class="size-4 shrink-0 text-hrms-primary" />
 											{/if}
 										</DropdownMenu.Item>
 									{/each}
@@ -1075,7 +1075,7 @@
 										>
 											<span use:scrollIntoView={currentMonth === index}>{monthName}</span>
 											{#if currentMonth === index}
-												<CheckIcon class="size-4 shrink-0 text-[#F45310]" />
+												<CheckIcon class="size-4 shrink-0 text-hrms-primary" />
 											{/if}
 										</DropdownMenu.Item>
 									{/each}
@@ -1104,7 +1104,7 @@
 										>
 											<span use:scrollIntoView={currentYear === yearVal}>{yearVal}</span>
 											{#if currentYear === yearVal}
-												<CheckIcon class="size-4 shrink-0 text-[#F45310]" />
+												<CheckIcon class="size-4 shrink-0 text-hrms-primary" />
 											{/if}
 										</DropdownMenu.Item>
 									{/each}
@@ -1168,7 +1168,7 @@
 							class={cn(
 								"min-h-24 p-2.5 rounded-lg border border-border/50 flex flex-col justify-between transition-all relative",
 								cell.isCurrentMonth ? "bg-card text-foreground" : "bg-muted/10 text-muted-foreground opacity-50",
-								cell.isToday && "ring-2 ring-[#F45310] ring-offset-2 ring-offset-background",
+								cell.isToday && "ring-2 ring-hrms-primary ring-offset-2 ring-offset-background",
 								dayStatus ? dayStatus.color : "hover:bg-muted/30"
 							)}
 						>
@@ -1208,7 +1208,7 @@
 											<Button
 												size="sm"
 												onclick={(e) => { e.stopPropagation(); triggerCheckOutConfirm(); }}
-												class="w-full mt-1 h-5 text-[9px] px-1 bg-[#800020] hover:bg-[#800020]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+												class="w-full mt-1 h-5 text-[9px] px-1 bg-hrms-destructive hover:bg-hrms-destructive/90 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
 												disabled={isSubmitting || !gpsValidation.isValid || isLoadingHistory}
 												title={!gpsValidation.isValid ? gpsValidation.message : (isLoadingHistory ? 'Loading history...' : '')}
 											>
@@ -1220,7 +1220,7 @@
 											<Button
 												size="sm"
 												onclick={(e) => { e.stopPropagation(); triggerCheckInConfirm(); }}
-												class="w-full mt-1 h-5 text-[9px] px-1 bg-[#F45310] hover:bg-[#F45310]/90 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+												class="w-full mt-1 h-5 text-[9px] px-1 bg-hrms-primary hover:bg-hrms-primary/90 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
 												disabled={isSubmitting || !gpsValidation.isValid || isLoadingHistory}
 												title={!gpsValidation.isValid ? gpsValidation.message : (isLoadingHistory ? 'Loading history...' : '')}
 											>
@@ -1277,12 +1277,12 @@
 											</Button>
 										{/snippet}
 									</DropdownMenu.Trigger>
-									<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
+									<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
 										<DropdownMenu.Group>
 											{#each historyFilterStatusOptions as opt}
 												<DropdownMenu.Item onclick={() => { historyFilterStatus = opt.value; historyCurrentPage = 1; }} class="justify-between cursor-pointer {historyFilterStatus === opt.value ? 'bg-accent text-accent-foreground' : ''}">
 													<span class="truncate pr-2">{opt.label}</span>
-													{#if historyFilterStatus === opt.value}<CheckIcon class="size-4 shrink-0 text-[#F45310]" />{/if}
+													{#if historyFilterStatus === opt.value}<CheckIcon class="size-4 shrink-0 text-hrms-primary" />{/if}
 												</DropdownMenu.Item>
 											{/each}
 										</DropdownMenu.Group>

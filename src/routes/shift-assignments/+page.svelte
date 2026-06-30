@@ -444,7 +444,7 @@
     </div>
     <Button
       type="button"
-      class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+      class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
       onclick={openCreateModal}
     >
       Assign Shift
@@ -456,7 +456,7 @@
     <Card>
       <CardHeader class="pb-2">
         <CardDescription>Total Assignments</CardDescription>
-        <CardTitle class="text-4xl font-bold text-[#262626] tabular-nums"
+        <CardTitle class="text-4xl font-bold text-hrms-secondary tabular-nums"
           >{totalCount}</CardTitle
         >
       </CardHeader>
@@ -464,7 +464,7 @@
     <Card>
       <CardHeader class="pb-2">
         <CardDescription>Active Assignments</CardDescription>
-        <CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums"
+        <CardTitle class="text-4xl font-bold text-hrms-primary tabular-nums"
           >{activeCount}</CardTitle
         >
       </CardHeader>
@@ -864,7 +864,7 @@
           >
           <Button
             type="submit"
-            class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+            class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
             disabled={isSubmitting || (!!editingAssignment && !isDirty)}
           >
             {isSubmitting

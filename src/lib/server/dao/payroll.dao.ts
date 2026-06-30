@@ -1,11 +1,13 @@
 import { db } from '$lib/server/db.js';
 import type { CreatePayrollDto } from '$lib/types/payroll.js';
+import type { Prisma } from '$lib/generated/prisma/client.js';
 
 // ─── Single record queries ─────────────────────────────────────────────────────
 
 /** Create a new payroll record. */
-export async function create(data: CreatePayrollDto) {
-	return db.payroll.create({
+export async function create(data: CreatePayrollDto, tx?: Prisma.TransactionClient) {
+	const client = tx ?? db;
+	return client.payroll.create({
 		data: {
 			employee_cuid: data.employee_cuid,
 			month: data.month,
@@ -29,9 +31,11 @@ export async function findByCuid(cuid: string) {
 export async function findByEmployeeMonthYear(
 	employee_cuid: string,
 	month: number,
-	year: number
+	year: number,
+	tx?: Prisma.TransactionClient
 ) {
-	return db.payroll.findUnique({
+	const client = tx ?? db;
+	return client.payroll.findUnique({
 		where: { employee_cuid_month_year: { employee_cuid, month, year } }
 	});
 }

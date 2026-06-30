@@ -70,13 +70,13 @@
 					<div class="flex items-center gap-2">
 						<CheckIcon
 							class="size-4 shrink-0 {option.value === value
-								? 'opacity-100 text-[#F45310]'
+								? 'opacity-100 text-hrms-primary'
 								: 'opacity-0'}"
 						/>
 
 						<span
 							class="{option.value === value
-								? 'font-medium text-[#F45310]'
+								? 'font-medium text-hrms-primary'
 								: ''}"
 						>
 							{option.label}

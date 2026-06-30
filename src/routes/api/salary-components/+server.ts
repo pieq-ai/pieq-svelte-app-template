@@ -44,7 +44,7 @@ export async function POST({ request }) {
 			{
 				data: {
 					cuid: created.cuid,
-					message: 'success'
+					message: 'successfully created'
 				}
 			},
 			{ status: 201 }

@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   permissionGuard.requireAuth(locals.user);
   const email = locals.user?.email || '';
 
-  let subordinatesList: any[] = [];
+  let subordinatesList: any[];
   try {
     const { subordinates } = await shiftAssignmentService.getManagerSubordinates(email);
     subordinatesList = subordinates;

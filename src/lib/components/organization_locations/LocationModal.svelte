@@ -705,7 +705,7 @@
               <DropdownMenu.Separator />
               <DropdownMenu.Item
                 onclick={openAddCountryModal}
-                class="cursor-pointer font-medium text-[#F45310] hover:text-[#F45310]/90 focus:text-[#F45310]"
+                class="cursor-pointer font-medium text-hrms-primary hover:text-hrms-primary/90 focus:text-hrms-primary"
               >
                 Add Country
               </DropdownMenu.Item>
@@ -754,7 +754,7 @@
               <DropdownMenu.Item
                 onclick={openAddStateModal}
                 disabled={!formCountryCuid}
-                class="cursor-pointer font-medium text-[#F45310] hover:text-[#F45310]/90 focus:text-[#F45310] disabled:opacity-50 disabled:cursor-not-allowed"
+                class="cursor-pointer font-medium text-hrms-primary hover:text-hrms-primary/90 focus:text-hrms-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Add State
               </DropdownMenu.Item>
@@ -820,7 +820,7 @@
 
       <div class="flex items-center justify-end gap-3 pt-4">
         <Button type="button" variant="outline" onclick={cancel} disabled={formLoading}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={formLoading || (!!editLocation && !isDirty) || (!editLocation && !isCreateEnabled)}>
+        <Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={formLoading || (!!editLocation && !isDirty) || (!editLocation && !isCreateEnabled)}>
           {formLoading ? UI_CONSTANTS.BUTTON_SAVING : (editLocation ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
         </Button>
       </div>
@@ -868,7 +868,7 @@
       </div>
       <div class="flex items-center justify-end gap-3 pt-4">
         <Button type="button" variant="outline" onclick={cancel} disabled={addCountryLoading}>Cancel</Button>
-        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={addCountryLoading || !newCountryName.trim()}>
+        <Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={addCountryLoading || !newCountryName.trim()}>
           {addCountryLoading ? 'Saving...' : 'Save'}
         </Button>
       </div>
@@ -900,7 +900,7 @@
       </div>
       <div class="flex items-center justify-end gap-3 pt-4">
         <Button type="button" variant="outline" onclick={cancel} disabled={addStateLoading}>Cancel</Button>
-        <Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={addStateLoading || !newStateName.trim()}>
+        <Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={addStateLoading || !newStateName.trim()}>
           {addStateLoading ? 'Saving...' : 'Save'}
         </Button>
       </div>

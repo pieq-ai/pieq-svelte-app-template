@@ -14,7 +14,7 @@
 	<Card>
 		<CardHeader>
 			<CardTitle class="flex items-center gap-2">
-				<SettingsIcon class="size-5 text-[#F45310]" />
+				<SettingsIcon class="size-5 text-hrms-primary" />
 				Configuration
 			</CardTitle>
 		</CardHeader>

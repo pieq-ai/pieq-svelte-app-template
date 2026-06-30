@@ -162,7 +162,7 @@
 				id="btn_view_payslip"
 				type="button"
 				variant="default"
-				class="gap-2 bg-[#F45310] text-white hover:bg-[#d4430a]"
+				class="gap-2 bg-hrms-primary text-white hover:bg-hrms-primary-dark"
 				onclick={goToPayslip}
 				aria-label="View Payslip"
 			>
@@ -288,7 +288,7 @@
 					</TableRow>
 					<TableRow class="border-t-2 bg-muted/40">
 						<TableCell class="font-bold text-foreground text-base">Net Salary</TableCell>
-						<TableCell class="text-right font-bold text-[#F45310] text-base">₹{formatAmount(payroll.net_salary)}</TableCell>
+						<TableCell class="text-right font-bold text-hrms-primary text-base">₹{formatAmount(payroll.net_salary)}</TableCell>
 					</TableRow>
 				</TableBody>
 			</Table>
