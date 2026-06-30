@@ -1,7 +1,10 @@
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
-import * as keycloakProvisionService from '$lib/server/services/keycloak-provision.service.js';
+import { KeycloakService } from '$lib/server/services/keycloak/keycloak.service.js';
+import * as systemRoleDao from '$lib/server/dao/system-role.dao.js';
 import * as addressDao from '$lib/server/dao/address.dao.js';
+
+const keycloakService = new KeycloakService();
 import * as bankDetailDao from '$lib/server/dao/bank-detail.dao.js';
 import * as educationDao from '$lib/server/dao/education.dao.js';
 import * as experienceDao from '$lib/server/dao/experience.dao.js';
@@ -280,38 +283,89 @@ export async function checkAndSetProfileCompletionStatus(employee_cuid: string) 
                 throw new Error("Cannot provision user: employment record is missing.");
             }
             
-            if (employment?.keycloak_sub) {
-                console.log('Employee already provisioned.');
-                throw new Error('Employee already provisioned.');
-            }
-
             if (!employment?.official_email) {
                 throw new Error("Cannot provision user: official_email is missing.");
             }
+            if (!employment?.system_role_cuid) {
+                throw new Error("Cannot provision user: system_role_cuid is missing.");
+            }
 
-            // Provision Keycloak User
-            const keycloak_sub = await keycloakProvisionService.provisionUser({
-                first_name: emp.first_name,
-                last_name: emp.last_name,
-                official_email: employment.official_email,
-                system_role_cuid: employment.system_role_cuid
-            });
+            let keycloakSub = employment.keycloak_sub;
 
-            console.log("keycloak_sub to store:", keycloak_sub);
+            console.log(`[KC-01] ========== KEYCLOAK ONBOARDING START ==========
+Employee CUID: ${employee_cuid}
+Official Email: ${employment.official_email}
+Existing keycloak_sub: ${keycloakSub || 'None'}
+profile_completion_status: ${emp.profile_completion_status}`);
 
-            // Save keycloak_sub
-            await employmentDao.upsert(employee_cuid, {
-                ...employment,
-                keycloak_sub
-            } as employmentDao.UpsertEmploymentInput);
-            
-            const employmentAfterUpdate = await employmentDao.findByEmployeeCuid(employee_cuid);
-            console.log("Employment after update:", employmentAfterUpdate);
-            console.log('keycloak_sub Stored');
+            if (!keycloakSub) {
+                // Step 1: Create User
+                console.log(`[KC-02] Provisioning Started: Creating Keycloak User
+employee_cuid: ${employee_cuid}
+username: ${employment.official_email}
+official email: ${employment.official_email}
+keycloak_sub exists: false`);
+                const result = await keycloakService.createUser({
+                    username: employment.official_email,
+                    email: employment.official_email,
+                    firstName: emp.first_name,
+                    lastName: emp.last_name,
+                    enabled: true
+                });
+                keycloakSub = result.keycloakSub;
 
-            // Mark employee completed
+                console.log(`[KC-03] Keycloak User Created Successfully. Returned UUID: ${keycloakSub}`);
+
+                // Step 2: Immediately persist keycloak_sub
+                console.log('[KC-04] Persisting keycloak_sub...');
+                await employmentDao.upsert(employee_cuid, {
+                    ...employment,
+                    keycloak_sub: keycloakSub
+                } as employmentDao.UpsertEmploymentInput);
+                console.log('[KC-05] keycloak_sub stored successfully');
+            } else {
+                console.log(`Resuming provisioning for existing Keycloak user: ${keycloakSub}`);
+            }
+
+            // Step 3: Assign Realm Role
+            console.log('[KC-06] Fetching HRMS System Role...');
+            const systemRole = await systemRoleDao.findByCuid2(employment.system_role_cuid);
+            if (!systemRole) {
+                throw new Error(`Cannot provision user: SystemRole with CUID ${employment.system_role_cuid} not found`);
+            }
+            const keycloakRole = await keycloakService.getRealmRole(systemRole.name);
+            console.log(`[KC-07] Fetched HRMS System Role.
+HRMS role CUID: ${systemRole.cuid}
+HRMS role name: ${systemRole.name}
+mapped Keycloak realm role: ${keycloakRole?.name} (${keycloakRole?.id})`);
+
+            console.log(`[KC-08] Calling assignRealmRole()
+Keycloak UUID: ${keycloakSub}
+Realm Role: ${keycloakRole.name}`);
+            await keycloakService.assignRealmRole(keycloakSub, keycloakRole);
+            console.log('[KC-09] assignRealmRole() completed successfully');
+
+            // Step 4: Trigger UPDATE_PASSWORD email
+            const requiredActions = ['UPDATE_PASSWORD'];
+            console.log(`[KC-10] Calling triggerRequiredActions()
+Keycloak UUID: ${keycloakSub}
+Actions array: ${JSON.stringify(requiredActions)}
+request payload: ${JSON.stringify(requiredActions)}`);
+            try {
+                await keycloakService.triggerRequiredActions(keycloakSub, requiredActions);
+                console.log('[KC-11] triggerRequiredActions() completed successfully');
+            } catch (emailError: any) {
+                console.error(`[KC-ERROR-11] Error in triggerRequiredActions()
+Complete error object: ${JSON.stringify(emailError, Object.getOwnPropertyNames(emailError))}
+Stack trace: ${emailError.stack}
+Response status: ${emailError.status || emailError.response?.status || 'N/A'}
+Response body: ${JSON.stringify(emailError.details || emailError.response?.data || 'N/A')}`);
+            }
+
+            // Step 5: Mark employee completed
+            console.log('[KC-12] Updating profile_completion_status -> completed');
             await employeeDao.update(employee_cuid, { profile_completion_status: 'completed' } as employeeDao.UpdateEmployeeInput);
-            console.log('Employee Completed');
+            console.log(`[KC-13] Employee marked completed\n========== KEYCLOAK ONBOARDING END ==========`);
             return true;
         }
         return false;
