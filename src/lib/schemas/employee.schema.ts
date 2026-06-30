@@ -60,7 +60,7 @@ export const employmentSchema = z.object({
   relieving_date: optionalDate(z.coerce.date().optional().nullable()),
   official_email: optionalString(z.string().email("Invalid email format")),
   keycloak_sub: optionalString(z.string()),
-  system_role_cuid: optionalString(z.string())
+  system_role_cuid: z.string().min(1, "Required")
 }).refine(data => {
   if (data.date_of_joining && data.confirmation_date) {
     return data.confirmation_date >= data.date_of_joining;

@@ -157,7 +157,7 @@
 		pay_grade_cuid: backendErrors.pay_grade_cuid || '', // optional
 		employment_type_cuid: backendErrors.employment_type_cuid || validateDropdown(employment.employment_type_cuid),
 		location_cuid: backendErrors.location_cuid || validateDropdown(employment.location_cuid),
-		system_role_cuid: backendErrors.system_role_cuid || '', // optional
+		system_role_cuid: backendErrors.system_role_cuid || validateDropdown(employment.system_role_cuid),
 		employment_status: backendErrors.employment_status || validateDropdown(employment.employment_status),
 		official_email: backendErrors.official_email || validateEmail(employment.official_email),
 		date_of_joining: backendErrors.date_of_joining || validateDoj(employment.date_of_joining),
@@ -275,7 +275,7 @@
 			<AsyncDropdown
 				bind:this={systemRoleDropdown}
 				apiEndpoint="/api/system-roles"
-				label="System Role"
+				label="System Role *"
 				value={employment.system_role_cuid}
 				loadingText="Loading system roles..."
 				errorText="Unable to load system roles."
