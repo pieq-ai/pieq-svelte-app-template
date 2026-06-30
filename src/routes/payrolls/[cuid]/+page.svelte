@@ -246,13 +246,13 @@
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Pay Period</CardDescription>
-				<CardTitle class="text-2xl font-bold text-[#262626]">{monthName(upload.month)} {upload.year}</CardTitle>
+				<CardTitle class="text-2xl font-bold text-hrms-secondary">{monthName(upload.month)} {upload.year}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Employees</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">
+				<CardTitle class="text-4xl font-bold text-hrms-primary tabular-nums">
 					{#if (upload.failure_count ?? 0) > 0}
 						{upload.success_count} / {upload.success_count + (upload.failure_count ?? 0)}
 					{:else}
@@ -264,7 +264,7 @@
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Uploaded On</CardDescription>
-				<CardTitle class="text-2xl font-bold text-[#800020]">{formatDate(upload.uploaded_at)}</CardTitle>
+				<CardTitle class="text-2xl font-bold text-hrms-destructive">{formatDate(upload.uploaded_at)}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
@@ -559,7 +559,7 @@
 							</TableRow>
 							<TableRow class="border-t-2 bg-muted/40 hover:bg-muted/40">
 								<TableCell class="font-bold text-foreground py-2.5 text-sm">Net Salary</TableCell>
-								<TableCell class="text-right font-bold text-[#F45310] py-2.5 text-base">₹{formatAmount(selectedRecord.net_salary)}</TableCell>
+								<TableCell class="text-right font-bold text-hrms-primary py-2.5 text-base">₹{formatAmount(selectedRecord.net_salary)}</TableCell>
 							</TableRow>
 						</TableBody>
 					</Table>

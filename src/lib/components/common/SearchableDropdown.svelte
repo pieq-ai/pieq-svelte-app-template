@@ -195,13 +195,13 @@
                     {:else}
                       <CheckIcon
                         class="size-4 shrink-0 {isSelected(option.id)
-                          ? 'opacity-100 text-[#F45310]'
+                          ? 'opacity-100 text-hrms-primary'
                           : 'opacity-0'}"
                       />
                     {/if}
                     <span
                       class={isSelected(option.id) && !multiple
-                        ? "font-medium text-[#F45310]"
+                        ? "font-medium text-hrms-primary"
                         : ""}
                       style="word-break: break-word;"
                     >

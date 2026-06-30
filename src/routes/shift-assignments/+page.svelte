@@ -72,6 +72,7 @@
   let formStatus = $state<boolean>(true);
   let isSubmitting = $state(false);
   let isModalOpen = $state(false);
+  let isViewOnly = $state(false);
   let showConfirmClose = $state(false);
 
   // Touch States
@@ -337,6 +338,7 @@
 
   function openCreateModal() {
     editingAssignment = null;
+    isViewOnly = false;
     formEmployeeCuid = "";
     formShiftCuid = "";
     formEffectiveFrom = "";
@@ -361,6 +363,7 @@
 
   function openEditModal(assignment: ShiftAssignment) {
     editingAssignment = assignment;
+    isViewOnly = false;
     formEmployeeCuid = assignment.employee_cuid;
     formShiftCuid = assignment.shift_cuid;
     formEffectiveFrom = String(assignment.effective_from);
@@ -383,8 +386,27 @@
     isModalOpen = true;
   }
 
+  function openViewModal(assignment: ShiftAssignment) {
+    editingAssignment = assignment;
+    isViewOnly = true;
+    formEmployeeCuid = assignment.employee_cuid;
+    formShiftCuid = assignment.shift_cuid;
+    formEffectiveFrom = String(assignment.effective_from);
+    formEffectiveTo = String(assignment.effective_to);
+    formStatus = assignment.status;
+
+    isEmployeeTouched = false;
+    isShiftTouched = false;
+    isEffectiveFromTouched = false;
+    isEffectiveToTouched = false;
+    backendError = "";
+
+    isModalOpen = true;
+  }
+
   async function handleSaveAssignment(e: Event) {
     e.preventDefault();
+    if (isViewOnly) return;
     if (editingAssignment && !isDirty) return;
 
     isEmployeeTouched = true;
@@ -455,7 +477,7 @@
     </div>
     <Button
       type="button"
-      class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+      class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
       onclick={openCreateModal}
     >
       Assign Shift
@@ -467,7 +489,7 @@
     <Card>
       <CardHeader class="pb-2">
         <CardDescription>Total Assignments</CardDescription>
-        <CardTitle class="text-4xl font-bold text-[#262626] tabular-nums"
+        <CardTitle class="text-4xl font-bold text-hrms-secondary tabular-nums"
           >{totalCount}</CardTitle
         >
       </CardHeader>
@@ -475,7 +497,7 @@
     <Card>
       <CardHeader class="pb-2">
         <CardDescription>Active Assignments</CardDescription>
-        <CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums"
+        <CardTitle class="text-4xl font-bold text-hrms-primary tabular-nums"
           >{activeCount}</CardTitle
         >
       </CardHeader>
@@ -667,6 +689,12 @@
                   <TableActions
                     canEdit={true}
                     onEdit={() => openEditModal(assignment)}
+                    customActions={[
+                      {
+                        label: "View Details",
+                        onClick: () => openViewModal(assignment),
+                      },
+                    ]}
                   />
                 </TableCell>
               </TableRow>
@@ -839,23 +867,28 @@
       <div
         class="flex items-center justify-end gap-3 pt-4 border-t border-border mt-6"
       >
-        <Button
-          type="button"
-          variant="outline"
-          onclick={cancel}
-          disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button
-        >
-        <Button
-          type="submit"
-          class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
-          disabled={isSubmitting || (!!editingAssignment && !isDirty)}
-        >
-          {isSubmitting
-            ? UI_CONSTANTS.BUTTON_SAVING
-            : editingAssignment
-              ? UI_CONSTANTS.BUTTON_UPDATE
-              : UI_CONSTANTS.BUTTON_SAVE}
-        </Button>
+        {#if isViewOnly}
+          <Button type="button" variant="outline" onclick={cancel}>Close</Button
+          >
+        {:else}
+          <Button
+            type="button"
+            variant="outline"
+            onclick={cancel}
+            disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button
+          >
+          <Button
+            type="submit"
+            class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
+            disabled={isSubmitting || (!!editingAssignment && !isDirty)}
+          >
+            {isSubmitting
+              ? UI_CONSTANTS.BUTTON_SAVING
+              : editingAssignment
+                ? UI_CONSTANTS.BUTTON_UPDATE
+                : UI_CONSTANTS.BUTTON_SAVE}
+          </Button>
+        {/if}
       </div>
     </form>
   {/snippet}

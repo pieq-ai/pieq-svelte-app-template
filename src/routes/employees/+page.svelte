@@ -138,7 +138,7 @@
 		</div>
 		<Button
 			href="/employees/create"
-			class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+			class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
 		>
 			Add Employee
 		</Button>
@@ -149,19 +149,19 @@
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Total Employees</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalEmployees}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-secondary tabular-nums">{totalEmployees}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Completed Profiles</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{completedCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-primary tabular-nums">{completedCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Pending Profiles</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{pendingCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-destructive tabular-nums">{pendingCount}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>

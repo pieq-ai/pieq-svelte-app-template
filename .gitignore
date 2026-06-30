@@ -39,10 +39,5 @@ playwright-report/
 blob-report/
 playwright/.cache/
 
-# Local debugging files
-scratch/
-
-# Generated uploads
-static/uploads/
-
+# Graphify
 graphify-out/

@@ -540,7 +540,7 @@
 		</div>
 		<Button
 			type="button"
-			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
+			class="bg-hrms-primary text-white hover:bg-hrms-primary/90 border-0"
 			onclick={openCreateModal}
 		>
 			Add Structure
@@ -552,19 +552,19 @@
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Total Structures</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-secondary tabular-nums">{totalCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Active</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{activeCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-primary tabular-nums">{activeCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Inactive</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{inactiveCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-destructive tabular-nums">{inactiveCount}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
@@ -886,7 +886,7 @@
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
 				<Button
 					type="submit"
-					class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+					class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
 					disabled={isSubmitting}
 				>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : UI_CONSTANTS.BUTTON_SAVE}
@@ -956,7 +956,7 @@
 			<Button type="button" variant="outline" onclick={handleCloseEditDates} disabled={isSubmittingDates}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
 			<Button
 				type="submit"
-				class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+				class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
 				disabled={isSubmittingDates}
 			>
 				{isSubmittingDates ? UI_CONSTANTS.BUTTON_SAVING : UI_CONSTANTS.BUTTON_SAVE}

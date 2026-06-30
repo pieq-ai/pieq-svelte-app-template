@@ -137,7 +137,7 @@
 					<div class="flex items-center gap-0.5">
 						<Button
 							variant="outline"
-							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-[#262626] rounded-md transition-colors"
+							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-hrms-secondary rounded-md transition-colors"
 							onclick={prevYear}
 							aria-label="Previous year"
 						>
@@ -145,7 +145,7 @@
 						</Button>
 						<Button
 							variant="outline"
-							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-[#262626] rounded-md transition-colors"
+							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-hrms-secondary rounded-md transition-colors"
 							onclick={prevMonth}
 							aria-label="Previous month"
 						>
@@ -155,7 +155,7 @@
 
 					<Button
 						variant="ghost"
-						class="text-sm font-semibold text-[#262626] hover:bg-accent/60 rounded-md transition-colors px-2 py-1 h-7"
+						class="text-sm font-semibold text-hrms-secondary hover:bg-accent/60 rounded-md transition-colors px-2 py-1 h-7"
 						onclick={() => viewState = 'month'}
 					>
 						{currentMonthName} {currentYear}
@@ -164,7 +164,7 @@
 					<div class="flex items-center gap-0.5">
 						<Button
 							variant="outline"
-							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-[#262626] rounded-md transition-colors"
+							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-hrms-secondary rounded-md transition-colors"
 							onclick={nextMonth}
 							aria-label="Next month"
 						>
@@ -172,7 +172,7 @@
 						</Button>
 						<Button
 							variant="outline"
-							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-[#262626] rounded-md transition-colors"
+							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-hrms-secondary rounded-md transition-colors"
 							onclick={nextYear}
 							aria-label="Next year"
 						>
@@ -212,8 +212,8 @@
 													class={cn(
 														buttonVariants({ variant: "ghost" }),
 														"h-8 w-8 p-0 font-normal aria-selected:opacity-100",
-														"data-selected:bg-[#F45310] data-selected:text-white data-selected:hover:bg-[#F45310]/90 data-selected:font-semibold data-selected:hover:text-white",
-														"data-today:bg-accent/30 data-today:text-accent-foreground data-today:ring-1 data-today:ring-[#F45310]/30",
+														"data-selected:bg-hrms-primary data-selected:text-white data-selected:hover:bg-hrms-primary/90 data-selected:font-semibold data-selected:hover:text-white",
+														"data-today:bg-accent/30 data-today:text-accent-foreground data-today:ring-1 data-today:ring-hrms-primary/30",
 														"data-outside-month:text-muted-foreground/30 data-outside-month:opacity-50",
 														"data-disabled:text-muted-foreground data-disabled:opacity-30"
 													)}
@@ -234,7 +234,7 @@
 					<div class="flex items-center gap-0.5">
 						<Button
 							variant="outline"
-							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-[#262626] rounded-md transition-colors"
+							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-hrms-secondary rounded-md transition-colors"
 							onclick={prev10Years}
 							aria-label="Previous 10 years"
 						>
@@ -242,7 +242,7 @@
 						</Button>
 						<Button
 							variant="outline"
-							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-[#262626] rounded-md transition-colors"
+							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-hrms-secondary rounded-md transition-colors"
 							onclick={prevYear}
 							aria-label="Previous year"
 						>
@@ -252,7 +252,7 @@
 
 					<Button
 						variant="ghost"
-						class="text-sm font-semibold text-[#262626] hover:bg-accent/60 rounded-md transition-colors px-2 py-1 h-7"
+						class="text-sm font-semibold text-hrms-secondary hover:bg-accent/60 rounded-md transition-colors px-2 py-1 h-7"
 						onclick={() => viewState = 'year'}
 					>
 						{currentYear}
@@ -261,7 +261,7 @@
 					<div class="flex items-center gap-0.5">
 						<Button
 							variant="outline"
-							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-[#262626] rounded-md transition-colors"
+							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-hrms-secondary rounded-md transition-colors"
 							onclick={nextYear}
 							aria-label="Next year"
 						>
@@ -269,7 +269,7 @@
 						</Button>
 						<Button
 							variant="outline"
-							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-[#262626] rounded-md transition-colors"
+							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-hrms-secondary rounded-md transition-colors"
 							onclick={next10Years}
 							aria-label="Next 10 years"
 						>
@@ -286,8 +286,8 @@
 							class={cn(
 								"h-10 text-sm font-normal transition-colors rounded-md p-1",
 								isSelectedMonth(mon.value)
-									? "bg-[#F45310] text-white hover:bg-[#F45310]/90 font-semibold"
-									: "hover:bg-accent hover:text-accent-foreground text-[#262626]"
+									? "bg-hrms-primary text-white hover:bg-hrms-primary/90 font-semibold"
+									: "hover:bg-accent hover:text-accent-foreground text-hrms-secondary"
 							)}
 							onclick={() => selectMonth(mon.value)}
 						>
@@ -303,7 +303,7 @@
 					<div class="flex items-center gap-0.5">
 						<Button
 							variant="outline"
-							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-[#262626] rounded-md transition-colors"
+							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-hrms-secondary rounded-md transition-colors"
 							onclick={prevYearsRange}
 							aria-label="Previous 12 years"
 						>
@@ -311,7 +311,7 @@
 						</Button>
 						<Button
 							variant="outline"
-							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-[#262626] rounded-md transition-colors"
+							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-hrms-secondary rounded-md transition-colors"
 							onclick={prevYearsRange}
 							aria-label="Previous 12 years"
 						>
@@ -319,14 +319,14 @@
 						</Button>
 					</div>
 
-					<span class="text-sm font-semibold text-[#262626] px-2 py-1 h-7 flex items-center">
+					<span class="text-sm font-semibold text-hrms-secondary px-2 py-1 h-7 flex items-center">
 						{startYear} - {endYear}
 					</span>
 
 					<div class="flex items-center gap-0.5">
 						<Button
 							variant="outline"
-							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-[#262626] rounded-md transition-colors"
+							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-hrms-secondary rounded-md transition-colors"
 							onclick={nextYearsRange}
 							aria-label="Next 12 years"
 						>
@@ -334,7 +334,7 @@
 						</Button>
 						<Button
 							variant="outline"
-							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-[#262626] rounded-md transition-colors"
+							class="h-7 w-7 bg-transparent p-0 border border-border hover:bg-accent text-hrms-secondary rounded-md transition-colors"
 							onclick={nextYearsRange}
 							aria-label="Next 12 years"
 						>
@@ -351,8 +351,8 @@
 							class={cn(
 								"h-10 text-sm font-normal transition-colors rounded-md p-1",
 								isSelectedYear(yr)
-									? "bg-[#F45310] text-white hover:bg-[#F45310]/90 font-semibold"
-									: "hover:bg-accent hover:text-accent-foreground text-[#262626]"
+									? "bg-hrms-primary text-white hover:bg-hrms-primary/90 font-semibold"
+									: "hover:bg-accent hover:text-accent-foreground text-hrms-secondary"
 							)}
 							onclick={() => selectYear(yr)}
 						>

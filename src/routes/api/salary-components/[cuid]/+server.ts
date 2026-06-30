@@ -63,7 +63,7 @@ export async function PUT({ params, request }) {
 		return json({
 			data: {
 				cuid: updated.cuid,
-				message: 'success'
+				message: 'successfully updated'
 			}
 		});
 	} catch (error) {

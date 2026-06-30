@@ -296,10 +296,6 @@
 
 				if (createdCount > 0) {
 					toast.success(resData.message || `${createdCount} payroll record(s) uploaded successfully.`);
-					// Refresh list
-					await invalidateAll();
-					// Reset upload state so user can upload another file and see the updated list
-					resetUpload();
 				} else {
 					toast.error(resData.message || 'Upload failed.');
 				}
@@ -313,6 +309,15 @@
 			console.error(err);
 		} finally {
 			isUploading = false;
+			await invalidateAll();
+			// Reset the upload form to its initial state
+			selectedFile = null;
+			uploadMonth = currentMonth;
+			uploadYear = currentYear;
+			const input = document.getElementById('payroll_file_input') as HTMLInputElement;
+			if (input) {
+				input.value = '';
+			}
 		}
 	}
 
@@ -320,6 +325,12 @@
 		selectedFile = null;
 		uploadResult = null;
 		uploadError = '';
+		uploadMonth = currentMonth;
+		uploadYear = currentYear;
+		const input = document.getElementById('payroll_file_input') as HTMLInputElement;
+		if (input) {
+			input.value = '';
+		}
 	}
 
 	// ─── File size helper ─────────────────────────────────────────────────────────
@@ -348,19 +359,19 @@
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Total Uploads</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalUploads}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-secondary tabular-nums">{totalUploads}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Employees Processed</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{employeesProcessed}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-primary tabular-nums">{employeesProcessed}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Pay Periods</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{payPeriods}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-destructive tabular-nums">{payPeriods}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
@@ -379,9 +390,9 @@
 				<div class="md:col-span-2">
 					{#if selectedFile}
 						<div
-							class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 text-center transition-colors h-full min-h-[160px] border-[#F45310]/40 bg-[#F45310]/5 animate-in fade-in zoom-in duration-200"
+							class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 text-center transition-colors h-full min-h-[160px] border-hrms-primary/40 bg-hrms-primary/5 animate-in fade-in zoom-in duration-200"
 						>
-							<FileSpreadsheetIcon class="mx-auto mb-3 size-12 text-[#F45310]" />
+							<FileSpreadsheetIcon class="mx-auto mb-3 size-12 text-hrms-primary" />
 							<p class="text-base font-semibold text-foreground truncate max-w-xs">{selectedFile.name}</p>
 							<p class="mt-1 text-xs text-muted-foreground">{formatSize(selectedFile.size)}</p>
 							<Button
@@ -398,8 +409,8 @@
 						<!-- svelte-ignore a11y_no_static_element_interactions -->
 						<div
 							class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 text-center transition-colors h-full min-h-[160px] {dragOver
-								? 'border-[#F45310] bg-[#F45310]/5'
-								: 'border-border bg-muted/20 hover:border-[#F45310]/50 hover:bg-muted/40'}"
+								? 'border-hrms-primary bg-hrms-primary/5'
+								: 'border-border bg-muted/20 hover:border-hrms-primary/50 hover:bg-muted/40'}"
 							ondrop={handleDrop}
 							ondragover={handleDragOver}
 							ondragleave={handleDragLeave}
@@ -484,7 +495,7 @@
 						<div class="flex items-center gap-3">
 							<Button
 								type="button"
-								class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0 flex-1"
+								class="bg-hrms-primary text-white hover:bg-hrms-primary/90 border-0 flex-1"
 								disabled={!selectedFile || isUploading}
 								onclick={handleUpload}
 							>
