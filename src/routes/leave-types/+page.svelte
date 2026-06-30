@@ -472,7 +472,7 @@
 		<!-- Search & Filter controls -->
 		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
 			<SearchInput id="search_leave_types" name="search_leave_types" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by leave name or code..." />
-			<FilterDropdown value={filterStatus} onChange={(value) => { filterStatus = value; currentPage = 1; }} allLabel="All Status" />
+			<FilterDropdown value={filterStatus} onChange={(value) => { filterStatus = value; currentPage = 1; }} allLabel="All Status" triggerClass="w-full sm:w-48" />
 		</div>
 
 		<!-- Table Card -->

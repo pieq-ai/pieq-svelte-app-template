@@ -886,7 +886,7 @@
 			</div>
 
 			<!-- Status Filter -->
-			<FilterDropdown value={filterStatus} onChange={(value) => { filterStatus = value; currentPage = 1; }} allLabel="All Status" />
+			<FilterDropdown value={filterStatus} onChange={(value) => { filterStatus = value; currentPage = 1; }} allLabel="All Status" triggerClass="w-full md:w-48" />
 		</div>
 
 		<!-- Table Card -->

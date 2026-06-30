@@ -20,7 +20,8 @@
 		TableRow,
 		Pagination,
 		DatePicker,
-		ConfirmModal
+		ConfirmModal,
+		FilterDropdown
 	} from '$lib/components';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import CheckIcon from '@lucide/svelte/icons/check';
@@ -1007,33 +1008,13 @@
 						{/if}
 					</div>
 					<div>
-						<DropdownMenu.Root>
-							<DropdownMenu.Trigger>
-								{#snippet child({ props })}
-									<Button variant="outline" class="h-9 justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
-										<span class="truncate pr-1">
-											{filterPeriodLabel}
-										</span>
-										<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
-									</Button>
-								{/snippet}
-							</DropdownMenu.Trigger>
-							<DropdownMenu.Content class="w-36">
-								<DropdownMenu.Group>
-									{#each filterPeriodOptions as opt}
-										<DropdownMenu.Item
-											onclick={() => filterPeriod = opt.value}
-											class="justify-between cursor-pointer {filterPeriod === opt.value ? 'bg-accent text-accent-foreground font-semibold' : ''}"
-										>
-											<span>{opt.label}</span>
-											{#if filterPeriod === opt.value}
-												<CheckIcon class="size-4 shrink-0 text-[#F45310]" />
-											{/if}
-										</DropdownMenu.Item>
-									{/each}
-								</DropdownMenu.Group>
-							</DropdownMenu.Content>
-						</DropdownMenu.Root>
+						<FilterDropdown
+							value={filterPeriod}
+							onChange={(v) => filterPeriod = v}
+							options={filterPeriodOptions}
+							triggerClass="w-40"
+							Icon={ChevronDownIcon}
+						/>
 					</div>
 				</CardContent>
 			</Card>
@@ -1066,62 +1047,22 @@
 						</Button>
 						
 						<!-- Month Dropdown -->
-						<DropdownMenu.Root>
-							<DropdownMenu.Trigger>
-								{#snippet child({ props })}
-									<Button variant="outline" class="h-9 justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
-										<span class="truncate pr-1">
-											{monthNames[currentMonth]}
-										</span>
-										<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
-									</Button>
-								{/snippet}
-							</DropdownMenu.Trigger>
-							<DropdownMenu.Content class="w-36 max-h-60 overflow-y-auto">
-								<DropdownMenu.Group>
-									{#each monthNames as monthName, index}
-										<DropdownMenu.Item
-											onclick={() => currentMonth = index}
-											class="justify-between cursor-pointer {currentMonth === index ? 'bg-accent text-accent-foreground font-semibold' : ''}"
-										>
-											<span use:scrollIntoView={currentMonth === index}>{monthName}</span>
-											{#if currentMonth === index}
-												<CheckIcon class="size-4 shrink-0 text-[#F45310]" />
-											{/if}
-										</DropdownMenu.Item>
-									{/each}
-								</DropdownMenu.Group>
-							</DropdownMenu.Content>
-						</DropdownMenu.Root>
+						<FilterDropdown
+							value={currentMonth}
+							onChange={(v) => currentMonth = v}
+							options={monthNames.map((name, index) => ({ label: name, value: index }))}
+							triggerClass="w-36"
+							Icon={ChevronDownIcon}
+						/>
 
 						<!-- Year Dropdown -->
-						<DropdownMenu.Root>
-							<DropdownMenu.Trigger>
-								{#snippet child({ props })}
-									<Button variant="outline" class="h-9 justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
-										<span class="truncate pr-1">
-											{currentYear}
-										</span>
-										<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
-									</Button>
-								{/snippet}
-							</DropdownMenu.Trigger>
-							<DropdownMenu.Content class="w-28 max-h-60 overflow-y-auto">
-								<DropdownMenu.Group>
-									{#each Array.from({ length: 101 }, (_, i) => 2000 + i) as yearVal}
-										<DropdownMenu.Item
-											onclick={() => currentYear = yearVal}
-											class="justify-between cursor-pointer {currentYear === yearVal ? 'bg-accent text-accent-foreground font-semibold' : ''}"
-										>
-											<span use:scrollIntoView={currentYear === yearVal}>{yearVal}</span>
-											{#if currentYear === yearVal}
-												<CheckIcon class="size-4 shrink-0 text-[#F45310]" />
-											{/if}
-										</DropdownMenu.Item>
-									{/each}
-								</DropdownMenu.Group>
-							</DropdownMenu.Content>
-						</DropdownMenu.Root>
+						<FilterDropdown
+							value={currentYear}
+							onChange={(v) => currentYear = v}
+							options={Array.from({ length: 101 }, (_, i) => 2000 + i).map(yearVal => ({ label: String(yearVal), value: yearVal }))}
+							triggerClass="w-28"
+							Icon={ChevronDownIcon}
+						/>
 
 						<Button variant="outline" size="icon-sm" onclick={nextMonth} title="Next Month">
 							›
@@ -1270,26 +1211,12 @@
 						/>
 					</div>
 					<div class="w-full sm:w-48">
-						<DropdownMenu.Root>
-							<DropdownMenu.Trigger>
-								{#snippet child({ props })}
-									<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
-										<span class="truncate pr-2">{historyFilterStatusOptions.find(o => o.value === historyFilterStatus)?.label || 'All Status'}</span>
-										<FilterIcon class="ml-2 size-4 opacity-50 shrink-0" />
-									</Button>
-								{/snippet}
-							</DropdownMenu.Trigger>
-							<DropdownMenu.Content class="w-[var(--bits-dropdown-menu-anchor-width)]">
-								<DropdownMenu.Group>
-									{#each historyFilterStatusOptions as opt}
-										<DropdownMenu.Item onclick={() => { historyFilterStatus = opt.value; historyCurrentPage = 1; }} class="justify-between cursor-pointer {historyFilterStatus === opt.value ? 'bg-accent text-accent-foreground' : ''}">
-											<span class="truncate pr-2">{opt.label}</span>
-											{#if historyFilterStatus === opt.value}<CheckIcon class="size-4 shrink-0 text-[#F45310]" />{/if}
-										</DropdownMenu.Item>
-									{/each}
-								</DropdownMenu.Group>
-							</DropdownMenu.Content>
-						</DropdownMenu.Root>
+						<FilterDropdown
+							value={historyFilterStatus}
+							onChange={(v) => { historyFilterStatus = v; historyCurrentPage = 1; }}
+							options={historyFilterStatusOptions}
+							triggerClass="w-full"
+						/>
 					</div>
 				</div>
 			</CardHeader>
