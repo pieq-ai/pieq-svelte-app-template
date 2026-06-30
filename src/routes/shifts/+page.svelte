@@ -291,9 +291,13 @@
 		if (isNaN(d.getTime())) {
 			return String(timeVal);
 		}
-		const hours = String(d.getUTCHours()).padStart(2, '0');
+		let hours = d.getUTCHours();
 		const minutes = String(d.getUTCMinutes()).padStart(2, '0');
-		return `${hours}:${minutes}`;
+		const ampm = hours >= 12 ? 'PM' : 'AM';
+		hours = hours % 12;
+		hours = hours ? hours : 12;
+		const hoursStr = String(hours).padStart(2, '0');
+		return `${hoursStr}:${minutes} ${ampm}`;
 	}
 
 	function openCreateModal() {

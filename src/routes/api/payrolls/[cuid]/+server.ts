@@ -1,9 +1,31 @@
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/payroll.service.js';
 import * as failureService from '$lib/server/services/payroll-upload-record.service.js';
+import { db } from '$lib/server/db.js';
 
 export async function GET({ params }) {
 	try {
+		// Check if the provided cuid belongs to an employee
+		const employee = await db.employee.findUnique({
+			where: { cuid: params.cuid }
+		});
+
+		if (employee) {
+			// Find the latest payroll record for this employee
+			const latestPayroll = await db.payroll.findFirst({
+				where: { employee_cuid: params.cuid },
+				orderBy: [{ year: 'desc' }, { month: 'desc' }]
+			});
+			if (!latestPayroll) {
+				return json(
+					{ message: 'No payroll records found for this employee' },
+					{ status: 404 }
+				);
+			}
+			const payroll = await service.getPayrollByCuid(latestPayroll.cuid);
+			return json({ data: payroll });
+		}
+
 		const payroll = await service.getPayrollByCuid(params.cuid);
 		return json({ data: payroll });
 	} catch (error) {
