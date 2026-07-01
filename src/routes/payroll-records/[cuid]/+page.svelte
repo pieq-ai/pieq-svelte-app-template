@@ -15,7 +15,9 @@
 		TableRow
 	} from '$lib/components';
 
-
+	function goToPayslip() {
+		goto(resolve(`/payroll-records/${payroll.cuid}/payslip`));
+	}
 
 	// ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -161,6 +163,7 @@
 				type="button"
 				variant="default"
 				class="gap-2 bg-hrms-primary text-white hover:bg-hrms-primary-dark"
+				onclick={goToPayslip}
 				aria-label="View Payslip"
 			>
 				View Payslip
