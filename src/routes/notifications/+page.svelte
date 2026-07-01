@@ -23,12 +23,13 @@
 		category: string;
 		priority: string;
 		type: string;
-		read_at: string | null;
+		is_read: boolean;
 		created_at: string;
-		payload: any;
+		metadata: any;
 	}
 
 	interface PageData {
+		error?: string;
 		notifications: NotificationItem[];
 		pagination: {
 			page: number;
@@ -98,7 +99,7 @@
 	});
 
 	async function markAsRead(item: NotificationItem) {
-		if (item.read_at) return;
+		if (item.is_read) return;
 
 		try {
 			const res = await fetch(resolve(`/api/notifications/${item.cuid}/read`), {
@@ -108,7 +109,7 @@
 			if (json.data?.success) {
 				// Optimistically update list
 				data.notifications = data.notifications.map((n: NotificationItem) =>
-					n.cuid === item.cuid ? { ...n, read_at: new Date().toISOString() } : n
+					n.cuid === item.cuid ? { ...n, is_read: true } : n
 				);
 			}
 		} catch (err) {
@@ -221,13 +222,22 @@
 				variant="outline"
 				class="gap-1.5 text-xs h-9 cursor-pointer"
 				onclick={markAllRead}
-				disabled={data.notifications.filter((n: NotificationItem) => !n.read_at).length === 0}
+				disabled={data.notifications.filter((n: NotificationItem) => !n.is_read).length === 0}
 			>
 				<CheckIcon class="size-4" />
 				Mark all as read
 			</Button>
 		</div>
 	</div>
+
+	{#if data.error}
+		<div class="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-600 rounded-xl text-sm font-medium flex items-center gap-2.5 shadow-sm">
+			<svg class="size-5 shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+				<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+			</svg>
+			<span>{data.error}. Please contact HR to create your employee profile.</span>
+		</div>
+	{/if}
 
 	<!-- Filters and Search panel -->
 	<div class="bg-card border border-border/80 shadow-xs rounded-xl p-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -284,9 +294,9 @@
 			{#each data.notifications as item (item.cuid)}
 				{@const Icon = getCategoryIcon(item.category)}
 				<div
-					class={`flex items-start gap-4 p-5 hover:bg-neutral-50/50 transition-colors relative group ${!item.read_at ? 'bg-orange-50/10' : ''}`}
+					class={`flex items-start gap-4 p-5 hover:bg-neutral-50/50 transition-colors relative group ${!item.is_read ? 'bg-orange-50/10' : ''}`}
 				>
-					{#if !item.read_at}
+					{#if !item.is_read}
 						<div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-2 h-2 bg-[#F43510] rounded-full"></div>
 					{/if}
 
@@ -298,7 +308,7 @@
 					<!-- Details -->
 					<div class="flex-1 min-w-0">
 						<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-							<h4 class={`text-sm font-semibold text-foreground leading-snug ${!item.read_at ? 'font-bold' : ''}`}>
+							<h4 class={`text-sm font-semibold text-foreground leading-snug ${!item.is_read ? 'font-bold' : ''}`}>
 								{item.title}
 							</h4>
 							<span class="text-xs text-neutral-400">
@@ -310,10 +320,10 @@
 							{item.body}
 						</p>
 
-						{#if item.payload?.link}
+						{#if item.metadata?.link}
 							<div class="mt-3">
 								<a
-									href={resolve(item.payload.link)}
+									href={resolve(item.metadata.link)}
 									class="inline-flex items-center text-xs font-semibold text-[#F43510] hover:text-[#d82f0e] hover:underline"
 									onclick={() => markAsRead(item)}
 								>
@@ -326,7 +336,7 @@
 
 					<!-- Hover actions -->
 					<div class="flex items-center gap-2 shrink-0">
-						{#if !item.read_at}
+						{#if !item.is_read}
 							<button
 								type="button"
 								class="p-2 rounded-lg hover:bg-neutral-100 text-muted-foreground hover:text-foreground cursor-pointer transition-colors border-none bg-transparent"

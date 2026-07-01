@@ -20,7 +20,7 @@
 		category: string;
 		priority: string;
 		type: string;
-		read_at: string | null;
+		is_read: boolean;
 		created_at: string;
 		payload: any;
 	}
@@ -92,7 +92,7 @@
 			const json = await res.json();
 			if (json.data?.success) {
 				unreadCount = 0;
-				notifications = notifications.map((n) => ({ ...n, read_at: new Date().toISOString() }));
+				notifications = notifications.map((n) => ({ ...n, is_read: true }));
 			}
 		} catch (err) {
 			console.error('Failed to mark all as read:', err);
@@ -101,7 +101,7 @@
 
 	async function handleNotificationClick(item: NotificationItem) {
 		isOpen = false;
-		if (!item.read_at) {
+		if (!item.is_read) {
 			try {
 				await fetch(resolve(`/api/notifications/${item.cuid}/read`), {
 					method: 'PATCH'
@@ -251,11 +251,11 @@
 						<!-- svelte-ignore a11y_click_events_have_key_events -->
 						<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 						<div
-							class={`flex items-start gap-3 p-3.5 hover:bg-neutral-50/80 transition-colors cursor-pointer relative group ${!item.read_at ? 'bg-orange-50/15' : ''}`}
+							class={`flex items-start gap-3 p-3.5 hover:bg-neutral-50/80 transition-colors cursor-pointer relative group ${!item.is_read ? 'bg-orange-50/15' : ''}`}
 							role="listitem"
 							onclick={() => handleNotificationClick(item)}
 						>
-							{#if !item.read_at}
+							{#if !item.is_read}
 								<div class="absolute left-1.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-[#F43510] rounded-full"></div>
 							{/if}
 
@@ -264,7 +264,7 @@
 							</div>
 
 							<div class="flex-1 min-w-0 pr-6">
-								<p class={`text-xs font-semibold leading-tight text-foreground truncate ${!item.read_at ? 'font-bold' : ''}`}>
+								<p class={`text-xs font-semibold leading-tight text-foreground truncate ${!item.is_read ? 'font-bold' : ''}`}>
 									{item.title}
 								</p>
 								<p class="text-[11px] text-muted-foreground mt-1 line-clamp-2 leading-normal">

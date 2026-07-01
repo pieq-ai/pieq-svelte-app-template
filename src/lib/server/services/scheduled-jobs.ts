@@ -37,7 +37,6 @@ export async function processDailyNotifications() {
 			body: `Wishing ${celebrant.first_name} ${celebrant.last_name} a very Happy Birthday today! 🎂🎉`,
 			category: "birthday",
 			type: "info",
-			trigger_source: "schedule.birthday",
 			target: { type: "broadcast" }
 		}).catch((err) => console.error('Failed to trigger birthday notification:', err));
 	}
@@ -72,7 +71,6 @@ export async function processDailyNotifications() {
 			body: `Congratulations to ${employee.first_name} ${employee.last_name} on celebrating ${years} year${years > 1 ? 's' : ''} with the company today! 🏅✨`,
 			category: "announcement",
 			type: "info",
-			trigger_source: "schedule.anniversary",
 			target: { type: "broadcast" }
 		}).catch((err) => console.error('Failed to trigger work anniversary notification:', err));
 	}

@@ -1300,7 +1300,7 @@
   );
 
   const cardThemes = {
-    EL: { text: "text-[#F45310]" }, // Warm Orange
+    EL: { text: "text-hrms-primary" }, // Warm Orange
     CL: { text: "text-emerald-600" }, // Emerald Green
     SL: { text: "text-purple-600" }, // Purple
     ML: { text: "text-pink-600" }, // Pink (Maternity)
@@ -1690,9 +1690,9 @@
                 ? 'opacity-30 cursor-not-allowed'
                 : 'cursor-pointer hover:bg-accent hover:text-accent-foreground'}
 								{day.isSelected
-                ? 'bg-[#F45310] text-white hover:bg-[#F45310]/90 font-bold'
+                ? 'bg-hrms-primary text-white hover:bg-hrms-primary/90 font-bold'
                 : ''}
-								{!day.isSelected && day.isToday ? 'border border-[#F45310] text-[#F45310]' : ''}
+								{!day.isSelected && day.isToday ? 'border border-hrms-primary text-hrms-primary' : ''}
 								{!day.isSelected && !day.isToday && !day.isCurrentMonth
                 ? 'text-muted-foreground'
                 : ''}"
@@ -1783,7 +1783,7 @@
                 >
                   <span class="truncate">{opt.label}</span>
                   {#if selectedEmployeeUuid === opt.id}
-                    <CheckIcon class="size-4 shrink-0 text-[#F45310]" />
+                    <CheckIcon class="size-4 shrink-0 text-hrms-primary" />
                   {/if}
                 </DropdownMenu.Item>
               {:else}
@@ -1812,14 +1812,14 @@
       <div class="flex gap-2">
         <button
           type="button"
-          class={`px-4 py-2.5 text-sm font-bold border-b-2 transition-all cursor-pointer mb-[-2px] ${activeTab === "dashboard" ? "border-[#F45310] text-[#F45310]" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          class={`px-4 py-2.5 text-sm font-bold border-b-2 transition-all cursor-pointer mb-[-2px] ${activeTab === "dashboard" ? "border-hrms-primary text-hrms-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
           onclick={() => (activeTab = "dashboard")}
         >
           Dashboard
         </button>
         <button
           type="button"
-          class={`px-4 py-2.5 text-sm font-bold border-b-2 transition-all cursor-pointer mb-[-2px] ${activeTab === "requests" ? "border-[#F45310] text-[#F45310]" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          class={`px-4 py-2.5 text-sm font-bold border-b-2 transition-all cursor-pointer mb-[-2px] ${activeTab === "requests" ? "border-hrms-primary text-hrms-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
           onclick={() => (activeTab = "requests")}
         >
           Leave Requests
@@ -1827,7 +1827,7 @@
         {#if isManager}
           <button
             type="button"
-            class={`px-4 py-2.5 text-sm font-bold border-b-2 transition-all cursor-pointer mb-[-2px] ${activeTab === "approvals" ? "border-[#F45310] text-[#F45310]" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            class={`px-4 py-2.5 text-sm font-bold border-b-2 transition-all cursor-pointer mb-[-2px] ${activeTab === "approvals" ? "border-hrms-primary text-hrms-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             onclick={() => (activeTab = "approvals")}
           >
             Pending Approvals
@@ -1837,7 +1837,7 @@
       {#if activeTab === "dashboard"}
         <Button
           type="button"
-          class="bg-[#F45310] text-white hover:bg-[#F45310]/90 font-bold"
+          class="bg-hrms-primary text-white hover:bg-hrms-primary/90 font-bold"
           onclick={openApplyModal}
         >
           Apply Leave
@@ -1849,7 +1849,7 @@
       <div
         class="flex h-64 flex-col items-center justify-center text-muted-foreground"
       >
-        <LoaderCircleIcon class="mb-2 size-8 animate-spin text-[#F45310]" />
+        <LoaderCircleIcon class="mb-2 size-8 animate-spin text-hrms-primary" />
         <p class="text-sm">Loading leave dashboard...</p>
       </div>
     {:else if activeTab === "dashboard"}
@@ -1865,7 +1865,7 @@
               { text: "text-neutral-600" }}
             {@const badgeColor =
               b.leave_code === "EL"
-                ? "text-[#F45310] border-[#F45310]/30 bg-orange-50/50"
+                ? "text-hrms-primary border-hrms-primary/30 bg-orange-50/50"
                 : b.leave_code === "CL"
                   ? "text-emerald-600 border-emerald-600/30 bg-emerald-50/50"
                   : b.leave_code === "SL"
@@ -1980,7 +1980,7 @@
             <CardTitle
               class="text-base font-bold text-foreground flex items-center gap-2"
             >
-              <ClockIcon class="size-4 text-[#F45310]" />
+              <ClockIcon class="size-4 text-hrms-primary" />
               Payroll Cutoff Configuration
             </CardTitle>
             <CardDescription class="text-xs">
@@ -1996,7 +1996,7 @@
             >
               <div class="space-y-1">
                 <div class="text-sm font-semibold text-foreground">
-                  Current Cutoff: <span class="text-[#F45310] font-extrabold"
+                  Current Cutoff: <span class="text-hrms-primary font-extrabold"
                     >{payrollCutoffDay}th</span
                   > of every month
                 </div>
@@ -2048,7 +2048,7 @@
                           <button
                             type="button"
                             class="w-full text-left px-2 py-1.5 text-xs rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer flex items-center justify-between
-														{selectedCutoff === day ? 'bg-accent font-semibold text-[#F45310]' : ''}"
+														{selectedCutoff === day ? 'bg-accent font-semibold text-hrms-primary' : ''}"
                             onclick={(e) => {
                               e.stopPropagation();
                               selectedCutoff = day;
@@ -2057,7 +2057,7 @@
                           >
                             <span>{day}th</span>
                             {#if selectedCutoff === day}
-                              <CheckIcon class="size-3.5 text-[#F45310]" />
+                              <CheckIcon class="size-3.5 text-hrms-primary" />
                             {/if}
                           </button>
                         {/each}
@@ -2068,7 +2068,7 @@
                     type="button"
                     onclick={saveCutoffDay}
                     disabled={isSavingCutoff}
-                    class="bg-[#F45310] text-white hover:bg-[#F45310]/90 font-bold"
+                    class="bg-hrms-primary text-white hover:bg-hrms-primary/90 font-bold"
                   >
                     {#if isSavingCutoff}
                       <LoaderCircleIcon class="mr-2 size-4 animate-spin" />
@@ -2861,7 +2861,7 @@
               type="checkbox"
               id="is_miscarriage"
               bind:checked={formIsMiscarriage}
-              class="size-4 rounded-sm border border-input accent-[#F45310] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              class="size-4 rounded-sm border border-input accent-hrms-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               disabled={isSubmitting}
             />
             <Label
@@ -2978,7 +2978,7 @@
               type="checkbox"
               id="half_day"
               bind:checked={formIsHalfDay}
-              class="size-4 rounded-sm border border-input accent-[#F45310] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              class="size-4 rounded-sm border border-input accent-hrms-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               disabled={isSubmitting}
             />
             <Label for="half_day" class="cursor-pointer font-semibold text-sm"
@@ -2998,7 +2998,7 @@
                     name="half_day_session"
                     value="FN"
                     bind:group={formHalfDaySession}
-                    class="accent-[#F45310]"
+                    class="accent-hrms-primary"
                     disabled={isSubmitting}
                   />
                   Forenoon (FN)
@@ -3009,7 +3009,7 @@
                     name="half_day_session"
                     value="AN"
                     bind:group={formHalfDaySession}
-                    class="accent-[#F45310]"
+                    class="accent-hrms-primary"
                     disabled={isSubmitting}
                   />
                   Afternoon (AN)
@@ -3107,10 +3107,10 @@
           </p>
           {#if isExceeded}
             <div
-              class="text-xs text-[#F45310] font-semibold space-y-1.5 border-b border-border/50 pb-2 mb-1"
+              class="text-xs text-hrms-primary font-semibold space-y-1.5 border-b border-border/50 pb-2 mb-1"
             >
               <p class="flex items-start gap-1.5">
-                <AlertCircleIcon class="size-4 shrink-0 text-[#F45310]" />
+                <AlertCircleIcon class="size-4 shrink-0 text-hrms-primary" />
                 <span
                   >You have {remaining.toFixed(1)} available leave days. This request
                   exceeds your balance by {leaveImpactBreakdown.lopDays.toFixed(
@@ -3197,7 +3197,7 @@
         >
         <Button
           type="submit"
-          class="bg-[#F45310] text-white hover:bg-[#F45310]/90 font-bold"
+          class="bg-hrms-primary text-white hover:bg-hrms-primary/90 font-bold"
           disabled={isSubmitting}
         >
           {#if isSubmitting}

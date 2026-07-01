@@ -233,7 +233,7 @@
 				<!-- Animated Active Pill -->
 				{#if isInitialized && activeTabWidth > 0}
 					<div 
-						class="absolute top-0 bottom-0 bg-[#f43510] rounded-xl shadow-md z-0 pointer-events-none {isResizing ? '' : 'transition-all duration-300 ease-in-out'}"
+						class="absolute top-0 bottom-0 bg-hrms-primary rounded-xl shadow-md z-0 pointer-events-none {isResizing ? '' : 'transition-all duration-300 ease-in-out'}"
 						style="
 							transform: translate3d({activeTabLeft}px, 0, 0); 
 							width: {activeTabWidth}px;
@@ -250,7 +250,7 @@
 						type="button"
 						role="tab"
 						aria-selected={isCurrent}
-						class="relative flex-1 z-10 flex items-center justify-center cursor-pointer px-4 py-2 rounded-xl transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f43510] focus-visible:ring-offset-2 {isCurrent ? 'text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}"
+						class="relative flex-1 z-10 flex items-center justify-center cursor-pointer px-4 py-2 rounded-xl transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hrms-primary focus-visible:ring-offset-2 {isCurrent ? 'text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}"
 						onclick={() => requestNavigate(stepNum)}
 					>
 						<span class="text-sm whitespace-nowrap">

@@ -20,8 +20,7 @@ export interface ValidatedNotificationData {
 	category: string;
 	priority: string;
 	type: string;
-	payload?: any;
-	trigger_source?: string | null;
+	metadata?: any;
 	created_by?: string | null;
 }
 
@@ -64,19 +63,13 @@ export function validateNotification(data: any): ValidatedNotificationData {
 		throw new ValidationError('type', `Invalid type. Must be one of: ${Array.from(VALID_TYPES).join(', ')}`);
 	}
 
-	const trigger_source = typeof data.trigger_source === 'string' ? data.trigger_source.trim() : null;
-	if (trigger_source && trigger_source.length > 100) {
-		throw new ValidationError('trigger_source', 'Trigger source cannot exceed 100 characters');
-	}
-
 	return {
 		title,
 		body,
 		category,
 		priority,
 		type,
-		payload: data.payload ?? null,
-		trigger_source,
+		metadata: data.metadata ?? null,
 		created_by: typeof data.created_by === 'string' ? data.created_by : null
 	};
 }

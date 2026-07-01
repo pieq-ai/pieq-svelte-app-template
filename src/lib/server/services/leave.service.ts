@@ -904,9 +904,8 @@ export async function withdrawLeaveByCuid(employeeCuid: string, requestCuid: str
 		body: `${employee.first_name} ${employee.last_name} has withdrawn their leave request.`,
 		category: "leave",
 		type: "warning",
-		trigger_source: "leave.withdrawn",
 		created_by: actorCuid || employee.cuid,
-		payload: { link: "/leaves", entityCuid: requestCuid },
+		metadata: { link: "/leaves", entityCuid: requestCuid },
 		target: { type: "broadcast" }
 	}).catch(err => console.error("Failed to send leave withdrawn notification:", err));
 
@@ -1303,16 +1302,17 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 	});
 
 	// Trigger leave applied notification
-	notificationService.send({
-		title: "Leave Application Submitted",
-		body: `${employee.first_name} ${employee.last_name} has applied for ${totalDays} day(s) of leave starting on ${startDate.toLocaleDateString()}.`,
-		category: "leave",
-		type: "info",
-		trigger_source: "leave.applied",
-		created_by: creatorCuid || employee.cuid,
-		payload: { link: "/leaves", entityCuid: request.cuid },
-		target: { type: "broadcast" }
-	}).catch(err => console.error("Failed to send leave applied notification:", err));
+	if (request) {
+		notificationService.send({
+			title: "Leave Application Submitted",
+			body: `${employee.first_name} ${employee.last_name} has applied for ${totalDays} day(s) of leave starting on ${startDate instanceof Date ? startDate.toLocaleDateString() : 'N/A'}.`,
+			category: "leave",
+			type: "info",
+			created_by: creatorCuid || employee.cuid,
+			metadata: { link: "/leaves", entityCuid: request.cuid },
+			target: { type: "broadcast" }
+		}).catch(err => console.error("Failed to send leave applied notification:", err));
+	}
 
 	return request;
 }
@@ -1348,9 +1348,8 @@ export async function withdrawLeave(email: string, requestCuid: string, actorCui
 		body: `${employee.first_name} ${employee.last_name} has withdrawn their leave request.`,
 		category: "leave",
 		type: "warning",
-		trigger_source: "leave.withdrawn",
 		created_by: actorCuid || employee.cuid,
-		payload: { link: "/leaves", entityCuid: requestCuid },
+		metadata: { link: "/leaves", entityCuid: requestCuid },
 		target: { type: "broadcast" }
 	}).catch(err => console.error("Failed to send leave withdrawn notification:", err));
 
@@ -1522,13 +1521,12 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 		// Trigger leave approved notification
 		notificationService.send({
 			title: "Leave Request Approved",
-			body: `Your leave request for ${request.total_days} day(s) starting on ${request.start_date.toLocaleDateString()} has been approved.`,
+			body: `Your leave request for ${request?.total_days ?? 0} day(s) starting on ${request?.start_date instanceof Date ? request.start_date.toLocaleDateString() : 'N/A'} has been approved.`,
 			category: "leave",
 			type: "success",
-			trigger_source: "leave.approved",
 			created_by: approverUserCuid,
-			payload: { link: "/leaves", entityCuid: requestCuid },
-			target: { type: "employee", employeeCuid: request.employee_cuid }
+			metadata: { link: "/leaves", entityCuid: requestCuid },
+			target: { type: "employee", employeeCuid: request?.employee_cuid }
 		}).catch(err => console.error("Failed to send leave approved notification:", err));
 
 		return updatedRequest;
@@ -1572,13 +1570,12 @@ export async function rejectLeaveRequest(requestCuid: string, rejectorUserCuid: 
 	// Trigger leave rejected notification
 	notificationService.send({
 		title: "Leave Request Rejected",
-		body: `Your leave request for ${request.total_days} day(s) starting on ${request.start_date.toLocaleDateString()} has been rejected.`,
+		body: `Your leave request for ${request?.total_days ?? 0} day(s) starting on ${request?.start_date instanceof Date ? request.start_date.toLocaleDateString() : 'N/A'} has been rejected.`,
 		category: "leave",
 		type: "error",
-		trigger_source: "leave.rejected",
 		created_by: rejectorUserCuid,
-		payload: { link: "/leaves", entityCuid: requestCuid },
-		target: { type: "employee", employeeCuid: request.employee_cuid }
+		metadata: { link: "/leaves", entityCuid: requestCuid },
+		target: { type: "employee", employeeCuid: request?.employee_cuid }
 	}).catch(err => console.error("Failed to send leave rejected notification:", err));
 
 	return result;

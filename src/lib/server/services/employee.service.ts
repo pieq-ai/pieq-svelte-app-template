@@ -156,7 +156,6 @@ export async function createEmployee(dto: CreateEmployeeDto) {
                 body: `${result.first_name} ${result.last_name} has joined the company as a new team member!`,
                 category: "announcement",
                 type: "info",
-                trigger_source: "employee.created",
                 created_by: dto.created_by,
                 target: { type: "broadcast" }
             }).catch(err => console.error("Failed to send employee joining notification:", err));

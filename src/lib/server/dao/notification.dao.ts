@@ -6,8 +6,7 @@ export interface CreateNotificationInput {
 	category: string;
 	priority?: string;
 	type?: string;
-	payload?: any;
-	trigger_source?: string | null;
+	metadata?: any;
 	created_by?: string | null;
 }
 
@@ -56,8 +55,7 @@ export async function createNotification(data: CreateNotificationInput, tx?: any
 			category: data.category,
 			priority: data.priority ?? 'medium',
 			type: data.type ?? 'info',
-			payload: data.payload ?? undefined,
-			trigger_source: data.trigger_source ?? undefined,
+			metadata: data.metadata ?? undefined,
 			created_by: data.created_by ?? undefined
 		}
 	});
@@ -147,8 +145,7 @@ export async function listForEmployee(employeeCuid: string, options: ListNotific
 			category: n?.category ?? 'system',
 			priority: n?.priority ?? 'medium',
 			type: n?.type ?? 'info',
-			payload: n?.payload ?? null,
-			trigger_source: n?.trigger_source ?? null,
+			metadata: n?.metadata ?? null,
 			created_by: n?.created_by ?? null
 		};
 	});

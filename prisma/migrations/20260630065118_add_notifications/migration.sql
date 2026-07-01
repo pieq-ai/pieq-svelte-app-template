@@ -7,8 +7,7 @@ CREATE TABLE "notifications" (
     "category" VARCHAR(50) NOT NULL,
     "priority" VARCHAR(20) NOT NULL DEFAULT 'medium',
     "type" VARCHAR(20) NOT NULL DEFAULT 'info',
-    "payload" JSONB,
-    "trigger_source" VARCHAR(100),
+    "metadata" JSONB,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_by" TEXT,
 

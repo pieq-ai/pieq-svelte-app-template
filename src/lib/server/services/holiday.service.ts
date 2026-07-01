@@ -189,9 +189,8 @@ export async function createHoliday(input: CreateHolidayInput) {
 		body: `A new company holiday "${result.name}" has been scheduled for ${result.date.toLocaleDateString()}.`,
 		category: "holiday",
 		type: "info",
-		trigger_source: "holiday.created",
 		created_by: input.created_by,
-		payload: { link: "/holidays" },
+		metadata: { link: "/holidays" },
 		target: { type: "broadcast" }
 	}).catch(err => console.error("Failed to send holiday created notification:", err));
 

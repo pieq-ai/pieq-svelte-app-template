@@ -116,12 +116,12 @@
 				<div class="flex items-center gap-1.5 overflow-hidden min-w-0">
 					{#if selectedOptions.length <= 2}
 						{#each selectedOptions as opt (opt.id)}
-							<span class="inline-flex items-center bg-[#262626] text-white dark:bg-neutral-200 dark:text-[#262626] text-xs font-medium px-2 py-0.5 rounded-sm border border-border/20 truncate max-w-[140px] select-none h-6">
+							<span class="inline-flex items-center bg-hrms-secondary text-white dark:bg-neutral-200 dark:text-hrms-secondary text-xs font-medium px-2 py-0.5 rounded-sm border border-border/20 truncate max-w-[140px] select-none h-6">
 								{opt.label}
 							</span>
 						{/each}
 					{:else}
-						<span class="inline-flex items-center bg-[#262626] text-white dark:bg-neutral-200 dark:text-[#262626] text-xs font-semibold px-2 py-0.5 rounded-sm border border-border/20 select-none h-6">
+						<span class="inline-flex items-center bg-hrms-secondary text-white dark:bg-neutral-200 dark:text-hrms-secondary text-xs font-semibold px-2 py-0.5 rounded-sm border border-border/20 select-none h-6">
 							{selectedOptions.length} selected
 						</span>
 					{/if}
@@ -201,7 +201,7 @@
 						>
 							<span class="truncate">{opt.label}</span>
 							{#if isSelected}
-								<CheckIcon class="size-4 shrink-0 text-[#F45310] dark:text-[#F45310] ml-2" />
+								<CheckIcon class="size-4 shrink-0 text-hrms-primary dark:text-hrms-primary ml-2" />
 							{/if}
 						</button>
 					{/each}

@@ -1,3 +1,4 @@
+
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import * as notificationService from '$lib/server/services/notification.service.js';
@@ -13,7 +14,18 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	permissionGuard.requireAuth(locals.user);
 
 	const email = locals.user.email || '';
-	const { employee } = await resolveEmployee(email);
+	let employee;
+	try {
+		const resolved = await resolveEmployee(email);
+		employee = resolved.employee;
+	} catch (err) {
+		return {
+			error: 'Employee profile not found',
+			notifications: [],
+			pagination: { page: 1, limit: 10, total: 0, totalPages: 0 }
+		};
+	}
+
 	if (!employee) {
 		return {
 			error: 'Employee profile not found',

@@ -13,9 +13,9 @@
 </script>
 
 <label
-	class="inline-flex size-9 cursor-pointer items-center justify-center rounded-md border transition hover:border-[#F45310] hover:bg-[#F45310]/10"
-	class:border-[#F45310]={checked}
-	class:bg-[#F45310]={checked}
+	class="inline-flex size-9 cursor-pointer items-center justify-center rounded-md border transition hover:border-hrms-primary hover:bg-hrms-primary/10"
+	class:border-hrms-primary={checked}
+	class:bg-hrms-primary={checked}
 	class:text-white={checked}
 	class:border-border={!checked}
 	class:bg-background={!checked}
@@ -36,6 +36,6 @@
 	{:else if checked}
 		<CheckIcon class="size-4" />
 	{:else}
-		<span class="h-0.5 w-3 rounded-full bg-[#737373]"></span>
+		<span class="h-0.5 w-3 rounded-full bg-hrms-neutral"></span>
 	{/if}
 </label>

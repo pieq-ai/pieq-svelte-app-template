@@ -1115,8 +1115,7 @@ model Notification {
   category       String   @db.VarChar(50)
   priority       String   @default("medium") @db.VarChar(20)
   type           String   @default("info") @db.VarChar(20)
-  payload        Json?
-  trigger_source String?  @db.VarChar(100)
+  metadata       Json?
   created_at     DateTime @default(now()) @db.Timestamptz()
   created_by     String?  @db.Text
 

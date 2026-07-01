@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
 	import { invalidate, goto, beforeNavigate } from '$app/navigation';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
@@ -899,7 +900,7 @@
 		</div>
 		<Button
 			type="button"
-			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0 font-semibold"
+			class="bg-hrms-primary text-white hover:bg-hrms-primary/90 border-0 font-semibold"
 			onclick={openAddModal}
 		>
 			Add Record
@@ -1235,7 +1236,7 @@
 								>
 									<span class="truncate">{opt.label}</span>
 									{#if formEmployeeCuid === opt.id}
-										<CheckIcon class="size-4 shrink-0 text-[#F45310]" />
+										<CheckIcon class="size-4 shrink-0 text-hrms-primary" />
 									{/if}
 								</DropdownMenu.Item>
 							{:else}
@@ -1342,7 +1343,7 @@
 									>
 										<span class="truncate pr-2">{opt.label}</span>
 										{#if formAttendanceStatus === opt.value}
-											<CheckIcon class="size-4 shrink-0 text-[#F45310]" />
+											<CheckIcon class="size-4 shrink-0 text-hrms-primary" />
 										{/if}
 									</DropdownMenu.Item>
 								{/each}
@@ -1434,7 +1435,7 @@
 											>
 												<span class="truncate">{opt.label}</span>
 												{#if isSelected}
-													<CheckIcon class="size-4 shrink-0 text-[#F45310] dark:text-[#F45310] ml-2" />
+													<CheckIcon class="size-4 shrink-0 text-hrms-primary dark:text-hrms-primary ml-2" />
 												{/if}
 											</button>
 										{/each}
@@ -1485,7 +1486,7 @@
 				</Button>
 				<Button
 					type="submit"
-					class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-none font-semibold"
+					class="bg-hrms-primary text-white hover:bg-hrms-primary/90 border-none font-semibold"
 					disabled={isSubmitDisabled}
 				>
 					{#if isSubmitting}
@@ -1556,7 +1557,7 @@
 
 			<div class="flex items-center justify-end gap-3 pt-6">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSavingNewSource}>Cancel</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSavingNewSource || !newSourceName.trim()}>
+				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSavingNewSource || !newSourceName.trim()}>
 					{#if isSavingNewSource}
 						<LoaderCircleIcon class="size-4 animate-spin" />
 						Saving...

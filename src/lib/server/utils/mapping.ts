@@ -124,16 +124,14 @@ export function toNotificationDTO(notification: any) {
 	return serialize({
 		cuid: notification.cuid,
 		notification_cuid: notification.notification_cuid,
-		employee_cuid: notification.employee_cuid,
-		read_at: notification.read_at,
+		is_read: !!notification.read_at,
 		created_at: notification.created_at,
 		title: notification.title,
 		body: notification.body,
 		category: notification.category,
 		priority: notification.priority,
 		type: notification.type,
-		payload: notification.payload,
-		trigger_source: notification.trigger_source,
+		metadata: notification.metadata,
 		created_by: notification.created_by
 	});
 }
