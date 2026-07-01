@@ -33,18 +33,18 @@ const PERMISSION_TO_ROLE_MAP: Record<string, string[]> = {
     'role:view': [SYSTEM_ROLES.ADMIN],
     
     // Leave Management
-    'leave:view': [SYSTEM_ROLES.ADMIN, SYSTEM_ROLES.EMPLOYEE],
+    'leave:view': [SYSTEM_ROLES.ADMIN],
     'leave_type:view': [SYSTEM_ROLES.ADMIN],
     'leave_policy:view': [SYSTEM_ROLES.ADMIN],
-    'holiday:view': [SYSTEM_ROLES.ADMIN, SYSTEM_ROLES.EMPLOYEE],
+    'holiday:view': [SYSTEM_ROLES.ADMIN],
     
     // Attendance
     'location:view': [SYSTEM_ROLES.ADMIN],
-    'attendance:view': [SYSTEM_ROLES.ADMIN, SYSTEM_ROLES.EMPLOYEE],
+    'attendance:view': [SYSTEM_ROLES.ADMIN],
     'attendance_record:view': [SYSTEM_ROLES.ADMIN],
     
     // Shifts
-    'shift:view': [SYSTEM_ROLES.ADMIN, SYSTEM_ROLES.EMPLOYEE],
+    'shift:view': [SYSTEM_ROLES.ADMIN],
     'shift_assignment:view': [SYSTEM_ROLES.ADMIN],
     
     // Salary

@@ -23,7 +23,8 @@ const injectLocals = async ({ event, resolve }) => {
 			id: session.user.id,
 			email: session.user.email ?? '',
 			name: session.user.name ?? null,
-			...hrmsContext
+			...hrmsContext,
+			idToken: session.oidcUser?.id_token
 		};
 		event.locals.roles = session.roles ?? [];
         console.log("[AUTHZ DIAGNOSTIC - HOOKS]", {

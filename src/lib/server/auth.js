@@ -40,7 +40,8 @@ function createAuth() {
 		],
 		callbacks: {
 			async jwt({ token, account, profile }) {
-				if (account) {
+				if (account && profile) {
+					token.sub = /** @type {string} */ (profile.sub); // Force update to new Keycloak UUID if it changed
 					const oidcProfile = buildOidcProfile(/** @type {Record<string, unknown>} */ (profile));
 
 					token.oidcUser = {

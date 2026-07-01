@@ -418,7 +418,8 @@
 						<span>Settings</span>
 					{/if}
 				</Button>
-				<form method="GET" action="/auth/logout">
+				<form method="POST" action="/auth/signout">
+					<input type="hidden" name="callbackUrl" value={authenticatedUser?.idToken ? `/auth/logout?id_token_hint=${authenticatedUser.idToken}` : `/auth/logout`} />
 					<Button
 						type="submit"
 						variant="ghost"

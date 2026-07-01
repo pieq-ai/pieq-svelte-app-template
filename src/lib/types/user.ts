@@ -11,6 +11,7 @@ export interface User {
 	system_role_cuid?: string;
 	system_role_name?: string | null;
 	profile_completion_status?: string;
+	idToken?: string;
 	createdAt?: Date;
 	updatedAt?: Date;
 }
