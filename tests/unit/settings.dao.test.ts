@@ -18,12 +18,10 @@ describe('Settings DAO Unit Tests', () => {
 		vi.clearAllMocks();
 	});
 
-	it('should getSettings - return default if none exists', async () => {
+	it('should getSettings - throw error if none exists', async () => {
 		vi.mocked(db.settings.findFirst).mockResolvedValue(null);
-		vi.mocked(db.settings.create).mockResolvedValue({ id: 1n, cuid: 's1', payroll_cutoff: 25, name: 'payroll_cutoff', configuration: { payroll_cut_off_date: 25 }, created_at: new Date(), updated_at: new Date() } as any);
 
-		const settings = await settingsDao.getSettings();
-		expect(settings.payroll_cutoff).toBe(25);
+		await expect(settingsDao.getSettings()).rejects.toThrow('Settings record for payroll_cutoff not found');
 		
 		// Assert getSettings tries finding with name first, then falls back without name filter
 		expect(db.settings.findFirst).toHaveBeenNthCalledWith(1, {
@@ -39,13 +37,7 @@ describe('Settings DAO Unit Tests', () => {
 				{ id: 'desc' }
 			]
 		});
-		expect(db.settings.create).toHaveBeenCalledWith({
-			data: {
-				payroll_cutoff: 25,
-				name: 'payroll_cutoff',
-				configuration: { payroll_cut_off_date: 25 }
-			}
-		});
+		expect(db.settings.create).not.toHaveBeenCalled();
 	});
 
 	it('should getSettings - return existing latest setting if exists', async () => {
@@ -64,21 +56,22 @@ describe('Settings DAO Unit Tests', () => {
 		expect(db.settings.create).not.toHaveBeenCalled();
 	});
 
-	it('should updateSettings - always create a new record preserving history', async () => {
-		vi.mocked(db.settings.create).mockResolvedValue({ id: 3n, cuid: 's3', payroll_cutoff: 15, name: 'payroll_cutoff', configuration: { payroll_cut_off_date: 15 }, created_at: new Date(), updated_at: new Date() } as any);
+	it('should updateSettings - update the existing record', async () => {
+		const mockSetting = { id: 3n, cuid: 's3', payroll_cutoff: 25, name: 'payroll_cutoff', configuration: { payroll_cut_off_date: 25 }, created_at: new Date(), updated_at: new Date() };
+		vi.mocked(db.settings.findFirst).mockResolvedValue(mockSetting as any);
+		vi.mocked(db.settings.update).mockResolvedValue({ ...mockSetting, payroll_cutoff: 15, configuration: { payroll_cut_off_date: 15 } } as any);
 
-		const newSetting = await settingsDao.updateSettings(15, 'user-123');
-		expect(newSetting.payroll_cutoff).toBe(15);
-		expect(db.settings.create).toHaveBeenCalledWith({
+		const updatedSetting = await settingsDao.updateSettings(15, 'user-123');
+		expect(updatedSetting.payroll_cutoff).toBe(15);
+		expect(db.settings.update).toHaveBeenCalledWith({
+			where: { cuid: 's3' },
 			data: {
 				payroll_cutoff: 15,
-				name: 'payroll_cutoff',
 				configuration: { payroll_cut_off_date: 15 },
-				created_by: 'user-123',
 				updated_by: 'user-123'
 			}
 		});
-		expect(db.settings.update).not.toHaveBeenCalled();
+		expect(db.settings.create).not.toHaveBeenCalled();
 	});
 
 	it('should getSettingByName - query setting by name', async () => {
@@ -106,7 +99,6 @@ describe('Settings DAO Unit Tests', () => {
 			data: {
 				name: 'leave_settings',
 				configuration: { max_days: 10 },
-				payroll_cutoff: null,
 				created_by: 'user-456',
 				updated_by: 'user-456'
 			}
@@ -114,18 +106,20 @@ describe('Settings DAO Unit Tests', () => {
 	});
 
 	it('should saveSetting - sync payroll_cutoff column if saving payroll_cutoff setting', async () => {
-		vi.mocked(db.settings.create).mockResolvedValue({ id: 6n, cuid: 's6', name: 'payroll_cutoff', configuration: { payroll_cut_off_date: 10 }, payroll_cutoff: 10, created_at: new Date(), updated_at: new Date() } as any);
+		const mockSetting = { id: 6n, cuid: 's6', name: 'payroll_cutoff', configuration: { payroll_cut_off_date: 25 }, payroll_cutoff: 25, created_at: new Date(), updated_at: new Date() };
+		vi.mocked(db.settings.findFirst).mockResolvedValue(mockSetting as any);
+		vi.mocked(db.settings.update).mockResolvedValue({ ...mockSetting, configuration: { payroll_cut_off_date: 10 }, payroll_cutoff: 10 } as any);
 
 		const result = await settingsDao.saveSetting('payroll_cutoff', { payroll_cut_off_date: 10 }, 'user-789');
 		expect(result.payroll_cutoff).toBe(10);
-		expect(db.settings.create).toHaveBeenCalledWith({
+		expect(db.settings.update).toHaveBeenCalledWith({
+			where: { cuid: 's6' },
 			data: {
-				name: 'payroll_cutoff',
 				configuration: { payroll_cut_off_date: 10 },
 				payroll_cutoff: 10,
-				created_by: 'user-789',
 				updated_by: 'user-789'
 			}
 		});
+		expect(db.settings.create).not.toHaveBeenCalled();
 	});
 });

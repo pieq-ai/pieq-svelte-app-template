@@ -86,7 +86,14 @@ function calculateFractionalMonths(start: Date, end: Date): number {
 
 export async function getPayrollCutoffDay(tx?: any): Promise<number> {
 	const settings = await settingsDao.getSettings(tx);
-	return settings.payroll_cutoff;
+	const config = settings?.configuration as any;
+	if (config && typeof config === 'object' && 'payroll_cut_off_date' in config) {
+		const val = Number(config.payroll_cut_off_date);
+		if (!isNaN(val)) {
+			return val;
+		}
+	}
+	throw new Error('Payroll cutoff configuration not found in settings');
 }
 
 export async function setPayrollCutoffDay(value: number, userId?: string | null, tx?: any) {
