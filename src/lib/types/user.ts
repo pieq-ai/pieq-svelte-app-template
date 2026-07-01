@@ -9,6 +9,7 @@ export interface User {
 	employee_name?: string;
 	official_email?: string;
 	system_role_cuid?: string;
+	system_role_name?: string | null;
 	profile_completion_status?: string;
 	createdAt?: Date;
 	updatedAt?: Date;

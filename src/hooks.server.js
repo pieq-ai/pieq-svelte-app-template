@@ -13,9 +13,11 @@ if (typeof BigInt !== 'undefined') {
 /** @type {import('@sveltejs/kit').Handle} */
 const injectLocals = async ({ event, resolve }) => {
 	const session = await event.locals.auth?.();
+    console.log("[DIAG-3] hooks.server.js session:", { userId: session?.user?.id, email: session?.user?.email });
 
 	if (session?.user?.id) {
 		const hrmsContext = await authUserService.syncAuthenticatedUser(session.user.id);
+
 		
 		event.locals.user = {
 			id: session.user.id,
@@ -24,6 +26,9 @@ const injectLocals = async ({ event, resolve }) => {
 			...hrmsContext
 		};
 		event.locals.roles = session.roles ?? [];
+        console.log("[AUTHZ DIAGNOSTIC - HOOKS]", {
+            localsUser: event.locals.user
+        });
 	} else {
 		event.locals.user = null;
 		event.locals.roles = [];

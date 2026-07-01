@@ -1,5 +1,6 @@
 import { findAuthUserByKeycloakSub } from '$lib/server/dao/auth.dao.js';
 import { error } from '@sveltejs/kit';
+import { SYSTEM_ROLES } from '$lib/constants/roles';
 
 export interface AuthContext {
     keycloak_sub: string;
@@ -9,6 +10,7 @@ export interface AuthContext {
     employee_name: string;
     official_email: string;
     system_role_cuid: string;
+    system_role_name: string | null;
     profile_completion_status: string;
 }
 
@@ -20,14 +22,6 @@ export async function syncAuthenticatedUser(keycloak_sub: string): Promise<AuthC
         // TEMPORARY DEVELOPMENT BOOTSTRAP
         // Remove after first HRMS administrator is provisioned.
         // =======================================================
-        // "Reject the login. Do not allow access. Return a meaningful authentication error."
-        // error(401, 'User account not found in HRMS. Please contact your administrator.');
-        
-        // TODO:
-        // After creating the first HRMS administrator:
-        // 1. Re-enable employee lookup.
-        // 2. Login using the HRMS employee account.
-        // 3. Stop using the manually-created Keycloak admin for HRMS.
         return {
             keycloak_sub: keycloak_sub,
             employee_cuid: 'bootstrap-employee',
@@ -35,7 +29,8 @@ export async function syncAuthenticatedUser(keycloak_sub: string): Promise<AuthC
             emp_code: 'BOOTSTRAP',
             employee_name: 'Bootstrap Admin',
             official_email: 'bootstrap@local',
-            system_role_cuid: 'bootstrap-role',
+            system_role_cuid: SYSTEM_ROLES.ADMIN,
+            system_role_name: 'Admin',
             profile_completion_status: 'completed'
         };
     }
@@ -47,7 +42,7 @@ export async function syncAuthenticatedUser(keycloak_sub: string): Promise<AuthC
 
     const employee_name = [userRow.first_name, userRow.last_name].filter(Boolean).join(' ');
 
-    return {
+    const returnObj = {
         keycloak_sub: userRow.keycloak_sub,
         employee_cuid: userRow.employee_cuid,
         employment_cuid: userRow.employment_cuid,
@@ -55,6 +50,9 @@ export async function syncAuthenticatedUser(keycloak_sub: string): Promise<AuthC
         employee_name: employee_name,
         official_email: userRow.official_email,
         system_role_cuid: userRow.system_role_cuid,
+        system_role_name: userRow.system_role_name,
         profile_completion_status: userRow.profile_completion_status
     };
+    console.log("[DIAG-6] syncAuthenticatedUser Return:", returnObj);
+    return returnObj;
 }

@@ -1,4 +1,5 @@
 import { SvelteKitAuth } from '@auth/sveltekit';
+import { appendFileSync } from 'fs';
 import Keycloak from '@auth/sveltekit/providers/keycloak';
 import { getAuthConfig } from '$lib/server/config.js';
 
@@ -60,7 +61,7 @@ function createAuth() {
 					);
 					token.roles = realmAccess?.roles ?? [];
 				}
-
+				
 				return token;
 			},
 			async session({ session, token }) {
@@ -75,7 +76,7 @@ function createAuth() {
 						token.oidcUser
 					);
 				}
-
+				
 				return session;
 			}
 		},

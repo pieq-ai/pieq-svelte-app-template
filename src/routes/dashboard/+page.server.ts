@@ -1,5 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { canAccess } from '$lib/authz';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
@@ -14,6 +15,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 				roleCount: locals.roles.length
 			}
 		},
-		showAdminSection: locals.roles.includes('admin')
+		showAdminSection: canAccess(locals.user, 'dashboard:admin')
 	};
 };

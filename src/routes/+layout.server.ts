@@ -28,6 +28,8 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		}
 	}
 
+	console.log("[DIAG-7] +layout.server.ts returning user:", user);
+
 	return {
 		session,
 		user,

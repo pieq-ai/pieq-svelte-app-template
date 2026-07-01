@@ -8,32 +8,34 @@
 	import { page } from '$app/stores';
 	import { beforeNavigate, goto } from '$app/navigation';
 	import { globalIsDirty } from '$lib/stores/navigationGuard';
+	import { canAccess } from '$lib/authz';
+	import { 
+		mainNavItems, 
+		leaveManagementItems, 
+		attendanceManagementItems, 
+		shiftManagementItems, 
+		salaryManagementItems, 
+		systemNavItems 
+	} from '$lib/config/navigation';
 	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 	import Building2Icon from '@lucide/svelte/icons/building-2';
 	import MenuIcon from '@lucide/svelte/icons/menu';
-	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
 	import LogInIcon from '@lucide/svelte/icons/log-in';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
-	import KeyRoundIcon from '@lucide/svelte/icons/key-round';
-	import LinkIcon from '@lucide/svelte/icons/link';
-	import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 	import SettingsIcon from '@lucide/svelte/icons/settings';
-	import UserRoundIcon from '@lucide/svelte/icons/user-round';
-	import UsersRoundIcon from '@lucide/svelte/icons/users-round';
-	import WalletIcon from '@lucide/svelte/icons/wallet';
-	import ReceiptTextIcon from '@lucide/svelte/icons/receipt-text';
-	import BanknoteIcon from '@lucide/svelte/icons/banknote';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
-	import UserCheckIcon from '@lucide/svelte/icons/user-check';
-	import MapPinIcon from '@lucide/svelte/icons/map-pin';
-	import ClockIcon from '@lucide/svelte/icons/clock';
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
-	import CalendarCogIcon from '@lucide/svelte/icons/calendar-cog';
 	import FingerprintIcon from '@lucide/svelte/icons/fingerprint';
 	import CalendarClockIcon from '@lucide/svelte/icons/calendar-clock';
+	import WalletIcon from '@lucide/svelte/icons/wallet';
 
 	let { children, data } = $props();
 	let authenticatedUser = $derived(data.user ?? null);
+    
+    $effect(() => {
+        console.log("[DIAG-8] +layout.svelte authenticatedUser:", authenticatedUser);
+    });
+
 	let isSidebarCollapsed = $state(false);
 
 	let showGlobalUnsavedModal = $state(false);
@@ -57,63 +59,6 @@
 		}
 	}
 
-	const protectedNavItems1 = [
-		{ label: 'Dashboard', href: resolve('/dashboard'), icon: LayoutDashboardIcon },
-		{ label: 'Employees', href: resolve('/employees'), icon: UsersRoundIcon },
-		{ label: 'Departments', href: resolve('/departments'), icon: Building2Icon },
-		{ label: 'Designations', href: resolve('/designations'), icon: UserRoundIcon },
-		{ label: 'Roles', href: resolve('/roles'), icon: UserCheckIcon }
-	];
-
-	const leaveRoutes = [
-		resolve('/leaves'),
-		resolve('/leave-types'),
-		resolve('/leave-policies'),
-		resolve('/holidays')
-	];
-
-	const leaveManagementItems = [
-		{ label: 'Leave Overview', href: resolve('/leaves'), icon: CalendarIcon },
-		{ label: 'Leave Types', href: resolve('/leave-types'), icon: CalendarCogIcon },
-		{ label: 'Leave Policies', href: resolve('/leave-policies'), icon: ShieldCheckIcon },
-		{ label: 'Holiday Calendar', href: resolve('/holidays'), icon: CalendarIcon }
-	];
-
-	const attendanceRoutes = [
-		resolve('/organization_locations'),
-		resolve('/attendance'),
-		resolve('/attendance-records')
-	];
-
-	const attendanceManagementItems = [
-		{ label: 'Locations', href: resolve('/organization_locations'), icon: MapPinIcon },
-		{ label: 'Attendance', href: resolve('/attendance'), icon: ClockIcon },
-		{ label: 'Attendance Records', href: resolve('/attendance-records'), icon: CalendarIcon }
-	];
-
-	const shiftRoutes = [
-		resolve('/shifts'),
-		resolve('/shift-assignments')
-	];
-
-	const salaryRoutes = [
-		resolve('/salary-components'),
-		resolve('/salary-structures'),
-		resolve('/payrolls')
-	];
-
-	const salaryManagementItems = [
-		{ label: 'Salary Components', href: resolve('/salary-components'), icon: WalletIcon },
-		{ label: 'Salary Structures', href: resolve('/salary-structures'), icon: ReceiptTextIcon },
-		{ label: 'Payroll', href: resolve('/payrolls'), icon: BanknoteIcon }
-	];
-
-	const protectedNavItems2 = [
-		{ label: 'System Roles', href: resolve('/system-roles'), icon: ShieldCheckIcon },
-		{ label: 'Permissions', href: resolve('/permissions'), icon: KeyRoundIcon },
-		{ label: 'Role Permissions', href: resolve('/role-permissions'), icon: LinkIcon }
-	];
-
 	let isLeaveManagementExpanded = $state(false);
 	let isAttendanceManagementExpanded = $state(false);
 	let isShiftManagementExpanded = $state(false);
@@ -121,37 +66,57 @@
 
 	$effect(() => {
 		const path = $page.url.pathname;
-		if (leaveRoutes.some(r => path === r || path.startsWith(r + '/'))) {
+		if (leaveManagementItems.some(i => path === i.href || path.startsWith(i.href + '/'))) {
 			isLeaveManagementExpanded = true;
 		}
-		if (attendanceRoutes.some(r => path === r || path.startsWith(r + '/'))) {
+		if (attendanceManagementItems.some(i => path === i.href || path.startsWith(i.href + '/'))) {
 			isAttendanceManagementExpanded = true;
 		}
-		if (shiftRoutes.some(r => path === r || path.startsWith(r + '/'))) {
+		if (shiftManagementItems.some(i => path === i.href || path.startsWith(i.href + '/'))) {
 			isShiftManagementExpanded = true;
 		}
-		if (salaryRoutes.some(r => path === r || path.startsWith(r + '/'))) {
+		if (salaryManagementItems.some(i => path === i.href || path.startsWith(i.href + '/'))) {
 			isSalaryManagementExpanded = true;
 		}
 	});
 
 	let isManager = $derived(data.isManager ?? false);
 
-	let navItems = $derived(protectedNavItems1);
+	let navItems = $derived(
+		mainNavItems
+			.filter(item => canAccess(authenticatedUser, item.permission))
+			.map(item => ({ ...item, href: resolve(item.href as any) }))
+	);
 
-	let shiftManagementItems = $derived.by(() => {
-		const items = [
-			{ label: 'Shifts', href: resolve('/shifts'), icon: ClockIcon }
-		];
-		if (isManager) {
-			items.push({
-				label: 'Shift Assignment',
-				href: resolve('/shift-assignments'),
-				icon: CalendarCogIcon
-			});
-		}
-		return items;
-	});
+	let visibleLeaveManagementItems = $derived(
+		leaveManagementItems
+			.filter(item => canAccess(authenticatedUser, item.permission))
+			.map(item => ({ ...item, href: resolve(item.href as any) }))
+	);
+
+	let visibleAttendanceManagementItems = $derived(
+		attendanceManagementItems
+			.filter(item => canAccess(authenticatedUser, item.permission))
+			.map(item => ({ ...item, href: resolve(item.href as any) }))
+	);
+
+	let visibleShiftManagementItems = $derived(
+		shiftManagementItems
+			.filter(item => canAccess(authenticatedUser, item.permission))
+			.map(item => ({ ...item, href: resolve(item.href as any) }))
+	);
+
+	let visibleSalaryManagementItems = $derived(
+		salaryManagementItems
+			.filter(item => canAccess(authenticatedUser, item.permission))
+			.map(item => ({ ...item, href: resolve(item.href as any) }))
+	);
+
+	let visibleSystemNavItems = $derived(
+		systemNavItems
+			.filter(item => canAccess(authenticatedUser, item.permission))
+			.map(item => ({ ...item, href: resolve(item.href as any) }))
+	);
 
 	$effect(() => {
 		if (typeof window !== 'undefined' && data.config) {
@@ -232,6 +197,7 @@
 				{/each}
 
 				<!-- Leave Management expandable group -->
+				{#if visibleLeaveManagementItems.length > 0}
 				<div class="flex flex-col gap-1">
 					<Button
 						variant="ghost"
@@ -256,7 +222,7 @@
 
 					{#if isLeaveManagementExpanded && !isSidebarCollapsed}
 						<div class="flex flex-col gap-1 pl-4 border-l border-white/10 ml-5">
-							{#each leaveManagementItems as child (child.href)}
+							{#each visibleLeaveManagementItems as child (child.href)}
 								{@const ChildIcon = child.icon}
 								{@const isChildActive = $page.url.pathname === child.href || $page.url.pathname.startsWith(child.href + '/')}
 								<Button
@@ -272,8 +238,10 @@
 						</div>
 					{/if}
 				</div>
+				{/if}
 
 				<!-- Attendance Management expandable group -->
+				{#if visibleAttendanceManagementItems.length > 0}
 				<div class="flex flex-col gap-1">
 					<Button
 						variant="ghost"
@@ -298,7 +266,7 @@
 
 					{#if isAttendanceManagementExpanded && !isSidebarCollapsed}
 						<div class="flex flex-col gap-1 pl-4 border-l border-white/10 ml-5">
-							{#each attendanceManagementItems as child (child.href)}
+							{#each visibleAttendanceManagementItems as child (child.href)}
 								{@const ChildIcon = child.icon}
 								{@const isChildActive = $page.url.pathname === child.href || $page.url.pathname.startsWith(child.href + '/')}
 								<Button
@@ -314,8 +282,10 @@
 						</div>
 					{/if}
 				</div>
+				{/if}
 
 				<!-- Shift Management expandable group -->
+				{#if visibleShiftManagementItems.length > 0}
 				<div class="flex flex-col gap-1">
 					<Button
 						variant="ghost"
@@ -340,7 +310,7 @@
 
 					{#if isShiftManagementExpanded && !isSidebarCollapsed}
 						<div class="flex flex-col gap-1 pl-4 border-l border-white/10 ml-5">
-							{#each shiftManagementItems as child (child.href)}
+							{#each visibleShiftManagementItems as child (child.href)}
 								{@const ChildIcon = child.icon}
 								{@const isChildActive = $page.url.pathname === child.href || $page.url.pathname.startsWith(child.href + '/')}
 								<Button
@@ -356,8 +326,10 @@
 						</div>
 					{/if}
 				</div>
+				{/if}
 
 				<!-- Salary Management expandable group -->
+				{#if visibleSalaryManagementItems.length > 0}
 				<div class="flex flex-col gap-1">
 					<Button
 						variant="ghost"
@@ -382,7 +354,7 @@
 
 					{#if isSalaryManagementExpanded && !isSidebarCollapsed}
 						<div class="flex flex-col gap-1 pl-4 border-l border-white/10 ml-5">
-							{#each salaryManagementItems as child (child.href)}
+							{#each visibleSalaryManagementItems as child (child.href)}
 								{@const ChildIcon = child.icon}
 								{@const isChildActive = $page.url.pathname === child.href || $page.url.pathname.startsWith(child.href + '/')}
 								<Button
@@ -398,8 +370,9 @@
 						</div>
 					{/if}
 				</div>
+				{/if}
 
-				{#each protectedNavItems2 as item (item.href)}
+				{#each visibleSystemNavItems as item (item.href)}
 					{@const Icon = item.icon}
 					{@const isActive = $page.url.pathname === item.href || $page.url.pathname.startsWith(item.href + '/')}
 					<Button
@@ -445,7 +418,7 @@
 						<span>Settings</span>
 					{/if}
 				</Button>
-				<form method="POST" action="/auth/signout">
+				<form method="GET" action="/auth/logout">
 					<Button
 						type="submit"
 						variant="ghost"
