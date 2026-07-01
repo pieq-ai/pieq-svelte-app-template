@@ -1,3 +1,4 @@
+import { requirePermission } from '$lib/server/authz/guards';
 // src/routes/api/organization_location/+server.ts
 import { json } from '@sveltejs/kit';
 import * as locationService from '$lib/server/services/organization_location.service.js';
@@ -10,7 +11,9 @@ import { sendList, sendCreated, mapLocation } from '$lib/server/response.js';
  */
 export async function GET({ url }) {
   try {
-    const params = Object.fromEntries(url.searchParams.entries());
+    
+		requirePermission(locals.user, 'location:view');
+const params = Object.fromEntries(url.searchParams.entries());
     const includeInactive = params.includeInactive === 'true';
     const result = includeInactive
       ? await locationService.listAllLocations()
@@ -29,7 +32,9 @@ export async function GET({ url }) {
  */
 export async function POST({ request, locals }) {
   try {
-    const contentType = request.headers.get('content-type');
+    
+		requirePermission(locals.user, 'location:view');
+const contentType = request.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       return json({ error: 'Content-Type must be application/json' }, { status: 415 });
     }

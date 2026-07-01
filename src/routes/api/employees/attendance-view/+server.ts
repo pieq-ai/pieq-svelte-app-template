@@ -6,7 +6,7 @@ import { sendList, handleError } from '$lib/server/utils/response.js';
 
 export async function GET(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'employee:view');
 		const employees = await employeeService.getMinimalEmployeesForAttendance();
 		return sendList(employees.map(toEmployeeAttendanceViewDTO));
 	} catch (error) {

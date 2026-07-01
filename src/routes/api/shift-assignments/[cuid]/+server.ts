@@ -25,7 +25,7 @@ function parseCuid(param: string | undefined): string {
  */
 export async function GET({ params, locals }) {
   try {
-    permissionGuard.requireAuth(locals.user);
+    permissionGuard.requirePermission(locals.user, 'shift_assignment:view');
     const email = locals.user?.email || '';
     const cuid = parseCuid(params.cuid);
 
@@ -45,7 +45,7 @@ export async function GET({ params, locals }) {
  */
 export async function PUT({ request, params, locals }) {
   try {
-    permissionGuard.requireAuth(locals.user);
+    permissionGuard.requirePermission(locals.user, 'shift_assignment:view');
     const email = locals.user?.email || '';
     const cuid = parseCuid(params.cuid);
 
@@ -86,7 +86,7 @@ export async function PUT({ request, params, locals }) {
  */
 export async function DELETE({ params, locals }) {
   try {
-    permissionGuard.requireAuth(locals.user);
+    permissionGuard.requirePermission(locals.user, 'shift_assignment:view');
     const email = locals.user?.email || '';
     const cuid = parseCuid(params.cuid);
 

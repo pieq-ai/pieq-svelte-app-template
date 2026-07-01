@@ -1,3 +1,4 @@
+import { requirePermission } from '$lib/server/authz/guards';
 // src/routes/api/shifts/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as shiftService from '$lib/server/services/shift.service.js';
@@ -26,7 +27,9 @@ function parseCuid(param: string | undefined): string {
  */
 export async function PUT({ request, params, locals }) {
   try {
-    const cuid = parseCuid(params.cuid);
+    
+		requirePermission(locals.user, 'shift:view');
+const cuid = parseCuid(params.cuid);
     const contentType = request.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       return json({ error: 'Content-Type must be application/json' }, { status: 415 });
@@ -54,7 +57,9 @@ export async function PUT({ request, params, locals }) {
  */
 export async function PATCH({ params, locals }) {
   try {
-    const cuid = parseCuid(params.cuid);
+    
+		requirePermission(locals.user, 'shift:view');
+const cuid = parseCuid(params.cuid);
     const shift = await shiftService.activateShift(cuid, locals?.user?.id);
     return sendUpdated('Shift', shift.cuid);
   } catch (err: any) {
@@ -69,7 +74,9 @@ export async function PATCH({ params, locals }) {
  */
 export async function DELETE({ params, locals }) {
   try {
-    const cuid = parseCuid(params.cuid);
+    
+		requirePermission(locals.user, 'shift:view');
+const cuid = parseCuid(params.cuid);
     const shift = await shiftService.deleteShift(cuid, locals?.user?.id);
     return sendDeleted('Shift', shift.cuid);
   } catch (err: any) {

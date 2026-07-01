@@ -1,3 +1,4 @@
+import { requirePermission } from '$lib/server/authz/guards';
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/salary-component.service.js';
 import { validateUpdateSalaryComponent } from '$lib/server/validators/salary-component.validator.js';
@@ -5,7 +6,9 @@ import { serializeSalaryComponent } from '$lib/server/serializers/salary-compone
 
 export async function GET({ params }) {
 	try {
-		const cuid = params.cuid;
+		
+		requirePermission(locals.user, 'salary_component:view');
+const cuid = params.cuid;
 		if (!cuid) {
 			return json(
 				{
@@ -33,7 +36,9 @@ export async function GET({ params }) {
 
 export async function PUT({ params, request }) {
 	try {
-		const cuid = params.cuid;
+		
+		requirePermission(locals.user, 'salary_component:view');
+const cuid = params.cuid;
 		if (!cuid) {
 			return json(
 				{
@@ -84,7 +89,9 @@ export async function PUT({ params, request }) {
 
 export async function DELETE({ params }) {
 	try {
-		const cuid = params.cuid;
+		
+		requirePermission(locals.user, 'salary_component:view');
+const cuid = params.cuid;
 		if (!cuid) {
 			return json(
 				{

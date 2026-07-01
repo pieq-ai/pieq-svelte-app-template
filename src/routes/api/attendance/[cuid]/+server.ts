@@ -1,3 +1,4 @@
+import { requirePermission } from '$lib/server/authz/guards';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types.js';
 import { getEmployeeHistory } from '$lib/server/services/attendance.service.js';

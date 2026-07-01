@@ -1,10 +1,13 @@
+import { requirePermission } from '$lib/server/authz/guards';
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/salary-structure.service.js';
 import { validateCreateSalaryStructure } from '$lib/server/validators/salary-structure.validator.js';
 
 export async function GET() {
 	try {
-		const structures = await service.getStructures();
+		
+		requirePermission(locals.user, 'salary_structure:view');
+const structures = await service.getStructures();
 		return json({ data: structures });
 	} catch (error) {
 		console.error('Error in GET /api/salary-structures:', error);
@@ -17,7 +20,9 @@ export async function GET() {
 
 export async function POST({ request }) {
 	try {
-		const body = await request.json();
+		
+		requirePermission(locals.user, 'salary_structure:view');
+const body = await request.json();
 
 		const { errors, validatedData } = validateCreateSalaryStructure(body);
 		if (errors.length > 0 || !validatedData) {

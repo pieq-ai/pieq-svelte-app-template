@@ -6,7 +6,7 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 
 export async function GET(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'leave:view');
 		const year = new Date().getFullYear();
 
 		// Prefer employeeCuid query param (employee dropdown pattern, same as Attendance page).
@@ -31,7 +31,7 @@ export async function GET(event: RequestEvent) {
 
 export async function POST(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'leave:view');
 
 		const body = await event.request.json();
 

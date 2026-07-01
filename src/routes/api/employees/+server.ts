@@ -6,7 +6,7 @@ import { sendList, sendCreated, handleError } from '$lib/server/utils/response.j
 
 export async function GET(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'employee:view');
 		const employees = await employeeService.getEmployees();
 		return sendList(employees.map(toEmployeeDTO));
 	} catch (error) {
@@ -16,7 +16,7 @@ export async function GET(event: RequestEvent) {
 
 export async function POST(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'employee:view');
 		
 		let body = await event.request.json();
 		body = mapToDb(body);

@@ -1,10 +1,13 @@
+import { requirePermission } from '$lib/server/authz/guards';
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/payroll.service.js';
 import * as failureService from '$lib/server/services/payroll-upload-record.service.js';
 
 export async function GET({ params }) {
 	try {
-		const payroll = await service.getPayrollByCuid(params.cuid);
+		
+		requirePermission(locals.user, 'payroll:view');
+const payroll = await service.getPayrollByCuid(params.cuid);
 		return json({ data: payroll });
 	} catch (error) {
 		if ((error as Error).name === 'PayrollNotFoundError') {

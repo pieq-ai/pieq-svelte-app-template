@@ -5,7 +5,7 @@ import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 
 export async function POST(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'leave:view');
 		const cuid = event.params.cuid || '';
 
 		const body = await event.request.json();
@@ -31,5 +31,7 @@ export async function POST(event: RequestEvent) {
 }
 
 export async function DELETE(event: RequestEvent) {
-	return POST(event);
+	
+		requirePermission(event.locals.user, 'leave:view');
+return POST(event);
 }

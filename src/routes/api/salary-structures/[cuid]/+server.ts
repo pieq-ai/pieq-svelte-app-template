@@ -1,3 +1,4 @@
+import { requirePermission } from '$lib/server/authz/guards';
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/salary-structure.service.js';
 import {
@@ -7,7 +8,9 @@ import {
 
 export async function GET({ params }) {
 	try {
-		const cuid = params.cuid;
+		
+		requirePermission(locals.user, 'salary_structure:view');
+const cuid = params.cuid;
 		if (!cuid) {
 			return json({ success: false, message: 'Invalid salary structure ID' }, { status: 400 });
 		}
@@ -26,7 +29,9 @@ export async function GET({ params }) {
 
 export async function PUT({ params, request }) {
 	try {
-		const cuid = params.cuid;
+		
+		requirePermission(locals.user, 'salary_structure:view');
+const cuid = params.cuid;
 		if (!cuid) {
 			return json({ message: 'Invalid salary structure ID' }, { status: 400 });
 		}
@@ -62,7 +67,9 @@ export async function PUT({ params, request }) {
 
 export async function DELETE({ params }) {
 	try {
-		const cuid = params.cuid;
+		
+		requirePermission(locals.user, 'salary_structure:view');
+const cuid = params.cuid;
 		if (!cuid) {
 			return json({ success: false, message: 'Invalid salary structure ID' }, { status: 400 });
 		}
@@ -89,7 +96,9 @@ export async function DELETE({ params }) {
  */
 export async function POST({ params, request }) {
 	try {
-		const cuid = params.cuid;
+		
+		requirePermission(locals.user, 'salary_structure:view');
+const cuid = params.cuid;
 		if (!cuid) {
 			return json({ message: 'Invalid salary structure ID' }, { status: 400 });
 		}

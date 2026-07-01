@@ -1,3 +1,4 @@
+import { requirePermission } from '$lib/server/authz/guards';
 // src/routes/api/roles/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as roleService from '$lib/server/services/role.service.js';
@@ -26,7 +27,9 @@ function parseCuid(param: string | undefined): string {
  */
 export async function PUT({ request, params, locals }) {
   try {
-    const cuid = parseCuid(params.cuid);
+    
+		requirePermission(locals.user, 'role:view');
+const cuid = parseCuid(params.cuid);
     if (request.headers.get('content-type')?.includes('application/json') === false) {
       return json({ error: 'Content-Type must be application/json' }, { status: 415 });
     }
@@ -46,7 +49,9 @@ export async function PUT({ request, params, locals }) {
  */
 export async function DELETE({ params, locals }) {
   try {
-    const cuid = parseCuid(params.cuid);
+    
+		requirePermission(locals.user, 'role:view');
+const cuid = parseCuid(params.cuid);
     const result = await roleService.deleteRole(cuid, locals?.user?.id);
     return sendDeleted('Role', result.cuid);
   } catch (err: any) {

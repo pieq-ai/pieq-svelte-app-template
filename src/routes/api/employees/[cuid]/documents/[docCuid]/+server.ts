@@ -5,7 +5,7 @@ import { handleError } from '$lib/server/utils/response.js';
 
 export async function GET(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'employee:view');
 		const docCuid = event.params.docCuid;
 		if (!docCuid) throw new Error('Document CUID2 parameter is missing');
 

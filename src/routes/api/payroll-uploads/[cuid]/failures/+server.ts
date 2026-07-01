@@ -1,3 +1,4 @@
+import { requirePermission } from '$lib/server/authz/guards';
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/payroll-upload.service.js';
 
@@ -9,7 +10,9 @@ import * as service from '$lib/server/services/payroll-upload.service.js';
  */
 export async function GET({ params }) {
 	try {
-		// Verify the upload exists first — returns 404 if not found
+		
+		requirePermission(locals.user, 'payroll:view');
+// Verify the upload exists first — returns 404 if not found
 		await service.getPayrollUploadByCuid(params.cuid);
 
 		const failures = await service.getPayrollUploadFailures(params.cuid);

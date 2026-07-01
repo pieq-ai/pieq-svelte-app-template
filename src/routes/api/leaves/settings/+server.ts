@@ -5,7 +5,7 @@ import * as leaveService from '$lib/server/services/leave.service.js';
 
 export async function GET(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'leave:view');
 		const cutoff = await leaveService.getPayrollCutoffDay();
 		return json({ data: { payrollCutoffDay: cutoff } });
 	} catch (error) {
@@ -17,7 +17,7 @@ export async function GET(event: RequestEvent) {
 
 export async function POST(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'leave:view');
 		const email = event.locals.user?.email || '';
 
 		const { employee } = await leaveService.resolveEmployee(email);

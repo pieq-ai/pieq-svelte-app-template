@@ -1,3 +1,4 @@
+import { requirePermission } from '$lib/server/authz/guards';
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/salary-component.service.js';
 import { validateCreateSalaryComponent } from '$lib/server/validators/salary-component.validator.js';
@@ -5,7 +6,9 @@ import { serializeSalaryComponent } from '$lib/server/serializers/salary-compone
 
 export async function GET() {
 	try {
-		// Fetch all records with a stable default order — search & sort are client-side
+		
+		requirePermission(locals.user, 'salary_component:view');
+// Fetch all records with a stable default order — search & sort are client-side
 		const result = await service.getComponents();
 
 		return json({ data: result.items.map(serializeSalaryComponent) });
@@ -23,7 +26,9 @@ export async function GET() {
 
 export async function POST({ request }) {
 	try {
-		const body = await request.json();
+		
+		requirePermission(locals.user, 'salary_component:view');
+const body = await request.json();
 
 		// Validation step
 		const { errors, validatedData } = validateCreateSalaryComponent(body);

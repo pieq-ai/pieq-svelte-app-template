@@ -5,7 +5,7 @@ import type { RequestEvent } from './$types';
 
 export async function GET(event: RequestEvent) {
     try {
-        permissionGuard.requireAuth(event.locals.user);
+        permissionGuard.requirePermission(event.locals.user, 'employee:view');
         const nextCode = await employeeService.generateNextEmployeeCode();
         return json({ data: nextCode });
     } catch (error: unknown) {

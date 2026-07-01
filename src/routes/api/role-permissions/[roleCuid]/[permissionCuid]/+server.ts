@@ -11,7 +11,7 @@ function getStatus(message: string) {
 
 export async function DELETE(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'role_permission:view');
 		const systemRoleCuid = event.params.roleCuid ?? '';
 		const permissionCuid = event.params.permissionCuid ?? '';
 		

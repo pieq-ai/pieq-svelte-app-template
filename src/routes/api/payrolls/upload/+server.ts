@@ -1,3 +1,4 @@
+import { requirePermission } from '$lib/server/authz/guards';
 import { json } from '@sveltejs/kit';
 import { parsePayrollExcel } from '$lib/server/utils/excel-parser.js';
 import type { ParsedPayrollRow, ParseResult } from '$lib/server/utils/excel-parser.js';
@@ -16,7 +17,9 @@ import { validateExcelExtension, validateExcelMimeType } from '$lib/server/valid
  */
 export async function POST({ request }) {
 	try {
-		const formData = await request.formData();
+		
+		requirePermission(locals.user, 'payroll:view');
+const formData = await request.formData();
 		const file = formData.get('file') as File | null;
 
 		if (!file) {

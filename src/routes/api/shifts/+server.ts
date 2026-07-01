@@ -1,3 +1,4 @@
+import { requirePermission } from '$lib/server/authz/guards';
 // src/routes/api/shifts/+server.ts
 import { json } from '@sveltejs/kit';
 import * as shiftService from '$lib/server/services/shift.service.js';
@@ -10,7 +11,9 @@ import { sendList, sendCreated, mapShift } from '$lib/server/response.js';
  */
 export async function GET({ url }) {
   try {
-    const params = Object.fromEntries(url.searchParams.entries());
+    
+		requirePermission(locals.user, 'shift:view');
+const params = Object.fromEntries(url.searchParams.entries());
     const includeInactive = params.includeInactive === 'true';
     const result = includeInactive
       ? await shiftService.listAllShifts()
@@ -29,7 +32,9 @@ export async function GET({ url }) {
  */
 export async function POST({ request, locals }) {
   try {
-    const contentType = request.headers.get('content-type');
+    
+		requirePermission(locals.user, 'shift:view');
+const contentType = request.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       return json({ error: 'Content-Type must be application/json' }, { status: 415 });
     }

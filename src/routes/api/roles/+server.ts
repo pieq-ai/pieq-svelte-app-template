@@ -1,3 +1,4 @@
+import { requirePermission } from '$lib/server/authz/guards';
 // src/routes/api/roles/+server.ts
 import { json } from '@sveltejs/kit';
 import * as roleService from '$lib/server/services/role.service.js';
@@ -10,7 +11,9 @@ import { sendList, sendCreated, mapRole } from '$lib/server/response.js';
  */
 export async function GET({ url }) {
   try {
-    const params = Object.fromEntries(url.searchParams.entries());
+    
+		requirePermission(locals.user, 'role:view');
+const params = Object.fromEntries(url.searchParams.entries());
     const includeInactive = params.includeInactive === 'true';
     const result = includeInactive
       ? await roleService.listAllRoles()
@@ -29,7 +32,9 @@ export async function GET({ url }) {
  */
 export async function POST({ request, locals }) {
 	try {
-		if (request.headers.get('content-type')?.includes('application/json') === false) {
+		
+		requirePermission(locals.user, 'role:view');
+if (request.headers.get('content-type')?.includes('application/json') === false) {
 			return json({ error: 'Content-Type must be application/json' }, { status: 415 });
 		}
 		const payload = await request.json();

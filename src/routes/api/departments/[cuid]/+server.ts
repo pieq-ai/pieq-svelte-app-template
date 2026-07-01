@@ -7,7 +7,7 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 
 export async function GET(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'department:view');
 		const cuid = event.params.cuid;
 		if (!cuid) return json({ error: 'Department CUID is required' }, { status: 400 });
 
@@ -22,7 +22,7 @@ export async function GET(event: RequestEvent) {
 
 export async function PUT(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'department:view');
 		permissionGuard.requireAdmin(event.locals.user);
 
 		const cuid = event.params.cuid;
@@ -45,7 +45,7 @@ export async function PUT(event: RequestEvent) {
 
 export async function DELETE(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'department:view');
 		permissionGuard.requireAdmin(event.locals.user);
 
 		const cuid = event.params.cuid;

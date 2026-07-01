@@ -1,3 +1,4 @@
+import { requirePermission } from '$lib/server/authz/guards';
 import { json } from '@sveltejs/kit';
 import * as salaryComponentDao from '$lib/server/dao/salary-component.dao.js';
 import { serializeSalaryComponent } from '$lib/server/serializers/salary-component.serializer.js';
@@ -8,7 +9,9 @@ import { serializeSalaryComponent } from '$lib/server/serializers/salary-compone
  */
 export async function GET() {
 	try {
-		const result = await salaryComponentDao.findMany();
+		
+		requirePermission(locals.user, 'salary_structure:view');
+const result = await salaryComponentDao.findMany();
 		const active = result.items.filter((c) => c.status);
 		return json({ data: active.map(serializeSalaryComponent) });
 	} catch (error) {

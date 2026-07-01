@@ -6,7 +6,7 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 
 export async function POST(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'leave:view');
 		const cuid = event.params.cuid || '';
 
 		const body = await event.request.json();
