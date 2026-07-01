@@ -20,28 +20,26 @@
 
 	let { data } = $props();
 
-	// Switcher State
-	let isSwitcherOpen = $state(false);
-
 	function handlePeriodChange(e: Event) {
 		const select = e.target as HTMLSelectElement;
 		goto(`/dashboard/admin?period=${select.value}`, { keepFocus: true, invalidateAll: true });
 	}
 
 	function formatIndianCurrency(num: number): string {
-		return new Intl.NumberFormat('en-IN', {
+		const formatted = new Intl.NumberFormat('en-IN', {
 			style: 'currency',
 			currency: 'INR',
 			maximumFractionDigits: 0
 		}).format(num);
+		return formatted.replace(/\s/g, '').replace(/\u00a0/g, '');
 	}
 
 	function formatAbbreviatedCurrency(num: number): string {
 		if (num >= 10000000) {
-			return `₹${(num / 10000000).toFixed(2)} Cr`;
+			return `₹${(num / 10000000).toFixed(2)}Cr`;
 		}
 		if (num >= 100000) {
-			return `₹${(num / 100000).toFixed(2)} Lakh`;
+			return `₹${(num / 100000).toFixed(2)}Lakh`;
 		}
 		if (num >= 1000) {
 			return `₹${(num / 1000).toFixed(0)}k`;
@@ -79,10 +77,6 @@
 			};
 		});
 	});
-
-	const hasRoles = $derived(data.roles ?? []);
-	const isFinanceUser = $derived(hasRoles.includes('finance') || hasRoles.includes('finance_manager'));
-	const isManagerUser = $derived(data.isManager ?? false);
 </script>
 
 <svelte:head>
@@ -91,12 +85,10 @@
 
 <div class="bg-[#FAF9F6] -mx-6 -my-6 p-6 min-h-screen space-y-6">
 
-	<!-- Header Area: Dashboard Title, Switcher (if permitted), Notification Bell -->
+	<!-- Header Area: Dashboard Title, Notification Bell -->
 	<header class="flex items-center justify-between py-2">
 		<div class="flex items-center gap-4">
 			<h1 class="text-xl font-bold tracking-tight text-neutral-900">Dashboard</h1>
-			
-
 		</div>
 
 		<div class="flex items-center gap-4">
@@ -118,22 +110,6 @@
 				<p class="text-xs font-semibold text-neutral-400 mt-1 block">Here's what's happening in your organization today.</p>
 			</div>
 		</div>
-
-		<!-- Period selection dropdown inside welcome header -->
-		{#if (data.periods?.length ?? 0) > 0}
-			<div class="relative">
-				<select
-					value={data.selectedPeriodValue}
-					onchange={handlePeriodChange}
-					class="appearance-none bg-white border border-neutral-200 rounded-xl px-4 py-2 pr-9 text-xs font-bold text-neutral-700 shadow-xs focus:border-neutral-350 focus:outline-none cursor-pointer"
-				>
-					{#each data.periods ?? [] as period}
-						<option value={period.value}>{period.label}</option>
-					{/each}
-				</select>
-				<ChevronDownIcon class="absolute right-3 top-2.5 size-4 pointer-events-none opacity-50" />
-			</div>
-		{/if}
 	</section>
 
 	<!-- Metrics Cards (4-columns Grid) -->
@@ -153,18 +129,19 @@
 			</div>
 		</div>
 
-		<!-- Active Users -->
+		<!-- Today's Attendance -->
 		<div class="bg-white border border-neutral-200/80 rounded-2xl p-4 shadow-xs space-y-2">
 			<div class="flex items-center justify-between text-neutral-400">
-				<span class="text-[10px] font-extrabold uppercase tracking-wider">Active Users</span>
+				<span class="text-[10px] font-extrabold uppercase tracking-wider">Today's Attendance</span>
 				<div class="size-7 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
-					<UsersIcon class="size-3.5 shrink-0" />
+					<ClockIcon class="size-3.5 shrink-0" />
 				</div>
 			</div>
-			<div class="text-2xl font-black text-neutral-800">{data.stats?.activeUsers ?? 0}</div>
+			<div class="text-2xl font-black text-neutral-800">
+				{data.bottomStats?.presentToday ?? 0} <span class="text-neutral-300 font-semibold text-lg">/ {data.stats?.totalEmployees ?? 0}</span>
+			</div>
 			<div class="flex items-center gap-0.5 text-[10px] font-bold text-emerald-600">
-				<ArrowUpIcon class="size-3" />
-				<span>{data.stats?.newActiveUsers ?? 0} this month</span>
+				<span>{(data.bottomStats?.attendancePercentage ?? 0).toFixed(1)}% Present</span>
 			</div>
 		</div>
 
@@ -208,10 +185,25 @@
 	<!-- Middle Layout Row: Payroll Summary & Quick Actions -->
 	<section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 		<!-- Payroll Summary Chart -->
-		<div class="lg:col-span-2 bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
-			<div class="flex items-center justify-between mb-4">
+		<div class="lg:col-span-2 bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-start gap-4">
+			<div class="flex items-center justify-between">
 				<h3 class="text-base font-bold text-neutral-900">Payroll Summary</h3>
-				<span class="text-[10px] font-extrabold text-neutral-400 bg-neutral-50 border border-neutral-200 rounded-lg px-2.5 py-1 uppercase">{getMonthYearLabel(data.selectedPeriodValue)}</span>
+				
+				<!-- Period Selector Dropdown -->
+				{#if (data.periods?.length ?? 0) > 0}
+					<div class="relative">
+						<select
+							value={data.selectedPeriodValue}
+							onchange={handlePeriodChange}
+							class="appearance-none bg-white border border-neutral-200 rounded-xl px-4 py-2 pr-9 text-xs font-bold text-neutral-700 shadow-xs focus:border-neutral-350 focus:outline-none cursor-pointer"
+						>
+							{#each data.periods ?? [] as period}
+								<option value={period.value}>{period.label}</option>
+							{/each}
+						</select>
+						<ChevronDownIcon class="absolute right-3 top-2.5 size-4 pointer-events-none opacity-50" />
+					</div>
+				{/if}
 			</div>
 
 			{#if (data.stats?.totalPayroll ?? 0) === 0}
@@ -282,13 +274,13 @@
 					</div>
 				</a>
 
-				<!-- Manage Users -->
+				<!-- Manage Employees -->
 				<a href="/employees" class="flex flex-col justify-between border border-neutral-150 rounded-xl p-3 hover:bg-emerald-50/30 hover:border-emerald-100 group transition-all duration-200 decoration-none">
 					<div class="size-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
 						<UsersIcon class="size-4.5" />
 					</div>
 					<div class="mt-3">
-						<span class="text-xs font-extrabold text-neutral-700 block">Manage Users</span>
+						<span class="text-xs font-extrabold text-neutral-700 block">Manage Employees</span>
 						<span class="text-[9px] text-neutral-400 font-medium block mt-0.5 leading-tight">View & edit profiles</span>
 					</div>
 				</a>
@@ -339,57 +331,4 @@
 			</div>
 		</div>
 	</section>
-
-	<!-- Bottom Row Cards -->
-	<section class="grid grid-cols-1 md:grid-cols-3 gap-5">
-		<!-- New Employees -->
-		<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs space-y-2">
-			<div class="flex items-center gap-2 text-neutral-400">
-				<UserPlusIcon class="size-4 shrink-0" />
-				<span class="text-xs font-bold uppercase tracking-wider">New Employees (MTD)</span>
-			</div>
-			<div class="text-3xl font-black text-neutral-800">
-				{data.bottomStats?.newEmployeesThisMonth ?? 0}
-			</div>
-			<div class="flex items-center gap-1 text-[11px] font-bold text-emerald-600">
-				<ArrowUpIcon class="size-3.5" />
-				<span>{data.bottomStats?.newEmployeesThisMonth ?? 0} vs last month</span>
-			</div>
-		</div>
-
-		<!-- Resignations -->
-		<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs space-y-2">
-			<div class="flex items-center gap-2 text-neutral-400">
-				<UserMinusIcon class="size-4 shrink-0" />
-				<span class="text-xs font-bold uppercase tracking-wider">Resignations (MTD)</span>
-			</div>
-			<div class="text-3xl font-black text-neutral-800">
-				{data.bottomStats?.resignations ?? 0}
-			</div>
-			<div class={`flex items-center gap-1 text-[11px] font-bold ${(data.bottomStats?.resignationsTrend ?? 0) <= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-				{#if (data.bottomStats?.resignationsTrend ?? 0) <= 0}
-					<ArrowDownIcon class="size-3.5" />
-					<span>{Math.abs(data.bottomStats?.resignationsTrend ?? 0)} vs last month</span>
-				{:else}
-					<ArrowUpIcon class="size-3.5" />
-					<span>+{data.bottomStats?.resignationsTrend ?? 0} vs last month</span>
-				{/if}
-			</div>
-		</div>
-
-		<!-- Today's Attendance -->
-		<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs space-y-2">
-			<div class="flex items-center gap-2 text-neutral-400">
-				<ClockIcon class="size-4 shrink-0" />
-				<span class="text-xs font-bold uppercase tracking-wider">Today's Attendance</span>
-			</div>
-			<div class="text-3xl font-black text-neutral-800">
-				{data.bottomStats?.presentToday ?? 0} <span class="text-neutral-300 font-semibold text-lg">/ {data.stats?.totalEmployees ?? 0}</span>
-			</div>
-			<div class="flex items-center gap-1 text-[11px] font-bold text-emerald-600">
-				<span>{(data.bottomStats?.attendancePercentage ?? 0).toFixed(1)}% Present</span>
-			</div>
-		</div>
-	</section>
-
 </div>

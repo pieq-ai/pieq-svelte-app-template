@@ -84,15 +84,19 @@
 
 <div class="bg-[#FAF9F6] -mx-6 -my-6 p-6 min-h-screen space-y-6">
 
-	<!-- Header Area: Dashboard Title, Switcher (if permitted), Notification Bell -->
+	<!-- Header Area: Dashboard Title, Notification Bell -->
 	<header class="flex items-center justify-between py-2">
 		<div class="flex items-center gap-4">
 			<h1 class="text-xl font-bold tracking-tight text-neutral-900">Dashboard</h1>
-			
-
 		</div>
 
 		<div class="flex items-center gap-4">
+			<a
+				href="/payrolls"
+				class="inline-flex items-center px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold rounded-xl transition-colors decoration-none"
+			>
+				Run Payroll
+			</a>
 			<button class="relative p-2 rounded-full hover:bg-neutral-100 transition-colors cursor-pointer text-neutral-600 border-none bg-transparent" aria-label="Notifications">
 				<BellIcon class="size-5" />
 				<span class="absolute top-1.5 right-1.5 size-2 bg-[#F45310] rounded-full"></span>
@@ -260,35 +264,7 @@
 		{/if}
 	</section>
 
-	<!-- Quick Actions Section -->
-	<section class="space-y-4">
-		<h3 class="text-base font-bold text-neutral-900">Quick Actions</h3>
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-			<!-- Run Payroll Action -->
-			<a
-				href="/payrolls"
-				class="flex flex-col items-center justify-center bg-white border border-neutral-200/80 rounded-2xl p-8 shadow-xs text-center group hover:border-blue-100 hover:bg-blue-50/20 transition-all duration-200 decoration-none"
-			>
-				<div class="size-14 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-sm">
-					<PlayIcon class="size-6 ml-0.5 shrink-0" />
-				</div>
-				<span class="text-sm font-extrabold text-neutral-700 mt-4 group-hover:text-blue-600 transition-colors">Run Payroll</span>
-				<span class="text-xs text-neutral-400 mt-1">Upload excel sheets and process payroll</span>
-			</a>
 
-			<!-- Payroll Reports Action -->
-			<a
-				href="/payrolls"
-				class="flex flex-col items-center justify-center bg-white border border-neutral-200/80 rounded-2xl p-8 shadow-xs text-center group hover:border-[#F45310]/15 hover:bg-[#FFF4EE]/20 transition-all duration-200 decoration-none"
-			>
-				<div class="size-14 rounded-full bg-[#FFF4EE] text-[#F45310] flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-sm">
-					<BarChart3Icon class="size-6 shrink-0" />
-				</div>
-				<span class="text-sm font-extrabold text-neutral-700 mt-4 group-hover:text-[#F45310] transition-colors">Payroll Reports</span>
-				<span class="text-xs text-neutral-400 mt-1">View processed salaries and download summaries</span>
-			</a>
-		</div>
-	</section>
 
 	<!-- Recent Reports Section -->
 	<section class="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs space-y-4">
