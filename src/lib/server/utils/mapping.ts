@@ -118,3 +118,23 @@ export function toMasterDataDTO(masterData: any) {
 		meta: masterData.meta
 	}, false);
 }
+
+export function toNotificationDTO(notification: any) {
+	if (!notification) return notification;
+	return serialize({
+		cuid: notification.cuid,
+		notification_cuid: notification.notification_cuid,
+		employee_cuid: notification.employee_cuid,
+		read_at: notification.read_at,
+		created_at: notification.created_at,
+		title: notification.title,
+		body: notification.body,
+		category: notification.category,
+		priority: notification.priority,
+		type: notification.type,
+		payload: notification.payload,
+		trigger_source: notification.trigger_source,
+		created_by: notification.created_by
+	});
+}
+

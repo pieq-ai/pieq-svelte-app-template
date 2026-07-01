@@ -24,7 +24,8 @@
 		isSubmitting = false,
 		onClose,
 		children,
-		preventOutsideClickClose = false
+		preventOutsideClickClose = false,
+		cardClass = ''
 	}: Props = $props();
 
 	const modalId = Symbol('CrudModal');
@@ -73,7 +74,7 @@
 		class="fixed inset-0 z-50 flex items-center justify-center bg-[#262626]/70 px-4 py-6 pointer-events-auto"
 		onclick={handleBackdropClick}
 	>
-		<Card class="relative max-h-[90vh] w-full max-w-lg overflow-y-auto custom-scrollbar" onclick={(e) => e.stopPropagation()}>
+		<Card class={`relative max-h-[90vh] w-full max-w-lg overflow-y-auto custom-scrollbar ${cardClass}`} onclick={(e) => e.stopPropagation()}>
 			<CardHeader class="flex-col items-start gap-1 px-6 pr-12">
 				<CardTitle>{title}</CardTitle>
 				{#if description}
