@@ -1,4 +1,4 @@
-import { requirePermission } from '$lib/server/authz/guards';
+import { requirePermission } from '$lib/server/guards/permission.guard';
 // src/routes/api/shifts/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as shiftService from '$lib/server/services/shift.service.js';

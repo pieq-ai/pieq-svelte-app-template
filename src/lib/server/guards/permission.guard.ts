@@ -1,4 +1,4 @@
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import { canAccess } from '$lib/authz';
 import type { AuthzUser } from '$lib/authz';
 
@@ -26,9 +26,12 @@ export function requireAdmin(user: AuthzUser | null | undefined): void {
  * @param user The current authenticated user object (from locals.user)
  * @param permission The business capability being requested (e.g. 'employee:view', 'payroll:upload')
  */
-export function requirePermission(user: AuthzUser | null | undefined, permission: string): void {
+export function requirePermission(user: AuthzUser | null | undefined, permission: string, fallbackUrl?: string): void {
 	requireAuth(user);
 	if (!canAccess(user, permission)) {
+        if (fallbackUrl) {
+            throw redirect(303, fallbackUrl);
+        }
 		throw error(403, 'You do not have permission to access this resource.');
 	}
 }

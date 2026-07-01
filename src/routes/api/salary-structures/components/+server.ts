@@ -1,4 +1,4 @@
-import { requirePermission } from '$lib/server/authz/guards';
+import { requirePermission } from '$lib/server/guards/permission.guard';
 import { json } from '@sveltejs/kit';
 import * as salaryComponentDao from '$lib/server/dao/salary-component.dao.js';
 import { serializeSalaryComponent } from '$lib/server/serializers/salary-component.serializer.js';

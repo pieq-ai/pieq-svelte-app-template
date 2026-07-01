@@ -1,4 +1,4 @@
-import { requirePermission } from '$lib/server/authz/guards';
+import { requirePermission } from '$lib/server/guards/permission.guard';
 // src/routes/api/organization_location/+server.ts
 import { json } from '@sveltejs/kit';
 import * as locationService from '$lib/server/services/organization_location.service.js';

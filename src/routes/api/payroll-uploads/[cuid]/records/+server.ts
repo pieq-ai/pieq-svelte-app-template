@@ -1,4 +1,4 @@
-import { requirePermission } from '$lib/server/authz/guards';
+import { requirePermission } from '$lib/server/guards/permission.guard';
 import { json } from '@sveltejs/kit';
 import * as payrollService from '$lib/server/services/payroll.service.js';
 import * as uploadService from '$lib/server/services/payroll-upload.service.js';

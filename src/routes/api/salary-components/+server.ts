@@ -1,4 +1,4 @@
-import { requirePermission } from '$lib/server/authz/guards';
+import { requirePermission } from '$lib/server/guards/permission.guard';
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/salary-component.service.js';
 import { validateCreateSalaryComponent } from '$lib/server/validators/salary-component.validator.js';

@@ -1,4 +1,4 @@
-import { requirePermission } from '$lib/server/authz/guards';
+import { requirePermission } from '$lib/server/guards/permission.guard';
 import { json } from '@sveltejs/kit';
 import { parsePayrollExcel } from '$lib/server/utils/excel-parser.js';
 import type { ParsedPayrollRow, ParseResult } from '$lib/server/utils/excel-parser.js';
