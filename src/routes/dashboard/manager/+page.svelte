@@ -229,43 +229,7 @@
 		<div class="flex items-center gap-4">
 			<h1 class="text-xl font-bold tracking-tight text-neutral-900">Dashboard</h1>
 			
-			<!-- Dashboard Switcher Dropdown -->
-			<div class="relative">
-				<button
-					type="button"
-					onclick={() => (isSwitcherOpen = !isSwitcherOpen)}
-					class="h-9 min-w-[180px] flex items-center justify-between border border-neutral-200 bg-white px-3 py-1.5 text-xs font-bold rounded-xl shadow-xs hover:bg-neutral-50 transition-colors cursor-pointer outline-none text-neutral-700"
-				>
-					<span>Manager Dashboard</span>
-					<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
-				</button>
-				
-				{#if isSwitcherOpen}
-					<!-- svelte-ignore a11y_click_events_have_key_events -->
-					<!-- svelte-ignore a11y_no_static_element_interactions -->
-					<div 
-						class="fixed inset-0 z-40" 
-						onclick={() => (isSwitcherOpen = false)}
-					></div>
-					
-					<div class="absolute left-0 mt-1 w-full bg-white border border-neutral-200 rounded-xl shadow-lg z-50 py-1">
-						<button
-							type="button"
-							onclick={() => { goto('/dashboard/employee'); isSwitcherOpen = false; }}
-							class="w-full text-left px-4 py-2 text-xs text-neutral-700 hover:bg-neutral-50 cursor-pointer border-none bg-transparent font-bold"
-						>
-							Employee Dashboard
-						</button>
-						<button
-							type="button"
-							onclick={() => { isSwitcherOpen = false; }}
-							class="w-full text-left px-4 py-2 text-xs text-[#F45310] bg-neutral-50 cursor-default border-none font-bold"
-						>
-							Manager Dashboard
-						</button>
-					</div>
-				{/if}
-			</div>
+
 		</div>
 
 		<div class="flex items-center gap-4">
