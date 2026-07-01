@@ -10,7 +10,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 				id: session.user.id,
 				email: session.user.email ?? '',
 				name: session.user.name ?? null
-			}
+			} as import('$lib/types/user').User
 		: null;
 
 	const user = locals.user ?? sessionUser;

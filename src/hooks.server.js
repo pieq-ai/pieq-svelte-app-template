@@ -16,7 +16,7 @@ const injectLocals = async ({ event, resolve }) => {
     console.log("[DIAG-3] hooks.server.js session:", { userId: session?.user?.id, email: session?.user?.email });
 
 	if (session?.user?.id) {
-		const hrmsContext = await authUserService.syncAuthenticatedUser(session.user.id);
+		const hrmsContext = await authUserService.syncAuthenticatedUser(session.user.id, session.user.email ?? undefined);
 
 		
 		event.locals.user = {

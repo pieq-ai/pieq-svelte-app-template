@@ -31,7 +31,6 @@ export async function POST(event: RequestEvent) {
 }
 
 export async function DELETE(event: RequestEvent) {
-	
-		requirePermission(event.locals.user, 'leave:view');
-return POST(event);
+	permissionGuard.requirePermission(event.locals.user, 'leave:view');
+	return POST(event);
 }

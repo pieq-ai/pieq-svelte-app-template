@@ -1,4 +1,4 @@
-import { findAuthUserByKeycloakSub } from '$lib/server/dao/auth.dao.js';
+import { findAuthUserByKeycloakSub, findAuthUserByEmail, updateKeycloakSub } from '$lib/server/dao/auth.dao.js';
 import { error } from '@sveltejs/kit';
 import { SYSTEM_ROLES } from '$lib/constants/roles';
 
@@ -14,8 +14,19 @@ export interface AuthContext {
     profile_completion_status: string;
 }
 
-export async function syncAuthenticatedUser(keycloak_sub: string): Promise<AuthContext> {
-    const userRow = await findAuthUserByKeycloakSub(keycloak_sub);
+export async function syncAuthenticatedUser(keycloak_sub: string, email?: string): Promise<AuthContext> {
+    let userRow = await findAuthUserByKeycloakSub(keycloak_sub);
+
+    // Auto-heal logic: If Keycloak sub changed (e.g. user recreated in Keycloak)
+    // but the email matches an existing employment, update the DB with the new sub.
+    if (!userRow && email) {
+        userRow = await findAuthUserByEmail(email);
+        if (userRow && userRow.employment_cuid) {
+            console.log(`[AUTH-HEAL] Found user by email ${email}, updating Keycloak sub to ${keycloak_sub}`);
+            await updateKeycloakSub(userRow.employment_cuid, keycloak_sub);
+            userRow.keycloak_sub = keycloak_sub;
+        }
+    }
 
     if (!userRow) {
         // =======================================================

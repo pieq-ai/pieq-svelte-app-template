@@ -11,9 +11,7 @@ function getStatus(message: string) {
 }
 
 export async function GET(event: RequestEvent) {
-	
-		requirePermission(event.locals.user, 'role_permission:view');
-event.setHeaders({
+	event.setHeaders({
 		'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate'
 	});
 	try {
