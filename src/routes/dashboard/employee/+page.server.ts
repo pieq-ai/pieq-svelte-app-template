@@ -331,6 +331,16 @@ export const load: PageServerLoad = async ({ locals }) => {
 	});
 	const isManager = subordinatesCount > 0;
 
+	// 10. Fetch latest payroll record to check for payslips
+	const latestPayroll = await db.payroll.findFirst({
+		where: { employee_cuid: employee.cuid },
+		orderBy: [
+			{ year: 'desc' },
+			{ month: 'desc' }
+		]
+	});
+	const latestPayrollCuid = latestPayroll?.cuid ?? null;
+
 	return {
 		context: {
 			user: locals.user,
@@ -352,6 +362,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		},
 		activeShift,
 		todayAttendance,
+		latestPayrollCuid,
 		upcomingEvents,
 		stats: {
 			presentDays: presentDaysCount,

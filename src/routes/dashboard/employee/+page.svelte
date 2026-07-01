@@ -486,12 +486,21 @@
 						</a>
 
 						<!-- Payslip -->
-						<div class="flex flex-col items-center gap-2 group text-center cursor-default select-none">
-							<div class="size-12 rounded-2xl border border-neutral-100 flex items-center justify-center text-neutral-600 bg-white group-hover:bg-[#FFF4EE] group-hover:border-[#FFE2D3] group-hover:text-[#F45310] transition-colors">
-								<FileTextIcon class="size-5.5" />
+						{#if data.latestPayrollCuid}
+							<a href="/payroll-records/{data.latestPayrollCuid}/payslip" class="flex flex-col items-center gap-2 group text-center decoration-none">
+								<div class="size-12 rounded-2xl border border-neutral-100 flex items-center justify-center text-neutral-600 bg-white group-hover:bg-[#FFF4EE] group-hover:border-[#FFE2D3] group-hover:text-[#F45310] transition-colors">
+									<FileTextIcon class="size-5.5" />
+								</div>
+								<span class="text-[11px] font-bold text-neutral-500 group-hover:text-[#F45310] transition-colors leading-tight">Payslip</span>
+							</a>
+						{:else}
+							<div class="flex flex-col items-center gap-2 group text-center cursor-not-allowed select-none opacity-50">
+								<div class="size-12 rounded-2xl border border-neutral-100 flex items-center justify-center text-neutral-400 bg-white">
+									<FileTextIcon class="size-5.5" />
+								</div>
+								<span class="text-[11px] font-bold text-neutral-400 leading-tight">Payslip</span>
 							</div>
-							<span class="text-[11px] font-bold text-neutral-500 group-hover:text-[#F45310] transition-colors leading-tight">Payslip</span>
-						</div>
+						{/if}
 
 						<!-- Attendance -->
 						<a href="/attendance" class="flex flex-col items-center gap-2 group text-center decoration-none">
