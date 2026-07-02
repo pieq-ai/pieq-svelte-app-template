@@ -188,6 +188,25 @@ describe('Shift Assignment Service Unit Tests', () => {
       expect(dao.create).toHaveBeenCalled();
     });
 
+    it('should create ongoing assignment when effective_to is null or omitted', async () => {
+      vi.mocked(dao.findOverlapping).mockResolvedValue(null);
+      const ongoingPayload = {
+        employee_cuid: subordinateCuid,
+        shift_cuid: shiftCuid,
+        effective_from: '2026-07-01',
+        effective_to: null,
+        status: true
+      };
+      const mockCreated = { cuid: 'a-new-ongoing', ...ongoingPayload };
+      vi.mocked(dao.create).mockResolvedValue(mockCreated as any);
+
+      const result = await service.createAssignment(ongoingPayload, managerEmail);
+      expect(result).toEqual(mockCreated);
+      expect(dao.create).toHaveBeenCalledWith(expect.objectContaining({
+        effective_to: null
+      }));
+    });
+
     it('should throw 400 if effective_from is before employee joining date', async () => {
       vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
         employee_cuid: subordinateCuid,
@@ -271,6 +290,18 @@ describe('Shift Assignment Service Unit Tests', () => {
 
       const result = await service.updateAssignment('a-1', updatePayload, managerEmail);
       expect(result).toEqual(mockUpdated);
+    });
+
+    it('should update and remove end date (ongoing) when effective_to is null', async () => {
+      vi.mocked(dao.findOverlapping).mockResolvedValue(null);
+      const mockUpdated = { ...existingAss, effective_to: null };
+      vi.mocked(dao.update).mockResolvedValue(mockUpdated as any);
+
+      const result = await service.updateAssignment('a-1', { effective_to: null }, managerEmail);
+      expect(result).toEqual(mockUpdated);
+      expect(dao.update).toHaveBeenCalledWith('a-1', expect.objectContaining({
+        effective_to: null
+      }));
     });
 
     it('should throw 400 if updated effective_from is before employee joining date', async () => {

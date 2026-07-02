@@ -6,7 +6,7 @@ export interface ShiftAssignmentCreatePayload {
   employee_cuid: string;
   shift_cuid: string;
   effective_from: string;
-  effective_to: string;
+  effective_to?: string | null;
   status?: boolean;
 }
 
@@ -14,7 +14,7 @@ export interface ShiftAssignmentUpdatePayload {
   employee_cuid?: string;
   shift_cuid?: string;
   effective_from?: string;
-  effective_to?: string;
+  effective_to?: string | null;
   status?: boolean;
 }
 

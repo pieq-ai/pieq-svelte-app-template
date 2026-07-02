@@ -1080,7 +1080,7 @@ describe('Leave Service Unit Tests', () => {
 			expect(db.attendanceRecord.upsert).toHaveBeenCalledTimes(2);
 			expect(db.attendanceRecord.upsert).toHaveBeenNthCalledWith(1, expect.objectContaining({
 				create: expect.objectContaining({
-					attendance_status: 'Absent'
+					attendance_status: 'Leave'
 				})
 			}));
 		});
@@ -1175,7 +1175,7 @@ describe('Leave Service Unit Tests', () => {
 			await expect(leaveService.approveLeaveRequest('req-wfh-conflict', 'mgr-code')).rejects.toThrow("already exists with status 'WFH'");
 		});
 
-		it('should upsert attendance record as Absent for full-day leave and HalfDay for half-day leave', async () => {
+		it('should upsert attendance record as Leave for full-day leave and HalfDay for half-day leave', async () => {
 			const mockRequest = {
 				cuid: 'req-half-day',
 				employee_cuid: 'emp-cuid',

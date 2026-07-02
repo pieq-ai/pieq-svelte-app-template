@@ -1093,7 +1093,7 @@ model ShiftAssignment {
   shift_cuid    String @db.VarChar(100)
 
   effective_from DateTime @db.Date
-  effective_to   DateTime @db.Date
+  effective_to   DateTime? @db.Date
 
   status Boolean @default(true)
 

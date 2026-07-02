@@ -86,7 +86,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 			employee_cuid: employee.cuid,
 			status: true,
 			effective_from: { lte: todayUTC },
-			effective_to: { gte: todayUTC }
+			OR: [
+				{ effective_to: { gte: todayUTC } },
+				{ effective_to: null }
+			]
 		}
 	});
 
@@ -299,7 +302,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 				employee_cuid: { in: subordinateCuids },
 				status: true,
 				effective_from: { lte: todayUTC },
-				effective_to: { gte: todayUTC }
+				OR: [
+					{ effective_to: { gte: todayUTC } },
+					{ effective_to: null }
+				]
 			}
 		});
 

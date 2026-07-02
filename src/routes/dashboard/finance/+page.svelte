@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import BellIcon from '@lucide/svelte/icons/bell';
+	import AttendanceWidget from '$lib/components/common/AttendanceWidget.svelte';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import WalletIcon from '@lucide/svelte/icons/wallet';
@@ -124,6 +125,8 @@
 			<p class="text-xs font-semibold text-neutral-400 mt-0.5">Welcome back! 👋</p>
 		</div>
 	</section>
+
+	<AttendanceWidget employee={data.employee} activeShift={data.activeShift} todayAttendance={data.todayAttendance} />
 
 	<!-- Metrics Cards Row -->
 	<section class="grid grid-cols-1 md:grid-cols-3 gap-5">

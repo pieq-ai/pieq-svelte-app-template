@@ -121,7 +121,7 @@
 
   let effectiveToError = $derived.by(() => {
     if (!isEffectiveToTouched) return "";
-    if (!formEffectiveTo) return "Effective to date is required";
+    if (!formEffectiveTo) return "";
     if (formEffectiveFrom && formEffectiveTo < formEffectiveFrom) {
       return "Effective to date must be greater than or equal to Effective from date";
     }
@@ -367,7 +367,7 @@
     formEmployeeCuid = assignment.employee_cuid;
     formShiftCuid = assignment.shift_cuid;
     formEffectiveFrom = String(assignment.effective_from);
-    formEffectiveTo = String(assignment.effective_to);
+    formEffectiveTo = assignment.effective_to ? String(assignment.effective_to) : "";
     formStatus = assignment.status;
 
     isEmployeeTouched = false;
@@ -380,7 +380,7 @@
       employee_cuid: assignment.employee_cuid,
       shift_cuid: assignment.shift_cuid,
       effective_from: String(assignment.effective_from),
-      effective_to: String(assignment.effective_to),
+      effective_to: assignment.effective_to ? String(assignment.effective_to) : "",
       status: assignment.status,
     });
     isModalOpen = true;
@@ -392,7 +392,7 @@
     formEmployeeCuid = assignment.employee_cuid;
     formShiftCuid = assignment.shift_cuid;
     formEffectiveFrom = String(assignment.effective_from);
-    formEffectiveTo = String(assignment.effective_to);
+    formEffectiveTo = assignment.effective_to ? String(assignment.effective_to) : "";
     formStatus = assignment.status;
 
     isEmployeeTouched = false;
@@ -427,7 +427,7 @@
           employee_cuid: formEmployeeCuid,
           shift_cuid: formShiftCuid,
           effective_from: formEffectiveFrom,
-          effective_to: formEffectiveTo,
+          effective_to: formEffectiveTo || null,
           status: formStatus,
         });
         toast.success("Shift assignment updated successfully");
@@ -436,7 +436,7 @@
           employee_cuid: formEmployeeCuid,
           shift_cuid: formShiftCuid,
           effective_from: formEffectiveFrom,
-          effective_to: formEffectiveTo,
+          effective_to: formEffectiveTo || null,
           status: formStatus,
         });
         toast.success("Shift assignment created successfully");
@@ -674,7 +674,7 @@
                   >{assignment.effective_from}</TableCell
                 >
                 <TableCell class="text-center"
-                  >{assignment.effective_to}</TableCell
+                  >{assignment.effective_to || "Ongoing"}</TableCell
                 >
                 <TableCell class="text-center">
                   <Badge
@@ -817,7 +817,7 @@
         </div>
         <div class="space-y-2">
           <Label for="effective_to"
-            >Effective To <span class="text-destructive">*</span></Label
+            >Effective To</Label
           >
           <DatePicker
             id="effective_to"

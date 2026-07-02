@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import BellIcon from '@lucide/svelte/icons/bell';
+	import AttendanceWidget from '$lib/components/common/AttendanceWidget.svelte';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import WalletIcon from '@lucide/svelte/icons/wallet';
@@ -111,6 +112,8 @@
 			</div>
 		</div>
 	</section>
+
+	<AttendanceWidget employee={data.employee} activeShift={data.activeShift} todayAttendance={data.todayAttendance} />
 
 	<!-- Metrics Cards (4-columns Grid) -->
 	<section class="grid grid-cols-2 lg:grid-cols-4 gap-4">

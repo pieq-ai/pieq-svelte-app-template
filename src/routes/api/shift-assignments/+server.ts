@@ -12,9 +12,11 @@ export function _mapShiftAssignment(sa: any) {
     effective_from: sa.effective_from instanceof Date 
       ? sa.effective_from.toISOString().split('T')[0]
       : new Date(sa.effective_from).toISOString().split('T')[0],
-    effective_to: sa.effective_to instanceof Date 
-      ? sa.effective_to.toISOString().split('T')[0]
-      : new Date(sa.effective_to).toISOString().split('T')[0],
+    effective_to: sa.effective_to
+      ? (sa.effective_to instanceof Date 
+        ? sa.effective_to.toISOString().split('T')[0]
+        : new Date(sa.effective_to).toISOString().split('T')[0])
+      : null,
     status: sa.status,
     created_by: sa.created_by ?? null,
     updated_by: sa.updated_by ?? null,

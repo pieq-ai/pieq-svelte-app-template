@@ -4,6 +4,7 @@ import { resolveEmployee } from '$lib/server/services/leave.service.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as departmentDao from '$lib/server/dao/department.dao.js';
 import * as designationDao from '$lib/server/dao/designation.dao.js';
+import { getTodayStatus } from '$lib/server/services/attendance.service.js';
 import { db } from '$lib/server/db.js';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -45,6 +46,69 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	if (employment && employment.designation_cuid) {
 		const desig = await designationDao.findByCuid2(employment.designation_cuid);
 		if (desig) designationName = desig.name;
+	}
+
+	// 1. Fetch Department, Designation, and Reporting Manager names
+	let departmentName = '—';
+	let reportingManagerName = '—';
+
+	if (employment) {
+		if (employment.department_cuid) {
+			const dept = await departmentDao.findByCuid2(employment.department_cuid);
+			if (dept) departmentName = dept.name;
+		}
+		if (employment.reporting_manager_cuid) {
+			const mgr = await employeeDao.getEmployeeByCuid(employment.reporting_manager_cuid);
+			if (mgr) reportingManagerName = `${mgr.first_name} ${mgr.last_name}`;
+		}
+	}
+
+	// 2. Fetch Active Shift for Today
+	const today = new Date();
+	const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+
+	let activeShift = null;
+	if (employee) {
+		const activeAssignment = await db.shiftAssignment.findFirst({
+			where: {
+				employee_cuid: employee.cuid,
+				status: true,
+				effective_from: { lte: todayUTC },
+				OR: [
+					{ effective_to: { gte: todayUTC } },
+					{ effective_to: null }
+				]
+			}
+		});
+
+		if (activeAssignment?.shift_cuid) {
+			const shift = await db.shift.findUnique({
+				where: { cuid: activeAssignment.shift_cuid }
+			});
+			if (shift) {
+				activeShift = {
+					cuid: shift.cuid,
+					name: shift.name,
+					start_time: shift.start_time.toISOString(),
+					end_time: shift.end_time.toISOString()
+				};
+			}
+		}
+	}
+
+	// 5. Fetch Today's Attendance Record Status
+	let todayAttendance = null;
+	if (employee) {
+		const todayStatusRecord = await getTodayStatus(employee.cuid);
+		if (todayStatusRecord) {
+			todayAttendance = {
+				cuid: todayStatusRecord.cuid,
+				status: todayStatusRecord.status,
+				check_in_time: todayStatusRecord.check_in_time ? todayStatusRecord.check_in_time.toISOString() : null,
+				check_out_time: todayStatusRecord.check_out_time ? todayStatusRecord.check_out_time.toISOString() : null,
+				work_duration_minutes: todayStatusRecord.work_duration_minutes
+			};
+		}
 	}
 
 	// 1. Fetch distinct periods from payrolls to populate the month selector dropdown
@@ -180,10 +244,16 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
 	return {
 		employee: employee ? {
+			cuid: employee.cuid,
+			emp_code: employee.emp_code,
 			first_name: employee.first_name,
 			last_name: employee.last_name,
-			designation: designationName
+			department: departmentName,
+			designation: designationName,
+			reportingManager: reportingManagerName
 		} : null,
+		activeShift,
+		todayAttendance,
 		periods,
 		selectedPeriodValue,
 		stats: {

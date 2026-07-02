@@ -111,7 +111,7 @@ export async function createAssignment(payload: unknown, managerEmail: string): 
 
   // 5. Parse dates and check for overlaps (only if status is true)
   const fromUTC = parseDateUTC(validated.effective_from);
-  const toUTC = parseDateUTC(validated.effective_to);
+  const toUTC = validated.effective_to ? parseDateUTC(validated.effective_to) : null;
 
   // Validate against employee lifecycle (joining & relieving dates)
   const employment = await employmentDao.findByEmployeeCuid(validated.employee_cuid);
@@ -125,7 +125,7 @@ export async function createAssignment(payload: unknown, managerEmail: string): 
       throw err;
     }
 
-    if (relievingDate && toUTC.getTime() > relievingDate.getTime()) {
+    if (toUTC && relievingDate && toUTC.getTime() > relievingDate.getTime()) {
       const err: any = new Error("Shift assignment effective to date cannot be after the employee's relieving date.");
       err.status = 400;
       throw err;
@@ -201,13 +201,13 @@ export async function updateAssignment(
   }
 
   // 5. Build and validate merged dates
-  const fromStr = validated.effective_from ?? existing.effective_from;
-  const toStr = validated.effective_to ?? existing.effective_to;
+  const fromStr = validated.effective_from !== undefined ? validated.effective_from : existing.effective_from;
+  const toStr = validated.effective_to !== undefined ? validated.effective_to : existing.effective_to;
 
   const fromUTC = parseDateUTC(fromStr);
-  const toUTC = parseDateUTC(toStr);
+  const toUTC = toStr ? parseDateUTC(toStr) : null;
 
-  if (toUTC.getTime() < fromUTC.getTime()) {
+  if (toUTC && toUTC.getTime() < fromUTC.getTime()) {
     const err: any = new Error('Effective To date must be greater than or equal to Effective From date');
     err.status = 400;
     throw err;
@@ -225,7 +225,7 @@ export async function updateAssignment(
       throw err;
     }
 
-    if (relievingDate && toUTC.getTime() > relievingDate.getTime()) {
+    if (toUTC && relievingDate && toUTC.getTime() > relievingDate.getTime()) {
       const err: any = new Error("Shift assignment effective to date cannot be after the employee's relieving date.");
       err.status = 400;
       throw err;

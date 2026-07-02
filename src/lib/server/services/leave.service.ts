@@ -1437,7 +1437,7 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 			current.setDate(current.getDate() + 1);
 		}
 
-		const attendanceStatus = request.is_half_day ? 'HalfDay' : 'Absent';
+		const attendanceStatus = request.is_half_day ? 'HalfDay' : 'Leave';
 
 		// Build split remark suffix if this request contains LOP or LWP split days
 		const lopDays = request.days_from_lop ? Number(request.days_from_lop) : 0;
