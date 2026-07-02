@@ -509,18 +509,13 @@
 		</div>
 	</aside>
 
-	<div class="flex flex-col flex-1 min-w-0">
-		{#if authenticatedUser && ($page.url.pathname === '/dashboard' || $page.url.pathname === '/dashboard/' || $page.url.pathname === '/')}
-			<header class="flex h-16 items-center justify-between border-b border-[#737373]/15 px-8 bg-card shadow-xs shrink-0">
-				<div>
-					<!-- Page level context or welcome note can sit here -->
-				</div>
-				<div class="flex items-center gap-4 animate-fade-in">
-					<NotificationBell />
-				</div>
-			</header>
+	<div class="flex flex-col flex-1 min-w-0 relative">
+		{#if authenticatedUser}
+			<div class="absolute top-[28px] right-[32px] max-sm:top-[20px] max-sm:right-[20px] z-50">
+				<NotificationBell />
+			</div>
 		{/if}
-		<main class="grow min-w-0 px-8 py-6 overflow-y-auto">
+		<main class="grow min-w-0 px-8 py-6 max-sm:px-4 max-sm:py-4 overflow-y-auto">
 			{@render children()}
 		</main>
 	</div>
