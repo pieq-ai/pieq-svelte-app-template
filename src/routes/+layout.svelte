@@ -510,7 +510,7 @@
 	</aside>
 
 	<div class="flex flex-col flex-1 min-w-0 relative">
-		{#if authenticatedUser}
+		{#if authenticatedUser && $page.url.pathname !== '/notifications' && $page.url.pathname !== '/notifications/'}
 			<div class="absolute top-[28px] right-[32px] max-sm:top-[20px] max-sm:right-[20px] z-50">
 				<NotificationBell />
 			</div>

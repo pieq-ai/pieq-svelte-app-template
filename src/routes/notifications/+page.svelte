@@ -3,7 +3,7 @@
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { Button } from '$lib/components';
+	import { Button, SearchInput, FilterDropdown } from '$lib/components';
 	import Pagination from '$lib/components/common/Pagination.svelte';
 	import CakeIcon from '@lucide/svelte/icons/cake';
 	import MegaphoneIcon from '@lucide/svelte/icons/megaphone';
@@ -13,7 +13,7 @@
 	import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import CheckIcon from '@lucide/svelte/icons/check';
-	import SearchIcon from '@lucide/svelte/icons/search';
+
 	import InboxIcon from '@lucide/svelte/icons/inbox';
 
 	interface NotificationItem {
@@ -111,6 +111,7 @@
 				data.notifications = data.notifications.map((n: NotificationItem) =>
 					n.cuid === item.cuid ? { ...n, is_read: true } : n
 				);
+				goto($page.url.pathname + $page.url.search, { invalidateAll: true, noScroll: true });
 			}
 		} catch (err) {
 			console.error('Failed to mark read:', err);
@@ -245,27 +246,25 @@
 		<!-- Search & Category Select -->
 		<div class="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center max-w-2xl">
 			<!-- Search -->
-			<div class="relative flex-1">
-				<SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-				<input
-					type="text"
-					placeholder="Search notifications..."
-					class="w-full pl-9 pr-4 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-1 focus:ring-[#F43510] focus:border-[#F43510] placeholder:text-muted-foreground"
-					bind:value={searchVal}
-					oninput={handleFilterChange}
-				/>
-			</div>
+			<SearchInput
+				id="search_notifications"
+				name="search_notifications"
+				bind:value={searchVal}
+				oninput={handleFilterChange}
+				placeholder="Search notifications..."
+			/>
 
 			<!-- Category Select -->
-			<select
-				class="px-3 py-2 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-1 focus:ring-[#F43510] focus:border-[#F43510] text-foreground cursor-pointer"
-				bind:value={categoryVal}
-				onchange={handleFilterChange}
-			>
-				{#each categories as cat}
-					<option value={cat.value}>{cat.label}</option>
-				{/each}
-			</select>
+			<FilterDropdown
+				value={categoryVal}
+				onChange={(val) => {
+					categoryVal = val;
+					handleFilterChange();
+				}}
+				options={categories}
+				allLabel="All Categories"
+				triggerClass="w-full sm:w-[180px]"
+			/>
 		</div>
 
 		<!-- Checkbox Unread Only -->
