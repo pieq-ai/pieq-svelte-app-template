@@ -216,7 +216,6 @@
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 		<div>
 			<h1 class="text-3xl font-bold tracking-tight text-foreground">Notifications</h1>
-			<p class="mt-1 text-sm text-muted-foreground">Manage and view your company alerts and messages.</p>
 		</div>
 		<div class="flex items-center gap-2">
 			<Button
