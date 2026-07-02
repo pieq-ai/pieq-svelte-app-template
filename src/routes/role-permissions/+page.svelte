@@ -199,8 +199,8 @@
 		</Card>
 	{:else}
 		<div class="rounded-md border border-border bg-background">
-			<div class="max-h-[70vh] overflow-auto">
-				<table class="min-w-max border-collapse text-sm">
+			<div class="overflow-x-auto">
+				<table class="w-full border-collapse text-sm">
 					<thead class="sticky top-0 z-20 bg-[#262626] text-white shadow-sm">
 						<tr>
 							<th class="sticky left-0 z-30 min-w-64 bg-[#262626] px-4 py-3 text-left font-semibold">
