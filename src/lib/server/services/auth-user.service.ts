@@ -1,6 +1,5 @@
-import { findAuthUserByKeycloakSub, findAuthUserByEmail, updateKeycloakSub } from '$lib/server/dao/auth.dao.js';
+import { findAuthUserByKeycloakSub, findAuthUserByEmail, updateKeycloakSub, hasAnyEmployments } from '$lib/server/dao/auth.dao.js';
 import { error } from '@sveltejs/kit';
-import { SYSTEM_ROLES } from '$lib/constants/roles';
 
 export interface AuthContext {
     keycloak_sub: string;
@@ -33,6 +32,11 @@ export async function syncAuthenticatedUser(keycloak_sub: string, email?: string
         // TEMPORARY DEVELOPMENT BOOTSTRAP
         // Remove after first HRMS administrator is provisioned.
         // =======================================================
+        const isInitialized = await hasAnyEmployments();
+        if (isInitialized) {
+            error(403, 'User not found in HRMS database.');
+        }
+
         return {
             keycloak_sub: keycloak_sub,
             employee_cuid: 'bootstrap-employee',
@@ -40,8 +44,8 @@ export async function syncAuthenticatedUser(keycloak_sub: string, email?: string
             emp_code: 'BOOTSTRAP',
             employee_name: 'Bootstrap Admin',
             official_email: 'bootstrap@local',
-            system_role_cuid: SYSTEM_ROLES.ADMIN,
-            system_role_name: 'Admin',
+            system_role_cuid: 'bootstrap-role-cuid',
+            system_role_name: 'Bootstrap Admin',
             profile_completion_status: 'completed'
         };
     }

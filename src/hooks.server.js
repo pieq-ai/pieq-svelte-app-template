@@ -1,7 +1,6 @@
 import { sequence } from '@sveltejs/kit/hooks';
 import { redirect } from '@sveltejs/kit';
 import { handle as authHandle } from '$lib/server/auth.js';
-import * as authUserService from '$lib/server/services/auth-user.service.js';
 
 
 if (typeof BigInt !== 'undefined') {
@@ -16,14 +15,12 @@ const injectLocals = async ({ event, resolve }) => {
     console.log("[DIAG-3] hooks.server.js session:", { userId: session?.user?.id, email: session?.user?.email });
 
 	if (session?.user?.id) {
-		const hrmsContext = await authUserService.syncAuthenticatedUser(session.user.id, session.user.email ?? undefined);
-
-		
 		event.locals.user = {
 			id: session.user.id,
 			email: session.user.email ?? '',
 			name: session.user.name ?? null,
-			...hrmsContext,
+			...session.hrmsContext,
+			permissions: session.permissions ?? [],
 			idToken: session.oidcUser?.id_token
 		};
 		event.locals.roles = session.roles ?? [];

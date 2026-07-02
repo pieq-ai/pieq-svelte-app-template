@@ -75,7 +75,7 @@
 		const normalized = key.trim().toLowerCase();
 		if (!normalized) return 'Permission key is required';
 		if (normalized.length < 3) return 'Minimum 3 characters required';
-		if (!/^[a-z][a-z0-9_]*$/.test(normalized)) return 'Use lowercase snake_case';
+		if (!/^[a-z][a-z0-9_:]*$/.test(normalized)) return 'Use lowercase snake_case and colons';
 		return '';
 	}
 

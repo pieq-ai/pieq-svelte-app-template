@@ -2,6 +2,8 @@ import { SvelteKitAuth } from '@auth/sveltekit';
 import { appendFileSync } from 'fs';
 import Keycloak from '@auth/sveltekit/providers/keycloak';
 import { getAuthConfig } from '$lib/server/config.js';
+import * as authUserService from '$lib/server/services/auth-user.service.js';
+import { getPermissionKeysForRole } from '$lib/server/services/role-permission.service.js';
 
 /** @param {Record<string, unknown> | undefined} profile */
 function buildOidcProfile(profile) {
@@ -54,6 +56,27 @@ function createAuth() {
 						token_type: account.token_type ?? 'Bearer',
 						profile: oidcProfile
 					};
+
+					// Load HRMS context and permissions during the login phase (once)
+					try {
+						const hrmsContext = await authUserService.syncAuthenticatedUser(token.sub, profile.email ?? undefined);
+						token.hrmsContext = hrmsContext;
+
+						if (hrmsContext?.system_role_cuid) {
+							let permissions = [];
+							if (hrmsContext.system_role_cuid === 'bootstrap-role-cuid') {
+								// During uninitialized bootstrap, give full wildcard access
+								permissions = ['*']; 
+							} else {
+								permissions = await getPermissionKeysForRole(hrmsContext.system_role_cuid);
+							}
+							token.permissions = permissions;
+						}
+					} catch (err) {
+						console.error('[AUTH.JS] Error syncing HRMS context during login', err);
+						token.hrmsContext = null;
+						token.permissions = [];
+					}
 				}
 
 				if (profile) {
@@ -71,6 +94,11 @@ function createAuth() {
 				}
 
 				session.roles = /** @type {string[]} */ (token.roles ?? []);
+				session.permissions = /** @type {string[]} */ (token.permissions ?? []);
+				
+				if (token.hrmsContext) {
+					session.hrmsContext = /** @type {import('$lib/server/services/auth-user.service').AuthContext} */ (token.hrmsContext);
+				}
 
 				if (token.oidcUser) {
 					session.oidcUser = /** @type {import('$lib/types/oidc').OidcUserStorage} */ (
