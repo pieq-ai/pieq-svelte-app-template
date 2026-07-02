@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import * as notificationService from '$lib/server/services/notification.service.js';
+import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import { resolveEmployee } from '$lib/server/services/leave.service.js';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import { toNotificationDTO } from '$lib/server/utils/mapping.js';
@@ -76,7 +77,7 @@ export async function POST(event: RequestEvent) {
 			body.target = { type: 'broadcast' };
 		}
 
-		const notification = await notificationService.send(body);
+		const notification = await notificationFactory.send(body);
 
 		return json({
 			data: {

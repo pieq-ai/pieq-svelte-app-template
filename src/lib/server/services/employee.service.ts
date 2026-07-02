@@ -1,5 +1,5 @@
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
-import * as notificationService from '$lib/server/services/notification.service.js';
+import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import * as locationDao from '$lib/server/dao/organization_location.dao.js';
 import * as addressDao from '$lib/server/dao/address.dao.js';
@@ -151,14 +151,8 @@ export async function createEmployee(dto: CreateEmployeeDto) {
             });
 
             // Trigger employee joined notification
-            notificationService.send({
-                title: "New Team Member",
-                body: `${result.first_name} ${result.last_name} has joined the company as a new team member!`,
-                category: "announcement",
-                type: "info",
-                created_by: dto.created_by,
-                target: { type: "broadcast" }
-            }).catch(err => console.error("Failed to send employee joining notification:", err));
+            notificationFactory.employeeJoined(result.first_name, result.last_name, dto.created_by)
+                .catch(err => console.error("Failed to send employee joining notification:", err));
 
             return toPublicEmployee(result);
         } catch (error: any) {

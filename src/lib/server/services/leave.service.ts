@@ -1,6 +1,6 @@
 import * as leaveDao from '$lib/server/dao/leave.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
-import * as notificationService from '$lib/server/services/notification.service.js';
+import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
 import { calculateLeaveDays, isWeekend, isHoliday, getHolidaysCached } from '$lib/server/config/leave.config.js';
 
@@ -899,15 +899,8 @@ export async function withdrawLeaveByCuid(employeeCuid: string, requestCuid: str
 	});
 
 	// Trigger leave withdrawn notification
-	notificationService.send({
-		title: "Leave Request Withdrawn",
-		body: `${employee.first_name} ${employee.last_name} has withdrawn their leave request.`,
-		category: "leave",
-		type: "warning",
-		created_by: actorCuid || employee.cuid,
-		metadata: { link: "/leaves", entityCuid: requestCuid },
-		target: { type: "broadcast" }
-	}).catch(err => console.error("Failed to send leave withdrawn notification:", err));
+	notificationFactory.leaveWithdrawn(employee.first_name, employee.last_name, actorCuid || employee.cuid, requestCuid)
+		.catch(err => console.error("Failed to send leave withdrawn notification:", err));
 
 	return result;
 }
@@ -1303,15 +1296,8 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 
 	// Trigger leave applied notification
 	if (request) {
-		notificationService.send({
-			title: "Leave Application Submitted",
-			body: `${employee.first_name} ${employee.last_name} has applied for ${totalDays} day(s) of leave starting on ${startDate instanceof Date ? startDate.toLocaleDateString() : 'N/A'}.`,
-			category: "leave",
-			type: "info",
-			created_by: creatorCuid || employee.cuid,
-			metadata: { link: "/leaves", entityCuid: request.cuid },
-			target: { type: "broadcast" }
-		}).catch(err => console.error("Failed to send leave applied notification:", err));
+		notificationFactory.leaveApplied(employee.first_name, employee.last_name, totalDays, startDate, creatorCuid || employee.cuid, request.cuid)
+			.catch(err => console.error("Failed to send leave applied notification:", err));
 	}
 
 	return request;
@@ -1343,15 +1329,8 @@ export async function withdrawLeave(email: string, requestCuid: string, actorCui
 	});
 
 	// Trigger leave withdrawn notification
-	notificationService.send({
-		title: "Leave Request Withdrawn",
-		body: `${employee.first_name} ${employee.last_name} has withdrawn their leave request.`,
-		category: "leave",
-		type: "warning",
-		created_by: actorCuid || employee.cuid,
-		metadata: { link: "/leaves", entityCuid: requestCuid },
-		target: { type: "broadcast" }
-	}).catch(err => console.error("Failed to send leave withdrawn notification:", err));
+	notificationFactory.leaveWithdrawn(employee.first_name, employee.last_name, actorCuid || employee.cuid, requestCuid)
+		.catch(err => console.error("Failed to send leave withdrawn notification:", err));
 
 	return result;
 }
@@ -1519,15 +1498,8 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 		}
 
 		// Trigger leave approved notification
-		notificationService.send({
-			title: "Leave Request Approved",
-			body: `Your leave request for ${request?.total_days ?? 0} day(s) starting on ${request?.start_date instanceof Date ? request.start_date.toLocaleDateString() : 'N/A'} has been approved.`,
-			category: "leave",
-			type: "success",
-			created_by: approverUserCuid,
-			metadata: { link: "/leaves", entityCuid: requestCuid },
-			target: { type: "employee", employeeCuid: request?.employee_cuid }
-		}).catch(err => console.error("Failed to send leave approved notification:", err));
+		notificationFactory.leaveApproved(request?.total_days ?? 0, request?.start_date, approverUserCuid, request?.employee_cuid ?? '', requestCuid)
+			.catch(err => console.error("Failed to send leave approved notification:", err));
 
 		return updatedRequest;
 	});
@@ -1568,15 +1540,8 @@ export async function rejectLeaveRequest(requestCuid: string, rejectorUserCuid: 
 	});
 
 	// Trigger leave rejected notification
-	notificationService.send({
-		title: "Leave Request Rejected",
-		body: `Your leave request for ${request?.total_days ?? 0} day(s) starting on ${request?.start_date instanceof Date ? request.start_date.toLocaleDateString() : 'N/A'} has been rejected.`,
-		category: "leave",
-		type: "error",
-		created_by: rejectorUserCuid,
-		metadata: { link: "/leaves", entityCuid: requestCuid },
-		target: { type: "employee", employeeCuid: request?.employee_cuid }
-	}).catch(err => console.error("Failed to send leave rejected notification:", err));
+	notificationFactory.leaveRejected(request?.total_days ?? 0, request?.start_date, rejectorUserCuid, request?.employee_cuid ?? '', requestCuid)
+		.catch(err => console.error("Failed to send leave rejected notification:", err));
 
 	return result;
 }

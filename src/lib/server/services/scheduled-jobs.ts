@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db.js';
-import * as notificationService from '$lib/server/services/notification.service.js';
+import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 
 /**
  * Runs daily scheduled notification triggers (Birthdays, Work Anniversaries).
@@ -32,13 +32,8 @@ export async function processDailyNotifications() {
 	});
 
 	for (const celebrant of birthdayCelebrants) {
-		await notificationService.send({
-			title: "Happy Birthday!",
-			body: `Wishing ${celebrant.first_name} ${celebrant.last_name} a very Happy Birthday today! 🎂🎉`,
-			category: "birthday",
-			type: "info",
-			target: { type: "broadcast" }
-		}).catch((err) => console.error('Failed to trigger birthday notification:', err));
+		await notificationFactory.birthday(celebrant.first_name, celebrant.last_name)
+			.catch((err) => console.error('Failed to trigger birthday notification:', err));
 	}
 
 	// 3. Fetch employments for anniversary checks
@@ -66,12 +61,7 @@ export async function processDailyNotifications() {
 
 		const years = today.getFullYear() - new Date(emp.date_of_joining!).getUTCFullYear();
 
-		await notificationService.send({
-			title: "Work Anniversary!",
-			body: `Congratulations to ${employee.first_name} ${employee.last_name} on celebrating ${years} year${years > 1 ? 's' : ''} with the company today! 🏅✨`,
-			category: "announcement",
-			type: "info",
-			target: { type: "broadcast" }
-		}).catch((err) => console.error('Failed to trigger work anniversary notification:', err));
+		await notificationFactory.workAnniversary(employee.first_name, employee.last_name, years)
+			.catch((err) => console.error('Failed to trigger work anniversary notification:', err));
 	}
 }

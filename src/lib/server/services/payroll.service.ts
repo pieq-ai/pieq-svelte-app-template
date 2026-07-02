@@ -1,5 +1,5 @@
 import * as dao from '$lib/server/dao/payroll.dao.js';
-import * as notificationService from '$lib/server/services/notification.service.js';
+import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import * as uploadDao from '$lib/server/dao/payroll-upload.dao.js';
 import * as recordDao from '$lib/server/dao/payroll-upload-record.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
@@ -385,26 +385,11 @@ export async function uploadPayroll(
 
 	// Trigger payroll notification
 	if (status === 'failed') {
-		notificationService.send({
-			title: "Payroll Processing Failed",
-			body: `The payroll upload for ${month}/${year} has failed. ${skipped} row(s) failed validation.`,
-			category: "payroll",
-			type: "error",
-			priority: "high",
-			created_by: created_by ?? null,
-			metadata: { link: `/payrolls/${uploadRecord.cuid}` },
-			target: { type: "broadcast" }
-		}).catch(err => console.error("Failed to send payroll failed notification:", err));
+		notificationFactory.payrollFailed(month, year, skipped, uploadRecord.cuid, created_by)
+			.catch(err => console.error("Failed to send payroll failed notification:", err));
 	} else {
-		notificationService.send({
-			title: "Payroll Processed",
-			body: `Payroll slips for ${month}/${year} have been uploaded and processed.`,
-			category: "payroll",
-			type: "success",
-			created_by: created_by ?? null,
-			metadata: { link: "/payrolls" },
-			target: { type: "broadcast" }
-		}).catch(err => console.error("Failed to send payroll processed notification:", err));
+		notificationFactory.payrollProcessed(month, year, created_by)
+			.catch(err => console.error("Failed to send payroll processed notification:", err));
 	}
 
 		return { created, skipped, errors, upload_cuid: uploadRecord.cuid };
