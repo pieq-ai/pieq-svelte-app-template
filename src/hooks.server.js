@@ -1,7 +1,7 @@
 import { sequence } from '@sveltejs/kit/hooks';
 import { redirect } from '@sveltejs/kit';
 import { handle as authHandle } from '$lib/server/auth.js';
-
+import * as authUserService from '$lib/server/services/auth-user.service.js';
 
 if (typeof BigInt !== 'undefined') {
 	BigInt.prototype.toJSON = function () {
@@ -15,12 +15,25 @@ const injectLocals = async ({ event, resolve }) => {
     console.log("[DIAG-3] hooks.server.js session:", { userId: session?.user?.id, email: session?.user?.email });
 
 	if (session?.user?.id) {
+		let hrmsContext = null;
+		/** @type {string[]} */
+		let permissions = [];
+
+		try {
+			hrmsContext = await authUserService.syncAuthenticatedUser(session.user.id, session.user.email ?? undefined);
+			if (hrmsContext) {
+				permissions = hrmsContext.permissions || [];
+			}
+		} catch (err) {
+			console.error('[HOOKS] Error fetching HRMS context/permissions:', err);
+		}
+
 		event.locals.user = {
 			id: session.user.id,
 			email: session.user.email ?? '',
 			name: session.user.name ?? null,
-			...session.hrmsContext,
-			permissions: session.permissions ?? [],
+			...hrmsContext,
+			permissions,
 			idToken: session.oidcUser?.id_token
 		};
 		event.locals.roles = session.roles ?? [];

@@ -11,6 +11,7 @@ export interface AuthContext {
     system_role_cuid: string;
     system_role_name: string | null;
     profile_completion_status: string;
+    permissions: string[];
 }
 
 export async function syncAuthenticatedUser(keycloak_sub: string, email?: string): Promise<AuthContext> {
@@ -46,7 +47,8 @@ export async function syncAuthenticatedUser(keycloak_sub: string, email?: string
             official_email: 'bootstrap@local',
             system_role_cuid: 'bootstrap-role-cuid',
             system_role_name: 'Bootstrap Admin',
-            profile_completion_status: 'completed'
+            profile_completion_status: 'completed',
+            permissions: ['*']
         };
     }
 
@@ -66,7 +68,8 @@ export async function syncAuthenticatedUser(keycloak_sub: string, email?: string
         official_email: userRow.official_email,
         system_role_cuid: userRow.system_role_cuid,
         system_role_name: userRow.system_role_name,
-        profile_completion_status: userRow.profile_completion_status
+        profile_completion_status: userRow.profile_completion_status,
+        permissions: userRow.permissions || []
     };
     console.log("[DIAG-6] syncAuthenticatedUser Return:", returnObj);
     return returnObj;

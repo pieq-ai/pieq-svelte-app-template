@@ -57,14 +57,3 @@ export async function removeByRoleAndPermission(system_role_cuid: string, permis
 		}
 	});
 }
-
-export async function getPermissionKeysForRole(system_role_cuid: string): Promise<string[]> {
-    if (!system_role_cuid) return [];
-    const rows = await db.$queryRaw`
-        SELECT p.permission_key
-        FROM role_permissions rp
-        JOIN permissions p ON rp.permission_cuid = p.cuid
-        WHERE rp.system_role_cuid = ${system_role_cuid} AND p.status = true;
-    `;
-    return (rows as any[]).map(r => r.permission_key);
-}

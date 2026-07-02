@@ -35,15 +35,11 @@ declare global {
 declare module '@auth/core/types' {
 	interface Session {
 		roles?: string[];
-		permissions?: string[];
-		hrmsContext?: import('$lib/server/services/auth-user.service').AuthContext | null;
 		oidcUser?: OidcUserStorage;
 	}
 
 	interface JWT {
 		roles?: string[];
-		permissions?: string[];
-		hrmsContext?: import('$lib/server/services/auth-user.service').AuthContext | null;
 		oidcUser?: OidcUserStorage;
 	}
 }

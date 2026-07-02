@@ -13,7 +13,13 @@ export async function findAuthUserByKeycloakSub(keycloak_sub: string) {
             e.official_email,
             e.keycloak_sub,
             sr.cuid as system_role_cuid,
-            sr.name as system_role_name
+            sr.name as system_role_name,
+            COALESCE(
+                (SELECT json_agg(p.permission_key) 
+                 FROM role_permissions rp 
+                 JOIN permissions p ON p.cuid = rp.permission_cuid 
+                 WHERE rp.system_role_cuid = sr.cuid), 
+            '[]'::json) as permissions
         FROM employments e
         JOIN employees emp ON e.employee_cuid = emp.cuid
         LEFT JOIN system_roles sr ON e.system_role_cuid = sr.cuid
@@ -39,7 +45,13 @@ export async function findAuthUserByEmail(email: string) {
             e.official_email,
             e.keycloak_sub,
             sr.cuid as system_role_cuid,
-            sr.name as system_role_name
+            sr.name as system_role_name,
+            COALESCE(
+                (SELECT json_agg(p.permission_key) 
+                 FROM role_permissions rp 
+                 JOIN permissions p ON p.cuid = rp.permission_cuid 
+                 WHERE rp.system_role_cuid = sr.cuid), 
+            '[]'::json) as permissions
         FROM employments e
         JOIN employees emp ON e.employee_cuid = emp.cuid
         LEFT JOIN system_roles sr ON e.system_role_cuid = sr.cuid
