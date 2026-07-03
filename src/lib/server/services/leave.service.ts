@@ -27,8 +27,9 @@ export interface ApplyLeaveInput {
  * Falls back to the first employee in the database during local dev/testing.
  */
 export async function resolveEmployee(email: string) {
-	if (email) {
-		const employment = await employeeDao.getActiveEmploymentByOfficialEmail(email);
+	const normalizedEmail = email?.toLowerCase().trim();
+	if (normalizedEmail) {
+		const employment = await employeeDao.getActiveEmploymentByOfficialEmail(normalizedEmail);
 		if (employment) {
 			const employee = await employeeDao.getEmployeeByCuid(employment.employee_cuid);
 			if (employee) {
@@ -36,7 +37,7 @@ export async function resolveEmployee(email: string) {
 			}
 		}
 
-		const employeeByPersonal = await employeeDao.getEmployeeByPersonalEmail(email);
+		const employeeByPersonal = await employeeDao.getEmployeeByPersonalEmail(normalizedEmail);
 		if (employeeByPersonal) {
 			const employment = await leaveDao.getActiveEmploymentByEmployeeCuid(employeeByPersonal.cuid);
 			return { employee: employeeByPersonal, employment: employment ?? null };
@@ -44,7 +45,7 @@ export async function resolveEmployee(email: string) {
 	}
 
 	// Falls back to the first employee in the database during local dev/testing.
-	if (process.env.NODE_ENV !== 'production' || !email) {
+	if (process.env.NODE_ENV !== 'production' || !normalizedEmail) {
 		const firstEmployee = await employeeDao.getFirstEmployee();
 		if (firstEmployee) {
 			const employment = await leaveDao.getActiveEmploymentByEmployeeCuid(firstEmployee.cuid);
@@ -52,7 +53,7 @@ export async function resolveEmployee(email: string) {
 		}
 	}
 
-	throw new Error(`Employee record not found for email "${email}"`);
+	throw new Error(`Employee record not found for email "${normalizedEmail}"`);
 }
 
 /**
