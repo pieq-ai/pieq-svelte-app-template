@@ -455,7 +455,7 @@
                     <span>Absent</span>
                   </div>
                   <span class="text-base font-extrabold"
-                    >{(data.managerContext.metrics.totalMembers ?? 0) - (data.managerContext.metrics.present ?? 0)}</span
+                    >{data.managerContext.todayPresence.absent}</span
                   >
                 </li>
               </ul>

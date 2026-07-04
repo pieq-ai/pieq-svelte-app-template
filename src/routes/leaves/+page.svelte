@@ -540,7 +540,7 @@
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Failed to update cutoff setting");
+        throw new Error(data.data?.error || data.error || "Failed to update cutoff setting");
       }
       payrollCutoffDay = data.data.payroll_cutoff;
       selectedCutoff = payrollCutoffDay;

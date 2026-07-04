@@ -1110,7 +1110,6 @@ model ShiftAssignment {
 model Settings {
   id              BigInt   @id @default(autoincrement())
   cuid            String   @unique @default(cuid())
-  payroll_cutoff  Int?
   name            String?  @db.VarChar(100) @default("payroll_cutoff")
   configuration   Json?
 

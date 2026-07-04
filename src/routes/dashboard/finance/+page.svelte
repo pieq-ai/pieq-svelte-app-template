@@ -12,6 +12,7 @@
 	import FileTextIcon from '@lucide/svelte/icons/file-text';
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
+	import SparklesIcon from '@lucide/svelte/icons/sparkles';
 
 	let { data } = $props();
 
@@ -129,7 +130,7 @@
 	<AttendanceWidget employee={data.employee} activeShift={data.activeShift} todayAttendance={data.todayAttendance} />
 
 	<!-- Metrics Cards Row -->
-	<section class="grid grid-cols-1 md:grid-cols-3 gap-5">
+	<section class="grid grid-cols-2 md:grid-cols-4 gap-5">
 		<!-- Total Employees -->
 		<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs space-y-2">
 			<div class="flex items-center gap-2 text-neutral-400">
@@ -184,6 +185,20 @@
 				{/if}
 			</div>
 		</div>
+
+		<!-- Holidays -->
+		<a href="/holidays" class="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs space-y-2 decoration-none block hover:-translate-y-0.5 transition-all duration-200">
+			<div class="flex items-center gap-2 text-neutral-400">
+				<SparklesIcon class="size-4 shrink-0" />
+				<span class="text-xs font-bold uppercase tracking-wider">Holidays</span>
+			</div>
+			<div class="text-3xl font-black text-neutral-800">
+				{String(data.stats?.upcomingHolidaysCount ?? 0).padStart(2, '0')}
+			</div>
+			<div class="flex items-center gap-1 text-[11px] font-bold text-orange-600">
+				<span>View Holiday Calendar</span>
+			</div>
+		</a>
 	</section>
 
 	<!-- Payroll Summary & Pie Chart Section -->

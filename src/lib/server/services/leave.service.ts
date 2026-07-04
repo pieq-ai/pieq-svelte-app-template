@@ -37,7 +37,7 @@ export async function resolveEmployee(email: string) {
 		});
 		if (employment) {
 			const employee = await employeeDao.getEmployeeByCuid(employment.employee_cuid);
-			if (employee) {
+			if (employee && !employee.is_deleted) {
 				return { employee, employment };
 			}
 		}

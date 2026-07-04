@@ -41,7 +41,6 @@ export async function updateSettings(payrollCutoff: number, userId?: string | nu
 	return client.settings.update({
 		where: { cuid: latest.cuid },
 		data: {
-			payroll_cutoff: payrollCutoff,
 			configuration: { payroll_cut_off_date: payrollCutoff },
 			updated_by: userId ?? null
 		}
@@ -68,15 +67,11 @@ export async function getSettingByName(name: string, tx?: any) {
 export async function saveSetting(name: string, configuration: any, userId?: string | null, tx?: any) {
 	const client = tx || db;
 	if (name === 'payroll_cutoff') {
-		const payrollCutoff = typeof configuration === 'object' && configuration !== null
-			? (configuration.payroll_cut_off_date ?? null)
-			: null;
 		const latest = await getSettings(client);
 		return client.settings.update({
 			where: { cuid: latest.cuid },
 			data: {
 				configuration,
-				payroll_cutoff: payrollCutoff,
 				updated_by: userId ?? null
 			}
 		});

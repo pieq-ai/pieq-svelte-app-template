@@ -131,15 +131,15 @@ describe('Leave Service Unit Tests', () => {
 
 		mockPayrollCutoff = 25;
 		vi.mocked(db.settings.findFirst as any).mockImplementation(async () => {
-			return { id: 1n, cuid: 'settings-cuid', payroll_cutoff: mockPayrollCutoff, configuration: { payroll_cut_off_date: mockPayrollCutoff }, created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null };
+			return { id: 1n, cuid: 'settings-cuid', configuration: { payroll_cut_off_date: mockPayrollCutoff }, created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null };
 		});
 		vi.mocked(db.settings.create as any).mockImplementation(async (args: any) => {
-			mockPayrollCutoff = args.data?.payroll_cutoff ?? 25;
-			return { id: 1n, cuid: 'settings-cuid', payroll_cutoff: mockPayrollCutoff, configuration: { payroll_cut_off_date: mockPayrollCutoff }, created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null };
+			mockPayrollCutoff = args.data?.configuration?.payroll_cut_off_date ?? 25;
+			return { id: 1n, cuid: 'settings-cuid', configuration: { payroll_cut_off_date: mockPayrollCutoff }, created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null };
 		});
 		vi.mocked(db.settings.update as any).mockImplementation(async (args: any) => {
-			mockPayrollCutoff = args.data?.payroll_cutoff ?? mockPayrollCutoff;
-			return { id: 1n, cuid: 'settings-cuid', payroll_cutoff: mockPayrollCutoff, configuration: { payroll_cut_off_date: mockPayrollCutoff }, created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null };
+			mockPayrollCutoff = args.data?.configuration?.payroll_cut_off_date ?? mockPayrollCutoff;
+			return { id: 1n, cuid: 'settings-cuid', configuration: { payroll_cut_off_date: mockPayrollCutoff }, created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null };
 		});
 
 		// Default DB mocks

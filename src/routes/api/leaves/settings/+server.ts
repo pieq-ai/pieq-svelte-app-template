@@ -19,15 +19,27 @@ export async function POST(event: RequestEvent) {
 	try {
 		permissionGuard.requireAuth(event.locals.user);
 		const email = event.locals.user?.email || '';
+		const roles = event.locals.roles || [];
 
-		const { employee } = await leaveService.resolveEmployee(email);
-		if (!employee) {
-			return json({ error: 'Employee not found' }, { status: 404 });
+		let isAllowed = false;
+		if (roles.includes('admin')) {
+			isAllowed = true;
+		} else {
+			try {
+				const { employee } = await leaveService.resolveEmployee(email);
+				if (employee) {
+					const { isManager } = await leaveService.getEmployeeLeaveDetails(email, new Date().getFullYear());
+					if (isManager) {
+						isAllowed = true;
+					}
+				}
+			} catch (err) {
+				// employee or manager resolve failed
+			}
 		}
 
-		const { isManager } = await leaveService.getEmployeeLeaveDetails(email, new Date().getFullYear());
-		if (!isManager) {
-			return json({ error: 'Unauthorized: Only managers can modify payroll cutoff settings' }, { status: 403 });
+		if (!isAllowed) {
+			return json({ error: 'Unauthorized: Only managers and admins can modify payroll cutoff settings' }, { status: 403 });
 		}
 
 		const body = await event.request.json();

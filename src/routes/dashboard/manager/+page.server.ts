@@ -73,7 +73,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		}
 		if (employment.reporting_manager_cuid) {
 			const mgr = await employeeDao.getEmployeeByCuid(employment.reporting_manager_cuid);
-			if (mgr) reportingManagerName = `${mgr.first_name} ${mgr.last_name}`;
+			if (mgr && !mgr.is_deleted) reportingManagerName = `${mgr.first_name} ${mgr.last_name}`;
 		}
 	}
 
@@ -217,6 +217,18 @@ export const load: PageServerLoad = async ({ locals }) => {
 		}
 	});
 
+	if (subordinatesEmploymentList.length > 0) {
+		const activeSubordinates = await db.employee.findMany({
+			where: {
+				cuid: { in: subordinatesEmploymentList.map((s) => s.employee_cuid) },
+				is_deleted: false
+			},
+			select: { cuid: true }
+		});
+		const activeSubordinateCuidsSet = new Set(activeSubordinates.map((e) => e.cuid));
+		subordinatesEmploymentList = subordinatesEmploymentList.filter((s) => activeSubordinateCuidsSet.has(s.employee_cuid));
+	}
+
 	let previewDepartmentName = departmentName;
 	let previewDesignationName = designationName;
 	let previewManagerEmpCode = employee.emp_code;
@@ -239,6 +251,18 @@ export const load: PageServerLoad = async ({ locals }) => {
 					employment_status: { in: ['active', 'onboarding'] }
 				}
 			});
+
+			if (subordinatesEmploymentList.length > 0) {
+				const activeSubordinates = await db.employee.findMany({
+					where: {
+						cuid: { in: subordinatesEmploymentList.map((s) => s.employee_cuid) },
+						is_deleted: false
+					},
+					select: { cuid: true }
+				});
+				const activeSubordinateCuidsSet = new Set(activeSubordinates.map((e) => e.cuid));
+				subordinatesEmploymentList = subordinatesEmploymentList.filter((s) => activeSubordinateCuidsSet.has(s.employee_cuid));
+			}
 
 			const previewMgrEmp = await db.employee.findUnique({
 				where: { cuid: managerCuidForLookup }
@@ -348,9 +372,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 		// Compute metrics count
 		let totalMembersCount = subordinateEmployees.length;
-		let presentCount = 0;
-		let wfhCount = 0;
-		let onLeaveCount = activeLeavesMap.size;
 
 		// Map subordinate profiles to daily list
 		const teamAttendanceList = subordinateEmployees.map((emp) => {
@@ -369,7 +390,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 				if (rec.status === 'WFH') {
 					status = 'WFH';
-					wfhCount++;
 				} else if (rec.status === 'Leave' || rec.status === 'On Leave' || rec.status === 'LOP') {
 					status = 'On Leave';
 				} else {
@@ -387,7 +407,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 					} else {
 						status = 'On-Time';
 					}
-					presentCount++;
 				}
 			} else if (activeLeavesMap.has(emp.cuid)) {
 				status = 'On Leave';
@@ -402,6 +421,23 @@ export const load: PageServerLoad = async ({ locals }) => {
 				status
 			};
 		});
+
+		let presentCount = 0;
+		let wfhCount = 0;
+		let onLeaveCount = 0;
+		let absentCount = 0;
+
+		for (const member of teamAttendanceList) {
+			if (member.status === 'On-Time' || member.status === 'Late In') {
+				presentCount++;
+			} else if (member.status === 'WFH') {
+				wfhCount++;
+			} else if (member.status === 'On Leave') {
+				onLeaveCount++;
+			} else {
+				absentCount++;
+			}
+		}
 
 		// Fetch approvals count (subordinate pending requests)
 		const pendingApprovalsCount = await db.leaveRequest.count({
@@ -518,14 +554,15 @@ export const load: PageServerLoad = async ({ locals }) => {
 			teamName: managerTeamName,
 			metrics: {
 				totalMembers: totalMembersCount,
-				present: presentCount,
+				present: presentCount + wfhCount,
 				onLeave: onLeaveCount,
 				approvals: pendingApprovalsCount,
 				holidays: upcomingHolidaysCount
 			},
 			todayPresence: {
-				present: presentCount,
-				wfh: wfhCount
+				present: presentCount + wfhCount,
+				wfh: wfhCount,
+				absent: absentCount
 			},
 			teamAttendance: teamAttendanceList,
 			leaveRequests: mappedLeaveRequests,

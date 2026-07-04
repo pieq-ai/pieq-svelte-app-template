@@ -84,7 +84,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		}
 		if (employment.reporting_manager_cuid) {
 			const mgr = await employeeDao.getEmployeeByCuid(employment.reporting_manager_cuid);
-			if (mgr) reportingManagerName = `${mgr.first_name} ${mgr.last_name}`;
+			if (mgr && !mgr.is_deleted) reportingManagerName = `${mgr.first_name} ${mgr.last_name}`;
 		}
 	}
 
@@ -288,10 +288,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 			}
 		});
 
-		const teamEmployeeCuids = teamEmployments.map((e) => e.employee_cuid);
+		const uniqueTeamEmployeeCuids = [...new Set(teamEmployments.map((e) => e.employee_cuid))];
 		const teamEmployees = await db.employee.findMany({
 			where: {
-				cuid: { in: teamEmployeeCuids },
+				cuid: { in: uniqueTeamEmployeeCuids },
 				is_deleted: false
 			},
 			select: {
@@ -310,10 +310,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 		const desigMap = new Map(designations.map((d) => [d.cuid, d.name]));
 		const roleMap = new Map(roles.map((r) => [r.cuid, r.name]));
 
-		teamMembers = teamEmployments
-			.map((emp) => {
-				const profile = teamEmployees.find((e) => e.cuid === emp.employee_cuid);
-				if (!profile) return null;
+		teamMembers = teamEmployees
+			.map((profile) => {
+				const emp = teamEmployments.find((e) => e.employee_cuid === profile.cuid);
+				if (!emp) return null;
 				return {
 					cuid: profile.cuid,
 					name: `${profile.first_name} ${profile.last_name}`,
@@ -326,13 +326,20 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	// 9. Determine if this employee is a manager (has active subordinates)
-	const subordinatesCount = await db.employment.count({
+	const subordinatesEmployments = await db.employment.findMany({
 		where: {
 			reporting_manager_cuid: employee.cuid,
 			employment_status: { in: ['active', 'onboarding'] }
+		},
+		select: { employee_cuid: true }
+	});
+	const activeSubordinatesCount = await db.employee.count({
+		where: {
+			cuid: { in: subordinatesEmployments.map(e => e.employee_cuid) },
+			is_deleted: false
 		}
 	});
-	const isManager = subordinatesCount > 0;
+	const isManager = activeSubordinatesCount > 0;
 
 	// 10. Fetch latest payroll record to check for payslips
 	const latestPayroll = await db.payroll.findFirst({

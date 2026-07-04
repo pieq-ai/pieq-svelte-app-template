@@ -4,6 +4,7 @@ import { resolveEmployee } from '$lib/server/services/leave.service.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as departmentDao from '$lib/server/dao/department.dao.js';
 import * as designationDao from '$lib/server/dao/designation.dao.js';
+import * as holidayDao from '$lib/server/dao/holiday.dao.js';
 import { getTodayStatus } from '$lib/server/services/attendance.service.js';
 import { db } from '$lib/server/db.js';
 
@@ -58,7 +59,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		}
 		if (employment.reporting_manager_cuid) {
 			const mgr = await employeeDao.getEmployeeByCuid(employment.reporting_manager_cuid);
-			if (mgr) reportingManagerName = `${mgr.first_name} ${mgr.last_name}`;
+			if (mgr && !mgr.is_deleted) reportingManagerName = `${mgr.first_name} ${mgr.last_name}`;
 		}
 	}
 
@@ -282,11 +283,18 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		}
 	});
 
+	// Fetch Upcoming Holidays
+	const holidaysList = await holidayDao.list();
+	const upcomingHolidays = holidaysList
+		.filter((h) => new Date(h.date) >= todayUTC)
+		.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+	const upcomingHolidaysCount = upcomingHolidays.length;
+
 	// Today's Attendance count
 	const presentToday = await db.attendanceRecord.count({
 		where: {
 			date: todayUTC,
-			status: { in: ['present', 'wfh', 'half_day'] }
+			status: { in: ['Present', 'present', 'WFH', 'wfh', 'HalfDay', 'half_day', 'Half Day'] }
 		}
 	});
 	const attendancePercentage = totalEmployees > 0 ? (presentToday / totalEmployees) * 100 : 0;
@@ -316,7 +324,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			expenses,
 			expensesTrend,
 			deductions,
-			deductionsTrend
+			deductionsTrend,
+			upcomingHolidaysCount
 		},
 		breakdown: {
 			basicSalary,
