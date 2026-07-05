@@ -1,4 +1,5 @@
 import * as dao from '$lib/server/dao/payroll.dao.js';
+import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import * as uploadDao from '$lib/server/dao/payroll-upload.dao.js';
 import * as recordDao from '$lib/server/dao/payroll-upload-record.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
@@ -378,9 +379,18 @@ export async function uploadPayroll(
 			}
 		}
 
-		// Step 3: Update upload batch with final count and status
-		const status = skipped > 0 && created === 0 ? 'failed' : skipped > 0 ? 'partial' : 'processed';
-		await uploadDao.updateEmployeeCount(uploadRecord.cuid, created, status, null, tx);
+	// Step 3: Update upload batch with final count and status
+	const status = skipped > 0 && created === 0 ? 'failed' : skipped > 0 ? 'partial' : 'processed';
+	await uploadDao.updateEmployeeCount(uploadRecord.cuid, created, status, null, tx);
+
+	// Trigger payroll notification
+	if (status === 'failed') {
+		notificationFactory.payrollFailed(month, year, skipped, uploadRecord.cuid, created_by)
+			.catch(err => console.error("Failed to send payroll failed notification:", err));
+	} else {
+		notificationFactory.payrollProcessed(month, year, created_by)
+			.catch(err => console.error("Failed to send payroll processed notification:", err));
+	}
 
 		return { created, skipped, errors, upload_cuid: uploadRecord.cuid };
 	});

@@ -3,6 +3,7 @@
 	import favicon from '$lib/assets/favicon.svg'
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
 	import { Button } from '$lib/components';
+	import NotificationBell from '$lib/components/common/NotificationBell.svelte';
 	import Toaster from '$lib/components/ui/toaster.svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
@@ -508,9 +509,20 @@
 		</div>
 	</aside>
 
-	<main class="min-h-screen flex-1 min-w-0 px-6 py-6">
-		{@render children()}
-	</main>
+	<div class="flex flex-col flex-1 min-w-0 relative">
+		{#if authenticatedUser && 
+			$page.url.pathname !== '/notifications' && 
+			$page.url.pathname !== '/notifications/' && 
+			!$page.url.pathname.startsWith('/payroll-records') && 
+			!$page.url.pathname.startsWith('/payrolls/')}
+			<div class="absolute top-[28px] right-[32px] max-sm:top-[20px] max-sm:right-[20px] z-50">
+				<NotificationBell />
+			</div>
+		{/if}
+		<main class="grow min-w-0 px-8 py-6 max-sm:px-4 max-sm:py-4 overflow-y-auto">
+			{@render children()}
+		</main>
+	</div>
 </div>
 
 <ConfirmModal 

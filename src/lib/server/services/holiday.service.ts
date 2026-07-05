@@ -1,4 +1,5 @@
 import * as holidayDao from '$lib/server/dao/holiday.dao.js';
+import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import { invalidateHolidayCache } from '$lib/server/config/leave.config.js';
 
 export const HOLIDAY_NAME_MAX_LENGTH = 200;
@@ -181,6 +182,11 @@ export async function createHoliday(input: CreateHolidayInput) {
 
 	const result = await holidayDao.create({ name: holiday_name, date: holiday_date, type: holiday_type, created_by: input.created_by, updated_by: input.updated_by });
 	invalidateHolidayCache();
+
+	// Trigger holiday added notification
+	notificationFactory.holidayCreated(result.name, result.date, input.created_by)
+		.catch(err => console.error("Failed to send holiday created notification:", err));
+
 	return result;
 }
 
