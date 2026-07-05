@@ -135,13 +135,6 @@
             <PlusIcon class="size-4" />
             <span>Approve Requests</span>
           </a>
-          <a
-            href="/shift-assignments"
-            class="flex items-center gap-2 bg-white border border-neutral-250 text-neutral-700 hover:bg-neutral-50 text-sm font-bold px-5 py-3 rounded-2xl shadow-xs transition-colors decoration-none"
-          >
-            <LayoutGridIcon class="size-4 text-neutral-500" />
-            <span>Shift Assignment</span>
-          </a>
         </div>
       </section>
 
@@ -509,13 +502,13 @@
             </div>
           </div>
 
-          <!-- Upcoming Events Widget -->
+          <!-- Holiday Calendar Widget -->
           <div
             class="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs"
           >
             <div class="flex items-center justify-between mb-5">
               <h3 class="text-base font-bold text-neutral-900">
-                Upcoming Events
+                Holiday Calendar
               </h3>
               <a
                 href="/holidays"
@@ -574,7 +567,7 @@
                 <p
                   class="text-xs font-semibold text-neutral-400 text-center py-4"
                 >
-                  No upcoming events scheduled.
+                  No upcoming holidays scheduled.
                 </p>
               {/each}
             </div>

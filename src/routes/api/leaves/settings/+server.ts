@@ -48,7 +48,19 @@ export async function POST(event: RequestEvent) {
 			return json({ error: 'Invalid payroll cutoff day. Must be between 1 and 28.' }, { status: 400 });
 		}
 
-		await leaveService.setPayrollCutoffDay(cutoffDay, event.locals.user?.id);
+		let updaterCuid: string | null = null;
+		if (event.locals.user?.email) {
+			try {
+				const resolved = await leaveService.resolveEmployee(event.locals.user.email);
+				updaterCuid = resolved?.employee?.cuid ?? event.locals.user.id;
+			} catch (err) {
+				updaterCuid = event.locals.user.id;
+			}
+		} else {
+			updaterCuid = event.locals.user?.id ?? null;
+		}
+
+		await leaveService.setPayrollCutoffDay(cutoffDay, updaterCuid);
 
 		return json({ data: { payroll_cutoff: cutoffDay } });
 	} catch (error) {

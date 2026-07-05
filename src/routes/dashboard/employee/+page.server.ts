@@ -214,51 +214,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const upcomingHolidaysCount = upcomingHolidays.length;
 
-	// 7. Compute Upcoming Events Feed (Top 5: Holidays & Coworker Birthdays)
-	const upcomingHolidaysList = upcomingHolidays.slice(0, 3).map((h) => ({
+	// 7. Compute Upcoming Events Feed (Top 5: Holidays)
+	const upcomingEvents = upcomingHolidays.slice(0, 5).map((h) => ({
 		type: 'holiday',
 		name: h.name,
 		date: h.date.toISOString(),
 		location: h.type === 'National' ? 'All Office Locations' : 'Regional Locations'
 	}));
-
-	const employeesList = await db.employee.findMany({
-		where: { is_deleted: false },
-		select: {
-			cuid: true,
-			first_name: true,
-			last_name: true,
-			dob: true
-		}
-	});
-
-	const currentYear = today.getFullYear();
-	const upcomingBirthdays = [];
-	for (const emp of employeesList) {
-		if (!emp.dob) continue;
-		const dob = new Date(emp.dob);
-		let bdayThisYear = new Date(currentYear, dob.getMonth(), dob.getDate());
-		if (bdayThisYear < todayUTC) {
-			bdayThisYear = new Date(currentYear + 1, dob.getMonth(), dob.getDate());
-		}
-		upcomingBirthdays.push({
-			type: 'birthday',
-			name: `${emp.first_name} ${emp.last_name}`,
-			date: bdayThisYear
-		});
-	}
-
-	upcomingBirthdays.sort((a, b) => a.date.getTime() - b.date.getTime());
-	const upcomingBirthdaysList = upcomingBirthdays.slice(0, 3).map((b) => ({
-		type: 'birthday',
-		name: b.name,
-		date: b.date.toISOString(),
-		location: 'Birthday'
-	}));
-
-	const upcomingEvents = [...upcomingHolidaysList, ...upcomingBirthdaysList]
-		.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-		.slice(0, 5);
 
 	// Date of joining stats
 	let memberSince = '—';

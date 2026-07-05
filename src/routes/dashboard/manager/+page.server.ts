@@ -491,62 +491,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 			};
 		});
 
-		// Merged events for Manager (Holidays, Subordinate Birthdays, Work Anniversaries)
-		const managerHolidaysList = upcomingHolidays.slice(0, 3).map((h) => ({
+		// Fetch only the next 5 upcoming holidays for manager events
+		const managerEvents = upcomingHolidays.slice(0, 5).map((h) => ({
 			type: 'holiday',
 			name: h.name,
 			date: h.date.toISOString(),
 			label: 'Holiday'
 		}));
-
-		const managerBirthdaysList = [];
-		const managerAnniversariesList = [];
-
-		for (const emp of subordinateEmployees) {
-			const empl = subordinateEmploymentMap.get(emp.cuid);
-
-			// Birthdays
-			const fullEmp = await db.employee.findUnique({
-				where: { cuid: emp.cuid },
-				select: { dob: true }
-			});
-
-			if (fullEmp?.dob) {
-				const dob = new Date(fullEmp.dob);
-				let bdayThisYear = new Date(currentYear, dob.getMonth(), dob.getDate());
-				if (bdayThisYear < todayUTC) {
-					bdayThisYear = new Date(currentYear + 1, dob.getMonth(), dob.getDate());
-				}
-				managerBirthdaysList.push({
-					type: 'birthday',
-					name: `${emp.first_name} ${emp.last_name}`,
-					date: bdayThisYear,
-					label: bdayThisYear.toDateString() === todayUTC.toDateString() ? 'Birthday Today' : 'Upcoming Birthday'
-				});
-			}
-
-			// Anniversaries
-			if (empl?.date_of_joining) {
-				const doj = new Date(empl.date_of_joining);
-				let annivThisYear = new Date(currentYear, doj.getMonth(), doj.getDate());
-				if (annivThisYear < todayUTC) {
-					annivThisYear = new Date(currentYear + 1, doj.getMonth(), doj.getDate());
-				}
-				const yearsCount = currentYear - doj.getFullYear();
-				if (yearsCount > 0) {
-					managerAnniversariesList.push({
-						type: 'anniversary',
-						name: `${emp.first_name} ${emp.last_name}`,
-						date: annivThisYear,
-						label: `${yearsCount}-Year Anniversary`
-					});
-				}
-			}
-		}
-
-		const managerEvents = [...managerHolidaysList, ...managerBirthdaysList, ...managerAnniversariesList]
-			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-			.slice(0, 5);
 
 		managerContext = {
 			managerId: previewManagerEmpCode,
