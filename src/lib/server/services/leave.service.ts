@@ -24,8 +24,7 @@ export interface ApplyLeaveInput {
 }
 
 /**
- * Resolves an employee by official email (Employment) or personal email (Employee).
- * Falls back to the first employee in the database during local dev/testing.
+ * Resolves an employee by official email (Employment) from active/onboarding statuses.
  */
 export async function resolveEmployee(email: string) {
 	if (email) {
