@@ -1,3 +1,4 @@
+import type { RequestEvent } from '@sveltejs/kit';
 // src/routes/api/roles/+server.ts
 import { json } from '@sveltejs/kit';
 import * as roleService from '$lib/server/services/role.service.js';
@@ -8,7 +9,7 @@ import { sendList, sendCreated, mapRole } from '$lib/server/response.js';
  * Returns paginated list of roles.
  * Pass ?includeInactive=true to include deactivated roles (used by role management UI).
  */
-export async function GET({ url }) {
+export async function GET({ url }: RequestEvent) {
   try {
     const params = Object.fromEntries(url.searchParams.entries());
     const includeInactive = params.includeInactive === 'true';
@@ -27,7 +28,7 @@ export async function GET({ url }) {
  * POST /api/roles
  * Creates a new role.
  */
-export async function POST({ request, locals }) {
+export async function POST({ request, locals }: RequestEvent) {
 	try {
 		if (request.headers.get('content-type')?.includes('application/json') === false) {
 			return json({ error: 'Content-Type must be application/json' }, { status: 415 });

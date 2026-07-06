@@ -1,3 +1,4 @@
+import type { RequestEvent } from '@sveltejs/kit';
 // src/routes/api/shifts/+server.ts
 import { json } from '@sveltejs/kit';
 import * as shiftService from '$lib/server/services/shift.service.js';
@@ -8,7 +9,7 @@ import { sendList, sendCreated, mapShift } from '$lib/server/response.js';
  * Returns paginated list of shifts.
  * Pass ?includeInactive=true to include deactivated shifts.
  */
-export async function GET({ url }) {
+export async function GET({ url }: RequestEvent) {
   try {
     const params = Object.fromEntries(url.searchParams.entries());
     const includeInactive = params.includeInactive === 'true';
@@ -27,7 +28,7 @@ export async function GET({ url }) {
  * POST /api/shifts
  * Creates a new shift.
  */
-export async function POST({ request, locals }) {
+export async function POST({ request, locals }: RequestEvent) {
   try {
     const contentType = request.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {

@@ -40,6 +40,11 @@ vi.mock('$lib/server/db.js', () => {
 			findMany: vi.fn().mockResolvedValue([]),
 			findFirst: vi.fn()
 		},
+		settings: {
+			findFirst: vi.fn(),
+			create: vi.fn(),
+			update: vi.fn()
+		},
 		$transaction: vi.fn()
 	};
 	return { db: mockDb };
@@ -117,10 +122,25 @@ describe('Leave Service Unit Tests', () => {
 		'cuid-lop': { cuid: 'p-lop', leave_type_cuid: 'cuid-lop', annual_limit: 365, max_per_month: null, carry_forward_allowed: false, min_service_days: 0, allow_half_day: false, gender_specific: false, status: true }
 	};
 
+	let mockPayrollCutoff = 25;
+
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date('2026-06-15T12:00:00.000Z'));
 		vi.clearAllMocks();
+
+		mockPayrollCutoff = 25;
+		vi.mocked(db.settings.findFirst as any).mockImplementation(async () => {
+			return { id: 1n, cuid: 'settings-cuid', configuration: { payroll_cut_off_date: mockPayrollCutoff }, created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null };
+		});
+		vi.mocked(db.settings.create as any).mockImplementation(async (args: any) => {
+			mockPayrollCutoff = args.data?.configuration?.payroll_cut_off_date ?? 25;
+			return { id: 1n, cuid: 'settings-cuid', configuration: { payroll_cut_off_date: mockPayrollCutoff }, created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null };
+		});
+		vi.mocked(db.settings.update as any).mockImplementation(async (args: any) => {
+			mockPayrollCutoff = args.data?.configuration?.payroll_cut_off_date ?? mockPayrollCutoff;
+			return { id: 1n, cuid: 'settings-cuid', configuration: { payroll_cut_off_date: mockPayrollCutoff }, created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null };
+		});
 
 		// Default DB mocks
 		vi.mocked(db.employment.findFirst).mockResolvedValue(mockEmployment as any);
@@ -317,25 +337,18 @@ describe('Leave Service Unit Tests', () => {
 			expect(result.employment).toEqual(mockEmployment);
 		});
 
-		it('should resolve employee by personal email', async () => {
-			vi.mocked(db.employment.findFirst)
-				.mockResolvedValueOnce(null) // first check by official email returns null
-				.mockResolvedValueOnce(mockEmployment as any); // second check for personal email's employment returns match
-			vi.mocked(db.employee.findFirst).mockResolvedValueOnce(mockEmployee as any);
-
-			const result = await leaveService.resolveEmployee('john.personal@example.com');
-			expect(result.employee).toEqual(mockEmployee);
-			expect(result.employment).toEqual(mockEmployment);
+		it('should reject employee lookup by personal email', async () => {
+			vi.mocked(db.employment.findFirst).mockResolvedValueOnce(null);
+			await expect(leaveService.resolveEmployee('john.personal@example.com')).rejects.toThrow(
+				'Employee record not found for email "john.personal@example.com"'
+			);
 		});
 
-		it('should fall back to first employee in database if email not matched', async () => {
+		it('should reject when email is not matched', async () => {
 			vi.mocked(db.employment.findFirst).mockResolvedValue(null);
-			vi.mocked(db.employee.findFirst).mockResolvedValueOnce(mockEmployee as any); // fallback
-			vi.mocked(db.employment.findFirst).mockResolvedValueOnce(mockEmployment as any); // fallback employment
-
-			const result = await leaveService.resolveEmployee('unmatched@example.com');
-			expect(result.employee).toEqual(mockEmployee);
-			expect(result.employment).toEqual(mockEmployment);
+			await expect(leaveService.resolveEmployee('unmatched@example.com')).rejects.toThrow(
+				'Employee record not found for email "unmatched@example.com"'
+			);
 		});
 	});
 
@@ -1067,7 +1080,7 @@ describe('Leave Service Unit Tests', () => {
 			expect(db.attendanceRecord.upsert).toHaveBeenCalledTimes(2);
 			expect(db.attendanceRecord.upsert).toHaveBeenNthCalledWith(1, expect.objectContaining({
 				create: expect.objectContaining({
-					attendance_status: 'Absent'
+					attendance_status: 'Leave'
 				})
 			}));
 		});
@@ -1162,7 +1175,7 @@ describe('Leave Service Unit Tests', () => {
 			await expect(leaveService.approveLeaveRequest('req-wfh-conflict', 'mgr-code')).rejects.toThrow("already exists with status 'WFH'");
 		});
 
-		it('should upsert attendance record as Absent for full-day leave and HalfDay for half-day leave', async () => {
+		it('should upsert attendance record as Leave for full-day leave and HalfDay for half-day leave', async () => {
 			const mockRequest = {
 				cuid: 'req-half-day',
 				employee_cuid: 'emp-cuid',
@@ -1529,6 +1542,32 @@ describe('Leave Service Unit Tests', () => {
 			expect(leaveDao.createLeaveRequest).toHaveBeenCalledWith(expect.objectContaining({
 				days_from_primary: 1.0,
 				days_from_lop: 2.0
+			}));
+		});
+
+		it('should automatically split SL request into LOP when primary balance is 1.5 and requesting 3 days', async () => {
+			vi.mocked(leaveDao.getLeaveBalance).mockImplementation(async (empCuid: any, typeCuid: any) => {
+				if (typeCuid === 'cuid-sl') {
+					return { cuid: 'bal-sl', remaining_days: 1.5 } as any;
+				}
+				return null;
+			});
+
+			vi.mocked(db.leaveRequest.findMany as any).mockResolvedValue([
+				{ days_from_primary: 1.5, start_date: new Date('2026-01-10T00:00:00Z'), request_status: 'approved' }
+			]);
+			vi.mocked(leaveDao.createLeaveRequest).mockResolvedValue({ cuid: 'new-req-cuid' } as any);
+
+			await leaveService.applyLeave('john@pieq.ai', {
+				leaveTypeCuid: 'cuid-sl',
+				startDate: '2026-06-15', // Monday
+				endDate: '2026-06-17',   // Wednesday
+				isHalfDay: false
+			});
+
+			expect(leaveDao.createLeaveRequest).toHaveBeenCalledWith(expect.objectContaining({
+				days_from_primary: 1.5,
+				days_from_lop: 1.5
 			}));
 		});
 
@@ -1993,6 +2032,27 @@ describe('Leave Service Unit Tests', () => {
 			expect(mayLop).toBe(3);
 		});
 
+		it('should return correct decimal LOP days in getMonthlyUsedDays', async () => {
+			const splitRequest = {
+				cuid: 'req-split-dec',
+				employee_cuid: 'emp-cuid',
+				leave_type_cuid: 'cuid-sl',
+				start_date: new Date('2026-06-15T00:00:00Z'), // Mon
+				end_date: new Date('2026-06-17T00:00:00Z'),   // Wed — 3 working days
+				total_days: 3.0,
+				is_half_day: false,
+				request_status: 'approved',
+				days_from_primary: 1.5,
+				days_from_lwp: 0.0,
+				days_from_lop: 1.5
+			};
+
+			vi.mocked(db.leaveRequest.findMany as any).mockResolvedValue([splitRequest]);
+
+			const lopUsed = await leaveService.getMonthlyUsedDays('emp-cuid', 5, 2026, 'LOP');
+			expect(lopUsed).toBe(1.5);
+		});
+
 		it('should isolate LOP months correctly in getEmployeeLeaveDetails dashboard', async () => {
 			// Only June LOP should appear in the dashboard LOP card when system date is June 2026
 			const mayRequest = {
@@ -2277,7 +2337,7 @@ describe('Leave Service Unit Tests', () => {
 			};
 
 			vi.mocked(db.leaveRequest.findMany as any).mockResolvedValue([mockRequest]);
-			leaveService.setPayrollCutoffDay(25);
+			await leaveService.setPayrollCutoffDay(25);
 
 			// June LOP (month index 5, cycle May 26 - June 25)
 			const juneLop = await leaveService.getMonthlyUsedDays('emp-cuid', 5, 2026, 'LOP');
@@ -2361,7 +2421,7 @@ describe('Leave Service Unit Tests', () => {
 			};
 
 			vi.mocked(db.leaveRequest.findMany as any).mockResolvedValue([mockRequest1, mockRequest2]);
-			leaveService.setPayrollCutoffDay(25);
+			await leaveService.setPayrollCutoffDay(25);
 
 			// June LOP:
 			// Request 1 LOP days (June 22, 23, 24) = 3 days
@@ -2476,12 +2536,12 @@ describe('Leave Service Unit Tests', () => {
 			expect(fallbackVal).toBe(25);
 
 			// Test configured setting
-			leaveService.setPayrollCutoffDay(20);
+			await leaveService.setPayrollCutoffDay(20);
 			const configuredVal = await leaveService.getPayrollCutoffDay();
 			expect(configuredVal).toBe(20);
 
 			// Reset to default
-			leaveService.setPayrollCutoffDay(25);
+			await leaveService.setPayrollCutoffDay(25);
 		});
 
 		it('should assign LOP days to June or July payroll cycle based on cutoff day 25', async () => {
@@ -2520,7 +2580,7 @@ describe('Leave Service Unit Tests', () => {
 				mockLopRequestJune24,
 				mockLopRequestJune29
 			]);
-			leaveService.setPayrollCutoffDay(25);
+			await leaveService.setPayrollCutoffDay(25);
 
 			// Check LOP for June 2026 (month index 5).
 			// June payroll cycle starts May 26 and ends June 25.

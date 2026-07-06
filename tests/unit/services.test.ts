@@ -224,6 +224,20 @@ describe('Service Layer Unit Tests', () => {
           }
         });
         createdTempType = true;
+      } else {
+        // Ensure a policy exists for the found leave type
+        const policy = await db.leavePolicy.findFirst({
+          where: { leave_type_cuid: leaveType.cuid, status: true }
+        });
+        if (!policy) {
+          await db.leavePolicy.create({
+            data: {
+              leave_type_cuid: leaveType.cuid,
+              annual_limit: 10.0,
+              status: true
+            }
+          });
+        }
       }
 
       // Cleanup any previous overlapping leave requests

@@ -250,6 +250,21 @@
 				const parsed = parseBackendErrors(body);
 				if (parsed.field) {
 					backendErrors = { [parsed.field]: parsed.message };
+				} else if (res.status === 409 || parsed.message.toLowerCase().includes('already exists') || parsed.message.toLowerCase().includes('duplicate')) {
+					const msgLower = parsed.message.toLowerCase();
+					let field = 'emp_code';
+					if (msgLower.includes('email')) {
+						field = 'personal_email';
+					} else if (msgLower.includes('mobile') || msgLower.includes('phone')) {
+						field = 'mobile_no';
+					} else if (msgLower.includes('aadhar')) {
+						field = 'aadhar_no';
+					} else if (msgLower.includes('pan')) {
+						field = 'pan_no';
+					} else if (msgLower.includes('pf')) {
+						field = 'pf_account_no';
+					}
+					backendErrors = { [field]: parsed.message };
 				} else {
 					toast.error(parsed.message);
 				}

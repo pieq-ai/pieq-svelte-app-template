@@ -153,7 +153,7 @@ export async function deleteAssignment(cuid: string, tx?: any): Promise<void> {
 export async function findOverlapping(
   employeeCuid: string,
   start: Date,
-  end: Date,
+  end: Date | null,
   excludeCuid?: string,
   tx?: any
 ): Promise<any | null> {
@@ -162,8 +162,11 @@ export async function findOverlapping(
     where: {
       employee_cuid: employeeCuid,
       status: true,
-      effective_from: { lte: end },
-      effective_to: { gte: start },
+      ...(end ? { effective_from: { lte: end } } : {}),
+      OR: [
+        { effective_to: { gte: start } },
+        { effective_to: null }
+      ],
       ...(excludeCuid ? { NOT: { cuid: excludeCuid } } : {})
     }
   });

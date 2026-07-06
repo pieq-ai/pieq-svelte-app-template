@@ -217,50 +217,40 @@
     fetchDropdowns();
   });
 
-  // Automatically capture coordinates using browser's Geolocation API
-  function captureGeolocation() {
-    if (typeof navigator !== "undefined" && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          formLatitude = position.coords.latitude.toFixed(8);
-          formLongitude = position.coords.longitude.toFixed(8);
-          latitudeError = "";
-          longitudeError = "";
-        },
-        (error) => {
-          console.warn("Geolocation permission denied or failed:", error);
-        },
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-      );
-    }
-  }
+  let isFetchingLocation = $state(false);
 
-  async function captureCoordinates(): Promise<{ latitude: string; longitude: string }> {
-    return new Promise((resolve) => {
-      if (typeof navigator !== "undefined" && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const lat = position.coords.latitude.toFixed(8);
-            const lon = position.coords.longitude.toFixed(8);
-            resolve({ latitude: lat, longitude: lon });
-          },
-          (error) => {
-            console.warn("Error getting geolocation:", error);
-            resolve({ latitude: formLatitude, longitude: formLongitude });
-          },
-          { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-        );
-      } else {
-        resolve({ latitude: formLatitude, longitude: formLongitude });
-      }
-    });
-  }
-
-  $effect(() => {
-    if (open) {
-      captureGeolocation();
+  function handleGetCoordinates() {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser.");
+      return;
     }
-  });
+
+    isFetchingLocation = true;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        formLatitude = position.coords.latitude.toFixed(8);
+        formLongitude = position.coords.longitude.toFixed(8);
+        latitudeError = "";
+        longitudeError = "";
+        isFetchingLocation = false;
+        toast.success("Location coordinates retrieved successfully.");
+      },
+      (error) => {
+        isFetchingLocation = false;
+        console.warn("Geolocation failed:", error);
+        let errorMsg = "Failed to retrieve location coordinates.";
+        if (error.code === error.PERMISSION_DENIED) {
+          errorMsg = "Geolocation permission denied by the browser.";
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          errorMsg = "Location information is unavailable.";
+        } else if (error.code === error.TIMEOUT) {
+          errorMsg = "Location retrieval request timed out.";
+        }
+        toast.error(errorMsg);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }
 
   async function submitForm(e: Event) {
     e.preventDefault();
@@ -399,15 +389,6 @@
     formLoading = true;
     formError = "";
     try {
-      if (typeof navigator !== "undefined" && navigator.geolocation) {
-        try {
-          const coords = await captureCoordinates();
-          formLatitude = coords.latitude;
-          formLongitude = coords.longitude;
-        } catch (err) {
-          console.warn("Latest coordinate capture failed:", err);
-        }
-      }
       const payload: any = {
         name: nameTrimmed,
         address_line1: address1Trimmed,
@@ -791,7 +772,6 @@
             class={latitudeError ? 'border-destructive' : ''}
             placeholder="e.g. 12.9716"
             oninput={() => { latitudeError = ''; }}
-            readonly
           />
           {#if latitudeError}
             <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{latitudeError}</p>
@@ -806,12 +786,28 @@
             class={longitudeError ? 'border-destructive' : ''}
             placeholder="e.g. 77.5946"
             oninput={() => { longitudeError = ''; }}
-            readonly
           />
           {#if longitudeError}
             <p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{longitudeError}</p>
           {/if}
         </div>
+      </div>
+
+      <div class="pt-1">
+        <Button
+          type="button"
+          variant="outline"
+          class="w-full text-xs font-semibold flex items-center justify-center gap-2"
+          onclick={handleGetCoordinates}
+          disabled={isFetchingLocation}
+        >
+          {#if isFetchingLocation}
+            <LoaderCircleIcon class="h-4 w-4 animate-spin" />
+            Fetching Location...
+          {:else}
+            Get Coordinates
+          {/if}
+        </Button>
       </div>
 
       {#if editLocation}
