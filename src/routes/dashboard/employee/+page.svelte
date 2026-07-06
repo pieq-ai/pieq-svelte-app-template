@@ -287,8 +287,16 @@
 				</div>
 
 				<!-- Holiday Calendar Widget -->
-				<a href="/holidays" class="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs decoration-none block cursor-pointer">
-					<h3 class="text-lg font-bold text-neutral-900 mb-5">Holiday Calendar</h3>
+				<div class="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs">
+					<div class="flex items-center justify-between mb-5">
+						<h3 class="text-lg font-bold text-neutral-900">Holiday Calendar</h3>
+						<a
+							href="/holidays"
+							class="text-xs font-bold text-[#F45310] hover:underline decoration-none"
+						>
+							View Calendar
+						</a>
+					</div>
 					<div class="flex flex-col gap-4">
 						{#each data.upcomingEvents as event}
 							<div class="flex items-center justify-between py-1 first:pt-0 last:pb-0">
@@ -319,7 +327,7 @@
 							<p class="text-xs font-semibold text-neutral-400 text-center py-4">No upcoming holidays scheduled.</p>
 						{/each}
 					</div>
-				</a>
+				</div>
 
 			</div>
 		</section>

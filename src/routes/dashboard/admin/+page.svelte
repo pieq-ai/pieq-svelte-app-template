@@ -336,7 +336,7 @@
         </div>
       {:else}
         <div
-          class="flex flex-col md:flex-row items-center justify-around gap-6 py-2"
+          class="flex-1 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-16 py-4 w-full"
         >
           <!-- SVG Donut -->
           <div
@@ -371,23 +371,23 @@
             <div
               class="absolute flex flex-col items-center justify-center text-center"
             >
-              <span class="text-[9px] font-bold text-neutral-800"
+              <span class="text-sm font-extrabold text-neutral-800"
                 >{formatAbbreviatedCurrency(
                   data.stats?.totalPayroll ?? 0,
                 )}</span
               >
               <span
-                class="text-[8px] font-bold text-neutral-400 uppercase tracking-wide mt-0.5"
+                class="text-[9px] font-bold text-neutral-400 uppercase tracking-wide mt-0.5"
                 >Total Payroll</span
               >
             </div>
           </div>
 
           <!-- Legend -->
-          <div class="flex-1 space-y-2.5 w-full">
+          <div class="flex-1 max-w-sm space-y-3 w-full">
             {#each segments as seg}
               <div
-                class="flex items-center justify-between border-b border-neutral-100 pb-1 text-xs"
+                class="flex items-center justify-between border-b border-neutral-100 pb-1.5 text-xs"
               >
                 <div class="flex items-center gap-2">
                   <span

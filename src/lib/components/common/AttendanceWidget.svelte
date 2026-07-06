@@ -2,12 +2,16 @@
 	import { invalidateAll } from '$app/navigation';
 	import { toast } from '$lib/toast';
 	import { onMount } from 'svelte';
+	import ConfirmModal from './ConfirmModal.svelte';
 
 	let { employee, activeShift, todayAttendance } = $props<{
 		employee: any;
 		activeShift: any;
 		todayAttendance: any;
 	}>();
+
+	let showConfirmModal = $state(false);
+	let confirmActionType = $state<'in' | 'out' | null>(null);
 
 	// Geolocation coordinates tracking
 	let gpsLatitude = $state<number | null>(null);
@@ -193,7 +197,10 @@
 					</button>
 				{:else if todayAttendance}
 					<button
-						onclick={handleCheckOut}
+						onclick={() => {
+							confirmActionType = 'out';
+							showConfirmModal = true;
+						}}
 						disabled={isSubmitting || locationPermissionDenied || isLocating}
 						class="px-5 py-2.5 bg-[#F45310] hover:bg-[#D8420B] text-white text-xs font-bold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer"
 					>
@@ -201,7 +208,10 @@
 					</button>
 				{:else}
 					<button
-						onclick={handleCheckIn}
+						onclick={() => {
+							confirmActionType = 'in';
+							showConfirmModal = true;
+						}}
 						disabled={isSubmitting || locationPermissionDenied || isLocating}
 						class="px-5 py-2.5 bg-[#F45310] hover:bg-[#D8420B] text-white text-xs font-bold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer"
 					>
@@ -211,4 +221,26 @@
 			</div>
 		</div>
 	</section>
+
+	<ConfirmModal
+		open={showConfirmModal}
+		title={confirmActionType === 'in' ? 'Confirm Check In' : 'Confirm Check Out'}
+		description={confirmActionType === 'in' ? 'Are you sure you want to check in now?' : 'Are you sure you want to check out now?'}
+		confirmLabel={confirmActionType === 'in' ? 'Check In' : 'Check Out'}
+		cancelLabel="Cancel"
+		isSubmitting={isSubmitting}
+		onCancel={() => {
+			showConfirmModal = false;
+			confirmActionType = null;
+		}}
+		onConfirm={async () => {
+			if (confirmActionType === 'in') {
+				await handleCheckIn();
+			} else if (confirmActionType === 'out') {
+				await handleCheckOut();
+			}
+			showConfirmModal = false;
+			confirmActionType = null;
+		}}
+	/>
 {/if}
