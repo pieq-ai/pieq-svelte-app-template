@@ -67,6 +67,17 @@
 			};
 		});
 	});
+
+	// Dynamic Greeting based on time of day
+	const currentHour = new Date().getHours();
+	const greeting = currentHour < 12 ? 'Good Morning' : (currentHour < 17 ? 'Good Afternoon' : 'Good Evening');
+
+	const formattedTodayDate = new Date().toLocaleDateString('en-US', {
+		weekday: 'long',
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric'
+	});
 </script>
 
 <svelte:head>
@@ -91,26 +102,34 @@
 		</div>
 	</header>
 
-	<!-- Profile header -->
-	<section class="flex items-center gap-4 bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs">
-		<div class="size-12 rounded-full bg-[#FFF4EE] overflow-hidden flex items-center justify-center border border-[#FFE2D3] text-[#F45310] font-bold text-lg">
-			{#if data.employee}
-				{data.employee.first_name[0]}{data.employee.last_name[0]}
-			{:else}
-				FM
-			{/if}
-		</div>
-		<div>
-			<h2 class="text-lg font-bold text-neutral-900 leading-tight">
-				{#if data.employee}
-					{data.employee.first_name} {data.employee.last_name}
-				{:else}
-					Finance Manager
-				{/if}
-			</h2>
-			<p class="text-xs font-semibold text-neutral-400 mt-0.5">Welcome back! 👋</p>
-		</div>
-	</section>
+	{#if data.employee}
+		<!-- Greeting Section & Reporting Manager block -->
+		<section class="flex flex-col md:flex-row md:items-start justify-between gap-6 bg-[#FAF9F6]">
+			<div class="space-y-3">
+				<h2 class="text-4xl font-bold tracking-tight text-neutral-900">
+					{greeting}, {data.employee.first_name}
+				</h2>
+				<p class="text-sm font-medium text-neutral-500">{formattedTodayDate}</p>
+				<div class="flex flex-wrap gap-2 pt-1">
+					<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-neutral-150 text-neutral-700 border border-neutral-200">
+						ID: {data.employee.emp_code}
+					</span>
+					<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-neutral-150 text-neutral-700 border border-neutral-200">
+						{data.employee.department}
+					</span>
+					<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-neutral-150 text-neutral-700 border border-neutral-200">
+						{data.employee.designation}
+					</span>
+				</div>
+			</div>
+
+			<!-- Reporting Manager Card (No avatar, clean and visually balanced) -->
+			<div class="bg-[#FFF4EE] border border-[#FFE2D3] rounded-2xl p-5 min-w-[240px] flex flex-col justify-center shadow-xs">
+				<span class="text-xs font-semibold text-[#F45310] tracking-wider uppercase">Reporting Manager</span>
+				<span class="text-base font-bold text-neutral-900 mt-1">{data.employee.reportingManager}</span>
+			</div>
+		</section>
+	{/if}
 
 	<AttendanceWidget employee={data.employee} activeShift={data.activeShift} todayAttendance={data.todayAttendance} />
 
