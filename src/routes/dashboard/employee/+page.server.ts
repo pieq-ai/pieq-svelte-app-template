@@ -168,13 +168,68 @@ export const load: PageServerLoad = async ({ locals }) => {
 		tempDate.setDate(tempDate.getDate() + 1);
 	}
 
-	const workedDaysCount = attendanceRecordsThisMonth.filter(r => r.work_duration_minutes && r.work_duration_minutes > 0).length;
-	const avgWorkMinutes = workedDaysCount > 0 ? Math.round(totalWorkMinutes / workedDaysCount) : 0;
-	const avgHours = Math.floor(avgWorkMinutes / 60);
-	const avgMins = avgWorkMinutes % 60;
-	const averageWorkingHours = `${avgHours}h ${avgMins}m`;
+	let totalMinutes = 0;
+	let totalWorkingDays = 0;
 
-	const thisMonthHours = Math.round(totalWorkMinutes / 60);
+	const holidayDatesString = new Set(
+		holidaysThisMonth.map((h) => new Date(h.date).toISOString().split('T')[0])
+	);
+
+	for (const rec of attendanceRecordsThisMonth) {
+		const recDateStr = rec.date.toISOString().split('T')[0];
+
+		// Ignore future dates (if any)
+		if (recDateStr > todayUTC.toISOString().split('T')[0]) {
+			continue;
+		}
+
+		// Exclude weekends/week-offs entirely from both hours and days
+		const dayOfWeek = rec.date.getUTCDay();
+		if (dayOfWeek === 0 || dayOfWeek === 6) {
+			continue;
+		}
+
+		// Exclude holidays from both hours and days
+		if (holidayDatesString.has(recDateStr)) {
+			continue;
+		}
+
+		// Exclude leaves and LOPs from both hours and days
+		const status = rec.status;
+		if (status === 'Leave' || status === 'On Leave' || status === 'LOP') {
+			continue;
+		}
+
+		// Ignore attendance entries without a completed check-out
+		if (!rec.check_out_time || rec.work_duration_minutes === null || rec.work_duration_minutes === undefined) {
+			continue;
+		}
+
+		// Count only actual attendance duration from valid weekday attendance records
+		const duration = rec.work_duration_minutes;
+		if (duration !== null && duration !== undefined && duration >= 0) {
+			totalMinutes += duration;
+		}
+
+		// Count working days:
+		// Present = 1 day, Late = 1 day, WFH = 1 day
+		// Half Day = 0.5 day
+		if (status === 'Present' || status === 'Late' || status === 'WFH') {
+			totalWorkingDays += 1;
+		} else if (status === 'Half Day' || status === 'HalfDay') {
+			totalWorkingDays += 0.5;
+		}
+	}
+
+	let averageWorkingHours = '0h 00m';
+	if (totalWorkingDays > 0) {
+		const avgMinutes = Math.round(totalMinutes / totalWorkingDays);
+		const hrs = Math.floor(avgMinutes / 60);
+		const mins = avgMinutes % 60;
+		averageWorkingHours = `${hrs}h ${String(mins).padStart(2, '0')}m`;
+	}
+
+	const thisMonthHours = Math.round(totalMinutes / 60);
 
 	// 4. Fetch Leave Balances & Pending Leave Requests for Current Year
 	let leaveBalanceCount = 0;
