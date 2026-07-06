@@ -1,5 +1,6 @@
 import * as leaveDao from '$lib/server/dao/leave.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import * as settingsDao from '$lib/server/dao/settings.dao.js';
 import { db } from '$lib/server/db.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
@@ -27,13 +28,9 @@ export interface ApplyLeaveInput {
  * Resolves an employee by official email (Employment) from active/onboarding statuses.
  */
 export async function resolveEmployee(email: string) {
-	if (email) {
-		const employment = await db.employment.findFirst({
-			where: {
-				official_email: email,
-				employment_status: { in: ['active', 'onboarding'] }
-			}
-		});
+	const normalizedEmail = email?.toLowerCase().trim();
+	if (normalizedEmail) {
+		const employment = await employeeDao.getActiveEmploymentByOfficialEmail(normalizedEmail);
 		if (employment) {
 			const employee = await employeeDao.getEmployeeByCuid(employment.employee_cuid);
 			if (employee && !employee.is_deleted) {
@@ -42,7 +39,7 @@ export async function resolveEmployee(email: string) {
 		}
 	}
 
-	throw new Error(`Employee record not found for email "${email}"`);
+	throw new Error(`Employee record not found for email "${normalizedEmail}"`);
 }
 
 /**
@@ -888,11 +885,17 @@ export async function withdrawLeaveByCuid(employeeCuid: string, requestCuid: str
 		throw new Error('Only pending leave requests can be withdrawn.');
 	}
 
-	return leaveDao.updateLeaveRequest(requestCuid, {
+	const result = await leaveDao.updateLeaveRequest(requestCuid, {
 		request_status: 'withdrawn',
 		withdrawn_at: new Date(),
 		updated_by: actorCuid || employee.cuid
 	});
+
+	// Trigger leave withdrawn notification
+	notificationFactory.leaveWithdrawn(employee.first_name, employee.last_name, actorCuid || employee.cuid, requestCuid)
+		.catch(err => console.error("Failed to send leave withdrawn notification:", err));
+
+	return result;
 }
 
 export async function applyLeave(email: string, input: ApplyLeaveInput, creatorCuid?: string) {
@@ -1264,7 +1267,7 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 	}
 
 	// Create request
-	return leaveDao.createLeaveRequest({
+	const request = await leaveDao.createLeaveRequest({
 		employee_cuid: employee.cuid,
 		leave_type_cuid: leaveType.cuid,
 		start_date: startDate,
@@ -1283,6 +1286,14 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 		days_from_lop: daysFromLop,
 		created_by: creatorCuid || employee.cuid
 	});
+
+	// Trigger leave applied notification
+	if (request) {
+		notificationFactory.leaveApplied(employee.first_name, employee.last_name, totalDays, startDate, creatorCuid || employee.cuid, request.cuid)
+			.catch(err => console.error("Failed to send leave applied notification:", err));
+	}
+
+	return request;
 }
 
 export async function withdrawLeave(email: string, requestCuid: string, actorCuid?: string) {
@@ -1304,11 +1315,17 @@ export async function withdrawLeave(email: string, requestCuid: string, actorCui
 		throw new Error('Only pending leave requests can be withdrawn.');
 	}
 
-	return leaveDao.updateLeaveRequest(requestCuid, {
+	const result = await leaveDao.updateLeaveRequest(requestCuid, {
 		request_status: 'withdrawn',
 		withdrawn_at: new Date(),
 		updated_by: actorCuid || employee.cuid
 	});
+
+	// Trigger leave withdrawn notification
+	notificationFactory.leaveWithdrawn(employee.first_name, employee.last_name, actorCuid || employee.cuid, requestCuid)
+		.catch(err => console.error("Failed to send leave withdrawn notification:", err));
+
+	return result;
 }
 
 /**
@@ -1473,6 +1490,10 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 			}, tx);
 		}
 
+		// Trigger leave approved notification
+		notificationFactory.leaveApproved(request?.total_days ?? 0, request?.start_date, approverUserCuid, request?.employee_cuid ?? '', requestCuid)
+			.catch(err => console.error("Failed to send leave approved notification:", err));
+
 		return updatedRequest;
 	});
 }
@@ -1504,12 +1525,18 @@ export async function rejectLeaveRequest(requestCuid: string, rejectorUserCuid: 
 		throw new Error('Unauthorized: You can only approve/reject requests from your direct reports.');
 	}
 
-	return leaveDao.updateLeaveRequest(requestCuid, {
+	const result = await leaveDao.updateLeaveRequest(requestCuid, {
 		request_status: 'rejected',
 		rejected_by: rejectorUserCuid,
 		rejected_at: new Date(),
 		updated_by: rejectorUserCuid
 	});
+
+	// Trigger leave rejected notification
+	notificationFactory.leaveRejected(request?.total_days ?? 0, request?.start_date, rejectorUserCuid, request?.employee_cuid ?? '', requestCuid)
+		.catch(err => console.error("Failed to send leave rejected notification:", err));
+
+	return result;
 }
 
 export async function getLeaveDocument(cuid: string, currentUserEmail: string) {

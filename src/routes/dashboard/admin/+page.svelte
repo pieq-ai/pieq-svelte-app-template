@@ -1,6 +1,5 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import BellIcon from "@lucide/svelte/icons/bell";
   import AttendanceWidget from "$lib/components/common/AttendanceWidget.svelte";
   import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
   import UsersIcon from "@lucide/svelte/icons/users";
@@ -122,17 +121,7 @@
       </h1>
     </div>
 
-    <div class="flex items-center gap-4">
-      <button
-        class="relative p-2 rounded-full hover:bg-neutral-100 transition-colors cursor-pointer text-neutral-600 border-none bg-transparent"
-        aria-label="Notifications"
-      >
-        <BellIcon class="size-5" />
-        <span
-          class="absolute top-1.5 right-1.5 size-2 bg-[#F45310] rounded-full"
-        ></span>
-      </button>
-    </div>
+    
   </header>
 
   <!-- Welcome Header Card -->

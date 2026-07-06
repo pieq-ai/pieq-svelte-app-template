@@ -1,18 +1,12 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import { page } from "$app/stores";
   import AttendanceWidget from "$lib/components/common/AttendanceWidget.svelte";
 
   // Lucide Icons
-  import ClockIcon from "@lucide/svelte/icons/clock";
   import CalendarIcon from "@lucide/svelte/icons/calendar";
   import UmbrellaIcon from "@lucide/svelte/icons/umbrella";
   import MessageSquareMoreIcon from "@lucide/svelte/icons/message-square-more";
-  import SparklesIcon from "@lucide/svelte/icons/sparkles";
   import UserIcon from "@lucide/svelte/icons/user";
-  import BellIcon from "@lucide/svelte/icons/bell";
   import CakeIcon from "@lucide/svelte/icons/cake";
-  import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import LayoutGridIcon from "@lucide/svelte/icons/layout-grid";
   import UsersIcon from "@lucide/svelte/icons/users";
@@ -23,9 +17,6 @@
   import AwardIcon from "@lucide/svelte/icons/award";
 
   let { data } = $props();
-
-  // Switcher State
-  let isSwitcherOpen = $state(false);
 
   // Dynamic Greeting based on time of day
   const currentHour = new Date().getHours();
@@ -78,17 +69,7 @@
       </h1>
     </div>
 
-    <div class="flex items-center gap-4">
-      <button
-        class="relative p-2 rounded-full hover:bg-neutral-100 transition-colors cursor-pointer text-neutral-600 border-none bg-transparent"
-        aria-label="Notifications"
-      >
-        <BellIcon class="size-5" />
-        <span
-          class="absolute top-1.5 right-1.5 size-2 bg-[#F45310] rounded-full"
-        ></span>
-      </button>
-    </div>
+    
   </header>
 
   {#if data.employee}

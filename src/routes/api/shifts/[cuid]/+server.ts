@@ -1,3 +1,4 @@
+import type { RequestEvent } from '@sveltejs/kit';
 // src/routes/api/shifts/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as shiftService from '$lib/server/services/shift.service.js';
@@ -24,7 +25,7 @@ function parseCuid(param: string | undefined): string {
  * PUT /api/shifts/:cuid
  * Updates an existing shift (partial update allowed).
  */
-export async function PUT({ request, params, locals }) {
+export async function PUT({ request, params, locals }: RequestEvent) {
   try {
     const cuid = parseCuid(params.cuid);
     const contentType = request.headers.get('content-type');
@@ -52,7 +53,7 @@ export async function PUT({ request, params, locals }) {
  * PATCH /api/shifts/:cuid
  * Activates a deactivated shift.
  */
-export async function PATCH({ params, locals }) {
+export async function PATCH({ params, locals }: RequestEvent) {
   try {
     const cuid = parseCuid(params.cuid);
     const shift = await shiftService.activateShift(cuid, locals?.user?.id);
@@ -67,7 +68,7 @@ export async function PATCH({ params, locals }) {
  * DELETE /api/shifts/:cuid
  * Soft‑deletes (deactivates) a shift.
  */
-export async function DELETE({ params, locals }) {
+export async function DELETE({ params, locals }: RequestEvent) {
   try {
     const cuid = parseCuid(params.cuid);
     const shift = await shiftService.deleteShift(cuid, locals?.user?.id);

@@ -1,3 +1,4 @@
+import type { RequestEvent } from '@sveltejs/kit';
 // src/routes/api/shift-assignments/+server.ts
 import { json } from '@sveltejs/kit';
 import * as shiftAssignmentService from '$lib/server/services/shift-assignment.service.js';
@@ -37,7 +38,7 @@ export function _mapShiftAssignment(sa: any) {
  * GET /api/shift-assignments
  * Returns a list of shift assignments for the reporting subordinates of the logged-in manager.
  */
-export async function GET({ locals }) {
+export async function GET({ locals }: RequestEvent) {
   try {
     permissionGuard.requireAuth(locals.user);
     const email = locals.user?.email || '';
@@ -56,7 +57,7 @@ export async function GET({ locals }) {
  * POST /api/shift-assignments
  * Creates a new shift assignment.
  */
-export async function POST({ request, locals }) {
+export async function POST({ request, locals }: RequestEvent) {
   try {
     permissionGuard.requireAuth(locals.user);
     const email = locals.user?.email || '';

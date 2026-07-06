@@ -527,3 +527,8 @@
 .dark .scrollbar-compact::-webkit-scrollbar-thumb:hover {
 	background: oklch(0.55 0 0);
 }
+
+/* Make space for the notification bell on the far right of page headers */
+main > div > div.flex.border-b {
+	padding-right: 3rem;
+}

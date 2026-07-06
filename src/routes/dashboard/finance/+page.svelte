@@ -1,23 +1,16 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
-	import BellIcon from '@lucide/svelte/icons/bell';
 	import AttendanceWidget from '$lib/components/common/AttendanceWidget.svelte';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import WalletIcon from '@lucide/svelte/icons/wallet';
 	import BanknoteIcon from '@lucide/svelte/icons/banknote';
-	import PlayIcon from '@lucide/svelte/icons/play';
-	import BarChart3Icon from '@lucide/svelte/icons/bar-chart-3';
 	import FileTextIcon from '@lucide/svelte/icons/file-text';
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import SparklesIcon from '@lucide/svelte/icons/sparkles';
 
 	let { data } = $props();
-
-	// Switcher State
-	let isSwitcherOpen = $state(false);
 
 	function handlePeriodChange(e: Event) {
 		const select = e.target as HTMLSelectElement;
@@ -74,10 +67,6 @@
 			};
 		});
 	});
-
-	const hasRoles = $derived(data.roles ?? []);
-	const isFinanceUser = $derived(hasRoles.includes('finance') || hasRoles.includes('finance_manager'));
-	const isManagerUser = $derived(data.isManager ?? false);
 </script>
 
 <svelte:head>
@@ -92,17 +81,13 @@
 			<h1 class="text-xl font-bold tracking-tight text-neutral-900">Dashboard</h1>
 		</div>
 
-		<div class="flex items-center gap-4">
+		<div class="flex items-center gap-4 mr-12">
 			<a
 				href="/payrolls"
 				class="inline-flex items-center px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold rounded-xl transition-colors decoration-none"
 			>
 				Run Payroll
 			</a>
-			<button class="relative p-2 rounded-full hover:bg-neutral-100 transition-colors cursor-pointer text-neutral-600 border-none bg-transparent" aria-label="Notifications">
-				<BellIcon class="size-5" />
-				<span class="absolute top-1.5 right-1.5 size-2 bg-[#F45310] rounded-full"></span>
-			</button>
 		</div>
 	</header>
 

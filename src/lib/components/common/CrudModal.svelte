@@ -80,10 +80,7 @@
 		onclick={handleBackdropClick}
 		transition:fade={{ duration: 150 }}
 	>
-		<Card
-			class="relative max-h-[90vh] w-full max-w-lg overflow-y-auto custom-scrollbar {cardClass}"
-			onclick={(e) => e.stopPropagation()}
-		>
+		<Card class={`relative max-h-[90vh] w-full max-w-lg overflow-y-auto custom-scrollbar ${cardClass}`} onclick={(e) => e.stopPropagation()}>
 			<CardHeader class="flex-col items-start gap-1 px-6 pr-12">
 				<CardTitle>{title}</CardTitle>
 				{#if description}

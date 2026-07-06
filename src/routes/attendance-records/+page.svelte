@@ -232,8 +232,8 @@
 
 		let checkOutDate = formAttendanceDate;
 		if (formCheckInTimeOnly && formCheckOutTimeOnly && formCheckOutTimeOnly < formCheckInTimeOnly) {
-			const d = new SvelteDate(formAttendanceDate);
-			d.setDate(d.getDate() + 1);
+			const baseDate = new Date(formAttendanceDate);
+			const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 1);
 			const year = d.getFullYear();
 			const month = String(d.getMonth() + 1).padStart(2, '0');
 			const day = String(d.getDate()).padStart(2, '0');
@@ -477,8 +477,8 @@
 
 		let checkOutDate = formAttendanceDate;
 		if (formCheckInTimeOnly && formCheckOutTimeOnly && formCheckOutTimeOnly < formCheckInTimeOnly) {
-			const d = new SvelteDate(formAttendanceDate);
-			d.setDate(d.getDate() + 1);
+			const baseDate = new Date(formAttendanceDate);
+			const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 1);
 			const year = d.getFullYear();
 			const month = String(d.getMonth() + 1).padStart(2, '0');
 			const day = String(d.getDate()).padStart(2, '0');
@@ -586,8 +586,8 @@
 
 		let checkOutDate = formAttendanceDate;
 		if (formCheckInTimeOnly && formCheckOutTimeOnly && formCheckOutTimeOnly < formCheckInTimeOnly) {
-			const d = new SvelteDate(formAttendanceDate);
-			d.setDate(d.getDate() + 1);
+			const baseDate = new Date(formAttendanceDate);
+			const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 1);
 			const year = d.getFullYear();
 			const month = String(d.getMonth() + 1).padStart(2, '0');
 			const day = String(d.getDate()).padStart(2, '0');
