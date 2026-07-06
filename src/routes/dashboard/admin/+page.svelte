@@ -4,10 +4,7 @@
   import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
   import UsersIcon from "@lucide/svelte/icons/users";
   import WalletIcon from "@lucide/svelte/icons/wallet";
-  import BanknoteIcon from "@lucide/svelte/icons/banknote";
   import PlayIcon from "@lucide/svelte/icons/play";
-  import BarChart3Icon from "@lucide/svelte/icons/bar-chart-3";
-  import FileTextIcon from "@lucide/svelte/icons/file-text";
   import ArrowUpIcon from "@lucide/svelte/icons/arrow-up";
   import ArrowDownIcon from "@lucide/svelte/icons/arrow-down";
   import Building2Icon from "@lucide/svelte/icons/building-2";
@@ -15,8 +12,6 @@
   import ShieldCheckIcon from "@lucide/svelte/icons/shield-check";
   import ClockIcon from "@lucide/svelte/icons/clock";
   import SettingsIcon from "@lucide/svelte/icons/settings";
-  import UserMinusIcon from "@lucide/svelte/icons/user-minus";
-  import TrophyIcon from "@lucide/svelte/icons/trophy";
   import SparklesIcon from "@lucide/svelte/icons/sparkles";
 
   let { data } = $props();
