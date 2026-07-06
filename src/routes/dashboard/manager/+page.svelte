@@ -453,7 +453,7 @@
             <h3 class="text-base font-bold text-neutral-900 mb-4">
               Quick Actions
             </h3>
-            <div class="grid grid-cols-3 gap-3">
+            <div class="grid grid-cols-2 gap-3">
               <!-- Shift Assignment -->
               <a
                 href="/shift-assignments"
@@ -465,20 +465,6 @@
                 <span
                   class="text-[11px] font-bold text-neutral-500 group-hover:text-[#F45310] transition-colors mt-2 leading-tight"
                   >Shift Assignment</span
-                >
-              </a>
-
-              <!-- Holiday Calendar -->
-              <a
-                href="/holidays"
-                class="flex flex-col items-center justify-center p-4 border border-neutral-100 rounded-2xl hover:bg-[#FFF4EE] hover:border-[#FFE2D3] hover:text-[#F45310] transition-all text-neutral-600 group text-center decoration-none"
-              >
-                <CalendarIcon
-                  class="size-6 text-neutral-400 group-hover:text-[#F45310] transition-colors"
-                />
-                <span
-                  class="text-[11px] font-bold text-neutral-500 group-hover:text-[#F45310] transition-colors mt-2 leading-tight"
-                  >Holiday Calendar</span
                 >
               </a>
 
