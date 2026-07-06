@@ -169,10 +169,12 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	try {
 		const leaveDetails = await getEmployeeLeaveDetails(employment?.official_email || email, today.getFullYear());
-		leaveBalanceCount = leaveDetails.balances.reduce(
-			(sum: number, b: any) => sum + (Number(b.remaining_days) || 0),
-			0
-		);
+		leaveBalanceCount = leaveDetails.balances
+			.filter((b: any) => ['CL', 'SL', 'EL'].includes(b.leave_code))
+			.reduce(
+				(sum: number, b: any) => sum + (Number(b.remaining_days) || 0),
+				0
+			);
 		pendingLeaveRequestsCount = leaveDetails.requests.filter(
 			(r: any) => r.request_status === 'pending'
 		).length;
