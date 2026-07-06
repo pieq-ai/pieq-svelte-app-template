@@ -5,15 +5,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
 		redirect(302, '/');
 	}
-	return {
-		context: {
-			user: locals.user,
-			roles: locals.roles,
-			stats: {
-				memberSince: '—',
-				roleCount: locals.roles.length
-			}
-		},
-		showAdminSection: locals.roles.includes('admin')
-	};
+	if (locals.roles?.includes('admin')) {
+		redirect(302, '/dashboard/admin');
+	}
+	if (locals.roles?.includes('finance') || locals.roles?.includes('finance_manager')) {
+		redirect(302, '/dashboard/finance');
+	}
+	redirect(302, '/dashboard/employee');
 };

@@ -1,3 +1,4 @@
+import type { RequestEvent } from '@sveltejs/kit';
 // src/routes/api/organization_location/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as locationService from '$lib/server/services/organization_location.service.js';
@@ -24,7 +25,7 @@ function parseCuid(param: string | undefined): string {
  * PUT /api/organization_location/:cuid
  * Updates an existing company location (partial update allowed).
  */
-export async function PUT({ request, params, locals }) {
+export async function PUT({ request, params, locals }: RequestEvent) {
   try {
     const cuid = parseCuid(params.cuid);
     const contentType = request.headers.get('content-type');
@@ -52,7 +53,7 @@ export async function PUT({ request, params, locals }) {
  * PATCH /api/organization_location/:cuid
  * Activates a deactivated location.
  */
-export async function PATCH({ params, locals }) {
+export async function PATCH({ params, locals }: RequestEvent) {
   try {
     const cuid = parseCuid(params.cuid);
     const location = await locationService.activateLocation(cuid, locals?.user?.id);
@@ -67,7 +68,7 @@ export async function PATCH({ params, locals }) {
  * DELETE /api/organization_location/:cuid
  * Soft‑deletes (deactivates) a company location.
  */
-export async function DELETE({ params, locals }) {
+export async function DELETE({ params, locals }: RequestEvent) {
   try {
     const cuid = parseCuid(params.cuid);
     const location = await locationService.deleteLocation(cuid, locals?.user?.id);

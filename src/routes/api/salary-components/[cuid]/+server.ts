@@ -1,9 +1,10 @@
+import type { RequestEvent } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/salary-component.service.js';
 import { validateUpdateSalaryComponent } from '$lib/server/validators/salary-component.validator.js';
 import { serializeSalaryComponent } from '$lib/server/serializers/salary-component.serializer.js';
 
-export async function GET({ params }) {
+export async function GET({ params }: RequestEvent) {
 	try {
 		const cuid = params.cuid;
 		if (!cuid) {
@@ -31,7 +32,7 @@ export async function GET({ params }) {
 	}
 }
 
-export async function PUT({ params, request }) {
+export async function PUT({ params, request }: RequestEvent) {
 	try {
 		const cuid = params.cuid;
 		if (!cuid) {
@@ -82,7 +83,7 @@ export async function PUT({ params, request }) {
 	}
 }
 
-export async function DELETE({ params }) {
+export async function DELETE({ params }: RequestEvent) {
 	try {
 		const cuid = params.cuid;
 		if (!cuid) {

@@ -26,6 +26,7 @@
   import { toast } from "$lib/toast";
   import { leavesApi } from "$lib/api/leaves";
   import { UI_CONSTANTS } from "$lib/constants";
+  import { ApiError } from "$lib/api/local";
   import {
     Badge,
     Button,
@@ -46,6 +47,7 @@
     Pagination,
     SearchInput,
     TableActions,
+    DatePicker,
   } from "$lib/components";
   import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 
@@ -175,6 +177,7 @@
   // Modals State
   let isApplyModalOpen = $state(false);
   let withdrawModalOpen = $state(false);
+  let showApplyUnsavedModal = $state(false);
 
   // Approvals Modals State
   let isDetailsModalOpen = $state(false);
@@ -225,8 +228,6 @@
 
   // Custom Date Picker states
   let activeDatePicker = $state<string | null>(null);
-  let calendarYear = $state(new Date().getFullYear());
-  let calendarMonth = $state(new Date().getMonth());
 
   const getTodayLocalString = () => {
     const d = new Date();
@@ -348,11 +349,21 @@
       curr.setDate(curr.getDate() + 1);
     }
 
-    const remaining = getAvailableBalanceForMonth(
+    let remaining = getAvailableBalanceForMonth(
       formLeaveTypeCuid,
       code,
       formStartDate,
     );
+
+    if (code === "ML") {
+      if (formIsMiscarriage) {
+        remaining = Math.min(remaining, 28.0);
+      } else {
+        remaining = Math.min(remaining, 168.0);
+      }
+    } else if (code === "PL") {
+      remaining = Math.min(remaining, 5.0);
+    }
 
     let activeDates = workingDates;
     let totalActive = workingDates.length;
@@ -447,9 +458,9 @@
         balances = res.data.balances || [];
         requests = res.data.requests || [];
         employee = res.data.employee || null;
-        isManager = res.data.isManager || false;
+         isManager = res.data.isManager || false;
         pendingApprovals = res.data.pendingApprovals || [];
-        payrollCutoffDay = res.data.payrollCutoffDay ?? 25;
+        payrollCutoffDay = res.data.payroll_cutoff ?? res.data.payrollCutoffDay ?? 25;
         selectedCutoff = payrollCutoffDay;
         lopUsed = res.data.lopUsed || 0;
         lwpUsed = res.data.lwpUsed || 0;
@@ -521,19 +532,27 @@
   });
 
   async function saveCutoffDay() {
+    const currentVal = parseInt(String(payrollCutoffDay).trim(), 10);
+    const selectedVal = parseInt(String(selectedCutoff).trim(), 10);
+
+    if (currentVal === selectedVal) {
+      activeDatePicker = null;
+      return;
+    }
+
     isSavingCutoff = true;
     activeDatePicker = null;
     try {
       const res = await fetch("/api/leaves/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payrollCutoffDay: selectedCutoff }),
+        body: JSON.stringify({ payroll_cutoff: selectedVal }),
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Failed to update cutoff setting");
+        throw new Error(data.data?.error || data.error || "Failed to update cutoff setting");
       }
-      payrollCutoffDay = data.data.payrollCutoffDay;
+      payrollCutoffDay = data.data.payroll_cutoff;
       selectedCutoff = payrollCutoffDay;
       toast.success(
         `Payroll cutoff day updated to ${payrollCutoffDay}th successfully.`,
@@ -1103,7 +1122,6 @@
     formIsTouched = true;
 
     if (!validateForm()) {
-      toast.error("Please correct the validation errors before submitting.");
       return;
     }
 
@@ -1146,8 +1164,11 @@
       if (err.field) {
         const fieldName = err.field === "documentUrl" ? "document" : err.field;
         formValidationErrors = { [fieldName]: err.message };
+      } else if (err instanceof ApiError && err.status === 400) {
+        formValidationErrors = { leaveTypeCuid: err.message };
+      } else {
+        toast.error(err.message || "Failed to submit leave request.");
       }
-      toast.error(err.message || "Failed to submit leave request.");
       console.error(err);
     } finally {
       isSubmitting = false;
@@ -1190,6 +1211,14 @@
     formExpectedDeliveryDate = "";
     formIsMiscarriage = false;
     formChildBirthDate = "";
+  }
+
+  function handleCloseApplyModal() {
+    if (isFormDirty) {
+      showApplyUnsavedModal = true;
+    } else {
+      closeApplyModal();
+    }
   }
 
   // Open Confirm Withdraw Modal
@@ -1326,157 +1355,7 @@
   }
 
   // Custom Date Picker Helper Functions
-  const MONTHS = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
 
-  interface CalendarDay {
-    date: Date;
-    isCurrentMonth: boolean;
-    isToday: boolean;
-    isSelected: boolean;
-    isDisabled: boolean;
-  }
-
-  function getCalendarDays(
-    year: number,
-    month: number,
-    selectedDateStr: string,
-    minStr?: string,
-    maxStr?: string,
-  ): CalendarDay[] {
-    const days: CalendarDay[] = [];
-    const firstDayIndex = new Date(year, month, 1).getDay();
-    const totalDays = new Date(year, month + 1, 0).getDate();
-    const prevMonthTotalDays = new Date(year, month, 0).getDate();
-
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-    let selectedDate: Date | null = null;
-    if (selectedDateStr) {
-      selectedDate = new Date(selectedDateStr + "T00:00:00");
-    }
-
-    const minDate = minStr ? new Date(minStr + "T00:00:00") : null;
-    const maxDate = maxStr ? new Date(maxStr + "T00:00:00") : null;
-
-    for (let i = firstDayIndex - 1; i >= 0; i--) {
-      const d = new Date(year, month - 1, prevMonthTotalDays - i);
-      days.push({
-        date: d,
-        isCurrentMonth: false,
-        isToday: d.getTime() === today.getTime(),
-        isSelected: selectedDate
-          ? d.getTime() === selectedDate.getTime()
-          : false,
-        isDisabled:
-          (minDate ? d < minDate : false) || (maxDate ? d > maxDate : false),
-      });
-    }
-
-    for (let i = 1; i <= totalDays; i++) {
-      const d = new Date(year, month, i);
-      days.push({
-        date: d,
-        isCurrentMonth: true,
-        isToday: d.getTime() === today.getTime(),
-        isSelected: selectedDate
-          ? d.getTime() === selectedDate.getTime()
-          : false,
-        isDisabled:
-          (minDate ? d < minDate : false) || (maxDate ? d > maxDate : false),
-      });
-    }
-
-    const remainingCells = 42 - days.length;
-    for (let i = 1; i <= remainingCells; i++) {
-      const d = new Date(year, month + 1, i);
-      days.push({
-        date: d,
-        isCurrentMonth: false,
-        isToday: d.getTime() === today.getTime(),
-        isSelected: selectedDate
-          ? d.getTime() === selectedDate.getTime()
-          : false,
-        isDisabled:
-          (minDate ? d < minDate : false) || (maxDate ? d > maxDate : false),
-      });
-    }
-
-    return days;
-  }
-
-  function prevMonth() {
-    if (calendarMonth === 0) {
-      calendarMonth = 11;
-      calendarYear--;
-    } else {
-      calendarMonth--;
-    }
-  }
-
-  // Make sure calendar navigation functions stop propagation to keep modal from reacting
-  function prevMonthClick(e: Event) {
-    e.stopPropagation();
-    prevMonth();
-  }
-
-  function nextMonthClick(e: Event) {
-    e.stopPropagation();
-    nextMonth();
-  }
-
-  function nextMonth() {
-    if (calendarMonth === 11) {
-      calendarMonth = 0;
-      calendarYear++;
-    } else {
-      calendarMonth++;
-    }
-  }
-
-  function formatDateForDisplay(dateStr: string): string {
-    if (!dateStr) return "";
-    const date = new Date(dateStr + "T00:00:00");
-    if (isNaN(date.getTime())) return dateStr;
-    const day = String(date.getDate()).padStart(2, "0");
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
-  }
-
-  function formatDateString(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  }
 
   function clickOutsideAction(node: HTMLElement, callback: () => void) {
     const handleClick = (event: MouseEvent) => {
@@ -1590,127 +1469,7 @@
   {/if}
 </svelte:head>
 
-{#snippet CustomDatePicker(
-  id: string,
-  value: string,
-  onSelect: (val: string) => void,
-  min: string | undefined,
-  max: string | undefined,
-  disabled: boolean,
-  error: string | undefined,
-)}
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div
-    class="relative w-full"
-    use:clickOutsideAction={() => {
-      if (activeDatePicker === id) activeDatePicker = null;
-    }}
-  >
-    <Input
-      type="text"
-      {id}
-      readonly
-      placeholder="dd mm yyyy"
-      value={formatDateForDisplay(value)}
-      onclick={(e) => {
-        if (disabled) return;
-        if (activeDatePicker === id) {
-          activeDatePicker = null;
-        } else {
-          activeDatePicker = id;
-          const initialDate = value
-            ? new Date(value + "T00:00:00")
-            : new Date();
-          calendarYear = isNaN(initialDate.getTime())
-            ? new Date().getFullYear()
-            : initialDate.getFullYear();
-          calendarMonth = isNaN(initialDate.getTime())
-            ? new Date().getMonth()
-            : initialDate.getMonth();
-        }
-      }}
-      class="w-full pl-9 cursor-pointer {error ? 'border-destructive' : ''}"
-      {disabled}
-    />
-    <CalendarIcon
-      class="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none"
-    />
 
-    {#if activeDatePicker === id}
-      <!-- svelte-ignore a11y_click_events_have_key_events -->
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <div
-        class="absolute {id === 'end_date'
-          ? 'right-0'
-          : 'left-0'} top-full z-100 mt-1 w-[280px] rounded-md border border-border bg-popover p-3 text-popover-foreground shadow-md outline-none"
-        onclick={(e) => e.stopPropagation()}
-      >
-        <div
-          class="flex items-center justify-between pb-2 mb-2 border-b border-border"
-        >
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            class="h-7 w-7 p-0 hover:bg-accent"
-            onclick={prevMonthClick}
-          >
-            <ChevronLeftIcon class="h-4 w-4" />
-          </Button>
-          <span class="text-sm font-semibold select-none"
-            >{MONTHS[calendarMonth]} {calendarYear}</span
-          >
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            class="h-7 w-7 p-0 hover:bg-accent"
-            onclick={nextMonthClick}
-          >
-            <ChevronRightIcon class="h-4 w-4" />
-          </Button>
-        </div>
-
-        <div
-          class="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground mb-1 select-none"
-        >
-          {#each ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"] as day}
-            <div class="h-6 flex items-center justify-center">{day}</div>
-          {/each}
-        </div>
-
-        <div class="grid grid-cols-7 gap-1">
-          {#each getCalendarDays(calendarYear, calendarMonth, value, min, max) as day}
-            <button
-              type="button"
-              disabled={day.isDisabled}
-              class="h-8 w-8 text-xs rounded-md flex items-center justify-center p-0 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring
-								{day.isDisabled
-                ? 'opacity-30 cursor-not-allowed'
-                : 'cursor-pointer hover:bg-accent hover:text-accent-foreground'}
-								{day.isSelected
-                ? 'bg-hrms-primary text-white hover:bg-hrms-primary/90 font-bold'
-                : ''}
-								{!day.isSelected && day.isToday ? 'border border-hrms-primary text-hrms-primary' : ''}
-								{!day.isSelected && !day.isToday && !day.isCurrentMonth
-                ? 'text-muted-foreground'
-                : ''}"
-              onclick={(e) => {
-                e.stopPropagation();
-                if (day.isDisabled) return;
-                onSelect(formatDateString(day.date));
-                activeDatePicker = null;
-              }}
-            >
-              {day.date.getDate()}
-            </button>
-          {/each}
-        </div>
-      </div>
-    {/if}
-  </div>
-{/snippet}
 
 <div class="w-full space-y-6 px-1 py-0">
   <!-- Page Header matching design system -->
@@ -2026,7 +1785,7 @@
                       id="payroll_cutoff_select"
                       variant="outline"
                       disabled={isSavingCutoff}
-                      onclick={(e) => {
+                      onclick={() => {
                         if (activeDatePicker === "payroll_cutoff") {
                           activeDatePicker = null;
                         } else {
@@ -2067,8 +1826,8 @@
                   <Button
                     type="button"
                     onclick={saveCutoffDay}
-                    disabled={isSavingCutoff}
-                    class="bg-hrms-primary text-white hover:bg-hrms-primary/90 font-bold"
+                    disabled={isSavingCutoff || parseInt(String(selectedCutoff).trim(), 10) === parseInt(String(payrollCutoffDay).trim(), 10)}
+                    class="bg-[#F45310] text-white hover:bg-[#F45310]/90 font-bold"
                   >
                     {#if isSavingCutoff}
                       <LoaderCircleIcon class="mr-2 size-4 animate-spin" />
@@ -2729,7 +2488,7 @@
   title="Apply Leave"
   description="Fill out the details below to submit a leave request."
   {isSubmitting}
-  onClose={closeApplyModal}
+  onClose={handleCloseApplyModal}
   cardClass="overflow-visible my-auto"
 >
   {#snippet children({ cancel })}
@@ -2762,7 +2521,7 @@
               </Button>
             {/snippet}
           </DropdownMenu.Trigger>
-          <DropdownMenu.Content class="max-h-56 overflow-y-auto w-[250px]">
+          <DropdownMenu.Content class="max-h-56 overflow-y-auto w-(--bits-dropdown-menu-anchor-width)">
             <DropdownMenu.Group>
               <DropdownMenu.Item
                 onclick={() => {
@@ -2833,19 +2592,13 @@
               >Expected Delivery Date <span class="text-destructive">*</span
               ></Label
             >
-            {@render CustomDatePicker(
-              "expected_delivery_date",
-              formExpectedDeliveryDate,
-              (val) => {
-                formExpectedDeliveryDate = val;
-              },
-              undefined,
-              undefined,
-              isSubmitting,
-              formIsTouched && formValidationErrors.expectedDeliveryDate
-                ? formValidationErrors.expectedDeliveryDate
-                : undefined,
-            )}
+            <DatePicker
+              id="expected_delivery_date"
+              name="expected_delivery_date"
+              bind:value={formExpectedDeliveryDate}
+              disabled={isSubmitting}
+              isError={formIsTouched && !!formValidationErrors.expectedDeliveryDate}
+            />
             {#if formIsTouched && formValidationErrors.expectedDeliveryDate}
               <p
                 class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1"
@@ -2881,19 +2634,13 @@
           <Label for="child_birth_date"
             >Child's Birth Date <span class="text-destructive">*</span></Label
           >
-          {@render CustomDatePicker(
-            "child_birth_date",
-            formChildBirthDate,
-            (val) => {
-              formChildBirthDate = val;
-            },
-            undefined,
-            undefined,
-            isSubmitting,
-            formIsTouched && formValidationErrors.childBirthDate
-              ? formValidationErrors.childBirthDate
-              : undefined,
-          )}
+          <DatePicker
+            id="child_birth_date"
+            name="child_birth_date"
+            bind:value={formChildBirthDate}
+            disabled={isSubmitting}
+            isError={formIsTouched && !!formValidationErrors.childBirthDate}
+          />
           {#if formIsTouched && formValidationErrors.childBirthDate}
             <p
               class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1"
@@ -2911,25 +2658,22 @@
           <Label for="start_date"
             >Start Date <span class="text-destructive">*</span></Label
           >
-          {@render CustomDatePicker(
-            "start_date",
-            formStartDate,
-            (val) => {
-              formStartDate = val;
+          <DatePicker
+            id="start_date"
+            name="start_date"
+            bind:value={formStartDate}
+            max={start_date_max || undefined}
+            disabled={isSubmitting}
+            isError={formIsTouched && !!formValidationErrors.startDate}
+            onchange={() => {
               if (
                 !formStartDate ||
                 (formEndDate && formStartDate > formEndDate)
               ) {
                 formEndDate = "";
               }
-            },
-            undefined,
-            start_date_max || undefined,
-            isSubmitting,
-            formIsTouched && formValidationErrors.startDate
-              ? formValidationErrors.startDate
-              : undefined,
-          )}
+            }}
+          />
           {#if formIsTouched && formValidationErrors.startDate}
             <p
               class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1"
@@ -2944,19 +2688,15 @@
           <Label for="end_date"
             >End Date <span class="text-destructive">*</span></Label
           >
-          {@render CustomDatePicker(
-            "end_date",
-            formEndDate,
-            (val) => {
-              formEndDate = val;
-            },
-            formStartDate || undefined,
-            end_date_max || undefined,
-            isSubmitting || formIsHalfDay || !formStartDate,
-            formIsTouched && formValidationErrors.endDate
-              ? formValidationErrors.endDate
-              : undefined,
-          )}
+          <DatePicker
+            id="end_date"
+            name="end_date"
+            bind:value={formEndDate}
+            min={formStartDate || undefined}
+            max={end_date_max || undefined}
+            disabled={isSubmitting || formIsHalfDay || !formStartDate}
+            isError={formIsTouched && !!formValidationErrors.endDate}
+          />
           {#if formIsTouched && formValidationErrors.endDate}
             <p
               class="text-xs text-[#CC3333] flex items-center gap-1 font-medium mt-1"
@@ -3212,6 +2952,22 @@
   {/snippet}
 </CrudModal>
 
+<!-- Apply Leave Unsaved Changes Modal -->
+<ConfirmModal
+  open={showApplyUnsavedModal}
+  title="Cancel Changes"
+  description="Are you sure you want to cancel? All unsaved changes will be lost."
+  cancelLabel="Keep Editing"
+  confirmLabel="Cancel"
+  onCancel={() => {
+    showApplyUnsavedModal = false;
+  }}
+  onConfirm={() => {
+    showApplyUnsavedModal = false;
+    closeApplyModal();
+  }}
+/>
+
 
 <!-- View Details Modal for Approvals -->
 <CrudModal
@@ -3373,8 +3129,7 @@
           {:else if selectedApproval.source === "approvals"}
             <Button
               type="button"
-              variant="destructive"
-              class="font-bold"
+              class="bg-red-600 text-white hover:bg-red-700 font-bold focus-visible:ring-red-500/50 focus-visible:border-red-600"
               onclick={() => openRejectConfirm(selectedApproval)}
               disabled={isActionSubmitting}
             >

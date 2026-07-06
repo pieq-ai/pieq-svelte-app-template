@@ -1,6 +1,8 @@
 import * as leaveDao from '$lib/server/dao/leave.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
+import * as settingsDao from '$lib/server/dao/settings.dao.js';
+import { db } from '$lib/server/db.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
 import { calculateLeaveDays, isWeekend, isHoliday, getHolidaysCached } from '$lib/server/config/leave.config.js';
 
@@ -23,8 +25,7 @@ export interface ApplyLeaveInput {
 }
 
 /**
- * Resolves an employee by official email (Employment) or personal email (Employee).
- * Falls back to the first employee in the database during local dev/testing.
+ * Resolves an employee by official email (Employment) from active/onboarding statuses.
  */
 export async function resolveEmployee(email: string) {
 	const normalizedEmail = email?.toLowerCase().trim();
@@ -32,24 +33,9 @@ export async function resolveEmployee(email: string) {
 		const employment = await employeeDao.getActiveEmploymentByOfficialEmail(normalizedEmail);
 		if (employment) {
 			const employee = await employeeDao.getEmployeeByCuid(employment.employee_cuid);
-			if (employee) {
+			if (employee && !employee.is_deleted) {
 				return { employee, employment };
 			}
-		}
-
-		const employeeByPersonal = await employeeDao.getEmployeeByPersonalEmail(normalizedEmail);
-		if (employeeByPersonal) {
-			const employment = await leaveDao.getActiveEmploymentByEmployeeCuid(employeeByPersonal.cuid);
-			return { employee: employeeByPersonal, employment: employment ?? null };
-		}
-	}
-
-	// Falls back to the first employee in the database during local dev/testing.
-	if (process.env.NODE_ENV !== 'production' || !normalizedEmail) {
-		const firstEmployee = await employeeDao.getFirstEmployee();
-		if (firstEmployee) {
-			const employment = await leaveDao.getActiveEmploymentByEmployeeCuid(firstEmployee.cuid);
-			return { employee: firstEmployee, employment: employment ?? null };
 		}
 	}
 
@@ -94,14 +80,20 @@ function calculateFractionalMonths(start: Date, end: Date): number {
 	return totalMonths;
 }
 
-let payrollCutoffDayValue = 25;
-
 export async function getPayrollCutoffDay(tx?: any): Promise<number> {
-	return payrollCutoffDayValue;
+	const settings = await settingsDao.getSettings(tx);
+	const config = settings?.configuration as any;
+	if (config && typeof config === 'object' && 'payroll_cut_off_date' in config) {
+		const val = Number(config.payroll_cut_off_date);
+		if (!isNaN(val)) {
+			return val;
+		}
+	}
+	throw new Error('Payroll cutoff configuration not found in settings');
 }
 
-export function setPayrollCutoffDay(value: number) {
-	payrollCutoffDayValue = value;
+export async function setPayrollCutoffDay(value: number, userId?: string | null, tx?: any) {
+	await settingsDao.updateSettings(value, userId, tx);
 }
 
 export async function getMonthlyUsedDays(employeeCuid: string, month: number, year: number, leaveCode: 'LOP' | 'LWP', tx?: any) {
@@ -184,12 +176,12 @@ export async function getMonthlyUsedDays(employeeCuid: string, month: number, ye
 					if (leaveCode === 'LOP') total += 1;
 				} else {
 					// Split request: first daysFromPrimary are primary, then LWP, then LOP
-					if (i < daysFromPrimary) {
-						// Primary leave day — not counted for LOP or LWP
-					} else if (i < daysFromPrimary + daysFromLwp) {
-						if (leaveCode === 'LWP') total += 1;
-					} else if (i < daysFromPrimary + daysFromLwp + daysFromLop) {
-						if (leaveCode === 'LOP') total += 1;
+					if (leaveCode === 'LWP') {
+						const lwpContribution = Math.max(0, Math.min(i + 1, daysFromPrimary + daysFromLwp) - Math.max(i, daysFromPrimary));
+						total += lwpContribution;
+					} else if (leaveCode === 'LOP') {
+						const lopContribution = Math.max(0, Math.min(i + 1, daysFromPrimary + daysFromLwp + daysFromLop) - Math.max(i, daysFromPrimary + daysFromLwp));
+						total += lopContribution;
 					}
 				}
 			}
@@ -1002,6 +994,16 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 		remainingBalance = balance ? Number(balance.remaining_days) : 0;
 	}
 
+	if (leaveType.code === 'ML') {
+		if (input.isMiscarriage) {
+			remainingBalance = Math.min(remainingBalance, 28.0);
+		} else {
+			remainingBalance = Math.min(remainingBalance, 168.0);
+		}
+	} else if (leaveType.code === 'PL') {
+		remainingBalance = Math.min(remainingBalance, 5.0);
+	}
+
 	let calendarDaysCount = 0;
 	if (input.isHalfDay) {
 		calendarDaysCount = 0.5;
@@ -1166,12 +1168,6 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 			throw new ValidationError('leaveTypeCuid', `Employee must have worked at least 80 days during the previous 12 months before expected delivery. Current service in period: ${activeServiceDays} days.`);
 		}
 
-		// Miscarriage/MTP paid leave limit is 4 weeks, normal ML limit is 24 weeks
-		const maxAllowedML = input.isMiscarriage ? 28.0 : 168.0;
-		if (totalDays > maxAllowedML) {
-			throw new ValidationError('endDate', `Maternity Leave is limited to a maximum of ${maxAllowedML === 28.0 ? '4 weeks (28 days)' : '24 weeks (168 days)'} for this request.`);
-		}
-
 		// Must be submitted at least 8 weeks before expected delivery (except miscarriage)
 		if (!input.isMiscarriage) {
 			const now = new Date();
@@ -1200,10 +1196,6 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 		const birthDate = new Date(input.childBirthDate);
 		if (isNaN(birthDate.getTime())) {
 			throw new ValidationError('childBirthDate', 'Invalid Birth Date format.');
-		}
-
-		if (totalDays > 5) {
-			throw new ValidationError('endDate', 'Paternity Leave is limited to a maximum of 5 days.');
 		}
 
 		const maxEndDate = new Date(birthDate);
@@ -1461,7 +1453,7 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 			current.setDate(current.getDate() + 1);
 		}
 
-		const attendanceStatus = request.is_half_day ? 'HalfDay' : 'Absent';
+		const attendanceStatus = request.is_half_day ? 'HalfDay' : 'Leave';
 
 		// Build split remark suffix if this request contains LOP or LWP split days
 		const lopDays = request.days_from_lop ? Number(request.days_from_lop) : 0;

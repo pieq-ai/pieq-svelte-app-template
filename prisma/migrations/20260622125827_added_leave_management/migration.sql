@@ -1,6 +1,3 @@
--- AlterTable
-ALTER TABLE "company_locations" ADD COLUMN     "latitude" DECIMAL(10,8),
-ADD COLUMN     "longitude" DECIMAL(11,8);
 
 -- CreateTable
 CREATE TABLE "leave_balances" (

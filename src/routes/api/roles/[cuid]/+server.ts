@@ -1,3 +1,4 @@
+import type { RequestEvent } from '@sveltejs/kit';
 // src/routes/api/roles/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as roleService from '$lib/server/services/role.service.js';
@@ -24,7 +25,7 @@ function parseCuid(param: string | undefined): string {
  * PUT /api/roles/:cuid
  * Updates an existing role (partial update allowed).
  */
-export async function PUT({ request, params, locals }) {
+export async function PUT({ request, params, locals }: RequestEvent) {
   try {
     const cuid = parseCuid(params.cuid);
     if (request.headers.get('content-type')?.includes('application/json') === false) {
@@ -44,7 +45,7 @@ export async function PUT({ request, params, locals }) {
  * DELETE /api/roles/:cuid
  * Soft‑deletes (deactivates) a role.
  */
-export async function DELETE({ params, locals }) {
+export async function DELETE({ params, locals }: RequestEvent) {
   try {
     const cuid = parseCuid(params.cuid);
     const result = await roleService.deleteRole(cuid, locals?.user?.id);

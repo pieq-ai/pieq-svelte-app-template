@@ -31,7 +31,8 @@
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
-		SearchInput
+		SearchInput,
+		TimePicker
 	} from '$lib/components';
 	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 	import type { Shift } from '$lib/types/shift';
@@ -290,9 +291,13 @@
 		if (isNaN(d.getTime())) {
 			return String(timeVal);
 		}
-		const hours = String(d.getUTCHours()).padStart(2, '0');
+		let hours = d.getUTCHours();
 		const minutes = String(d.getUTCMinutes()).padStart(2, '0');
-		return `${hours}:${minutes}`;
+		const ampm = hours >= 12 ? 'PM' : 'AM';
+		hours = hours % 12;
+		hours = hours ? hours : 12;
+		const hoursStr = String(hours).padStart(2, '0');
+		return `${hoursStr}:${minutes} ${ampm}`;
 	}
 
 	function openCreateModal() {
@@ -613,24 +618,22 @@
 			<div class="grid grid-cols-2 gap-4">
 				<div class="space-y-2">
 					<Label for="start_time">Start Time</Label>
-					<Input
+					<TimePicker
 						id="start_time"
 						name="start_time"
-						type="time"
 						bind:value={formStartTime}
-						class={timingError ? 'border-destructive' : ''}
-						oninput={() => { timingError = ''; }}
+						isError={!!timingError}
+						onchange={() => { timingError = ''; }}
 					/>
 				</div>
 				<div class="space-y-2">
 					<Label for="end_time">End Time</Label>
-					<Input
+					<TimePicker
 						id="end_time"
 						name="end_time"
-						type="time"
 						bind:value={formEndTime}
-						class={timingError ? 'border-destructive' : ''}
-						oninput={() => { timingError = ''; }}
+						isError={!!timingError}
+						onchange={() => { timingError = ''; }}
 					/>
 				</div>
 			</div>

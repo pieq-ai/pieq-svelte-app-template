@@ -1,3 +1,4 @@
+import type { RequestEvent } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/salary-structure.service.js';
 import {
@@ -5,7 +6,7 @@ import {
 	validateCreateRevision
 } from '$lib/server/validators/salary-structure.validator.js';
 
-export async function GET({ params }) {
+export async function GET({ params }: RequestEvent) {
 	try {
 		const cuid = params.cuid;
 		if (!cuid) {
@@ -24,7 +25,7 @@ export async function GET({ params }) {
 	}
 }
 
-export async function PUT({ params, request }) {
+export async function PUT({ params, request }: RequestEvent) {
 	try {
 		const cuid = params.cuid;
 		if (!cuid) {
@@ -60,7 +61,7 @@ export async function PUT({ params, request }) {
 	}
 }
 
-export async function DELETE({ params }) {
+export async function DELETE({ params }: RequestEvent) {
 	try {
 		const cuid = params.cuid;
 		if (!cuid) {
@@ -87,7 +88,7 @@ export async function DELETE({ params }) {
  *
  * Body: { effective_from: string, components: [{ salary_component_cuid, amount }] }
  */
-export async function POST({ params, request }) {
+export async function POST({ params, request }: RequestEvent) {
 	try {
 		const cuid = params.cuid;
 		if (!cuid) {

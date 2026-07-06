@@ -1,3 +1,4 @@
+import type { RequestEvent } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
 import * as service from '$lib/server/services/salary-structure.service.js';
 import { validateCreateSalaryStructure } from '$lib/server/validators/salary-structure.validator.js';
@@ -15,7 +16,7 @@ export async function GET() {
 	}
 }
 
-export async function POST({ request }) {
+export async function POST({ request }: RequestEvent) {
 	try {
 		const body = await request.json();
 
