@@ -3,7 +3,7 @@
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { Button, SearchInput, FilterDropdown } from '$lib/components';
+	import { Button, SearchInput, FilterDropdown, Checkbox } from '$lib/components';
 	import Pagination from '$lib/components/common/Pagination.svelte';
 	import CakeIcon from '@lucide/svelte/icons/cake';
 	import MegaphoneIcon from '@lucide/svelte/icons/megaphone';
@@ -268,11 +268,12 @@
 
 		<!-- Checkbox Unread Only -->
 		<label class="flex items-center gap-2 text-sm font-medium text-muted-foreground cursor-pointer select-none">
-			<input
-				type="checkbox"
-				class="rounded border-border text-[#F43510] focus:ring-[#F43510] cursor-pointer size-4"
-				bind:checked={unreadOnlyVal}
-				onchange={handleFilterChange}
+			<Checkbox
+				checked={unreadOnlyVal}
+				onCheckedChange={(val) => {
+					unreadOnlyVal = !!val;
+					handleFilterChange();
+				}}
 			/>
 			Show unread only
 		</label>

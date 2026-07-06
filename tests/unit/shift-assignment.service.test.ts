@@ -6,6 +6,14 @@ import * as employeeDao from '../../src/lib/server/dao/employee.dao.js';
 import * as shiftDao from '../../src/lib/server/dao/shift.dao.js';
 import * as leaveDao from '../../src/lib/server/dao/leave.dao.js';
 import * as leaveService from '../../src/lib/server/services/leave.service.js';
+import { notificationFactory } from '../../src/lib/server/notifications/notification.factory.js';
+
+vi.mock('../../src/lib/server/notifications/notification.factory.js', () => ({
+  notificationFactory: {
+    shiftAssigned: vi.fn().mockResolvedValue({} as any),
+    shiftReassigned: vi.fn().mockResolvedValue({} as any)
+  }
+}));
 
 vi.mock('../../src/lib/server/dao/shift-assignment.dao.js', () => ({
   listForSubordinates: vi.fn(),
@@ -175,6 +183,12 @@ describe('Shift Assignment Service Unit Tests', () => {
       const result = await service.createAssignment(validPayload, managerEmail);
       expect(result).toEqual(mockCreated);
       expect(dao.create).toHaveBeenCalled();
+      expect(notificationFactory.shiftAssigned).toHaveBeenCalledWith(
+        'Morning Shift',
+        expect.any(Date),
+        subordinateCuid,
+        managerCuid
+      );
     });
   });
 
@@ -236,6 +250,12 @@ describe('Shift Assignment Service Unit Tests', () => {
 
       const result = await service.updateAssignment('a-1', updatePayload, managerEmail);
       expect(result).toEqual(mockUpdated);
+      expect(notificationFactory.shiftReassigned).toHaveBeenCalledWith(
+        'Morning Shift',
+        expect.any(Date),
+        subordinateCuid,
+        managerCuid
+      );
     });
   });
 

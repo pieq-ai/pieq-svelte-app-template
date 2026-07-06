@@ -119,6 +119,22 @@ export const notificationFactory = {
 		return notificationService.send(payload);
 	},
 
+	async shiftAssigned(shiftName: string, startDate: Date, employeeCuid: string, createdBy: string | null | undefined) {
+		const payload = templates.shiftAssigned(shiftName, startDate, employeeCuid);
+		return notificationService.send({
+			...payload,
+			created_by: createdBy ?? null
+		});
+	},
+
+	async shiftReassigned(shiftName: string, startDate: Date, employeeCuid: string, createdBy: string | null | undefined) {
+		const payload = templates.shiftReassigned(shiftName, startDate, employeeCuid);
+		return notificationService.send({
+			...payload,
+			created_by: createdBy ?? null
+		});
+	},
+
 	async send(dto: CreateNotificationDto) {
 		return notificationService.send(dto);
 	}

@@ -22,7 +22,7 @@
 		type: string;
 		is_read: boolean;
 		created_at: string;
-		payload: any;
+		metadata: any;
 	}
 
 	let isOpen = $state(false);
@@ -112,8 +112,8 @@
 			}
 		}
 
-		if (item.payload?.link) {
-			goto(resolve(item.payload.link));
+		if (item.metadata?.link) {
+			goto(resolve(item.metadata.link));
 		}
 	}
 

@@ -6,6 +6,7 @@ import * as leaveDao from '$lib/server/dao/leave.dao.js';
 import { resolveEmployee } from '$lib/server/services/leave.service.js';
 import { validateCreatePayload, validateUpdatePayload } from '$lib/server/validators/shift-assignment.validator.js';
 import type { ShiftAssignment, ShiftAssignmentCreateDTO, ShiftAssignmentUpdateDTO } from '$lib/types/shift-assignment';
+import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 
 /**
  * Parses a date string (YYYY-MM-DD) or Date object into a UTC Date.
@@ -121,11 +122,18 @@ export async function createAssignment(payload: unknown, managerEmail: string): 
     }
   }
 
-  return shiftAssignmentDao.create({
+  const created = await shiftAssignmentDao.create({
     ...validated,
     effective_from: fromUTC,
     effective_to: toUTC
   });
+
+  // Trigger shift assigned notification
+  const { manager } = await getManagerSubordinates(managerEmail);
+  notificationFactory.shiftAssigned(shift.name, fromUTC, validated.employee_cuid, manager.cuid)
+    .catch((err) => console.error('Failed to trigger shift assigned notification:', err));
+
+  return created;
 }
 
 /**
@@ -209,7 +217,7 @@ export async function updateAssignment(
     }
   }
 
-  return shiftAssignmentDao.update(cuid, {
+  const updated = await shiftAssignmentDao.update(cuid, {
     employee_cuid: targetEmployeeCuid,
     shift_cuid: targetShiftCuid,
     effective_from: fromUTC,
@@ -217,6 +225,27 @@ export async function updateAssignment(
     status: targetStatus,
     updated_by: validated.updated_by
   });
+
+  const shiftChanged = targetShiftCuid !== existing.shift_cuid;
+  const employeeChanged = targetEmployeeCuid !== existing.employee_cuid;
+  const fromDateChanged = fromUTC.getTime() !== new Date(existing.effective_from).getTime();
+  const statusActivated = targetStatus && !existing.status;
+
+  if (shiftChanged || employeeChanged || fromDateChanged || statusActivated) {
+    const shift = await shiftDao.getShiftByCuid(targetShiftCuid);
+    const shiftName = shift?.name || 'Assigned Shift';
+    const { manager } = await getManagerSubordinates(managerEmail);
+
+    if (employeeChanged) {
+      notificationFactory.shiftAssigned(shiftName, fromUTC, targetEmployeeCuid, manager.cuid)
+        .catch((err) => console.error('Failed to trigger shift assigned notification for new employee:', err));
+    } else {
+      notificationFactory.shiftReassigned(shiftName, fromUTC, targetEmployeeCuid, manager.cuid)
+        .catch((err) => console.error('Failed to trigger shift reassigned notification:', err));
+    }
+  }
+
+  return updated;
 }
 
 /**
