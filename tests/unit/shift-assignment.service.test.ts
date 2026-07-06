@@ -6,6 +6,7 @@ import * as employeeDao from '../../src/lib/server/dao/employee.dao.js';
 import * as shiftDao from '../../src/lib/server/dao/shift.dao.js';
 import * as leaveDao from '../../src/lib/server/dao/leave.dao.js';
 import * as leaveService from '../../src/lib/server/services/leave.service.js';
+import * as employmentDao from '../../src/lib/server/dao/employment.dao.js';
 import { notificationFactory } from '../../src/lib/server/notifications/notification.factory.js';
 
 vi.mock('../../src/lib/server/notifications/notification.factory.js', () => ({
