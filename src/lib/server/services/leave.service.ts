@@ -994,6 +994,16 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 		remainingBalance = balance ? Number(balance.remaining_days) : 0;
 	}
 
+	if (leaveType.code === 'ML') {
+		if (input.isMiscarriage) {
+			remainingBalance = Math.min(remainingBalance, 28.0);
+		} else {
+			remainingBalance = Math.min(remainingBalance, 168.0);
+		}
+	} else if (leaveType.code === 'PL') {
+		remainingBalance = Math.min(remainingBalance, 5.0);
+	}
+
 	let calendarDaysCount = 0;
 	if (input.isHalfDay) {
 		calendarDaysCount = 0.5;
@@ -1158,12 +1168,6 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 			throw new ValidationError('leaveTypeCuid', `Employee must have worked at least 80 days during the previous 12 months before expected delivery. Current service in period: ${activeServiceDays} days.`);
 		}
 
-		// Miscarriage/MTP paid leave limit is 4 weeks, normal ML limit is 24 weeks
-		const maxAllowedML = input.isMiscarriage ? 28.0 : 168.0;
-		if (totalDays > maxAllowedML) {
-			throw new ValidationError('endDate', `Maternity Leave is limited to a maximum of ${maxAllowedML === 28.0 ? '4 weeks (28 days)' : '24 weeks (168 days)'} for this request.`);
-		}
-
 		// Must be submitted at least 8 weeks before expected delivery (except miscarriage)
 		if (!input.isMiscarriage) {
 			const now = new Date();
@@ -1192,10 +1196,6 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 		const birthDate = new Date(input.childBirthDate);
 		if (isNaN(birthDate.getTime())) {
 			throw new ValidationError('childBirthDate', 'Invalid Birth Date format.');
-		}
-
-		if (totalDays > 5) {
-			throw new ValidationError('endDate', 'Paternity Leave is limited to a maximum of 5 days.');
 		}
 
 		const maxEndDate = new Date(birthDate);

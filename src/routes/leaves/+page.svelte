@@ -349,11 +349,21 @@
       curr.setDate(curr.getDate() + 1);
     }
 
-    const remaining = getAvailableBalanceForMonth(
+    let remaining = getAvailableBalanceForMonth(
       formLeaveTypeCuid,
       code,
       formStartDate,
     );
+
+    if (code === "ML") {
+      if (formIsMiscarriage) {
+        remaining = Math.min(remaining, 28.0);
+      } else {
+        remaining = Math.min(remaining, 168.0);
+      }
+    } else if (code === "PL") {
+      remaining = Math.min(remaining, 5.0);
+    }
 
     let activeDates = workingDates;
     let totalActive = workingDates.length;
