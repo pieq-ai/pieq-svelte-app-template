@@ -102,7 +102,7 @@
 		<!-- 6 Stats Grid Cards -->
 		<section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
 			<!-- Present Days -->
-			<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs hover:-translate-y-0.5 transition-all duration-200">
+			<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs">
 				<div class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]">
 					<CalendarIcon class="size-5" />
 				</div>
@@ -111,7 +111,7 @@
 			</div>
 
 			<!-- Leave Balance -->
-			<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs hover:-translate-y-0.5 transition-all duration-200">
+			<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs">
 				<div class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]">
 					<UmbrellaIcon class="size-5" />
 				</div>
@@ -120,7 +120,7 @@
 			</div>
 
 			<!-- Pending Leave -->
-			<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs hover:-translate-y-0.5 transition-all duration-200">
+			<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs">
 				<div class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]">
 					<MessageSquareMoreIcon class="size-5" />
 				</div>
@@ -129,7 +129,7 @@
 			</div>
 
 			<!-- Avg Work Hours -->
-			<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs hover:-translate-y-0.5 transition-all duration-200">
+			<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs">
 				<div class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]">
 					<ClockIcon class="size-5" />
 				</div>
@@ -138,7 +138,7 @@
 			</div>
 
 			<!-- This Month -->
-			<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs hover:-translate-y-0.5 transition-all duration-200">
+			<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs">
 				<div class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]">
 					<ClockIcon class="size-5" />
 				</div>
@@ -146,13 +146,15 @@
 				<span class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mt-1.5">This Month</span>
 			</div>
 
-			<!-- Upcoming Hol. -->
-			<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs hover:-translate-y-0.5 transition-all duration-200">
+			<!-- Upcoming Holidays -->
+			<div
+				class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs"
+			>
 				<div class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]">
 					<SparklesIcon class="size-5" />
 				</div>
 				<span class="text-3xl font-extrabold text-[#F45310] mt-3">{String(data.stats.upcomingHolidaysCount).padStart(2, '0')}</span>
-				<span class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mt-1.5">Upcoming Hol.</span>
+				<span class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mt-1.5">Upcoming Holidays</span>
 			</div>
 		</section>
 
@@ -167,13 +169,13 @@
 					</div>
 
 					<div class="overflow-x-auto">
-						<table class="w-full text-left border-collapse">
+						<table class="w-full text-left">
 							<thead>
 								<tr class="border-b border-neutral-100 text-xs font-bold text-neutral-400 uppercase tracking-wider">
-									<th class="pb-3 font-semibold">Employee Name</th>
-									<th class="pb-3 font-semibold">Role</th>
-									<th class="pb-3 font-semibold">Department</th>
+									<th class="pb-3 font-semibold">Name</th>
 									<th class="pb-3 font-semibold">Designation</th>
+									<th class="pb-3 font-semibold">Department</th>
+									<th class="pb-3 font-semibold">Role</th>
 								</tr>
 							</thead>
 							<tbody class="divide-y divide-neutral-100 text-sm">
@@ -183,13 +185,13 @@
 											{member.name}
 										</td>
 										<td class="py-3.5 text-neutral-600 font-medium">
-											{member.role}
+											{member.designation}
 										</td>
 										<td class="py-3.5 text-neutral-600 font-medium">
 											{member.department}
 										</td>
 										<td class="py-3.5 text-neutral-600 font-medium">
-											{member.designation}
+											{member.role}
 										</td>
 									</tr>
 								{:else}
@@ -285,7 +287,7 @@
 				</div>
 
 				<!-- Holiday Calendar Widget -->
-				<div class="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs">
+				<a href="/holidays" class="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs decoration-none block cursor-pointer">
 					<h3 class="text-lg font-bold text-neutral-900 mb-5">Holiday Calendar</h3>
 					<div class="flex flex-col gap-4">
 						{#each data.upcomingEvents as event}
@@ -317,7 +319,7 @@
 							<p class="text-xs font-semibold text-neutral-400 text-center py-4">No upcoming holidays scheduled.</p>
 						{/each}
 					</div>
-				</div>
+				</a>
 
 			</div>
 		</section>

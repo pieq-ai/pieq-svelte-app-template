@@ -9,12 +9,12 @@
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import SparklesIcon from '@lucide/svelte/icons/sparkles';
+	import FilterDropdown from '$lib/components/common/FilterDropdown.svelte';
 
 	let { data } = $props();
 
-	function handlePeriodChange(e: Event) {
-		const select = e.target as HTMLSelectElement;
-		goto(`/dashboard/finance?period=${select.value}`, { keepFocus: true, invalidateAll: true });
+	function handlePeriodChange(val: string) {
+		goto(`/dashboard/finance?period=${val}`, { keepFocus: true, invalidateAll: true });
 	}
 
 	function formatIndianCurrency(num: number): string {
@@ -136,71 +136,69 @@
 	<!-- Metrics Cards Row -->
 	<section class="grid grid-cols-2 md:grid-cols-4 gap-5">
 		<!-- Total Employees -->
-		<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs space-y-2">
-			<div class="flex items-center gap-2 text-neutral-400">
-				<UsersIcon class="size-4 shrink-0" />
-				<span class="text-xs font-bold uppercase tracking-wider">Total Employees</span>
+		<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs">
+			<div class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]">
+				<UsersIcon class="size-5" />
 			</div>
-			<div class="text-3xl font-black text-neutral-800">
-				{data.stats?.totalEmployees ?? 0}
-			</div>
-			<div class="flex items-center gap-1 text-[11px] font-bold text-emerald-600">
-				<ArrowUpIcon class="size-3.5" />
-				<span>+{data.stats?.newEmployeesThisMonth ?? 0} this month</span>
+			<span class="text-3xl font-extrabold text-neutral-900 mt-3">{data.stats?.totalEmployees ?? 0}</span>
+			<span class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mt-1.5">Total Employees</span>
+			<div class="flex items-center gap-0.5 text-[10px] font-bold text-emerald-600 mt-2">
+				<ArrowUpIcon class="size-3" />
+				<span>{data.stats?.newEmployeesThisMonth ?? 0} this month</span>
 			</div>
 		</div>
 
 		<!-- Total Payroll (MTD) -->
-		<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs space-y-2">
-			<div class="flex items-center gap-2 text-neutral-400">
-				<WalletIcon class="size-4 shrink-0" />
-				<span class="text-xs font-bold uppercase tracking-wider">Total Payroll (MTD)</span>
+		<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs">
+			<div class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]">
+				<WalletIcon class="size-5" />
 			</div>
-			<div class="text-3xl font-black text-neutral-800">
+			<span class="text-2xl font-extrabold text-neutral-900 mt-3 truncate w-full" title={formatIndianCurrency(data.stats?.totalPayroll ?? 0)}>
 				{formatIndianCurrency(data.stats?.totalPayroll ?? 0)}
-			</div>
-			<div class={`flex items-center gap-1 text-[11px] font-bold ${(data.stats?.totalPayrollTrend ?? 0) >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+			</span>
+			<span class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mt-1.5">Total Payroll (MTD)</span>
+			<div class={`flex items-center gap-0.5 text-[10px] font-bold mt-2 ${(data.stats?.totalPayrollTrend ?? 0) >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
 				{#if (data.stats?.totalPayrollTrend ?? 0) >= 0}
-					<ArrowUpIcon class="size-3.5" />
+					<ArrowUpIcon class="size-3" />
 					<span>+{(data.stats?.totalPayrollTrend ?? 0).toFixed(2)}% vs last month</span>
 				{:else}
-					<ArrowDownIcon class="size-3.5" />
+					<ArrowDownIcon class="size-3" />
 					<span>{(data.stats?.totalPayrollTrend ?? 0).toFixed(2)}% vs last month</span>
 				{/if}
 			</div>
 		</div>
 
 		<!-- Net Payroll (MTD) -->
-		<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs space-y-2">
-			<div class="flex items-center gap-2 text-neutral-400">
-				<BanknoteIcon class="size-4 shrink-0" />
-				<span class="text-xs font-bold uppercase tracking-wider">Net Payroll (MTD)</span>
+		<div class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs">
+			<div class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]">
+				<BanknoteIcon class="size-5" />
 			</div>
-			<div class="text-3xl font-black text-neutral-800">
+			<span class="text-2xl font-extrabold text-neutral-900 mt-3 truncate w-full" title={formatIndianCurrency(data.stats?.netPayroll ?? 0)}>
 				{formatIndianCurrency(data.stats?.netPayroll ?? 0)}
-			</div>
-			<div class={`flex items-center gap-1 text-[11px] font-bold ${(data.stats?.netPayrollTrend ?? 0) >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+			</span>
+			<span class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mt-1.5">Net Payroll (MTD)</span>
+			<div class={`flex items-center gap-0.5 text-[10px] font-bold mt-2 ${(data.stats?.netPayrollTrend ?? 0) >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
 				{#if (data.stats?.netPayrollTrend ?? 0) >= 0}
-					<ArrowUpIcon class="size-3.5" />
+					<ArrowUpIcon class="size-3" />
 					<span>+{(data.stats?.netPayrollTrend ?? 0).toFixed(2)}% vs last month</span>
 				{:else}
-					<ArrowDownIcon class="size-3.5" />
+					<ArrowDownIcon class="size-3" />
 					<span>{(data.stats?.netPayrollTrend ?? 0).toFixed(2)}% vs last month</span>
 				{/if}
 			</div>
 		</div>
 
 		<!-- Holidays -->
-		<a href="/holidays" class="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs space-y-2 decoration-none block hover:-translate-y-0.5 transition-all duration-200">
-			<div class="flex items-center gap-2 text-neutral-400">
-				<SparklesIcon class="size-4 shrink-0" />
-				<span class="text-xs font-bold uppercase tracking-wider">Holidays</span>
+		<a href="/holidays" class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs decoration-none cursor-pointer">
+			<div class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]">
+				<SparklesIcon class="size-5" />
 			</div>
-			<div class="text-3xl font-black text-neutral-800">
+			<span class="text-3xl font-extrabold text-[#F45310] mt-3">
 				{String(data.stats?.upcomingHolidaysCount ?? 0).padStart(2, '0')}
-			</div>
-			<div class="flex items-center gap-1 text-[11px] font-bold text-orange-600">
-				<span>View Holiday Calendar</span>
+			</span>
+			<span class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mt-1.5">Holidays</span>
+			<div class="flex items-center gap-1 text-[10px] font-bold text-orange-600 mt-2">
+				<span>View Calendar</span>
 			</div>
 		</a>
 	</section>
@@ -212,18 +210,15 @@
 			
 			<!-- Period Selector Dropdown -->
 			{#if (data.periods?.length ?? 0) > 0}
-				<div class="relative">
-					<select
-						value={data.selectedPeriodValue}
-						onchange={handlePeriodChange}
-						class="appearance-none bg-white border border-neutral-200 rounded-xl px-4 py-2 pr-9 text-xs font-bold text-neutral-700 shadow-xs focus:border-neutral-350 focus:outline-none cursor-pointer"
-					>
-						{#each data.periods ?? [] as period}
-							<option value={period.value}>{period.label}</option>
-						{/each}
-					</select>
-					<ChevronDownIcon class="absolute right-3 top-2.5 size-4 pointer-events-none opacity-50" />
-				</div>
+				<FilterDropdown
+					id="period_selector"
+					name="period_selector"
+					value={data.selectedPeriodValue}
+					onChange={handlePeriodChange}
+					options={data.periods}
+					Icon={ChevronDownIcon}
+					triggerClass="w-[180px] h-9 border border-neutral-200 rounded-xl px-4 py-2 text-xs font-bold text-neutral-700 shadow-xs hover:bg-neutral-50/50 cursor-pointer"
+				/>
 			{/if}
 		</div>
 

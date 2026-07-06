@@ -126,10 +126,10 @@
       <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <!-- Total Members -->
         <div
-          class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs hover:-translate-y-0.5 transition-all duration-200"
+          class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs"
         >
           <div
-            class="size-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"
+            class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]"
           >
             <UsersIcon class="size-5" />
           </div>
@@ -144,10 +144,10 @@
 
         <!-- Present -->
         <div
-          class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs hover:-translate-y-0.5 transition-all duration-200"
+          class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs"
         >
           <div
-            class="size-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600"
+            class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]"
           >
             <CheckCircle2Icon class="size-5" />
           </div>
@@ -162,10 +162,10 @@
 
         <!-- On Leave -->
         <div
-          class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs hover:-translate-y-0.5 transition-all duration-200"
+          class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs"
         >
           <div
-            class="size-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-600"
+            class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]"
           >
             <UmbrellaIcon class="size-5" />
           </div>
@@ -180,7 +180,7 @@
 
         <!-- Approvals -->
         <div
-          class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs hover:-translate-y-0.5 transition-all duration-200"
+          class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs"
         >
           <div
             class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]"
@@ -194,17 +194,18 @@
             )}</span
           >
           <span
-            class="text-[11px] font-semibold text-[#F45310] uppercase tracking-wider mt-1.5"
+            class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mt-1.5"
             >Approvals</span
           >
         </div>
 
         <!-- Holidays -->
-        <div
-          class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs hover:-translate-y-0.5 transition-all duration-200"
+        <a
+          href="/holidays"
+          class="bg-white border border-neutral-200/80 rounded-2xl p-5 flex flex-col items-center justify-between text-center shadow-xs decoration-none cursor-pointer"
         >
           <div
-            class="size-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-600"
+            class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]"
           >
             <Building2Icon class="size-5" />
           </div>
@@ -218,7 +219,7 @@
             class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mt-1.5"
             >Holidays</span
           >
-        </div>
+        </a>
       </section>
 
       <!-- Manager Main Workspace Grid -->
