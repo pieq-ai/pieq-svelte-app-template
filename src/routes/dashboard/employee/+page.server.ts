@@ -1,4 +1,4 @@
-import { redirect } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { resolveEmployee, getEmployeeLeaveDetails } from '$lib/server/services/leave.service.js';
 import * as departmentDao from '$lib/server/dao/department.dao.js';
@@ -25,12 +25,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 		console.error('Failed to resolve employee session details:', err);
 	}
 
-	// Fallback to first employee if resolved is null in dev/test environment
 	if (!employee) {
-		const firstEmployee = await employeeDao.getFirstEmployee();
-		if (firstEmployee) {
-			employee = firstEmployee;
-		}
+		throw error(401, 'Unauthorized: Employee record not found');
 	}
 
 	// Always retrieve the employment details if we have an employee (allowing both active & onboarding)
@@ -44,29 +40,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		});
 	}
 
-	if (!employee) {
-		return {
-			context: {
-				user: locals.user,
-				roles: locals.roles,
-				stats: { memberSince: '—', roleCount: locals.roles.length }
-			},
-			showAdminSection: locals.roles.includes('admin'),
-			isManager: false,
-			teamMembers: [],
-			activeShift: null,
-			todayAttendance: null,
-			upcomingEvents: [],
-			stats: {
-				presentDays: 0,
-				leaveBalance: 0,
-				pendingLeave: 0,
-				attendancePercent: 100,
-				thisMonthHours: 0,
-				upcomingHolidaysCount: 0
-			}
-		};
-	}
+
 
 	// 1. Fetch Department, Designation, and Reporting Manager names
 	let departmentName = '—';

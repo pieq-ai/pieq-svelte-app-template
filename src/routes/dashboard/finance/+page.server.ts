@@ -1,4 +1,4 @@
-import { redirect } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { resolveEmployee } from '$lib/server/services/leave.service.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
@@ -25,12 +25,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		console.error('Failed to resolve employee session details:', err);
 	}
 
-	// Fallback to first employee if resolved is null in dev/test environment
 	if (!employee) {
-		const firstEmployee = await employeeDao.getFirstEmployee();
-		if (firstEmployee) {
-			employee = firstEmployee;
-		}
+		throw error(401, 'Unauthorized: Employee record not found');
 	}
 
 	// Always retrieve the employment details if we have an employee
