@@ -1785,7 +1785,7 @@
                       id="payroll_cutoff_select"
                       variant="outline"
                       disabled={isSavingCutoff}
-                      onclick={(e) => {
+                      onclick={() => {
                         if (activeDatePicker === "payroll_cutoff") {
                           activeDatePicker = null;
                         } else {
