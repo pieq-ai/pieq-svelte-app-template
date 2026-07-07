@@ -3,7 +3,7 @@
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { Button, SearchInput, FilterDropdown } from '$lib/components';
+	import { Button, SearchInput, FilterDropdown, Checkbox } from '$lib/components';
 	import Pagination from '$lib/components/common/Pagination.svelte';
 	import CakeIcon from '@lucide/svelte/icons/cake';
 	import MegaphoneIcon from '@lucide/svelte/icons/megaphone';
@@ -13,6 +13,7 @@
 	import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import CheckIcon from '@lucide/svelte/icons/check';
+	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 
 	import InboxIcon from '@lucide/svelte/icons/inbox';
 
@@ -149,6 +150,12 @@
 		}
 	}
 
+	function goBack() {
+		if (typeof window !== 'undefined') {
+			window.history.back();
+		}
+	}
+
 	function getCategoryIcon(category: string) {
 		switch (category) {
 			case 'birthday':
@@ -214,7 +221,17 @@
 <div class="space-y-6">
 	<!-- Page Header -->
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-		<div>
+		<div class="flex items-center gap-3">
+			<Button
+				type="button"
+				variant="ghost"
+				size="icon-sm"
+				class="h-9 w-9 text-muted-foreground hover:text-foreground cursor-pointer"
+				onclick={goBack}
+				aria-label="Back"
+			>
+				<ArrowLeftIcon class="size-4" />
+			</Button>
 			<h1 class="text-3xl font-bold tracking-tight text-foreground">Notifications</h1>
 		</div>
 		<div class="flex items-center gap-2">
@@ -268,11 +285,12 @@
 
 		<!-- Checkbox Unread Only -->
 		<label class="flex items-center gap-2 text-sm font-medium text-muted-foreground cursor-pointer select-none">
-			<input
-				type="checkbox"
-				class="rounded border-border text-[#F43510] focus:ring-[#F43510] cursor-pointer size-4"
-				bind:checked={unreadOnlyVal}
-				onchange={handleFilterChange}
+			<Checkbox
+				checked={unreadOnlyVal}
+				onCheckedChange={(val) => {
+					unreadOnlyVal = !!val;
+					handleFilterChange();
+				}}
 			/>
 			Show unread only
 		</label>

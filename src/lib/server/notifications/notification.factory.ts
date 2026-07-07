@@ -101,14 +101,38 @@ export const notificationFactory = {
 		});
 	},
 
-	async birthday(firstName: string, lastName: string) {
+	async birthday(firstName: string, lastName: string, employeeCuid: string) {
 		const payload = templates.birthday(firstName, lastName);
+		payload.metadata = {
+			...payload.metadata,
+			employeeCuid
+		};
 		return notificationService.send(payload);
 	},
 
-	async workAnniversary(firstName: string, lastName: string, years: number) {
+	async workAnniversary(firstName: string, lastName: string, years: number, employeeCuid: string) {
 		const payload = templates.workAnniversary(firstName, lastName, years);
+		payload.metadata = {
+			...payload.metadata,
+			employeeCuid
+		};
 		return notificationService.send(payload);
+	},
+
+	async shiftAssigned(shiftName: string, startDate: Date, employeeCuid: string, createdBy: string | null | undefined) {
+		const payload = templates.shiftAssigned(shiftName, startDate, employeeCuid);
+		return notificationService.send({
+			...payload,
+			created_by: createdBy ?? null
+		});
+	},
+
+	async shiftReassigned(shiftName: string, startDate: Date, employeeCuid: string, createdBy: string | null | undefined) {
+		const payload = templates.shiftReassigned(shiftName, startDate, employeeCuid);
+		return notificationService.send({
+			...payload,
+			created_by: createdBy ?? null
+		});
 	},
 
 	async send(dto: CreateNotificationDto) {
