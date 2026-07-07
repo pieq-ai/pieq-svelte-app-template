@@ -1,4 +1,5 @@
 import { requirePermission } from "$lib/server/guards/permission.guard";
+import type { RequestEvent } from '@sveltejs/kit';
 import { json } from "@sveltejs/kit";
 import { parsePayrollExcel } from "$lib/server/utils/excel-parser.js";
 import type {
@@ -21,7 +22,7 @@ import {
  * Returns:
  *   { data: { created, skipped, errors, upload_cuid, warnings } }
  */
-export async function POST({ locals, request }) {
+export async function POST({ locals, request }: RequestEvent) {
   try {
     requirePermission(locals.user, "payroll:view");
     const formData = await request.formData();

@@ -1,3 +1,4 @@
+import type { RequestEvent } from '@sveltejs/kit';
 import { requirePermission } from "$lib/server/guards/permission.guard";
 // src/routes/api/organization_location/+server.ts
 import { json } from "@sveltejs/kit";
@@ -9,7 +10,7 @@ import { sendList, sendCreated, mapLocation } from "$lib/server/response.js";
  * Returns paginated list of company locations.
  * Pass ?includeInactive=true to include deactivated locations.
  */
-export async function GET({ locals, url }) {
+export async function GET({ locals, url }: RequestEvent) {
   try {
     requirePermission(locals.user, "location:view");
     const params = Object.fromEntries(url.searchParams.entries());
@@ -29,7 +30,7 @@ export async function GET({ locals, url }) {
  * POST /api/organization_location
  * Creates a new company location.
  */
-export async function POST({ request, locals }) {
+export async function POST({ request, locals }: RequestEvent) {
   try {
     requirePermission(locals.user, "location:view");
     const contentType = request.headers.get("content-type");

@@ -44,7 +44,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		}, 201);
 	} catch (error: any) {
 		if (error instanceof AttendanceValidationError) {
-			return json({ data: { error: { [error.field]: error.message } } }, { status: 400 });
+			const isConflict = error.message.toLowerCase().includes('already') || error.message.toLowerCase().includes('please check out first');
+			return json({ data: { error: { [error.field]: error.message } } }, { status: isConflict ? 409 : 400 });
 		}
 
 		console.error('POST /api/attendance/check-in failed', error);

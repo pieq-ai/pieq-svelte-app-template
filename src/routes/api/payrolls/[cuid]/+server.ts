@@ -1,17 +1,21 @@
 import { requirePermission } from "$lib/server/guards/permission.guard";
-import { json } from "@sveltejs/kit";
+import { json, type RequestEvent } from "@sveltejs/kit";
 import * as service from "$lib/server/services/payroll.service.js";
 import * as failureService from "$lib/server/services/payroll-upload-record.service.js";
 
-export async function GET({ locals, params }) {
+export async function GET({ locals, params }: RequestEvent) {
+	const cuid = params.cuid;
+	if (!cuid) {
+		return json({ error: 'CUID is required' }, { status: 400 });
+	}
   try {
     requirePermission(locals.user, "payroll:view");
-    const payroll = await service.getPayrollByCuid(params.cuid);
+    const payroll = await service.getPayrollByCuid(cuid);
     return json({ data: payroll });
   } catch (error) {
     if ((error as Error).name === "PayrollNotFoundError") {
       try {
-        const failure = await failureService.getFailureByCuid(params.cuid);
+        const failure = await failureService.getFailureByCuid(cuid);
         if (failure) {
           return json({
             data: {

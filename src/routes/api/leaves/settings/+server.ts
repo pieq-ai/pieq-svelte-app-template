@@ -7,7 +7,7 @@ export async function GET(event: RequestEvent) {
 	try {
 		permissionGuard.requirePermission(event.locals.user, 'leave:view');
 		const cutoff = await leaveService.getPayrollCutoffDay();
-		return json({ data: { payrollCutoffDay: cutoff } });
+		return json({ data: { payroll_cutoff: cutoff } });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : 400;
@@ -19,29 +19,54 @@ export async function POST(event: RequestEvent) {
 	try {
 		permissionGuard.requirePermission(event.locals.user, 'leave:view');
 		const email = event.locals.user?.email || '';
+		const roles = event.locals.roles || [];
 
-		const { employee } = await leaveService.resolveEmployee(email);
-		if (!employee) {
-			return json({ error: 'Employee not found' }, { status: 404 });
+		let isAllowed = false;
+		if (roles.includes('admin')) {
+			isAllowed = true;
+		} else {
+			try {
+				const { employee } = await leaveService.resolveEmployee(email);
+				if (employee) {
+					const { isManager } = await leaveService.getEmployeeLeaveDetails(email, new Date().getFullYear());
+					if (isManager) {
+						isAllowed = true;
+					}
+				}
+			} catch (err) {
+				// employee or manager resolve failed
+			}
 		}
 
-		const { isManager } = await leaveService.getEmployeeLeaveDetails(email, new Date().getFullYear());
-		if (!isManager) {
-			return json({ error: 'Unauthorized: Only managers can modify payroll cutoff settings' }, { status: 403 });
+		if (!isAllowed) {
+			return json({ error: 'Unauthorized: Only managers and admins can modify payroll cutoff settings' }, { status: 403 });
 		}
 
 		const body = await event.request.json();
-		const cutoffDay = parseInt(body.payrollCutoffDay, 10);
+		const cutoffDay = parseInt(body.payroll_cutoff, 10);
 		if (isNaN(cutoffDay) || cutoffDay < 1 || cutoffDay > 28) {
 			return json({ error: 'Invalid payroll cutoff day. Must be between 1 and 28.' }, { status: 400 });
 		}
 
-		leaveService.setPayrollCutoffDay(cutoffDay);
+		let updaterCuid: string | null = null;
+		if (event.locals.user?.email) {
+			try {
+				const resolved = await leaveService.resolveEmployee(event.locals.user.email);
+				updaterCuid = resolved?.employee?.cuid ?? event.locals.user.id;
+			} catch (err) {
+				updaterCuid = event.locals.user.id;
+			}
+		} else {
+			updaterCuid = event.locals.user?.id ?? null;
+		}
 
-		return json({ data: { payrollCutoffDay: cutoffDay } });
+		await leaveService.setPayrollCutoffDay(cutoffDay, updaterCuid);
+
+		return json({ data: { payroll_cutoff: cutoffDay } });
 	} catch (error) {
 		const message = (error as Error).message;
 		const status = message === 'Unauthorized' ? 401 : 400;
 		return json({ error: message }, { status });
 	}
 }
+

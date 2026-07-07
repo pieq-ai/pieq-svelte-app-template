@@ -63,7 +63,7 @@ describe('salary-component.validator', () => {
 			});
 			expect(resShort.errors).toContainEqual({
 				field: 'name',
-				message: 'Component name is too short'
+				message: 'Component name is short'
 			});
 
 			const resLong = validateCreateSalaryComponent({
@@ -72,7 +72,7 @@ describe('salary-component.validator', () => {
 			});
 			expect(resLong.errors).toContainEqual({
 				field: 'name',
-				message: 'Component name is too long'
+				message: 'Component name is long'
 			});
 		});
 

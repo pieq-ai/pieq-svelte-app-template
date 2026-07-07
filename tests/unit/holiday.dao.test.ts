@@ -3,7 +3,6 @@ import {
 	list,
 	create,
 	update,
-	deleteHoliday,
 	findByCuid,
 	findByNameAndDate,
 	findDuplicateExcludingCuid,
@@ -21,7 +20,6 @@ vi.mock('$lib/server/db.js', () => {
 				findMany: vi.fn(),
 				create: vi.fn(),
 				update: vi.fn(),
-				delete: vi.fn(),
 				findUnique: vi.fn(),
 				findFirst: vi.fn()
 			}
@@ -70,14 +68,6 @@ describe('holiday DAO', () => {
 			where: { cuid: 'cuid-1' },
 			data: { name: 'New Name' }
 		});
-	});
-
-	it('should delete holiday calendar entry', async () => {
-		vi.mocked(db.holidayCalendar.delete).mockResolvedValue({ id: 1n } as any);
-
-		const result = await deleteHoliday('cuid-1');
-		expect(result).toEqual({ id: 1n });
-		expect(db.holidayCalendar.delete).toHaveBeenCalledWith({ where: { cuid: 'cuid-1' } });
 	});
 
 	it('should find unique entry by cuid', async () => {

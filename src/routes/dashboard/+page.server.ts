@@ -6,15 +6,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
 		redirect(302, '/');
 	}
-	return {
-		context: {
-			user: locals.user,
-			roles: locals.roles,
-			stats: {
-				memberSince: '—',
-				roleCount: locals.roles.length
-			}
-		},
-		showAdminSection: canAccess(locals.user, 'dashboard:admin')
-	};
+	if (canAccess(locals.user, 'dashboard:admin')) {
+        throw redirect(302, '/dashboard/admin');
+    }
+
+    if (canAccess(locals.user, 'dashboard:finance')) {
+        throw redirect(302, '/dashboard/finance');
+    }
+
+    throw redirect(302, '/dashboard/employee');
 };

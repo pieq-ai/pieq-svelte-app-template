@@ -3,7 +3,6 @@ import {
 	list,
 	create,
 	update,
-	deleteLeaveType,
 	findByCuid,
 	findByName,
 	findByCode,
@@ -29,7 +28,6 @@ vi.mock('$lib/server/db.js', () => {
 				findMany: vi.fn(),
 				create: vi.fn(),
 				update: vi.fn(),
-				delete: vi.fn(),
 				findUnique: vi.fn(),
 				findFirst: vi.fn()
 			},
@@ -138,15 +136,6 @@ describe('leave-type DAO', () => {
 				deactivated_by_leave_type: false
 			}
 		});
-	});
-
-	it('should delete a leave type', async () => {
-		const mockResult = { id: 1n, cuid: 'test-cuid' };
-		vi.mocked(db.leaveType.delete).mockResolvedValue(mockResult as any);
-
-		const result = await deleteLeaveType('test-cuid');
-		expect(result).toBe(mockResult);
-		expect(db.leaveType.delete).toHaveBeenCalledWith({ where: { cuid: 'test-cuid' } });
 	});
 
 	it('should find by cuid', async () => {

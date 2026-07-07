@@ -527,3 +527,19 @@
 .dark .scrollbar-compact::-webkit-scrollbar-thumb:hover {
 	background: oklch(0.55 0 0);
 }
+
+/* Make space for the notification bell on the far right of page headers */
+main > div > div.flex.border-b {
+	padding-right: 3rem;
+}
+
+/* Define z-200 class which is used in modal backdrops */
+.z-200 {
+	z-index: 200 !important;
+}
+
+/* Ensure all portalled popovers and dropdowns float above modals (which have z-index up to 200) */
+[data-slot="popover-content"],
+[data-slot="dropdown-menu-content"] {
+	z-index: 9999 !important;
+}

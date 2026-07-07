@@ -75,7 +75,11 @@ export function toEmployeeAttendanceViewDTO(employee: any) {
 		first_name: employee.first_name,
 		last_name: employee.last_name,
 		date_of_joining: employee.date_of_joining || null,
-		relieving_date: employee.relieving_date || null
+		relieving_date: employee.relieving_date || null,
+		location_cuid: employee.location_cuid || null,
+		latitude: employee.latitude !== undefined && employee.latitude !== null ? Number(employee.latitude) : null,
+		longitude: employee.longitude !== undefined && employee.longitude !== null ? Number(employee.longitude) : null,
+		minimum_work_hours: employee.minimum_work_hours !== undefined && employee.minimum_work_hours !== null ? Number(employee.minimum_work_hours) : null
 	});
 }
 
@@ -115,3 +119,21 @@ export function toMasterDataDTO(masterData: any) {
 		meta: masterData.meta
 	}, false);
 }
+
+export function toNotificationDTO(notification: any) {
+	if (!notification) return notification;
+	return serialize({
+		cuid: notification.cuid,
+		notification_cuid: notification.notification_cuid,
+		is_read: !!notification.read_at,
+		created_at: notification.created_at,
+		title: notification.title,
+		body: notification.body,
+		category: notification.category,
+		priority: notification.priority,
+		type: notification.type,
+		metadata: notification.metadata,
+		created_by: notification.created_by
+	});
+}
+

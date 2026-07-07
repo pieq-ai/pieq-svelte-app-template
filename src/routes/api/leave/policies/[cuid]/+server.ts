@@ -11,7 +11,6 @@ import {
 	successResponse,
 	errorResponse,
 	updateSuccessResponse,
-	deleteSuccessResponse,
 	formatLeavePolicy
 } from '$lib/server/response.js';
 
@@ -97,7 +96,6 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 		status
 	} = trimmedBody;
 
-	console.log(`PUT /api/leave/policies/${cuid} request payload:`, trimmedBody);
 
 	try {
 		let userId: string | null = null;
@@ -125,9 +123,12 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 			status,
 			updated_by: userId
 		});
-		console.log(`PUT /api/leave/policies/${cuid} success, updated policy:`, data);
 		return updateSuccessResponse('Leave policy', data.cuid);
 	} catch (error) {
+		if (error instanceof Error && error.message === 'Leave policy not found') {
+			return errorResponse(error.message, 404);
+		}
+
 		console.error(`PUT /api/leave/policies/${cuid} failed. Full error stack:`, error);
 
 		const isMultiError =
@@ -135,7 +136,9 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 			(error !== null && typeof error === 'object' && 'name' in error && error.name === 'LeaveMultiValidationError');
 
 		if (isMultiError) {
-			return json({ data: { error: (error as any).fields } }, { status: 400 });
+			const fields = (error as any).fields;
+			const isConflict = Object.values(fields).some((msg: any) => String(msg).toLowerCase().includes('already exists'));
+			return json({ data: { error: fields } }, { status: isConflict ? 409 : 400 });
 		}
 
 		const isValidationError =
@@ -144,41 +147,10 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
 		if (isValidationError) {
 			const valError = error as { field?: string; message: string };
-			console.log('Validation failed:', { field: valError.field, message: valError.message });
 			return json({ data: { error: { [valError.field || 'general']: valError.message } } }, { status: 400 });
 		}
 
 		const errMsg = error instanceof Error ? error.message : 'Unknown server error';
 		return errorResponse(`Failed to update leave policy: ${errMsg}`, 500);
-	}
-};
-
-export const DELETE: RequestHandler = async ({ params, locals }) => {
-	const { cuid } = params;
-
-	try {
-		const existing = await getLeavePolicyByCuid(cuid);
-		if (!existing) {
-			return errorResponse('Leave policy not found', 404);
-		}
-
-		let userId: string | null = null;
-		try {
-			const session = await locals.auth();
-			userId = session?.user?.id ?? null;
-		} catch (authError) {
-			console.warn('Failed to retrieve session from locals.auth():', authError);
-		}
-
-		const updated = await updateLeavePolicy(cuid, {
-			status: !existing.status,
-			updated_by: userId
-		});
-
-		const message = updated.status ? 'Leave policy reactivated successfully' : 'Leave policy deactivated successfully';
-		return deleteSuccessResponse('Leave policy', updated.cuid, message);
-	} catch (error) {
-		console.error(`DELETE /api/leave/policies/${cuid} failed`, error);
-		return errorResponse('Failed to delete leave policy', 500);
 	}
 };

@@ -79,7 +79,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			(error !== null && typeof error === 'object' && 'name' in error && error.name === 'LeaveMultiValidationError');
 
 		if (isMultiError) {
-			return json({ data: { error: (error as any).fields } }, { status: 400 });
+			const fields = (error as any).fields;
+			const isConflict = Object.values(fields).some((msg: any) => String(msg).toLowerCase().includes('already exists'));
+			return json({ data: { error: fields } }, { status: isConflict ? 409 : 400 });
 		}
 		if (error instanceof LeaveValidationError) {
 			return json({ data: { error: { [error.field || 'general']: error.message } } }, { status: 400 });

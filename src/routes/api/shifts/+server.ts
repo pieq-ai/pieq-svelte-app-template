@@ -1,4 +1,5 @@
 import { requirePermission } from "$lib/server/guards/permission.guard";
+import type { RequestEvent } from '@sveltejs/kit';
 // src/routes/api/shifts/+server.ts
 import { json } from "@sveltejs/kit";
 import * as shiftService from "$lib/server/services/shift.service.js";
@@ -9,7 +10,7 @@ import { sendList, sendCreated, mapShift } from "$lib/server/response.js";
  * Returns paginated list of shifts.
  * Pass ?includeInactive=true to include deactivated shifts.
  */
-export async function GET({ locals, url }) {
+export async function GET({ locals, url }: RequestEvent) {
   try {
     requirePermission(locals.user, "shift:view");
     const params = Object.fromEntries(url.searchParams.entries());
@@ -29,7 +30,7 @@ export async function GET({ locals, url }) {
  * POST /api/shifts
  * Creates a new shift.
  */
-export async function POST({ request, locals }) {
+export async function POST({ request, locals }: RequestEvent) {
   try {
     requirePermission(locals.user, "shift:view");
     const contentType = request.headers.get("content-type");

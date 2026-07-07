@@ -1,4 +1,5 @@
 import * as holidayDao from '$lib/server/dao/holiday.dao.js';
+import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import { invalidateHolidayCache } from '$lib/server/config/leave.config.js';
 
 export const HOLIDAY_NAME_MAX_LENGTH = 200;
@@ -94,7 +95,7 @@ function validateHolidayDate(raw: unknown): Date {
 			date = new Date(trimmed);
 		}
 	} else if (raw instanceof Date) {
-		date = new Date(Date.UTC(raw.getFullYear(), raw.getMonth(), raw.getDate()));
+		date = new Date(Date.UTC(raw.getUTCFullYear(), raw.getUTCMonth(), raw.getUTCDate()));
 	} else {
 		throw new HolidayValidationError('date', 'Holiday date must be a valid date');
 	}
@@ -181,6 +182,11 @@ export async function createHoliday(input: CreateHolidayInput) {
 
 	const result = await holidayDao.create({ name: holiday_name, date: holiday_date, type: holiday_type, created_by: input.created_by, updated_by: input.updated_by });
 	invalidateHolidayCache();
+
+	// Trigger holiday added notification
+	notificationFactory.holidayCreated(result.name, result.date, input.created_by)
+		.catch(err => console.error("Failed to send holiday created notification:", err));
+
 	return result;
 }
 
@@ -220,21 +226,6 @@ export async function updateHoliday(cuid: string, input: UpdateHolidayInput) {
 	}
 
 	const result = await holidayDao.update(cuid, { name: holiday_name, date: holiday_date, type: holiday_type, updated_by: input.updated_by });
-	invalidateHolidayCache();
-	return result;
-}
-
-export async function deleteHoliday(cuid: string) {
-	if (!cuid || typeof cuid !== 'string') {
-		throw new Error('Holiday CUID is required for deletion');
-	}
-
-	const existingHoliday = await holidayDao.findByCuid(cuid);
-	if (!existingHoliday) {
-		throw new Error('Holiday not found');
-	}
-
-	const result = await holidayDao.deleteHoliday(cuid);
 	invalidateHolidayCache();
 	return result;
 }

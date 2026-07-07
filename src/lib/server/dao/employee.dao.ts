@@ -137,7 +137,7 @@ export async function getEmployeeByCuid(cuid: string, tx?: any) {
 export async function getActiveEmploymentByOfficialEmail(email: string, tx?: any) {
 	const client = tx || db;
 	return client.employment.findFirst({
-		where: { official_email: email, employment_status: 'active' }
+		where: { official_email: email, employment_status: { in: ['active', 'onboarding'] } }
 	});
 }
 

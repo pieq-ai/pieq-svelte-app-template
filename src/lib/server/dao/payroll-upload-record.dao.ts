@@ -1,4 +1,5 @@
 import { db } from '$lib/server/db.js';
+import type { Prisma } from '$lib/generated/prisma/client.js';
 
 interface CreateRecordInput {
 	payroll_upload_cuid: string;
@@ -11,8 +12,9 @@ interface CreateRecordInput {
 }
 
 /** Create a new payroll upload record. */
-export async function create(data: CreateRecordInput) {
-	return db.payrollUploadRecord.create({
+export async function create(data: CreateRecordInput, tx?: Prisma.TransactionClient) {
+	const client = tx ?? db;
+	return client.payrollUploadRecord.create({
 		data: {
 			payroll_upload_cuid: data.payroll_upload_cuid,
 			row_number: data.row_number,

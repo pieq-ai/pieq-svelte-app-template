@@ -241,17 +241,17 @@
 			);
 			const resData = await response.json();
 
-			if (response.ok && resData.data) {
+			if (response.ok && resData.data && !resData.data.error) {
 				await loadComponents();
 				toast.success(editingComp ? 'Salary Component updated successfully' : 'Salary Component created successfully');
 				isModalOpen = false;
-		$globalIsDirty = false;
+				$globalIsDirty = false;
 			} else {
 				if (response.status === 400 || response.status === 409) {
-					backendError = resData.message || resData.error || 'Validation failed';
+					backendError = resData.data?.error || resData.message || resData.error || 'Validation failed';
 					nameInput?.focus();
 				} else {
-					toast.error(resData.message || resData.error || 'Failed to save salary component.');
+					toast.error(resData.data?.error || resData.message || resData.error || 'Failed to save salary component.');
 				}
 			}
 		} catch (err) {
@@ -274,7 +274,7 @@
 		</div>
 		<Button
 			type="button"
-			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
+			class="bg-hrms-primary text-white hover:bg-hrms-primary/90 border-0"
 			onclick={openCreateModal}
 		>
 			Add Component
@@ -286,19 +286,19 @@
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Total Components</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-secondary tabular-nums">{totalCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Active Earnings</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{activeEarningsCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-primary tabular-nums">{activeEarningsCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Active Deductions</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{activeDeductionsCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-destructive tabular-nums">{activeDeductionsCount}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
@@ -492,7 +492,7 @@
 					name="is_taxable"
 					type="checkbox"
 					bind:checked={formIsTaxable}
-					class="size-4 rounded border-input accent-[#F45310] cursor-pointer"
+					class="size-4 rounded border-input accent-hrms-primary cursor-pointer"
 				/>
 				<div class="space-y-0.5">
 					<Label for="is_taxable" class="cursor-pointer font-medium">Taxable Component</Label>
@@ -502,7 +502,7 @@
 
 			<div class="flex items-center justify-end gap-3 pt-4">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingComp && !isDirty)}>
+				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSubmitting || (!!editingComp && !isDirty)}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : UI_CONSTANTS.BUTTON_SAVE}
 				</Button>
 			</div>

@@ -92,10 +92,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			(error !== null && typeof error === 'object' && 'name' in error && error.name === 'AttendanceMultiValidationError');
 
 		if (isMultiError) {
-			return json({ data: { error: (error as any).fields } }, { status: 400 });
+			const fields = (error as any).fields;
+			const isConflict = Object.values(fields).some((msg: any) => String(msg).toLowerCase().includes('already exists'));
+			return json({ data: { error: fields } }, { status: isConflict ? 409 : 400 });
 		}
 		if (error instanceof AttendanceValidationError) {
-			return json({ data: { error: { [error.field]: error.message } } }, { status: 400 });
+			const isConflict = error.message.toLowerCase().includes('already exists');
+			return json({ data: { error: { [error.field]: error.message } } }, { status: isConflict ? 409 : 400 });
 		}
 
 		console.error('POST /api/attendance-records failed', error);

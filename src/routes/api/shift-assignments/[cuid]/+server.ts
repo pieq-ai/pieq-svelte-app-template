@@ -1,3 +1,4 @@
+import type { RequestEvent } from '@sveltejs/kit';
 // src/routes/api/shift-assignments/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as shiftAssignmentService from '$lib/server/services/shift-assignment.service.js';
@@ -23,7 +24,7 @@ function parseCuid(param: string | undefined): string {
  * GET /api/shift-assignments/:cuid
  * Gets details of a shift assignment.
  */
-export async function GET({ params, locals }) {
+export async function GET({ params, locals }: RequestEvent) {
   try {
     permissionGuard.requirePermission(locals.user, 'shift_assignment:view');
     const email = locals.user?.email || '';
@@ -43,7 +44,7 @@ export async function GET({ params, locals }) {
  * PUT /api/shift-assignments/:cuid
  * Updates an existing shift assignment.
  */
-export async function PUT({ request, params, locals }) {
+export async function PUT({ request, params, locals }: RequestEvent) {
   try {
     permissionGuard.requirePermission(locals.user, 'shift_assignment:view');
     const email = locals.user?.email || '';
@@ -84,7 +85,7 @@ export async function PUT({ request, params, locals }) {
  * DELETE /api/shift-assignments/:cuid
  * Hard‑deletes a shift assignment.
  */
-export async function DELETE({ params, locals }) {
+export async function DELETE({ params, locals }: RequestEvent) {
   try {
     permissionGuard.requirePermission(locals.user, 'shift_assignment:view');
     const email = locals.user?.email || '';

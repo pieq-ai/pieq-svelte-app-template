@@ -69,12 +69,6 @@ export async function update(cuid: string, data: Partial<CreateLeaveTypeData>) {
 	});
 }
 
-export async function deleteLeaveType(cuid: string) {
-	return db.leaveType.delete({
-		where: { cuid }
-	});
-}
-
 export async function findByCuid(cuid: string) {
 	return db.leaveType.findUnique({
 		where: { cuid },

@@ -3,9 +3,11 @@ import * as shiftAssignmentDao from '$lib/server/dao/shift-assignment.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as shiftDao from '$lib/server/dao/shift.dao.js';
 import * as leaveDao from '$lib/server/dao/leave.dao.js';
+import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import { resolveEmployee } from '$lib/server/services/leave.service.js';
 import { validateCreatePayload, validateUpdatePayload } from '$lib/server/validators/shift-assignment.validator.js';
 import type { ShiftAssignment, ShiftAssignmentCreateDTO, ShiftAssignmentUpdateDTO } from '$lib/types/shift-assignment';
+import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 
 /**
  * Parses a date string (YYYY-MM-DD) or Date object into a UTC Date.
@@ -110,7 +112,26 @@ export async function createAssignment(payload: unknown, managerEmail: string): 
 
   // 5. Parse dates and check for overlaps (only if status is true)
   const fromUTC = parseDateUTC(validated.effective_from);
-  const toUTC = parseDateUTC(validated.effective_to);
+  const toUTC = validated.effective_to ? parseDateUTC(validated.effective_to) : null;
+
+  // Validate against employee lifecycle (joining & relieving dates)
+  const employment = await employmentDao.findByEmployeeCuid(validated.employee_cuid);
+  if (employment) {
+    const joiningDate = employment.date_of_joining ? parseDateUTC(employment.date_of_joining) : null;
+    const relievingDate = employment.relieving_date ? parseDateUTC(employment.relieving_date) : null;
+
+    if (joiningDate && fromUTC.getTime() < joiningDate.getTime()) {
+      const err: any = new Error("Shift assignment effective from date cannot be before the employee's joining date.");
+      err.status = 400;
+      throw err;
+    }
+
+    if (toUTC && relievingDate && toUTC.getTime() > relievingDate.getTime()) {
+      const err: any = new Error("Shift assignment effective to date cannot be after the employee's relieving date.");
+      err.status = 400;
+      throw err;
+    }
+  }
 
   if (validated.status) {
     const overlap = await shiftAssignmentDao.findOverlapping(validated.employee_cuid, fromUTC, toUTC);
@@ -121,11 +142,20 @@ export async function createAssignment(payload: unknown, managerEmail: string): 
     }
   }
 
-  return shiftAssignmentDao.create({
+  const created = await shiftAssignmentDao.create({
     ...validated,
     effective_from: fromUTC,
     effective_to: toUTC
   });
+
+  // Trigger shift assigned notification
+  if (created.status) {
+    const { manager } = await getManagerSubordinates(managerEmail);
+    notificationFactory.shiftAssigned(shift.name, fromUTC, validated.employee_cuid, manager.cuid)
+      .catch((err) => console.error('Failed to trigger shift assigned notification:', err));
+  }
+
+  return created;
 }
 
 /**
@@ -181,16 +211,35 @@ export async function updateAssignment(
   }
 
   // 5. Build and validate merged dates
-  const fromStr = validated.effective_from ?? existing.effective_from;
-  const toStr = validated.effective_to ?? existing.effective_to;
+  const fromStr = validated.effective_from !== undefined ? validated.effective_from : existing.effective_from;
+  const toStr = validated.effective_to !== undefined ? validated.effective_to : existing.effective_to;
 
   const fromUTC = parseDateUTC(fromStr);
-  const toUTC = parseDateUTC(toStr);
+  const toUTC = toStr ? parseDateUTC(toStr) : null;
 
-  if (toUTC.getTime() < fromUTC.getTime()) {
+  if (toUTC && toUTC.getTime() < fromUTC.getTime()) {
     const err: any = new Error('Effective To date must be greater than or equal to Effective From date');
     err.status = 400;
     throw err;
+  }
+
+  // Validate against employee lifecycle (joining & relieving dates)
+  const employment = await employmentDao.findByEmployeeCuid(targetEmployeeCuid);
+  if (employment) {
+    const joiningDate = employment.date_of_joining ? parseDateUTC(employment.date_of_joining) : null;
+    const relievingDate = employment.relieving_date ? parseDateUTC(employment.relieving_date) : null;
+
+    if (joiningDate && fromUTC.getTime() < joiningDate.getTime()) {
+      const err: any = new Error("Shift assignment effective from date cannot be before the employee's joining date.");
+      err.status = 400;
+      throw err;
+    }
+
+    if (toUTC && relievingDate && toUTC.getTime() > relievingDate.getTime()) {
+      const err: any = new Error("Shift assignment effective to date cannot be after the employee's relieving date.");
+      err.status = 400;
+      throw err;
+    }
   }
 
   // 6. Check for overlaps if status is active (either already active or turning active)
@@ -209,7 +258,7 @@ export async function updateAssignment(
     }
   }
 
-  return shiftAssignmentDao.update(cuid, {
+  const updated = await shiftAssignmentDao.update(cuid, {
     employee_cuid: targetEmployeeCuid,
     shift_cuid: targetShiftCuid,
     effective_from: fromUTC,
@@ -217,6 +266,27 @@ export async function updateAssignment(
     status: targetStatus,
     updated_by: validated.updated_by
   });
+
+  const shiftChanged = targetShiftCuid !== existing.shift_cuid;
+  const employeeChanged = targetEmployeeCuid !== existing.employee_cuid;
+  const fromDateChanged = fromUTC.getTime() !== new Date(existing.effective_from).getTime();
+  const statusActivated = targetStatus && !existing.status;
+
+  if (updated.status && (shiftChanged || employeeChanged || fromDateChanged || statusActivated)) {
+    const shift = await shiftDao.getShiftByCuid(targetShiftCuid);
+    const shiftName = shift?.name || 'Assigned Shift';
+    const { manager } = await getManagerSubordinates(managerEmail);
+
+    if (employeeChanged) {
+      notificationFactory.shiftAssigned(shiftName, fromUTC, targetEmployeeCuid, manager.cuid)
+        .catch((err) => console.error('Failed to trigger shift assigned notification for new employee:', err));
+    } else {
+      notificationFactory.shiftReassigned(shiftName, fromUTC, targetEmployeeCuid, manager.cuid)
+        .catch((err) => console.error('Failed to trigger shift reassigned notification:', err));
+    }
+  }
+
+  return updated;
 }
 
 /**

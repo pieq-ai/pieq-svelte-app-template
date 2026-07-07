@@ -3,6 +3,7 @@ import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as holidayDao from '$lib/server/dao/holiday.dao.js';
 import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
+import { getLeaveStatusOnDate } from './attendance.service.js';
 
 export class AttendanceValidationError extends Error {
 	readonly field: string;
@@ -70,7 +71,7 @@ function parseDateOnly(raw: unknown, fieldName: string): Date {
 			date = new Date(trimmed);
 		}
 	} else if (raw instanceof Date) {
-		date = new Date(Date.UTC(raw.getFullYear(), raw.getMonth(), raw.getDate()));
+		date = new Date(Date.UTC(raw.getUTCFullYear(), raw.getUTCMonth(), raw.getUTCDate()));
 	} else {
 		const display = fieldName === 'date' ? 'Attendance date' : capitalize(fieldName.replace('_', ' '));
 		throw new AttendanceValidationError(fieldName, `${display} must be a valid date`);
@@ -230,6 +231,16 @@ async function validateRecordFields(
 	const finalStatus = status !== undefined ? status : (isUpdate ? existingRecord?.status : undefined);
 	const finalSource = attendance_source_cuid !== undefined ? attendance_source_cuid : (isUpdate ? existingRecord?.attendance_source_cuid : null);
 
+	if (finalEmployee && finalDate && finalStatus) {
+		if (['Present', 'Late', 'WFH', 'Half Day'].includes(finalStatus)) {
+			const leaveStatus = await getLeaveStatusOnDate(finalEmployee, finalDate);
+			if (leaveStatus.hasLeave && !leaveStatus.isHalfDay) {
+				errors.date = 'Attendance cannot be marked on leave or LOP days';
+				throw new AttendanceMultiValidationError(errors);
+			}
+		}
+	}
+
 	if (finalStatus && ['Leave', 'Holiday', 'LOP'].includes(finalStatus)) {
 		if (finalCheckIn) {
 			errors.check_in_time = 'Check-in and check-out times must be removed for non-working statuses';
@@ -246,22 +257,30 @@ async function validateRecordFields(
 	}
 
 	let work_duration_minutes: number | null | undefined = undefined;
-	if (finalCheckIn && finalCheckOut) {
-		if (finalCheckOut < finalCheckIn) {
+	let resolvedCheckIn = finalCheckIn;
+	let resolvedCheckOut = finalCheckOut;
+
+	if (resolvedCheckIn && resolvedCheckOut) {
+		let adjustedCheckOut = new Date(resolvedCheckOut);
+		if (adjustedCheckOut < resolvedCheckIn) {
+			adjustedCheckOut.setDate(adjustedCheckOut.getDate() + 1);
+		}
+		if (adjustedCheckOut < resolvedCheckIn) {
 			errors.check_out_time = 'Check out time cannot be before check in time';
 			throw new AttendanceMultiValidationError(errors);
 		}
-		const diffMs = finalCheckOut.getTime() - finalCheckIn.getTime();
+		const diffMs = adjustedCheckOut.getTime() - resolvedCheckIn.getTime();
 		work_duration_minutes = Math.round(diffMs / 1000 / 60);
-	} else if (finalCheckIn === null || finalCheckOut === null) {
+		resolvedCheckOut = adjustedCheckOut;
+	} else if (resolvedCheckIn === null || resolvedCheckOut === null) {
 		work_duration_minutes = null;
 	}
 
 	return {
 		employee_cuid: employee_cuid!,
 		date: date!,
-		check_in_time,
-		check_out_time,
+		check_in_time: resolvedCheckIn,
+		check_out_time: resolvedCheckOut,
 		work_duration_minutes,
 		status: status!,
 		attendance_source_cuid,
@@ -336,8 +355,8 @@ export async function updateAttendanceRecord(cuid: string, dto: UpdateAttendance
 	const updateData: any = {};
 	if (dto.employee_cuid !== undefined) updateData.employee_cuid = validated.employee_cuid;
 	if (dto.date !== undefined) updateData.date = validated.date;
-	if (dto.check_in_time !== undefined) updateData.check_in_time = validated.check_in_time;
-	if (dto.check_out_time !== undefined) updateData.check_out_time = validated.check_out_time;
+	updateData.check_in_time = validated.check_in_time;
+	updateData.check_out_time = validated.check_out_time;
 	if (validated.work_duration_minutes !== undefined) updateData.work_duration_minutes = validated.work_duration_minutes;
 	if (dto.status !== undefined) updateData.status = validated.status;
 	if (dto.attendance_source_cuid !== undefined) updateData.attendance_source_cuid = validated.attendance_source_cuid;
@@ -346,11 +365,4 @@ export async function updateAttendanceRecord(cuid: string, dto: UpdateAttendance
 	updateData.updated_at = new Date();
 
 	return attendanceRecordDao.update(cuid, updateData);
-}
-
-export async function deleteAttendanceRecord(cuid: string) {
-	if (!cuid) {
-		throw new Error('Attendance Record CUID is required for deletion');
-	}
-	return attendanceRecordDao.deleteRecord(cuid);
 }

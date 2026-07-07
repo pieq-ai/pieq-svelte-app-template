@@ -248,7 +248,7 @@
 		<div class="space-y-1">
 			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">Permissions</h1>
 		</div>
-			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={openCreateModal}>
+			<Button class="bg-hrms-primary text-white hover:bg-hrms-primary/90" onclick={openCreateModal}>
 				Add Permission
 			</Button>
 	</div>
@@ -258,19 +258,19 @@
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Total Permissions</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-secondary tabular-nums">{totalCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Active Permissions</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{activeCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-primary tabular-nums">{activeCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Inactive Permissions</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{inactiveCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-destructive tabular-nums">{inactiveCount}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
@@ -329,7 +329,7 @@
 							}} 
 							class="cursor-pointer"
 						>
-							<TableCell class="font-mono text-sm font-semibold">{permission.permission_key}</TableCell>
+							<TableCell class="text-sm font-semibold">{permission.permission_key}</TableCell>
 							<TableCell class="text-center"><Badge variant={permission.status === true ? 'default' : 'secondary'}>{permission.status ? 'Active' : 'Inactive'}</Badge></TableCell>
 							<TableCell class="text-right">
 								<TableActions
@@ -375,7 +375,7 @@
 			{/if}
 			<div class="flex items-center justify-end gap-3 pt-4">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingPermission && !isDirty)}>
+				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSubmitting || (!!editingPermission && !isDirty)}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingPermission ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>
 			</div>

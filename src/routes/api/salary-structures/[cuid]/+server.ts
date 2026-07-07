@@ -1,4 +1,5 @@
 import { requirePermission } from "$lib/server/guards/permission.guard";
+import type { RequestEvent } from '@sveltejs/kit';
 import { json } from "@sveltejs/kit";
 import * as service from "$lib/server/services/salary-structure.service.js";
 import {
@@ -6,7 +7,7 @@ import {
   validateCreateRevision,
 } from "$lib/server/validators/salary-structure.validator.js";
 
-export async function GET({ locals, params }) {
+export async function GET({ locals, params }: RequestEvent) {
   try {
     requirePermission(locals.user, "salary_structure:view");
     const cuid = params.cuid;
@@ -33,7 +34,7 @@ export async function GET({ locals, params }) {
   }
 }
 
-export async function PUT({ locals, params, request }) {
+export async function PUT({ locals, params, request }: RequestEvent) {
   try {
     requirePermission(locals.user, "salary_structure:view");
     const cuid = params.cuid;
@@ -76,7 +77,7 @@ export async function PUT({ locals, params, request }) {
   }
 }
 
-export async function DELETE({ locals, params }) {
+export async function DELETE({ locals, params }: RequestEvent) {
   try {
     requirePermission(locals.user, "salary_structure:view");
     const cuid = params.cuid;
@@ -114,7 +115,7 @@ export async function DELETE({ locals, params }) {
  *
  * Body: { effective_from: string, components: [{ salary_component_cuid, amount }] }
  */
-export async function POST({ locals, params, request }) {
+export async function POST({ locals, params, request }: RequestEvent) {
   try {
     requirePermission(locals.user, "salary_structure:view");
     const cuid = params.cuid;

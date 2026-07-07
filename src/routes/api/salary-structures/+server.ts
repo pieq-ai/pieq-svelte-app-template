@@ -1,3 +1,4 @@
+import type { RequestEvent } from '@sveltejs/kit';
 import { requirePermission } from "$lib/server/guards/permission.guard";
 import { json } from "@sveltejs/kit";
 import * as service from "$lib/server/services/salary-structure.service.js";
@@ -21,7 +22,7 @@ export async function GET({ locals }) {
   }
 }
 
-export async function POST({ locals, request }) {
+export async function POST({ locals, request }: RequestEvent) {
   try {
     requirePermission(locals.user, "salary_structure:view");
     const body = await request.json();

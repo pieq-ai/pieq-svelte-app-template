@@ -1,4 +1,5 @@
 import { requirePermission } from '$lib/server/guards/permission.guard';
+import type { RequestEvent } from '@sveltejs/kit';
 // src/routes/api/shifts/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as shiftService from '$lib/server/services/shift.service.js';
@@ -25,7 +26,7 @@ function parseCuid(param: string | undefined): string {
  * PUT /api/shifts/:cuid
  * Updates an existing shift (partial update allowed).
  */
-export async function PUT({ request, params, locals }) {
+export async function PUT({ request, params, locals }: RequestEvent) {
   try {
     
 		requirePermission(locals.user, 'shift:view');
@@ -55,7 +56,7 @@ const cuid = parseCuid(params.cuid);
  * PATCH /api/shifts/:cuid
  * Activates a deactivated shift.
  */
-export async function PATCH({ params, locals }) {
+export async function PATCH({ params, locals }: RequestEvent) {
   try {
     
 		requirePermission(locals.user, 'shift:view');
@@ -72,7 +73,7 @@ const cuid = parseCuid(params.cuid);
  * DELETE /api/shifts/:cuid
  * Soft‑deletes (deactivates) a shift.
  */
-export async function DELETE({ params, locals }) {
+export async function DELETE({ params, locals }: RequestEvent) {
   try {
     
 		requirePermission(locals.user, 'shift:view');

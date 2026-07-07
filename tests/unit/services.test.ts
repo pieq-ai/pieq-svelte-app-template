@@ -10,6 +10,17 @@ describe('Service Layer Unit Tests', () => {
     await db.role.deleteMany({ where: { name: { in: ['Service HR', 'Service HR Updated'] } } });
     await db.shift.deleteMany({ where: { name: { in: ['Service Shift', 'Sibling Shift'] } } });
     await db.companyLocation.deleteMany({ where: { name: { in: ['Service Location'] } } });
+
+    // Ensure settings record exists for payroll_cutoff to prevent settings not found error
+    const settings = await db.settings.findFirst({ where: { name: 'payroll_cutoff' } });
+    if (!settings) {
+      await db.settings.create({
+        data: {
+          name: 'payroll_cutoff',
+          configuration: { payroll_cut_off_date: 25 }
+        }
+      });
+    }
   });
 
   describe('Role Service', () => {
@@ -199,12 +210,19 @@ describe('Service Layer Unit Tests', () => {
         });
       }
 
-      let leaveType = await db.leaveType.findFirst({
-        where: {
-          status: true,
-          code: { notIn: ['ML', 'PL'] }
-        }
+      let leavePolicy = await db.leavePolicy.findFirst({
+        where: { status: true }
       });
+      let leaveType = null;
+      if (leavePolicy) {
+        leaveType = await db.leaveType.findFirst({
+          where: {
+            cuid: leavePolicy.leave_type_cuid,
+            status: true,
+            code: { notIn: ['ML', 'PL'] }
+          }
+        });
+      }
       let createdTempType = false;
       if (!leaveType) {
         leaveType = await db.leaveType.create({
@@ -224,6 +242,20 @@ describe('Service Layer Unit Tests', () => {
           }
         });
         createdTempType = true;
+      } else {
+        // Ensure a policy exists for the found leave type
+        const policy = await db.leavePolicy.findFirst({
+          where: { leave_type_cuid: leaveType.cuid, status: true }
+        });
+        if (!policy) {
+          await db.leavePolicy.create({
+            data: {
+              leave_type_cuid: leaveType.cuid,
+              annual_limit: 10.0,
+              status: true
+            }
+          });
+        }
       }
 
       // Cleanup any previous overlapping leave requests

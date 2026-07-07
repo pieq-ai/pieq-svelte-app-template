@@ -46,12 +46,6 @@ export async function update(cuid: string, data: Partial<CreateHolidayData>) {
 	});
 }
 
-export async function deleteHoliday(cuid: string) {
-	return db.holidayCalendar.delete({
-		where: { cuid }
-	});
-}
-
 export async function findByCuid(cuid: string) {
 	return db.holidayCalendar.findUnique({
 		where: { cuid },

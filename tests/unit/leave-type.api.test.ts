@@ -171,6 +171,28 @@ describe('leave-types API', () => {
 				code: 'Invalid code format'
 			});
 		});
+
+		it('should return 409 on duplicate conflict multi validation error', async () => {
+			const mockEvent = {
+				request: {
+					json: vi.fn().mockResolvedValue({ name: 'Sick', code: 'SICK_123' })
+				},
+				locals: mockLocals
+			};
+
+			vi.mocked(leaveTypeService.createLeaveType).mockRejectedValue(
+				new leaveTypeService.LeaveMultiValidationError({
+					name: 'Leave Name already exists'
+				})
+			);
+
+			const res = await typesApi.POST(mockEvent as any);
+			expect(res.status).toBe(409);
+			const body = await res.json();
+			expect(body.data.error).toEqual({
+				name: 'Leave Name already exists'
+			});
+		});
 	});
 
 	describe('GET /api/leave/types/[cuid]', () => {
@@ -225,41 +247,48 @@ describe('leave-types API', () => {
 			const body = await res.json();
 			expect(body.data.cuid).toBe('c1');
 		});
-	});
 
-	describe('DELETE /api/leave/types/[cuid]', () => {
-		it('should toggle status successfully', async () => {
+		it('should return 404 if leave type to update is not found', async () => {
 			const mockEvent = {
 				params: { cuid: 'c1' },
+				request: {
+					json: vi.fn().mockResolvedValue({ name: 'Sick Leave Updated' })
+				},
 				locals: mockLocals
 			};
 
-			vi.mocked(leaveTypeService.getLeaveTypeByCuid).mockResolvedValue({
-				cuid: 'c1',
-				status: true
-			} as any);
+			vi.mocked(leaveTypeService.updateLeaveType).mockRejectedValue(
+				new Error('Leave type not found')
+			);
 
-			vi.mocked(leaveTypeService.updateLeaveType).mockResolvedValue({
-				cuid: 'c1',
-				status: false
-			} as any);
-
-			const res = await typesCuidApi.DELETE(mockEvent as any);
-			expect(res.status).toBe(200);
-			const body = await res.json();
-			expect(body.data.message).toContain('deactivated');
-		});
-
-		it('should return 404 if leave type not found', async () => {
-			const mockEvent = {
-				params: { cuid: 'c1' },
-				locals: mockLocals
-			};
-
-			vi.mocked(leaveTypeService.getLeaveTypeByCuid).mockResolvedValue(null);
-
-			const res = await typesCuidApi.DELETE(mockEvent as any);
+			const res = await typesCuidApi.PUT(mockEvent as any);
 			expect(res.status).toBe(404);
+			const body = await res.json();
+			expect(body.data.error).toBe('Leave type not found');
+		});
+
+		it('should return 409 if leave type update conflicts with existing type', async () => {
+			const mockEvent = {
+				params: { cuid: 'c1' },
+				request: {
+					json: vi.fn().mockResolvedValue({ name: 'Sick Leave Updated' })
+				},
+				locals: mockLocals
+			};
+
+			vi.mocked(leaveTypeService.updateLeaveType).mockRejectedValue(
+				new leaveTypeService.LeaveMultiValidationError({
+					name: 'Leave Name already exists'
+				})
+			);
+
+			const res = await typesCuidApi.PUT(mockEvent as any);
+			expect(res.status).toBe(409);
+			const body = await res.json();
+			expect(body.data.error).toEqual({
+				name: 'Leave Name already exists'
+			});
 		});
 	});
+
 });

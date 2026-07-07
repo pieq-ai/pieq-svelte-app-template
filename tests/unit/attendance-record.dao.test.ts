@@ -4,8 +4,7 @@ import {
 	findByCuid,
 	findByEmployeeAndDate,
 	create,
-	update,
-	deleteRecord
+	update
 } from '$lib/server/dao/attendance-record.dao.js';
 import { db } from '$lib/server/db.js';
 
@@ -17,8 +16,7 @@ vi.mock('$lib/server/db.js', () => {
 				findUnique: vi.fn(),
 				findFirst: vi.fn(),
 				create: vi.fn(),
-				update: vi.fn(),
-				delete: vi.fn()
+				update: vi.fn()
 			}
 		}
 	};
@@ -124,7 +122,7 @@ describe('attendance-record DAO', () => {
 		it('should update record with direct generic inputs on update', async () => {
 			const input = {
 				date: new Date(),
-				status: 'Absent'
+				status: 'LOP'
 			};
 			vi.mocked(db.attendanceRecord.update).mockResolvedValue({ id: 1n } as any);
 
@@ -133,21 +131,10 @@ describe('attendance-record DAO', () => {
 				where: { cuid: 'c1' },
 				data: {
 					date: input.date,
-					status: 'Absent'
+					status: 'LOP'
 				}
 			});
 		});
 	});
 
-	describe('deleteRecord', () => {
-		it('should call delete on Prisma', async () => {
-			vi.mocked(db.attendanceRecord.delete).mockResolvedValue({ id: 1n } as any);
-
-			const result = await deleteRecord('c1');
-			expect(result).toEqual({ id: 1n });
-			expect(db.attendanceRecord.delete).toHaveBeenCalledWith({
-				where: { cuid: 'c1' }
-			});
-		});
-	});
 });

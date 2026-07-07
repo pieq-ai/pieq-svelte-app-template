@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
 	import { invalidate, goto, beforeNavigate } from '$app/navigation';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import SearchIcon from '@lucide/svelte/icons/search';
@@ -8,16 +9,15 @@
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
-	import PlusIcon from '@lucide/svelte/icons/plus';
 	import FilterIcon from '@lucide/svelte/icons/filter';
 	import CheckIcon from '@lucide/svelte/icons/check';
-	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import {
 		Badge,
 		Button,
 		Card,
+		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle,
@@ -34,9 +34,9 @@
 		CrudModal,
 		Pagination,
 		TableActions,
-		CardContent,
 		SearchInput
 	} from '$lib/components';
+	import TimePicker from '$lib/components/common/TimePicker.svelte';
 	import { toast } from '$lib/toast';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import type { PageData } from './$types';
@@ -58,6 +58,13 @@
 	let summaryDate = $state(todayStr);
 	let filterStatus = $state('all');
 	let filterSourceCuid = $state('all');
+	let filterPeriod = $state<'week' | 'month' | 'overall'>('month');
+
+	const filterPeriodOptions: { value: 'week' | 'month' | 'overall'; label: string }[] = [
+		{ value: 'week', label: 'This Week' },
+		{ value: 'month', label: 'This Month' },
+		{ value: 'overall', label: 'Overall' }
+	];
 
 	// Sorting
 	let sortKey = $state<string | null>('employee_name');
@@ -65,12 +72,10 @@
 
 	// Modal States
 	let isFormModalOpen = $state(false);
-	let isConfirmOpen = $state(false);
 	let isSubmitting = $state(false);
 
-	// Record to Edit/Delete
+	// Record to Edit
 	let editCuid = $state<string | null>(null);
-	let activeDeleteCuid = $state<string | null>(null);
 
 	// Form local state
 	let formEmployeeCuid = $state('');
@@ -229,8 +234,18 @@
 
 		if (!mandatoryFieldsFilled) return true;
 
+		let checkOutDate = formAttendanceDate;
+		if (formCheckInTimeOnly && formCheckOutTimeOnly && formCheckOutTimeOnly < formCheckInTimeOnly) {
+			const baseDate = new Date(formAttendanceDate);
+			const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 1);
+			const year = d.getFullYear();
+			const month = String(d.getMonth() + 1).padStart(2, '0');
+			const day = String(d.getDate()).padStart(2, '0');
+			checkOutDate = `${year}-${month}-${day}`;
+		}
+
 		const checkInDateTimeStr = formAttendanceDate && formCheckInTimeOnly ? `${formAttendanceDate}T${formCheckInTimeOnly}` : '';
-		const checkOutDateTimeStr = formAttendanceDate && formCheckOutTimeOnly ? `${formAttendanceDate}T${formCheckOutTimeOnly}` : '';
+		const checkOutDateTimeStr = checkOutDate && formCheckOutTimeOnly ? `${checkOutDate}T${formCheckOutTimeOnly}` : '';
 
 		if (checkInDateTimeStr && checkOutDateTimeStr) {
 			const checkIn = new Date(checkInDateTimeStr);
@@ -392,8 +407,6 @@
 		switch (status) {
 			case 'Present':
 				return 'bg-emerald-500/15 text-emerald-800 dark:bg-emerald-500/25 dark:text-emerald-300 border border-emerald-500/30 dark:border-emerald-500/40';
-			case 'Absent':
-				return 'bg-red-500/15 text-red-800 dark:bg-red-500/25 dark:text-red-300 border border-red-500/30 dark:border-red-500/40';
 			case 'Late':
 				return 'bg-amber-500/15 text-amber-800 dark:bg-amber-500/25 dark:text-amber-300 border border-amber-500/30 dark:border-amber-500/40';
 			case 'Half Day':
@@ -443,8 +456,20 @@
 						rec.employee_cuid === formEmployeeCuid &&
 						(rec.date || rec.attendance_date) === formAttendanceDate
 				);
-				if (existing && (!editCuid || existing.cuid !== editCuid)) {
+				if (existing && existing.status !== 'Half Day' && (!editCuid || existing.cuid !== editCuid)) {
 					errs.date = 'An attendance record already exists for this employee on this date';
+				}
+			}
+
+			// Leave check
+			if (formEmployeeCuid && formAttendanceStatus && ['Present', 'Late', 'WFH', 'Half Day'].includes(formAttendanceStatus)) {
+				const existing = data.records.find(
+					(rec: any) =>
+						rec.employee_cuid === formEmployeeCuid &&
+						(rec.date || rec.attendance_date) === formAttendanceDate
+				);
+				if (existing && (existing.status === 'Leave' || existing.status === 'LOP') && (!editCuid || existing.cuid === editCuid)) {
+					errs.date = 'Attendance cannot be marked on leave or LOP days';
 				}
 			}
 
@@ -466,8 +491,18 @@
 
 		if (!formAttendanceStatus) errs.status = 'Attendance status is required';
 
+		let checkOutDate = formAttendanceDate;
+		if (formCheckInTimeOnly && formCheckOutTimeOnly && formCheckOutTimeOnly < formCheckInTimeOnly) {
+			const baseDate = new Date(formAttendanceDate);
+			const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 1);
+			const year = d.getFullYear();
+			const month = String(d.getMonth() + 1).padStart(2, '0');
+			const day = String(d.getDate()).padStart(2, '0');
+			checkOutDate = `${year}-${month}-${day}`;
+		}
+
 		const checkInDateTimeStr = formAttendanceDate && formCheckInTimeOnly ? `${formAttendanceDate}T${formCheckInTimeOnly}` : '';
-		const checkOutDateTimeStr = formAttendanceDate && formCheckOutTimeOnly ? `${formAttendanceDate}T${formCheckOutTimeOnly}` : '';
+		const checkOutDateTimeStr = checkOutDate && formCheckOutTimeOnly ? `${checkOutDate}T${formCheckOutTimeOnly}` : '';
 
 		if (checkInDateTimeStr && checkOutDateTimeStr) {
 			const checkIn = new Date(checkInDateTimeStr);
@@ -483,7 +518,7 @@
 	function openAddModal() {
 		editCuid = null;
 		formEmployeeCuid = '';
-		formAttendanceDate = summaryDate; // pre-fill the currently viewed date
+		formAttendanceDate = ''; // reset to empty/blank state instead of pre-filling summaryDate
 		formCheckInTimeOnly = '';
 		formCheckOutTimeOnly = '';
 		formAttendanceStatus = '';
@@ -565,8 +600,18 @@
 
 		isSubmitting = true;
 
+		let checkOutDate = formAttendanceDate;
+		if (formCheckInTimeOnly && formCheckOutTimeOnly && formCheckOutTimeOnly < formCheckInTimeOnly) {
+			const baseDate = new Date(formAttendanceDate);
+			const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 1);
+			const year = d.getFullYear();
+			const month = String(d.getMonth() + 1).padStart(2, '0');
+			const day = String(d.getDate()).padStart(2, '0');
+			checkOutDate = `${year}-${month}-${day}`;
+		}
+
 		const checkInISO = formAttendanceDate && formCheckInTimeOnly ? `${formAttendanceDate}T${formCheckInTimeOnly}` : null;
-		const checkOutISO = formAttendanceDate && formCheckOutTimeOnly ? `${formAttendanceDate}T${formCheckOutTimeOnly}` : null;
+		const checkOutISO = checkOutDate && formCheckOutTimeOnly ? `${checkOutDate}T${formCheckOutTimeOnly}` : null;
 
 		const payload = {
 			employee_cuid: formEmployeeCuid,
@@ -612,31 +657,6 @@
 		}
 	}
 
-	async function handleDelete() {
-		if (!activeDeleteCuid) return;
-		isSubmitting = true;
-
-		try {
-			const res = await fetch(`/api/attendance-records/${activeDeleteCuid}`, {
-				method: 'DELETE'
-			});
-
-			const body = await res.json();
-			if (res.ok) {
-				toast.success(body.data?.message || 'Record deleted successfully');
-				isConfirmOpen = false;
-				activeDeleteCuid = null;
-				await invalidate('/api/attendance-records');
-			} else {
-				toast.error(body.data?.error || 'Failed to delete record');
-			}
-		} catch (error) {
-			console.error(error);
-			toast.error('An unexpected error occurred');
-		} finally {
-			isSubmitting = false;
-		}
-	}
 
 	function handleSort(key: string) {
 		currentPage = 1;
@@ -650,6 +670,110 @@
 			sortDirection = null;
 		}
 	}
+	function parseLocalDate(dateStr: string): Date {
+		const [year, month, day] = dateStr.split('-').map(Number);
+		return new Date(year, month - 1, day);
+	}
+
+	function isInCurrentWeek(dateStr: string, todayStr: string): boolean {
+		const date = parseLocalDate(dateStr);
+		const today = parseLocalDate(todayStr);
+
+		const todayDay = today.getDay();
+		const diffToMonday = todayDay === 0 ? -6 : 1 - todayDay;
+		const mondayOfTodayWeek = new SvelteDate(today.getTime());
+		mondayOfTodayWeek.setDate(today.getDate() + diffToMonday);
+		mondayOfTodayWeek.setHours(0, 0, 0, 0);
+
+		const sundayOfTodayWeek = new SvelteDate(mondayOfTodayWeek.getTime());
+		sundayOfTodayWeek.setDate(mondayOfTodayWeek.getDate() + 6);
+		sundayOfTodayWeek.setHours(23, 59, 59, 999);
+
+		const recordDate = new SvelteDate(date.getTime());
+		recordDate.setHours(0, 0, 0, 0);
+
+		return recordDate >= mondayOfTodayWeek && recordDate <= sundayOfTodayWeek;
+	}
+
+	function isInCurrentMonth(dateStr: string, targetDateStr: string): boolean {
+		const [rYear, rMonth] = dateStr.split('-');
+		const [tYear, tMonth] = targetDateStr.split('-');
+		return rYear === tYear && rMonth === tMonth;
+	}
+
+	let employeesBelowMinHours = $derived.by(() => {
+		const resultList: { name: string; emp_code: string; avgHours: string }[] = [];
+
+		for (const emp of data.employees) {
+			if (emp.minimum_work_hours === undefined || emp.minimum_work_hours === null) {
+				continue;
+			}
+
+			const empRecords = data.records.filter((r: any) => r.employee_cuid === emp.uuid);
+
+			let totalMinutes = 0;
+			let totalWorkingDays = 0;
+
+			for (const r of empRecords) {
+				if (!r.date) continue;
+				if (r.date > todayStr) continue;
+
+				// Apply period filter
+				if (filterPeriod === 'week') {
+					if (!isInCurrentWeek(r.date, todayStr)) continue;
+				} else if (filterPeriod === 'month') {
+					if (!isInCurrentMonth(r.date, todayStr)) continue;
+				}
+
+				const dateObj = parseLocalDate(r.date);
+				const dayOfWeek = dateObj.getDay();
+				if (dayOfWeek === 0 || dayOfWeek === 6) {
+					continue;
+				}
+
+				const isHoliday = data.holidays.some((h: any) => getISODateString(h.date) === r.date);
+				if (isHoliday) {
+					continue;
+				}
+
+				const status = r.status;
+				if (status === 'Leave' || status === 'On Leave' || status === 'LOP') {
+					continue;
+				}
+
+				if (!r.check_out_time || r.work_duration_minutes === null || r.work_duration_minutes === undefined) {
+					continue;
+				}
+
+				const duration = r.work_duration_minutes;
+				if (duration !== null && duration !== undefined && duration >= 0) {
+					totalMinutes += duration;
+				}
+
+				if (status === 'Present' || status === 'Late' || status === 'WFH') {
+					totalWorkingDays += 1;
+				} else if (status === 'Half Day') {
+					totalWorkingDays += 0.5;
+				}
+			}
+
+			if (totalWorkingDays > 0) {
+				const avgMinutes = Math.round(totalMinutes / totalWorkingDays);
+				const avgHoursDecimal = avgMinutes / 60;
+				if (avgHoursDecimal < Number(emp.minimum_work_hours)) {
+					const hrs = Math.floor(avgMinutes / 60);
+					const mins = avgMinutes % 60;
+					resultList.push({
+						name: `${emp.first_name} ${emp.last_name}`,
+						emp_code: emp.emp_code,
+						avgHours: `${hrs}h ${String(mins).padStart(2, '0')}m`
+					});
+				}
+			}
+		}
+
+		return resultList;
+	});
 
 	let summaryCounts = $derived.by(() => {
 		const recordsForDate = data.records.filter((rec) => rec.date === summaryDate);
@@ -657,7 +781,7 @@
 		const leave = recordsForDate.filter((rec) => rec.status === 'Leave' || rec.status === 'On Leave').length;
 		const wfh = recordsForDate.filter((rec) => rec.status === 'WFH').length;
 		const halfDay = recordsForDate.filter((rec) => rec.status === 'Half Day').length;
-		const lop = recordsForDate.filter((rec) => rec.status === 'LOP' || rec.status === 'Absent').length;
+		const lop = recordsForDate.filter((rec) => rec.status === 'LOP').length;
 		
 		const loggedInCuids = new Set(recordsForDate.map((rec) => rec.employee_cuid));
 		const activeEmployeesForDate = data.employees.filter((emp) => {
@@ -730,7 +854,7 @@
 		if (filterStatus !== 'all') {
 			if (filterStatus === 'LOP') {
 				result = result.filter(
-					(rec) => rec.status === 'LOP' || rec.status === 'Absent'
+					(rec) => rec.status === 'LOP'
 				);
 			} else if (filterStatus === 'Leave') {
 				result = result.filter(
@@ -805,6 +929,7 @@
 		summaryDate;
 		filterStatus;
 		filterSourceCuid;
+		filterPeriod;
 		/* eslint-enable @typescript-eslint/no-unused-expressions */
 		currentPage = 1;
 	});
@@ -871,7 +996,7 @@
 		</div>
 		<Button
 			type="button"
-			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0 font-semibold"
+			class="bg-hrms-primary text-white hover:bg-hrms-primary/90 border-0 font-semibold"
 			onclick={openAddModal}
 		>
 			Add Record
@@ -949,12 +1074,13 @@
 		</div>
 	{/if}
 
+
 	<!-- Filters & Search -->
 	<div class="space-y-3">
 		<div class="flex flex-col gap-3 lg:flex-row lg:items-center">
 			<SearchInput id="search_attendance_records" name="search_attendance_records" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by employee name..." />
 
-			<div class="grid grid-cols-2 md:grid-cols-3 gap-3 w-full lg:w-auto shrink-0">
+			<div class="grid grid-cols-2 md:grid-cols-4 gap-3 w-full lg:w-auto shrink-0">
 				<!-- Date Filter -->
 				<div class="w-full">
 					<DatePicker
@@ -963,6 +1089,30 @@
 						isFilter={true}
 					/>
 				</div>
+
+				<!-- Period Filter -->
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger>
+						{#snippet child({ props })}
+							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
+								<span class="truncate pr-1">
+									{filterPeriodOptions.find(o => o.value === filterPeriod)?.label || 'Period'}
+								</span>
+								<FilterIcon class="size-3.5 opacity-50 shrink-0" />
+							</Button>
+						{/snippet}
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
+						<DropdownMenu.Group>
+							{#each filterPeriodOptions as opt}
+								<DropdownMenu.Item onclick={() => filterPeriod = opt.value} class="justify-between cursor-pointer {filterPeriod === opt.value ? 'bg-accent text-accent-foreground font-semibold' : ''}">
+									<span>{opt.label}</span>
+									{#if filterPeriod === opt.value}<CheckIcon class="size-4 shrink-0" />{/if}
+								</DropdownMenu.Item>
+							{/each}
+						</DropdownMenu.Group>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
 
 				<!-- Status Filter -->
 				<DropdownMenu.Root>
@@ -1148,6 +1298,36 @@
 		</Card>
 
 		<Pagination totalItems={filteredRecords.length} bind:currentPage={currentPage} pageSize={pageSize} />
+
+		<!-- Employees working below minimum hours warning section -->
+		{#if employeesBelowMinHours.length > 0}
+			<Card class="border-destructive/30 shadow-xs mt-6 bg-destructive/5 dark:bg-destructive/10">
+				<CardHeader class="pb-2">
+					<CardTitle class="text-lg font-bold text-destructive flex items-center gap-2">
+						⚠️ Employees Working Below Required Hours
+					</CardTitle>
+					<CardDescription class="text-destructive/80 dark:text-destructive/90 text-xs">
+						The following employees have average working hours below the minimum required for their assigned shifts.
+					</CardDescription>
+				</CardHeader>
+				<CardContent class="pt-0">
+					<div class="border rounded-md divide-y divide-border bg-background">
+						{#each employeesBelowMinHours as emp}
+							<div class="flex items-center justify-between p-3 text-sm hover:bg-muted/40 transition-colors">
+								<div class="flex flex-col">
+									<span class="font-semibold text-foreground">{emp.name}</span>
+									<span class="text-xs text-muted-foreground">Code: {emp.emp_code}</span>
+								</div>
+								<div class="text-right">
+									<span class="text-xs font-medium text-muted-foreground block">Average Working Hours</span>
+									<span class="text-sm font-bold text-destructive">{emp.avgHours}</span>
+								</div>
+							</div>
+						{/each}
+					</div>
+				</CardContent>
+			</Card>
+		{/if}
 	</div>
 </div>
 
@@ -1207,7 +1387,7 @@
 								>
 									<span class="truncate">{opt.label}</span>
 									{#if formEmployeeCuid === opt.id}
-										<CheckIcon class="size-4 shrink-0 text-[#F45310]" />
+										<CheckIcon class="size-4 shrink-0 text-hrms-primary" />
 									{/if}
 								</DropdownMenu.Item>
 							{:else}
@@ -1251,17 +1431,15 @@
 			<div class="grid grid-cols-2 gap-4">
 				<div class="space-y-2">
 					<Label for="modal_check_in_time" class={errors.check_in_time ? 'text-destructive font-semibold' : ''}>Check In Time</Label>
-					<Input
+					<TimePicker
 						id="modal_check_in_time"
-						name="check_in_time"
-						type="time"
 						bind:value={formCheckInTimeOnly}
-						oninput={() => {
+						isError={!!errors.check_in_time}
+						disabled={['Leave', 'Holiday', 'LOP'].includes(formAttendanceStatus)}
+						onchange={() => {
 							errors.check_in_time = '';
 							errors.check_out_time = '';
 						}}
-						class={errors.check_in_time ? 'border-destructive' : ''}
-						disabled={['Leave', 'Holiday', 'LOP'].includes(formAttendanceStatus)}
 					/>
 					{#if errors.check_in_time}
 						<p class="text-xs font-semibold text-destructive mt-0.5">{errors.check_in_time}</p>
@@ -1269,17 +1447,15 @@
 				</div>
 				<div class="space-y-2">
 					<Label for="modal_check_out_time" class={errors.check_out_time ? 'text-destructive font-semibold' : ''}>Check Out Time</Label>
-					<Input
+					<TimePicker
 						id="modal_check_out_time"
-						name="check_out_time"
-						type="time"
 						bind:value={formCheckOutTimeOnly}
-						oninput={() => {
+						isError={!!errors.check_out_time}
+						disabled={['Leave', 'Holiday', 'LOP'].includes(formAttendanceStatus)}
+						onchange={() => {
 							errors.check_in_time = '';
 							errors.check_out_time = '';
 						}}
-						class={errors.check_out_time ? 'border-destructive' : ''}
-						disabled={['Leave', 'Holiday', 'LOP'].includes(formAttendanceStatus)}
 					/>
 					{#if errors.check_out_time}
 						<p class="text-xs font-semibold text-destructive mt-0.5">{errors.check_out_time}</p>
@@ -1314,7 +1490,7 @@
 									>
 										<span class="truncate pr-2">{opt.label}</span>
 										{#if formAttendanceStatus === opt.value}
-											<CheckIcon class="size-4 shrink-0 text-[#F45310]" />
+											<CheckIcon class="size-4 shrink-0 text-hrms-primary" />
 										{/if}
 									</DropdownMenu.Item>
 								{/each}
@@ -1406,7 +1582,7 @@
 											>
 												<span class="truncate">{opt.label}</span>
 												{#if isSelected}
-													<CheckIcon class="size-4 shrink-0 text-[#F45310] dark:text-[#F45310] ml-2" />
+													<CheckIcon class="size-4 shrink-0 text-hrms-primary dark:text-hrms-primary ml-2" />
 												{/if}
 											</button>
 										{/each}
@@ -1457,7 +1633,7 @@
 				</Button>
 				<Button
 					type="submit"
-					class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-none font-semibold"
+					class="bg-hrms-primary text-white hover:bg-hrms-primary/90 border-none font-semibold"
 					disabled={isSubmitDisabled}
 				>
 					{#if isSubmitting}
@@ -1470,20 +1646,6 @@
 		</form>
 	{/snippet}
 </CrudModal>
-
-<!-- Delete Confirmation Modal -->
-<ConfirmModal
-	open={isConfirmOpen}
-	title="Delete Attendance Record"
-	description="Are you sure you want to delete this attendance record?"
-	confirmLabel="Delete"
-	isSubmitting={isSubmitting}
-	onCancel={() => {
-		isConfirmOpen = false;
-		activeDeleteCuid = null;
-	}}
-	onConfirm={handleDelete}
-/>
 
 <!-- Discard Changes Confirmation Modal -->
 <ConfirmModal
@@ -1528,7 +1690,7 @@
 
 			<div class="flex items-center justify-end gap-3 pt-6">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSavingNewSource}>Cancel</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSavingNewSource || !newSourceName.trim()}>
+				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSavingNewSource || !newSourceName.trim()}>
 					{#if isSavingNewSource}
 						<LoaderCircleIcon class="size-4 animate-spin" />
 						Saving...
@@ -1540,3 +1702,9 @@
 		</form>
 	{/snippet}
 </CrudModal>
+
+<style>
+	:global([data-radix-popper-content-wrapper]) {
+		z-index: 300 !important;
+	}
+</style>

@@ -1,7 +1,9 @@
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import { KeycloakService } from '$lib/server/services/keycloak/keycloak.service.js';
 import * as systemRoleDao from '$lib/server/dao/system-role.dao.js';
+import * as locationDao from '$lib/server/dao/organization_location.dao.js';
 import * as addressDao from '$lib/server/dao/address.dao.js';
 
 const keycloakService = new KeycloakService();
@@ -10,6 +12,7 @@ import * as educationDao from '$lib/server/dao/education.dao.js';
 import * as experienceDao from '$lib/server/dao/experience.dao.js';
 import * as skillDao from '$lib/server/dao/skill.dao.js';
 import * as languageDao from '$lib/server/dao/language.dao.js';
+import * as shiftAssignmentDao from '$lib/server/dao/shift-assignment.dao.js';
 import { personalSchema } from '$lib/schemas/employee.schema.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
 
@@ -151,6 +154,11 @@ export async function createEmployee(dto: CreateEmployeeDto) {
                 emp_code,
                 profile_completion_status: 'pending'
             });
+
+            // Trigger employee joined notification
+            notificationFactory.employeeJoined(result.first_name, result.last_name, dto.created_by)
+                .catch(err => console.error("Failed to send employee joining notification:", err));
+
             return toPublicEmployee(result);
         } catch (error: any) {
             // Prisma code for unique constraint violation
@@ -385,16 +393,29 @@ export async function deleteEmployee(cuid: string) {
 export async function getMinimalEmployeesForAttendance() {
     const employees = await employeeDao.list();
     const employments = await employmentDao.list();
+    const locations = await locationDao.getAllLocations();
+    const employeeCuids = employees.map(emp => emp.cuid);
+    const activeAssignments = await shiftAssignmentDao.findActiveAssignmentsForEmployees(employeeCuids, new Date());
+    const locMap = new Map(locations.map(l => [l.cuid, l]));
     const empMap = new Map(employments.map(e => [e.employee_cuid, e]));
+    const assignmentMap = new Map<string, number | null>(
+        activeAssignments.map(a => [a.employee_cuid, a.shift?.minimum_work_hours ?? null])
+    );
+
     return employees.map(emp => {
         const empl = empMap.get(emp.cuid);
+        const loc = empl?.location_cuid ? locMap.get(empl.location_cuid) : null;
         return {
             cuid: emp.cuid,
             emp_code: emp.emp_code,
             first_name: emp.first_name,
             last_name: emp.last_name,
             date_of_joining: empl?.date_of_joining || null,
-            relieving_date: empl?.relieving_date || null
+            relieving_date: empl?.relieving_date || null,
+            location_cuid: empl?.location_cuid || null,
+            latitude: loc?.latitude ? Number(loc.latitude) : null,
+            longitude: loc?.longitude ? Number(loc.longitude) : null,
+            minimum_work_hours: assignmentMap.get(emp.cuid) ?? null
         };
     });
 }

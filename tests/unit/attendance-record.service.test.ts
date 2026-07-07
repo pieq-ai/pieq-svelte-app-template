@@ -6,13 +6,17 @@ import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import {
 	createAttendanceRecord,
 	updateAttendanceRecord,
-	deleteAttendanceRecord,
 	listAttendanceRecords,
 	getAttendanceRecordByCuid,
 	AttendanceValidationError,
 	AttendanceMultiValidationError
 } from '$lib/server/services/attendance-record.service.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
+import * as leaveDao from '$lib/server/dao/leave.dao.js';
+
+vi.mock('$lib/server/dao/leave.dao.js', () => ({
+	getApprovedRequestsInPeriod: vi.fn()
+}));
 
 vi.mock('$lib/server/dao/employment.dao.js', () => ({
 	findByEmployeeCuid: vi.fn(),
@@ -36,7 +40,6 @@ vi.mock('$lib/server/dao/attendance-record.dao.js', () => {
 		list: vi.fn(),
 		create: vi.fn(),
 		update: vi.fn(),
-		deleteRecord: vi.fn(),
 		findByCuid: vi.fn(),
 		findByEmployeeAndDate: vi.fn()
 	};
@@ -56,6 +59,7 @@ describe('attendance-record service', () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		vi.mocked(leaveDao.getApprovedRequestsInPeriod).mockResolvedValue([]);
 		vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ cuid: 'source-1', name: 'Web' } as any);
 		vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
 			date_of_joining: new Date(Date.UTC(2026, 0, 1)), // Jan 1, 2026
@@ -111,7 +115,27 @@ describe('attendance-record service', () => {
 			);
 		});
 
-		it('should reject check-out time before check-in time', async () => {
+		it('should accept check-out time earlier in the day than check-in time by adjusting it to next day (cross-midnight)', async () => {
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ cuid: 'source-1' } as any);
+			vi.mocked(attendanceRecordDao.findByEmployeeAndDate).mockResolvedValue(null);
+			vi.mocked(attendanceRecordDao.create).mockResolvedValue({ cuid: 'created-rec-cross' } as any);
+
+			const result = await createAttendanceRecord({
+				...validRecordInput,
+				check_in_time: '2026-06-01T20:00:00Z',
+				check_out_time: '2026-06-01T06:00:00Z'
+			});
+			expect(result).toEqual({ cuid: 'created-rec-cross' });
+			expect(attendanceRecordDao.create).toHaveBeenCalledWith(expect.objectContaining({
+				check_in_time: new Date('2026-06-01T20:00:00Z'),
+				check_out_time: new Date('2026-06-02T06:00:00Z'),
+				work_duration_minutes: 600
+			}));
+		});
+
+		it('should reject check-out time that is genuinely before check-in time even after cross-midnight adjustment', async () => {
 			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ cuid: 'source-1' } as any);
@@ -119,7 +143,7 @@ describe('attendance-record service', () => {
 			await expect(
 				createAttendanceRecord({
 					...validRecordInput,
-					check_in_time: '2026-06-01T17:00:00Z',
+					check_in_time: '2026-06-03T10:00:00Z',
 					check_out_time: '2026-06-01T09:00:00Z'
 				})
 			).rejects.toThrowError(
@@ -223,21 +247,33 @@ describe('attendance-record service', () => {
 				work_duration_minutes: 480
 			}));
 		});
+
+		it('should successfully update record with cross-midnight times', async () => {
+			vi.mocked(attendanceRecordDao.findByCuid).mockResolvedValue({
+				cuid: targetCuid,
+				employee_cuid: employeeCuid,
+				date: new Date(Date.UTC(2026, 5, 1)),
+				check_in_time: new Date('2026-06-01T20:00:00Z'),
+				check_out_time: null
+			} as any);
+			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
+			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
+			vi.mocked(attendanceRecordDao.findByEmployeeAndDate).mockResolvedValue(null);
+			vi.mocked(attendanceRecordDao.update).mockResolvedValue({ cuid: targetCuid } as any);
+
+			const result = await updateAttendanceRecord(targetCuid, {
+				check_out_time: '2026-06-01T06:00:00Z'
+			});
+			expect(result).toEqual({ cuid: targetCuid });
+			expect(attendanceRecordDao.update).toHaveBeenCalledWith(targetCuid, expect.objectContaining({
+				check_in_time: new Date('2026-06-01T20:00:00Z'),
+				check_out_time: new Date('2026-06-02T06:00:00Z'),
+				work_duration_minutes: 600
+			}));
+		});
 	});
 
-	describe('retrieval and deletion', () => {
-		it('should call deleteRecord from DAO', async () => {
-			vi.mocked(attendanceRecordDao.deleteRecord).mockResolvedValue({ cuid: 'deleted-rec' } as any);
-
-			const result = await deleteAttendanceRecord('cuid-1');
-			expect(result).toEqual({ cuid: 'deleted-rec' });
-			expect(attendanceRecordDao.deleteRecord).toHaveBeenCalledWith('cuid-1');
-		});
-
-		it('should fail delete without CUID', async () => {
-			await expect(deleteAttendanceRecord('')).rejects.toThrow('Attendance Record CUID is required');
-		});
-
+	describe('retrieval', () => {
 		it('should list records with parsed date filter', async () => {
 			const expectedRecord = { cuid: 'rec', employee_cuid: employeeCuid, date: new Date(Date.UTC(2026, 5, 1)) };
 			vi.mocked(attendanceRecordDao.list).mockResolvedValue([expectedRecord] as any);

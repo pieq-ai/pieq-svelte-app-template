@@ -1,3 +1,4 @@
+import type { RequestEvent } from '@sveltejs/kit';
 import { requirePermission } from '$lib/server/guards/permission.guard';
 // src/routes/api/organization_location/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
@@ -25,7 +26,7 @@ function parseCuid(param: string | undefined): string {
  * PUT /api/organization_location/:cuid
  * Updates an existing company location (partial update allowed).
  */
-export async function PUT({ request, params, locals }) {
+export async function PUT({ request, params, locals }: RequestEvent) {
   try {
     
 		requirePermission(locals.user, 'location:view');
@@ -55,7 +56,7 @@ const cuid = parseCuid(params.cuid);
  * PATCH /api/organization_location/:cuid
  * Activates a deactivated location.
  */
-export async function PATCH({ params, locals }) {
+export async function PATCH({ params, locals }: RequestEvent) {
   try {
     
 		requirePermission(locals.user, 'location:view');
@@ -72,7 +73,7 @@ const cuid = parseCuid(params.cuid);
  * DELETE /api/organization_location/:cuid
  * Soft‑deletes (deactivates) a company location.
  */
-export async function DELETE({ params, locals }) {
+export async function DELETE({ params, locals }: RequestEvent) {
   try {
     
 		requirePermission(locals.user, 'location:view');

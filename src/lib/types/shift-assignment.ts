@@ -5,7 +5,7 @@ export interface ShiftAssignment {
   employee_cuid: string;
   shift_cuid: string;
   effective_from: Date | string;
-  effective_to: Date | string;
+  effective_to: Date | string | null;
   status: boolean;
   created_at?: Date | string;
   updated_at?: Date | string;
@@ -21,6 +21,7 @@ export interface ShiftAssignment {
     name: string;
     start_time: Date | string;
     end_time: Date | string;
+    minimum_work_hours?: number;
   };
 }
 
@@ -28,7 +29,7 @@ export interface ShiftAssignmentCreateDTO {
   employee_cuid: string;
   shift_cuid: string;
   effective_from: Date | string;
-  effective_to: Date | string;
+  effective_to?: Date | string | null;
   status?: boolean;
   created_by?: string | null;
   updated_by?: string | null;
@@ -38,7 +39,7 @@ export interface ShiftAssignmentUpdateDTO {
   employee_cuid?: string;
   shift_cuid?: string;
   effective_from?: Date | string;
-  effective_to?: Date | string;
+  effective_to?: Date | string | null;
   status?: boolean;
   updated_by?: string | null;
 }

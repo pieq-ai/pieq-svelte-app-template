@@ -4,7 +4,6 @@ import type { RequestHandler } from './$types.js';
 import {
 	getHolidayByCuid,
 	updateHoliday,
-	deleteHoliday,
 	HolidayValidationError,
 	HolidayMultiValidationError
 } from '$lib/server/services/holiday.service.js';
@@ -13,7 +12,6 @@ import {
 	successResponse,
 	errorResponse,
 	updateSuccessResponse,
-	deleteSuccessResponse,
 	formatHoliday
 } from '$lib/server/response.js';
 
@@ -73,12 +71,18 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 		});
 		return updateSuccessResponse('Holiday', holiday.cuid);
 	} catch (error) {
+		if (error instanceof Error && error.message === 'Holiday not found') {
+			return errorResponse(error.message, 404);
+		}
+
 		const isMultiError =
 			error instanceof HolidayMultiValidationError ||
 			(error !== null && typeof error === 'object' && 'name' in error && error.name === 'HolidayMultiValidationError');
 
 		if (isMultiError) {
-			return json({ data: { error: (error as any).fields } }, { status: 400 });
+			const fields = (error as any).fields;
+			const isConflict = Object.values(fields).some((msg: any) => String(msg).toLowerCase().includes('already exists') || String(msg).toLowerCase().includes('already scheduled'));
+			return json({ data: { error: fields } }, { status: isConflict ? 409 : 400 });
 		}
 		if (error instanceof HolidayValidationError) {
 			return json({ data: { error: { [error.field]: error.message } } }, { status: 400 });
@@ -86,17 +90,5 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
 		console.error(`PUT /api/holidays/${cuid} failed`, error);
 		return errorResponse('Failed to update holiday', 500);
-	}
-};
-
-export const DELETE: RequestHandler = async ({ params }) => {
-	const { cuid } = params;
-
-	try {
-		const holiday = await deleteHoliday(cuid);
-		return deleteSuccessResponse('Holiday', holiday.cuid);
-	} catch (error) {
-		console.error(`DELETE /api/holidays/${cuid} failed`, error);
-		return errorResponse('Failed to delete holiday', 500);
 	}
 };

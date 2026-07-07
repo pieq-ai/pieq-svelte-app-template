@@ -1,4 +1,5 @@
 import * as dao from '$lib/server/dao/payroll.dao.js';
+import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import * as uploadDao from '$lib/server/dao/payroll-upload.dao.js';
 import * as recordDao from '$lib/server/dao/payroll-upload-record.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
@@ -125,216 +126,175 @@ export async function uploadPayroll(
 		missingEmpCode?: boolean;
 	}
 ): Promise<PayrollUploadResult> {
-	// Step 1: Create the PayrollUpload batch record
-	const uploadRecord = await uploadDao.create({
-		month,
-		year,
-		status: 'processed',
-		file_name: file_name ?? null,
-		created_by: created_by ?? null
-	});
+	return db.$transaction(async (tx) => {
+		// Step 1: Create the PayrollUpload batch record
+		const uploadRecord = await uploadDao.create({
+			month,
+			year,
+			status: 'processed',
+			file_name: file_name ?? null,
+			created_by: created_by ?? null
+		}, tx);
 
-	// Check upload-level fail-fast validations
-	if (options?.unreadable) {
-		const reason = options.unreadableError || 'Unreadable workbook';
-		await uploadDao.updateEmployeeCount(uploadRecord.cuid, 0, 'failed', reason);
-		return { created: 0, skipped: rows.length, errors: [], upload_cuid: uploadRecord.cuid };
-	}
-
-	if (rows.length === 0) {
-		await uploadDao.updateEmployeeCount(uploadRecord.cuid, 0, 'failed', 'Empty workbook');
-		return { created: 0, skipped: 0, errors: [], upload_cuid: uploadRecord.cuid };
-	}
-
-	if (options) {
-		if (options.missingEmpCode) {
-			await uploadDao.updateEmployeeCount(uploadRecord.cuid, 0, 'failed', "Required column 'Emp No' is missing.");
+		// Check upload-level fail-fast validations
+		if (options?.unreadable) {
+			const reason = options.unreadableError || 'Unreadable workbook';
+			await uploadDao.updateEmployeeCount(uploadRecord.cuid, 0, 'failed', reason, tx);
 			return { created: 0, skipped: rows.length, errors: [], upload_cuid: uploadRecord.cuid };
 		}
 
-		if (options.headerMonth === null || options.headerYear === null || options.headerMonth === undefined || options.headerYear === undefined) {
-			await uploadDao.updateEmployeeCount(uploadRecord.cuid, 0, 'failed', 'Payroll period could not be extracted from the report header.');
-			return { created: 0, skipped: rows.length, errors: [], upload_cuid: uploadRecord.cuid };
+		if (rows.length === 0) {
+			await uploadDao.updateEmployeeCount(uploadRecord.cuid, 0, 'failed', 'Empty workbook', tx);
+			return { created: 0, skipped: 0, errors: [], upload_cuid: uploadRecord.cuid };
 		}
 
-		if (options.headerMonth !== month || options.headerYear !== year) {
-			await uploadDao.updateEmployeeCount(uploadRecord.cuid, 0, 'failed', 'Selected payroll period does not match uploaded file period.');
-			return { created: 0, skipped: rows.length, errors: [], upload_cuid: uploadRecord.cuid };
+		if (options) {
+			if (options.missingEmpCode) {
+				await uploadDao.updateEmployeeCount(uploadRecord.cuid, 0, 'failed', "Required column 'Emp No' is missing.", tx);
+				return { created: 0, skipped: rows.length, errors: [], upload_cuid: uploadRecord.cuid };
+			}
+
+			if (options.headerMonth === null || options.headerYear === null || options.headerMonth === undefined || options.headerYear === undefined) {
+				await uploadDao.updateEmployeeCount(uploadRecord.cuid, 0, 'failed', 'Payroll period could not be extracted from the report header.', tx);
+				return { created: 0, skipped: rows.length, errors: [], upload_cuid: uploadRecord.cuid };
+			}
+
+			if (options.headerMonth !== month || options.headerYear !== year) {
+				await uploadDao.updateEmployeeCount(uploadRecord.cuid, 0, 'failed', 'Selected payroll period does not match uploaded file period.', tx);
+				return { created: 0, skipped: rows.length, errors: [], upload_cuid: uploadRecord.cuid };
+			}
 		}
-	}
 
-	let created = 0;
-	let skipped = 0;
-	const errors: PayrollUploadResult['errors'] = [];
-	const seenKeys = new Set<string>();
+		let created = 0;
+		let skipped = 0;
+		const errors: PayrollUploadResult['errors'] = [];
+		const seenKeys = new Set<string>();
 
-	for (const row of rows) {
-		// Duplicate Row Check (within the file itself)
-		const empCodeTrimmed = (row.employee_code || '').trim().toUpperCase();
-		if (empCodeTrimmed && row.month !== null && row.year !== null) {
-			const duplicateKey = `${empCodeTrimmed}_${row.month}_${row.year}`;
-			if (seenKeys.has(duplicateKey)) {
+		for (const row of rows) {
+			// Duplicate Row Check (within the file itself)
+			const empCodeTrimmed = (row.employee_code || '').trim().toUpperCase();
+			if (empCodeTrimmed && row.month !== null && row.year !== null) {
+				const duplicateKey = `${empCodeTrimmed}_${row.month}_${row.year}`;
+				if (seenKeys.has(duplicateKey)) {
+					skipped++;
+					const errorMessage = 'Duplicate row in upload';
+					errors.push({
+						row: row.rowIndex,
+						employee_code: row.employee_code,
+						reason: errorMessage
+					});
+					await recordDao.create({
+						payroll_upload_cuid: uploadRecord.cuid,
+						row_number: row.rowIndex,
+						employee_code: row.employee_code || null,
+						employee_name: row.employee_name || null,
+						status: 'failed',
+						row_data: row,
+						errors: { employee_code: errorMessage }
+					}, tx);
+					continue;
+				}
+				seenKeys.add(duplicateKey);
+			}
+
+			// 1. Row-level structure and type validation (via centralized validator)
+			const validation = validatePayrollRow(row);
+			const empCode = (row.employee_code || '').trim();
+
+			// 1. Employee Code presence check
+			const missingEmpCodeErr = validation.errors.find(e => e.error_type === 'Missing Employee Code');
+			if (missingEmpCodeErr) {
 				skipped++;
-				const errorMessage = 'Duplicate row in upload';
+				errors.push({
+					row: missingEmpCodeErr.row,
+					employee_code: '(empty)',
+					reason: missingEmpCodeErr.reason
+				});
+				await recordDao.create({
+					payroll_upload_cuid: uploadRecord.cuid,
+					row_number: missingEmpCodeErr.row,
+					employee_code: null,
+					employee_name: null,
+					status: 'failed',
+					row_data: row,
+					errors: { employee_code: missingEmpCodeErr.reason }
+				}, tx);
+				continue;
+			}
+
+			// 2. Employee existence check (takes precedence over month/year/component validation errors)
+			const employee = await findEmployeeByCode(empCode);
+			if (!employee) {
+				skipped++;
+				const errorMessage = `Employee with code ${empCode} does not exist (not found)`;
 				errors.push({
 					row: row.rowIndex,
-					employee_code: row.employee_code,
+					employee_code: empCode,
 					reason: errorMessage
 				});
 				await recordDao.create({
 					payroll_upload_cuid: uploadRecord.cuid,
 					row_number: row.rowIndex,
-					employee_code: row.employee_code || null,
+					employee_code: empCode,
 					employee_name: row.employee_name || null,
 					status: 'failed',
 					row_data: row,
 					errors: { employee_code: errorMessage }
-				});
+				}, tx);
 				continue;
 			}
-			seenKeys.add(duplicateKey);
-		}
 
-		// 1. Row-level structure and type validation (via centralized validator)
-		const validation = validatePayrollRow(row);
-		const empCode = (row.employee_code || '').trim();
-
-		// 1. Employee Code presence check
-		const missingEmpCodeErr = validation.errors.find(e => e.error_type === 'Missing Employee Code');
-		if (missingEmpCodeErr) {
-			skipped++;
-			errors.push({
-				row: missingEmpCodeErr.row,
-				employee_code: '(empty)',
-				reason: missingEmpCodeErr.reason
-			});
-			await recordDao.create({
-				payroll_upload_cuid: uploadRecord.cuid,
-				row_number: missingEmpCodeErr.row,
-				employee_code: null,
-				employee_name: null,
-				status: 'failed',
-				row_data: row,
-				errors: { employee_code: missingEmpCodeErr.reason }
-			});
-			continue;
-		}
-
-		// 2. Employee existence check (takes precedence over month/year/component validation errors)
-		const employee = await findEmployeeByCode(empCode);
-		if (!employee) {
-			skipped++;
-			const errorMessage = `Employee with code ${empCode} does not exist (not found)`;
-			errors.push({
-				row: row.rowIndex,
-				employee_code: empCode,
-				reason: errorMessage
-			});
-			await recordDao.create({
-				payroll_upload_cuid: uploadRecord.cuid,
-				row_number: row.rowIndex,
-				employee_code: empCode,
-				employee_name: row.employee_name || null,
-				status: 'failed',
-				row_data: row,
-				errors: { employee_code: errorMessage }
-			});
-			continue;
-		}
-
-		// 3. Format/type validation checks (month, year, components)
-		const formatErrors = validation.errors.filter(e => e.error_type === 'Validation Error');
-		if (formatErrors.length > 0) {
-			skipped++;
-			const rowErrors: Record<string, string> = {};
-			for (const err of formatErrors) {
-				errors.push({
-					row: err.row,
-					employee_code: err.employee_code,
-					reason: err.reason
-				});
-				
-				if (err.reason.includes('Month')) {
-					rowErrors['month'] = err.reason;
-				} else if (err.reason.includes('Year')) {
-					rowErrors['year'] = err.reason;
-				} else if (err.reason.includes('must be numeric')) {
-					const componentName = err.reason.split(' ')[0] || 'component';
-					rowErrors[componentName] = err.reason;
-				} else {
-					rowErrors['validation'] = err.reason;
-				}
-			}
-			await recordDao.create({
-				payroll_upload_cuid: uploadRecord.cuid,
-				row_number: row.rowIndex,
-				employee_code: empCode,
-				employee_name: row.employee_name || null,
-				status: 'failed',
-				row_data: row,
-				errors: rowErrors
-			});
-			continue;
-		}
-
-		const validated = validation.validatedData!;
-
-		// 4. Payroll does not already exist for Employee + Month + Year in DB.
-		const existing = await dao.findByEmployeeMonthYear(
-			employee.cuid,
-			validated.month,
-			validated.year
-		);
-		if (existing) {
-			// Skip silently without creating failure records or counting as failure
-			continue;
-		}
-
-		// 5. Compute gross/deductions/net summary.
-		const { gross_earnings, total_deduction, net_salary } = computeSummary(
-			validated.components,
-			validated.gross_earnings,
-			validated.total_deduction,
-			validated.net_salary
-		);
-
-		// 6. Create payroll record.
-		try {
-			await dao.create({
-				employee_cuid: employee.cuid,
-				month: validated.month,
-				year: validated.year,
-				gross_earnings,
-				total_deduction,
-				net_salary,
-				breakdown: validated.components,
-				payroll_upload_cuid: uploadRecord.cuid,
-				created_by: created_by ?? null
-			});
-
-			await recordDao.create({
-				payroll_upload_cuid: uploadRecord.cuid,
-				row_number: row.rowIndex,
-				employee_code: empCode,
-				employee_name: validated.employee_name || employee.name,
-				status: 'processed',
-				row_data: row,
-				errors: null
-			});
-
-			created++;
-		} catch (err) {
-			// Catch unique constraint violations at DB level as a safety net (e.g. concurrent upload)
-			const message = err instanceof Error ? err.message : String(err);
-			if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
-				// Skip silently without creating failure records or counting as failure
-				continue;
-			} else {
+			// 3. Format/type validation checks (month, year, components)
+			const formatErrors = validation.errors.filter(e => e.error_type === 'Validation Error');
+			if (formatErrors.length > 0) {
 				skipped++;
+				const rowErrors: Record<string, string> = {};
+				for (const err of formatErrors) {
+					errors.push({
+						row: err.row,
+						employee_code: err.employee_code,
+						reason: err.reason
+					});
+					
+					if (err.reason.includes('Month')) {
+						rowErrors['month'] = err.reason;
+					} else if (err.reason.includes('Year')) {
+						rowErrors['year'] = err.reason;
+					} else if (err.reason.includes('must be numeric')) {
+						const componentName = err.reason.split(' ')[0] || 'component';
+						rowErrors[componentName] = err.reason;
+					} else {
+						rowErrors['validation'] = err.reason;
+					}
+				}
+				await recordDao.create({
+					payroll_upload_cuid: uploadRecord.cuid,
+					row_number: row.rowIndex,
+					employee_code: empCode,
+					employee_name: row.employee_name || null,
+					status: 'failed',
+					row_data: row,
+					errors: rowErrors
+				}, tx);
+				continue;
+			}
+
+			const validated = validation.validatedData!;
+
+			// 4. Payroll does not already exist for Employee + Month + Year in DB.
+			const existing = await dao.findByEmployeeMonthYear(
+				employee.cuid,
+				validated.month,
+				validated.year,
+				tx
+			);
+			if (existing) {
+				skipped++;
+				const errorMessage = `A payroll record for employee "${empCode}" for ${validated.year}-${String(validated.month).padStart(2, '0')} already exists.`;
 				errors.push({
 					row: row.rowIndex,
 					employee_code: empCode,
-					reason: message
+					reason: errorMessage
 				});
 				await recordDao.create({
 					payroll_upload_cuid: uploadRecord.cuid,
@@ -343,17 +303,97 @@ export async function uploadPayroll(
 					employee_name: validated.employee_name || employee.name,
 					status: 'failed',
 					row_data: row,
-					errors: { database: message }
-				});
+					errors: { employee_code: errorMessage }
+				}, tx);
+				continue;
+			}
+
+			// 5. Compute gross/deductions/net summary.
+			const { gross_earnings, total_deduction, net_salary } = computeSummary(
+				validated.components,
+				validated.gross_earnings,
+				validated.total_deduction,
+				validated.net_salary
+			);
+
+			// 6. Create payroll record.
+			try {
+				await dao.create({
+					employee_cuid: employee.cuid,
+					month: validated.month,
+					year: validated.year,
+					gross_earnings,
+					total_deduction,
+					net_salary,
+					breakdown: validated.components,
+					payroll_upload_cuid: uploadRecord.cuid,
+					created_by: created_by ?? null
+				}, tx);
+
+				await recordDao.create({
+					payroll_upload_cuid: uploadRecord.cuid,
+					row_number: row.rowIndex,
+					employee_code: empCode,
+					employee_name: validated.employee_name || employee.name,
+					status: 'processed',
+					row_data: row,
+					errors: null
+				}, tx);
+
+				created++;
+			} catch (err) {
+				const message = err instanceof Error ? err.message : String(err);
+				skipped++;
+				if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+					const errorMessage = `A payroll record for employee "${empCode}" for ${validated.year}-${String(validated.month).padStart(2, '0')} already exists.`;
+					errors.push({
+						row: row.rowIndex,
+						employee_code: empCode,
+						reason: errorMessage
+					});
+					await recordDao.create({
+						payroll_upload_cuid: uploadRecord.cuid,
+						row_number: row.rowIndex,
+						employee_code: empCode,
+						employee_name: validated.employee_name || employee.name,
+						status: 'failed',
+						row_data: row,
+						errors: { employee_code: errorMessage }
+					}, tx);
+				} else {
+					errors.push({
+						row: row.rowIndex,
+						employee_code: empCode,
+						reason: message
+					});
+					await recordDao.create({
+						payroll_upload_cuid: uploadRecord.cuid,
+						row_number: row.rowIndex,
+						employee_code: empCode,
+						employee_name: validated.employee_name || employee.name,
+						status: 'failed',
+						row_data: row,
+						errors: { database: message }
+					}, tx);
+				}
 			}
 		}
-	}
 
 	// Step 3: Update upload batch with final count and status
 	const status = skipped > 0 && created === 0 ? 'failed' : skipped > 0 ? 'partial' : 'processed';
-	await uploadDao.updateEmployeeCount(uploadRecord.cuid, created, status);
+	await uploadDao.updateEmployeeCount(uploadRecord.cuid, created, status, null, tx);
 
-	return { created, skipped, errors, upload_cuid: uploadRecord.cuid };
+	// Trigger payroll notification
+	if (status === 'failed') {
+		notificationFactory.payrollFailed(month, year, skipped, uploadRecord.cuid, created_by)
+			.catch(err => console.error("Failed to send payroll failed notification:", err));
+	} else {
+		notificationFactory.payrollProcessed(month, year, created_by)
+			.catch(err => console.error("Failed to send payroll processed notification:", err));
+	}
+
+		return { created, skipped, errors, upload_cuid: uploadRecord.cuid };
+	});
 }
 
 async function enrichPayrolls(records: any[]): Promise<(any & { employee_code: string; employee_name: string })[]> {

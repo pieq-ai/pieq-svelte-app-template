@@ -132,8 +132,8 @@ describe('API Endpoint Integration Tests', () => {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           name: 'API Shift',
-          start_time: '1970-01-01T10:00:00Z',
-          end_time: '1970-01-01T18:00:00Z',
+          start_time: '1970-01-01T11:15:00Z',
+          end_time: '1970-01-01T19:15:00Z',
           minimum_work_hours: 8
         })
       });

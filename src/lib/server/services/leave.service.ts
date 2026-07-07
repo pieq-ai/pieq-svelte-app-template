@@ -1,5 +1,8 @@
 import * as leaveDao from '$lib/server/dao/leave.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
+import * as settingsDao from '$lib/server/dao/settings.dao.js';
+import { db } from '$lib/server/db.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
 import { calculateLeaveDays, isWeekend, isHoliday, getHolidaysCached } from '$lib/server/config/leave.config.js';
 
@@ -22,36 +25,21 @@ export interface ApplyLeaveInput {
 }
 
 /**
- * Resolves an employee by official email (Employment) or personal email (Employee).
- * Falls back to the first employee in the database during local dev/testing.
+ * Resolves an employee by official email (Employment) from active/onboarding statuses.
  */
 export async function resolveEmployee(email: string) {
-	if (email) {
-		const employment = await employeeDao.getActiveEmploymentByOfficialEmail(email);
+	const normalizedEmail = email?.toLowerCase().trim();
+	if (normalizedEmail) {
+		const employment = await employeeDao.getActiveEmploymentByOfficialEmail(normalizedEmail);
 		if (employment) {
 			const employee = await employeeDao.getEmployeeByCuid(employment.employee_cuid);
-			if (employee) {
+			if (employee && !employee.is_deleted) {
 				return { employee, employment };
 			}
 		}
-
-		const employeeByPersonal = await employeeDao.getEmployeeByPersonalEmail(email);
-		if (employeeByPersonal) {
-			const employment = await leaveDao.getActiveEmploymentByEmployeeCuid(employeeByPersonal.cuid);
-			return { employee: employeeByPersonal, employment: employment ?? null };
-		}
 	}
 
-	// Falls back to the first employee in the database during local dev/testing.
-	if (process.env.NODE_ENV !== 'production' || !email) {
-		const firstEmployee = await employeeDao.getFirstEmployee();
-		if (firstEmployee) {
-			const employment = await leaveDao.getActiveEmploymentByEmployeeCuid(firstEmployee.cuid);
-			return { employee: firstEmployee, employment: employment ?? null };
-		}
-	}
-
-	throw new Error(`Employee record not found for email "${email}"`);
+	throw new Error(`Employee record not found for email "${normalizedEmail}"`);
 }
 
 /**
@@ -92,14 +80,20 @@ function calculateFractionalMonths(start: Date, end: Date): number {
 	return totalMonths;
 }
 
-let payrollCutoffDayValue = 25;
-
 export async function getPayrollCutoffDay(tx?: any): Promise<number> {
-	return payrollCutoffDayValue;
+	const settings = await settingsDao.getSettings(tx);
+	const config = settings?.configuration as any;
+	if (config && typeof config === 'object' && 'payroll_cut_off_date' in config) {
+		const val = Number(config.payroll_cut_off_date);
+		if (!isNaN(val)) {
+			return val;
+		}
+	}
+	throw new Error('Payroll cutoff configuration not found in settings');
 }
 
-export function setPayrollCutoffDay(value: number) {
-	payrollCutoffDayValue = value;
+export async function setPayrollCutoffDay(value: number, userId?: string | null, tx?: any) {
+	await settingsDao.updateSettings(value, userId, tx);
 }
 
 export async function getMonthlyUsedDays(employeeCuid: string, month: number, year: number, leaveCode: 'LOP' | 'LWP', tx?: any) {
@@ -182,12 +176,12 @@ export async function getMonthlyUsedDays(employeeCuid: string, month: number, ye
 					if (leaveCode === 'LOP') total += 1;
 				} else {
 					// Split request: first daysFromPrimary are primary, then LWP, then LOP
-					if (i < daysFromPrimary) {
-						// Primary leave day — not counted for LOP or LWP
-					} else if (i < daysFromPrimary + daysFromLwp) {
-						if (leaveCode === 'LWP') total += 1;
-					} else if (i < daysFromPrimary + daysFromLwp + daysFromLop) {
-						if (leaveCode === 'LOP') total += 1;
+					if (leaveCode === 'LWP') {
+						const lwpContribution = Math.max(0, Math.min(i + 1, daysFromPrimary + daysFromLwp) - Math.max(i, daysFromPrimary));
+						total += lwpContribution;
+					} else if (leaveCode === 'LOP') {
+						const lopContribution = Math.max(0, Math.min(i + 1, daysFromPrimary + daysFromLwp + daysFromLop) - Math.max(i, daysFromPrimary + daysFromLwp));
+						total += lopContribution;
 					}
 				}
 			}
@@ -891,11 +885,17 @@ export async function withdrawLeaveByCuid(employeeCuid: string, requestCuid: str
 		throw new Error('Only pending leave requests can be withdrawn.');
 	}
 
-	return leaveDao.updateLeaveRequest(requestCuid, {
+	const result = await leaveDao.updateLeaveRequest(requestCuid, {
 		request_status: 'withdrawn',
 		withdrawn_at: new Date(),
 		updated_by: actorCuid || employee.cuid
 	});
+
+	// Trigger leave withdrawn notification
+	notificationFactory.leaveWithdrawn(employee.first_name, employee.last_name, actorCuid || employee.cuid, requestCuid)
+		.catch(err => console.error("Failed to send leave withdrawn notification:", err));
+
+	return result;
 }
 
 export async function applyLeave(email: string, input: ApplyLeaveInput, creatorCuid?: string) {
@@ -992,6 +992,16 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 		remainingBalance = await getAvailableBalanceForMonth(employee.cuid, leaveType.cuid, targetYear, targetMonth);
 	} else {
 		remainingBalance = balance ? Number(balance.remaining_days) : 0;
+	}
+
+	if (leaveType.code === 'ML') {
+		if (input.isMiscarriage) {
+			remainingBalance = Math.min(remainingBalance, 28.0);
+		} else {
+			remainingBalance = Math.min(remainingBalance, 168.0);
+		}
+	} else if (leaveType.code === 'PL') {
+		remainingBalance = Math.min(remainingBalance, 5.0);
 	}
 
 	let calendarDaysCount = 0;
@@ -1158,12 +1168,6 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 			throw new ValidationError('leaveTypeCuid', `Employee must have worked at least 80 days during the previous 12 months before expected delivery. Current service in period: ${activeServiceDays} days.`);
 		}
 
-		// Miscarriage/MTP paid leave limit is 4 weeks, normal ML limit is 24 weeks
-		const maxAllowedML = input.isMiscarriage ? 28.0 : 168.0;
-		if (totalDays > maxAllowedML) {
-			throw new ValidationError('endDate', `Maternity Leave is limited to a maximum of ${maxAllowedML === 28.0 ? '4 weeks (28 days)' : '24 weeks (168 days)'} for this request.`);
-		}
-
 		// Must be submitted at least 8 weeks before expected delivery (except miscarriage)
 		if (!input.isMiscarriage) {
 			const now = new Date();
@@ -1192,10 +1196,6 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 		const birthDate = new Date(input.childBirthDate);
 		if (isNaN(birthDate.getTime())) {
 			throw new ValidationError('childBirthDate', 'Invalid Birth Date format.');
-		}
-
-		if (totalDays > 5) {
-			throw new ValidationError('endDate', 'Paternity Leave is limited to a maximum of 5 days.');
 		}
 
 		const maxEndDate = new Date(birthDate);
@@ -1267,7 +1267,7 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 	}
 
 	// Create request
-	return leaveDao.createLeaveRequest({
+	const request = await leaveDao.createLeaveRequest({
 		employee_cuid: employee.cuid,
 		leave_type_cuid: leaveType.cuid,
 		start_date: startDate,
@@ -1286,6 +1286,14 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 		days_from_lop: daysFromLop,
 		created_by: creatorCuid || employee.cuid
 	});
+
+	// Trigger leave applied notification
+	if (request) {
+		notificationFactory.leaveApplied(employee.first_name, employee.last_name, totalDays, startDate, creatorCuid || employee.cuid, request.cuid)
+			.catch(err => console.error("Failed to send leave applied notification:", err));
+	}
+
+	return request;
 }
 
 export async function withdrawLeave(email: string, requestCuid: string, actorCuid?: string) {
@@ -1307,11 +1315,17 @@ export async function withdrawLeave(email: string, requestCuid: string, actorCui
 		throw new Error('Only pending leave requests can be withdrawn.');
 	}
 
-	return leaveDao.updateLeaveRequest(requestCuid, {
+	const result = await leaveDao.updateLeaveRequest(requestCuid, {
 		request_status: 'withdrawn',
 		withdrawn_at: new Date(),
 		updated_by: actorCuid || employee.cuid
 	});
+
+	// Trigger leave withdrawn notification
+	notificationFactory.leaveWithdrawn(employee.first_name, employee.last_name, actorCuid || employee.cuid, requestCuid)
+		.catch(err => console.error("Failed to send leave withdrawn notification:", err));
+
+	return result;
 }
 
 /**
@@ -1439,7 +1453,7 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 			current.setDate(current.getDate() + 1);
 		}
 
-		const attendanceStatus = request.is_half_day ? 'HalfDay' : 'Absent';
+		const attendanceStatus = request.is_half_day ? 'HalfDay' : 'Leave';
 
 		// Build split remark suffix if this request contains LOP or LWP split days
 		const lopDays = request.days_from_lop ? Number(request.days_from_lop) : 0;
@@ -1449,12 +1463,35 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 		else if (lwpSplitDays > 0 && leaveType.code !== 'LWP') splitSuffix = ` (incl. ${lwpSplitDays} LWP day${lwpSplitDays !== 1 ? 's' : ''})`;
 		const attendanceRemark = `Approved Leave: ${leaveType.name}${splitSuffix}`;
 
+		const activeDates: Date[] = [];
 		for (const d of dates) {
 			const code = leaveType.code.toUpperCase();
 			const isSandwiched = lopDays > 0 || lwpSplitDays > 0;
 			if (code !== 'ML' && code !== 'LWP' && !isSandwiched) {
 				if (isWeekend(d) || isHoliday(d, holidaysSet)) {
 					continue;
+				}
+			}
+			activeDates.push(d);
+		}
+
+		const daysFromPrimary = request.days_from_primary ? Number(request.days_from_primary) : 0;
+
+		for (let i = 0; i < activeDates.length; i++) {
+			const d = activeDates[i];
+			let dayStatus: string;
+
+			if (request.is_half_day) {
+				dayStatus = 'Half Day';
+			} else {
+				if (leaveType.code === 'LWP' || leaveType.code === 'LOP') {
+					dayStatus = 'LOP';
+				} else {
+					if (i < daysFromPrimary) {
+						dayStatus = 'Leave';
+					} else {
+						dayStatus = 'LOP';
+					}
 				}
 			}
 
@@ -1470,11 +1507,15 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 			await leaveDao.upsertAttendanceRecord({
 				employee_cuid: request.employee_cuid,
 				attendance_date: d,
-				attendance_status: attendanceStatus,
+				attendance_status: dayStatus,
 				remarks: attendanceRemark,
 				created_by: approverUserCuid
 			}, tx);
 		}
+
+		// Trigger leave approved notification
+		notificationFactory.leaveApproved(request?.total_days ?? 0, request?.start_date, approverUserCuid, request?.employee_cuid ?? '', requestCuid)
+			.catch(err => console.error("Failed to send leave approved notification:", err));
 
 		return updatedRequest;
 	});
@@ -1507,12 +1548,18 @@ export async function rejectLeaveRequest(requestCuid: string, rejectorUserCuid: 
 		throw new Error('Unauthorized: You can only approve/reject requests from your direct reports.');
 	}
 
-	return leaveDao.updateLeaveRequest(requestCuid, {
+	const result = await leaveDao.updateLeaveRequest(requestCuid, {
 		request_status: 'rejected',
 		rejected_by: rejectorUserCuid,
 		rejected_at: new Date(),
 		updated_by: rejectorUserCuid
 	});
+
+	// Trigger leave rejected notification
+	notificationFactory.leaveRejected(request?.total_days ?? 0, request?.start_date, rejectorUserCuid, request?.employee_cuid ?? '', requestCuid)
+		.catch(err => console.error("Failed to send leave rejected notification:", err));
+
+	return result;
 }
 
 export async function getLeaveDocument(cuid: string, currentUserEmail: string) {

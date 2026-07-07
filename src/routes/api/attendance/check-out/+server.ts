@@ -17,13 +17,13 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
 		return json({ error: { general: 'Request body must be valid JSON' } }, { status: 400 });
 	}
 
-	const allowedKeys = ['employee_cuid', 'latitude', 'longitude'];
+	const allowedKeys = ['employee_cuid', 'latitude', 'longitude', 'attendance_record_cuid', 'check_out_time'];
 	const validation = validatePayloadKeys(body, allowedKeys);
 	if (validation) {
 		return json({ error: { general: validation.error } }, { status: 400 });
 	}
 
-	const { employee_cuid, latitude, longitude } = trimStringFields(body) as any;
+	const { employee_cuid, latitude, longitude, attendance_record_cuid, check_out_time } = trimStringFields(body) as any;
 
 	try {
 		let userId: string | null = null;
@@ -34,17 +34,24 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
 			console.warn('Failed to retrieve session from locals.auth():', authError);
 		}
 
-		const record = await checkOut(employee_cuid, userId, {
-			latitude: Number(latitude),
-			longitude: Number(longitude)
-		});
+		const record = await checkOut(
+			employee_cuid,
+			userId,
+			{
+				latitude: Number(latitude),
+				longitude: Number(longitude)
+			},
+			attendance_record_cuid,
+			check_out_time
+		);
 		return successResponse({
 			message: 'Checked out successfully',
 			cuid: record.cuid
 		}, 200);
 	} catch (error: any) {
 		if (error instanceof AttendanceValidationError) {
-			return json({ data: { error: { [error.field]: error.message } } }, { status: 400 });
+			const isConflict = error.message.toLowerCase().includes('already') || error.message.toLowerCase().includes('no open check-in');
+			return json({ data: { error: { [error.field]: error.message } } }, { status: isConflict ? 409 : 400 });
 		}
 
 		console.error('PUT /api/attendance/check-out failed', error);

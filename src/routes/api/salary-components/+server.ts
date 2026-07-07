@@ -1,4 +1,5 @@
 import { requirePermission } from "$lib/server/guards/permission.guard";
+import type { RequestEvent } from '@sveltejs/kit';
 import { json } from "@sveltejs/kit";
 import * as service from "$lib/server/services/salary-component.service.js";
 import { validateCreateSalaryComponent } from "$lib/server/validators/salary-component.validator.js";
@@ -24,7 +25,7 @@ export async function GET({ locals }) {
   }
 }
 
-export async function POST({ locals, request }) {
+export async function POST({ locals, request }: RequestEvent) {
   try {
     requirePermission(locals.user, "salary_component:view");
     const body = await request.json();
@@ -44,20 +45,20 @@ export async function POST({ locals, request }) {
     // Service creation step
     const created = await service.createComponent(validatedData);
 
-    return json(
-      {
-        data: {
-          cuid: created.cuid,
-          message: "success",
-        },
-      },
-      { status: 201 },
-    );
-  } catch (error) {
-    console.error("Error in POST /api/salary-components:", error);
-    const isValidationError =
-      (error as Error).name === "DuplicateComponentError" ||
-      (error as Error).name === "BusinessValidationError";
+		return json(
+			{
+				data: {
+					cuid: created.cuid,
+					message: 'successfully created'
+				}
+			},
+			{ status: 201 }
+		);
+	} catch (error) {
+		console.error('Error in POST /api/salary-components:', error);
+		const isValidationError =
+			(error as Error).name === 'DuplicateComponentError' ||
+			(error as Error).name === 'BusinessValidationError';
 
     return json(
       {

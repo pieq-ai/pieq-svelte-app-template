@@ -6,6 +6,15 @@ import * as employeeDao from '../../src/lib/server/dao/employee.dao.js';
 import * as shiftDao from '../../src/lib/server/dao/shift.dao.js';
 import * as leaveDao from '../../src/lib/server/dao/leave.dao.js';
 import * as leaveService from '../../src/lib/server/services/leave.service.js';
+import * as employmentDao from '../../src/lib/server/dao/employment.dao.js';
+import { notificationFactory } from '../../src/lib/server/notifications/notification.factory.js';
+
+vi.mock('../../src/lib/server/notifications/notification.factory.js', () => ({
+  notificationFactory: {
+    shiftAssigned: vi.fn().mockResolvedValue({} as any),
+    shiftReassigned: vi.fn().mockResolvedValue({} as any)
+  }
+}));
 
 vi.mock('../../src/lib/server/dao/shift-assignment.dao.js', () => ({
   listForSubordinates: vi.fn(),
@@ -26,6 +35,10 @@ vi.mock('../../src/lib/server/dao/shift.dao.js', () => ({
 
 vi.mock('../../src/lib/server/dao/leave.dao.js', () => ({
   getSubordinates: vi.fn()
+}));
+
+vi.mock('../../src/lib/server/dao/employment.dao.js', () => ({
+  findByEmployeeCuid: vi.fn()
 }));
 
 vi.mock('../../src/lib/server/services/leave.service.js', () => ({
@@ -51,6 +64,12 @@ describe('Shift Assignment Service Unit Tests', () => {
     vi.mocked(leaveDao.getSubordinates).mockResolvedValue([
       { employee_cuid: subordinateCuid }
     ] as any);
+
+    vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+      employee_cuid: subordinateCuid,
+      date_of_joining: new Date('2026-06-01T00:00:00.000Z'),
+      relieving_date: null
+    } as any);
 
     // Default target Employee and Shift are found and active
     vi.mocked(employeeDao.getEmployeeByCuid).mockImplementation(async (cuid) => {
@@ -175,6 +194,66 @@ describe('Shift Assignment Service Unit Tests', () => {
       const result = await service.createAssignment(validPayload, managerEmail);
       expect(result).toEqual(mockCreated);
       expect(dao.create).toHaveBeenCalled();
+      expect(notificationFactory.shiftAssigned).toHaveBeenCalledWith(
+        'Morning Shift',
+        expect.any(Date),
+        subordinateCuid,
+        managerCuid
+      );
+    });
+
+    it('should NOT trigger notification when creating inactive assignment', async () => {
+      vi.mocked(dao.findOverlapping).mockResolvedValue(null);
+      const inactivePayload = { ...validPayload, status: false };
+      const mockCreated = { cuid: 'a-new-inactive', ...inactivePayload };
+      vi.mocked(dao.create).mockResolvedValue(mockCreated as any);
+
+      const result = await service.createAssignment(inactivePayload, managerEmail);
+      expect(result).toEqual(mockCreated);
+      expect(notificationFactory.shiftAssigned).not.toHaveBeenCalled();
+    });
+
+    it('should create ongoing assignment when effective_to is null or omitted', async () => {
+      vi.mocked(dao.findOverlapping).mockResolvedValue(null);
+      const ongoingPayload = {
+        employee_cuid: subordinateCuid,
+        shift_cuid: shiftCuid,
+        effective_from: '2026-07-01',
+        effective_to: null,
+        status: true
+      };
+      const mockCreated = { cuid: 'a-new-ongoing', ...ongoingPayload };
+      vi.mocked(dao.create).mockResolvedValue(mockCreated as any);
+
+      const result = await service.createAssignment(ongoingPayload, managerEmail);
+      expect(result).toEqual(mockCreated);
+      expect(dao.create).toHaveBeenCalledWith(expect.objectContaining({
+        effective_to: null
+      }));
+    });
+
+    it('should throw 400 if effective_from is before employee joining date', async () => {
+      vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+        employee_cuid: subordinateCuid,
+        date_of_joining: new Date('2026-07-05T00:00:00.000Z'),
+        relieving_date: null
+      } as any);
+
+      await expect(
+        service.createAssignment(validPayload, managerEmail)
+      ).rejects.toThrow("Shift assignment effective from date cannot be before the employee's joining date.");
+    });
+
+    it('should throw 400 if effective_to is after employee relieving date', async () => {
+      vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+        employee_cuid: subordinateCuid,
+        date_of_joining: new Date('2026-06-01T00:00:00.000Z'),
+        relieving_date: new Date('2026-07-08T00:00:00.000Z')
+      } as any);
+
+      await expect(
+        service.createAssignment(validPayload, managerEmail)
+      ).rejects.toThrow("Shift assignment effective to date cannot be after the employee's relieving date.");
     });
   });
 
@@ -236,6 +315,59 @@ describe('Shift Assignment Service Unit Tests', () => {
 
       const result = await service.updateAssignment('a-1', updatePayload, managerEmail);
       expect(result).toEqual(mockUpdated);
+      expect(notificationFactory.shiftReassigned).toHaveBeenCalledWith(
+        'Morning Shift',
+        expect.any(Date),
+        subordinateCuid,
+        managerCuid
+      );
+    });
+
+    it('should NOT trigger notification when updating assignment to inactive status', async () => {
+      vi.mocked(dao.findOverlapping).mockResolvedValue(null);
+      const mockUpdated = { ...existingAss, status: false };
+      vi.mocked(dao.update).mockResolvedValue(mockUpdated as any);
+
+      const result = await service.updateAssignment('a-1', { status: false }, managerEmail);
+      expect(result).toEqual(mockUpdated);
+      expect(notificationFactory.shiftReassigned).not.toHaveBeenCalled();
+      expect(notificationFactory.shiftAssigned).not.toHaveBeenCalled();
+    });
+
+    it('should update and remove end date (ongoing) when effective_to is null', async () => {
+      vi.mocked(dao.findOverlapping).mockResolvedValue(null);
+      const mockUpdated = { ...existingAss, effective_to: null };
+      vi.mocked(dao.update).mockResolvedValue(mockUpdated as any);
+
+      const result = await service.updateAssignment('a-1', { effective_to: null }, managerEmail);
+      expect(result).toEqual(mockUpdated);
+      expect(dao.update).toHaveBeenCalledWith('a-1', expect.objectContaining({
+        effective_to: null
+      }));
+    });
+
+    it('should throw 400 if updated effective_from is before employee joining date', async () => {
+      vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+        employee_cuid: subordinateCuid,
+        date_of_joining: new Date('2026-07-03T00:00:00.000Z'),
+        relieving_date: null
+      } as any);
+
+      await expect(
+        service.updateAssignment('a-1', { effective_from: '2026-07-02' }, managerEmail)
+      ).rejects.toThrow("Shift assignment effective from date cannot be before the employee's joining date.");
+    });
+
+    it('should throw 400 if updated effective_to is after employee relieving date', async () => {
+      vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
+        employee_cuid: subordinateCuid,
+        date_of_joining: new Date('2026-06-01T00:00:00.000Z'),
+        relieving_date: new Date('2026-07-12T00:00:00.000Z')
+      } as any);
+
+      await expect(
+        service.updateAssignment('a-1', { effective_to: '2026-07-15' }, managerEmail)
+      ).rejects.toThrow("Shift assignment effective to date cannot be after the employee's relieving date.");
     });
   });
 

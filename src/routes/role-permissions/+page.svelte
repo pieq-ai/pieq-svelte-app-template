@@ -203,7 +203,7 @@
 				<table class="w-full border-collapse text-sm">
 					<thead class="sticky top-0 z-20 bg-[#262626] text-white shadow-sm">
 						<tr>
-							<th class="sticky left-0 z-30 min-w-64 bg-[#262626] px-4 py-3 text-left font-semibold">
+							<th class="sticky left-0 z-30 min-w-64 bg-hrms-secondary px-4 py-3 text-left font-semibold">
 								Permission
 							</th>
 							{#each filteredRoles as role (role.cuid)}
@@ -215,12 +215,12 @@
 					</thead>
 					<tbody>
 						{#each filteredPermissions as permission (permission.cuid)}
-							<tr class="border-t border-border hover:bg-[#F45310]/5">
+							<tr class="border-t border-border hover:bg-hrms-primary/5">
 								<td class="sticky left-0 z-10 min-w-64 border-r border-border bg-background px-4 py-3">
-									<div class="font-mono text-xs font-semibold text-[#262626]">
+									<div class="font-mono text-xs font-semibold text-hrms-secondary">
 										{permission.permission_key}
 									</div>
-									<div class="mt-1 text-[11px] uppercase text-[#737373]">
+									<div class="mt-1 text-[11px] uppercase text-hrms-neutral">
 										{permission.permission_key.split('_')[0] || 'general'}
 									</div>
 								</td>

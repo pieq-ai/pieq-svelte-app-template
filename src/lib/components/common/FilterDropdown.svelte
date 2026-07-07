@@ -43,6 +43,19 @@
 	let displayValue = $derived(
 		selectedOption?.label ?? 'Select'
 	);
+
+	function scrollIntoView(node: HTMLElement, condition: boolean) {
+		if (condition) {
+			setTimeout(() => {
+				const parent = node.closest('[role="menu"]') || node.closest('[role="group"]') || node.closest('.overflow-y-auto');
+				if (parent) {
+					node.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+				} else {
+					node.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+				}
+			}, 50);
+		}
+	}
 </script>
 
 <DropdownMenu.Root>
@@ -60,7 +73,7 @@
 			</Button>
 		{/snippet}
 	</DropdownMenu.Trigger>
-	<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
+	<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto">
 		<DropdownMenu.Group>
 			{#each options as option}
 				<DropdownMenu.Item

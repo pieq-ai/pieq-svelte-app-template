@@ -1,10 +1,11 @@
 import { requirePermission } from "$lib/server/guards/permission.guard";
+import type { RequestEvent } from '@sveltejs/kit';
 import { json } from "@sveltejs/kit";
 import * as service from "$lib/server/services/salary-component.service.js";
 import { validateUpdateSalaryComponent } from "$lib/server/validators/salary-component.validator.js";
 import { serializeSalaryComponent } from "$lib/server/serializers/salary-component.serializer.js";
 
-export async function GET({ locals, params }) {
+export async function GET({ locals, params }: RequestEvent) {
   try {
     requirePermission(locals.user, "salary_component:view");
     const cuid = params.cuid;
@@ -34,7 +35,7 @@ export async function GET({ locals, params }) {
   }
 }
 
-export async function PUT({ locals, params, request }) {
+export async function PUT({ locals, params, request }: RequestEvent) {
   try {
     requirePermission(locals.user, "salary_component:view");
     const cuid = params.cuid;
@@ -66,18 +67,18 @@ export async function PUT({ locals, params, request }) {
     // Service update step
     const updated = await service.updateComponent(cuid, validatedData);
 
-    return json({
-      data: {
-        cuid: updated.cuid,
-        message: "success",
-      },
-    });
-  } catch (error) {
-    console.error(`Error in PUT /api/salary-components/${params.cuid}:`, error);
-    const isNotFound = (error as Error).name === "ComponentNotFoundError";
-    const isValidationError =
-      (error as Error).name === "DuplicateComponentError" ||
-      (error as Error).name === "BusinessValidationError";
+		return json({
+			data: {
+				cuid: updated.cuid,
+				message: 'successfully updated'
+			}
+		});
+	} catch (error) {
+		console.error(`Error in PUT /api/salary-components/${params.cuid}:`, error);
+		const isNotFound = (error as Error).name === 'ComponentNotFoundError';
+		const isValidationError =
+			(error as Error).name === 'DuplicateComponentError' ||
+			(error as Error).name === 'BusinessValidationError';
 
     return json(
       {
@@ -89,7 +90,7 @@ export async function PUT({ locals, params, request }) {
   }
 }
 
-export async function DELETE({ locals, params }) {
+export async function DELETE({ locals, params }: RequestEvent) {
   try {
     requirePermission(locals.user, "salary_component:view");
     const cuid = params.cuid;

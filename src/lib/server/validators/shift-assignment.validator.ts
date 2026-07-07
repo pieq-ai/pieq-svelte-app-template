@@ -30,7 +30,7 @@ export function validateCreatePayload(payload: unknown): ShiftAssignmentCreateDT
   const raw = payload as Record<string, unknown>;
   rejectUnknownKeys(raw, ['employee_cuid', 'shift_cuid', 'effective_from', 'effective_to', 'status', 'created_by', 'updated_by']);
 
-  const requiredFields = ['employee_cuid', 'shift_cuid', 'effective_from', 'effective_to'];
+  const requiredFields = ['employee_cuid', 'shift_cuid', 'effective_from'];
   for (const field of requiredFields) {
     if (raw[field] === undefined || raw[field] === null || String(raw[field]).trim() === '') {
       const err: any = new Error(`${field.replace('_', ' ')} is required`);
@@ -57,26 +57,32 @@ export function validateCreatePayload(payload: unknown): ShiftAssignmentCreateDT
     throw err;
   }
 
-  if (typeof raw.effective_to !== 'string' || !isValidDateString(raw.effective_to)) {
-    const err: any = new Error('Effective To must be a valid date in YYYY-MM-DD format');
-    err.status = 400;
-    throw err;
+  let effectiveToValue: string | null = null;
+  if (raw.effective_to !== undefined && raw.effective_to !== null && String(raw.effective_to).trim() !== '') {
+    if (typeof raw.effective_to !== 'string' || !isValidDateString(raw.effective_to)) {
+      const err: any = new Error('Effective To must be a valid date in YYYY-MM-DD format');
+      err.status = 400;
+      throw err;
+    }
+    effectiveToValue = raw.effective_to.trim();
   }
 
-  const fromDate = new Date(raw.effective_from);
-  const toDate = new Date(raw.effective_to);
+  if (effectiveToValue) {
+    const fromDate = new Date(raw.effective_from);
+    const toDate = new Date(effectiveToValue);
 
-  if (toDate.getTime() < fromDate.getTime()) {
-    const err: any = new Error('Effective To date must be greater than or equal to Effective From date');
-    err.status = 400;
-    throw err;
+    if (toDate.getTime() < fromDate.getTime()) {
+      const err: any = new Error('Effective To date must be greater than or equal to Effective From date');
+      err.status = 400;
+      throw err;
+    }
   }
 
   return {
     employee_cuid: raw.employee_cuid.trim(),
     shift_cuid: raw.shift_cuid.trim(),
     effective_from: raw.effective_from.trim(),
-    effective_to: raw.effective_to.trim(),
+    effective_to: effectiveToValue,
     status: raw.status !== undefined ? Boolean(raw.status) : true,
     created_by: raw.created_by !== undefined ? (raw.created_by as string | null) : undefined,
     updated_by: raw.updated_by !== undefined ? (raw.updated_by as string | null) : undefined
@@ -126,12 +132,16 @@ export function validateUpdatePayload(payload: unknown): ShiftAssignmentUpdateDT
   }
 
   if (raw.effective_to !== undefined) {
-    if (raw.effective_to === null || typeof raw.effective_to !== 'string' || !isValidDateString(raw.effective_to)) {
-      const err: any = new Error('Effective To must be a valid date in YYYY-MM-DD format');
-      err.status = 400;
-      throw err;
+    if (raw.effective_to === null || String(raw.effective_to).trim() === '') {
+      result.effective_to = null;
+    } else {
+      if (typeof raw.effective_to !== 'string' || !isValidDateString(raw.effective_to)) {
+        const err: any = new Error('Effective To must be a valid date in YYYY-MM-DD format');
+        err.status = 400;
+        throw err;
+      }
+      result.effective_to = raw.effective_to.trim();
     }
-    result.effective_to = raw.effective_to.trim();
   }
 
   if (raw.status !== undefined) {
