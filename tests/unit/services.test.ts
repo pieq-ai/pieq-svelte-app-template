@@ -10,6 +10,17 @@ describe('Service Layer Unit Tests', () => {
     await db.role.deleteMany({ where: { name: { in: ['Service HR', 'Service HR Updated'] } } });
     await db.shift.deleteMany({ where: { name: { in: ['Service Shift', 'Sibling Shift'] } } });
     await db.companyLocation.deleteMany({ where: { name: { in: ['Service Location'] } } });
+
+    // Ensure settings record exists for payroll_cutoff to prevent settings not found error
+    const settings = await db.settings.findFirst({ where: { name: 'payroll_cutoff' } });
+    if (!settings) {
+      await db.settings.create({
+        data: {
+          name: 'payroll_cutoff',
+          configuration: { payroll_cut_off_date: 25 }
+        }
+      });
+    }
   });
 
   describe('Role Service', () => {

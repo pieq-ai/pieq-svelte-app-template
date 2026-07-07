@@ -52,6 +52,7 @@
   let { data }: { data: PageData } = $props();
 
   let assignmentsList = $derived<ShiftAssignment[]>(data.assignments);
+  let isManager = $derived(data.isManager ?? false);
   let isLoading = $state(false);
   let loadError = $state("");
 
@@ -475,13 +476,15 @@
         Shift Assignments
       </h1>
     </div>
-    <Button
-      type="button"
-      class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
-      onclick={openCreateModal}
-    >
-      Assign Shift
-    </Button>
+    {#if isManager}
+      <Button
+        type="button"
+        class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
+        onclick={openCreateModal}
+      >
+        Assign Shift
+      </Button>
+    {/if}
   </div>
 
   <!-- Metrics Cards -->
@@ -652,7 +655,11 @@
                     (e.target as HTMLElement).closest("a")
                   )
                     return;
-                  openEditModal(assignment);
+                  if (isManager) {
+                    openEditModal(assignment);
+                  } else {
+                    openViewModal(assignment);
+                  }
                 }}
                 class="cursor-pointer"
               >
@@ -687,7 +694,7 @@
                 </TableCell>
                 <TableCell class="text-right">
                   <TableActions
-                    canEdit={true}
+                    canEdit={isManager}
                     onEdit={() => openEditModal(assignment)}
                     customActions={[
                       {

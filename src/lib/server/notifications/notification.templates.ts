@@ -6,6 +6,11 @@ import {
 } from './notification.enums.js';
 import type { NotificationTemplatePayload } from './notification.types.js';
 
+function formatShiftDate(date: Date): string {
+	const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+	return `${date.getUTCDate()} ${months[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
+}
+
 export const templates = {
 	employeeJoined(firstName: string, lastName: string): NotificationTemplatePayload {
 		return {
@@ -147,6 +152,38 @@ export const templates = {
 			category: NotificationCategory.ANNOUNCEMENT,
 			type: NotificationType.INFO,
 			target: { type: NotificationTargetType.BROADCAST }
+		};
+	},
+
+	shiftAssigned(
+		shiftName: string,
+		startDate: Date,
+		employeeCuid: string
+	): NotificationTemplatePayload {
+		const formattedDate = formatShiftDate(startDate);
+		return {
+			title: 'Shift Assigned',
+			body: `You have been assigned to the ${shiftName} starting from ${formattedDate}.`,
+			category: NotificationCategory.ATTENDANCE,
+			type: NotificationType.INFO,
+			metadata: { link: '/shift-assignments' },
+			target: { type: NotificationTargetType.EMPLOYEE, employeeCuid }
+		};
+	},
+
+	shiftReassigned(
+		shiftName: string,
+		startDate: Date,
+		employeeCuid: string
+	): NotificationTemplatePayload {
+		const formattedDate = formatShiftDate(startDate);
+		return {
+			title: 'Shift Reassigned',
+			body: `Your shift assignment has been updated to the ${shiftName} starting from ${formattedDate}.`,
+			category: NotificationCategory.ATTENDANCE,
+			type: NotificationType.INFO,
+			metadata: { link: '/shift-assignments' },
+			target: { type: NotificationTargetType.EMPLOYEE, employeeCuid }
 		};
 	}
 };
