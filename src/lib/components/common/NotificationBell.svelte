@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { goto } from '$app/navigation';
+	import { goto, afterNavigate } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import BellIcon from '@lucide/svelte/icons/bell';
 	import CakeIcon from '@lucide/svelte/icons/cake';
@@ -99,21 +99,29 @@
 		}
 	}
 
-	async function handleNotificationClick(item: NotificationItem) {
-		isOpen = false;
+	function handleNotificationClick(item: NotificationItem) {
+		if (item.metadata?.link) {
+			goto(resolve(item.metadata.link));
+		}
+	}
+
+	async function handleMarkAsRead(event: Event, item: NotificationItem) {
+		event.stopPropagation();
 		if (!item.is_read) {
 			try {
-				await fetch(resolve(`/api/notifications/${item.cuid}/read`), {
+				const res = await fetch(resolve(`/api/notifications/${item.cuid}/read`), {
 					method: 'PATCH'
 				});
-				fetchUnreadCount();
+				const json = await res.json();
+				if (json.data?.success) {
+					notifications = notifications.map((n) =>
+						n.cuid === item.cuid ? { ...n, is_read: true } : n
+					);
+					unreadCount = Math.max(0, unreadCount - 1);
+				}
 			} catch (err) {
 				console.error('Failed to mark single notification as read:', err);
 			}
-		}
-
-		if (item.metadata?.link) {
-			goto(resolve(item.metadata.link));
 		}
 	}
 
@@ -198,6 +206,10 @@
 			window.removeEventListener('click', handleClickOutside);
 		}
 	});
+
+	afterNavigate(() => {
+		isOpen = false;
+	});
 </script>
 
 <div class="relative" bind:this={dropdownElement}>
@@ -263,7 +275,7 @@
 								<Icon class="size-4" />
 							</div>
 
-							<div class="flex-1 min-w-0 pr-6">
+							<div class="flex-1 min-w-0 pr-16">
 								<p class={`text-xs font-semibold leading-tight text-foreground truncate ${!item.is_read ? 'font-bold' : ''}`}>
 									{item.title}
 								</p>
@@ -275,15 +287,28 @@
 								</span>
 							</div>
 
-							<button
-								type="button"
-								class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-md hover:bg-neutral-100 text-muted-foreground hover:text-danger opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer border-none bg-transparent"
-								onclick={(e) => handleArchiveNotification(e, item)}
-								aria-label="Archive notification"
-								title="Archive"
-							>
-								<Trash2Icon class="size-3.5" />
-							</button>
+							<div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+								{#if !item.is_read}
+									<button
+										type="button"
+										class="p-1.5 rounded-md hover:bg-neutral-100 text-muted-foreground hover:text-foreground cursor-pointer border-none bg-transparent"
+										onclick={(e) => handleMarkAsRead(e, item)}
+										aria-label="Mark as read"
+										title="Mark as read"
+									>
+										<CheckIcon class="size-3.5" />
+									</button>
+								{/if}
+								<button
+									type="button"
+									class="p-1.5 rounded-md hover:bg-neutral-100 text-muted-foreground hover:text-danger cursor-pointer border-none bg-transparent"
+									onclick={(e) => handleArchiveNotification(e, item)}
+									aria-label="Archive notification"
+									title="Archive"
+								>
+									<Trash2Icon class="size-3.5" />
+								</button>
+							</div>
 						</div>
 					{/each}
 				{/if}
