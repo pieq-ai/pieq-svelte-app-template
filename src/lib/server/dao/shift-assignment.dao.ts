@@ -188,7 +188,10 @@ export async function findActiveAssignmentsForEmployees(
       employee_cuid: { in: employeeCuids },
       status: true,
       effective_from: { lte: dateUTC },
-      effective_to: { gte: dateUTC }
+      OR: [
+        { effective_to: { gte: dateUTC } },
+        { effective_to: null }
+      ]
     }
   });
 

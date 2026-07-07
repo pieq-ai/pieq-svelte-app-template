@@ -63,11 +63,7 @@
 <div class="bg-[#FAF9F6] -mx-6 -my-6 p-6 min-h-screen space-y-6">
   <!-- Header Area: Dashboard Title, Switcher, Notification Bell -->
   <header class="flex items-center justify-between py-2">
-    <div class="flex items-center gap-4">
-      <h1 class="text-xl font-bold tracking-tight text-neutral-900">
-        Dashboard
-      </h1>
-    </div>
+    
 
     
   </header>

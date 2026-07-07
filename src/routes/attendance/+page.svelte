@@ -297,20 +297,7 @@
 		historyRecords.find((rec: any) => rec.date === data.todayStr && rec.check_in_time && !rec.check_out_time) || null
 	);
 
-	let pendingCheckOuts = $derived.by(() => {
-		if (!historyRecords) return [];
-		const today = new Date(data.todayStr);
-		const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
-		const sevenDaysAgo = new Date(todayUTC.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-		return historyRecords.filter((rec: any) => {
-			const recDate = new Date(rec.date);
-			return rec.check_in_time && 
-				!rec.check_out_time && 
-				recDate < todayUTC && 
-				recDate >= sevenDaysAgo;
-		});
-	});
 
 	let employeeOptions = $derived(
 		data.employees.map((emp: any) => ({
@@ -577,7 +564,7 @@
 		{ value: 'overall', label: 'Overall' }
 	];
 
-	let averageWorkingHoursMinutes = $derived.by(() => {
+	let averageWorkingHoursStats = $derived.by(() => {
 		let totalMinutes = 0;
 		let totalWorkingDays = 0;
 
@@ -634,13 +621,17 @@
 			}
 		}
 
-		if (totalWorkingDays === 0) return 0;
-		return totalMinutes / totalWorkingDays;
+		return {
+			totalMinutes,
+			totalWorkingDays,
+			averageMinutes: totalWorkingDays > 0 ? totalMinutes / totalWorkingDays : 0
+		};
 	});
 
 	let averageWorkingHours = $derived.by(() => {
-		if (averageWorkingHoursMinutes === 0) return '0h 00m';
-		const avgMinutes = Math.round(averageWorkingHoursMinutes);
+		const { averageMinutes, totalWorkingDays } = averageWorkingHoursStats;
+		if (totalWorkingDays === 0) return '0h 00m';
+		const avgMinutes = Math.round(averageMinutes);
 		const hrs = Math.floor(avgMinutes / 60);
 		const mins = avgMinutes % 60;
 		return `${hrs}h ${String(mins).padStart(2, '0')}m`;
@@ -650,7 +641,11 @@
 		if (!selectedEmployee || selectedEmployee.minimum_work_hours === undefined || selectedEmployee.minimum_work_hours === null) {
 			return false;
 		}
-		const avgHoursDecimal = averageWorkingHoursMinutes / 60;
+		const { averageMinutes, totalWorkingDays } = averageWorkingHoursStats;
+		if (totalWorkingDays === 0) {
+			return false;
+		}
+		const avgHoursDecimal = averageMinutes / 60;
 		return avgHoursDecimal < Number(selectedEmployee.minimum_work_hours);
 	});
 
@@ -833,20 +828,6 @@
 		isPendingCheckoutModalOpen = true;
 	}
 
-	const isPendingRecord = (rec: any, cellDateStr: string) => {
-		if (!rec || !rec.check_in_time || rec.check_out_time) return false;
-		if (cellDateStr === data.todayStr) return false;
-		
-		const today = new Date(data.todayStr);
-		const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
-		const recordDate = new Date(cellDateStr);
-		const recordDateUTC = new Date(Date.UTC(recordDate.getFullYear(), recordDate.getMonth(), recordDate.getDate()));
-		
-		const diffTime = todayUTC.getTime() - recordDateUTC.getTime();
-		const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-		
-		return diffDays >= 1 && diffDays <= 7;
-	};
 
 	async function handlePendingCheckOut(recordCuid: string, selectedTime: string) {
 		if (!selectedEmployeeUuid) return;
@@ -1277,7 +1258,7 @@
 											</Button>
 										{/if}
 									{/if}
-								{:else if record && isPendingRecord(record, cell.dateStr) && !holiday}
+								{:else if record && record.isPendingCheckout && !holiday}
 									{#if !isRelieved && !isBeforeJoining && !hasNoEmploymentRecord}
 										<Button
 											size="sm"

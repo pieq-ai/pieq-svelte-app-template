@@ -448,7 +448,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			type: 'holiday',
 			name: h.name,
 			date: h.date.toISOString(),
-			label: 'Holiday'
+			label: h.type
 		}));
 
 		managerContext = {

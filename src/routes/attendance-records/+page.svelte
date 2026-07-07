@@ -58,6 +58,13 @@
 	let summaryDate = $state(todayStr);
 	let filterStatus = $state('all');
 	let filterSourceCuid = $state('all');
+	let filterPeriod = $state<'week' | 'month' | 'overall'>('month');
+
+	const filterPeriodOptions: { value: 'week' | 'month' | 'overall'; label: string }[] = [
+		{ value: 'week', label: 'This Week' },
+		{ value: 'month', label: 'This Month' },
+		{ value: 'overall', label: 'Overall' }
+	];
 
 	// Sorting
 	let sortKey = $state<string | null>('employee_name');
@@ -668,6 +675,26 @@
 		return new Date(year, month - 1, day);
 	}
 
+	function isInCurrentWeek(dateStr: string, todayStr: string): boolean {
+		const date = parseLocalDate(dateStr);
+		const today = parseLocalDate(todayStr);
+
+		const todayDay = today.getDay();
+		const diffToMonday = todayDay === 0 ? -6 : 1 - todayDay;
+		const mondayOfTodayWeek = new SvelteDate(today.getTime());
+		mondayOfTodayWeek.setDate(today.getDate() + diffToMonday);
+		mondayOfTodayWeek.setHours(0, 0, 0, 0);
+
+		const sundayOfTodayWeek = new SvelteDate(mondayOfTodayWeek.getTime());
+		sundayOfTodayWeek.setDate(mondayOfTodayWeek.getDate() + 6);
+		sundayOfTodayWeek.setHours(23, 59, 59, 999);
+
+		const recordDate = new SvelteDate(date.getTime());
+		recordDate.setHours(0, 0, 0, 0);
+
+		return recordDate >= mondayOfTodayWeek && recordDate <= sundayOfTodayWeek;
+	}
+
 	function isInCurrentMonth(dateStr: string, targetDateStr: string): boolean {
 		const [rYear, rMonth] = dateStr.split('-');
 		const [tYear, tMonth] = targetDateStr.split('-');
@@ -690,6 +717,13 @@
 			for (const r of empRecords) {
 				if (!r.date) continue;
 				if (r.date > todayStr) continue;
+
+				// Apply period filter
+				if (filterPeriod === 'week') {
+					if (!isInCurrentWeek(r.date, todayStr)) continue;
+				} else if (filterPeriod === 'month') {
+					if (!isInCurrentMonth(r.date, todayStr)) continue;
+				}
 
 				const dateObj = parseLocalDate(r.date);
 				const dayOfWeek = dateObj.getDay();
@@ -723,16 +757,7 @@
 				}
 			}
 
-			if (totalWorkingDays === 0) {
-				const avgHoursDecimal = 0;
-				if (avgHoursDecimal < Number(emp.minimum_work_hours)) {
-					resultList.push({
-						name: `${emp.first_name} ${emp.last_name}`,
-						emp_code: emp.emp_code,
-						avgHours: '0h 00m'
-					});
-				}
-			} else {
+			if (totalWorkingDays > 0) {
 				const avgMinutes = Math.round(totalMinutes / totalWorkingDays);
 				const avgHoursDecimal = avgMinutes / 60;
 				if (avgHoursDecimal < Number(emp.minimum_work_hours)) {
@@ -904,6 +929,7 @@
 		summaryDate;
 		filterStatus;
 		filterSourceCuid;
+		filterPeriod;
 		/* eslint-enable @typescript-eslint/no-unused-expressions */
 		currentPage = 1;
 	});
@@ -1054,7 +1080,7 @@
 		<div class="flex flex-col gap-3 lg:flex-row lg:items-center">
 			<SearchInput id="search_attendance_records" name="search_attendance_records" bind:value={searchQuery} oninput={() => (currentPage = 1)} placeholder="Search by employee name..." />
 
-			<div class="grid grid-cols-2 md:grid-cols-3 gap-3 w-full lg:w-auto shrink-0">
+			<div class="grid grid-cols-2 md:grid-cols-4 gap-3 w-full lg:w-auto shrink-0">
 				<!-- Date Filter -->
 				<div class="w-full">
 					<DatePicker
@@ -1063,6 +1089,30 @@
 						isFilter={true}
 					/>
 				</div>
+
+				<!-- Period Filter -->
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger>
+						{#snippet child({ props })}
+							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
+								<span class="truncate pr-1">
+									{filterPeriodOptions.find(o => o.value === filterPeriod)?.label || 'Period'}
+								</span>
+								<FilterIcon class="size-3.5 opacity-50 shrink-0" />
+							</Button>
+						{/snippet}
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
+						<DropdownMenu.Group>
+							{#each filterPeriodOptions as opt}
+								<DropdownMenu.Item onclick={() => filterPeriod = opt.value} class="justify-between cursor-pointer {filterPeriod === opt.value ? 'bg-accent text-accent-foreground font-semibold' : ''}">
+									<span>{opt.label}</span>
+									{#if filterPeriod === opt.value}<CheckIcon class="size-4 shrink-0" />{/if}
+								</DropdownMenu.Item>
+							{/each}
+						</DropdownMenu.Group>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
 
 				<!-- Status Filter -->
 				<DropdownMenu.Root>

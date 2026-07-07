@@ -250,7 +250,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		type: 'holiday',
 		name: h.name,
 		date: h.date.toISOString(),
-		location: h.type === 'National' ? 'All Office Locations' : 'Regional Locations'
+		holidayType: h.type
 	}));
 
 	// Date of joining stats
