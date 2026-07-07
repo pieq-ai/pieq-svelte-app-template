@@ -3,12 +3,19 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types.js';
 import { getEmployeeHistory, getPendingCheckOuts } from '$lib/server/services/attendance.service.js';
 import { successResponse, errorResponse } from '$lib/server/response.js';
+import { resolveEmployee } from '$lib/server/services/leave.service.js';
 
-export const GET: RequestHandler = async ({ params }) => {
+export const GET: RequestHandler = async ({ locals }) => {
 	try {
-		const employee_cuid = params.cuid;
+		const email = locals.user?.email || '';
+		if (!email) {
+			return errorResponse('Unauthorized', 401);
+		}
+		
+		const { employee } = await resolveEmployee(email);
+		const employee_cuid = employee.cuid;
 		if (!employee_cuid) {
-			return errorResponse('Employee CUID is required', 400);
+			return errorResponse('Employee record not found', 404);
 		}
 
 		const [records, pendingRecords] = await Promise.all([
@@ -28,9 +35,13 @@ export const GET: RequestHandler = async ({ params }) => {
 			isPendingCheckout: pendingCuids.has(rec.cuid)
 		}));
 
-		return successResponse(formattedRecords);
+		return successResponse({ 
+			records: formattedRecords, 
+			pendingRecords,
+			employee
+		});
 	} catch (error) {
-		console.error(`GET /api/attendance/${params.cuid} failed`, error);
+		console.error(`GET /api/attendance/me failed`, error);
 		return errorResponse('Failed to retrieve attendance history', 500);
 	}
 };

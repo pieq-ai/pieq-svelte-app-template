@@ -5,6 +5,7 @@ import {
 	checkIn,
 	AttendanceValidationError
 } from '$lib/server/services/attendance.service.js';
+import { resolveEmployee } from '$lib/server/services/leave.service.js';
 import { validatePayloadKeys, trimStringFields } from '$lib/server/validation.js';
 import { errorResponse, successResponse } from '$lib/server/response.js';
 
@@ -17,13 +18,25 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		return json({ error: { general: 'Request body must be valid JSON' } }, { status: 400 });
 	}
 
-	const allowedKeys = ['employee_cuid', 'attendance_source_cuid', 'latitude', 'longitude'];
+	const allowedKeys = ['attendance_source_cuid', 'latitude', 'longitude'];
 	const validation = validatePayloadKeys(body, allowedKeys);
 	if (validation) {
 		return json({ error: { general: validation.error } }, { status: 400 });
 	}
 
-	const { employee_cuid, attendance_source_cuid, latitude, longitude } = trimStringFields(body) as any;
+	const { attendance_source_cuid, latitude, longitude } = trimStringFields(body) as any;
+
+	if (!locals.user?.email) {
+		return json({ error: { general: 'Unauthorized' } }, { status: 401 });
+	}
+
+	let employee_cuid: string;
+	try {
+		const { employee } = await resolveEmployee(locals.user.email);
+		employee_cuid = employee.cuid;
+	} catch (e) {
+		return json({ error: { general: 'Employee record not found for the authenticated user.' } }, { status: 403 });
+	}
 
 	try {
 		let userId: string | null = null;

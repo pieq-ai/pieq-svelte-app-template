@@ -41,7 +41,7 @@
 
 	let { data }: { data: PageData } = $props();
 
-	let selectedEmployeeUuid = $state('');
+	let employee = $state<any>(null);
 	let isSubmitting = $state(false);
 
 	// GPS Geofence States
@@ -185,17 +185,12 @@
 		historyCurrentPage = 1;
 	});
 
-	// Local state for dropdown searching
-	let empSearchQuery = $state('');
 
-	let selectedEmployee = $derived(
-		data.employees.find((emp: any) => emp.uuid === selectedEmployeeUuid) || null
-	);
 
 	let distanceFromOffice = $derived.by(() => {
 		if (gpsLatitude === null || gpsLongitude === null) return null;
-		const officeLat = selectedEmployee?.latitude !== undefined && selectedEmployee?.latitude !== null ? Number(selectedEmployee.latitude) : null;
-		const officeLon = selectedEmployee?.longitude !== undefined && selectedEmployee?.longitude !== null ? Number(selectedEmployee.longitude) : null;
+		const officeLat = employee?.latitude !== undefined && employee?.latitude !== null ? Number(employee.latitude) : null;
+		const officeLon = employee?.longitude !== undefined && employee?.longitude !== null ? Number(employee.longitude) : null;
 		if (officeLat === null || officeLon === null) return null;
 		return calculateDistance(
 			gpsLatitude,
@@ -206,11 +201,19 @@
 	});
 
 	let gpsValidation = $derived.by(() => {
-		if (!selectedEmployeeUuid) {
+		if (!employee) {
 			return {
 				isValid: false,
-				status: 'No Employee Selected',
-				message: 'Please select an employee to validate location.'
+				status: 'Loading Employee Data',
+				message: 'Fetching employee details.'
+			};
+		}
+		
+		if (employee.attendance_type === 'anywhere') {
+			return {
+				isValid: false,
+				status: 'Outside Office Zone',
+				message: 'Location permission denied. Please allow location access to mark attendance.'
 			};
 		}
 		if (locationPermissionDenied) {
@@ -242,11 +245,11 @@
 			};
 		}
 
-		const officeLat = selectedEmployee?.latitude !== undefined && selectedEmployee?.latitude !== null ? Number(selectedEmployee.latitude) : null;
-		const officeLon = selectedEmployee?.longitude !== undefined && selectedEmployee?.longitude !== null ? Number(selectedEmployee.longitude) : null;
+		const officeLat = employee?.latitude !== undefined && employee?.latitude !== null ? Number(employee.latitude) : null;
+		const officeLon = employee?.longitude !== undefined && employee?.longitude !== null ? Number(employee.longitude) : null;
 
 		if (officeLat === null || officeLon === null) {
-			const hasLocation = selectedEmployee?.location_cuid !== undefined && selectedEmployee?.location_cuid !== null;
+			const hasLocation = employee?.location_cuid !== undefined && employee?.location_cuid !== null;
 			return {
 				isValid: false,
 				status: 'Location Not Configured',
@@ -274,19 +277,19 @@
 	});
 
 	let isRelieved = $derived.by(() => {
-		if (!selectedEmployee || !selectedEmployee.relieving_date) return false;
-		const relieveStr = getISODateString(selectedEmployee.relieving_date);
+		if (!employee || !employee.relieving_date) return false;
+		const relieveStr = getISODateString(employee.relieving_date);
 		return data.todayStr > relieveStr;
 	});
 
 	let isBeforeJoining = $derived.by(() => {
-		if (!selectedEmployee || !selectedEmployee.date_of_joining) return false;
-		const joinStr = getISODateString(selectedEmployee.date_of_joining);
+		if (!employee || !employee.date_of_joining) return false;
+		const joinStr = getISODateString(employee.date_of_joining);
 		return data.todayStr < joinStr;
 	});
 
 	let hasNoEmploymentRecord = $derived(
-		selectedEmployee !== null && !selectedEmployee.date_of_joining
+		employee !== null && !employee.date_of_joining
 	);
 
 	let todayRecord = $derived(
@@ -298,19 +301,6 @@
 	);
 
 
-
-	let employeeOptions = $derived(
-		data.employees.map((emp: any) => ({
-			id: emp.uuid,
-			label: `${emp.name} (${emp.emp_code})`
-		}))
-	);
-
-	let filteredEmployeeOptions = $derived.by(() => {
-		const q = empSearchQuery.toLowerCase().trim();
-		if (!q) return employeeOptions;
-		return employeeOptions.filter(o => o.label.toLowerCase().includes(q));
-	});
 
 	// Monthly Calendar navigation
 	const monthNames = [
@@ -638,7 +628,7 @@
 	});
 
 	let isBelowMinimumHours = $derived.by(() => {
-		if (!selectedEmployee || selectedEmployee.minimum_work_hours === undefined || selectedEmployee.minimum_work_hours === null) {
+		if (!employee || employee.minimum_work_hours === undefined || employee.minimum_work_hours === null) {
 			return false;
 		}
 		const { averageMinutes, totalWorkingDays } = averageWorkingHoursStats;
@@ -646,7 +636,7 @@
 			return false;
 		}
 		const avgHoursDecimal = averageMinutes / 60;
-		return avgHoursDecimal < Number(selectedEmployee.minimum_work_hours);
+		return avgHoursDecimal < Number(employee.minimum_work_hours);
 	});
 
 	let attendancePercentage = $derived.by(() => {
@@ -656,18 +646,14 @@
 	});
 
 	// Load employee specific data
-	async function loadEmployeeData(employeeUuid: string) {
-		if (!employeeUuid) {
-			historyRecords = [];
-			return;
-		}
-
+	async function loadEmployeeData() {
 		isLoadingHistory = true;
 		try {
-			const res = await fetch(`/api/attendance/${employeeUuid}`);
+			const res = await fetch(`/api/attendance/me`);
 			const body = await res.json();
 			if (res.ok) {
-				historyRecords = body.data || [];
+				historyRecords = body.data?.records || [];
+				employee = body.data?.employee || null;
 			} else {
 				toast.error(body.data?.error || 'Failed to load history');
 			}
@@ -680,7 +666,7 @@
 	}
 
 	$effect(() => {
-		loadEmployeeData(selectedEmployeeUuid);
+		loadEmployeeData();
 	});
 
 	// Helper formatters
@@ -752,7 +738,6 @@
 
 	// Actions
 	async function handleCheckIn() {
-		if (!selectedEmployeeUuid) return;
 		isSubmitting = true;
 
 		try {
@@ -760,7 +745,6 @@
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					employee_cuid: selectedEmployeeUuid,
 					attendance_source_cuid: null,
 					latitude: gpsLatitude,
 					longitude: gpsLongitude
@@ -770,7 +754,7 @@
 			const body = await res.json();
 			if (res.ok) {
 				toast.success('Checked in successfully!');
-				await loadEmployeeData(selectedEmployeeUuid);
+				await loadEmployeeData();
 			} else {
 				const errorMsg = body.data?.error 
 					? (typeof body.data.error === 'object' ? Object.values(body.data.error).join(', ') : body.data.error)
@@ -786,7 +770,6 @@
 	}
 
 	async function handleCheckOut() {
-		if (!selectedEmployeeUuid) return;
 		isSubmitting = true;
 
 		try {
@@ -794,7 +777,6 @@
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					employee_cuid: selectedEmployeeUuid,
 					latitude: gpsLatitude,
 					longitude: gpsLongitude
 				})
@@ -803,7 +785,7 @@
 			const body = await res.json();
 			if (res.ok) {
 				toast.success('Checked out successfully!');
-				await loadEmployeeData(selectedEmployeeUuid);
+				await loadEmployeeData();
 			} else {
 				const errorMsg = body.data?.error 
 					? (typeof body.data.error === 'object' ? Object.values(body.data.error).join(', ') : body.data.error)
@@ -830,7 +812,6 @@
 
 
 	async function handlePendingCheckOut(recordCuid: string, selectedTime: string) {
-		if (!selectedEmployeeUuid) return;
 		
 		const record = historyRecords.find(r => r.cuid === recordCuid);
 		if (!record || !record.check_in_time) {
@@ -857,7 +838,6 @@
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					employee_cuid: selectedEmployeeUuid,
 					latitude: gpsLatitude,
 					longitude: gpsLongitude,
 					attendance_record_cuid: recordCuid,
@@ -868,7 +848,7 @@
 			const body = await res.json();
 			if (res.ok) {
 				toast.success('Checked out successfully!');
-				await loadEmployeeData(selectedEmployeeUuid);
+				await loadEmployeeData();
 				isPendingCheckoutModalOpen = false;
 				pendingCheckoutRecord = null;
 			} else {
@@ -941,74 +921,7 @@
 		
 	</div>
 
-	<!-- Employee Selector (Demo Context) -->
-	<Card>
-		<CardContent class="p-6">
-			<div class="max-w-md space-y-2">
-				<Label>Select Employee (Demo context user) <span class="text-destructive">*</span></Label>
-				<DropdownMenu.Root>
-					<DropdownMenu.Trigger>
-						{#snippet child({ props })}
-							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
-								<span class="truncate pr-2">
-									{selectedEmployeeUuid ? (employeeOptions.find(o => o.id === selectedEmployeeUuid)?.label || 'Select Employee') : 'Select Employee'}
-								</span>
-								<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
-							</Button>
-						{/snippet}
-					</DropdownMenu.Trigger>
-					<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto">
-						<div class="flex items-center border-b border-border px-3 py-2 bg-transparent">
-							<SearchIcon class="mr-2 size-4 shrink-0 opacity-50" />
-							<input
-								type="text"
-								bind:value={empSearchQuery}
-								placeholder="Search employee..."
-								class="flex h-7 w-full rounded-md bg-transparent text-xs outline-none placeholder:text-muted-foreground"
-							/>
-							{#if empSearchQuery}
-								<button
-									type="button"
-									onclick={() => (empSearchQuery = '')}
-									class="text-muted-foreground hover:text-foreground p-0.5 rounded-md hover:bg-accent cursor-pointer"
-									title="Clear search"
-									aria-label="Clear search"
-								>
-									<XIcon class="size-3" />
-								</button>
-							{/if}
-						</div>
-						<DropdownMenu.Group>
-							{#each filteredEmployeeOptions as opt}
-								<DropdownMenu.Item
-									onclick={() => {
-										selectedEmployeeUuid = opt.id;
-										empSearchQuery = '';
-									}}
-									class="justify-between cursor-pointer {selectedEmployeeUuid === opt.id ? 'bg-accent text-accent-foreground font-semibold' : ''}"
-								>
-									<span class="truncate">{opt.label}</span>
-									{#if selectedEmployeeUuid === opt.id}
-										<CheckIcon class="size-4 shrink-0 text-hrms-primary" />
-									{/if}
-								</DropdownMenu.Item>
-							{:else}
-								<div class="px-3 py-4 text-sm text-muted-foreground text-center">
-									No employees found
-								</div>
-							{/each}
-						</DropdownMenu.Group>
-					</DropdownMenu.Content>
-				</DropdownMenu.Root>
-			</div>
-		</CardContent>
-	</Card>
 
-	{#if !selectedEmployeeUuid}
-		<div class="text-center py-16 border rounded-lg bg-card text-muted-foreground font-medium flex flex-col items-center justify-center gap-3">
-			<span>Please select an employee to view their attendance dashboard.</span>
-		</div>
-	{:else}
 		<!-- Stats Summary Cards -->
 		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
 			<Card class="bg-card">
@@ -1432,7 +1345,7 @@
 				{/if}
 			</CardContent>
 		</Card>
-	{/if}
+
 
 	<!-- Check In / Check Out Confirmation Modal -->
 	<ConfirmModal
