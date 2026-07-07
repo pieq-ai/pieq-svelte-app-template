@@ -149,9 +149,11 @@ export async function createAssignment(payload: unknown, managerEmail: string): 
   });
 
   // Trigger shift assigned notification
-  const { manager } = await getManagerSubordinates(managerEmail);
-  notificationFactory.shiftAssigned(shift.name, fromUTC, validated.employee_cuid, manager.cuid)
-    .catch((err) => console.error('Failed to trigger shift assigned notification:', err));
+  if (created.status) {
+    const { manager } = await getManagerSubordinates(managerEmail);
+    notificationFactory.shiftAssigned(shift.name, fromUTC, validated.employee_cuid, manager.cuid)
+      .catch((err) => console.error('Failed to trigger shift assigned notification:', err));
+  }
 
   return created;
 }
@@ -270,7 +272,7 @@ export async function updateAssignment(
   const fromDateChanged = fromUTC.getTime() !== new Date(existing.effective_from).getTime();
   const statusActivated = targetStatus && !existing.status;
 
-  if (shiftChanged || employeeChanged || fromDateChanged || statusActivated) {
+  if (updated.status && (shiftChanged || employeeChanged || fromDateChanged || statusActivated)) {
     const shift = await shiftDao.getShiftByCuid(targetShiftCuid);
     const shiftName = shift?.name || 'Assigned Shift';
     const { manager } = await getManagerSubordinates(managerEmail);

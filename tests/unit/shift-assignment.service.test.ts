@@ -202,6 +202,17 @@ describe('Shift Assignment Service Unit Tests', () => {
       );
     });
 
+    it('should NOT trigger notification when creating inactive assignment', async () => {
+      vi.mocked(dao.findOverlapping).mockResolvedValue(null);
+      const inactivePayload = { ...validPayload, status: false };
+      const mockCreated = { cuid: 'a-new-inactive', ...inactivePayload };
+      vi.mocked(dao.create).mockResolvedValue(mockCreated as any);
+
+      const result = await service.createAssignment(inactivePayload, managerEmail);
+      expect(result).toEqual(mockCreated);
+      expect(notificationFactory.shiftAssigned).not.toHaveBeenCalled();
+    });
+
     it('should create ongoing assignment when effective_to is null or omitted', async () => {
       vi.mocked(dao.findOverlapping).mockResolvedValue(null);
       const ongoingPayload = {
@@ -310,6 +321,17 @@ describe('Shift Assignment Service Unit Tests', () => {
         subordinateCuid,
         managerCuid
       );
+    });
+
+    it('should NOT trigger notification when updating assignment to inactive status', async () => {
+      vi.mocked(dao.findOverlapping).mockResolvedValue(null);
+      const mockUpdated = { ...existingAss, status: false };
+      vi.mocked(dao.update).mockResolvedValue(mockUpdated as any);
+
+      const result = await service.updateAssignment('a-1', { status: false }, managerEmail);
+      expect(result).toEqual(mockUpdated);
+      expect(notificationFactory.shiftReassigned).not.toHaveBeenCalled();
+      expect(notificationFactory.shiftAssigned).not.toHaveBeenCalled();
     });
 
     it('should update and remove end date (ongoing) when effective_to is null', async () => {
