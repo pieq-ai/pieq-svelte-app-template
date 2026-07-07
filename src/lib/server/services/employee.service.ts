@@ -8,6 +8,7 @@ import * as educationDao from '$lib/server/dao/education.dao.js';
 import * as experienceDao from '$lib/server/dao/experience.dao.js';
 import * as skillDao from '$lib/server/dao/skill.dao.js';
 import * as languageDao from '$lib/server/dao/language.dao.js';
+import * as shiftAssignmentDao from '$lib/server/dao/shift-assignment.dao.js';
 import { personalSchema } from '$lib/schemas/employee.schema.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
 
@@ -281,8 +282,14 @@ export async function getMinimalEmployeesForAttendance() {
     const employees = await employeeDao.list();
     const employments = await employmentDao.list();
     const locations = await locationDao.getAllLocations();
+    const employeeCuids = employees.map(emp => emp.cuid);
+    const activeAssignments = await shiftAssignmentDao.findActiveAssignmentsForEmployees(employeeCuids, new Date());
     const locMap = new Map(locations.map(l => [l.cuid, l]));
     const empMap = new Map(employments.map(e => [e.employee_cuid, e]));
+    const assignmentMap = new Map<string, number | null>(
+        activeAssignments.map(a => [a.employee_cuid, a.shift?.minimum_work_hours ?? null])
+    );
+
     return employees.map(emp => {
         const empl = empMap.get(emp.cuid);
         const loc = empl?.location_cuid ? locMap.get(empl.location_cuid) : null;
@@ -295,7 +302,8 @@ export async function getMinimalEmployeesForAttendance() {
             relieving_date: empl?.relieving_date || null,
             location_cuid: empl?.location_cuid || null,
             latitude: loc?.latitude ? Number(loc.latitude) : null,
-            longitude: loc?.longitude ? Number(loc.longitude) : null
+            longitude: loc?.longitude ? Number(loc.longitude) : null,
+            minimum_work_hours: assignmentMap.get(emp.cuid) ?? null
         };
     });
 }

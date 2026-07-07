@@ -167,30 +167,6 @@ export async function update(cuid: string, policyData: Partial<CreateLeavePolicy
 	});
 }
 
-export async function deletePolicy(cuid: string) {
-	const policy = await db.leavePolicy.findUnique({
-		where: { cuid }
-	});
-
-	if (!policy) {
-		throw new Error('Leave policy not found');
-	}
-
-	return db.$transaction(async (tx) => {
-		await tx.leavePolicyEmploymentType.deleteMany({
-			where: {
-				leave_policy_cuid: policy.cuid
-			}
-		});
-
-		await tx.leavePolicy.delete({
-			where: { cuid }
-		});
-
-		return policy;
-	});
-}
-
 export async function findByCuid(cuid: string) {
 	const policy = await db.leavePolicy.findUnique({
 		where: { cuid },

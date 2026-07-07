@@ -221,7 +221,6 @@
 			</div>
 		</div>
 	</section>
-
 	<ConfirmModal
 		open={showConfirmModal}
 		title={confirmActionType === 'in' ? 'Confirm Check In' : 'Confirm Check Out'}

@@ -210,12 +210,19 @@ describe('Service Layer Unit Tests', () => {
         });
       }
 
-      let leaveType = await db.leaveType.findFirst({
-        where: {
-          status: true,
-          code: { notIn: ['ML', 'PL'] }
-        }
+      let leavePolicy = await db.leavePolicy.findFirst({
+        where: { status: true }
       });
+      let leaveType = null;
+      if (leavePolicy) {
+        leaveType = await db.leaveType.findFirst({
+          where: {
+            cuid: leavePolicy.leave_type_cuid,
+            status: true,
+            code: { notIn: ['ML', 'PL'] }
+          }
+        });
+      }
       let createdTempType = false;
       if (!leaveType) {
         leaveType = await db.leaveType.create({

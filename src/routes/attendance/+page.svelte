@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	import { toast } from '$lib/toast';
 	import { UI_CONSTANTS } from '$lib/constants';
@@ -18,21 +19,17 @@
 		TableHead,
 		TableHeader,
 		TableRow,
-		Input,
-		CrudModal,
 		Pagination,
 		DatePicker,
-		ConfirmModal
+		ConfirmModal,
+		FilterDropdown
 	} from '$lib/components';
-	import ClockIcon from '@lucide/svelte/icons/clock';
-	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
-	import CheckCircle2Icon from '@lucide/svelte/icons/check-circle-2';
+	import PendingCheckoutModal from '$lib/components/common/PendingCheckoutModal.svelte';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
-	import PlusIcon from '@lucide/svelte/icons/plus';
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
@@ -297,8 +294,10 @@
 	);
 
 	let openRecord = $derived(
-		historyRecords.find((rec: any) => rec.check_in_time && !rec.check_out_time) || null
+		historyRecords.find((rec: any) => rec.date === data.todayStr && rec.check_in_time && !rec.check_out_time) || null
 	);
+
+
 
 	let employeeOptions = $derived(
 		data.employees.map((emp: any) => ({
@@ -406,11 +405,6 @@
 	}
 
 	function getDayStatus(dateStr: string) {
-		const isHoliday = data.holidays.some((h: any) => getISODateString(h.date) === dateStr);
-		if (isHoliday) {
-			return { status: 'Holiday', color: 'bg-blue-500/15 text-blue-800 dark:bg-blue-500/25 dark:text-blue-300 border border-blue-500/30 dark:border-blue-500/40' };
-		}
-
 		const record = historyRecords.find((rec) => rec.date === dateStr);
 		if (record) {
 			const status = record.status;
@@ -432,6 +426,11 @@
 			if (status === 'Week Off') {
 				return { status: 'Week Off', color: 'bg-slate-500/15 text-slate-700 dark:bg-slate-500/25 dark:text-slate-300 border border-slate-500/30 dark:border-slate-500/40' };
 			}
+		}
+
+		const isHoliday = data.holidays.some((h: any) => getISODateString(h.date) === dateStr);
+		if (isHoliday) {
+			return { status: 'Holiday', color: 'bg-blue-500/15 text-blue-800 dark:bg-blue-500/25 dark:text-blue-300 border border-blue-500/30 dark:border-blue-500/40' };
 		}
 
 		// Detect Week Off (Saturday & Sunday)
@@ -565,7 +564,7 @@
 		{ value: 'overall', label: 'Overall' }
 	];
 
-	let averageWorkingHours = $derived.by(() => {
+	let averageWorkingHoursStats = $derived.by(() => {
 		let totalMinutes = 0;
 		let totalWorkingDays = 0;
 
@@ -622,18 +621,38 @@
 			}
 		}
 
-		if (totalWorkingDays === 0) return '0h 00m';
+		return {
+			totalMinutes,
+			totalWorkingDays,
+			averageMinutes: totalWorkingDays > 0 ? totalMinutes / totalWorkingDays : 0
+		};
+	});
 
-		const avgMinutes = Math.round(totalMinutes / totalWorkingDays);
+	let averageWorkingHours = $derived.by(() => {
+		const { averageMinutes, totalWorkingDays } = averageWorkingHoursStats;
+		if (totalWorkingDays === 0) return '0h 00m';
+		const avgMinutes = Math.round(averageMinutes);
 		const hrs = Math.floor(avgMinutes / 60);
 		const mins = avgMinutes % 60;
 		return `${hrs}h ${String(mins).padStart(2, '0')}m`;
 	});
 
+	let isBelowMinimumHours = $derived.by(() => {
+		if (!selectedEmployee || selectedEmployee.minimum_work_hours === undefined || selectedEmployee.minimum_work_hours === null) {
+			return false;
+		}
+		const { averageMinutes, totalWorkingDays } = averageWorkingHoursStats;
+		if (totalWorkingDays === 0) {
+			return false;
+		}
+		const avgHoursDecimal = averageMinutes / 60;
+		return avgHoursDecimal < Number(selectedEmployee.minimum_work_hours);
+	});
+
 	let attendancePercentage = $derived.by(() => {
 		const total = monthlyStats.presentDays + monthlyStats.lopDays + monthlyStats.leaveDays + monthlyStats.halfDays + monthlyStats.wfhDays;
 		if (total === 0) return 0;
-		return Math.round(((monthlyStats.presentDays + monthlyStats.wfhDays + monthlyStats.halfDays) / total) * 100);
+		return Math.round(((monthlyStats.presentDays + monthlyStats.wfhDays + (monthlyStats.halfDays * 0.5)) / total) * 100);
 	});
 
 	// Load employee specific data
@@ -799,6 +818,73 @@
 		}
 	}
 
+	let isPendingCheckoutModalOpen = $state(false);
+	let pendingCheckoutRecord = $state<any>(null);
+
+	function triggerPendingCheckOutConfirm(recordCuid: string, dateStr: string) {
+		const record = historyRecords.find(r => r.cuid === recordCuid);
+		if (!record) return;
+		pendingCheckoutRecord = record;
+		isPendingCheckoutModalOpen = true;
+	}
+
+
+	async function handlePendingCheckOut(recordCuid: string, selectedTime: string) {
+		if (!selectedEmployeeUuid) return;
+		
+		const record = historyRecords.find(r => r.cuid === recordCuid);
+		if (!record || !record.check_in_time) {
+			toast.error('Check-in record not found');
+			return;
+		}
+
+		// Construct check-out Date using check_in_time local date and selected local time
+		const checkInDate = new SvelteDate(record.check_in_time);
+		const checkOutDate = new SvelteDate(checkInDate.getTime());
+		const [hoursStr, minutesStr] = selectedTime.split(':');
+		checkOutDate.setHours(parseInt(hoursStr), parseInt(minutesStr), 0, 0);
+
+		// Validate check-out time is later than check-in time
+		if (checkOutDate.getTime() <= checkInDate.getTime()) {
+			toast.error('Check-out time must be later than check-in time');
+			return;
+		}
+
+		isSubmitting = true;
+
+		try {
+			const res = await fetch('/api/attendance/check-out', {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					employee_cuid: selectedEmployeeUuid,
+					latitude: gpsLatitude,
+					longitude: gpsLongitude,
+					attendance_record_cuid: recordCuid,
+					check_out_time: checkOutDate.toISOString()
+				})
+			});
+
+			const body = await res.json();
+			if (res.ok) {
+				toast.success('Checked out successfully!');
+				await loadEmployeeData(selectedEmployeeUuid);
+				isPendingCheckoutModalOpen = false;
+				pendingCheckoutRecord = null;
+			} else {
+				const errorMsg = body.data?.error 
+					? (typeof body.data.error === 'object' ? Object.values(body.data.error).join(', ') : body.data.error)
+					: 'Check-out failed';
+				toast.error(errorMsg);
+			}
+		} catch (error) {
+			console.error(error);
+			toast.error('An unexpected error occurred during check-out');
+		} finally {
+			isSubmitting = false;
+		}
+	}
+
 	function scrollIntoView(node: HTMLElement, condition: boolean) {
 		if (condition) {
 			setTimeout(() => {
@@ -923,7 +1009,6 @@
 			<span>Please select an employee to view their attendance dashboard.</span>
 		</div>
 	{:else}
-
 		<!-- Stats Summary Cards -->
 		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
 			<Card class="bg-card">
@@ -994,35 +1079,20 @@
 						<p class="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Average Working Hours</p>
 						<div class="text-3xl font-bold">{averageWorkingHours}</div>
 						<p class="text-xs text-muted-foreground font-medium">Filter: {filterPeriodLabel}</p>
+						{#if isBelowMinimumHours}
+							<p class="text-xs text-destructive font-semibold mt-1">
+								Warning: You are working below the required minimum working hours.
+							</p>
+						{/if}
 					</div>
 					<div>
-						<DropdownMenu.Root>
-							<DropdownMenu.Trigger>
-								{#snippet child({ props })}
-									<Button variant="outline" class="h-9 justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
-										<span class="truncate pr-1">
-											{filterPeriodLabel}
-										</span>
-										<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
-									</Button>
-								{/snippet}
-							</DropdownMenu.Trigger>
-							<DropdownMenu.Content class="w-36">
-								<DropdownMenu.Group>
-									{#each filterPeriodOptions as opt}
-										<DropdownMenu.Item
-											onclick={() => filterPeriod = opt.value}
-											class="justify-between cursor-pointer {filterPeriod === opt.value ? 'bg-accent text-accent-foreground font-semibold' : ''}"
-										>
-											<span>{opt.label}</span>
-											{#if filterPeriod === opt.value}
-												<CheckIcon class="size-4 shrink-0 text-hrms-primary" />
-											{/if}
-										</DropdownMenu.Item>
-									{/each}
-								</DropdownMenu.Group>
-							</DropdownMenu.Content>
-						</DropdownMenu.Root>
+						<FilterDropdown
+							value={filterPeriod}
+							onChange={(v) => filterPeriod = v}
+							options={filterPeriodOptions}
+							triggerClass="w-40"
+							Icon={ChevronDownIcon}
+						/>
 					</div>
 				</CardContent>
 			</Card>
@@ -1055,62 +1125,22 @@
 						</Button>
 						
 						<!-- Month Dropdown -->
-						<DropdownMenu.Root>
-							<DropdownMenu.Trigger>
-								{#snippet child({ props })}
-									<Button variant="outline" class="h-9 justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
-										<span class="truncate pr-1">
-											{monthNames[currentMonth]}
-										</span>
-										<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
-									</Button>
-								{/snippet}
-							</DropdownMenu.Trigger>
-							<DropdownMenu.Content class="w-36 max-h-60 overflow-y-auto">
-								<DropdownMenu.Group>
-									{#each monthNames as monthName, index}
-										<DropdownMenu.Item
-											onclick={() => currentMonth = index}
-											class="justify-between cursor-pointer {currentMonth === index ? 'bg-accent text-accent-foreground font-semibold' : ''}"
-										>
-											<span use:scrollIntoView={currentMonth === index}>{monthName}</span>
-											{#if currentMonth === index}
-												<CheckIcon class="size-4 shrink-0 text-hrms-primary" />
-											{/if}
-										</DropdownMenu.Item>
-									{/each}
-								</DropdownMenu.Group>
-							</DropdownMenu.Content>
-						</DropdownMenu.Root>
+						<FilterDropdown
+							value={currentMonth}
+							onChange={(v) => currentMonth = v}
+							options={monthNames.map((name, index) => ({ label: name, value: index }))}
+							triggerClass="w-36"
+							Icon={ChevronDownIcon}
+						/>
 
 						<!-- Year Dropdown -->
-						<DropdownMenu.Root>
-							<DropdownMenu.Trigger>
-								{#snippet child({ props })}
-									<Button variant="outline" class="h-9 justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
-										<span class="truncate pr-1">
-											{currentYear}
-										</span>
-										<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
-									</Button>
-								{/snippet}
-							</DropdownMenu.Trigger>
-							<DropdownMenu.Content class="w-28 max-h-60 overflow-y-auto">
-								<DropdownMenu.Group>
-									{#each Array.from({ length: 101 }, (_, i) => 2000 + i) as yearVal}
-										<DropdownMenu.Item
-											onclick={() => currentYear = yearVal}
-											class="justify-between cursor-pointer {currentYear === yearVal ? 'bg-accent text-accent-foreground font-semibold' : ''}"
-										>
-											<span use:scrollIntoView={currentYear === yearVal}>{yearVal}</span>
-											{#if currentYear === yearVal}
-												<CheckIcon class="size-4 shrink-0 text-hrms-primary" />
-											{/if}
-										</DropdownMenu.Item>
-									{/each}
-								</DropdownMenu.Group>
-							</DropdownMenu.Content>
-						</DropdownMenu.Root>
+						<FilterDropdown
+							value={currentYear}
+							onChange={(v) => currentYear = v}
+							options={Array.from({ length: 101 }, (_, i) => 2000 + i).map(yearVal => ({ label: String(yearVal), value: yearVal }))}
+							triggerClass="w-28"
+							Icon={ChevronDownIcon}
+						/>
 
 						<Button variant="outline" size="icon-sm" onclick={nextMonth} title="Next Month">
 							›
@@ -1215,7 +1245,7 @@
 												Check Out
 											</Button>
 										{/if}
-									{:else if !todayRecord}
+									{:else if !todayRecord || (todayRecord.status === 'Half Day' && !todayRecord.check_in_time)}
 										{#if !isRelieved && !isBeforeJoining && !hasNoEmploymentRecord}
 											<Button
 												size="sm"
@@ -1228,6 +1258,21 @@
 											</Button>
 										{/if}
 									{/if}
+								{:else if record && record.isPendingCheckout && !holiday}
+									{#if !isRelieved && !isBeforeJoining && !hasNoEmploymentRecord}
+										<Button
+											size="sm"
+											onclick={(e) => { 
+												e.stopPropagation(); 
+												triggerPendingCheckOutConfirm(record.cuid, record.date); 
+											}}
+											class="w-full mt-1 h-5 text-[9px] px-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+											disabled={isSubmitting || !gpsValidation.isValid || isLoadingHistory}
+											title={!gpsValidation.isValid ? gpsValidation.message : (isLoadingHistory ? 'Loading history...' : '')}
+										>
+											Check Out
+										</Button>
+									{/if}
 								{/if}
 							</div>
 						</div>
@@ -1238,8 +1283,35 @@
 
 		<!-- Employee Specific Table -->
 		<Card>
-			<CardHeader class="pb-2">
+			<CardHeader class="pb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 				<CardTitle>Attendance History</CardTitle>
+				<!-- Filters -->
+				<div class="flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full sm:w-auto">
+					<div class="w-full sm:w-40">
+						<DatePicker
+							placeholder="Start Date"
+							bind:value={historyFilterStartDate}
+							max={historyFilterEndDate || '2099-12-31'}
+							isFilter={true}
+						/>
+					</div>
+					<div class="w-full sm:w-40">
+						<DatePicker
+							placeholder="End Date"
+							bind:value={historyFilterEndDate}
+							min={historyFilterStartDate}
+							isFilter={true}
+						/>
+					</div>
+					<div class="w-full sm:w-48">
+						<FilterDropdown
+							value={historyFilterStatus}
+							onChange={(v) => { historyFilterStatus = v; historyCurrentPage = 1; }}
+							options={historyFilterStatusOptions}
+							triggerClass="w-full"
+						/>
+					</div>
+				</div>
 			</CardHeader>
 			<CardContent>
 				{#if isLoadingHistory}
@@ -1249,48 +1321,6 @@
 					</div>
 				{:else}
 					<div class="space-y-3">
-						<!-- Filters -->
-						<div class="flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full lg:w-auto mt-2 mb-4">
-							<div class="w-full sm:w-40">
-								<DatePicker
-									placeholder="Start Date"
-									bind:value={historyFilterStartDate}
-									max={historyFilterEndDate || '2099-12-31'}
-									isFilter={true}
-								/>
-							</div>
-							<div class="w-full sm:w-40">
-								<DatePicker
-									placeholder="End Date"
-									bind:value={historyFilterEndDate}
-									min={historyFilterStartDate}
-									isFilter={true}
-								/>
-							</div>
-							<div class="w-full sm:w-48">
-								<DropdownMenu.Root>
-									<DropdownMenu.Trigger>
-										{#snippet child({ props })}
-											<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none" {...props}>
-												<span class="truncate pr-2">{historyFilterStatusOptions.find(o => o.value === historyFilterStatus)?.label || 'All Status'}</span>
-												<FilterIcon class="ml-2 size-4 opacity-50 shrink-0" />
-											</Button>
-										{/snippet}
-									</DropdownMenu.Trigger>
-									<DropdownMenu.Content class="w-(--bits-dropdown-menu-anchor-width)">
-										<DropdownMenu.Group>
-											{#each historyFilterStatusOptions as opt}
-												<DropdownMenu.Item onclick={() => { historyFilterStatus = opt.value; historyCurrentPage = 1; }} class="justify-between cursor-pointer {historyFilterStatus === opt.value ? 'bg-accent text-accent-foreground' : ''}">
-													<span class="truncate pr-2">{opt.label}</span>
-													{#if historyFilterStatus === opt.value}<CheckIcon class="size-4 shrink-0 text-hrms-primary" />{/if}
-												</DropdownMenu.Item>
-											{/each}
-										</DropdownMenu.Group>
-									</DropdownMenu.Content>
-								</DropdownMenu.Root>
-							</div>
-						</div>
-
 						<Card class="py-0">
 							<Table>
 								<TableHeader class="bg-muted">
@@ -1400,4 +1430,27 @@
 		onConfirm={() => { if (confirmModalAction) confirmModalAction(); }}
 		preventOutsideClickClose={true}
 	/>
+
+	<!-- Pending Check Out Modal with Time Picker -->
+	<PendingCheckoutModal
+		open={isPendingCheckoutModalOpen}
+		title="Confirm Check Out"
+		checkInTime={formatDisplayTime(pendingCheckoutRecord?.check_in_time)}
+		isSubmitting={isSubmitting}
+		onCancel={() => {
+			isPendingCheckoutModalOpen = false;
+			pendingCheckoutRecord = null;
+		}}
+		onConfirm={async (selectedTime) => {
+			if (pendingCheckoutRecord) {
+				await handlePendingCheckOut(pendingCheckoutRecord.cuid, selectedTime);
+			}
+		}}
+	/>
 </div>
+
+<style>
+	:global([data-radix-popper-content-wrapper]) {
+		z-index: 300 !important;
+	}
+</style>

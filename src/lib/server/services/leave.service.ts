@@ -1463,12 +1463,35 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 		else if (lwpSplitDays > 0 && leaveType.code !== 'LWP') splitSuffix = ` (incl. ${lwpSplitDays} LWP day${lwpSplitDays !== 1 ? 's' : ''})`;
 		const attendanceRemark = `Approved Leave: ${leaveType.name}${splitSuffix}`;
 
+		const activeDates: Date[] = [];
 		for (const d of dates) {
 			const code = leaveType.code.toUpperCase();
 			const isSandwiched = lopDays > 0 || lwpSplitDays > 0;
 			if (code !== 'ML' && code !== 'LWP' && !isSandwiched) {
 				if (isWeekend(d) || isHoliday(d, holidaysSet)) {
 					continue;
+				}
+			}
+			activeDates.push(d);
+		}
+
+		const daysFromPrimary = request.days_from_primary ? Number(request.days_from_primary) : 0;
+
+		for (let i = 0; i < activeDates.length; i++) {
+			const d = activeDates[i];
+			let dayStatus: string;
+
+			if (request.is_half_day) {
+				dayStatus = 'Half Day';
+			} else {
+				if (leaveType.code === 'LWP' || leaveType.code === 'LOP') {
+					dayStatus = 'LOP';
+				} else {
+					if (i < daysFromPrimary) {
+						dayStatus = 'Leave';
+					} else {
+						dayStatus = 'LOP';
+					}
 				}
 			}
 
@@ -1484,7 +1507,7 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 			await leaveDao.upsertAttendanceRecord({
 				employee_cuid: request.employee_cuid,
 				attendance_date: d,
-				attendance_status: attendanceStatus,
+				attendance_status: dayStatus,
 				remarks: attendanceRemark,
 				created_by: approverUserCuid
 			}, tx);

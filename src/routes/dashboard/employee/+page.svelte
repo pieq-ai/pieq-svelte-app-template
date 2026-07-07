@@ -59,11 +59,7 @@
 
 	<!-- Header Area: Dashboard Title, Switcher (if Manager), Notification Bell -->
 	<header class="flex items-center justify-between py-2">
-		<div class="flex items-center gap-4">
-			<h1 class="text-xl font-bold tracking-tight text-neutral-900">Dashboard</h1>
-			
-
-		</div>
+	
 
 		
 	</header>
@@ -310,7 +306,7 @@
 									<!-- Middle description details -->
 									<div class="space-y-0.5">
 										<p class="text-sm font-bold text-neutral-800 leading-tight">{event.name}</p>
-										<p class="text-[11px] font-semibold text-neutral-400 tracking-wide">{event.location}</p>
+										<p class="text-[11px] font-semibold text-neutral-400 tracking-wide">{event.holidayType}</p>
 									</div>
 								</div>
 

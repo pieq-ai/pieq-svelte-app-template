@@ -3,6 +3,7 @@ import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as holidayDao from '$lib/server/dao/holiday.dao.js';
 import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
+import { getLeaveStatusOnDate } from './attendance.service.js';
 
 export class AttendanceValidationError extends Error {
 	readonly field: string;
@@ -70,7 +71,7 @@ function parseDateOnly(raw: unknown, fieldName: string): Date {
 			date = new Date(trimmed);
 		}
 	} else if (raw instanceof Date) {
-		date = new Date(Date.UTC(raw.getFullYear(), raw.getMonth(), raw.getDate()));
+		date = new Date(Date.UTC(raw.getUTCFullYear(), raw.getUTCMonth(), raw.getUTCDate()));
 	} else {
 		const display = fieldName === 'date' ? 'Attendance date' : capitalize(fieldName.replace('_', ' '));
 		throw new AttendanceValidationError(fieldName, `${display} must be a valid date`);
@@ -230,6 +231,16 @@ async function validateRecordFields(
 	const finalStatus = status !== undefined ? status : (isUpdate ? existingRecord?.status : undefined);
 	const finalSource = attendance_source_cuid !== undefined ? attendance_source_cuid : (isUpdate ? existingRecord?.attendance_source_cuid : null);
 
+	if (finalEmployee && finalDate && finalStatus) {
+		if (['Present', 'Late', 'WFH', 'Half Day'].includes(finalStatus)) {
+			const leaveStatus = await getLeaveStatusOnDate(finalEmployee, finalDate);
+			if (leaveStatus.hasLeave && !leaveStatus.isHalfDay) {
+				errors.date = 'Attendance cannot be marked on leave or LOP days';
+				throw new AttendanceMultiValidationError(errors);
+			}
+		}
+	}
+
 	if (finalStatus && ['Leave', 'Holiday', 'LOP'].includes(finalStatus)) {
 		if (finalCheckIn) {
 			errors.check_in_time = 'Check-in and check-out times must be removed for non-working statuses';
@@ -354,11 +365,4 @@ export async function updateAttendanceRecord(cuid: string, dto: UpdateAttendance
 	updateData.updated_at = new Date();
 
 	return attendanceRecordDao.update(cuid, updateData);
-}
-
-export async function deleteAttendanceRecord(cuid: string) {
-	if (!cuid) {
-		throw new Error('Attendance Record CUID is required for deletion');
-	}
-	return attendanceRecordDao.deleteRecord(cuid);
 }

@@ -3,21 +3,17 @@
 	import { slide } from 'svelte/transition';
 	import { untrack } from 'svelte';
 	import { goto, invalidate, beforeNavigate } from '$app/navigation';
-	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
-	import SearchIcon from '@lucide/svelte/icons/search';
-	import XIcon from '@lucide/svelte/icons/x';
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
-	
-	import FilterIcon from '@lucide/svelte/icons/filter';
+	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import FilterIcon from '@lucide/svelte/icons/filter';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import {
 		Alert,
 		AlertDescription,
-		Badge,
 		Button,
 		Card,
 		CardDescription,
@@ -34,7 +30,7 @@
 		toast,
 		MultiSelect
 	} from '$lib/components/ui';
-	import { ConfirmModal, CrudModal, Pagination, TableActions, FilterDropdown, StatusDropdown, StatusBadge, SearchInput } from '$lib/components';
+	import { ConfirmModal, CrudModal, Pagination, TableActions, FilterDropdown, StatusDropdown, StatusBadge, SearchInput, Checkbox } from '$lib/components';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import type { PageData } from './$types.js';
 	import type { EmploymentType } from './+page.js';
@@ -890,7 +886,7 @@
 			</div>
 
 			<!-- Status Filter -->
-			<FilterDropdown value={filterStatus} onChange={(value) => { filterStatus = value; currentPage = 1; }} allLabel="All Status" />
+			<FilterDropdown value={filterStatus} onChange={(value) => { filterStatus = value; currentPage = 1; }} allLabel="All Status" triggerClass="w-full md:w-48" />
 		</div>
 
 		<!-- Table Card -->
@@ -1148,24 +1144,21 @@
 			</div>
 
 			<!-- Carry Forward Options -->
-			<div class="flex items-center space-x-2 pt-2">
-				<input
-					type="checkbox"
+			<div class="flex items-center gap-2 pt-2">
+				<Checkbox
 					id="modal_carry_forward_allowed"
-					name="carry_forward_allowed"
 					bind:checked={carryForwardAllowed}
-					onchange={() => {
+					onCheckedChange={(v) => {
 						if (form && form.field === 'carry_forward_allowed') form = null;
 						errors.max_carry_forward_days = '';
 						errors.max_annual_carry_forward_days = '';
-						if (!carryForwardAllowed) {
+						if (!v) {
 							maxCarryForwardDays = '';
 							maxAnnualCarryForwardDays = '';
 						}
 					}}
-					class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 				/>
-				<Label for="modal_carry_forward_allowed" class="cursor-pointer select-none">Carry Forward Allowed</Label>
+				<Label for="modal_carry_forward_allowed" class="cursor-pointer font-medium">Carry Forward Allowed</Label>
 			</div>
 
 			{#if carryForwardAllowed}
@@ -1211,28 +1204,25 @@
 			{/if}
 
 			<!-- Other Checkboxes -->
-			<div class="flex items-center space-x-2">
-				<input type="checkbox" id="modal_allow_half_day" name="allow_half_day" bind:checked={allowHalfDay} onchange={() => { if (form && form.field === 'allow_half_day') form = null; errors.allow_half_day = ''; }} class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
-				<Label for="modal_allow_half_day" class="cursor-pointer select-none">Allow Half Day</Label>
+			<div class="flex items-center gap-2">
+				<Checkbox id="modal_allow_half_day" bind:checked={allowHalfDay} onCheckedChange={() => { if (form && form.field === 'allow_half_day') form = null; errors.allow_half_day = ''; }} />
+				<Label for="modal_allow_half_day" class="cursor-pointer font-medium">Allow Half Day</Label>
 			</div>
 
-			<div class="flex items-center space-x-2">
-				<input
-					type="checkbox"
+			<div class="flex items-center gap-2">
+				<Checkbox
 					id="modal_document_required"
-					name="document_required"
 					bind:checked={documentRequired}
-					onchange={() => {
+					onCheckedChange={(v) => {
 						if (form && form.field === 'document_required') form = null;
 						errors.document_required = '';
 						errors.document_required_after_days = '';
-						if (!documentRequired) {
+						if (!v) {
 							documentRequiredAfterDays = '';
 						}
 					}}
-					class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 				/>
-				<Label for="modal_document_required" class="cursor-pointer select-none">Document Required</Label>
+				<Label for="modal_document_required" class="cursor-pointer font-medium">Document Required</Label>
 			</div>
 
 			{#if documentRequired}
@@ -1256,22 +1246,19 @@
 			{/if}
 
 			<!-- Gender Specific Rules -->
-			<div class="flex items-center space-x-2">
-				<input
-					type="checkbox"
+			<div class="flex items-center gap-2">
+				<Checkbox
 					id="modal_gender_specific"
-					name="gender_specific"
 					bind:checked={genderSpecific}
-					onchange={() => {
+					onCheckedChange={(v) => {
 						if (form && form.field === 'gender_specific') form = null;
 						errors.applicable_gender = '';
-						if (!genderSpecific) {
+						if (!v) {
 							applicableGender = '';
 						}
 					}}
-					class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 				/>
-				<Label for="modal_gender_specific" class="cursor-pointer select-none">Gender Specific Leave</Label>
+				<Label for="modal_gender_specific" class="cursor-pointer font-medium">Gender Specific Leave</Label>
 			</div>
 
 			{#if genderSpecific}

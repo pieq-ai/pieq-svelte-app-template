@@ -1206,7 +1206,7 @@ describe('Leave Service Unit Tests', () => {
 
 			expect(db.attendanceRecord.upsert).toHaveBeenCalledWith(expect.objectContaining({
 				create: expect.objectContaining({
-					attendance_status: 'HalfDay'
+					attendance_status: 'Half Day'
 				})
 			}));
 		});

@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types.js';
-import { getEmployeeHistory } from '$lib/server/services/attendance.service.js';
+import { getEmployeeHistory, getPendingCheckOuts } from '$lib/server/services/attendance.service.js';
 import { successResponse, errorResponse } from '$lib/server/response.js';
 
 export const GET: RequestHandler = async ({ params }) => {
@@ -10,7 +10,12 @@ export const GET: RequestHandler = async ({ params }) => {
 			return errorResponse('Employee CUID is required', 400);
 		}
 
-		const records = await getEmployeeHistory(employee_cuid);
+		const [records, pendingRecords] = await Promise.all([
+			getEmployeeHistory(employee_cuid),
+			getPendingCheckOuts(employee_cuid)
+		]);
+
+		const pendingCuids = new Set(pendingRecords.map((r) => r.cuid));
 
 		const formattedRecords = records.map((rec) => ({
 			cuid: rec.cuid,
@@ -18,7 +23,8 @@ export const GET: RequestHandler = async ({ params }) => {
 			check_in_time: rec.check_in_time ? rec.check_in_time.toISOString() : null,
 			check_out_time: rec.check_out_time ? rec.check_out_time.toISOString() : null,
 			work_duration_minutes: rec.work_duration_minutes,
-			status: rec.status
+			status: rec.status,
+			isPendingCheckout: pendingCuids.has(rec.cuid)
 		}));
 
 		return successResponse(formattedRecords);

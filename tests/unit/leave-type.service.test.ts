@@ -3,7 +3,6 @@ import * as leaveTypeDao from '$lib/server/dao/leave-type.dao.js';
 import {
 	createLeaveType,
 	updateLeaveType,
-	deleteLeaveType,
 	listLeaveTypes,
 	getLeaveTypeByCuid,
 	LeaveValidationError,
@@ -15,7 +14,6 @@ vi.mock('$lib/server/dao/leave-type.dao.js', () => {
 		list: vi.fn(),
 		create: vi.fn(),
 		update: vi.fn(),
-		deleteLeaveType: vi.fn(),
 		findByCuid: vi.fn(),
 		findByName: vi.fn(),
 		findByCode: vi.fn(),
@@ -319,35 +317,6 @@ describe('leave type service', () => {
 				status: false,
 				updated_by: undefined
 			});
-		});
-	});
-
-	describe('deletions', () => {
-		const targetCuid = 'leave-type-cuid';
-
-		it('should throw error when leave type to delete is not found', async () => {
-			vi.mocked(leaveTypeDao.findByCuid).mockResolvedValue(null);
-
-			await expect(deleteLeaveType(targetCuid)).rejects.toThrow('Leave type not found');
-		});
-
-		it('should successfully delete a leave type when it exists', async () => {
-			const existing = {
-				cuid: targetCuid,
-				name: 'Annual Leave',
-				code: 'ANNUAL',
-				description: null,
-				is_paid: true,
-				requires_approval: true,
-				status: true
-			};
-			vi.mocked(leaveTypeDao.findByCuid).mockResolvedValue(existing as any);
-			vi.mocked(leaveTypeDao.deleteLeaveType).mockResolvedValue({ id: 8n, ...existing, ...auditFields } as any);
-
-			const result = await deleteLeaveType(targetCuid);
-
-			expect(result).toEqual({ id: 8n, ...existing, ...auditFields });
-			expect(leaveTypeDao.deleteLeaveType).toHaveBeenCalledWith(targetCuid);
 		});
 	});
 

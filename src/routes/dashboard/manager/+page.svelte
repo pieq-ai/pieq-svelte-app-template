@@ -63,11 +63,7 @@
 <div class="bg-[#FAF9F6] -mx-6 -my-6 p-6 min-h-screen space-y-6">
   <!-- Header Area: Dashboard Title, Switcher, Notification Bell -->
   <header class="flex items-center justify-between py-2">
-    <div class="flex items-center gap-4">
-      <h1 class="text-xl font-bold tracking-tight text-neutral-900">
-        Dashboard
-      </h1>
-    </div>
+    
 
     
   </header>
@@ -274,17 +270,17 @@
                         {formatTimeOnly(team.check_out_time)}
                       </td>
                       <td class="py-3.5 text-right">
-                        {#if team.status === "On-Time"}
+                        {#if team.status === "Present"}
                           <span
                             class="inline-flex px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100"
                           >
-                            On-Time
+                            Present
                           </span>
-                        {:else if team.status === "Late In"}
+                        {:else if team.status === "Half Day"}
                           <span
                             class="inline-flex px-2.5 py-1 text-xs font-bold rounded-full bg-amber-50 text-amber-700 border border-amber-100"
                           >
-                            Late In
+                            Half Day
                           </span>
                         {:else if team.status === "WFH"}
                           <span

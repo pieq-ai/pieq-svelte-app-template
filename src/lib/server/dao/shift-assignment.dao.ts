@@ -18,7 +18,7 @@ async function resolveRelations(assignments: any[], client: any): Promise<ShiftA
     }),
     client.shift.findMany({
       where: { cuid: { in: shiftCuids } },
-      select: { cuid: true, name: true, start_time: true, end_time: true }
+      select: { cuid: true, name: true, start_time: true, end_time: true, minimum_work_hours: true }
     })
   ]);
 
@@ -51,7 +51,8 @@ async function resolveRelations(assignments: any[], client: any): Promise<ShiftA
         ? {
             name: sh.name,
             start_time: sh.start_time,
-            end_time: sh.end_time
+            end_time: sh.end_time,
+            minimum_work_hours: sh.minimum_work_hours !== undefined && sh.minimum_work_hours !== null ? Number(sh.minimum_work_hours) : undefined
           }
         : undefined
     };
@@ -170,4 +171,29 @@ export async function findOverlapping(
       ...(excludeCuid ? { NOT: { cuid: excludeCuid } } : {})
     }
   });
+}
+
+/**
+ * Find active shift assignments for a list of employee CUIDs on a specific date.
+ */
+export async function findActiveAssignmentsForEmployees(
+  employeeCuids: string[],
+  date: Date,
+  tx?: any
+): Promise<ShiftAssignment[]> {
+  const client = tx || db;
+  const dateUTC = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const assignments = await client.shiftAssignment.findMany({
+    where: {
+      employee_cuid: { in: employeeCuids },
+      status: true,
+      effective_from: { lte: dateUTC },
+      OR: [
+        { effective_to: { gte: dateUTC } },
+        { effective_to: null }
+      ]
+    }
+  });
+
+  return resolveRelations(assignments, client);
 }

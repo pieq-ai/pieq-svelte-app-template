@@ -165,7 +165,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 		console.error('Failed to load leave details for dashboard:', err);
 	}
 
-	// 5. Fetch Today's Attendance Record Status
 	let todayAttendance = null;
 	const todayStatusRecord = await getTodayStatus(employee.cuid);
 	if (todayStatusRecord) {
@@ -305,26 +304,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 		// Map employee CUID to employment details
 		const subordinateEmploymentMap = new Map(subordinatesEmploymentList.map((s) => [s.employee_cuid, s]));
 
-		// Fetch shift assignments of subordinates for today
-		const subordinateAssignments = await db.shiftAssignment.findMany({
-			where: {
-				employee_cuid: { in: subordinateCuids },
-				status: true,
-				effective_from: { lte: todayUTC },
-				OR: [
-					{ effective_to: { gte: todayUTC } },
-					{ effective_to: null }
-				]
-			}
-		});
-
-		const subShiftCuids = subordinateAssignments.map((a) => a.shift_cuid);
-		const subordinateShifts = await db.shift.findMany({
-			where: { cuid: { in: subShiftCuids } }
-		});
-		const subShiftMap = new Map(subordinateShifts.map((s) => [s.cuid, s]));
-		const empShiftMap = new Map(subordinateAssignments.map((a) => [a.employee_cuid, subShiftMap.get(a.shift_cuid)]));
-
 		// Manager's own "Team" (role name)
 		let managerTeamName = '—';
 		if (previewEmployment?.role_cuid) {
@@ -363,7 +342,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 			const empl = subordinateEmploymentMap.get(emp.cuid);
 			const desig = empl?.designation_cuid ? subDesigMap.get(empl.designation_cuid) : '—';
 			const rec = todaySubRecordsMap.get(emp.cuid);
-			const shift = empShiftMap.get(emp.cuid);
 
 			let checkInTime = null;
 			let checkOutTime = null;
@@ -377,21 +355,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 					status = 'WFH';
 				} else if (rec.status === 'Leave' || rec.status === 'On Leave' || rec.status === 'LOP') {
 					status = 'On Leave';
+				} else if (rec.status === 'Half Day' || rec.status === 'HalfDay' || rec.status === 'Halfday') {
+					status = 'Half Day';
 				} else {
-					// Compare check-in with shift start
-					if (rec.check_in_time && shift) {
-						const shiftStart = new Date(rec.check_in_time);
-						const shiftD = new Date(shift.start_time);
-						shiftStart.setUTCHours(shiftD.getUTCHours(), shiftD.getUTCMinutes(), 0, 0);
-
-						if (new Date(rec.check_in_time) > shiftStart) {
-							status = 'Late In';
-						} else {
-							status = 'On-Time';
-						}
-					} else {
-						status = 'On-Time';
-					}
+					status = 'Present';
 				}
 			} else if (activeLeavesMap.has(emp.cuid)) {
 				status = 'On Leave';
@@ -413,7 +380,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		let absentCount = 0;
 
 		for (const member of teamAttendanceList) {
-			if (member.status === 'On-Time' || member.status === 'Late In') {
+			if (member.status === 'Present' || member.status === 'Half Day') {
 				presentCount++;
 			} else if (member.status === 'WFH') {
 				wfhCount++;
@@ -481,7 +448,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			type: 'holiday',
 			name: h.name,
 			date: h.date.toISOString(),
-			label: 'Holiday'
+			label: h.type
 		}));
 
 		managerContext = {

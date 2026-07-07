@@ -16,6 +16,10 @@ export interface CreateAttendanceInput {
 }
 
 export interface UpdateAttendanceInput {
+	check_in_time?: Date | null;
+	check_in_latitude?: number | null;
+	check_in_longitude?: number | null;
+	attendance_source_cuid?: string | null;
 	check_out_time?: Date | null;
 	work_duration_minutes?: number | null;
 	updated_by?: string | null;
@@ -81,6 +85,46 @@ export async function findOpenRecord(employee_cuid: string) {
 			employee_cuid,
 			check_in_time: { not: null },
 			check_out_time: null
+		}
+	});
+}
+
+export async function findOpenRecordOnDate(employee_cuid: string, date: Date) {
+	return db.attendanceRecord.findFirst({
+		where: {
+			employee_cuid,
+			date: date,
+			check_in_time: { not: null },
+			check_out_time: null
+		}
+	});
+}
+
+export async function findByCuid(cuid: string) {
+	return db.attendanceRecord.findUnique({
+		where: { cuid }
+	});
+}
+
+export async function findPendingCheckOuts(employee_cuid: string, maxAgeDays: number = 7) {
+	const today = new Date();
+	const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+	
+	const minDate = new Date(todayUTC);
+	minDate.setUTCDate(minDate.getUTCDate() - maxAgeDays);
+
+	return db.attendanceRecord.findMany({
+		where: {
+			employee_cuid,
+			date: {
+				lt: todayUTC,
+				gte: minDate
+			},
+			check_in_time: { not: null },
+			check_out_time: null
+		},
+		orderBy: {
+			date: 'desc'
 		}
 	});
 }

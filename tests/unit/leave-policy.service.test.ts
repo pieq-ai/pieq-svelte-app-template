@@ -4,8 +4,7 @@ import * as leaveTypeDao from '$lib/server/dao/leave-type.dao.js';
 import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import {
 	createLeavePolicy,
-	updateLeavePolicy,
-	deleteLeavePolicy
+	updateLeavePolicy
 } from '$lib/server/services/leave-policy.service.js';
 import { LeaveValidationError, LeaveMultiValidationError } from '$lib/server/services/leave-type.service.js';
 
@@ -26,7 +25,6 @@ vi.mock('$lib/server/dao/leave-policy.dao.js', () => {
 		list: vi.fn(),
 		create: vi.fn(),
 		update: vi.fn(),
-		deletePolicy: vi.fn(),
 		findByCuid: vi.fn(),
 		findActivePolicyForEmploymentType: vi.fn()
 	};
@@ -460,14 +458,4 @@ describe('leave policy service', () => {
 		});
 	});
 
-	describe('deletions', () => {
-		it('should successfully delete a policy', async () => {
-			const existing = { cuid: 'policy-1', annual_limit: 10 } as any;
-			vi.mocked(leavePolicyDao.deletePolicy).mockResolvedValue(existing);
-
-			const result = await deleteLeavePolicy('policy-1');
-			expect(result).toEqual(existing);
-			expect(leavePolicyDao.deletePolicy).toHaveBeenCalledWith('policy-1');
-		});
-	});
 });

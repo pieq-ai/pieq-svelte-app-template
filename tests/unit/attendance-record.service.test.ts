@@ -6,13 +6,17 @@ import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import {
 	createAttendanceRecord,
 	updateAttendanceRecord,
-	deleteAttendanceRecord,
 	listAttendanceRecords,
 	getAttendanceRecordByCuid,
 	AttendanceValidationError,
 	AttendanceMultiValidationError
 } from '$lib/server/services/attendance-record.service.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
+import * as leaveDao from '$lib/server/dao/leave.dao.js';
+
+vi.mock('$lib/server/dao/leave.dao.js', () => ({
+	getApprovedRequestsInPeriod: vi.fn()
+}));
 
 vi.mock('$lib/server/dao/employment.dao.js', () => ({
 	findByEmployeeCuid: vi.fn(),
@@ -36,7 +40,6 @@ vi.mock('$lib/server/dao/attendance-record.dao.js', () => {
 		list: vi.fn(),
 		create: vi.fn(),
 		update: vi.fn(),
-		deleteRecord: vi.fn(),
 		findByCuid: vi.fn(),
 		findByEmployeeAndDate: vi.fn()
 	};
@@ -56,6 +59,7 @@ describe('attendance-record service', () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		vi.mocked(leaveDao.getApprovedRequestsInPeriod).mockResolvedValue([]);
 		vi.mocked(masterDataDao.findByCuid2).mockResolvedValue({ cuid: 'source-1', name: 'Web' } as any);
 		vi.mocked(employmentDao.findByEmployeeCuid).mockResolvedValue({
 			date_of_joining: new Date(Date.UTC(2026, 0, 1)), // Jan 1, 2026
@@ -269,19 +273,7 @@ describe('attendance-record service', () => {
 		});
 	});
 
-	describe('retrieval and deletion', () => {
-		it('should call deleteRecord from DAO', async () => {
-			vi.mocked(attendanceRecordDao.deleteRecord).mockResolvedValue({ cuid: 'deleted-rec' } as any);
-
-			const result = await deleteAttendanceRecord('cuid-1');
-			expect(result).toEqual({ cuid: 'deleted-rec' });
-			expect(attendanceRecordDao.deleteRecord).toHaveBeenCalledWith('cuid-1');
-		});
-
-		it('should fail delete without CUID', async () => {
-			await expect(deleteAttendanceRecord('')).rejects.toThrow('Attendance Record CUID is required');
-		});
-
+	describe('retrieval', () => {
 		it('should list records with parsed date filter', async () => {
 			const expectedRecord = { cuid: 'rec', employee_cuid: employeeCuid, date: new Date(Date.UTC(2026, 5, 1)) };
 			vi.mocked(attendanceRecordDao.list).mockResolvedValue([expectedRecord] as any);

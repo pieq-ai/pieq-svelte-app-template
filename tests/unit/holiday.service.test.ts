@@ -3,7 +3,6 @@ import * as holidayDao from '$lib/server/dao/holiday.dao.js';
 import {
 	createHoliday,
 	updateHoliday,
-	deleteHoliday,
 	HolidayValidationError,
 	HolidayMultiValidationError
 } from '$lib/server/services/holiday.service.js';
@@ -13,7 +12,6 @@ vi.mock('$lib/server/dao/holiday.dao.js', () => {
 		list: vi.fn(),
 		create: vi.fn(),
 		update: vi.fn(),
-		deleteHoliday: vi.fn(),
 		findByCuid: vi.fn(),
 		findByNameAndDate: vi.fn(),
 		findDuplicateExcludingCuid: vi.fn(),
@@ -341,34 +339,6 @@ describe('holiday service', () => {
 				type: 'National',
 				updated_by: undefined
 			});
-		});
-	});
-
-	describe('deleting holidays', () => {
-		const targetCuid = 'holiday-cuid';
-
-		it('should throw error when holiday to delete is not found', async () => {
-			vi.mocked(holidayDao.findByCuid).mockResolvedValue(null);
-
-			await expect(deleteHoliday(targetCuid)).rejects.toThrow('Holiday not found');
-		});
-
-		it('should successfully delete a holiday when it exists', async () => {
-			const existing = {
-				id: 6n,
-				cuid: targetCuid,
-				name: 'New Year Day',
-				date: new Date(Date.UTC(2026, 5, 1)),
-				type: 'National',
-				...auditFields
-			};
-			vi.mocked(holidayDao.findByCuid).mockResolvedValue(existing as any);
-			vi.mocked(holidayDao.deleteHoliday).mockResolvedValue(existing as any);
-
-			const result = await deleteHoliday(targetCuid);
-
-			expect(result).toEqual(existing);
-			expect(holidayDao.deleteHoliday).toHaveBeenCalledWith(targetCuid);
 		});
 	});
 });

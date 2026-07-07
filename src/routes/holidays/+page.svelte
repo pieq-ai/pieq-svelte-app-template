@@ -2,9 +2,6 @@
 	import { slide } from 'svelte/transition';
 	import { goto, invalidate, beforeNavigate } from '$app/navigation';
 	import { SvelteDate } from 'svelte/reactivity';
-	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
-	import SearchIcon from '@lucide/svelte/icons/search';
-	import XIcon from '@lucide/svelte/icons/x';
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
@@ -16,7 +13,6 @@
 	import {
 		Alert,
 		AlertDescription,
-		Badge,
 		Button,
 		Card,
 		CardDescription,

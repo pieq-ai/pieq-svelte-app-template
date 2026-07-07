@@ -3,7 +3,6 @@ import {
 	list,
 	create,
 	update,
-	deletePolicy,
 	findByCuid,
 	findActivePolicyForEmploymentType
 } from '$lib/server/dao/leave-policy.dao.js';
@@ -14,8 +13,7 @@ vi.mock('$lib/server/db.js', () => {
 	const mockTx = {
 		leavePolicy: {
 			create: vi.fn(),
-			update: vi.fn(),
-			delete: vi.fn()
+			update: vi.fn()
 		},
 		leavePolicyEmploymentType: {
 			createMany: vi.fn(),
@@ -43,7 +41,6 @@ describe('leave-policy DAO', () => {
 		leavePolicy: {
 			create: ReturnType<typeof vi.fn>;
 			update: ReturnType<typeof vi.fn>;
-			delete: ReturnType<typeof vi.fn>;
 		};
 		leavePolicyEmploymentType: {
 			createMany: ReturnType<typeof vi.fn>;
@@ -59,8 +56,7 @@ describe('leave-policy DAO', () => {
 			mockTx = {
 				leavePolicy: {
 					create: vi.fn().mockResolvedValue({ cuid: 'test-policy-cuid', annual_limit: 10n, max_per_month: null, max_carry_forward_days: null, max_annual_carry_forward_days: null }),
-					update: vi.fn().mockResolvedValue({ cuid: 'test-policy-cuid', annual_limit: 20n, max_per_month: null, max_carry_forward_days: null, max_annual_carry_forward_days: null }),
-					delete: vi.fn().mockResolvedValue({ cuid: 'test-policy-cuid' })
+					update: vi.fn().mockResolvedValue({ cuid: 'test-policy-cuid', annual_limit: 20n, max_per_month: null, max_carry_forward_days: null, max_annual_carry_forward_days: null })
 				},
 				leavePolicyEmploymentType: {
 					createMany: vi.fn().mockResolvedValue({ count: 2 }),
@@ -171,18 +167,6 @@ describe('leave-policy DAO', () => {
 		});
 	});
 
-	it('should delete policy inside transaction', async () => {
-		vi.mocked(db.leavePolicy.findUnique).mockResolvedValue({ cuid: 'policy-1' } as any);
-
-		const result = await deletePolicy('policy-1');
-		expect(result).toEqual({ cuid: 'policy-1' });
-		expect(mockTx.leavePolicyEmploymentType.deleteMany).toHaveBeenCalledWith({
-			where: { leave_policy_cuid: 'policy-1' }
-		});
-		expect(mockTx.leavePolicy.delete).toHaveBeenCalledWith({
-			where: { cuid: 'policy-1' }
-		});
-	});
 
 	it('should find by cuid mapped with employment types', async () => {
 		const mockPolicy = {

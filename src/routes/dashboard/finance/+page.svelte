@@ -88,17 +88,12 @@
 
 	<!-- Header Area: Dashboard Title, Notification Bell -->
 	<header class="flex items-center justify-between py-2">
-		<div class="flex items-center gap-4">
-			<h1 class="text-xl font-bold tracking-tight text-neutral-900">Dashboard</h1>
+		<div class="flex items-center gap-2">
+			
 		</div>
 
 		<div class="flex items-center gap-4 mr-12">
-			<a
-				href="/payrolls"
-				class="inline-flex items-center px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold rounded-xl transition-colors decoration-none"
-			>
-				Run Payroll
-			</a>
+			
 		</div>
 	</header>
 
@@ -123,10 +118,19 @@
 				</div>
 			</div>
 
-			<!-- Reporting Manager Card (No avatar, clean and visually balanced) -->
-			<div class="bg-[#FFF4EE] border border-[#FFE2D3] rounded-2xl p-5 min-w-[240px] flex flex-col justify-center shadow-xs">
-				<span class="text-xs font-semibold text-[#F45310] tracking-wider uppercase">Reporting Manager</span>
-				<span class="text-base font-bold text-neutral-900 mt-1">{data.employee.reportingManager}</span>
+			<div class="flex items-center gap-4 self-center md:self-start">
+				<a
+					href="/payrolls"
+					class="inline-flex items-center px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold rounded-xl transition-colors decoration-none shadow-sm h-11"
+				>
+					Run Payroll
+				</a>
+
+				<!-- Reporting Manager Card (No avatar, clean and visually balanced) -->
+				<div class="bg-[#FFF4EE] border border-[#FFE2D3] rounded-2xl p-5 min-w-[240px] flex flex-col justify-center shadow-xs">
+					<span class="text-xs font-semibold text-[#F45310] tracking-wider uppercase">Reporting Manager</span>
+					<span class="text-base font-bold text-neutral-900 mt-1">{data.employee.reportingManager}</span>
+				</div>
 			</div>
 		</section>
 	{/if}

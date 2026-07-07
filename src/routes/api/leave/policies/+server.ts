@@ -89,8 +89,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		status
 	} = trimmedBody;
 
-	console.log('POST /api/leave/policies request payload:', trimmedBody);
-
 	try {
 		let userId: string | null = null;
 		try {
@@ -118,7 +116,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			created_by: userId,
 			updated_by: userId
 		});
-		console.log('POST /api/leave/policies success, created policy:', data);
 		return createSuccessResponse('Leave policy', data.cuid);
 	} catch (error) {
 		console.error('POST /api/leave/policies failed. Full error stack:', error);
@@ -128,7 +125,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			(error !== null && typeof error === 'object' && 'name' in error && error.name === 'LeaveMultiValidationError');
 
 		if (isMultiError) {
-			return json({ data: { error: (error as any).fields } }, { status: 400 });
+			const fields = (error as any).fields;
+			const isConflict = Object.values(fields).some((msg: any) => String(msg).toLowerCase().includes('already exists'));
+			return json({ data: { error: fields } }, { status: isConflict ? 409 : 400 });
 		}
 
 		const isValidationError =
@@ -137,7 +136,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 		if (isValidationError) {
 			const valError = error as { field?: string; message: string };
-			console.log('Validation failed:', { field: valError.field, message: valError.message });
 			return json({ data: { error: { [valError.field || 'general']: valError.message } } }, { status: 400 });
 		}
 
