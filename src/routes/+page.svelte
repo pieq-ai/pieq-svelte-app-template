@@ -26,7 +26,7 @@
 </svelte:head>
 
 <!-- Full screen overlay to hide sidebar on the root login page -->
-<div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white bg-linear-to-br from-white to-[#F43510]/10 p-4">
+<div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white bg-linear-to-br from-white to-hrms-primary/10 p-4">
 	
 	<!-- Centered Login Card -->
 	<div class="w-full max-w-md bg-white border border-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl p-10 flex flex-col items-center text-center">
@@ -42,7 +42,7 @@
 		<!-- Action Button -->
 		<button
 			onclick={handleSignIn}
-			class="w-full flex items-center justify-center gap-2 bg-[#F43510] text-white text-base font-medium px-6 py-3.5 rounded-xl transition-all duration-200 hover:bg-[#d82f0e] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#F43510]/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#F43510] border-none cursor-pointer"
+			class="w-full flex items-center justify-center gap-2 bg-hrms-primary text-white text-base font-medium px-6 py-3.5 rounded-xl transition-all duration-200 hover:bg-hrms-primary-dark hover:-translate-y-0.5 hover:shadow-lg hover:shadow-hrms-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-hrms-primary border-none cursor-pointer"
 		>
 			<LogInIcon class="size-5" />
 			Sign in with Keycloak

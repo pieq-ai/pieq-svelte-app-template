@@ -1,4 +1,5 @@
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
+import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import * as locationDao from '$lib/server/dao/organization_location.dao.js';
 import * as addressDao from '$lib/server/dao/address.dao.js';
@@ -149,6 +150,11 @@ export async function createEmployee(dto: CreateEmployeeDto) {
                 emp_code,
                 profile_completion_status: 'pending'
             });
+
+            // Trigger employee joined notification
+            notificationFactory.employeeJoined(result.first_name, result.last_name, dto.created_by)
+                .catch(err => console.error("Failed to send employee joining notification:", err));
+
             return toPublicEmployee(result);
         } catch (error: any) {
             // Prisma code for unique constraint violation

@@ -234,7 +234,7 @@
   {#if mode !== "view"}
     <div class="flex justify-end">
       <Button
-        class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+        class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
         onclick={addDocument}
         disabled={isSubmitting || readingCount > 0}
       >
@@ -261,7 +261,7 @@
           >
             <div class="flex items-start gap-4 w-full">
               <div
-                class="flex items-center justify-center size-10 rounded-lg bg-[#F45310]/10 text-[#F45310] shrink-0 mt-1"
+                class="flex items-center justify-center size-10 rounded-lg bg-hrms-primary/10 text-hrms-primary shrink-0 mt-1"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -510,7 +510,7 @@
           Cancel
         </Button>
         <Button
-          class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+          class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
           onclick={() => save()}
           disabled={isSubmitting}
         >

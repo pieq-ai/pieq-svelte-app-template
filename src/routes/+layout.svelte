@@ -3,6 +3,7 @@
 	import favicon from '$lib/assets/favicon.svg'
 	import { clearOidcUser, storeOidcUser } from '$lib/auth';
 	import { Button } from '$lib/components';
+	import NotificationBell from '$lib/components/common/NotificationBell.svelte';
 	import Toaster from '$lib/components/ui/toaster.svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
@@ -172,6 +173,22 @@
 			clearOidcUser(issuer, clientId);
 		}
 	});
+
+	function handleMouseEnter(e: MouseEvent, label: string) {
+		if (isSidebarCollapsed) return;
+		const btn = e.currentTarget as HTMLElement;
+		const span = btn.querySelector('.truncate') as HTMLElement;
+		if (span && span.scrollWidth > span.clientWidth) {
+			btn.title = label;
+		} else {
+			btn.title = '';
+		}
+	}
+
+	function handleMouseLeave(e: MouseEvent) {
+		if (isSidebarCollapsed) return;
+		(e.currentTarget as HTMLElement).removeAttribute('title');
+	}
 </script>
 
 <svelte:head>
@@ -182,7 +199,7 @@
 <div class="flex min-h-screen bg-background text-foreground">
 	<Toaster />
 	<aside
-		class={`sticky top-0 h-screen z-30 flex shrink-0 flex-col border-r border-[#737373]/25 bg-[#262626] text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}
+		class={`sticky top-0 h-screen z-30 flex shrink-0 flex-col border-r border-hrms-neutral/25 bg-hrms-secondary text-white shadow-sm transition-[width] duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-[261px]'}`}
 		aria-label="Primary navigation"
 		data-sveltekit-preload-data="off"
 	>
@@ -193,7 +210,7 @@
 					class="flex min-w-0 items-center gap-3 font-semibold tracking-tight"
 					title="PieQ HRMS"
 				>
-					<span class="flex size-8 shrink-0 items-center justify-center rounded-md bg-[#F45310] text-white">
+					<span class="flex size-8 shrink-0 items-center justify-center rounded-md bg-hrms-primary text-white">
 						<Building2Icon class="size-4" />
 					</span>
 					<span class="truncate text-base">PieQ HRMS</span>
@@ -220,13 +237,15 @@
 					<Button
 						href={item.href}
 						variant="ghost"
-						class={`h-10 justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-[#F45310]' : ''}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-hrms-primary hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-hrms-primary' : ''}`}
 						title={isSidebarCollapsed ? item.label : undefined}
 						aria-label={item.label}
+						onmouseenter={(e) => handleMouseEnter(e, item.label)}
+						onmouseleave={handleMouseLeave}
 					>
 						<Icon class="size-4 shrink-0" />
 						{#if !isSidebarCollapsed}
-							<span>{item.label}</span>
+							<span class="truncate">{item.label}</span>
 						{/if}
 					</Button>
 				{/each}
@@ -235,7 +254,7 @@
 				<div class="flex flex-col gap-1">
 					<Button
 						variant="ghost"
-						class={`h-10 justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 						onclick={() => {
 							if (isSidebarCollapsed) {
 								isSidebarCollapsed = false;
@@ -246,11 +265,13 @@
 						}}
 						title={isSidebarCollapsed ? 'Leave Management' : undefined}
 						aria-label="Leave Management"
+						onmouseenter={(e) => handleMouseEnter(e, 'Leave Management')}
+						onmouseleave={handleMouseLeave}
 					>
 						<CalendarIcon class="size-4 shrink-0" />
 						{#if !isSidebarCollapsed}
-							<span class="flex-1 text-left">Leave Management</span>
-							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ${isLeaveManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
+							<span class="flex-1 text-left truncate">Leave Management</span>
+							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ml-auto ${isLeaveManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
 						{/if}
 					</Button>
 
@@ -262,11 +283,13 @@
 								<Button
 									href={child.href}
 									variant="ghost"
-									class={`h-9 justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
+									class={`h-9 w-full justify-start gap-3 text-white/80 hover:bg-hrms-primary hover:text-white px-3 text-sm ${isChildActive ? 'bg-hrms-primary text-white font-semibold' : ''}`}
 									aria-label={child.label}
+									onmouseenter={(e) => handleMouseEnter(e, child.label)}
+									onmouseleave={handleMouseLeave}
 								>
 									<ChildIcon class="size-3.5 shrink-0" />
-									<span>{child.label}</span>
+									<span class="truncate">{child.label}</span>
 								</Button>
 							{/each}
 						</div>
@@ -277,7 +300,7 @@
 				<div class="flex flex-col gap-1">
 					<Button
 						variant="ghost"
-						class={`h-10 justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 						onclick={() => {
 							if (isSidebarCollapsed) {
 								isSidebarCollapsed = false;
@@ -288,11 +311,13 @@
 						}}
 						title={isSidebarCollapsed ? 'Attendance Management' : undefined}
 						aria-label="Attendance Management"
+						onmouseenter={(e) => handleMouseEnter(e, 'Attendance Management')}
+						onmouseleave={handleMouseLeave}
 					>
 						<FingerprintIcon class="size-4 shrink-0" />
 						{#if !isSidebarCollapsed}
-							<span class="flex-1 text-left">Attendance Management</span>
-							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ${isAttendanceManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
+							<span class="flex-1 text-left truncate">Attendance Management</span>
+							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ml-auto ${isAttendanceManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
 						{/if}
 					</Button>
 
@@ -304,11 +329,13 @@
 								<Button
 									href={child.href}
 									variant="ghost"
-									class={`h-9 justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
+									class={`h-9 w-full justify-start gap-3 text-white/80 hover:bg-hrms-primary hover:text-white px-3 text-sm ${isChildActive ? 'bg-hrms-primary text-white font-semibold' : ''}`}
 									aria-label={child.label}
+									onmouseenter={(e) => handleMouseEnter(e, child.label)}
+									onmouseleave={handleMouseLeave}
 								>
 									<ChildIcon class="size-3.5 shrink-0" />
-									<span>{child.label}</span>
+									<span class="truncate">{child.label}</span>
 								</Button>
 							{/each}
 						</div>
@@ -319,7 +346,7 @@
 				<div class="flex flex-col gap-1">
 					<Button
 						variant="ghost"
-						class={`h-10 justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 						onclick={() => {
 							if (isSidebarCollapsed) {
 								isSidebarCollapsed = false;
@@ -330,11 +357,13 @@
 						}}
 						title={isSidebarCollapsed ? 'Shift Management' : undefined}
 						aria-label="Shift Management"
+						onmouseenter={(e) => handleMouseEnter(e, 'Shift Management')}
+						onmouseleave={handleMouseLeave}
 					>
 						<CalendarClockIcon class="size-4 shrink-0" />
 						{#if !isSidebarCollapsed}
-							<span class="flex-1 text-left">Shift Management</span>
-							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ${isShiftManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
+							<span class="flex-1 text-left truncate">Shift Management</span>
+							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ml-auto ${isShiftManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
 						{/if}
 					</Button>
 
@@ -346,11 +375,13 @@
 								<Button
 									href={child.href}
 									variant="ghost"
-									class={`h-9 justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
+									class={`h-9 w-full justify-start gap-3 text-white/80 hover:bg-hrms-primary hover:text-white px-3 text-sm ${isChildActive ? 'bg-hrms-primary text-white font-semibold' : ''}`}
 									aria-label={child.label}
+									onmouseenter={(e) => handleMouseEnter(e, child.label)}
+									onmouseleave={handleMouseLeave}
 								>
 									<ChildIcon class="size-3.5 shrink-0" />
-									<span>{child.label}</span>
+									<span class="truncate">{child.label}</span>
 								</Button>
 							{/each}
 						</div>
@@ -361,7 +392,7 @@
 				<div class="flex flex-col gap-1">
 					<Button
 						variant="ghost"
-						class={`h-10 justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-white/10 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 						onclick={() => {
 							if (isSidebarCollapsed) {
 								isSidebarCollapsed = false;
@@ -372,11 +403,13 @@
 						}}
 						title={isSidebarCollapsed ? 'Salary Management' : undefined}
 						aria-label="Salary Management"
+						onmouseenter={(e) => handleMouseEnter(e, 'Salary Management')}
+						onmouseleave={handleMouseLeave}
 					>
 						<WalletIcon class="size-4 shrink-0" />
 						{#if !isSidebarCollapsed}
-							<span class="flex-1 text-left">Salary Management</span>
-							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ${isSalaryManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
+							<span class="flex-1 text-left truncate">Salary Management</span>
+							<ChevronDownIcon class={`size-4 shrink-0 transition-transform duration-200 ml-auto ${isSalaryManagementExpanded ? 'rotate-0' : '-rotate-90'}`} />
 						{/if}
 					</Button>
 
@@ -388,11 +421,13 @@
 								<Button
 									href={child.href}
 									variant="ghost"
-									class={`h-9 justify-start gap-3 text-white/80 hover:bg-[#F45310] hover:text-white px-3 text-sm ${isChildActive ? 'bg-[#F45310] text-white font-semibold' : ''}`}
+									class={`h-9 w-full justify-start gap-3 text-white/80 hover:bg-hrms-primary hover:text-white px-3 text-sm ${isChildActive ? 'bg-hrms-primary text-white font-semibold' : ''}`}
 									aria-label={child.label}
+									onmouseenter={(e) => handleMouseEnter(e, child.label)}
+									onmouseleave={handleMouseLeave}
 								>
 									<ChildIcon class="size-3.5 shrink-0" />
-									<span>{child.label}</span>
+									<span class="truncate">{child.label}</span>
 								</Button>
 							{/each}
 						</div>
@@ -405,13 +440,15 @@
 					<Button
 						href={item.href}
 						variant="ghost"
-						class={`h-10 justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-[#F45310]' : ''}`}
+						class={`h-10 w-full justify-start gap-3 text-white hover:bg-hrms-primary hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isActive ? 'bg-hrms-primary' : ''}`}
 						title={isSidebarCollapsed ? item.label : undefined}
 						aria-label={item.label}
+						onmouseenter={(e) => handleMouseEnter(e, item.label)}
+						onmouseleave={handleMouseLeave}
 					>
 						<Icon class="size-4 shrink-0" />
 						{#if !isSidebarCollapsed}
-							<span>{item.label}</span>
+							<span class="truncate">{item.label}</span>
 						{/if}
 					</Button>
 				{/each}
@@ -419,13 +456,15 @@
 				<Button
 					href={resolve('/')}
 					variant="ghost"
-					class={`h-10 justify-start gap-3 text-white hover:bg-[#F45310] hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
+					class={`h-10 w-full justify-start gap-3 text-white hover:bg-hrms-primary hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 					title={isSidebarCollapsed ? 'Sign in' : undefined}
 					aria-label="Sign in"
+					onmouseenter={(e) => handleMouseEnter(e, 'Sign in')}
+					onmouseleave={handleMouseLeave}
 				>
 					<LogInIcon class="size-4 shrink-0" />
 					{#if !isSidebarCollapsed}
-						<span>Sign in</span>
+						<span class="truncate">Sign in</span>
 					{/if}
 				</Button>
 			{/if}
@@ -436,13 +475,15 @@
 				<Button
 					href={resolve('/settings')}
 					variant="ghost"
-					class={`h-10 w-full justify-start gap-3 text-white hover:bg-[#F45310]/90 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isSettingsActive ? 'bg-[#F45310]/90' : ''}`}
+					class={`h-10 w-full justify-start gap-3 text-white hover:bg-hrms-primary/90 hover:text-white ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'} ${isSettingsActive ? 'bg-hrms-primary/90' : ''}`}
 					title={isSidebarCollapsed ? 'Settings' : undefined}
 					aria-label="Settings"
+					onmouseenter={(e) => handleMouseEnter(e, 'Settings')}
+					onmouseleave={handleMouseLeave}
 				>
 					<SettingsIcon class="size-4 shrink-0" />
 					{#if !isSidebarCollapsed}
-						<span>Settings</span>
+						<span class="truncate">Settings</span>
 					{/if}
 				</Button>
 				<form method="POST" action="/auth/signout">
@@ -452,23 +493,36 @@
 						class={`h-10 w-full justify-start gap-3 text-white hover:bg-danger hover:text-danger-foreground focus-visible:ring-danger/50 focus-visible:border-danger ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-3'}`}
 						title={isSidebarCollapsed ? 'Sign out' : undefined}
 						aria-label="Sign out"
+						onmouseenter={(e) => handleMouseEnter(e, 'Sign out')}
+						onmouseleave={handleMouseLeave}
 					>
 						<LogOutIcon class="size-4 shrink-0" />
 						{#if !isSidebarCollapsed}
-							<span>Sign out</span>
+							<span class="truncate">Sign out</span>
 						{/if}
 					</Button>
 				</form>
 			{/if}
 			{#if authenticatedUser && !isSidebarCollapsed}
-				<p class="px-3 text-xs text-[#737373] wrap-break-word line-clamp-2" title={authenticatedUser.email}>{authenticatedUser.email}</p>
+				<p class="px-3 text-xs text-hrms-neutral wrap-break-word line-clamp-2" title={authenticatedUser.email}>{authenticatedUser.email}</p>
 			{/if}
 		</div>
 	</aside>
 
-	<main class="min-h-screen flex-1 min-w-0 px-6 py-6">
-		{@render children()}
-	</main>
+	<div class="flex flex-col flex-1 min-w-0 relative">
+		{#if authenticatedUser && 
+			$page.url.pathname !== '/notifications' && 
+			$page.url.pathname !== '/notifications/' && 
+			!$page.url.pathname.startsWith('/payroll-records') && 
+			!$page.url.pathname.startsWith('/payrolls/')}
+			<div class="absolute top-[28px] right-[32px] max-sm:top-[20px] max-sm:right-[20px] z-50">
+				<NotificationBell />
+			</div>
+		{/if}
+		<main class="grow min-w-0 px-8 py-6 max-sm:px-4 max-sm:py-4 overflow-y-auto">
+			{@render children()}
+		</main>
+	</div>
 </div>
 
 <ConfirmModal 

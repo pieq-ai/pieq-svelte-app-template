@@ -439,7 +439,7 @@
 		</div>
 		<Button
 			type="button"
-			class="bg-[#F45310] text-white hover:bg-[#F45310]/90 border-0"
+			class="bg-hrms-primary text-white hover:bg-hrms-primary/90 border-0"
 			onclick={openAddModal}
 		>
 			Add Leave Type
@@ -451,19 +451,19 @@
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription class="text-black dark:text-white">Total Leave Types</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-[#262626] dark:text-neutral-200">{totalTypes}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-hrms-secondary dark:text-neutral-200">{totalTypes}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription class="text-black dark:text-white">Active Leave Types</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-[#F45310]">{activeTypesCount}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-hrms-primary">{activeTypesCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription class="text-black dark:text-white">Inactive Leave Types</CardDescription>
-				<CardTitle class="text-4xl tabular-nums font-bold text-[#800020] dark:text-[#b83d58]">{inactiveTypesCount}</CardTitle>
+				<CardTitle class="text-4xl tabular-nums font-bold text-hrms-destructive dark:text-[#b83d58]">{inactiveTypesCount}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
@@ -715,7 +715,7 @@
 				</Button>
 				<Button
 					type="submit"
-					class="flex-1 sm:flex-initial sm:min-w-28 font-medium bg-[#F45310] text-white hover:bg-[#F45310]/90"
+					class="flex-1 sm:flex-initial sm:min-w-28 font-medium bg-hrms-primary text-white hover:bg-hrms-primary/90"
 					disabled={isSubmitDisabled}
 				>
 					<!-- force recompile -->

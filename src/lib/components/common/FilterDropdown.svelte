@@ -78,12 +78,23 @@
 			{#each options as option}
 				<DropdownMenu.Item
 					onclick={() => onChange(option.value)}
-					class="justify-between cursor-pointer {value === option.value ? 'bg-accent text-accent-foreground' : ''}"
+					class="cursor-pointer flex items-center gap-2 justify-between transition-colors duration-150"
 				>
-					<span use:scrollIntoView={value === option.value} class="truncate pr-2">{option.label}</span>
-					{#if value === option.value}
-						<CheckIcon class="size-4 shrink-0" />
-					{/if}
+					<div class="flex items-center gap-2">
+						<CheckIcon
+							class="size-4 shrink-0 {option.value === value
+								? 'opacity-100 text-[#F45310]'
+								: 'opacity-0'}"
+						/>
+
+						<span
+							class="{option.value === value
+								? 'font-medium text-[#F45310]'
+								: ''}"
+						>
+							{option.label}
+						</span>
+					</div>
 				</DropdownMenu.Item>
 			{/each}
 		</DropdownMenu.Group>

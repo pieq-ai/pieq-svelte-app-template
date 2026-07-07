@@ -190,6 +190,8 @@
 				const parsed = parseBackendErrors(body);
 				if (parsed.field) {
 					backendErrors = { [parsed.field]: parsed.message };
+				} else if (res.status === 409 || parsed.message.toLowerCase().includes('already exists') || parsed.message.toLowerCase().includes('duplicate') || parsed.message.toLowerCase().includes('email')) {
+					backendErrors = { official_email: parsed.message };
 				} else {
 					toast.error(parsed.message);
 				}
@@ -376,7 +378,7 @@
 			<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
 				Cancel
 			</Button>
-			<Button class="bg-[#F45310] text-white hover:bg-[#F45310]/90" onclick={() => save()} disabled={isSubmitting}>
+			<Button class="bg-hrms-primary text-white hover:bg-hrms-primary/90" onclick={() => save()} disabled={isSubmitting}>
 				Save
 			</Button>
 		</div>

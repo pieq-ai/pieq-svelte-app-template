@@ -1,3 +1,4 @@
+import type { RequestEvent } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
 import { parsePayrollExcel } from '$lib/server/utils/excel-parser.js';
 import type { ParsedPayrollRow, ParseResult } from '$lib/server/utils/excel-parser.js';
@@ -14,7 +15,7 @@ import { validateExcelExtension, validateExcelMimeType } from '$lib/server/valid
  * Returns:
  *   { data: { created, skipped, errors, upload_cuid, warnings } }
  */
-export async function POST({ request }) {
+export async function POST({ request }: RequestEvent) {
 	try {
 		const formData = await request.formData();
 		const file = formData.get('file') as File | null;

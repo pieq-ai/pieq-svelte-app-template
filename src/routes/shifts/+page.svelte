@@ -31,7 +31,8 @@
 		FilterDropdown,
 		StatusDropdown,
 		Pagination,
-		SearchInput
+		SearchInput,
+		TimePicker
 	} from '$lib/components';
 	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
 	import type { Shift } from '$lib/types/shift';
@@ -290,9 +291,13 @@
 		if (isNaN(d.getTime())) {
 			return String(timeVal);
 		}
-		const hours = String(d.getUTCHours()).padStart(2, '0');
+		let hours = d.getUTCHours();
 		const minutes = String(d.getUTCMinutes()).padStart(2, '0');
-		return `${hours}:${minutes}`;
+		const ampm = hours >= 12 ? 'PM' : 'AM';
+		hours = hours % 12;
+		hours = hours ? hours : 12;
+		const hoursStr = String(hours).padStart(2, '0');
+		return `${hoursStr}:${minutes} ${ampm}`;
 	}
 
 	function openCreateModal() {
@@ -469,7 +474,7 @@
 		</div>
 		<Button
 			type="button"
-			class="bg-[#F45310] text-white hover:bg-[#F45310]/90"
+			class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
 			onclick={openCreateModal}
 		>
 			Add Shift
@@ -481,19 +486,19 @@
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Total Shifts</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#262626] tabular-nums">{totalCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-secondary tabular-nums">{totalCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Active Shifts</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#F45310] tabular-nums">{activeCount}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-primary tabular-nums">{activeCount}</CardTitle>
 			</CardHeader>
 		</Card>
 		<Card>
 			<CardHeader class="pb-2">
 				<CardDescription>Avg Min Work Hours</CardDescription>
-				<CardTitle class="text-4xl font-bold text-[#800020] tabular-nums">{formatHoursReadable(avgMinWorkHours)}</CardTitle>
+				<CardTitle class="text-4xl font-bold text-hrms-destructive tabular-nums">{formatHoursReadable(avgMinWorkHours)}</CardTitle>
 			</CardHeader>
 		</Card>
 	</div>
@@ -613,24 +618,22 @@
 			<div class="grid grid-cols-2 gap-4">
 				<div class="space-y-2">
 					<Label for="start_time">Start Time</Label>
-					<Input
+					<TimePicker
 						id="start_time"
 						name="start_time"
-						type="time"
 						bind:value={formStartTime}
-						class={timingError ? 'border-destructive' : ''}
-						oninput={() => { timingError = ''; }}
+						isError={!!timingError}
+						onchange={() => { timingError = ''; }}
 					/>
 				</div>
 				<div class="space-y-2">
 					<Label for="end_time">End Time</Label>
-					<Input
+					<TimePicker
 						id="end_time"
 						name="end_time"
-						type="time"
 						bind:value={formEndTime}
-						class={timingError ? 'border-destructive' : ''}
-						oninput={() => { timingError = ''; }}
+						isError={!!timingError}
+						onchange={() => { timingError = ''; }}
 					/>
 				</div>
 			</div>
@@ -645,7 +648,7 @@
 						<button 
 							type="button" 
 							onclick={() => { isMinHoursManuallyEdited = false; }} 
-							class="text-xs text-[#F45310] hover:underline bg-transparent border-none p-0 cursor-pointer"
+							class="text-xs text-hrms-primary hover:underline bg-transparent border-none p-0 cursor-pointer"
 						>
 							Reset to auto
 						</button>
@@ -674,7 +677,7 @@
 			{/if}
 			<div class="flex items-center justify-end gap-3 pt-4">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-[#F45310] text-white hover:bg-[#F45310]/90" disabled={isSubmitting || (!!editingShift && !isDirty)}>
+				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSubmitting || (!!editingShift && !isDirty)}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingShift ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>
 			</div>
