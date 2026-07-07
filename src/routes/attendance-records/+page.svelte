@@ -36,6 +36,7 @@
 		TableActions,
 		SearchInput
 	} from '$lib/components';
+	import TimePicker from '$lib/components/common/TimePicker.svelte';
 	import { toast } from '$lib/toast';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import type { PageData } from './$types';
@@ -1380,17 +1381,15 @@
 			<div class="grid grid-cols-2 gap-4">
 				<div class="space-y-2">
 					<Label for="modal_check_in_time" class={errors.check_in_time ? 'text-destructive font-semibold' : ''}>Check In Time</Label>
-					<Input
+					<TimePicker
 						id="modal_check_in_time"
-						name="check_in_time"
-						type="time"
 						bind:value={formCheckInTimeOnly}
-						oninput={() => {
+						isError={!!errors.check_in_time}
+						disabled={['Leave', 'Holiday', 'LOP'].includes(formAttendanceStatus)}
+						onchange={() => {
 							errors.check_in_time = '';
 							errors.check_out_time = '';
 						}}
-						class={errors.check_in_time ? 'border-destructive' : ''}
-						disabled={['Leave', 'Holiday', 'LOP'].includes(formAttendanceStatus)}
 					/>
 					{#if errors.check_in_time}
 						<p class="text-xs font-semibold text-destructive mt-0.5">{errors.check_in_time}</p>
@@ -1398,17 +1397,15 @@
 				</div>
 				<div class="space-y-2">
 					<Label for="modal_check_out_time" class={errors.check_out_time ? 'text-destructive font-semibold' : ''}>Check Out Time</Label>
-					<Input
+					<TimePicker
 						id="modal_check_out_time"
-						name="check_out_time"
-						type="time"
 						bind:value={formCheckOutTimeOnly}
-						oninput={() => {
+						isError={!!errors.check_out_time}
+						disabled={['Leave', 'Holiday', 'LOP'].includes(formAttendanceStatus)}
+						onchange={() => {
 							errors.check_in_time = '';
 							errors.check_out_time = '';
 						}}
-						class={errors.check_out_time ? 'border-destructive' : ''}
-						disabled={['Leave', 'Holiday', 'LOP'].includes(formAttendanceStatus)}
 					/>
 					{#if errors.check_out_time}
 						<p class="text-xs font-semibold text-destructive mt-0.5">{errors.check_out_time}</p>
@@ -1655,3 +1652,9 @@
 		</form>
 	{/snippet}
 </CrudModal>
+
+<style>
+	:global([data-radix-popper-content-wrapper]) {
+		z-index: 300 !important;
+	}
+</style>

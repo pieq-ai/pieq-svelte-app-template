@@ -206,7 +206,8 @@ export async function checkOut(
 	employeeCuid: string,
 	updatedBy?: string | null,
 	gpsData?: { latitude: number; longitude: number } | null,
-	attendanceRecordCuid?: string | null
+	attendanceRecordCuid?: string | null,
+	checkOutTimeInput?: Date | string | null
 ) {
 	if (!employeeCuid) {
 		throw new AttendanceValidationError('employee_cuid', 'Employee is required');
@@ -289,6 +290,27 @@ export async function checkOut(
 		throw new AttendanceValidationError('employee_cuid', 'Attendance cannot be marked on leave or LOP days');
 	}
 
+	// Check-out time validations and determination
+	let checkOutTime: Date;
+	if (checkOutTimeInput) {
+		checkOutTime = new Date(checkOutTimeInput);
+		if (isNaN(checkOutTime.getTime())) {
+			throw new AttendanceValidationError('employee_cuid', 'Invalid check-out time provided');
+		}
+		if (existing.check_in_time && checkOutTime <= new Date(existing.check_in_time)) {
+			throw new AttendanceValidationError('employee_cuid', 'Check-out time must be later than check-in time');
+		}
+		const checkOutDateUTC = new Date(Date.UTC(checkOutTime.getUTCFullYear(), checkOutTime.getUTCMonth(), checkOutTime.getUTCDate()));
+		if (checkOutDateUTC.getTime() !== recordDateUTC.getTime()) {
+			throw new AttendanceValidationError('employee_cuid', 'Check-out time must belong to the same attendance date');
+		}
+	} else {
+		if (attendanceRecordCuid) {
+			throw new AttendanceValidationError('employee_cuid', 'Check-out time is required for pending check-out');
+		}
+		checkOutTime = today;
+	}
+
 	// Geofence Validation
 	if (
 		!gpsData ||
@@ -321,15 +343,15 @@ export async function checkOut(
 		throw new AttendanceValidationError('employee_cuid', 'You are outside the office zone');
 	}
 
-	const checkInTime = existing.check_in_time ? new Date(existing.check_in_time) : today;
-	const diffMs = today.getTime() - checkInTime.getTime();
+	const checkInTime = existing.check_in_time ? new Date(existing.check_in_time) : checkOutTime;
+	const diffMs = checkOutTime.getTime() - checkInTime.getTime();
 	const minutes = Math.round(diffMs / 1000 / 60);
 
 	return attendanceDao.update(existing.cuid, {
-		check_out_time: today,
+		check_out_time: checkOutTime,
 		work_duration_minutes: Math.max(0, minutes),
 		updated_by: updatedBy,
-		updated_at: today,
+		updated_at: new Date(),
 		check_out_latitude: latitude,
 		check_out_longitude: longitude
 	});

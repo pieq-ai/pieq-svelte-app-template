@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	import { toast } from '$lib/toast';
 	import { UI_CONSTANTS } from '$lib/constants';
@@ -23,6 +24,7 @@
 		ConfirmModal,
 		FilterDropdown
 	} from '$lib/components';
+	import PendingCheckoutModal from '$lib/components/common/PendingCheckoutModal.svelte';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import SearchIcon from '@lucide/svelte/icons/search';
@@ -821,15 +823,14 @@
 		}
 	}
 
+	let isPendingCheckoutModalOpen = $state(false);
+	let pendingCheckoutRecord = $state<any>(null);
+
 	function triggerPendingCheckOutConfirm(recordCuid: string, dateStr: string) {
-		confirmModalTitle = 'Confirm Check Out';
-		confirmModalDescription = `Are you sure you want to check out for ${new Date(dateStr).toLocaleDateString()}?`;
-		confirmModalConfirmLabel = 'Check Out';
-		confirmModalAction = async () => {
-			await handlePendingCheckOut(recordCuid);
-			isConfirmModalOpen = false;
-		};
-		isConfirmModalOpen = true;
+		const record = historyRecords.find(r => r.cuid === recordCuid);
+		if (!record) return;
+		pendingCheckoutRecord = record;
+		isPendingCheckoutModalOpen = true;
 	}
 
 	const isPendingRecord = (rec: any, cellDateStr: string) => {
@@ -847,8 +848,27 @@
 		return diffDays >= 1 && diffDays <= 7;
 	};
 
-	async function handlePendingCheckOut(recordCuid: string) {
+	async function handlePendingCheckOut(recordCuid: string, selectedTime: string) {
 		if (!selectedEmployeeUuid) return;
+		
+		const record = historyRecords.find(r => r.cuid === recordCuid);
+		if (!record || !record.check_in_time) {
+			toast.error('Check-in record not found');
+			return;
+		}
+
+		// Construct check-out Date using check_in_time local date and selected local time
+		const checkInDate = new SvelteDate(record.check_in_time);
+		const checkOutDate = new SvelteDate(checkInDate.getTime());
+		const [hoursStr, minutesStr] = selectedTime.split(':');
+		checkOutDate.setHours(parseInt(hoursStr), parseInt(minutesStr), 0, 0);
+
+		// Validate check-out time is later than check-in time
+		if (checkOutDate.getTime() <= checkInDate.getTime()) {
+			toast.error('Check-out time must be later than check-in time');
+			return;
+		}
+
 		isSubmitting = true;
 
 		try {
@@ -859,7 +879,8 @@
 					employee_cuid: selectedEmployeeUuid,
 					latitude: gpsLatitude,
 					longitude: gpsLongitude,
-					attendance_record_cuid: recordCuid
+					attendance_record_cuid: recordCuid,
+					check_out_time: checkOutDate.toISOString()
 				})
 			});
 
@@ -867,6 +888,8 @@
 			if (res.ok) {
 				toast.success('Checked out successfully!');
 				await loadEmployeeData(selectedEmployeeUuid);
+				isPendingCheckoutModalOpen = false;
+				pendingCheckoutRecord = null;
 			} else {
 				const errorMsg = body.data?.error 
 					? (typeof body.data.error === 'object' ? Object.values(body.data.error).join(', ') : body.data.error)
@@ -1426,4 +1449,27 @@
 		onConfirm={() => { if (confirmModalAction) confirmModalAction(); }}
 		preventOutsideClickClose={true}
 	/>
+
+	<!-- Pending Check Out Modal with Time Picker -->
+	<PendingCheckoutModal
+		open={isPendingCheckoutModalOpen}
+		title="Confirm Check Out"
+		checkInTime={formatDisplayTime(pendingCheckoutRecord?.check_in_time)}
+		isSubmitting={isSubmitting}
+		onCancel={() => {
+			isPendingCheckoutModalOpen = false;
+			pendingCheckoutRecord = null;
+		}}
+		onConfirm={async (selectedTime) => {
+			if (pendingCheckoutRecord) {
+				await handlePendingCheckOut(pendingCheckoutRecord.cuid, selectedTime);
+			}
+		}}
+	/>
 </div>
+
+<style>
+	:global([data-radix-popper-content-wrapper]) {
+		z-index: 300 !important;
+	}
+</style>

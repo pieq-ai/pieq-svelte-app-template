@@ -16,13 +16,13 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
 		return json({ error: { general: 'Request body must be valid JSON' } }, { status: 400 });
 	}
 
-	const allowedKeys = ['employee_cuid', 'latitude', 'longitude', 'attendance_record_cuid'];
+	const allowedKeys = ['employee_cuid', 'latitude', 'longitude', 'attendance_record_cuid', 'check_out_time'];
 	const validation = validatePayloadKeys(body, allowedKeys);
 	if (validation) {
 		return json({ error: { general: validation.error } }, { status: 400 });
 	}
 
-	const { employee_cuid, latitude, longitude, attendance_record_cuid } = trimStringFields(body) as any;
+	const { employee_cuid, latitude, longitude, attendance_record_cuid, check_out_time } = trimStringFields(body) as any;
 
 	try {
 		let userId: string | null = null;
@@ -40,7 +40,8 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
 				latitude: Number(latitude),
 				longitude: Number(longitude)
 			},
-			attendance_record_cuid
+			attendance_record_cuid,
+			check_out_time
 		);
 		return successResponse({
 			message: 'Checked out successfully',

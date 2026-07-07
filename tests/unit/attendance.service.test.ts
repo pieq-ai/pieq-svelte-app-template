@@ -520,11 +520,11 @@ describe('attendance service', () => {
 			]);
 		});
 
-		it('should successfully check out a specific pending record within 7 days', async () => {
-			const checkInTime = new Date(Date.UTC(2026, 5, 1, 9, 0, 0)); // June 1 (date of mock system time)
+		it('should successfully check out a specific pending record within 7 days when check-out time is provided', async () => {
+			const checkInTime = new Date(Date.UTC(2026, 5, 1, 9, 0, 0)); // June 1, 9:00 AM
 			const recordDate = new Date(Date.UTC(2026, 5, 1));
+			const checkOutTime = new Date(Date.UTC(2026, 5, 1, 17, 0, 0)); // June 1, 5:00 PM (8 hours later)
 			
-			// Mocking that the target record is from today (or within 7 days)
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
 			vi.mocked(attendanceDao.findByCuid).mockResolvedValue({
 				cuid: 'target-record-cuid',
@@ -536,9 +536,60 @@ describe('attendance service', () => {
 			} as any);
 			vi.mocked(attendanceDao.update).mockResolvedValue({ cuid: 'target-record-cuid' } as any);
 
-			const result = await checkOut(employeeCuid, 'admin', validGps, 'target-record-cuid');
+			const result = await checkOut(employeeCuid, 'admin', validGps, 'target-record-cuid', checkOutTime);
 			expect(result).toEqual({ cuid: 'target-record-cuid' });
-			expect(attendanceDao.update).toHaveBeenCalledWith('target-record-cuid', expect.any(Object));
+			expect(attendanceDao.update).toHaveBeenCalledWith('target-record-cuid', expect.objectContaining({
+				check_out_time: checkOutTime,
+				work_duration_minutes: 480
+			}));
+		});
+
+		it('should reject pending check-out if check-out time is not provided', async () => {
+			const recordDate = new Date(Date.UTC(2026, 5, 1));
+			vi.mocked(attendanceDao.findByCuid).mockResolvedValue({
+				cuid: 'target-record-cuid',
+				employee_cuid: employeeCuid,
+				date: recordDate,
+				check_in_time: new Date(),
+				check_out_time: null
+			} as any);
+
+			await expect(checkOut(employeeCuid, 'admin', validGps, 'target-record-cuid', null)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'Check-out time is required for pending check-out')
+			);
+		});
+
+		it('should reject pending check-out if check-out time is equal to check-in time', async () => {
+			const checkInTime = new Date(Date.UTC(2026, 5, 1, 9, 0, 0));
+			const recordDate = new Date(Date.UTC(2026, 5, 1));
+			vi.mocked(attendanceDao.findByCuid).mockResolvedValue({
+				cuid: 'target-record-cuid',
+				employee_cuid: employeeCuid,
+				date: recordDate,
+				check_in_time: checkInTime,
+				check_out_time: null
+			} as any);
+
+			await expect(checkOut(employeeCuid, 'admin', validGps, 'target-record-cuid', checkInTime)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'Check-out time must be later than check-in time')
+			);
+		});
+
+		it('should reject pending check-out if check-out time is earlier than check-in time', async () => {
+			const checkInTime = new Date(Date.UTC(2026, 5, 1, 9, 0, 0));
+			const recordDate = new Date(Date.UTC(2026, 5, 1));
+			const checkOutTime = new Date(Date.UTC(2026, 5, 1, 8, 59, 0));
+			vi.mocked(attendanceDao.findByCuid).mockResolvedValue({
+				cuid: 'target-record-cuid',
+				employee_cuid: employeeCuid,
+				date: recordDate,
+				check_in_time: checkInTime,
+				check_out_time: null
+			} as any);
+
+			await expect(checkOut(employeeCuid, 'admin', validGps, 'target-record-cuid', checkOutTime)).rejects.toThrowError(
+				new AttendanceValidationError('employee_cuid', 'Check-out time must be later than check-in time')
+			);
 		});
 
 		it('should reject checking out a specific pending record if it belongs to another employee', async () => {
@@ -549,7 +600,7 @@ describe('attendance service', () => {
 				date: new Date()
 			} as any);
 
-			await expect(checkOut(employeeCuid, 'admin', validGps, 'target-record-cuid')).rejects.toThrowError(
+			await expect(checkOut(employeeCuid, 'admin', validGps, 'target-record-cuid', new Date())).rejects.toThrowError(
 				new AttendanceValidationError('employee_cuid', 'Selected attendance record does not belong to the authenticated employee')
 			);
 		});
@@ -566,7 +617,7 @@ describe('attendance service', () => {
 				status: 'Present'
 			} as any);
 
-			await expect(checkOut(employeeCuid, 'admin', validGps, 'target-record-cuid')).rejects.toThrowError(
+			await expect(checkOut(employeeCuid, 'admin', validGps, 'target-record-cuid', new Date())).rejects.toThrowError(
 				new AttendanceValidationError('employee_cuid', 'Pending check-out has expired (grace period is 7 days)')
 			);
 		});
@@ -580,7 +631,7 @@ describe('attendance service', () => {
 				status: 'Present'
 			} as any);
 
-			await expect(checkOut(employeeCuid, 'admin', validGps, 'target-record-cuid')).rejects.toThrowError(
+			await expect(checkOut(employeeCuid, 'admin', validGps, 'target-record-cuid', new Date())).rejects.toThrowError(
 				new AttendanceValidationError('employee_cuid', 'Selected attendance record is already checked out')
 			);
 		});
