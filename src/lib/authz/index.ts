@@ -21,7 +21,17 @@ export function hasRole(user: AuthzUser | null | undefined, allowedRoleCuids: st
  * Evaluates dynamically loaded permissions assigned to the user's role.
  */
 export function canAccess(user: AuthzUser | null | undefined, permission: string): boolean {
-    if (!user || !Array.isArray(user.permissions)) {
+    if (!user) {
+        return false;
+    }
+
+    // Built-in permissions for any authenticated user
+    const defaultPermissions = ['profile:view'];
+    if (defaultPermissions.includes(permission)) {
+        return true;
+    }
+
+    if (!Array.isArray(user.permissions)) {
         return false;
     }
 

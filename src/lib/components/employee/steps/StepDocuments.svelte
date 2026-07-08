@@ -4,7 +4,8 @@
   import { goto } from "$app/navigation";
   import { globalIsDirty } from "$lib/stores/navigationGuard";
   import { parseBackendErrors } from "$lib/utils/errors.js";
-  import { onMount } from "svelte";
+  import { onMount, getContext } from "svelte";
+  import { EMPLOYEE_API_CONTEXT, type EmployeeApiClient } from '../context';
 
   let { mode, cuid, onNext, onPrev, onDirtyChange, onCancel } = $props<{
     mode: "create" | "edit";
@@ -14,6 +15,8 @@
     onDirtyChange?: (dirty: boolean) => void;
     onCancel: () => void;
   }>();
+
+  let apiClient = getContext<() => EmployeeApiClient>(EMPLOYEE_API_CONTEXT)();
 
   let isSubmitting = $state(false);
   let isTouched = $state(false);
@@ -75,9 +78,9 @@
   }
 
   onMount(async () => {
-    if (cuid) {
+    if (cuid && apiClient.mode !== 'self') {
       try {
-        const res = await fetch(`/api/employees/${cuid}/documents`, {
+        const res = await fetch(apiClient.getBaseUrl('documents'), {
           headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
         });
         const body = await res.json();
@@ -149,7 +152,8 @@
     }
     if (doc.cuid && cuid) {
       try {
-        const res = await fetch(`/api/employees/${cuid}/documents/${doc.cuid}`);
+        const url = apiClient.mode === 'self' ? `/api/profile/documents/${doc.cuid}` : `/api/employees/${cuid}/documents/${doc.cuid}`;
+        const res = await fetch(url);
         if (!res.ok) throw new Error("Failed to retrieve document content");
         const blob = await res.blob();
         previewOrDownload(blob, doc.file_name, doc.mime_type);
@@ -183,7 +187,7 @@
             doc.document_base64 !== undefined ? doc.document_base64 : "",
         };
       });
-      const res = await fetch(`/api/employees/${cuid}/documents`, {
+      const res = await fetch(apiClient.getBaseUrl('documents'), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

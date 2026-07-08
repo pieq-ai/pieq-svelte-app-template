@@ -10,6 +10,9 @@
 	import { onMount } from 'svelte';
 	import { parseBackendErrors } from '$lib/utils/errors.js';
 	import { normalizeText } from '$lib/utils/employeeValidationHelper';
+	import { getContext } from 'svelte';
+	import { EMPLOYEE_API_CONTEXT, type EmployeeApiClient } from '../context';
+	import { isFieldEditable } from '$lib/config/profile.config';
 
 	let { mode, cuid, data, onNext, onPrev, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit';
@@ -25,6 +28,8 @@
 		onDirtyChange?: (dirty: boolean) => void;
 		onCancel: () => void;
 	}>();
+
+	let apiClient = getContext<() => EmployeeApiClient>(EMPLOYEE_API_CONTEXT)();
 
 	let isSubmitting = $state(false);
 	let isTouched = $state(false);
@@ -96,9 +101,9 @@
 				}
 			}
 			employment = { ...defaultEmployment, ...serverEmp } as typeof employment;
-		} else if (cuid) {
+		} else if (cuid && apiClient.mode !== 'self') {
 			try {
-				const res = await fetch(`/api/employees/${cuid}/employment`, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
+				const res = await fetch(apiClient.getBaseUrl('employment'), { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
 				const body = await res.json();
 				if (res.ok && body.data) {
 					employment = { ...defaultEmployment, ...body.data };
@@ -184,7 +189,7 @@
 		try {
 			isSubmitting = true;
 			const payload = { ...employment, official_email: employment.official_email.toLowerCase() };
-			const res = await fetch(`/api/employees/${cuid}/employment`, {
+			const res = await fetch(apiClient.getBaseUrl('employment'), {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(payload)
@@ -233,6 +238,7 @@
 				value={employment.department_cuid}
 				loadingText="Loading departments..."
 				errorText="Unable to load departments."
+				disabled={!isFieldEditable(apiClient.mode, 'department_cuid')}
 				onSelect={(val) => employment.department_cuid = val as string}
 				onAdd={() => isDeptModalOpen = true}
 				class={(isTouched && errors.department_cuid) ? 'border-destructive' : ''}
@@ -249,6 +255,7 @@
 				value={employment.designation_cuid}
 				loadingText="Loading designations..."
 				errorText="Unable to load designations."
+				disabled={!isFieldEditable(apiClient.mode, 'designation_cuid')}
 				onSelect={(val) => employment.designation_cuid = val as string}
 				onAdd={() => isDesignationModalOpen = true}
 				class={(isTouched && errors.designation_cuid) ? 'border-destructive' : ''}
@@ -265,6 +272,7 @@
 				value={employment.role_cuid}
 				loadingText="Loading roles..."
 				errorText="Unable to load roles."
+				disabled={!isFieldEditable(apiClient.mode, 'role_cuid')}
 				onSelect={(val) => employment.role_cuid = val as string}
 				onAdd={() => isRoleModalOpen = true}
 				class={(isTouched && errors.role_cuid) ? 'border-destructive' : ''}
@@ -281,6 +289,7 @@
 				value={employment.system_role_cuid}
 				loadingText="Loading system roles..."
 				errorText="Unable to load system roles."
+				disabled={!isFieldEditable(apiClient.mode, 'system_role_cuid')}
 				onSelect={(val) => employment.system_role_cuid = val as string}
 				onAdd={() => isSystemRoleModalOpen = true}
 				class={(isTouched && errors.system_role_cuid) ? 'border-destructive' : ''}
@@ -294,6 +303,7 @@
 				master="pay-grades"
 				label="Pay Grade"
 				value={employment.pay_grade_cuid}
+				disabled={!isFieldEditable(apiClient.mode, 'pay_grade_cuid')}
 				onSelect={(val) => employment.pay_grade_cuid = val as string}
 				class={(isTouched && errors.pay_grade_cuid) ? 'border-destructive' : ''}
 			/>
@@ -306,6 +316,7 @@
 				master="employment-types"
 				label="Employment Type *"
 				value={employment.employment_type_cuid}
+				disabled={!isFieldEditable(apiClient.mode, 'employment_type_cuid')}
 				onSelect={(val) => employment.employment_type_cuid = val as string}
 				class={(isTouched && errors.employment_type_cuid) ? 'border-destructive' : ''}
 			/>
@@ -325,6 +336,7 @@
 					{ id: 'terminated', label: 'Terminated' },
 					{ id: 'resigned', label: 'Resigned' }
 				]}
+				disabled={!isFieldEditable(apiClient.mode, 'employment_status')}
 				onSelect={(val) => employment.employment_status = val as string}
 				class={(isTouched && errors.employment_status) ? 'border-destructive' : ''}
 			/>
@@ -340,6 +352,7 @@
 				value={employment.location_cuid}
 				loadingText="Loading locations..."
 				errorText="Unable to load locations."
+				disabled={!isFieldEditable(apiClient.mode, 'location_cuid')}
 				onSelect={(val) => employment.location_cuid = val as string}
 				onAdd={() => isLocationModalOpen = true}
 				class={(isTouched && errors.location_cuid) ? 'border-destructive' : ''}
@@ -353,12 +366,13 @@
 				label="Reporting Manager"
 				value={employment.reporting_manager_cuid}
 				options={Array.isArray(data?.employees) ? data.employees.filter((e: any) => e.cuid !== cuid).map((e: { cuid: string, first_name: string, last_name: string }) => ({id: e.cuid, label: e.first_name + ' ' + e.last_name})) : []}
+				disabled={!isFieldEditable(apiClient.mode, 'reporting_manager_cuid')}
 				onSelect={(val) => employment.reporting_manager_cuid = val as string}
 			/>
 		</div>
 		<div class="space-y-2">
 			<Label>Date of Joining <span class="text-destructive">*</span></Label>
-			<DatePicker bind:value={employment.date_of_joining} bind:isError={dateErrors.doj} class={(isTouched && errors.date_of_joining) || dateErrors.doj ? 'border-destructive' : ''} />
+			<DatePicker disabled={!isFieldEditable(apiClient.mode, 'date_of_joining')} bind:value={employment.date_of_joining} bind:isError={dateErrors.doj} class={(isTouched && errors.date_of_joining) || dateErrors.doj ? 'border-destructive' : ''} />
 			{#if isTouched && errors.date_of_joining}
 				<p class="text-xs text-destructive">{errors.date_of_joining}</p>
 			{:else if isTouched && dateErrors.doj}
@@ -367,7 +381,7 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Confirmation Date</Label>
-			<DatePicker bind:value={employment.confirmation_date} bind:isError={dateErrors.conf} class={(isTouched && errors.confirmation_date) || dateErrors.conf ? 'border-destructive' : ''} />
+			<DatePicker disabled={!isFieldEditable(apiClient.mode, 'confirmation_date')} bind:value={employment.confirmation_date} bind:isError={dateErrors.conf} class={(isTouched && errors.confirmation_date) || dateErrors.conf ? 'border-destructive' : ''} />
 			{#if isTouched && errors.confirmation_date}
 				<p class="text-xs text-destructive">{errors.confirmation_date}</p>
 			{:else if isTouched && dateErrors.conf}
@@ -376,7 +390,7 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Relieving Date</Label>
-			<DatePicker bind:value={employment.relieving_date} bind:isError={dateErrors.rel} class={(isTouched && errors.relieving_date) || dateErrors.rel ? 'border-destructive' : ''} />
+			<DatePicker disabled={!isFieldEditable(apiClient.mode, 'relieving_date')} bind:value={employment.relieving_date} bind:isError={dateErrors.rel} class={(isTouched && errors.relieving_date) || dateErrors.rel ? 'border-destructive' : ''} />
 			{#if isTouched && errors.relieving_date}
 				<p class="text-xs text-destructive">{errors.relieving_date}</p>
 			{:else if isTouched && dateErrors.rel}
@@ -385,7 +399,7 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Official Email <span class="text-destructive">*</span></Label>
-			<Input type="email" bind:value={employment.official_email} oninput={() => clearBackendError('official_email')} onblur={() => employment.official_email = normalizeText(employment.official_email).toLowerCase()} placeholder="john.doe@company.com" class={(backendErrors.official_email || (isTouched && errors.official_email)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
+			<Input disabled={!isFieldEditable(apiClient.mode, 'official_email')} type="email" bind:value={employment.official_email} oninput={() => clearBackendError('official_email')} onblur={() => employment.official_email = normalizeText(employment.official_email).toLowerCase()} placeholder="john.doe@company.com" class={(backendErrors.official_email || (isTouched && errors.official_email)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
 			{#if backendErrors.official_email}<p class="text-xs text-destructive">{backendErrors.official_email}</p>{:else if isTouched && errors.official_email}<p class="text-xs text-destructive">{errors.official_email}</p>{/if}
 		</div>
 	</div>

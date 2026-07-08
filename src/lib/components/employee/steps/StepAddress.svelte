@@ -4,7 +4,8 @@
 	import { goto } from '$app/navigation';
 	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { normalizeText, validateLettersSpaces } from '$lib/utils/employeeValidationHelper';
-	import { onMount, untrack } from 'svelte';
+	import { onMount, untrack, getContext } from 'svelte';
+	import { EMPLOYEE_API_CONTEXT, type EmployeeApiClient } from '../context';
 
 	let { mode, cuid, onNext, onPrev, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit';
@@ -14,6 +15,8 @@
 		onDirtyChange?: (dirty: boolean) => void;
 		onCancel: () => void;
 	}>();
+
+	let apiClient = getContext<() => EmployeeApiClient>(EMPLOYEE_API_CONTEXT)();
 
 	let isSubmitting = $state(false);
 	let isTouched = $state(false);
@@ -77,9 +80,9 @@
 	}
 
 	onMount(async () => {
-		if (cuid) {
+		if (cuid && apiClient.mode !== 'self') {
 			try {
-				const res = await fetch(`/api/employees/${cuid}/addresses`, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
+				const res = await fetch(apiClient.getBaseUrl('addresses'), { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
 				const body = await res.json();
 				if (res.ok && body.data) {
 					addresses = body.data;
@@ -154,7 +157,7 @@
 
 		try {
 			isSubmitting = true;
-			const res = await fetch(`/api/employees/${cuid}/addresses`, {
+			const res = await fetch(apiClient.getBaseUrl('addresses'), {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(addresses)

@@ -20,6 +20,8 @@
     validateAccountNumber,
     validateIfscInput,
   } from "$lib/utils/employeeValidationHelper";
+  import { getContext } from 'svelte';
+  import { EMPLOYEE_API_CONTEXT, type EmployeeApiClient } from '../context';
 
   let { mode, cuid, onPrev, onDirtyChange, onCancel } = $props<{
     mode: "create" | "edit";
@@ -28,6 +30,8 @@
     onDirtyChange?: (dirty: boolean) => void;
     onCancel: () => void;
   }>();
+
+  let apiClient = getContext<() => EmployeeApiClient>(EMPLOYEE_API_CONTEXT)();
 
   let isSubmitting = $state(false);
   let isTouched = $state(false);
@@ -77,9 +81,9 @@
   }
 
   onMount(async () => {
-    if (cuid) {
+    if (cuid && apiClient.mode !== 'self') {
       try {
-        const res = await fetch(`/api/employees/${cuid}/bank-details`, {
+        const res = await fetch(apiClient.getBaseUrl('bank-details'), {
           headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
         });
         const body = await res.json();
@@ -145,7 +149,7 @@
 
     try {
       isSubmitting = true;
-      const res = await fetch(`/api/employees/${cuid}/bank-details`, {
+      const res = await fetch(apiClient.getBaseUrl('bank-details'), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bankDetails),
@@ -181,7 +185,13 @@
         : "Changes saved successfully",
     );
     $globalIsDirty = false;
-    goto("/employees");
+    
+    // In self mode we don't go to /employees
+    if (apiClient.mode === 'self') {
+      goto("/profile");
+    } else {
+      goto("/employees");
+    }
   }
 </script>
 

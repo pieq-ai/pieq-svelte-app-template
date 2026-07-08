@@ -6,7 +6,8 @@
   import { normalizeText, validateLettersSpaces } from "$lib/utils/employeeValidationHelper";
   import { SvelteDate } from "svelte/reactivity";
   import { parseBackendErrors } from "$lib/utils/errors.js";
-  import { onMount } from "svelte";
+  import { onMount, getContext } from "svelte";
+  import { EMPLOYEE_API_CONTEXT, type EmployeeApiClient } from '../context';
 
   let { mode, cuid, onNext, onPrev, onDirtyChange, onCancel } = $props<{
     mode: "create" | "edit";
@@ -16,6 +17,8 @@
     onDirtyChange?: (dirty: boolean) => void;
     onCancel: () => void;
   }>();
+
+  let apiClient = getContext<() => EmployeeApiClient>(EMPLOYEE_API_CONTEXT)();
 
   let isSubmitting = $state(false);
   let isTouched = $state(false);
@@ -64,9 +67,9 @@
   }
 
   onMount(async () => {
-    if (cuid) {
+    if (cuid && apiClient.mode !== 'self') {
       try {
-        const res = await fetch(`/api/employees/${cuid}/experiences`, {
+        const res = await fetch(apiClient.getBaseUrl('experiences'), {
           headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
         });
         const body = await res.json();
@@ -180,7 +183,7 @@
 
     try {
       isSubmitting = true;
-      const res = await fetch(`/api/employees/${cuid}/experiences`, {
+      const res = await fetch(apiClient.getBaseUrl('experiences'), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(experiences),

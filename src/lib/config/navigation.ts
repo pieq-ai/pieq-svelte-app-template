@@ -26,6 +26,7 @@ export type NavItem = {
 
 export const mainNavItems: NavItem[] = [
 	{ label: 'Dashboard', href: '/dashboard', icon: LayoutDashboardIcon, permission: 'dashboard:view' },
+	{ label: 'My Profile', href: '/profile', icon: UserRoundIcon, permission: 'profile:view' },
 	{ label: 'Employees', href: '/employees', icon: UsersRoundIcon, permission: 'employee:view' },
 	{ label: 'Departments', href: '/departments', icon: Building2Icon, permission: 'department:view' },
 	{ label: 'Designations', href: '/designations', icon: UserRoundIcon, permission: 'designation:view' },

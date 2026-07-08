@@ -10,6 +10,8 @@
   import { goto } from "$app/navigation";
   import { globalIsDirty } from "$lib/stores/navigationGuard";
   import { normalizeText, validateLettersSpaces } from "$lib/utils/employeeValidationHelper";
+  import { getContext } from 'svelte';
+  import { EMPLOYEE_API_CONTEXT, type EmployeeApiClient } from '../context';
   import { SvelteDate } from "svelte/reactivity";
   import { parseBackendErrors } from "$lib/utils/errors.js";
   import { onMount } from "svelte";
@@ -22,6 +24,8 @@
     onDirtyChange?: (dirty: boolean) => void;
     onCancel: () => void;
   }>();
+
+  let apiClient = getContext<() => EmployeeApiClient>(EMPLOYEE_API_CONTEXT)();
 
   let isSubmitting = $state(false);
   let isTouched = $state(false);
@@ -77,9 +81,9 @@
   }
 
   onMount(async () => {
-    if (cuid) {
+    if (cuid && apiClient.mode !== 'self') {
       try {
-        const res = await fetch(`/api/employees/${cuid}/educations`, {
+        const res = await fetch(apiClient.getBaseUrl('educations'), {
           headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
         });
         const body = await res.json();
@@ -156,7 +160,7 @@
 
     try {
       isSubmitting = true;
-      const res = await fetch(`/api/employees/${cuid}/educations`, {
+      const res = await fetch(apiClient.getBaseUrl('educations'), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(educations),
