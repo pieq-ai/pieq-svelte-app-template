@@ -32,7 +32,6 @@ export async function PUT(event: RequestEvent) {
         body = body.map((bank: any) => ({ ...bank, updated_by: user_id }));
 
 		await bankDetailService.replaceBankDetails(employee_cuid, body);
-        await employeeService.checkAndSetProfileCompletionStatus(employee_cuid);
 		return sendUpdated(employee_cuid, 'Successfully updated bank details');
 	} catch (error) {
 		return handleError(error);

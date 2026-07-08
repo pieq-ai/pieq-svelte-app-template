@@ -78,7 +78,7 @@
   }
 
   onMount(async () => {
-    if (cuid && apiClient.mode !== 'self') {
+    if (cuid || apiClient.mode === 'self') {
       try {
         const res = await fetch(apiClient.getBaseUrl('documents'), {
           headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },

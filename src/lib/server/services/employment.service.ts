@@ -2,6 +2,7 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
+import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
 import { employmentSchema } from '$lib/schemas/employee.schema.js';
 
 export interface UpsertEmploymentDto {
@@ -78,7 +79,7 @@ export async function upsertEmployment(employee_cuid: string, dto: UpsertEmploym
     };
 
     await employmentDao.upsert(employee_cuid, payload);
-    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid);
+    await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
     const updatedEmployment = await employmentDao.findByEmployeeCuid(employee_cuid);
     return toPublicEmployment(updatedEmployment);
 }

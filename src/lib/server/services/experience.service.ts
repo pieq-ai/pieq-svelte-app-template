@@ -2,6 +2,7 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 import * as experienceDao from '$lib/server/dao/experience.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
+import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
 import { z } from 'zod';
 import { experienceSchema } from '$lib/schemas/employee.schema.js';
 
@@ -51,6 +52,6 @@ export async function replaceExperiences(employee_cuid: string, dtos: UpsertExpe
     }));
 
     const results = await experienceDao.replaceExperiences(employee_cuid, payload);
-    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid);
+    await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
     return results.map(toPublicExperience);
 }

@@ -101,7 +101,7 @@
 				}
 			}
 			employment = { ...defaultEmployment, ...serverEmp } as typeof employment;
-		} else if (cuid && apiClient.mode !== 'self') {
+		} else if (cuid || apiClient.mode === 'self') {
 			try {
 				const res = await fetch(apiClient.getBaseUrl('employment'), { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
 				const body = await res.json();

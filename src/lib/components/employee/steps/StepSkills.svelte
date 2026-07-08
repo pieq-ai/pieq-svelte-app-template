@@ -61,7 +61,7 @@
   }
 
   onMount(async () => {
-    if (cuid && apiClient.mode !== 'self') {
+    if (cuid || apiClient.mode === 'self') {
       try {
         const res = await fetch(apiClient.getBaseUrl('skills'), {
           headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },

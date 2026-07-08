@@ -2,6 +2,7 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 import * as educationDao from '$lib/server/dao/education.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
+import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
 import { z } from 'zod';
 import { educationSchema } from '$lib/schemas/employee.schema.js';
 
@@ -53,6 +54,6 @@ export async function replaceEducations(employee_cuid: string, dtos: UpsertEduca
     }));
 
     const results = await educationDao.replaceEducations(employee_cuid, payload);
-    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid);
+    await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
     return results.map(toPublicEducation);
 }

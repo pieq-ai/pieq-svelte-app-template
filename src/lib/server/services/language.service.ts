@@ -2,6 +2,7 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 import * as languageDao from '$lib/server/dao/language.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
+import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
 import { z } from 'zod';
 import { languageSchema } from '$lib/schemas/employee.schema.js';
 
@@ -57,6 +58,6 @@ export async function replaceLanguages(employee_cuid: string, dtos: UpsertLangua
     }));
 
     const results = await languageDao.replaceLanguages(employee_cuid, payload);
-    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid);
+    await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
     return results.map(toPublicLanguage);
 }

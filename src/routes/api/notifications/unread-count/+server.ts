@@ -13,9 +13,16 @@ export async function GET(event: RequestEvent) {
 		permissionGuard.requireAuth(event.locals.user);
 
 		const email = event.locals.user?.email || '';
-		const { employee } = await resolveEmployee(email);
+		let employee;
+		try {
+			const resolved = await resolveEmployee(email);
+			employee = resolved.employee;
+		} catch (err) {
+			// Ignore if employee record doesn't exist
+		}
+
 		if (!employee) {
-			return json({ error: 'Employee profile not found' }, { status: 404 });
+			return json({ data: { unreadCount: 0 } });
 		}
 
 		const unreadCount = await notificationService.getUnreadCount(employee.cuid);

@@ -29,9 +29,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		console.error('Failed to resolve employee session details:', err);
 	}
 
-	if (!employee) {
-		throw error(401, 'Unauthorized: Employee record not found');
-	}
+
 
 	// Always retrieve the employment details if we have an employee
 	if (employee && !employment) {

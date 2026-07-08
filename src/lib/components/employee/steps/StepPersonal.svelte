@@ -102,7 +102,7 @@
 			} catch (e) {
 				console.error('Failed to fetch next employee code', e);
 			}
-		} else if (cuid && apiClient.mode !== 'self') {
+		} else if (cuid || apiClient.mode === 'self') {
 			try {
 				const res = await fetch(apiClient.getBaseUrl('personal'), { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
 				const body = await res.json();
