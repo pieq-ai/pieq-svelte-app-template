@@ -1158,7 +1158,7 @@
 												Check Out
 											</Button>
 										{/if}
-									{:else if !todayRecord || (todayRecord.status === 'Half Day' && !todayRecord.check_in_time)}
+									{:else if !todayRecord || !todayRecord.check_in_time}
 										{#if !isRelieved && !isBeforeJoining && !hasNoEmploymentRecord}
 											<Button
 												size="sm"

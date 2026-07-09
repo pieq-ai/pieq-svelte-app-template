@@ -4,6 +4,7 @@ import type { RequestHandler } from './$types.js';
 import { getEmployeeHistory, getPendingCheckOuts } from '$lib/server/services/attendance.service.js';
 import { successResponse, errorResponse } from '$lib/server/response.js';
 import { resolveEmployee } from '$lib/server/services/leave.service.js';
+import { db } from '$lib/server/db.js';
 
 export const GET: RequestHandler = async ({ locals }) => {
 	try {
@@ -12,10 +13,29 @@ export const GET: RequestHandler = async ({ locals }) => {
 			return errorResponse('Unauthorized', 401);
 		}
 		
-		const { employee } = await resolveEmployee(email);
+		const { employee, employment } = await resolveEmployee(email);
 		const employee_cuid = employee.cuid;
 		if (!employee_cuid) {
 			return errorResponse('Employee record not found', 404);
+		}
+
+		let augmentedEmployee = { 
+			...employee, 
+			location_cuid: employment.location_cuid, 
+			latitude: null, 
+			longitude: null,
+			date_of_joining: employment.date_of_joining,
+			relieving_date: employment.relieving_date
+		};
+
+		if (employment.location_cuid) {
+			const loc = await db.companyLocation.findUnique({
+				where: { cuid: employment.location_cuid }
+			});
+			if (loc) {
+				augmentedEmployee.latitude = loc.latitude ? Number(loc.latitude) : null;
+				augmentedEmployee.longitude = loc.longitude ? Number(loc.longitude) : null;
+			}
 		}
 
 		const [records, pendingRecords] = await Promise.all([
@@ -38,10 +58,10 @@ export const GET: RequestHandler = async ({ locals }) => {
 		return successResponse({ 
 			records: formattedRecords, 
 			pendingRecords,
-			employee
+			employee: augmentedEmployee
 		});
 	} catch (error) {
-		console.error(`GET /api/attendance/me failed`, error);
+		console.error('GET /api/attendance/me failed', error);
 		return errorResponse('Failed to retrieve attendance history', 500);
 	}
 };
