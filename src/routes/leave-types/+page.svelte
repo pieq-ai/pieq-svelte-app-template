@@ -604,7 +604,6 @@
 	open={isFormModalOpen}
 	title={editCuid ? 'Edit Leave Type' : 'Create Leave Type'}
 	onClose={handleCloseRequest}
-	preventOutsideClickClose={true}
 >
 	{#snippet children({ cancel })}
 		<form method="POST" action="" onsubmit={handleSubmit} class="space-y-4" novalidate>
