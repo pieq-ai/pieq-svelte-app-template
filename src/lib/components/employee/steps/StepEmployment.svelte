@@ -116,7 +116,7 @@
 	});
 
 	let isDirty = $derived(JSON.stringify(normalizeEmployment(employment)) !== originalData);
-
+	
 	$effect(() => {
 		onDirtyChange?.(isDirty);
 	});
@@ -174,7 +174,8 @@
 		Object.values(errors).some(err => !!err) || Object.values(dateErrors).some(err => !!err)
 	);
 
-	// Core save (no navigation) — registered with wizard
+	// Core save (no navigation) - registered with wizard
+	let isSaveDisabled = $derived(isSubmitting || hasErrors || (mode === 'edit' && !isDirty));
 	async function saveOnly(): Promise<{ success: boolean }> {
 		isTouched = true;
 		backendErrors = {};
@@ -185,6 +186,7 @@
 			toast.error('Employee record missing. Please complete Personal Details first.');
 			return { success: false };
 		}
+		if (mode === 'edit' && !isDirty) return { success: true };
 
 		try {
 			isSubmitting = true;
@@ -412,7 +414,7 @@
 			<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
 				Cancel
 			</Button>
-			<Button class="bg-hrms-primary text-white hover:bg-hrms-primary/90" onclick={() => save()} disabled={isSubmitting}>
+			<Button class="bg-hrms-primary text-white hover:bg-hrms-primary/90" onclick={() => save()} disabled={isSaveDisabled}>
 				Save
 			</Button>
 		</div>

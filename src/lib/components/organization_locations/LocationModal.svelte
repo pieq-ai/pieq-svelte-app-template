@@ -182,6 +182,21 @@
       formTimezone.trim() !== ""
   );
 
+  let hasErrors = $derived(
+    !!nameError ||
+    !!address1Error ||
+    !!address2Error ||
+    !!cityError ||
+    !!countryError ||
+    !!stateError ||
+    !!pinCodeError ||
+    !!timezoneError ||
+    !!latitudeError ||
+    !!longitudeError
+  );
+
+  let isSaveDisabled = $derived(formLoading || hasErrors || (editLocation ? !isDirty : !isCreateEnabled));
+
   let countries = $state<any[]>([]);
   let states = $state<any[]>([]);
 
@@ -254,6 +269,8 @@
 
   async function submitForm(e: Event) {
     e.preventDefault();
+    if (isSaveDisabled) return;
+    
     formError = "";
     nameError = "";
     address1Error = "";
@@ -401,21 +418,35 @@
         latitude: formLatitude.trim() !== "" ? Number(formLatitude) : null,
         longitude: formLongitude.trim() !== "" ? Number(formLongitude) : null
       };
-      let res: any;
       if (editLocation) {
         payload.status = formStatus;
-        res = await updateLocation(editLocation.cuid, payload);
+        const res = await updateLocation(editLocation.cuid, payload);
+        toast.success("Company Location updated successfully.");
+        if (res) {
+          dirtyChecker.snapshot({
+            name: res.name,
+            address_line1: res.address_line1 ?? "",
+            address_line2: res.address_line2 ?? "",
+            city: res.city ?? "",
+            state_cuid: res.state_cuid ?? "",
+            country_cuid: res.country_cuid ?? "",
+            pin_code: res.pin_code ?? "",
+            timezone: res.timezone ?? "UTC",
+            latitude: res.latitude !== null && res.latitude !== undefined ? String(res.latitude) : "",
+            longitude: res.longitude !== null && res.longitude !== undefined ? String(res.longitude) : "",
+            status: res.status
+          });
+        }
+        $globalIsDirty = false;
+        open = false;
+        onSuccess?.(res);
       } else {
-        res = await createLocation(payload);
+        const res = await createLocation(payload);
+        toast.success("Company Location created successfully.");
+        $globalIsDirty = false;
+        open = false;
+        onSuccess?.(res);
       }
-      open = false;
-      $globalIsDirty = false;
-      toast.success(
-        editLocation
-          ? "Company Location updated successfully"
-          : "Company Location created successfully"
-      );
-      onSuccess?.(res);
     } catch (e) {
       const errMsg = e instanceof ApiError ? e.message : "Something went wrong.";
       formError = errMsg;
@@ -816,7 +847,7 @@
 
       <div class="flex items-center justify-end gap-3 pt-4">
         <Button type="button" variant="outline" onclick={cancel} disabled={formLoading}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-        <Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={formLoading || (!!editLocation && !isDirty) || (!editLocation && !isCreateEnabled)}>
+        <Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSaveDisabled}>
           {formLoading ? UI_CONSTANTS.BUTTON_SAVING : (editLocation ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
         </Button>
       </div>

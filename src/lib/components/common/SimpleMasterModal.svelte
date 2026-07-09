@@ -31,7 +31,6 @@
 	let formName = $state('');
 	let formStatus = $state<boolean>(true);
 	let isSubmitting = $state(false);
-	let isNameTouched = $state(false);
 	let backendError = $state('');
 	let nameInput = $state<HTMLInputElement | null>(null);
 	let showConfirmClose = $state(false);
@@ -45,7 +44,6 @@
 			const initialStatus = editingRecord ? editingRecord.status : true;
 			formName = initialName;
 			formStatus = initialStatus;
-			isNameTouched = false;
 			backendError = '';
 			dirtyChecker.snapshot({ name: initialName, status: initialStatus });
 		}
@@ -71,18 +69,13 @@
 		return '';
 	}
 
-	let nameValidationError = $derived(isNameTouched ? getValidationError(formName) : '');
+	let nameValidationError = $derived(getValidationError(formName));
+	let hasErrors = $derived(!!nameValidationError);
+	let isSaveDisabled = $derived(isSubmitting || hasErrors || (!!editingRecord && !isDirty));
 
 	async function handleSave(e: Event) {
 		e.preventDefault();
-		if (editingRecord && !isDirty) return;
-		isNameTouched = true;
-
-		const validationError = getValidationError(formName);
-		if (validationError) {
-			nameInput?.focus();
-			return;
-		}
+		if (isSaveDisabled) return;
 
 		isSubmitting = true;
 
@@ -155,8 +148,8 @@
 			{/if}
 			<div class="flex items-center justify-end gap-3 pt-4">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSubmitting || (!!editingRecord && !isDirty)}>
-					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingRecord ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
+				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSaveDisabled}>
+					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : UI_CONSTANTS.BUTTON_SAVE}
 				</Button>
 			</div>
 		</form>

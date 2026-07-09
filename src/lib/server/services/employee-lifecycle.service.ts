@@ -129,8 +129,9 @@ Official Email: ${employment.official_email}`);
             keycloakSub = result.keycloakSub;
 
             console.log(`[PROVISIONING] Keycloak User Created Successfully. UUID: ${keycloakSub}`);
+            const { id, cuid, created_at, updated_at, employee_cuid: ec, ...employmentUpdateData } = employment;
             await employmentDao.upsert(employee_cuid, {
-                ...employment,
+                ...employmentUpdateData,
                 keycloak_sub: keycloakSub
             } as employmentDao.UpsertEmploymentInput);
         } else {
@@ -165,8 +166,9 @@ Response body: ${JSON.stringify(emailError.details || emailError.response?.data 
 
         // ATOMICITY: Only update to 'active' if all previous steps succeeded.
         console.log('[PROVISIONING] Transitioning employment_status -> active');
+        const { id, cuid, created_at, updated_at, employee_cuid: ec, ...finalEmploymentUpdateData } = employment;
         await employmentDao.upsert(employee_cuid, {
-            ...employment,
+            ...finalEmploymentUpdateData,
             keycloak_sub: keycloakSub,
             employment_status: 'active'
         } as employmentDao.UpsertEmploymentInput);

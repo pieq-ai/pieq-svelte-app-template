@@ -57,6 +57,7 @@
 	let isModalOpen = $state(false);
 	let isSubmitting = $state(false);
 	let editingPermission = $state<Permission | null>(null);
+	let formMode = $state<'create' | 'edit'>('create');
 	let permissionKey = $state('');
 	let permissionStatus = $state<boolean>(true);
 	let isKeyTouched = $state(false);
@@ -79,7 +80,10 @@
 		return '';
 	}
 
-	let keyValidationError = $derived(isKeyTouched ? getValidationError(permissionKey) : '');
+	let keyValidationError = $derived(getValidationError(permissionKey));
+	let hasErrors = $derived(!!keyValidationError);
+	let isSaveDisabled = $derived(isSubmitting || hasErrors || (formMode === 'edit' && !isDirty));
+
 	let filteredPermissions = $derived.by(() => {
 		let result = [...permissions];
 		if (searchQuery.trim()) {
@@ -147,6 +151,7 @@
 	onMount(loadPermissions);
 
 	function openCreateModal() {
+		formMode = 'create';
 		editingPermission = null;
 		permissionKey = '';
 		permissionStatus = true;
@@ -157,6 +162,7 @@
 	}
 
 	function openEditModal(permission: Permission) {
+		formMode = 'edit';
 		editingPermission = permission;
 		permissionKey = permission.permission_key;
 		permissionStatus = permission.status;
@@ -177,17 +183,12 @@
 
 	async function savePermission(event: Event) {
 		event.preventDefault();
-		if (editingPermission && !isDirty) return;
-		isKeyTouched = true;
-		const validationError = getValidationError(permissionKey);
-		if (validationError) {
-			permissionKeyInput?.focus();
-			return;
-		}
+		if (isSaveDisabled) return;
 
 		isSubmitting = true;
+		backendError = '';
 		try {
-			const response = await fetch(
+			const res = await fetch(
 				editingPermission
 					? `/api/permissions/${editingPermission.cuid}`
 					: '/api/permissions',
@@ -197,13 +198,24 @@
 					body: JSON.stringify({ permission_key: permissionKey.trim(), status: permissionStatus })
 				}
 			);
-			const body = await response.json();
-			if (response.ok) {
+			const body = await res.json();
+
+			if (res.ok) {
+				const data = body.data;
+				// Update baseline with server response
+				if (data) {
+					dirtyChecker.snapshot({ permission_key: data.permission_key, status: data.status });
+					if (formMode === 'create') formMode = 'edit';
+					editingPermission = data;
+				} else {
+					dirtyChecker.snapshot({ permission_key: permissionKey.trim(), status: permissionStatus });
+				}
+				
 				await loadPermissions();
-				toast.success(editingPermission ? 'Permission updated successfully.' : 'Permission created successfully.');
+				toast.success(`Permission ${editingPermission ? 'updated' : 'created'} successfully`);
 				isModalOpen = false;
-		$globalIsDirty = false;
-			} else if (response.status === 409 && body.field === 'permission_key') {
+				$globalIsDirty = false;
+			} else if (res.status === 409 && body.field === 'permission_key') {
 				backendError = body.error;
 				permissionKeyInput?.focus();
 			} else {
@@ -375,7 +387,7 @@
 			{/if}
 			<div class="flex items-center justify-end gap-3 pt-4">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSubmitting || (!!editingPermission && !isDirty)}>
+				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSaveDisabled}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingPermission ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>
 			</div>

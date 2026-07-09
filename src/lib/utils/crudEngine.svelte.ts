@@ -35,6 +35,7 @@ export function createCrudEngine<T extends { cuid: string; status?: boolean }, F
 
 	// Modal & Form State
 	let isModalOpen = $state(false);
+	let formMode = $state<'create' | 'edit' | 'view'>('create');
 	let editingItem = $state<T | null>(null);
 	let formValues = $state<F>(structuredClone(config.defaultFormValues));
 	let isSubmitting = $state(false);
@@ -83,8 +84,9 @@ export function createCrudEngine<T extends { cuid: string; status?: boolean }, F
 	});
 
 	let paginatedItems = $derived(filteredItems.slice((currentPage - 1) * pageSize, currentPage * pageSize));
-	let validationErrors = $derived(isFormTouched ? config.validate(formValues) : {});
+	let validationErrors = $derived(config.validate(formValues));
 	let hasErrors = $derived(Object.values(validationErrors).some(err => err !== ''));
+	let isSaveDisabled = $derived(isSubmitting || hasErrors || (formMode === 'edit' && !isDirty));
 
 	async function load() {
 		isLoading = true;
@@ -110,6 +112,7 @@ export function createCrudEngine<T extends { cuid: string; status?: boolean }, F
 	}
 
 	function openCreate() {
+		formMode = 'create';
 		editingItem = null;
 		formValues = structuredClone(config.defaultFormValues);
 		isFormTouched = false;
@@ -119,6 +122,7 @@ export function createCrudEngine<T extends { cuid: string; status?: boolean }, F
 	}
 
 	function openEdit(item: T) {
+		formMode = 'edit';
 		editingItem = item;
 		const mapped = config.mapEntityToForm(item);
 		formValues = structuredClone(mapped);
@@ -130,7 +134,7 @@ export function createCrudEngine<T extends { cuid: string; status?: boolean }, F
 
 	async function save(e?: Event) {
 		if (e) e.preventDefault();
-		if (editingItem && !isDirty) return;
+		if (formMode === 'edit' && !isDirty) return;
 		isFormTouched = true;
 		if (hasErrors) return;
 
@@ -138,11 +142,23 @@ export function createCrudEngine<T extends { cuid: string; status?: boolean }, F
 		backendError = '';
 		try {
 			const payload = config.mapFormToPayload(formValues);
+			let res;
 			if (editingItem) {
-				await localApi.put(`${config.endpoint}/${editingItem.cuid}`, payload);
+				res = await localApi.put<{ data: T }>(`${config.endpoint}/${editingItem.cuid}`, payload);
 			} else {
-				await localApi.post(config.endpoint, payload);
+				res = await localApi.post<{ data: T }>(config.endpoint, payload);
 			}
+			
+			if (res && res.data) {
+				const canonicalForm = config.mapEntityToForm(res.data);
+				formValues = structuredClone(canonicalForm);
+				dirtyChecker.snapshot(structuredClone(canonicalForm));
+				if (formMode === 'create') formMode = 'edit';
+				editingItem = res.data;
+			} else {
+				dirtyChecker.snapshot(structuredClone(formValues));
+			}
+			
 			await load();
 			toast.success(`${config.entityName} ${editingItem ? 'updated' : 'created'} successfully`);
 			isModalOpen = false;
@@ -195,6 +211,8 @@ export function createCrudEngine<T extends { cuid: string; status?: boolean }, F
 			isModalOpen = v; 
 			if (!v) globalIsDirty.set(false);
 		},
+		get formMode() { return formMode; },
+		set formMode(v) { formMode = v; },
 		get editingItem() { return editingItem; },
 		get formValues() { return formValues; },
 		set formValues(v) { formValues = v; },
@@ -202,7 +220,9 @@ export function createCrudEngine<T extends { cuid: string; status?: boolean }, F
 		get backendError() { return backendError; },
 		set backendError(v) { backendError = v; },
 		get validationErrors() { return validationErrors; },
+		get hasErrors() { return hasErrors; },
 		get isDirty() { return isDirty; },
+		get isSaveDisabled() { return isSaveDisabled; },
 
 		get itemToDelete() { return itemToDelete; },
 		set itemToDelete(v) { itemToDelete = v; },

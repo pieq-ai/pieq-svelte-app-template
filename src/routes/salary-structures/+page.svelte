@@ -283,7 +283,7 @@
 
 	// ─── Client-side form validation ──────────────────────────────────────────────
 
-	function validateForm(): boolean {
+	function validateForm(updateErrors = true): Record<string, string> {
 		const errors: Record<string, string> = {};
 
 		if (!formEmployeeCuid) {
@@ -313,15 +313,22 @@
 			}
 		});
 
-		fieldErrors = errors;
-		return Object.keys(errors).length === 0;
+		if (updateErrors) {
+			fieldErrors = errors;
+		}
+		return errors;
 	}
+
+	let hasErrors = $derived(Object.keys(validateForm(false)).length > 0);
+	let isCreateSaveDisabled = $derived(isSubmitting || hasErrors);
 
 	// ─── Submit handler ───────────────────────────────────────────────────────────
 
 	async function handleSave(e: Event) {
 		e.preventDefault();
-		if (!validateForm()) return;
+		const errors = validateForm(true);
+		if (Object.keys(errors).length > 0) return;
+		if (isCreateSaveDisabled) return;
 
 		isSubmitting = true;
 		backendError = '';
@@ -412,6 +419,7 @@
 			editEffectiveTo !== editingStructureForDates.effective_to
 		);
 	});
+	let isEditSaveDisabled = $derived(isSubmitting || !isEditDatesDirty);
 
 	function openEditDatesModal(s: SalaryStructure) {
 		editingStructureForDates = s;
@@ -433,6 +441,9 @@
 
 	async function handleSaveDates(e: Event) {
 		e.preventDefault();
+		if (isEditSaveDisabled) return;
+
+		isSubmitting = true;
 		const targetStructure = editingStructureForDates;
 		if (!targetStructure) return;
 
@@ -887,7 +898,7 @@
 				<Button
 					type="submit"
 					class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
-					disabled={isSubmitting}
+					disabled={isCreateSaveDisabled}
 				>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : UI_CONSTANTS.BUTTON_SAVE}
 				</Button>

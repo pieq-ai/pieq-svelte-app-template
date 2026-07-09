@@ -89,6 +89,7 @@
 
 	// Shared Form State
 	let editingShift = $state<Shift | null>(null);
+	let formMode = $state<'create' | 'edit'>('create');
 	let formName = $state('');
 	let formStartTime = $state('09:00');
 	let formEndTime = $state('18:00');
@@ -145,7 +146,16 @@
 		return '';
 	}
 
-	let nameValidationError = $derived(isNameTouched ? getValidationError(formName) : '');
+	let nameValidationError = $derived(getValidationError(formName));
+	let minHoursValidationError = $derived.by(() => {
+		if (formMinHours < 0 || formMinHours > calculatedMinHours) {
+			return `Minimum work hours must be between 0 and the total shift duration (${formatHoursReadable(calculatedMinHours)}).`;
+		}
+		return '';
+	});
+
+	let hasErrors = $derived(!!nameValidationError || !!minHoursValidationError);
+	let isSaveDisabled = $derived(isSubmitting || hasErrors || (formMode === 'edit' && !isDirty));
 
 	let calculatedMinHours = $derived.by(() => {
 		if (!formStartTime || !formEndTime) return 0;
@@ -301,6 +311,7 @@
 	}
 
 	function openCreateModal() {
+		formMode = 'create';
 		editingShift = null;
 		formName = '';
 		formStartTime = '09:00';
@@ -324,6 +335,7 @@
 	}
 
 	function openEditModal(shift: Shift) {
+		formMode = 'edit';
 		editingShift = shift;
 		formName = shift.name;
 		formStartTime = formatTimeForInput(shift.start_time);
@@ -348,21 +360,10 @@
 
 	async function handleSaveShift(e: Event) {
 		e.preventDefault();
-		if (editingShift && !isDirty) return;
-		isNameTouched = true;
-
-		const validationError = getValidationError(formName);
-		if (validationError) {
-			shiftNameInput?.focus();
-			return;
-		}
-
-		if (formMinHours < 0 || formMinHours > calculatedMinHours) {
-			formMinHoursError = `Minimum work hours must be between 0 and the total shift duration (${formatHoursReadable(calculatedMinHours)}).`;
-			return;
-		}
+		if (isSaveDisabled) return;
 
 		isSubmitting = true;
+		backendError = '';
 
 		try {
 			const formatTimeOnly = (timeStr: string) => {
@@ -380,24 +381,46 @@
 			const endTimeOnly = formatTimeOnly(formEndTime);
 
 			if (editingShift) {
-				await updateShift(editingShift.cuid, {
+				const updatedShift = await updateShift(editingShift.cuid, {
 					name: formName.trim(),
 					start_time: startTimeOnly,
 					end_time: endTimeOnly,
 					minimum_work_hours: formMinHours,
 					status: formStatus
 				});
+				if (updatedShift) {
+					dirtyChecker.snapshot({
+						name: updatedShift.name,
+						start_time: formatTimeForInput(updatedShift.start_time),
+						end_time: formatTimeForInput(updatedShift.end_time),
+						minimum_work_hours: Number(updatedShift.minimum_work_hours),
+						status: updatedShift.status
+					});
+					editingShift = updatedShift;
+				}
 			} else {
-				await createShift({
+				const createdShift = await createShift({
 					name: formName.trim(),
 					start_time: startTimeOnly,
 					end_time: endTimeOnly,
 					minimum_work_hours: formMinHours
 				});
+				if (createdShift) {
+					dirtyChecker.snapshot({
+						name: createdShift.name,
+						start_time: formatTimeForInput(createdShift.start_time),
+						end_time: formatTimeForInput(createdShift.end_time),
+						minimum_work_hours: Number(createdShift.minimum_work_hours),
+						status: true // API might not return it for create, defaulting to true
+					});
+					formMode = 'edit';
+					editingShift = createdShift;
+				}
 			}
 			await loadShifts();
 			toast.success(editingShift ? 'Shift updated successfully' : 'Shift created successfully');
 			isModalOpen = false;
+			$globalIsDirty = false;
 		} catch (err) {
 			const errMsg = err instanceof ApiError ? err.message : 'Something went wrong.';
 			if (err instanceof ApiError && (err.status === 400 || err.status === 409 || err.status === 422)) {
@@ -677,7 +700,7 @@
 			{/if}
 			<div class="flex items-center justify-end gap-3 pt-4">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSubmitting || (!!editingShift && !isDirty)}>
+				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSaveDisabled}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingShift ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>
 			</div>

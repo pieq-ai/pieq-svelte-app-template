@@ -119,7 +119,7 @@
 	});
 
 	let isDirty = $derived(JSON.stringify(normalizeAddresses(addresses)) !== originalData);
-
+	
 	$effect(() => {
 		onDirtyChange?.(isDirty);
 	});
@@ -148,12 +148,14 @@
 		)
 	);
 
+	let isSaveDisabled = $derived(isSubmitting || hasErrors || (mode === 'edit' && !isDirty));
 	async function saveOnly(): Promise<{ success: boolean }> {
 		isTouched = true;
 		if (hasErrors) {
 			return { success: false };
 		}
 		if (!cuid) return { success: false };
+		if (mode === 'edit' && !isDirty) return { success: true };
 
 		try {
 			isSubmitting = true;
@@ -271,7 +273,7 @@
 				<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
 					Cancel
 				</Button>
-				<Button class="bg-hrms-primary text-white hover:bg-hrms-primary/90" onclick={() => save()} disabled={isSubmitting}>
+				<Button class="bg-hrms-primary text-white hover:bg-hrms-primary/90" onclick={() => save()} disabled={isSaveDisabled}>
 					Save
 				</Button>
 			{:else}

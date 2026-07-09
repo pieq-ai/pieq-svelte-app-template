@@ -63,6 +63,7 @@
 	let isModalOpen = $state(false);
 	let isSubmitting = $state(false);
 	let editingRole = $state<SystemRole | null>(null);
+	let formMode = $state<'create' | 'edit'>('create');
 	let roleName = $state('');
 	let roleStatus = $state<boolean>(true);
 	let isNameTouched = $state(false);
@@ -85,7 +86,10 @@
 		return '';
 	}
 
-	let nameValidationError = $derived(isNameTouched ? getValidationError(roleName) : '');
+	let nameValidationError = $derived(getValidationError(roleName));
+	let hasErrors = $derived(!!nameValidationError);
+	let isSaveDisabled = $derived(isSubmitting || hasErrors || (formMode === 'edit' && !isDirty));
+	
 	let filteredRoles = $derived.by(() => {
 		let result = [...roles];
 		if (searchQuery.trim()) {
@@ -149,6 +153,7 @@
 	onMount(loadRoles);
 
 	function openCreateModal() {
+		formMode = 'create';
 		editingRole = null;
 		roleName = '';
 		roleStatus = true;
@@ -159,6 +164,7 @@
 	}
 
 	function openEditModal(role: SystemRole) {
+		formMode = 'edit';
 		editingRole = role;
 		roleName = role.name;
 		roleStatus = role.status;
@@ -179,15 +185,10 @@
 
 	async function saveRole(event: Event) {
 		event.preventDefault();
-		if (editingRole && !isDirty) return;
-		isNameTouched = true;
-		const validationError = getValidationError(roleName);
-		if (validationError) {
-			roleNameInput?.focus();
-			return;
-		}
+		if (isSaveDisabled) return;
 
 		isSubmitting = true;
+		backendError = '';
 		try {
 			const response = await fetch(
 				editingRole ? `/api/system-roles/${editingRole.cuid}` : '/api/system-roles',
@@ -199,10 +200,11 @@
 			);
 			const body = await response.json();
 			if (response.ok) {
+				dirtyChecker.snapshot({ name: roleName.trim(), status: roleStatus });
 				await loadRoles();
 				toast.success(editingRole ? 'System role updated successfully.' : 'System role created successfully.');
 				isModalOpen = false;
-		$globalIsDirty = false;
+				$globalIsDirty = false;
 			} else if (response.status === 409 && body.field === 'name') {
 				backendError = body.error;
 				roleNameInput?.focus();
@@ -375,7 +377,7 @@
 			{/if}
 			<div class="flex items-center justify-end gap-3 pt-4">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSubmitting || (!!editingRole && !isDirty)}>
+				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSaveDisabled}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingRole ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>
 			</div>
