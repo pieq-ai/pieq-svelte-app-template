@@ -77,11 +77,9 @@
 	);
 
 	let filteredRoles = $derived.by(() => {
-		const query = searchQuery.trim().toLowerCase();
-		if (!query) return activeRoles;
-		return activeRoles.filter((role) =>
-			role.name.toLowerCase().includes(query)
-		);
+		if (!debouncedSearchQuery.trim()) return activeRoles;
+		if (matchedRoles.length === 0 && matchedPermissions.length > 0) return activeRoles;
+		return matchedRoles;
 	});
 
 	let filteredPermissions = $derived.by(() => {
