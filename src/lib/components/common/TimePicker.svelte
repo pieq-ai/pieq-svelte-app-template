@@ -10,7 +10,7 @@
 		value?: string | null;
 		placeholder?: string;
 		class?: string;
-		error?: string;
+		error?: string | boolean;
 		disabled?: boolean;
 		id?: string;
 		name?: string;
@@ -310,6 +310,6 @@
 		</Popover.Root>
 	{/if}
 </div>
-{#if error}
+{#if typeof error === 'string' && error.trim() !== ''}
 	<p class="text-xs font-medium text-destructive mt-1">{error}</p>
 {/if}

@@ -623,7 +623,7 @@
 	{#snippet children({ cancel })}
 		<form class="space-y-3" onsubmit={handleSaveShift}>
 			<div class="space-y-2">
-				<Label for="name">Shift Name</Label>
+					<Label for="name">Shift Name <span class="text-destructive font-bold">*</span></Label>
 				<Input
 					id="name"
 					name="name"
@@ -638,11 +638,11 @@
 
 			<div class="grid grid-cols-2 gap-4">
 				<div class="space-y-2">
-					<Label for="startTime">Start Time</Label>
+					<Label for="startTime">Start Time <span class="text-destructive font-bold">*</span></Label>
 					<TimePicker 
 						id="startTime" 
 						bind:value={formStartTime}
-						error={validationState.shouldShowError('startTime', timingError) ? timingError : ''}
+						error={validationState.shouldShowError('startTime', timingError) ? !!timingError : false}
 						onBlur={() => validationState.markTouched('startTime')}
 						onChange={() => {
 							timingError = '';
@@ -651,11 +651,11 @@
 					/>
 				</div>
 				<div class="space-y-2 flex-1">
-					<Label for="endTime">End Time</Label>
+					<Label for="endTime">End Time <span class="text-destructive font-bold">*</span></Label>
 					<TimePicker 
 						id="endTime" 
 						bind:value={formEndTime}
-						error={validationState.shouldShowError('endTime', timingError) ? timingError : ''}
+						error={validationState.shouldShowError('endTime', timingError) ? !!timingError : false}
 						onBlur={() => validationState.markTouched('endTime')}
 						onChange={() => {
 							timingError = '';
@@ -670,7 +670,7 @@
 
 			<div class="space-y-2">
 				<div class="flex justify-between items-center">
-					<Label for="minimum_work_hours">Minimum Work Hours</Label>
+					<Label for="minimum_work_hours">Minimum Work Hours <span class="text-destructive font-bold">*</span></Label>
 					{#if isMinHoursManuallyEdited}
 						<button 
 							type="button" 

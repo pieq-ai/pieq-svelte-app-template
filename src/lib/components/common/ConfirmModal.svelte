@@ -66,12 +66,24 @@
 			handleCancel();
 		}
 	}
+
+	function portal(node: HTMLElement) {
+		document.body.appendChild(node);
+		return {
+			destroy() {
+				if (node.parentNode) {
+					node.parentNode.removeChild(node);
+				}
+			}
+		};
+	}
 </script>
 
 {#if open}
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<div
+		use:portal
 		class="fixed inset-0 z-200 flex items-center justify-center bg-[rgba(15,11,10,0.5)] backdrop-blur-sm px-4 pointer-events-auto"
 		onclick={handleBackdropClick}
 		transition:fade={{ duration: 150 }}
