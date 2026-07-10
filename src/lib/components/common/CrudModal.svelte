@@ -5,12 +5,16 @@
 	import { onDestroy } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 
+	import { ConfirmModal } from '$lib/components';
+	import { beforeNavigate, goto } from '$app/navigation';
+
 	interface Props {
 		open: boolean;
 		title: string;
 		description?: string;
 		closeLabel?: string;
 		isSubmitting?: boolean;
+		hasUnsavedChanges?: boolean;
 		/** Default false = right-side slide panel. Set true to keep the old centered card layout (e.g. inside employee wizard). */
 		centered?: boolean;
 		onClose: () => void;
@@ -25,6 +29,7 @@
 		description = '',
 		closeLabel = 'Close modal',
 		isSubmitting = false,
+		hasUnsavedChanges = false,
 		centered = false,
 		onClose,
 		children,
@@ -33,6 +38,9 @@
 	}: Props = $props();
 
 	const modalId = Symbol('CrudModal');
+	let isConfirmModalOpen = $state(false);
+	let pendingNavigation = $state<import('@sveltejs/kit').Navigation | null>(null);
+	let isNavigatingProgrammatically = $state(false);
 
 	$effect(() => {
 		if (open) {
@@ -48,6 +56,8 @@
 			return () => {
 				window.removeEventListener('keydown', handleDocKeydown);
 				modalStack.pop(modalId);
+				isConfirmModalOpen = false;
+				pendingNavigation = null;
 			};
 		} else {
 			modalStack.pop(modalId);
@@ -60,6 +70,26 @@
 
 	function handleCloseAttempt() {
 		if (isSubmitting) return;
+		if (hasUnsavedChanges) {
+			isConfirmModalOpen = true;
+		} else {
+			onClose();
+		}
+	}
+
+	async function confirmDiscard() {
+		isConfirmModalOpen = false;
+		
+		if (pendingNavigation) {
+			isNavigatingProgrammatically = true;
+			const target = pendingNavigation.to?.url;
+			pendingNavigation = null;
+			if (target) {
+				await goto(target.pathname + target.search);
+			}
+			isNavigatingProgrammatically = false;
+		}
+		
 		onClose();
 	}
 
@@ -69,6 +99,34 @@
 			handleCloseAttempt();
 		}
 	}
+
+	beforeNavigate((navigation: any) => {
+		if (!open || !hasUnsavedChanges) {
+			return;
+		}
+
+		if (isNavigatingProgrammatically) {
+			return;
+		}
+
+		navigation.cancel();
+		pendingNavigation = navigation;
+		isConfirmModalOpen = true;
+	});
+
+	$effect(() => {
+		const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+			if (open && hasUnsavedChanges) {
+				e.preventDefault();
+				e.returnValue = '';
+				return '';
+			}
+		};
+		window.addEventListener('beforeunload', handleBeforeUnload);
+		return () => {
+			window.removeEventListener('beforeunload', handleBeforeUnload);
+		};
+	});
 </script>
 
 {#if open && centered}
@@ -146,10 +204,20 @@
 			</Button>
 		</div>
 
-		<!-- Independently scrollable body -->
 		<div class="flex-1 overflow-y-auto custom-scrollbar px-6 py-6">
 			{@render children?.({ cancel: handleCloseAttempt })}
 		</div>
 	</div>
 {/if}
+
+<ConfirmModal
+	open={isConfirmModalOpen}
+	title="Cancel Changes"
+	description="Are you sure you want to cancel? All unsaved changes will be lost."
+	confirmLabel="Cancel"
+	cancelLabel="Keep Editing"
+	onConfirm={confirmDiscard}
+	onCancel={() => (isConfirmModalOpen = false)}
+	preventOutsideClickClose={true}
+/>
 

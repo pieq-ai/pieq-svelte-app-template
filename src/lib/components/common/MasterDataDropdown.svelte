@@ -25,8 +25,10 @@
 
 		disabled?: boolean;
 		class?: string;
+		error?: string;
 		exclude?: string[];
 		onSelect: (id: string | string[]) => void;
+		onBlur?: () => void;
 	}
 
 	let {
@@ -39,8 +41,10 @@
 
 		disabled = false,
 		class: className = '',
+		error = '',
 		exclude = [],
-		onSelect
+		onSelect,
+		onBlur
 	}: Props = $props();
 
 	let config = $derived(getMasterConfig(master));
@@ -237,9 +241,11 @@
 		{placeholder}
 		{disabled}
 		class={className}
+		{error}
 		onSelect={onSelect}
 		onAdd={openCreateModal}
 		onEdit={openEditModal}
+		onBlur={onBlur}
 	/>
 	{#if isLoading}
 		<p class="text-xs text-muted-foreground">Loading {config.label.toLowerCase()} options...</p>
@@ -262,12 +268,9 @@
 					id={`${master}_value`}
 					bind:ref={masterInput}
 					bind:value={masterValue}
-					class={validationError || backendError ? 'border-destructive' : ''}
+					error={validationError || backendError}
 					oninput={() => { backendError = ''; }}
 				/>
-				{#if validationError || backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{validationError || backendError}</p>
-				{/if}
 			</div>
 
 			<div class="flex items-center justify-end gap-3 pt-4">

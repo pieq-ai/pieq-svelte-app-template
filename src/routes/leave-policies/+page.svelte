@@ -101,17 +101,19 @@
 		genderSpecific = false;
 		applicableGender = '';
 		status = true;
+		validationState.reset();
 		isFormModalOpen = true;
 	}
 
 	function openEditModal(uuid: string) {
 		editUuid = uuid;
+		validationState.reset();
 		isFormModalOpen = true;
 	}
 
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
-		submissionAttempted = true;
+		validationState.markAttempted();
 
 		// Rebuild validation error state from scratch on Save
 		errors = {};
@@ -231,6 +233,9 @@
 			isSubmitting = false;
 		}
 	}
+
+	import { createValidationState } from '$lib/utils';
+	const validationState = createValidationState();
 
 
 
@@ -399,76 +404,7 @@
 		return false;
 	});
 
-	let isDiscardModalOpen = $state(false);
-	let pendingNavigation = $state<import('@sveltejs/kit').Navigation | null>(null);
-	let isNavigatingProgrammatically = $state(false);
 
-	function handleCloseRequest() {
-		if (hasUnsavedChanges) {
-			isDiscardModalOpen = true;
-		} else {
-			isFormModalOpen = false;
-		}
-	}
-
-	async function confirmDiscard() {
-		isDiscardModalOpen = false;
-		isNavigatingProgrammatically = true;
-		
-		leaveTypeId = '';
-		selectedEmploymentTypes = [];
-		annualLimit = '';
-		maxPerMonth = '';
-		carryForwardAllowed = false;
-		maxCarryForwardDays = '';
-		maxAnnualCarryForwardDays = '';
-		documentRequired = false;
-		documentRequiredAfterDays = '';
-		minServiceDays = '0';
-		allowHalfDay = false;
-		genderSpecific = false;
-		applicableGender = '';
-		status = true;
-		isFormModalOpen = false;
-		
-		if (pendingNavigation) {
-			const target = pendingNavigation.to?.url;
-			pendingNavigation = null;
-			if (target) {
-				await goto(target.pathname + target.search);
-			}
-		}
-		
-		isNavigatingProgrammatically = false;
-	}
-
-	beforeNavigate((navigation) => {
-		if (!isFormModalOpen || !hasUnsavedChanges) {
-			return;
-		}
-
-		if (isNavigatingProgrammatically) {
-			return;
-		}
-
-		navigation.cancel();
-		pendingNavigation = navigation;
-		isDiscardModalOpen = true;
-	});
-
-	$effect(() => {
-		const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-			if (isFormModalOpen && hasUnsavedChanges) {
-				e.preventDefault();
-				e.returnValue = '';
-				return '';
-			}
-		};
-		window.addEventListener('beforeunload', handleBeforeUnload);
-		return () => {
-			window.removeEventListener('beforeunload', handleBeforeUnload);
-		};
-	});
 
 	let hasSynchronized = $state(false);
 
@@ -476,7 +412,6 @@
 		if (isFormModalOpen) {
 			hasSynchronized = false;
 			errors = {};
-			submissionAttempted = false;
 		}
 	});
 
@@ -540,9 +475,8 @@
 			applicableGender = '';
 			status = true;
 			errors = {};
-			submissionAttempted = false;
+			validationState.reset();
 			hasSynchronized = false;
-			isDiscardModalOpen = false;
 			editUuid = null;
 		}
 	});
@@ -550,7 +484,6 @@
 	let formError = $derived(form && 'error' in form ? form.error : null);
 
 	let errors = $state<Record<string, string>>({});
-	let submissionAttempted = $state(false);
 
 	$effect(() => {
 		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -671,6 +604,16 @@
 		}
 		return '';
 	}
+
+	let leaveTypeValidationError = $derived(getLeaveTypeIdError(leaveTypeId));
+	let employmentTypesValidationError = $derived(getEmploymentTypesError(selectedEmploymentTypes));
+	let annualLimitValidationError = $derived(getQuotaError(annualLimit));
+	let maxPerMonthValidationError = $derived(getMaxPerMonthError(maxPerMonth, annualLimit));
+	let maxCarryForwardDaysValidationError = $derived(getCarryForwardDaysError(carryForwardAllowed, maxCarryForwardDays));
+	let maxAnnualCarryForwardDaysValidationError = $derived(getCarryForwardAnnualDaysError(carryForwardAllowed, maxAnnualCarryForwardDays, maxCarryForwardDays));
+	let documentRequiredAfterDaysValidationError = $derived(getDocumentRequiredAfterDaysError(documentRequired, documentRequiredAfterDays));
+	let minServiceDaysValidationError = $derived(getMinServiceDaysError(minServiceDays));
+	let applicableGenderValidationError = $derived(getGenderError(genderSpecific, applicableGender));
 
 	// List helpers and filtering logic
 
@@ -1044,9 +987,10 @@
 <CrudModal
 	open={isFormModalOpen}
 	title={editUuid ? 'Edit Leave Policy' : 'Create Leave Policy'}
-	onClose={handleCloseRequest}
->
-	{#snippet children({ cancel })}
+	hasUnsavedChanges={hasUnsavedChanges}
+	onClose={() => (isFormModalOpen = false)}
+	cardClass="max-w-2xl"
+>	{#snippet children({ cancel })}
 		<form method="POST" action="" onsubmit={handleSubmit} class="space-y-4" novalidate>
 			{#if editUuid}
 				<input type="hidden" name="cuid" value={editUuid} />
@@ -1054,12 +998,12 @@
 
 			<!-- Leave Type Dropdown -->
 			<div class="space-y-2">
-				<Label for="modal_leave_type_cuid" class={errors.leave_type_cuid ? 'text-destructive' : ''}>Leave Type <span class="text-destructive">*</span></Label>
+				<Label for="modal_leave_type_cuid" class={validationState.shouldShowError('leave_type_cuid', leaveTypeValidationError) ? 'text-destructive' : ''}>Leave Type <span class="text-destructive">*</span></Label>
 				<input type="hidden" id="modal_leave_type_cuid" name="leave_type_cuid" value={leaveTypeId} />
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
-							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {errors.leave_type_cuid ? 'border-destructive focus:border-destructive focus:ring-destructive/30 focus-visible:ring-destructive/30 data-[state=open]:border-destructive data-[state=open]:ring-destructive/30' : ''}" {...props}>
+							<Button onblur={() => validationState.markTouched('leave_type_cuid')} variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {validationState.shouldShowError('leave_type_cuid', leaveTypeValidationError) || errors.leave_type_cuid ? 'border-destructive focus:border-destructive focus:ring-destructive/30 focus-visible:ring-destructive/30 data-[state=open]:border-destructive data-[state=open]:ring-destructive/30' : ''}" {...props}>
 								<span class="truncate pr-2">{modalLeaveTypeOptions.find(o => o.value === leaveTypeId)?.label || 'Select Leave Type'}</span>
 								<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
 							</Button>
@@ -1081,65 +1025,61 @@
 						</DropdownMenu.Group>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
-				{#if errors.leave_type_cuid}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.leave_type_cuid}</p>
+				{#if validationState.shouldShowError('leave_type_cuid', leaveTypeValidationError) || errors.leave_type_cuid}
+					<p class="text-xs font-medium text-destructive mt-1">{validationState.shouldShowError('leave_type_cuid', leaveTypeValidationError) || errors.leave_type_cuid}</p>
 				{/if}
 			</div>
 
 			<!-- Employment Types -->
 			<div class="space-y-2">
-				<Label class={errors.employment_type_cuids ? 'text-destructive' : ''}>Applicable Employment Types <span class="text-destructive">*</span></Label>
+				<Label class={validationState.shouldShowError('employment_type_cuids', employmentTypesValidationError) ? 'text-destructive' : ''}>Applicable Employment Types <span class="text-destructive">*</span></Label>
 				<MultiSelect
 					options={dynamicEmploymentOptions}
 					bind:selectedIds={selectedEmploymentTypes}
 					bind:searchQuery={empSearchQuery}
+					onBlur={() => validationState.markTouched('employment_type_cuids')}
 					onAdd={() => (isAddEmpModalOpen = true)}
 					addLabel="Add Employment Type"
 					placeholder="Select Employment Types"
 					name="employment_type_cuids"
 					showAddIcon={false}
+					error={validationState.shouldShowError('employment_type_cuids', employmentTypesValidationError) ? (employmentTypesValidationError || errors.employment_type_cuids) : errors.employment_type_cuids}
 				/>
-				{#if errors.employment_type_cuids}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.employment_type_cuids}</p>
-				{/if}
 			</div>
 
 			<div class="space-y-2">
-				<Label for="modal_annual_limit" class={errors.annual_limit ? 'text-destructive' : ''}>Annual Limit (Days) <span class="text-destructive">*</span></Label>
+				<Label for="modal_annual_limit" class={validationState.shouldShowError('annual_limit', annualLimitValidationError) ? 'text-destructive' : ''}>Annual Limit (Days) <span class="text-destructive">*</span></Label>
 				<Input
 					id="modal_annual_limit"
 					name="annual_limit"
 					bind:value={annualLimit}
+					onblur={() => validationState.markTouched('annual_limit')}
 					oninput={() => {
 						if (form && form.field === 'annual_limit') form = null;
 						errors.annual_limit = '';
 						errors.max_per_month = '';
 					}}
-					placeholder="e.g. 12 or 1.5"
+					placeholder="e.g. 15"
 					required
-					class={errors.annual_limit ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+					error={validationState.shouldShowError('annual_limit', annualLimitValidationError) ? (annualLimitValidationError || errors.annual_limit) : errors.annual_limit}
 				/>
-				{#if errors.annual_limit}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.annual_limit}</p>
-				{/if}
 			</div>
 
 			<div class="space-y-2">
-				<Label for="modal_max_per_month" class={errors.max_per_month ? 'text-destructive' : ''}>Max Per Month (Optional)</Label>
+				<Label for="modal_max_per_month" class={validationState.shouldShowError('max_per_month', maxPerMonthValidationError) ? 'text-destructive' : ''}>Max Per Month (Optional)</Label>
 				<Input
 					id="modal_max_per_month"
 					name="max_per_month"
 					bind:value={maxPerMonth}
+					onblur={() => validationState.markTouched('max_per_month')}
 					oninput={() => {
 						if (form && form.field === 'max_per_month') form = null;
 						errors.max_per_month = '';
 					}}
+					type="number"
 					placeholder="e.g. 2"
-					class={errors.max_per_month ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+					error={validationState.shouldShowError('max_per_month', maxPerMonthValidationError) ? (maxPerMonthValidationError || errors.max_per_month) : errors.max_per_month}
 				/>
-				{#if errors.max_per_month}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.max_per_month}</p>
-				{/if}
 			</div>
 
 			<!-- Carry Forward Options -->
@@ -1163,41 +1103,37 @@
 			{#if carryForwardAllowed}
 				<div transition:slide class="space-y-4 pl-4 border-l-2 border-muted">
 					<div class="space-y-2">
-						<Label for="modal_max_carry_forward_days" class={errors.max_carry_forward_days ? 'text-destructive' : ''}>Max Carry Forward Days <span class="text-destructive">*</span></Label>
+						<Label for="modal_max_carry_forward_days" class={validationState.shouldShowError('max_carry_forward_days', maxCarryForwardDaysValidationError) ? 'text-destructive' : ''}>Max Carry Forward Days <span class="text-destructive">*</span></Label>
 						<Input
 							id="modal_max_carry_forward_days"
 							name="max_carry_forward_days"
 							bind:value={maxCarryForwardDays}
+							onblur={() => validationState.markTouched('max_carry_forward_days')}
 							oninput={() => {
 								if (form && form.field === 'max_carry_forward_days') form = null;
 								errors.max_carry_forward_days = '';
 							}}
-							placeholder="e.g. 24"
+							placeholder="Leave blank for no limit"
 							required={carryForwardAllowed}
-							class={errors.max_carry_forward_days ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+							error={validationState.shouldShowError('max_carry_forward_days', maxCarryForwardDaysValidationError) ? (maxCarryForwardDaysValidationError || errors.max_carry_forward_days) : errors.max_carry_forward_days}
 						/>
-						{#if errors.max_carry_forward_days}
-							<p class="text-xs font-medium text-destructive mt-1">{errors.max_carry_forward_days}</p>
-						{/if}
 					</div>
 
 					<div class="space-y-2">
-						<Label for="modal_max_annual_carry_forward_days" class={errors.max_annual_carry_forward_days ? 'text-destructive' : ''}>Max Annual Carry Forward Days <span class="text-destructive">*</span></Label>
+						<Label for="modal_max_annual_carry_forward_days" class={validationState.shouldShowError('max_annual_carry_forward_days', maxAnnualCarryForwardDaysValidationError) ? 'text-destructive' : ''}>Max Annual Carry Forward Days <span class="text-destructive">*</span></Label>
 						<Input
 							id="modal_max_annual_carry_forward_days"
 							name="max_annual_carry_forward_days"
 							bind:value={maxAnnualCarryForwardDays}
+							onblur={() => validationState.markTouched('max_annual_carry_forward_days')}
 							oninput={() => {
 								if (form && form.field === 'max_annual_carry_forward_days') form = null;
 								errors.max_annual_carry_forward_days = '';
 							}}
-							placeholder="e.g. 6"
+							placeholder="Leave blank for no limit"
 							required={carryForwardAllowed}
-							class={errors.max_annual_carry_forward_days ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+							error={validationState.shouldShowError('max_annual_carry_forward_days', maxAnnualCarryForwardDaysValidationError) ? (maxAnnualCarryForwardDaysValidationError || errors.max_annual_carry_forward_days) : errors.max_annual_carry_forward_days}
 						/>
-						{#if errors.max_annual_carry_forward_days}
-							<p class="text-xs font-medium text-destructive mt-1">{errors.max_annual_carry_forward_days}</p>
-						{/if}
 					</div>
 				</div>
 			{/if}
@@ -1226,21 +1162,20 @@
 
 			{#if documentRequired}
 				<div transition:slide class="space-y-2 pl-4">
-					<Label for="modal_document_required_after_days" class={errors.document_required_after_days ? 'text-destructive' : ''}>Document Required After (Days)</Label>
+					<Label for="modal_document_required_after_days" class={validationState.shouldShowError('document_required_after_days', documentRequiredAfterDaysValidationError) ? 'text-destructive' : ''}>Document Required After (Days)</Label>
 					<Input
 						id="modal_document_required_after_days"
 						name="document_required_after_days"
 						bind:value={documentRequiredAfterDays}
+						onblur={() => validationState.markTouched('document_required_after_days')}
 						oninput={() => {
 							if (form && form.field === 'document_required_after_days') form = null;
 							errors.document_required_after_days = '';
 						}}
+						type="number"
 						placeholder="Leave blank if document is mandatory regardless of leave duration"
-						class={errors.document_required_after_days ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+						error={validationState.shouldShowError('document_required_after_days', documentRequiredAfterDaysValidationError) ? (documentRequiredAfterDaysValidationError || errors.document_required_after_days) : errors.document_required_after_days}
 					/>
-					{#if errors.document_required_after_days}
-						<p class="text-xs font-medium text-destructive mt-1">{errors.document_required_after_days}</p>
-					{/if}
 				</div>
 			{/if}
 
@@ -1262,12 +1197,12 @@
 
 			{#if genderSpecific}
 				<div transition:slide class="space-y-2 pl-4">
-					<Label for="modal_applicable_gender" class={errors.applicable_gender ? 'text-destructive' : ''}>Applicable Gender <span class="text-destructive">*</span></Label>
+					<Label for="modal_applicable_gender" class={validationState.shouldShowError('applicable_gender', applicableGenderValidationError) ? 'text-destructive' : ''}>Applicable Gender <span class="text-destructive">*</span></Label>
 					<input type="hidden" id="modal_applicable_gender" name="applicable_gender" value={applicableGender} />
 					<DropdownMenu.Root>
 						<DropdownMenu.Trigger>
 							{#snippet child({ props })}
-								<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {errors.applicable_gender ? 'border-destructive focus:border-destructive focus:ring-destructive/30 focus-visible:ring-destructive/30 data-[state=open]:border-destructive data-[state=open]:ring-destructive/30' : ''}" {...props}>
+								<Button onblur={() => validationState.markTouched('applicable_gender')} variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {validationState.shouldShowError('applicable_gender', applicableGenderValidationError) || errors.applicable_gender ? 'border-destructive focus:border-destructive focus:ring-destructive/30 focus-visible:ring-destructive/30 data-[state=open]:border-destructive data-[state=open]:ring-destructive/30' : ''}" {...props}>
 									<span class="truncate pr-2">{genderOptions.find(o => o.value === applicableGender)?.label || 'Select Gender'}</span>
 									<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
 								</Button>
@@ -1288,29 +1223,28 @@
 							</DropdownMenu.Group>
 						</DropdownMenu.Content>
 					</DropdownMenu.Root>
-					{#if errors.applicable_gender}
-						<p class="text-xs font-medium text-destructive mt-1">{errors.applicable_gender}</p>
+					{#if validationState.shouldShowError('applicable_gender', applicableGenderValidationError) || errors.applicable_gender}
+						<p class="text-xs font-medium text-destructive mt-1">{validationState.shouldShowError('applicable_gender', applicableGenderValidationError) || errors.applicable_gender}</p>
 					{/if}
 				</div>
 			{/if}
 
 			<!-- Min Service Days -->
 			<div class="space-y-2">
-				<Label for="modal_min_service_days" class={errors.min_service_days ? 'text-destructive font-semibold' : ''}>Min Service Days (Active service req.) <span class="text-destructive">*</span></Label>
+				<Label for="modal_min_service_days" class={validationState.shouldShowError('min_service_days', minServiceDaysValidationError) ? 'text-destructive font-semibold' : ''}>Min Service Days (Active service req.) <span class="text-destructive">*</span></Label>
 				<Input
 					id="modal_min_service_days"
 					name="modal_min_service_days"
 					bind:value={minServiceDays}
+					onblur={() => validationState.markTouched('min_service_days')}
 					oninput={() => {
 						if (form && form.field === 'min_service_days') form = null;
 						errors.min_service_days = '';
 					}}
+					type="number"
 					placeholder="e.g. 90"
-					class={errors.min_service_days ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+					error={validationState.shouldShowError('min_service_days', minServiceDaysValidationError) ? (minServiceDaysValidationError || errors.min_service_days) : errors.min_service_days}
 				/>
-				{#if errors.min_service_days}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.min_service_days}</p>
-				{/if}
 			</div>
 
 			<!-- Status Dropdown -->
@@ -1319,15 +1253,14 @@
 					id="modal_status"
 					name="status"
 					value={status}
+					onBlur={() => validationState.markTouched('status')}
+					error={validationState.shouldShowError('status', errors.status) ? errors.status : (form && form.field === 'status' ? form.error : '')}
 					onChange={(val) => {
 						status = val;
 						if (form && form.field === 'status') form = null;
 						errors.status = '';
 					}}
 				/>
-				{#if errors.status}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.status}</p>
-				{/if}
 			</div>
 
 			<!-- Alert Errors -->
@@ -1365,16 +1298,7 @@
 	{/snippet}
 </CrudModal>
 
-<ConfirmModal
-	open={isDiscardModalOpen}
-	title="Cancel Changes"
-	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Cancel"
-	cancelLabel="Keep Editing"
-	onConfirm={confirmDiscard}
-	onCancel={() => (isDiscardModalOpen = false)}
-	preventOutsideClickClose={true}
-/>
+
 
 <CrudModal
 	open={isAddEmpModalOpen}

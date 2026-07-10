@@ -64,31 +64,24 @@
 		holidayName = '';
 		holidayDate = '';
 		holidayType = '';
+		validationState.reset();
 		isFormModalOpen = true;
 	}
 
 	function openEditModal(cuid: string) {
 		editCuid = cuid;
+		validationState.reset();
 		isFormModalOpen = true;
 	}
 
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
-		submissionAttempted = true;
+		validationState.markAttempted();
 
 		// Rebuild validation error state from scratch on Save
 		errors = {};
 
-		// Validate all fields client-side simultaneously
-		const nameErr = getHolidayNameError(holidayName);
-		const dateErr = getClientDateError(holidayDate);
-		const typeErr = getCategoryError(holidayType);
-
-		errors.name = nameErr;
-		errors.date = dateErr;
-		errors.type = typeErr;
-
-		if (nameErr || dateErr || typeErr) {
+		if (nameValidationError || dateValidationError || typeValidationError) {
 			return;
 		}
 
@@ -210,7 +203,8 @@
 	});
 
 	let errors = $state<Record<string, string>>({});
-	let submissionAttempted = $state(false);
+	import { createValidationState } from '$lib/utils';
+	const validationState = createValidationState();
 
 	function getHolidayNameError(name: string): string {
 		if (!name || name.trim() === '') {
@@ -256,13 +250,17 @@
 
 	function getCategoryError(type: string): string {
 		if (!type || type.trim() === '') {
-			return 'Category is required';
+			return 'Holiday type is required';
 		}
 		if (!['National', 'Regional', 'Restricted'].includes(type)) {
-			return 'Category must be one of: National, Regional, Restricted';
+			return 'Invalid holiday type selected';
 		}
 		return '';
 	}
+
+	let nameValidationError = $derived(getHolidayNameError(holidayName));
+	let dateValidationError = $derived(getClientDateError(holidayDate));
+	let typeValidationError = $derived(getCategoryError(holidayType));
 
 	let isSubmitDisabled = $derived.by(() => {
 		if (isSubmitting) return true;
@@ -277,65 +275,6 @@
 		return false;
 	});
 
-	let isDiscardModalOpen = $state(false);
-	let pendingNavigation = $state<import('@sveltejs/kit').Navigation | null>(null);
-	let isNavigatingProgrammatically = $state(false);
-
-	function handleCloseRequest() {
-		if (hasUnsavedChanges) {
-			isDiscardModalOpen = true;
-		} else {
-			isFormModalOpen = false;
-		}
-	}
-
-	async function confirmDiscard() {
-		isDiscardModalOpen = false;
-		isNavigatingProgrammatically = true;
-		
-		holidayName = '';
-		holidayDate = '';
-		holidayType = '';
-		isFormModalOpen = false;
-		
-		if (pendingNavigation) {
-			const target = pendingNavigation.to?.url;
-			pendingNavigation = null;
-			if (target) {
-				await goto(target.pathname + target.search);
-			}
-		}
-		
-		isNavigatingProgrammatically = false;
-	}
-
-	beforeNavigate((navigation) => {
-		if (!isFormModalOpen || !hasUnsavedChanges) {
-			return;
-		}
-
-		if (isNavigatingProgrammatically) {
-			return;
-		}
-
-		navigation.cancel();
-		pendingNavigation = navigation;
-		isDiscardModalOpen = true;
-	});
-
-	$effect(() => {
-		const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-			if (isFormModalOpen && hasUnsavedChanges) {
-				e.preventDefault();
-				e.returnValue = '';
-				return '';
-			}
-		};
-		window.addEventListener('beforeunload', handleBeforeUnload);
-		return () => {
-			window.removeEventListener('beforeunload', handleBeforeUnload);
-		};
-	});
 
 	let hasSynchronized = $state(false);
 
@@ -343,7 +282,7 @@
 		if (isFormModalOpen) {
 			hasSynchronized = false;
 			errors = {};
-			submissionAttempted = false;
+			validationState.reset();
 		}
 	});
 
@@ -378,9 +317,8 @@
 			holidayDate = '';
 			holidayType = '';
 			errors = {};
-			submissionAttempted = false;
+			validationState.reset();
 			hasSynchronized = false;
-			isDiscardModalOpen = false;
 			editCuid = null;
 		}
 	});
@@ -716,8 +654,9 @@
 
 <CrudModal
 	open={isFormModalOpen}
-	title={editCuid ? 'Edit Holiday' : 'Create Holiday'}
-	onClose={handleCloseRequest}
+	title={editCuid ? 'Edit Holiday' : 'Add Holiday'}
+	hasUnsavedChanges={hasUnsavedChanges}
+	onClose={() => (isFormModalOpen = false)}
 >
 	{#snippet children({ cancel })}
 		<form method="POST" action="" onsubmit={handleSubmit} class="space-y-4" novalidate>
@@ -726,11 +665,12 @@
 			{/if}
 
 			<div class="space-y-2">
-				<Label for="modal_holiday_name" class={errors.name ? 'text-destructive' : ''}>Holiday Name <span class="text-destructive">*</span></Label>
+				<Label for="modal_holiday_name" class={validationState.shouldShowError('name', nameValidationError) ? 'text-destructive' : ''}>Holiday Name <span class="text-destructive">*</span></Label>
 				<Input
 					id="modal_holiday_name"
 					name="name"
 					bind:value={holidayName}
+					onblur={() => validationState.markTouched('name')}
 					oninput={() => {
 						if (form && form.field === 'name') form = null;
 						errors.name = '';
@@ -739,37 +679,38 @@
 					required
 					minlength={6}
 					pattern="^[a-zA-Z\s]+$"
-					class={errors.name ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+					error={validationState.shouldShowError('name', nameValidationError) ? (nameValidationError || errors.name) : errors.name}
 				/>
-				{#if errors.name}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.name}</p>
-				{/if}
 			</div>
 
 			<div class="space-y-2">
-				<Label for="modal_holiday_date" class={errors.date ? 'text-destructive' : ''}>Holiday Date <span class="text-destructive">*</span></Label>
+				<Label for="modal_holiday_date" class={validationState.shouldShowError('date', dateValidationError) ? 'text-destructive' : ''}>Holiday Date <span class="text-destructive">*</span></Label>
 				<DatePicker
 					id="modal_holiday_date"
 					name="date"
 					bind:value={holidayDate}
+					onBlur={() => validationState.markTouched('date')}
 					onchange={() => {
 						if (form && form.field === 'date') form = null;
 						errors.date = '';
 					}}
 					required={true}
+					isError={validationState.shouldShowError('date', dateValidationError) || !!errors.date}
 				/>
-				{#if errors.date}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.date}</p>
-				{/if}
 			</div>
 
 			<div class="space-y-2">
-				<Label for="modal_holiday_type" class={errors.type ? 'text-destructive' : ''}>Category <span class="text-destructive">*</span></Label>
+				<Label for="modal_holiday_type" class={validationState.shouldShowError('type', typeValidationError) ? 'text-destructive' : ''}>Category <span class="text-destructive">*</span></Label>
 				<input type="hidden" id="modal_holiday_type" name="type" value={holidayType} />
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
-							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {errors.type ? 'border-destructive focus:border-destructive focus:ring-destructive/30 focus-visible:ring-destructive/30 data-[state=open]:border-destructive data-[state=open]:ring-destructive/30' : ''}" {...props}>
+							<Button 
+								onblur={() => validationState.markTouched('type')} 
+								variant="outline" 
+								class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {validationState.shouldShowError('type', typeValidationError) || errors.type ? 'border-destructive focus:border-destructive focus:ring-destructive/30 focus-visible:ring-destructive/30 data-[state=open]:border-destructive data-[state=open]:ring-destructive/30' : ''}" 
+								{...props}
+							>
 								<span class={holidayType ? 'truncate pr-2' : 'truncate pr-2 text-muted-foreground'}>{holidayTypeOptions.find(o => o.value === holidayType)?.label || 'Select category'}</span>
 								<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
 							</Button>
@@ -790,8 +731,8 @@
 						</DropdownMenu.Group>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
-				{#if errors.type}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.type}</p>
+				{#if validationState.shouldShowError('type', typeValidationError) || errors.type}
+					<p class="text-xs font-medium text-destructive mt-1">{validationState.shouldShowError('type', typeValidationError) || errors.type}</p>
 				{/if}
 			</div>
 
@@ -829,13 +770,3 @@
 	{/snippet}
 </CrudModal>
 
-<ConfirmModal
-	open={isDiscardModalOpen}
-	title="Cancel Changes"
-	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Cancel"
-	cancelLabel="Keep Editing"
-	onConfirm={confirmDiscard}
-	onCancel={() => (isDiscardModalOpen = false)}
-	preventOutsideClickClose={true}
-/>

@@ -87,13 +87,13 @@
 	let formRemarks = $state('');
 
 	let errors = $state<Record<string, string>>({});
-	let submissionAttempted = $state(false);
+
 
 	// New Form states for smart save & custom datepicker
 	let formCheckInTimeOnly = $state('');
 	let formCheckOutTimeOnly = $state('');
 	let empSearchQuery = $state('');
-	let isDiscardModalOpen = $state(false);
+
 	let pendingNavigation = $state<import('@sveltejs/kit').Navigation | null>(null);
 	let isNavigatingProgrammatically = $state(false);
 
@@ -264,66 +264,6 @@
 
 
 
-	function handleCloseRequest() {
-		if (hasUnsavedChanges) {
-			isDiscardModalOpen = true;
-		} else {
-			isFormModalOpen = false;
-		}
-	}
-
-	async function confirmDiscard() {
-		isDiscardModalOpen = false;
-		isNavigatingProgrammatically = true;
-		
-		formEmployeeCuid = '';
-		formAttendanceDate = '';
-		formCheckInTimeOnly = '';
-		formCheckOutTimeOnly = '';
-		formAttendanceStatus = '';
-		formAttendanceSourceCuid = '';
-		formRemarks = '';
-		isFormModalOpen = false;
-		
-		if (pendingNavigation) {
-			const target = pendingNavigation.to?.url;
-			pendingNavigation = null;
-			if (target) {
-				await goto(target.pathname + target.search);
-			}
-		}
-		
-		isNavigatingProgrammatically = false;
-	}
-
-	beforeNavigate((navigation: any) => {
-		if (!isFormModalOpen || !hasUnsavedChanges) {
-			return;
-		}
-
-		if (isNavigatingProgrammatically) {
-			return;
-		}
-
-		navigation.cancel();
-		pendingNavigation = navigation;
-		isDiscardModalOpen = true;
-	});
-
-	$effect(() => {
-		const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-			if (isFormModalOpen && hasUnsavedChanges) {
-				e.preventDefault();
-				e.returnValue = '';
-				return '';
-			}
-		};
-		window.addEventListener('beforeunload', handleBeforeUnload);
-		return () => {
-			window.removeEventListener('beforeunload', handleBeforeUnload);
-		};
-	});
-
 	// Reset form state on modal close
 	$effect(() => {
 		if (!isFormModalOpen) {
@@ -336,8 +276,7 @@
 			formAttendanceSourceCuid = '';
 			formRemarks = '';
 			errors = {};
-			submissionAttempted = false;
-			isDiscardModalOpen = false;
+			validationState.reset();
 			editCuid = null;
 
 			isSourceDropdownOpen = false;
@@ -514,6 +453,8 @@
 		return errs;
 	}
 
+	let realTimeErrors = $derived(getFormErrors());
+
 	// CRUD Ops
 	function openAddModal() {
 		editCuid = null;
@@ -525,7 +466,7 @@
 		formAttendanceSourceCuid = '';
 		formRemarks = '';
 		errors = {};
-		submissionAttempted = false;
+		validationState.reset();
 		isFormModalOpen = true;
 
 		isSourceDropdownOpen = false;
@@ -545,7 +486,7 @@
 		formAttendanceSourceCuid = '';
 		formRemarks = '';
 		errors = {};
-		submissionAttempted = false;
+		validationState.reset();
 		isFormModalOpen = true;
 
 		isSourceDropdownOpen = false;
@@ -579,7 +520,7 @@
 		formAttendanceSourceCuid = record.attendance_source_cuid || '';
 		formRemarks = record.remarks || '';
 		errors = {};
-		submissionAttempted = false;
+		validationState.reset();
 		isFormModalOpen = true;
 
 		isSourceDropdownOpen = false;
@@ -588,9 +529,12 @@
 		newSourceError = '';
 	}
 
+	import { createValidationState } from '$lib/utils';
+	const validationState = createValidationState();
+
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
-		submissionAttempted = true;
+		validationState.markAttempted();
 
 		const formErrors = getFormErrors();
 		if (Object.keys(formErrors).length > 0) {
@@ -1335,17 +1279,18 @@
 <CrudModal
 	open={isFormModalOpen}
 	title={editCuid ? 'Edit Attendance Record' : 'Create Attendance Record'}
-	onClose={handleCloseRequest}
+	hasUnsavedChanges={hasUnsavedChanges}
+	onClose={() => (isFormModalOpen = false)}
 >
 	{#snippet children({ cancel })}
 		<form method="POST" action="" onsubmit={handleSubmit} class="space-y-4" novalidate>
 			<!-- Employee Selector -->
 			<div class="space-y-2 flex flex-col">
-				<Label class={errors.employee_cuid ? 'text-destructive font-semibold' : ''}>Employee <span class="text-destructive font-bold">*</span></Label>
+				<Label class={validationState.shouldShowError('employee_cuid', realTimeErrors.employee_cuid) ? 'text-destructive font-semibold' : ''}>Employee <span class="text-destructive font-bold">*</span></Label>
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
-							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none {errors.employee_cuid ? 'border-destructive' : ''} {editCuid ? 'opacity-60 pointer-events-none' : ''}" {...props}>
+							<Button onblur={() => validationState.markTouched('employee_cuid')} variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none {validationState.shouldShowError('employee_cuid', realTimeErrors.employee_cuid) || errors.employee_cuid ? 'border-destructive' : ''} {editCuid ? 'opacity-60 pointer-events-none' : ''}" {...props}>
 								<span class="truncate pr-2">
 									{formEmployeeCuid ? (employeeFormOptions.find(o => o.id === formEmployeeCuid)?.label || 'Select Employee') : 'Select Employee'}
 								</span>
@@ -1397,14 +1342,14 @@
 						</DropdownMenu.Group>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
-				{#if errors.employee_cuid}
-					<p class="text-xs font-semibold text-destructive mt-0.5">{errors.employee_cuid}</p>
+				{#if validationState.shouldShowError('employee_cuid', realTimeErrors.employee_cuid) || errors.employee_cuid}
+					<p class="text-xs font-semibold text-destructive mt-0.5">{validationState.shouldShowError('employee_cuid', realTimeErrors.employee_cuid) || errors.employee_cuid}</p>
 				{/if}
 			</div>
 
 			<!-- Date Selector -->
-			<div class="space-y-2">
-				<Label for="modal_date" class={errors.date ? 'text-destructive font-semibold' : ''}>Attendance Date <span class="text-destructive font-bold">*</span></Label>
+			<div class="space-y-2 flex flex-col">
+				<Label for="modal_date" class={validationState.shouldShowError('date', realTimeErrors.date) ? 'text-destructive font-semibold' : ''}>Attendance Date <span class="text-destructive font-bold">*</span></Label>
 				{#if editCuid}
 					<div class="h-9 flex items-center px-3 rounded-md border border-input bg-muted/50 text-sm text-muted-foreground select-none">
 						{formAttendanceDate ? formatDate(formAttendanceDate) : '--'}
@@ -1414,62 +1359,58 @@
 						id="modal_date"
 						name="date"
 						bind:value={formAttendanceDate}
+						onBlur={() => validationState.markTouched('date')}
 						onchange={() => {
 							errors.date = '';
 						}}
 						required={true}
-						isError={!!errors.date}
+						isError={validationState.shouldShowError('date', realTimeErrors.date) || !!errors.date}
+						class={validationState.shouldShowError('date', realTimeErrors.date) || errors.date ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+						disabled={!!editCuid}
 					/>
-				{/if}
-				{#if errors.date}
-					<p class="text-xs font-semibold text-destructive mt-0.5">{errors.date}</p>
 				{/if}
 			</div>
 
 			<!-- Check-In and Check-Out Time Row -->
 			<div class="grid grid-cols-2 gap-4">
-				<div class="space-y-2">
-					<Label for="modal_check_in_time" class={errors.check_in_time ? 'text-destructive font-semibold' : ''}>Check In Time</Label>
+				<div class="space-y-2 flex flex-col">
+					<Label for="modal_check_in_time" class={validationState.shouldShowError('check_in_time', realTimeErrors.check_in_time) ? 'text-destructive font-semibold' : ''}>Check In Time</Label>
 					<TimePicker
 						id="modal_check_in_time"
 						bind:value={formCheckInTimeOnly}
-						isError={!!errors.check_in_time}
+						error={validationState.shouldShowError('check_in_time', realTimeErrors.check_in_time) ? (realTimeErrors.check_in_time || errors.check_in_time) : errors.check_in_time}
+						onBlur={() => validationState.markTouched('check_in_time')}
 						disabled={['Leave', 'Holiday', 'LOP'].includes(formAttendanceStatus)}
-						onchange={() => {
+						onChange={() => {
 							errors.check_in_time = '';
 							errors.check_out_time = '';
 						}}
 					/>
-					{#if errors.check_in_time}
-						<p class="text-xs font-semibold text-destructive mt-0.5">{errors.check_in_time}</p>
-					{/if}
 				</div>
-				<div class="space-y-2">
-					<Label for="modal_check_out_time" class={errors.check_out_time ? 'text-destructive font-semibold' : ''}>Check Out Time</Label>
+				<div class="space-y-2 flex flex-col">
+					<Label for="modal_check_out_time" class={validationState.shouldShowError('check_out_time', realTimeErrors.check_out_time) ? 'text-destructive font-semibold' : ''}>Check Out Time</Label>
 					<TimePicker
 						id="modal_check_out_time"
 						bind:value={formCheckOutTimeOnly}
-						isError={!!errors.check_out_time}
+						error={validationState.shouldShowError('check_out_time', realTimeErrors.check_out_time) ? (realTimeErrors.check_out_time || errors.check_out_time) : errors.check_out_time}
+						onBlur={() => validationState.markTouched('check_out_time')}
 						disabled={['Leave', 'Holiday', 'LOP'].includes(formAttendanceStatus)}
-						onchange={() => {
+						onChange={() => {
 							errors.check_in_time = '';
 							errors.check_out_time = '';
 						}}
 					/>
-					{#if errors.check_out_time}
-						<p class="text-xs font-semibold text-destructive mt-0.5">{errors.check_out_time}</p>
-					{/if}
 				</div>
 			</div>
 
 			<div class="grid grid-cols-2 gap-4">
 				<!-- Status Selector -->
 				<div class="space-y-2 flex flex-col">
-					<Label for="modal_status" class={errors.status ? 'text-destructive font-semibold' : ''}>Status <span class="text-destructive font-bold">*</span></Label>
+					<Label for="modal_status" class={validationState.shouldShowError('status', realTimeErrors.status) ? 'text-destructive font-semibold' : ''}>Status <span class="text-destructive font-bold">*</span></Label>
 					<DropdownMenu.Root>
 						<DropdownMenu.Trigger>
 							{#snippet child({ props })}
-								<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none {errors.status ? 'border-destructive' : ''}" {...props}>
+								<Button onblur={() => validationState.markTouched('status')} variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none {validationState.shouldShowError('status', realTimeErrors.status) || errors.status ? 'border-destructive' : ''}" {...props}>
 									<span class="truncate pr-2">
 										{formAttendanceStatus ? (statusOptions.find(o => o.value === formAttendanceStatus)?.label || 'Select Status') : 'Select Status'}
 									</span>
@@ -1496,8 +1437,8 @@
 							</DropdownMenu.Group>
 						</DropdownMenu.Content>
 					</DropdownMenu.Root>
-					{#if errors.status}
-						<p class="text-xs font-semibold text-destructive mt-0.5">{errors.status}</p>
+					{#if validationState.shouldShowError('status', realTimeErrors.status) || errors.status}
+						<p class="text-xs font-semibold text-destructive mt-0.5">{validationState.shouldShowError('status', realTimeErrors.status) || errors.status}</p>
 					{/if}
 				</div>
 
@@ -1645,19 +1586,6 @@
 		</form>
 	{/snippet}
 </CrudModal>
-
-<!-- Discard Changes Confirmation Modal -->
-<ConfirmModal
-	open={isDiscardModalOpen}
-	title="Cancel Changes"
-	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Cancel"
-	cancelLabel="Keep Editing"
-	onConfirm={confirmDiscard}
-	onCancel={() => (isDiscardModalOpen = false)}
-	preventOutsideClickClose={true}
-/>
-
 
 <!-- Add Attendance Source Modal -->
 <CrudModal

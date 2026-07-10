@@ -26,9 +26,11 @@
 
     disabled?: boolean;
     class?: string;
+    error?: string;
     onSelect: (id: string | string[]) => void;
     onAdd?: () => void;
     onEdit?: (id: string) => void;
+    onBlur?: () => void;
   }
 
   let {
@@ -40,9 +42,11 @@
 
     disabled = false,
     class: className = "",
+    error = "",
     onSelect,
     onAdd,
     onEdit,
+    onBlur,
   }: Props = $props();
 
   let query = $state("");
@@ -116,7 +120,10 @@
     {/if}
   </Label>
   <div bind:clientWidth={triggerWidth} class="w-full relative">
-    <Popover.Root bind:open>
+    <Popover.Root open={open} onOpenChange={(v) => {
+      open = v;
+      if (!v && onBlur) onBlur();
+    }}>
       <Popover.Trigger>
         {#snippet child({ props })}
           <Button
@@ -126,7 +133,7 @@
             class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {displayValue ===
             activePlaceholder
               ? 'text-muted-foreground'
-              : ''} {className}"
+              : ''} {error ? 'border-destructive focus-visible:ring-destructive/30' : ''} {className}"
           >
             <span class="truncate block text-left flex-1">{displayValue}</span>
             {#if open}
@@ -241,6 +248,7 @@
                 class="w-full justify-center text-sm font-medium text-foreground bg-background hover:bg-accent focus-visible:ring-ring/50 focus-visible:ring-3 focus-visible:border-ring"
                 onclick={() => {
                   open = false;
+                  if (onBlur) onBlur();
                   onAdd!();
                 }}
               >
@@ -252,4 +260,7 @@
       </Popover.Content>
     </Popover.Root>
   </div>
+  {#if error}
+    <p class="text-xs font-medium text-destructive mt-1">{error}</p>
+  {/if}
 </div>

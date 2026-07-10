@@ -20,6 +20,7 @@
 		max?: string;
 		required?: boolean;
 		onchange?: () => void;
+		onBlur?: () => void;
 		isFilter?: boolean;
 		isDateDisabled?: (date: DateValue) => boolean;
 	}
@@ -36,6 +37,7 @@
 		max,
 		required,
 		onchange,
+		onBlur,
 		isFilter = false,
 		isDateDisabled
 	}: Props = $props();
@@ -271,6 +273,7 @@
 				prevTextValue = textValue;
 			}
 		}
+		if (onBlur) onBlur();
 	}
 </script>
 

@@ -10,24 +10,28 @@
 		value?: string | null;
 		placeholder?: string;
 		class?: string;
-		isError?: boolean;
+		error?: string;
 		disabled?: boolean;
 		id?: string;
 		name?: string;
 		required?: boolean;
 		onchange?: () => void;
+		onChange?: () => void;
+		onBlur?: () => void;
 	}
 
 	let { 
 		value = $bindable(''), 
 		placeholder = "HH:MM AM/PM", 
 		class: className = "", 
-		isError = $bindable(false), 
+		error = "", 
 		disabled = false,
 		id,
 		name,
 		required,
-		onchange
+		onchange,
+		onChange,
+		onBlur
 	}: Props = $props();
 
 	let open = $state(false);
@@ -108,6 +112,8 @@
 		}
 	});
 
+	let parseError = $state(false);
+
 	$effect(() => {
 		if (value !== prevValue) {
 			untrack(() => {
@@ -115,7 +121,7 @@
 				const formatted = to12h(value);
 				textValue = formatted;
 				prevTextValue = formatted;
-				isError = false;
+				parseError = false;
 			});
 		}
 	});
@@ -128,7 +134,7 @@
 		textValue = '';
 		prevTextValue = '';
 		prevValue = '';
-		isError = false;
+		parseError = false;
 		open = false;
 		if (onchange) onchange();
 	}
@@ -153,9 +159,10 @@
 		textValue = to12h(time24);
 		prevTextValue = textValue;
 		prevValue = time24;
-		isError = false;
+		parseError = false;
 		open = false;
 		if (onchange) onchange();
+		if (onChange) onChange();
 	}
 
 	function handleInput(e: Event) {
@@ -166,7 +173,7 @@
 		prevTextValue = rawVal;
 		
 		if (textValue.trim() === '') {
-			isError = false;
+			parseError = false;
 			value = '';
 			prevValue = '';
 			return;
@@ -176,14 +183,15 @@
 		if (cleanTime) {
 			value = cleanTime;
 			prevValue = cleanTime;
-			isError = false;
+			parseError = false;
 			if (onchange) onchange();
+			if (onChange) onChange();
 		}
 	}
 	
 	function handleBlur() {
 		if (textValue.trim() === '') {
-			isError = false;
+			parseError = false;
 			value = '';
 			prevValue = '';
 			return;
@@ -191,14 +199,16 @@
 		
 		const cleanTime = to24h(textValue);
 		if (!cleanTime) {
-			isError = true;
+			parseError = true;
 			value = '';
 			prevValue = '';
 			if (onchange) onchange();
+			if (onChange) onChange();
 		} else {
 			textValue = to12h(cleanTime);
 			prevTextValue = textValue;
 		}
+		if (onBlur) onBlur();
 	}
 </script>
 
@@ -218,7 +228,7 @@
 		{disabled}
 		class={cn(
 			"pr-10 transition-colors",
-			isError && "border-destructive focus-visible:ring-destructive/50",
+			(parseError || !!error) && "border-destructive focus-visible:ring-destructive/50",
 			className
 		)}
 	/>
@@ -300,3 +310,6 @@
 		</Popover.Root>
 	{/if}
 </div>
+{#if error}
+	<p class="text-xs font-medium text-destructive mt-1">{error}</p>
+{/if}

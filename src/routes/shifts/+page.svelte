@@ -645,7 +645,7 @@
 						id="start_time"
 						name="start_time"
 						bind:value={formStartTime}
-						isError={!!timingError}
+						error={timingError || ''}
 						onchange={() => { timingError = ''; }}
 					/>
 				</div>
@@ -655,7 +655,7 @@
 						id="end_time"
 						name="end_time"
 						bind:value={formEndTime}
-						isError={!!timingError}
+						error={timingError || ''}
 						onchange={() => { timingError = ''; }}
 					/>
 				</div>
