@@ -165,7 +165,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 		console.error('Failed to load leave details for dashboard:', err);
 	}
 
-	// 5. Fetch Today's Attendance Record Status
 	let todayAttendance = null;
 	const todayStatusRecord = await getTodayStatus(employee.cuid);
 	if (todayStatusRecord) {

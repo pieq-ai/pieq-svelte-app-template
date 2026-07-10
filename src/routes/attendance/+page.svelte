@@ -292,8 +292,23 @@
 	);
 
 	let openRecord = $derived(
-		historyRecords.find((rec: any) => rec.check_in_time && !rec.check_out_time) || null
+		historyRecords.find((rec: any) => rec.date === data.todayStr && rec.check_in_time && !rec.check_out_time) || null
 	);
+
+	let pendingCheckOuts = $derived.by(() => {
+		if (!historyRecords) return [];
+		const today = new Date(data.todayStr);
+		const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+		const sevenDaysAgo = new Date(todayUTC.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+		return historyRecords.filter((rec: any) => {
+			const recDate = new Date(rec.date);
+			return rec.check_in_time && 
+				!rec.check_out_time && 
+				recDate < todayUTC && 
+				recDate >= sevenDaysAgo;
+		});
+	});
 
 	let employeeOptions = $derived(
 		data.employees.map((emp: any) => ({
@@ -806,6 +821,66 @@
 		}
 	}
 
+	function triggerPendingCheckOutConfirm(recordCuid: string, dateStr: string) {
+		confirmModalTitle = 'Confirm Check Out';
+		confirmModalDescription = `Are you sure you want to check out for ${new Date(dateStr).toLocaleDateString()}?`;
+		confirmModalConfirmLabel = 'Check Out';
+		confirmModalAction = async () => {
+			await handlePendingCheckOut(recordCuid);
+			isConfirmModalOpen = false;
+		};
+		isConfirmModalOpen = true;
+	}
+
+	const isPendingRecord = (rec: any, cellDateStr: string) => {
+		if (!rec || !rec.check_in_time || rec.check_out_time) return false;
+		if (cellDateStr === data.todayStr) return false;
+		
+		const today = new Date(data.todayStr);
+		const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+		const recordDate = new Date(cellDateStr);
+		const recordDateUTC = new Date(Date.UTC(recordDate.getFullYear(), recordDate.getMonth(), recordDate.getDate()));
+		
+		const diffTime = todayUTC.getTime() - recordDateUTC.getTime();
+		const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+		
+		return diffDays >= 1 && diffDays <= 7;
+	};
+
+	async function handlePendingCheckOut(recordCuid: string) {
+		if (!selectedEmployeeUuid) return;
+		isSubmitting = true;
+
+		try {
+			const res = await fetch('/api/attendance/check-out', {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					employee_cuid: selectedEmployeeUuid,
+					latitude: gpsLatitude,
+					longitude: gpsLongitude,
+					attendance_record_cuid: recordCuid
+				})
+			});
+
+			const body = await res.json();
+			if (res.ok) {
+				toast.success('Checked out successfully!');
+				await loadEmployeeData(selectedEmployeeUuid);
+			} else {
+				const errorMsg = body.data?.error 
+					? (typeof body.data.error === 'object' ? Object.values(body.data.error).join(', ') : body.data.error)
+					: 'Check-out failed';
+				toast.error(errorMsg);
+			}
+		} catch (error) {
+			console.error(error);
+			toast.error('An unexpected error occurred during check-out');
+		} finally {
+			isSubmitting = false;
+		}
+	}
+
 	function scrollIntoView(node: HTMLElement, condition: boolean) {
 		if (condition) {
 			setTimeout(() => {
@@ -930,7 +1005,6 @@
 			<span>Please select an employee to view their attendance dashboard.</span>
 		</div>
 	{:else}
-
 		<!-- Stats Summary Cards -->
 		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
 			<Card class="bg-card">
@@ -1179,6 +1253,21 @@
 												Check In
 											</Button>
 										{/if}
+									{/if}
+								{:else if record && isPendingRecord(record, cell.dateStr) && !holiday}
+									{#if !isRelieved && !isBeforeJoining && !hasNoEmploymentRecord}
+										<Button
+											size="sm"
+											onclick={(e) => { 
+												e.stopPropagation(); 
+												triggerPendingCheckOutConfirm(record.cuid, record.date); 
+											}}
+											class="w-full mt-1 h-5 text-[9px] px-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-sm border-none shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+											disabled={isSubmitting || !gpsValidation.isValid || isLoadingHistory}
+											title={!gpsValidation.isValid ? gpsValidation.message : (isLoadingHistory ? 'Loading history...' : '')}
+										>
+											Check Out
+										</Button>
 									{/if}
 								{/if}
 							</div>

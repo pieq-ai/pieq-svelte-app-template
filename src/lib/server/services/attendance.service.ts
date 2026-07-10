@@ -121,10 +121,10 @@ export async function checkIn(
 		throw new AttendanceValidationError('employee_cuid', eligibility.reason!);
 	}
 
-	// Check for any open attendance record
-	const openRecord = await attendanceDao.findOpenRecord(employeeCuid);
-	if (openRecord) {
-		throw new AttendanceValidationError('employee_cuid', 'An open attendance record already exists. Please check out first.');
+	// Check for open attendance record for today
+	const openRecordToday = await attendanceDao.findOpenRecordOnDate(employeeCuid, todayUTC);
+	if (openRecordToday) {
+		throw new AttendanceValidationError('employee_cuid', 'An open attendance record already exists for today. Please check out first.');
 	}
 
 	// Check if already checked in
@@ -205,7 +205,8 @@ export async function checkIn(
 export async function checkOut(
 	employeeCuid: string,
 	updatedBy?: string | null,
-	gpsData?: { latitude: number; longitude: number } | null
+	gpsData?: { latitude: number; longitude: number } | null,
+	attendanceRecordCuid?: string | null
 ) {
 	if (!employeeCuid) {
 		throw new AttendanceValidationError('employee_cuid', 'Employee is required');
@@ -227,27 +228,61 @@ export async function checkOut(
 		throw new AttendanceValidationError('employee_cuid', 'Selected employee has no valid employment record');
 	}
 
+	// For normal check-out, perform eligibility validation for today first to align with the expected behavior of existing unit tests
+	if (!attendanceRecordCuid) {
+		const eligibility = await getAttendanceEligibility(employeeCuid, todayUTC);
+		if (!eligibility.eligible) {
+			throw new AttendanceValidationError('employee_cuid', eligibility.reason!);
+		}
+	}
+
+	let existing: any;
+	if (attendanceRecordCuid) {
+		existing = await attendanceDao.findByCuid(attendanceRecordCuid);
+		if (!existing) {
+			throw new AttendanceValidationError('employee_cuid', 'Selected attendance record does not exist');
+		}
+		if (existing.employee_cuid !== employeeCuid) {
+			throw new AttendanceValidationError('employee_cuid', 'Selected attendance record does not belong to the authenticated employee');
+		}
+		if (existing.check_out_time) {
+			throw new AttendanceValidationError('employee_cuid', 'Selected attendance record is already checked out');
+		}
+
+		// Validate that the record is not older than 7 days
+		const recordDate = new Date(existing.date);
+		const diffTime = todayUTC.getTime() - recordDate.getTime();
+		const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+		if (diffDays > 7) {
+			throw new AttendanceValidationError('employee_cuid', 'Pending check-out has expired (grace period is 7 days)');
+		}
+	} else {
+		existing = await attendanceDao.findOpenRecordOnDate(employeeCuid, todayUTC);
+		if (!existing) {
+			throw new AttendanceValidationError('employee_cuid', 'No open check-in record found');
+		}
+	}
+
+	const recordDateUTC = new Date(Date.UTC(existing.date.getUTCFullYear(), existing.date.getUTCMonth(), existing.date.getUTCDate()));
+
 	const joinDate = new Date(Date.UTC(employment.date_of_joining.getUTCFullYear(), employment.date_of_joining.getUTCMonth(), employment.date_of_joining.getUTCDate()));
-	if (todayUTC < joinDate) {
+	if (recordDateUTC < joinDate) {
 		throw new AttendanceValidationError('employee_cuid', 'Attendance date must be within employee\'s employment period.');
 	}
 
 	if (employment.relieving_date) {
 		const relieveDate = new Date(Date.UTC(employment.relieving_date.getUTCFullYear(), employment.relieving_date.getUTCMonth(), employment.relieving_date.getUTCDate()));
-		if (todayUTC > relieveDate) {
+		if (recordDateUTC > relieveDate) {
 			throw new AttendanceValidationError('employee_cuid', 'Attendance date must be within employee\'s employment period.');
 		}
 	}
 
-	// Check attendance eligibility (holiday, full-day leave)
-	const eligibility = await getAttendanceEligibility(employeeCuid, todayUTC);
-	if (!eligibility.eligible) {
-		throw new AttendanceValidationError('employee_cuid', eligibility.reason!);
-	}
-
-	const existing = await attendanceDao.findOpenRecord(employeeCuid);
-	if (!existing) {
-		throw new AttendanceValidationError('employee_cuid', 'No open check-in record found');
+	// Check attendance eligibility (holiday, full-day leave) only for pending check-out (already checked for today's above)
+	if (attendanceRecordCuid) {
+		const eligibility = await getAttendanceEligibility(employeeCuid, recordDateUTC);
+		if (!eligibility.eligible) {
+			throw new AttendanceValidationError('employee_cuid', eligibility.reason!);
+		}
 	}
 
 	if (existing.status === 'Leave' || existing.status === 'On Leave' || existing.status === 'LOP') {
@@ -351,4 +386,14 @@ export async function getTodayStatus(employeeCuid: string) {
 	}
 
 	return attendanceDao.findByEmployeeAndDate(employeeCuid, todayUTC);
+}
+
+export async function getPendingCheckOuts(employeeCuid: string) {
+	const records = await attendanceDao.findPendingCheckOuts(employeeCuid);
+	return records.map((rec) => ({
+		cuid: rec.cuid,
+		date: rec.date.toISOString().split('T')[0],
+		check_in_time: rec.check_in_time ? rec.check_in_time.toISOString() : null,
+		status: rec.status
+	}));
 }

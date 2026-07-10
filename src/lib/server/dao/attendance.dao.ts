@@ -89,3 +89,43 @@ export async function findOpenRecord(employee_cuid: string) {
 	});
 }
 
+export async function findOpenRecordOnDate(employee_cuid: string, date: Date) {
+	return db.attendanceRecord.findFirst({
+		where: {
+			employee_cuid,
+			date: date,
+			check_in_time: { not: null },
+			check_out_time: null
+		}
+	});
+}
+
+export async function findByCuid(cuid: string) {
+	return db.attendanceRecord.findUnique({
+		where: { cuid }
+	});
+}
+
+export async function findPendingCheckOuts(employee_cuid: string, maxAgeDays: number = 7) {
+	const today = new Date();
+	const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+	
+	const minDate = new Date(todayUTC);
+	minDate.setUTCDate(minDate.getUTCDate() - maxAgeDays);
+
+	return db.attendanceRecord.findMany({
+		where: {
+			employee_cuid,
+			date: {
+				lt: todayUTC,
+				gte: minDate
+			},
+			check_in_time: { not: null },
+			check_out_time: null
+		},
+		orderBy: {
+			date: 'desc'
+		}
+	});
+}
+

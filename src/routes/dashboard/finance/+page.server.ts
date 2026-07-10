@@ -93,7 +93,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		}
 	}
 
-	// 5. Fetch Today's Attendance Record Status
 	let todayAttendance = null;
 	if (employee) {
 		const todayStatusRecord = await getTodayStatus(employee.cuid);
