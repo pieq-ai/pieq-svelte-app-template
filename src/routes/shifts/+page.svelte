@@ -96,12 +96,13 @@
 	let formStatus = $state<boolean>(true);
 	let isSubmitting = $state(false);
 	let isModalOpen = $state(false);
-	let isNameTouched = $state(false);
-	let isMinHoursTouched = $state(false);
 	let backendError = $state('');
 	let formMinHoursError = $state('');
 	let timingError = $state('');
 	let shiftNameInput = $state<HTMLInputElement | null>(null);
+
+	import { createValidationState } from '$lib/utils';
+	const validationState = createValidationState();
 
 	let isMinHoursManuallyEdited = $state(false);
 	let formMinHours = $state(0);
@@ -317,8 +318,7 @@
 		formStartTime = '09:00';
 		formEndTime = '18:00';
 		formStatus = true;
-		isNameTouched = false;
-		isMinHoursTouched = false;
+		validationState.reset();
 		backendError = '';
 		formMinHoursError = '';
 		timingError = '';
@@ -341,8 +341,7 @@
 		formStartTime = formatTimeForInput(shift.start_time);
 		formEndTime = formatTimeForInput(shift.end_time);
 		formStatus = shift.status;
-		isNameTouched = false;
-		isMinHoursTouched = false;
+		validationState.reset();
 		backendError = '';
 		formMinHoursError = '';
 		timingError = '';
@@ -360,6 +359,7 @@
 
 	async function handleSaveShift(e: Event) {
 		e.preventDefault();
+		validationState.markAttempted();
 		if (isSaveDisabled) return;
 
 		isSubmitting = true;
@@ -629,34 +629,38 @@
 					name="name"
 					bind:ref={shiftNameInput}
 					bind:value={formName}
-					class={nameValidationError || backendError ? 'border-destructive' : ''}
+					error={validationState.shouldShowError('name', nameValidationError) ? (nameValidationError || backendError) : backendError}
+					onblur={() => validationState.markTouched('name')}
 					placeholder="e.g. Morning Shift"
 					oninput={() => { backendError = ''; }}
 				/>
-				{#if nameValidationError || backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
-				{/if}
 			</div>
 
 			<div class="grid grid-cols-2 gap-4">
 				<div class="space-y-2">
-					<Label for="start_time">Start Time</Label>
-					<TimePicker
-						id="start_time"
-						name="start_time"
+					<Label for="startTime">Start Time</Label>
+					<TimePicker 
+						id="startTime" 
 						bind:value={formStartTime}
-						error={timingError || ''}
-						onchange={() => { timingError = ''; }}
+						error={validationState.shouldShowError('startTime', timingError) ? timingError : ''}
+						onBlur={() => validationState.markTouched('startTime')}
+						onChange={() => {
+							timingError = '';
+							isMinHoursManuallyEdited = false;
+						}}
 					/>
 				</div>
-				<div class="space-y-2">
-					<Label for="end_time">End Time</Label>
-					<TimePicker
-						id="end_time"
-						name="end_time"
+				<div class="space-y-2 flex-1">
+					<Label for="endTime">End Time</Label>
+					<TimePicker 
+						id="endTime" 
 						bind:value={formEndTime}
-						error={timingError || ''}
-						onchange={() => { timingError = ''; }}
+						error={validationState.shouldShowError('endTime', timingError) ? timingError : ''}
+						onBlur={() => validationState.markTouched('endTime')}
+						onChange={() => {
+							timingError = '';
+							isMinHoursManuallyEdited = false;
+						}}
 					/>
 				</div>
 			</div>
@@ -678,17 +682,19 @@
 					{/if}
 				</div>
 				<Input
-					id="minimum_work_hours"
-					name="minimum_work_hours"
+					id="minHours"
+					name="minHours"
 					type="number"
-					step="0.25"
+					step="0.1"
 					bind:value={formMinHours}
-					class={formMinHoursError ? 'border-destructive' : ''}
-					oninput={() => { isMinHoursManuallyEdited = true; formMinHoursError = ''; }}
+					error={validationState.shouldShowError('minHours', minHoursValidationError) ? (minHoursValidationError || formMinHoursError) : formMinHoursError}
+					onblur={() => validationState.markTouched('minHours')}
+					oninput={() => {
+						isMinHoursManuallyEdited = true;
+						formMinHoursError = '';
+					}}
 				/>
-				{#if formMinHoursError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{formMinHoursError}</p>
-				{:else}
+				{#if !formMinHoursError}
 					<p class="text-xs text-muted-foreground">
 						Shift duration: {formatHoursReadable(calculatedMinHours)} (auto-calculated)
 					</p>

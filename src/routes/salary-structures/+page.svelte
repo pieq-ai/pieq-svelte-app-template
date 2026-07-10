@@ -697,7 +697,7 @@
 
 			<!-- Employee dropdown — only employees without an Active structure -->
 			<div class="space-y-2">
-				<Label for="employee_cuid">Employee</Label>
+				<Label for="employee_cuid">Employee <span class="text-destructive">*</span></Label>
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
@@ -747,7 +747,7 @@
 			<!-- Effective dates -->
 			<div class="grid grid-cols-2 gap-4">
 				<div class="space-y-2">
-					<Label for="effective_from">Effective From</Label>
+					<Label for="effective_from">Effective From <span class="text-destructive">*</span></Label>
 					<DatePicker
 						id="effective_from"
 						name="effective_from"
@@ -787,7 +787,7 @@
 			<!-- Component items -->
 			<div class="space-y-2">
 				<div class="flex items-center justify-between">
-					<Label>Salary Components</Label>
+					<Label>Salary Components <span class="text-destructive">*</span></Label>
 					<Button
 						type="button"
 						variant="outline"
@@ -921,7 +921,7 @@
 
 		<div class="grid grid-cols-2 gap-4">
 			<div class="space-y-2">
-				<Label for="edit_effective_from">Effective From</Label>
+				<Label for="edit_effective_from">Effective From <span class="text-destructive">*</span></Label>
 				<DatePicker
 					id="edit_effective_from"
 					name="effective_from"

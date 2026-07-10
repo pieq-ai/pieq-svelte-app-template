@@ -60,10 +60,11 @@
 	let formMode = $state<'create' | 'edit'>('create');
 	let permissionKey = $state('');
 	let permissionStatus = $state<boolean>(true);
-	let isKeyTouched = $state(false);
 	let backendError = $state('');
 	let permissionKeyInput = $state<HTMLInputElement | null>(null);
-	let showConfirmClose = $state(false);
+
+	import { createValidationState } from '$lib/utils';
+	const validationState = createValidationState();
 
 	const dirtyChecker = createDirtyChecker<{ permission_key: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ permission_key: permissionKey.trim(), status: permissionStatus }));
@@ -155,7 +156,7 @@
 		editingPermission = null;
 		permissionKey = '';
 		permissionStatus = true;
-		isKeyTouched = false;
+		validationState.reset();
 		backendError = '';
 		dirtyChecker.snapshot({ permission_key: '', status: true });
 		isModalOpen = true;
@@ -166,23 +167,20 @@
 		editingPermission = permission;
 		permissionKey = permission.permission_key;
 		permissionStatus = permission.status;
-		isKeyTouched = false;
+		validationState.reset();
 		backendError = '';
 		dirtyChecker.snapshot({ permission_key: permission.permission_key, status: permission.status });
 		isModalOpen = true;
 	}
 
 	function handleClose() {
-		if (isDirty) {
-			showConfirmClose = true;
-		} else {
-			isModalOpen = false;
-			$globalIsDirty = false;
-		}
+		isModalOpen = false;
+		$globalIsDirty = false;
 	}
 
 	async function savePermission(event: Event) {
 		event.preventDefault();
+		validationState.markAttempted();
 		if (isSaveDisabled) return;
 
 		isSubmitting = true;
@@ -362,7 +360,8 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingPermission ? 'Edit Permission' : 'Create Permission'}
-	isSubmitting={isSubmitting}
+	{isSubmitting}
+	hasUnsavedChanges={isDirty}
 	onClose={handleClose}
 >
 	{#snippet children({ cancel })}
@@ -374,13 +373,11 @@
 					name="permission_key"
 					bind:ref={permissionKeyInput}
 					bind:value={permissionKey}
-					class={keyValidationError || backendError ? 'border-destructive' : ''}
+					error={validationState.shouldShowError('permissionKey', keyValidationError) ? (keyValidationError || backendError) : backendError}
+					onblur={() => validationState.markTouched('permissionKey')}
 					placeholder="employee_view"
 					oninput={() => { backendError = ''; }}
 				/>
-				{#if keyValidationError || backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{keyValidationError || backendError}</p>
-				{/if}
 			</div>
 			{#if editingPermission}
 				<StatusDropdown id="permission_status" name="permission_status" value={permissionStatus} onChange={(val) => (permissionStatus = val)} />
@@ -403,20 +400,4 @@
 	isSubmitting={isDeleting}
 	onCancel={() => (itemToDelete = null)}
 	onConfirm={confirmDelete}
-/>
-
-<ConfirmModal
-	open={showConfirmClose}
-	title="Cancel Changes"
-	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Cancel"
-	cancelLabel="Keep Editing"
-	onConfirm={() => {
-		showConfirmClose = false;
-		isModalOpen = false;
-		$globalIsDirty = false;
-	}}
-	onCancel={() => {
-		showConfirmClose = false;
-	}}
 />

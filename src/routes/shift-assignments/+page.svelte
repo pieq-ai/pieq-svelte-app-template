@@ -77,9 +77,8 @@
   let isViewOnly = $state(false);
   let showConfirmClose = $state(false);
 
-  let isShiftTouched = $state(false);
-  let isEffectiveFromTouched = $state(false);
-  let isEffectiveToTouched = $state(false);
+  import { createValidationState } from '$lib/utils';
+  const validationState = createValidationState();
 
   // Validation Errors
   let backendError = $state("");
@@ -335,17 +334,14 @@
     formMode = 'create';
     editingAssignment = null;
     isViewOnly = false;
+    validationState.reset();
+    backendError = "";
+    formStatus = true;
+
     formEmployeeCuid = "";
     formShiftCuid = "";
     formEffectiveFrom = "";
     formEffectiveTo = "";
-    formStatus = true;
-
-    
-    
-    
-    
-    backendError = "";
 
     dirtyChecker.snapshot({
       employee_cuid: "",
@@ -404,7 +400,8 @@
 
   async function handleSaveAssignment(e: Event) {
     e.preventDefault();
-    if (isViewOnly) return;
+    validationState.markAttempted();
+    if (isSaveDisabled) return;
     if (isSaveDisabled) return;
 
     isSubmitting = true;
@@ -744,29 +741,15 @@
           options={data.employeeOptions}
           value={formEmployeeCuid}
           placeholder="Select employee..."
+          error={validationState.shouldShowError('employee', employeeError) ? (employeeError || backendEmployeeError) : backendEmployeeError}
+          onBlur={() => validationState.markTouched('employee')}
           onSelect={(val) => {
             formEmployeeCuid = String(val);
-            
             if (formEffectiveFrom) 
             if (formEffectiveTo) 
             backendError = "";
           }}
         />
-        {#if employeeError}
-          <p
-            class="text-xs"
-            style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}"
-          >
-            {employeeError}
-          </p>
-        {:else if backendEmployeeError}
-          <p
-            class="text-xs"
-            style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}"
-          >
-            {backendEmployeeError}
-          </p>
-        {/if}
       </div>
 
       <!-- Shift Dropdown -->
@@ -776,27 +759,13 @@
           options={data.shiftOptions}
           value={formShiftCuid}
           placeholder="Select shift..."
+          error={validationState.shouldShowError('shift', shiftError) ? (shiftError || backendShiftError) : backendShiftError}
+          onBlur={() => validationState.markTouched('shift')}
           onSelect={(val) => {
             formShiftCuid = String(val);
-            
             backendError = "";
           }}
         />
-        {#if shiftError}
-          <p
-            class="text-xs"
-            style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}"
-          >
-            {shiftError}
-          </p>
-        {:else if backendShiftError}
-          <p
-            class="text-xs"
-            style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}"
-          >
-            {backendShiftError}
-          </p>
-        {/if}
       </div>
 
       <!-- Date Range -->
@@ -809,13 +778,13 @@
             id="effective_from"
             name="effective_from"
             bind:value={formEffectiveFrom}
-            isError={isEffectiveFromTouched && (!!effectiveFromError || !!backendEffectiveFromError)}
+            isError={validationState.shouldShowError('effectiveFrom', effectiveFromError) ? !!(effectiveFromError || backendEffectiveFromError) : !!backendEffectiveFromError}
+            onBlur={() => validationState.markTouched('effectiveFrom')}
             onchange={() => {
-              
               backendError = "";
             }}
           />
-          {#if effectiveFromError}
+          {#if validationState.shouldShowError('effectiveFrom', effectiveFromError) && effectiveFromError}
             <p
               class="text-xs"
               style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}"
@@ -839,13 +808,13 @@
             id="effective_to"
             name="effective_to"
             bind:value={formEffectiveTo}
-            isError={isEffectiveToTouched && (!!effectiveToError || !!backendEffectiveToError)}
+            isError={validationState.shouldShowError('effectiveTo', effectiveToError) ? !!(effectiveToError || backendEffectiveToError) : !!backendEffectiveToError}
+            onBlur={() => validationState.markTouched('effectiveTo')}
             onchange={() => {
-              
               backendError = "";
             }}
           />
-          {#if effectiveToError}
+          {#if validationState.shouldShowError('effectiveTo', effectiveToError) && effectiveToError}
             <p
               class="text-xs"
               style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}"

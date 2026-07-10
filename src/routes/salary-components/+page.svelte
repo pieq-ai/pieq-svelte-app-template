@@ -47,12 +47,8 @@
 	let showConfirmClose = $state(false);
 
 	function handleClose() {
-		if (isDirty) {
-			showConfirmClose = true;
-		} else {
-			isModalOpen = false;
-			$globalIsDirty = false;
-		}
+		isModalOpen = false;
+		$globalIsDirty = false;
 	}
 
 	let componentsList = $state<SalaryComponent[]>([]);
@@ -79,6 +75,9 @@
 	let isModalOpen = $state(false);
 	let backendError = $state('');
 	let nameInput = $state<HTMLInputElement | null>(null);
+
+	import { createValidationState } from '$lib/utils';
+	const validationState = createValidationState();
 
 	const dirtyChecker = createDirtyChecker<{
 		name: string;
@@ -187,6 +186,7 @@
 		formType = 'earning';
 		formIsTaxable = false;
 		formIsActive = true;
+		validationState.reset();
 		backendError = '';
 		dirtyChecker.snapshot({
 			name: '',
@@ -204,6 +204,7 @@
 		formType = comp.type;
 		formIsTaxable = comp.is_taxable;
 		formIsActive = comp.status;
+		validationState.reset();
 		backendError = '';
 		dirtyChecker.snapshot({
 			name: comp.name,
@@ -216,6 +217,7 @@
 
 	async function handleSaveComponent(e: Event) {
 		e.preventDefault();
+		validationState.markAttempted();
 		if (isSaveDisabled) return;
 
 		isSubmitting = true;
@@ -454,30 +456,29 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingComp ? 'Edit Salary Component' : 'Create Salary Component'}
-	isSubmitting={isSubmitting}
+	{isSubmitting}
+	hasUnsavedChanges={isDirty}
 	onClose={handleClose}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-4" onsubmit={handleSaveComponent}>
 			<div class="space-y-2">
-				<Label for="name">Component Name</Label>
+				<Label for="name">Component Name <span class="text-destructive">*</span></Label>
 				<Input
 					id="name"
 					name="name"
 					bind:ref={nameInput}
 					bind:value={formName}
-					class={backendError ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+					error={validationState.shouldShowError('name', nameValidationError) ? (nameValidationError || backendError) : backendError}
+					onblur={() => validationState.markTouched('name')}
 					placeholder="e.g. Basic Pay, HRA"
 					oninput={() => { backendError = ''; }}
 				/>
-				{#if backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{backendError}</p>
-				{/if}
 			</div>
 
 			<div class="grid grid-cols-2 gap-4">
 				<div class="space-y-2">
-					<Label for="component_type">Component Type</Label>
+					<Label for="component_type">Component Type <span class="text-destructive">*</span></Label>
 					<DropdownMenu.Root>
 						<DropdownMenu.Trigger>
 							{#snippet child({ props })}
@@ -529,18 +530,3 @@
 	{/snippet}
 </CrudModal>
 
-<ConfirmModal
-	open={showConfirmClose}
-	title="Cancel Changes"
-	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Cancel"
-	cancelLabel="Keep Editing"
-	onConfirm={() => {
-		showConfirmClose = false;
-		isModalOpen = false;
-		$globalIsDirty = false;
-	}}
-	onCancel={() => {
-		showConfirmClose = false;
-	}}
-/>
