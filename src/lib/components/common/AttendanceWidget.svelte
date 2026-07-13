@@ -91,7 +91,6 @@
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					employee_cuid: employee?.cuid,
 					attendance_source_cuid: null,
 					latitude: gpsLatitude,
 					longitude: gpsLongitude
@@ -125,7 +124,6 @@
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					employee_cuid: employee?.cuid,
 					latitude: gpsLatitude,
 					longitude: gpsLongitude
 				})
