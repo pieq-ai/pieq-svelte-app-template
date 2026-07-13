@@ -48,7 +48,7 @@ const cuid = parseCuid(params.cuid);
     return sendUpdated('Company Location', location.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }
 
@@ -65,7 +65,7 @@ const cuid = parseCuid(params.cuid);
     return sendUpdated('Company Location', location.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }
 
@@ -82,6 +82,6 @@ const cuid = parseCuid(params.cuid);
     return sendDeleted('Company Location', location.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }

@@ -36,7 +36,7 @@ export async function GET({ params, locals }: RequestEvent) {
     return successResponse(formatted);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }
 
@@ -77,7 +77,7 @@ export async function PUT({ request, params, locals }: RequestEvent) {
     return updateSuccessResponse('ShiftAssignment', assignment.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }
 
@@ -96,6 +96,6 @@ export async function DELETE({ params, locals }: RequestEvent) {
     return deleteSuccessResponse('ShiftAssignment', cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }

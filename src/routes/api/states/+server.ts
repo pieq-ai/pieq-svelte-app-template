@@ -12,6 +12,6 @@ export async function GET() {
       .sort((a, b) => a.name.localeCompare(b.name));
     return sendList(mapped);
   } catch (err: any) {
-    return json({ error: err.message }, { status: 500 });
+    return json({ error: err.body?.message || err.message }, { status: 500 });
   }
 }

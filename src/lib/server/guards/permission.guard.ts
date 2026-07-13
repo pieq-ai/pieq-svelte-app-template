@@ -7,7 +7,12 @@ import type { AuthzUser } from '$lib/authz';
  */
 export function requireAuth(user: AuthzUser | null | undefined): void {
 	if (!user) {
-		throw error(401, 'Authentication required');
+        try {
+		    error(401, 'Authentication required');
+        } catch (err: any) {
+            err.message = 'Authentication required';
+            throw err;
+        }
 	}
 }
 
@@ -32,6 +37,12 @@ export function requirePermission(user: AuthzUser | null | undefined, permission
         if (fallbackUrl) {
             throw redirect(303, fallbackUrl);
         }
-		throw error(403, 'You do not have permission to access this resource.');
+        const roleName = user?.system_role_name || 'User';
+        try {
+		    error(403, `${roleName} cannot access ${permission} or does not have the required permissions.`);
+        } catch (err: any) {
+            err.message = `${roleName} cannot access ${permission} or does not have the required permissions.`;
+            throw err;
+        }
 	}
 }

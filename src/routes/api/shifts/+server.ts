@@ -22,7 +22,7 @@ export async function GET({ locals, url }: RequestEvent) {
     return sendList(mapped);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }
 
@@ -54,6 +54,6 @@ export async function POST({ request, locals }: RequestEvent) {
     return sendCreated("Shift", shift.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }
