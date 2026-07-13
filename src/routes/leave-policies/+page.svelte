@@ -351,14 +351,14 @@
 		return (
 			leaveTypeId !== String(editingPolicy.leave_type_cuid) ||
 			!empTypesEqual ||
-			annualLimit.trim() !== String(editingPolicy.annual_limit).trim() ||
-			maxPerMonth.trim() !== originalMaxPerMonth.trim() ||
+			String(annualLimit).trim() !== String(editingPolicy.annual_limit).trim() ||
+			String(maxPerMonth).trim() !== String(originalMaxPerMonth).trim() ||
 			carryForwardAllowed !== editingPolicy.carry_forward_allowed ||
-			maxCarryForwardDays.trim() !== originalMaxCarryForwardDays.trim() ||
-			maxAnnualCarryForwardDays.trim() !== originalMaxAnnualCarryForwardDays.trim() ||
+			String(maxCarryForwardDays).trim() !== String(originalMaxCarryForwardDays).trim() ||
+			String(maxAnnualCarryForwardDays).trim() !== String(originalMaxAnnualCarryForwardDays).trim() ||
 			documentRequired !== editingPolicy.document_required ||
-			documentRequiredAfterDays.trim() !== originalDocumentRequiredAfterDays.trim() ||
-			minServiceDays.trim() !== originalMinServiceDays.trim() ||
+			String(documentRequiredAfterDays).trim() !== String(originalDocumentRequiredAfterDays).trim() ||
+			String(minServiceDays).trim() !== String(originalMinServiceDays).trim() ||
 			allowHalfDay !== editingPolicy.allow_half_day ||
 			genderSpecific !== editingPolicy.gender_specific ||
 			applicableGender !== originalApplicableGender ||
@@ -373,14 +373,14 @@
 			return (
 				leaveTypeId !== '' ||
 				selectedEmploymentTypes.length > 0 ||
-				annualLimit.trim() !== '' ||
-				maxPerMonth.trim() !== '' ||
+				String(annualLimit).trim() !== '' ||
+				String(maxPerMonth).trim() !== '' ||
 				carryForwardAllowed !== false ||
-				maxCarryForwardDays.trim() !== '' ||
-				maxAnnualCarryForwardDays.trim() !== '' ||
+				String(maxCarryForwardDays).trim() !== '' ||
+				String(maxAnnualCarryForwardDays).trim() !== '' ||
 				documentRequired !== false ||
-				documentRequiredAfterDays.trim() !== '' ||
-				minServiceDays.trim() !== '0' && minServiceDays.trim() !== '' ||
+				String(documentRequiredAfterDays).trim() !== '' ||
+				String(minServiceDays).trim() !== '0' && String(minServiceDays).trim() !== '' ||
 				allowHalfDay !== false ||
 				genderSpecific !== false ||
 				applicableGender !== '' ||
@@ -392,10 +392,11 @@
 	let isSubmitDisabled = $derived.by(() => {
 		if (isSubmitting) return true;
 		const mandatoryFieldsFilled =
-			leaveTypeId.trim() !== '' &&
+			String(leaveTypeId).trim() !== '' &&
 			selectedEmploymentTypes.length > 0 &&
-			annualLimit.trim() !== '' &&
-			(!carryForwardAllowed || (maxCarryForwardDays.trim() !== '' && maxAnnualCarryForwardDays.trim() !== '')) &&
+			String(annualLimit).trim() !== '' &&
+			(!carryForwardAllowed || (String(maxCarryForwardDays).trim() !== '' && String(maxAnnualCarryForwardDays).trim() !== '')) &&
+			(!documentRequired || String(documentRequiredAfterDays).trim() !== '') &&
 			(!genderSpecific || applicableGender !== '');
 		if (!mandatoryFieldsFilled) return true;
 		if (editUuid) {
@@ -508,7 +509,7 @@
 	}
 
 	function getQuotaError(quotaStr: string): string {
-		if (!quotaStr || quotaStr.trim() === '') return 'Annual limit is required';
+		if (!quotaStr || String(quotaStr).trim() === '') return 'Annual limit is required';
 		if (isNaN(Number(quotaStr))) {
 			return 'Only numeric values are allowed';
 		}
@@ -520,7 +521,7 @@
 	}
 
 	function getMaxPerMonthError(maxMStr: string, quotaStr: string): string {
-		if (!maxMStr || maxMStr.trim() === '') return '';
+		if (maxMStr === undefined || maxMStr === null || String(maxMStr).trim() === '') return '';
 		if (isNaN(Number(maxMStr))) {
 			return 'Only numeric values are allowed';
 		}
@@ -574,7 +575,7 @@
 	}
 
 	function getMinServiceDaysError(daysStr: string): string {
-		if (!daysStr || daysStr.trim() === '') return '';
+		if (daysStr === undefined || daysStr === null || String(daysStr).trim() === '') return '';
 		if (isNaN(Number(daysStr))) {
 			return 'Only numeric values are allowed';
 		}
@@ -1000,10 +1001,10 @@
 			<div class="space-y-2">
 				<Label for="modal_leave_type_cuid" class={validationState.shouldShowError('leave_type_cuid', leaveTypeValidationError) ? 'text-destructive' : ''}>Leave Type <span class="text-destructive">*</span></Label>
 				<input type="hidden" id="modal_leave_type_cuid" name="leave_type_cuid" value={leaveTypeId} />
-				<DropdownMenu.Root>
+				<DropdownMenu.Root onOpenChange={(v) => { if (!v) validationState.markTouched('leave_type_cuid'); }}>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
-							<Button onblur={() => validationState.markTouched('leave_type_cuid')} variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {validationState.shouldShowError('leave_type_cuid', leaveTypeValidationError) || errors.leave_type_cuid ? 'border-destructive focus:border-destructive focus:ring-destructive/30 focus-visible:ring-destructive/30 data-[state=open]:border-destructive data-[state=open]:ring-destructive/30' : ''}" {...props}>
+							<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {validationState.shouldShowError('leave_type_cuid', leaveTypeValidationError) || errors.leave_type_cuid ? 'border-destructive focus:border-destructive focus:ring-destructive/30 focus-visible:ring-destructive/30 data-[state=open]:border-destructive data-[state=open]:ring-destructive/30' : ''}" {...props}>
 								<span class="truncate pr-2">{modalLeaveTypeOptions.find(o => o.value === leaveTypeId)?.label || 'Select Leave Type'}</span>
 								<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
 							</Button>
@@ -1199,10 +1200,10 @@
 				<div transition:slide class="space-y-2 pl-4">
 					<Label for="modal_applicable_gender" class={validationState.shouldShowError('applicable_gender', applicableGenderValidationError) ? 'text-destructive' : ''}>Applicable Gender <span class="text-destructive">*</span></Label>
 					<input type="hidden" id="modal_applicable_gender" name="applicable_gender" value={applicableGender} />
-					<DropdownMenu.Root>
+					<DropdownMenu.Root onOpenChange={(v) => { if (!v) validationState.markTouched('applicable_gender'); }}>
 						<DropdownMenu.Trigger>
 							{#snippet child({ props })}
-								<Button onblur={() => validationState.markTouched('applicable_gender')} variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {validationState.shouldShowError('applicable_gender', applicableGenderValidationError) || errors.applicable_gender ? 'border-destructive focus:border-destructive focus:ring-destructive/30 focus-visible:ring-destructive/30 data-[state=open]:border-destructive data-[state=open]:ring-destructive/30' : ''}" {...props}>
+								<Button variant="outline" class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {validationState.shouldShowError('applicable_gender', applicableGenderValidationError) || errors.applicable_gender ? 'border-destructive focus:border-destructive focus:ring-destructive/30 focus-visible:ring-destructive/30 data-[state=open]:border-destructive data-[state=open]:ring-destructive/30' : ''}" {...props}>
 									<span class="truncate pr-2">{genderOptions.find(o => o.value === applicableGender)?.label || 'Select Gender'}</span>
 									<ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
 								</Button>

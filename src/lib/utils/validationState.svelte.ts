@@ -12,10 +12,10 @@ export function createValidationState<T extends string = string>() {
 			submissionAttempted = true;
 		},
 		isTouched(fieldName: T) {
-			return touchedFields.has(fieldName) || submissionAttempted;
+			return submissionAttempted;
 		},
 		shouldShowError(fieldName: T, error: string | null | undefined | boolean) {
-			return (touchedFields.has(fieldName) || submissionAttempted) && !!error;
+			return submissionAttempted && !!error;
 		},
 		reset() {
 			touchedFields.clear();
