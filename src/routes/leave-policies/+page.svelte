@@ -396,7 +396,6 @@
 			selectedEmploymentTypes.length > 0 &&
 			String(annualLimit).trim() !== '' &&
 			(!carryForwardAllowed || (String(maxCarryForwardDays).trim() !== '' && String(maxAnnualCarryForwardDays).trim() !== '')) &&
-			(!documentRequired || String(documentRequiredAfterDays).trim() !== '') &&
 			(!genderSpecific || applicableGender !== '');
 		if (!mandatoryFieldsFilled) return true;
 		if (editUuid) {
