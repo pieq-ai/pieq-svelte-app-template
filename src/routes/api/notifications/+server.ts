@@ -13,7 +13,7 @@ import { ValidationError } from '$lib/server/utils/errors.js';
  */
 export async function GET(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'dashboard:view');
 
 		const email = event.locals.user?.email || '';
 		let employee;
@@ -78,7 +78,7 @@ export async function GET(event: RequestEvent) {
  */
 export async function POST(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'dashboard:view');
 		// In Phase 2, this will be requireAdmin / requireHR
 		permissionGuard.requireAdmin(event.locals.user);
 

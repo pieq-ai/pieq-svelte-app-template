@@ -9,7 +9,9 @@ import { resolveEmployee } from '$lib/server/services/leave.service.js';
 import { validatePayloadKeys, trimStringFields } from '$lib/server/validation.js';
 import { errorResponse, successResponse } from '$lib/server/response.js';
 
+
 export const PUT: RequestHandler = async ({ request, locals }) => {
+	requirePermission(locals.user, 'dashboard:view');
 	let body: unknown;
 
 	try {
@@ -26,8 +28,23 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
 
 	const { latitude, longitude, attendance_record_cuid, check_out_time } = trimStringFields(body) as any;
 
+	const lat = Number(latitude);
+	const lng = Number(longitude);
+
+	if (
+		latitude === null || latitude === undefined ||
+		longitude === null || longitude === undefined ||
+		Number.isNaN(lat) || Number.isNaN(lng) ||
+		!Number.isFinite(lat) || !Number.isFinite(lng) ||
+		lat < -90 || lat > 90 ||
+		lng < -180 || lng > 180 ||
+		(lat === 0 && lng === 0)
+	) {
+		return json({ error: { general: 'Invalid GPS coordinates provided.' } }, { status: 400 });
+	}
+
 	if (!locals.user?.email) {
-		return json({ error: { general: 'Unauthorized' } }, { status: 401 });
+		return json({ error: { general: 'Employee email not found' } }, { status: 403 });
 	}
 
 	let employee_cuid: string;
@@ -51,8 +68,8 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
 			employee_cuid,
 			userId,
 			{
-				latitude: Number(latitude),
-				longitude: Number(longitude)
+				latitude: lat,
+				longitude: lng
 			},
 			attendance_record_cuid,
 			check_out_time

@@ -2,6 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as holidayService from '$lib/server/services/holiday.service.js';
 import * as holidaysApi from '../../src/routes/api/holidays/+server.js';
 import * as holidaysCuidApi from '../../src/routes/api/holidays/[cuid]/+server.js';
+import * as permissionGuard from '$lib/server/guards/permission.guard.js';
+
+vi.mock('$lib/server/guards/permission.guard.js', () => ({
+	requirePermission: vi.fn()
+}));
 
 vi.mock('$lib/server/services/holiday.service.js', () => ({
 	listHolidays: vi.fn(),
@@ -47,7 +52,7 @@ describe('holidays API', () => {
 			];
 			vi.mocked(holidayService.listHolidays).mockResolvedValue(mockList as any);
 
-			const res = await holidaysApi.GET({} as any);
+			const res = await holidaysApi.GET({ locals: mockLocals } as any);
 			expect(res.status).toBe(200);
 			const body = await res.json();
 			expect(body.data).toBeDefined();
@@ -110,7 +115,7 @@ describe('holidays API', () => {
 	describe('GET /api/holidays/[cuid]', () => {
 		it('should return 404 if not found', async () => {
 			vi.mocked(holidayService.getHolidayByCuid).mockResolvedValue(null);
-			const res = await holidaysCuidApi.GET({ params: { cuid: 'h1' } } as any);
+			const res = await holidaysCuidApi.GET({ params: { cuid: 'h1' }, locals: mockLocals } as any);
 			expect(res.status).toBe(404);
 		});
 
@@ -118,7 +123,7 @@ describe('holidays API', () => {
 			const mockHoliday = { cuid: 'h1', name: 'Christmas', date: '2026-12-25', type: 'National' };
 			vi.mocked(holidayService.getHolidayByCuid).mockResolvedValue(mockHoliday as any);
 
-			const res = await holidaysCuidApi.GET({ params: { cuid: 'h1' } } as any);
+			const res = await holidaysCuidApi.GET({ params: { cuid: 'h1' }, locals: mockLocals } as any);
 			expect(res.status).toBe(200);
 		});
 	});

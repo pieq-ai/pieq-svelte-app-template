@@ -21,6 +21,15 @@
 	let isLocating = $state(false);
 	let isSubmitting = $state(false);
 
+	let isValidLocation = $derived(
+		gpsLatitude !== null && gpsLongitude !== null &&
+		!Number.isNaN(gpsLatitude) && !Number.isNaN(gpsLongitude) &&
+		Number.isFinite(gpsLatitude) && Number.isFinite(gpsLongitude) &&
+		gpsLatitude >= -90 && gpsLatitude <= 90 &&
+		gpsLongitude >= -180 && gpsLongitude <= 180 &&
+		!(gpsLatitude === 0 && gpsLongitude === 0)
+	);
+
 	onMount(() => {
 		if (!navigator.geolocation) {
 			locationError = 'Geolocation is not supported by your browser';
@@ -199,7 +208,7 @@
 							confirmActionType = 'out';
 							showConfirmModal = true;
 						}}
-						disabled={isSubmitting || locationPermissionDenied || isLocating}
+						disabled={isSubmitting || locationPermissionDenied || isLocating || !isValidLocation}
 						class="px-5 py-2.5 bg-[#F45310] hover:bg-[#D8420B] text-white text-xs font-bold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer"
 					>
 						Check Out
@@ -210,7 +219,7 @@
 							confirmActionType = 'in';
 							showConfirmModal = true;
 						}}
-						disabled={isSubmitting || locationPermissionDenied || isLocating}
+						disabled={isSubmitting || locationPermissionDenied || isLocating || !isValidLocation}
 						class="px-5 py-2.5 bg-[#F45310] hover:bg-[#D8420B] text-white text-xs font-bold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer"
 					>
 						Check In

@@ -2,6 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as attendanceRecordService from '$lib/server/services/attendance-record.service.js';
 import * as recordsApi from '../../src/routes/api/attendance-records/+server.js';
 import * as recordsCuidApi from '../../src/routes/api/attendance-records/[cuid]/+server.js';
+import * as permissionGuard from '$lib/server/guards/permission.guard.js';
+
+vi.mock('$lib/server/guards/permission.guard.js', () => ({
+	requirePermission: vi.fn()
+}));
 
 vi.mock('$lib/server/services/attendance-record.service.js', () => ({
 	listAttendanceRecords: vi.fn(),
@@ -54,7 +59,7 @@ describe('attendance-records API', () => {
 			vi.mocked(attendanceRecordService.listAttendanceRecords).mockResolvedValue(mockList as any);
 
 			const mockUrl = new URL('http://localhost/api/attendance-records?employee_cuid=emp-1');
-			const res = await recordsApi.GET({ url: mockUrl } as any);
+			const res = await recordsApi.GET({ url: mockUrl, locals: mockLocals } as any);
 			expect(res.status).toBe(200);
 			const body = await res.json();
 			expect(body.data[0].cuid).toBe('rec-1');
@@ -106,7 +111,7 @@ describe('attendance-records API', () => {
 	describe('GET /api/attendance-records/[cuid]', () => {
 		it('should return 404 if not found', async () => {
 			vi.mocked(attendanceRecordService.getAttendanceRecordByCuid).mockResolvedValue(null);
-			const res = await recordsCuidApi.GET({ params: { cuid: 'r1' } } as any);
+			const res = await recordsCuidApi.GET({ params: { cuid: 'r1' }, locals: mockLocals } as any);
 			expect(res.status).toBe(404);
 		});
 
@@ -124,7 +129,7 @@ describe('attendance-records API', () => {
 			};
 			vi.mocked(attendanceRecordService.getAttendanceRecordByCuid).mockResolvedValue(mockRecord as any);
 
-			const res = await recordsCuidApi.GET({ params: { cuid: 'r1' } } as any);
+			const res = await recordsCuidApi.GET({ params: { cuid: 'r1' }, locals: mockLocals } as any);
 			expect(res.status).toBe(200);
 			const body = await res.json();
 			expect(body.data.cuid).toBe('r1');

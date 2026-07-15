@@ -6,11 +6,13 @@ import { successResponse, errorResponse } from '$lib/server/response.js';
 import { resolveEmployee } from '$lib/server/services/leave.service.js';
 import { db } from '$lib/server/db.js';
 
+
 export const GET: RequestHandler = async ({ locals }) => {
 	try {
+		requirePermission(locals.user, 'dashboard:view');
 		const email = locals.user?.email || '';
 		if (!email) {
-			return errorResponse('Unauthorized', 401);
+			return errorResponse('Employee email not found', 403);
 		}
 		
 		const { employee, employment } = await resolveEmployee(email);

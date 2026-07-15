@@ -18,7 +18,7 @@ function getMaster(event: RequestEvent) {
 
 export async function PUT(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'dashboard:view');
 		const cuid = event.params.cuid;
 		if (!cuid) return json({ error: 'Master data CUID is required' }, { status: 400 });
 		

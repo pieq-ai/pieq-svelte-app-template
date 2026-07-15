@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		redirect(302, '/');
 	}
 	if (!canAccess(locals.user, 'dashboard:employee')) {
-		redirect(302, '/dashboard');
+		throw error(403, 'Unauthorized: You do not have permission to access the employee dashboard.');
 	}
 
 	const email = locals.user.email;

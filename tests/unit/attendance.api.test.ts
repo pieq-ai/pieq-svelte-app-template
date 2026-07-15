@@ -2,6 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as attendanceService from '$lib/server/services/attendance.service.js';
 import * as checkInApi from '../../src/routes/api/attendance/check-in/+server.js';
 import * as checkOutApi from '../../src/routes/api/attendance/check-out/+server.js';
+import * as leaveService from '$lib/server/services/leave.service.js';
+
+vi.mock('$lib/server/services/leave.service.js', () => ({
+	resolveEmployee: vi.fn()
+}));
 
 vi.mock('$lib/server/services/attendance.service.js', () => ({
 	checkIn: vi.fn(),
@@ -18,16 +23,18 @@ vi.mock('$lib/server/services/attendance.service.js', () => ({
 
 describe('attendance API', () => {
 	const mockLocals = {
-		auth: vi.fn().mockResolvedValue({ user: { id: 'user-1' } })
+		user: { id: 'user-1', email: 'test@pieq.com', permissions: ['dashboard:view'] },
+		auth: vi.fn().mockResolvedValue({ user: { id: 'user-1', email: 'test@pieq.com' } })
 	};
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		vi.mocked(leaveService.resolveEmployee).mockResolvedValue({ employee: { cuid: 'emp-1' }, employment: {} } as any);
 	});
 
 	describe('POST /api/attendance/check-in', () => {
 		it('should check in successfully', async () => {
-			const payload = { employee_cuid: 'emp-1', attendance_source_cuid: 'source-1', latitude: 12.34, longitude: 56.78 };
+			const payload = { attendance_source_cuid: 'source-1', latitude: 12.34, longitude: 56.78 };
 			const mockEvent = {
 				request: {
 					json: vi.fn().mockResolvedValue(payload)
@@ -45,7 +52,7 @@ describe('attendance API', () => {
 		});
 
 		it('should return 400 for validation errors', async () => {
-			const payload = { employee_cuid: '' };
+			const payload = { latitude: 12.34, longitude: 56.78 };
 			const mockEvent = {
 				request: {
 					json: vi.fn().mockResolvedValue(payload)
@@ -64,7 +71,7 @@ describe('attendance API', () => {
 		});
 
 		it('should return 409 for check-in conflict when already checked in', async () => {
-			const payload = { employee_cuid: 'emp-1' };
+			const payload = { latitude: 12.34, longitude: 56.78 };
 			const mockEvent = {
 				request: {
 					json: vi.fn().mockResolvedValue(payload)
@@ -83,7 +90,7 @@ describe('attendance API', () => {
 
 	describe('PUT /api/attendance/check-out', () => {
 		it('should check out successfully', async () => {
-			const payload = { employee_cuid: 'emp-1', latitude: 12.34, longitude: 56.78 };
+			const payload = { latitude: 12.34, longitude: 56.78 };
 			const mockEvent = {
 				request: {
 					json: vi.fn().mockResolvedValue(payload)
@@ -101,7 +108,7 @@ describe('attendance API', () => {
 		});
 
 		it('should return 400 for validation errors', async () => {
-			const payload = { employee_cuid: 'emp-1' };
+			const payload = { latitude: 12.34, longitude: 56.78 };
 			const mockEvent = {
 				request: {
 					json: vi.fn().mockResolvedValue(payload)
@@ -118,7 +125,7 @@ describe('attendance API', () => {
 		});
 
 		it('should return 409 for check-out conflict when no open check-in record exists', async () => {
-			const payload = { employee_cuid: 'emp-1' };
+			const payload = { latitude: 12.34, longitude: 56.78 };
 			const mockEvent = {
 				request: {
 					json: vi.fn().mockResolvedValue(payload)

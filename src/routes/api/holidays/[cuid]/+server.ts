@@ -15,7 +15,8 @@ import {
 	formatHoliday
 } from '$lib/server/response.js';
 
-export const GET: RequestHandler = async ({ params }) => {
+export const GET: RequestHandler = async ({ params, locals }) => {
+	requirePermission(locals.user, 'holidays:view');
 	const { cuid } = params;
 
 	try {
@@ -32,6 +33,7 @@ export const GET: RequestHandler = async ({ params }) => {
 };
 
 export const PUT: RequestHandler = async ({ params, request, locals }) => {
+	requirePermission(locals.user, 'holidays:update');
 	const { cuid } = params;
 	let body: unknown;
 

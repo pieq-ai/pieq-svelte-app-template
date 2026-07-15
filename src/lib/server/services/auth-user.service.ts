@@ -1,4 +1,4 @@
-import { findAuthUserByKeycloakSub, findAuthUserByEmail, updateKeycloakSub, hasAnyEmployments } from '$lib/server/dao/auth.dao.js';
+import { findAuthUserByKeycloakSub } from '$lib/server/dao/auth.dao.js';
 import { error } from '@sveltejs/kit';
 
 export interface AuthContext {
@@ -17,39 +17,8 @@ export interface AuthContext {
 export async function syncAuthenticatedUser(keycloak_sub: string, email?: string): Promise<AuthContext> {
     let userRow = await findAuthUserByKeycloakSub(keycloak_sub);
 
-    // Auto-heal logic: If Keycloak sub changed (e.g. user recreated in Keycloak)
-    // but the email matches an existing employment, update the DB with the new sub.
-    if (!userRow && email) {
-        userRow = await findAuthUserByEmail(email);
-        if (userRow && userRow.employment_cuid) {
-            console.log(`[AUTH-HEAL] Found user by email ${email}, updating Keycloak sub to ${keycloak_sub}`);
-            await updateKeycloakSub(userRow.employment_cuid, keycloak_sub);
-            userRow.keycloak_sub = keycloak_sub;
-        }
-    }
-
     if (!userRow) {
-        // =======================================================
-        // TEMPORARY DEVELOPMENT BOOTSTRAP
-        // Remove after first HRMS administrator is provisioned.
-        // =======================================================
-        const isInitialized = await hasAnyEmployments();
-        if (isInitialized) {
-            error(403, 'User not found in HRMS database.');
-        }
-
-        return {
-            keycloak_sub: keycloak_sub,
-            employee_cuid: 'bootstrap-employee',
-            employment_cuid: 'bootstrap-employment',
-            emp_code: 'BOOTSTRAP',
-            employee_name: 'Bootstrap Admin',
-            official_email: 'bootstrap@local',
-            system_role_cuid: 'bootstrap-role-cuid',
-            system_role_name: 'Bootstrap Admin',
-            profile_completion_status: 'completed',
-            permissions: ['*']
-        };
+        error(403, 'User not found in HRMS database.');
     }
 
     if (!userRow.system_role_cuid) {

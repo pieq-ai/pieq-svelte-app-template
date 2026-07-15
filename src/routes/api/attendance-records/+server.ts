@@ -10,7 +10,8 @@ import {
 import { validatePayloadKeys, trimStringFields } from '$lib/server/validation.js';
 import { successResponse, errorResponse, createSuccessResponse } from '$lib/server/response.js';
 
-export const GET: RequestHandler = async ({ url }) => {
+export const GET: RequestHandler = async ({ url, locals }) => {
+	requirePermission(locals.user, 'attendance:view');
 	try {
 		const employee_cuid = url.searchParams.get('employee_cuid') ?? undefined;
 		const date = url.searchParams.get('date') ?? undefined;
@@ -45,6 +46,7 @@ export const GET: RequestHandler = async ({ url }) => {
 };
 
 export const POST: RequestHandler = async ({ request, locals }) => {
+	requirePermission(locals.user, 'attendance:create');
 	let body: unknown;
 
 	try {

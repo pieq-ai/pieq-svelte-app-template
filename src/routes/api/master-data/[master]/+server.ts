@@ -18,7 +18,7 @@ function getMaster(event: RequestEvent) {
 
 export async function GET(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'dashboard:view');
 		const url = new URL(event.request.url);
 		const search = url.searchParams.get('search') ?? undefined;
 		const countryCuid = url.searchParams.get('countryCuid') ?? undefined;
@@ -37,7 +37,7 @@ export async function GET(event: RequestEvent) {
 
 export async function POST(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'dashboard:view');
 		let body = await event.request.json();
 		body = mapToDb(body);
 		body.created_by = event.locals.user?.id;

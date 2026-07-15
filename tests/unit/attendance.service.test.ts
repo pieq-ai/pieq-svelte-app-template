@@ -114,7 +114,7 @@ describe('attendance service', () => {
 		it('should reject if employee is already checked in for today', async () => {
 			vi.mocked(employeeDao.findByCuid2).mockResolvedValue({ uuid: employeeCuid } as any);
 			vi.mocked(holidayDao.findByDate).mockResolvedValue(null);
-			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({ cuid: 'existing-rec', status: 'Present' } as any);
+			vi.mocked(attendanceDao.findByEmployeeAndDate).mockResolvedValue({ cuid: 'existing-rec', status: 'Present', check_in_time: new Date() } as any);
 
 			await expect(checkIn(employeeCuid, null, null, validGps)).rejects.toThrowError(
 				new AttendanceValidationError('employee_cuid', 'Already checked in for today')

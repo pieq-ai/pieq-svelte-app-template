@@ -3,6 +3,11 @@ import * as leavePolicyService from '$lib/server/services/leave-policy.service.j
 import { LeaveValidationError, LeaveMultiValidationError } from '$lib/server/services/leave-type.service.js';
 import * as policiesApi from '../../src/routes/api/leave/policies/+server.js';
 import * as policiesCuidApi from '../../src/routes/api/leave/policies/[cuid]/+server.js';
+import * as permissionGuard from '$lib/server/guards/permission.guard.js';
+
+vi.mock('$lib/server/guards/permission.guard.js', () => ({
+	requirePermission: vi.fn()
+}));
 
 vi.mock('$lib/server/services/leave-policy.service.js', () => ({
 	listLeavePolicies: vi.fn(),
@@ -33,7 +38,7 @@ describe('leave-policies API', () => {
 			];
 			vi.mocked(leavePolicyService.listLeavePolicies).mockResolvedValue(mockList as any);
 
-			const res = await policiesApi.GET({} as any);
+			const res = await policiesApi.GET({ locals: mockLocals } as any);
 			expect(res.status).toBe(200);
 			const body = await res.json();
 			expect(body.data).toEqual([
@@ -124,7 +129,7 @@ describe('leave-policies API', () => {
 	describe('GET /api/leave/policies/[cuid]', () => {
 		it('should return 404 if not found', async () => {
 			vi.mocked(leavePolicyService.getLeavePolicyByCuid).mockResolvedValue(null);
-			const res = await policiesCuidApi.GET({ params: { cuid: 'p1' } } as any);
+			const res = await policiesCuidApi.GET({ params: { cuid: 'p1' }, locals: mockLocals } as any);
 			expect(res.status).toBe(404);
 		});
 
@@ -132,7 +137,7 @@ describe('leave-policies API', () => {
 			const mockPolicy = { cuid: 'p1', annual_limit: 10 };
 			vi.mocked(leavePolicyService.getLeavePolicyByCuid).mockResolvedValue(mockPolicy as any);
 
-			const res = await policiesCuidApi.GET({ params: { cuid: 'p1' } } as any);
+			const res = await policiesCuidApi.GET({ params: { cuid: 'p1' }, locals: mockLocals } as any);
 			expect(res.status).toBe(200);
 			const body = await res.json();
 			expect(body.data).toEqual({

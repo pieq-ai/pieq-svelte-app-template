@@ -10,7 +10,7 @@ import * as permissionGuard from '$lib/server/guards/permission.guard.js';
  */
 export async function PATCH(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'dashboard:view');
 
 		const email = event.locals.user?.email || '';
 		let employee;

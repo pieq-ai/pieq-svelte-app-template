@@ -217,7 +217,10 @@
 	confirmLabel="Cancel"
 	cancelLabel="Keep Editing"
 	onConfirm={confirmDiscard}
-	onCancel={() => (isConfirmModalOpen = false)}
+	onCancel={() => {
+		isConfirmModalOpen = false;
+		pendingNavigation = null;
+	}}
 	preventOutsideClickClose={true}
 />
 
