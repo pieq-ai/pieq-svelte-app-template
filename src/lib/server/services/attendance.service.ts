@@ -129,10 +129,8 @@ export async function checkIn(
 
 	// Check if already checked in
 	const existing = await attendanceDao.findByEmployeeAndDate(employeeCuid, todayUTC);
-	if (existing) {
-		if (existing.status !== 'Half Day' || existing.check_in_time) {
-			throw new AttendanceValidationError('employee_cuid', 'Already checked in for today');
-		}
+	if (existing && existing.check_in_time) {
+		throw new AttendanceValidationError('employee_cuid', 'Already checked in for today');
 	}
 
 	// Geofence Validation
@@ -178,12 +176,13 @@ export async function checkIn(
 		}
 	}
 
-	if (existing && existing.status === 'Half Day') {
+	if (existing) {
 		return attendanceDao.update(existing.cuid, {
 			check_in_time: today,
 			check_in_latitude: latitude,
 			check_in_longitude: longitude,
 			attendance_source_cuid: sourceCuid,
+			status: existing.status === 'Half Day' ? 'Half Day' : 'Present',
 			updated_by: createdBy,
 			updated_at: today
 		});

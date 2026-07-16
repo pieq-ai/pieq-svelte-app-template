@@ -605,6 +605,9 @@ model Employment {
 
   official_email String? @db.VarChar(255)
 
+  keycloak_sub String? @unique
+  system_role_cuid String? @db.Text
+
   created_at DateTime @default(now()) @db.Timestamptz()
 
   created_by String? @db.VarChar(100)

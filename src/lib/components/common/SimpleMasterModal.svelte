@@ -3,7 +3,7 @@
 	import { toast } from '$lib/toast';
 	import { UI_CONSTANTS } from '$lib/constants';
 	import { localApi, ApiError } from '$lib/api/local';
-	import { createDirtyChecker } from '$lib/utils';
+	import { createDirtyChecker, createValidationState } from '$lib/utils';
 	import { globalIsDirty } from '$lib/stores/navigationGuard';
 
 	interface SimpleMaster {
@@ -31,7 +31,6 @@
 	let formName = $state('');
 	let formStatus = $state<boolean>(true);
 	let isSubmitting = $state(false);
-	let isNameTouched = $state(false);
 	let backendError = $state('');
 	let nameInput = $state<HTMLInputElement | null>(null);
 	let showConfirmClose = $state(false);
@@ -39,14 +38,16 @@
 	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
 	let isDirty = $derived(open && dirtyChecker.isDirty({ name: formName.trim(), status: formStatus }));
 
+	const validationState = createValidationState();
+
 	$effect(() => {
 		if (open) {
 			const initialName = editingRecord ? editingRecord.name : '';
 			const initialStatus = editingRecord ? editingRecord.status : true;
 			formName = initialName;
 			formStatus = initialStatus;
-			isNameTouched = false;
 			backendError = '';
+			validationState.reset();
 			dirtyChecker.snapshot({ name: initialName, status: initialStatus });
 		}
 	});
@@ -71,18 +72,14 @@
 		return '';
 	}
 
-	let nameValidationError = $derived(isNameTouched ? getValidationError(formName) : '');
+	let nameValidationError = $derived(getValidationError(formName));
+	let hasErrors = $derived(!!nameValidationError);
+	let isSaveDisabled = $derived(isSubmitting || hasErrors || (!!editingRecord && !isDirty));
 
 	async function handleSave(e: Event) {
 		e.preventDefault();
-		if (editingRecord && !isDirty) return;
-		isNameTouched = true;
-
-		const validationError = getValidationError(formName);
-		if (validationError) {
-			nameInput?.focus();
-			return;
-		}
+		validationState.markAttempted();
+		if (isSaveDisabled) return;
 
 		isSubmitting = true;
 
@@ -117,12 +114,8 @@
 	}
 
 	function handleClose() {
-		if (isDirty) {
-			showConfirmClose = true;
-		} else {
-			open = false;
-			$globalIsDirty = false;
-		}
+		open = false;
+		$globalIsDirty = false;
 	}
 </script>
 
@@ -130,6 +123,7 @@
 	{open}
 	title={editingRecord ? `Edit ${entityName}` : `Create ${entityName}`}
 	{isSubmitting}
+	hasUnsavedChanges={isDirty}
 	{centered}
 	onClose={handleClose}
 >
@@ -142,39 +136,22 @@
 					name="name"
 					bind:ref={nameInput}
 					bind:value={formName}
-					class={nameValidationError || backendError ? 'border-destructive' : ''}
+					error={validationState.shouldShowError('name', nameValidationError) ? (nameValidationError || backendError) : backendError}
 					placeholder={`e.g. ${entityName === 'Department' ? 'Finance' : entityName === 'Role' ? 'HR Manager' : 'Senior ' + entityName}`}
+					onblur={() => validationState.markTouched('name')}
 					oninput={() => { backendError = ''; }}
 				/>
-				{#if nameValidationError || backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
-				{/if}
 			</div>
 			{#if editingRecord}
 				<StatusDropdown id="record_status" name="record_status" value={formStatus} onChange={(val) => (formStatus = val)} />
 			{/if}
 			<div class="flex items-center justify-end gap-3 pt-4">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSubmitting || (!!editingRecord && !isDirty)}>
-					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingRecord ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
+				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSaveDisabled}>
+					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : UI_CONSTANTS.BUTTON_SAVE}
 				</Button>
 			</div>
 		</form>
 	{/snippet}
 </CrudModal>
 
-<ConfirmModal
-	open={showConfirmClose}
-	title="Cancel Changes"
-	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Cancel"
-	cancelLabel="Keep Editing"
-	onConfirm={() => {
-		showConfirmClose = false;
-		open = false;
-		$globalIsDirty = false;
-	}}
-	onCancel={() => {
-		showConfirmClose = false;
-	}}
-/>

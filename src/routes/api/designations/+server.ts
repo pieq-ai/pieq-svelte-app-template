@@ -7,7 +7,7 @@ import { mapToDb, toDesignationDTO } from '$lib/server/utils/mapping.js';
 
 export async function GET(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'designation:view');
 		const designations = await designationService.getDesignations();
 		return json({ data: designations.map(toDesignationDTO) });
 	} catch (error) {
@@ -22,7 +22,7 @@ export async function GET(event: RequestEvent) {
 
 export async function POST(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'designation:view');
 		permissionGuard.requireAdmin(event.locals.user);
 
 		let body = await event.request.json();

@@ -1,3 +1,4 @@
+import { requirePermission } from '$lib/server/guards/permission.guard';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types.js';
 import {
@@ -14,7 +15,8 @@ import {
 	formatLeaveType
 } from '$lib/server/response.js';
 
-export const GET: RequestHandler = async () => {
+export const GET: RequestHandler = async ({ locals }) => {
+	requirePermission(locals.user, 'leave_type:view');
 	try {
 		const types = await listLeaveTypes();
 		const formattedTypes = types.map(formatLeaveType);
@@ -26,6 +28,7 @@ export const GET: RequestHandler = async () => {
 };
 
 export const POST: RequestHandler = async ({ request, locals }) => {
+	requirePermission(locals.user, 'leave_type:view');
 	let body: unknown;
 
 	try {

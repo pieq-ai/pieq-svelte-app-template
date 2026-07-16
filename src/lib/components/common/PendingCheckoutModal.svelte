@@ -140,7 +140,7 @@
 					<TimePicker
 						id="checkout-time-input"
 						bind:value={selectedTime}
-						bind:isError={isTimeError}
+						error={isTimeError ? "Please select a valid time" : undefined}
 						disabled={isSubmitting}
 					/>
 					{#if localError}

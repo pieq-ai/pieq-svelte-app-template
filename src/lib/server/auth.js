@@ -1,6 +1,8 @@
 import { SvelteKitAuth } from '@auth/sveltekit';
+import { appendFileSync } from 'fs';
 import Keycloak from '@auth/sveltekit/providers/keycloak';
 import { getAuthConfig } from '$lib/server/config.js';
+// Removed HRMS sync imports to separate auth and authz
 
 /** @param {Record<string, unknown> | undefined} profile */
 function buildOidcProfile(profile) {
@@ -39,7 +41,8 @@ function createAuth() {
 		],
 		callbacks: {
 			async jwt({ token, account, profile }) {
-				if (account) {
+				if (account && profile) {
+					token.sub = /** @type {string} */ (profile.sub); // Force update to new Keycloak UUID if it changed
 					const oidcProfile = buildOidcProfile(/** @type {Record<string, unknown>} */ (profile));
 
 					token.oidcUser = {
@@ -60,7 +63,7 @@ function createAuth() {
 					);
 					token.roles = realmAccess?.roles ?? [];
 				}
-
+				
 				return token;
 			},
 			async session({ session, token }) {
@@ -75,7 +78,7 @@ function createAuth() {
 						token.oidcUser
 					);
 				}
-
+				
 				return session;
 			}
 		},

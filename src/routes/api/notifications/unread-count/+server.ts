@@ -10,12 +10,19 @@ import * as permissionGuard from '$lib/server/guards/permission.guard.js';
  */
 export async function GET(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'dashboard:view');
 
 		const email = event.locals.user?.email || '';
-		const { employee } = await resolveEmployee(email);
+		let employee;
+		try {
+			const resolved = await resolveEmployee(email);
+			employee = resolved.employee;
+		} catch (err) {
+			// Ignore if employee record doesn't exist
+		}
+
 		if (!employee) {
-			return json({ error: 'Employee profile not found' }, { status: 404 });
+			return json({ data: { unreadCount: 0 } });
 		}
 
 		const unreadCount = await notificationService.getUnreadCount(employee.cuid);

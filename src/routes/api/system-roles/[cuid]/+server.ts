@@ -13,7 +13,7 @@ function getStatus(message: string) {
 
 export async function GET(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'system_role:view');
 		const cuid = event.params.cuid;
 		if (!cuid) return json({ error: 'System role CUID is required' }, { status: 400 });
 		return json({ data: toSystemRoleDTO(await systemRoleService.getSystemRoleByCuid2(cuid)) });
@@ -28,7 +28,7 @@ export async function GET(event: RequestEvent) {
 
 export async function PUT(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'system_role:view');
 		const cuid = event.params.cuid;
 		if (!cuid) return json({ error: 'System role CUID is required' }, { status: 400 });
 		let body = await event.request.json();
@@ -47,7 +47,7 @@ export async function PUT(event: RequestEvent) {
 
 export async function DELETE(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'system_role:view');
 		const cuid = event.params.cuid;
 		if (!cuid) return json({ error: 'System role CUID is required' }, { status: 400 });
 		const deletedRole = await systemRoleService.deleteSystemRole(cuid);

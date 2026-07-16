@@ -1,4 +1,5 @@
 import type { RequestEvent } from '@sveltejs/kit';
+import { requirePermission } from '$lib/server/guards/permission.guard';
 // src/routes/api/organization_location/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
 import * as locationService from '$lib/server/services/organization_location.service.js';
@@ -27,7 +28,9 @@ function parseCuid(param: string | undefined): string {
  */
 export async function PUT({ request, params, locals }: RequestEvent) {
   try {
-    const cuid = parseCuid(params.cuid);
+    
+		requirePermission(locals.user, 'location:view');
+const cuid = parseCuid(params.cuid);
     const contentType = request.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       return json({ error: 'Content-Type must be application/json' }, { status: 415 });
@@ -45,7 +48,7 @@ export async function PUT({ request, params, locals }: RequestEvent) {
     return sendUpdated('Company Location', location.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }
 
@@ -55,12 +58,14 @@ export async function PUT({ request, params, locals }: RequestEvent) {
  */
 export async function PATCH({ params, locals }: RequestEvent) {
   try {
-    const cuid = parseCuid(params.cuid);
+    
+		requirePermission(locals.user, 'location:view');
+const cuid = parseCuid(params.cuid);
     const location = await locationService.activateLocation(cuid, locals?.user?.id);
     return sendUpdated('Company Location', location.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }
 
@@ -70,11 +75,13 @@ export async function PATCH({ params, locals }: RequestEvent) {
  */
 export async function DELETE({ params, locals }: RequestEvent) {
   try {
-    const cuid = parseCuid(params.cuid);
+    
+		requirePermission(locals.user, 'location:view');
+const cuid = parseCuid(params.cuid);
     const location = await locationService.deleteLocation(cuid, locals?.user?.id);
     return sendDeleted('Company Location', location.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }

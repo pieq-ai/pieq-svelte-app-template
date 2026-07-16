@@ -114,29 +114,7 @@
 
   let { data }: { data: PageData } = $props();
 
-  // Employee dropdown state — mirrors the Attendance page pattern exactly
-  let selectedEmployeeUuid = $state("");
-  let empSearchQuery = $state("");
-
-  let selectedEmployee = $derived(
-    data.employees.find((emp: any) => emp.uuid === selectedEmployeeUuid) ||
-      null,
-  );
-
-  let employeeOptions = $derived(
-    data.employees.map((emp: any) => ({
-      id: emp.uuid,
-      label: `${emp.name} (${emp.emp_code})`,
-    })),
-  );
-
-  let filteredEmployeeOptions = $derived.by(() => {
-    const q = empSearchQuery.toLowerCase().trim();
-    if (!q) return employeeOptions;
-    return employeeOptions.filter((o: any) =>
-      o.label.toLowerCase().includes(q),
-    );
-  });
+	// Employee data loaded from API directly based on authenticated user session
 
   function scrollIntoView(node: HTMLElement, condition: boolean) {
     if (condition) {
@@ -446,13 +424,11 @@
       formFileBase64 !== "",
   );
 
-  // Fetch Data — now accepts employeeCuid directly (same as Attendance page loadEmployeeData)
-  async function loadDetails(employeeCuid?: string) {
-    const cuid = employeeCuid || selectedEmployeeUuid;
-    if (!cuid) return;
+  // Fetch Data
+  async function loadDetails() {
     isLoading = true;
     try {
-      const res = await leavesApi.getDetails(cuid);
+      const res = await leavesApi.getDetails();
       let dbLeaveTypes: any[] = [];
       if (res && res.data) {
         balances = res.data.balances || [];
@@ -510,25 +486,9 @@
     }
   }
 
-  // Trigger leave data load whenever the selected employee changes — mirrors Attendance page $effect pattern
-  $effect(() => {
-    if (selectedEmployeeUuid) {
-      loadDetails(selectedEmployeeUuid);
-    } else {
-      // Reset all leave state when no employee is selected
-      balances = [];
-      requests = [];
-      allActiveLeaveTypes = [];
-      leaveTypes = [];
-      employee = null;
-      isManager = false;
-      pendingApprovals = [];
-      payrollCutoffDay = 25;
-      selectedCutoff = 25;
-      activeTab = "dashboard";
-      lopUsed = 0;
-      lwpUsed = 0;
-    }
+  // Trigger leave data load on mount
+  onMount(() => {
+    loadDetails();
   });
 
   async function saveCutoffDay() {
@@ -566,10 +526,7 @@
     }
   }
 
-  onMount(() => {
-    // Initial load is now driven by employee selection (same as Attendance page pattern)
-    // No SSR data — the $effect above handles loading when selectedEmployeeUuid changes
-  });
+
 
   // Sort Approvals
   function handleApprovalsSort(column: string) {
@@ -680,8 +637,7 @@
     try {
       const res = await leavesApi.approveOrRejectLeave(
         approvalToAct.cuid,
-        "approve",
-        selectedEmployeeUuid,
+        "approve"
       );
       if (res) {
         toast.success("Leave request approved successfully.");
@@ -704,8 +660,7 @@
     try {
       const res = await leavesApi.approveOrRejectLeave(
         approvalToAct.cuid,
-        "reject",
-        selectedEmployeeUuid,
+        "reject"
       );
       if (res) {
         toast.success("Leave request rejected successfully.");
@@ -1129,7 +1084,6 @@
 
     try {
       const payload = {
-        employeeCuid: selectedEmployeeUuid,
         leaveTypeCuid: formLeaveTypeCuid,
         startDate: formStartDate,
         endDate: formEndDate,
@@ -1234,8 +1188,7 @@
 
     try {
       const res = await leavesApi.withdrawLeave(
-        requestToWithdraw.cuid,
-        selectedEmployeeUuid,
+        requestToWithdraw.cuid
       );
       if (res) {
         toast.success("Leave request withdrawn successfully.");
@@ -1473,99 +1426,22 @@
 
 <div class="w-full space-y-6 px-1 py-0">
   <!-- Page Header matching design system -->
-  <div class="space-y-1 border-b border-border pb-6">
-    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
-      Leave Overview
-    </h1>
+  <div class="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
+    <div class="space-y-1">
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl wrap-break-word">
+        Leave Overview
+      </h1>
+    </div>
+    <Button
+      type="button"
+      class="bg-hrms-primary text-white hover:bg-hrms-primary/90 border-0"
+      onclick={openApplyModal}
+    >
+      Apply Leave
+    </Button>
   </div>
 
-  <!-- Employee Selector (same pattern as Attendance page) -->
-  <Card>
-    <CardContent class="p-6">
-      <div class="max-w-md space-y-2">
-        <Label>Select Employee <span class="text-destructive">*</span></Label>
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger>
-            {#snippet child({ props })}
-              <Button
-                variant="outline"
-                class="h-9 w-full justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring outline-none"
-                {...props}
-              >
-                <span class="truncate pr-2">
-                  {selectedEmployeeUuid
-                    ? employeeOptions.find(
-                        (o: any) => o.id === selectedEmployeeUuid,
-                      )?.label || "Select Employee"
-                    : "Select Employee"}
-                </span>
-                <ChevronDownIcon class="ml-2 size-4 opacity-50 shrink-0" />
-              </Button>
-            {/snippet}
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content
-            class="w-(--bits-dropdown-menu-anchor-width) max-h-60 overflow-y-auto"
-          >
-            <div
-              class="flex items-center border-b border-border px-3 py-2 bg-transparent"
-            >
-              <SearchIcon class="mr-2 size-4 shrink-0 opacity-50" />
-              <input
-                type="text"
-                bind:value={empSearchQuery}
-                placeholder="Search employee..."
-                class="flex h-7 w-full rounded-md bg-transparent text-xs outline-none placeholder:text-muted-foreground"
-              />
-              {#if empSearchQuery}
-                <button
-                  type="button"
-                  onclick={() => (empSearchQuery = "")}
-                  class="text-muted-foreground hover:text-foreground p-0.5 rounded-md hover:bg-accent cursor-pointer"
-                  title="Clear search"
-                  aria-label="Clear search"
-                >
-                  <XIcon class="size-3" />
-                </button>
-              {/if}
-            </div>
-            <DropdownMenu.Group>
-              {#each filteredEmployeeOptions as opt}
-                <DropdownMenu.Item
-                  onclick={() => {
-                    selectedEmployeeUuid = opt.id;
-                    empSearchQuery = "";
-                  }}
-                  class="justify-between cursor-pointer {selectedEmployeeUuid ===
-                  opt.id
-                    ? 'bg-accent text-accent-foreground font-semibold'
-                    : ''}"
-                >
-                  <span class="truncate">{opt.label}</span>
-                  {#if selectedEmployeeUuid === opt.id}
-                    <CheckIcon class="size-4 shrink-0 text-hrms-primary" />
-                  {/if}
-                </DropdownMenu.Item>
-              {:else}
-                <div
-                  class="px-3 py-4 text-sm text-muted-foreground text-center"
-                >
-                  No employees found
-                </div>
-              {/each}
-            </DropdownMenu.Group>
-          </DropdownMenu.Content>
-        </DropdownMenu.Root>
-      </div>
-    </CardContent>
-  </Card>
 
-  {#if !selectedEmployeeUuid}
-    <div
-      class="text-center py-16 border rounded-lg bg-card text-muted-foreground font-medium flex flex-col items-center justify-center gap-3"
-    >
-      <span>Please select an employee to view their leave dashboard.</span>
-    </div>
-  {:else}
     <!-- View Switcher Tabs -->
     <div class="flex items-center justify-between border-b border-border pb-px">
       <div class="flex gap-2">
@@ -1593,15 +1469,6 @@
           </button>
         {/if}
       </div>
-      {#if activeTab === "dashboard"}
-        <Button
-          type="button"
-          class="bg-hrms-primary text-white hover:bg-hrms-primary/90 font-bold"
-          onclick={openApplyModal}
-        >
-          Apply Leave
-        </Button>
-      {/if}
     </div>
 
     {#if isLoading}
@@ -2478,8 +2345,7 @@
         />
       </div>
     {/if}
-    <!-- End selectedEmployeeUuid else block -->
-  {/if}
+
 </div>
 
 <!-- Section 3: CrudModal containing Apply Leave Form (Requirement 3) -->

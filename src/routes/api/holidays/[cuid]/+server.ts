@@ -1,3 +1,4 @@
+import { requirePermission } from '$lib/server/guards/permission.guard';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types.js';
 import {
@@ -14,7 +15,8 @@ import {
 	formatHoliday
 } from '$lib/server/response.js';
 
-export const GET: RequestHandler = async ({ params }) => {
+export const GET: RequestHandler = async ({ params, locals }) => {
+	requirePermission(locals.user, 'holiday:view');
 	const { cuid } = params;
 
 	try {
@@ -31,6 +33,7 @@ export const GET: RequestHandler = async ({ params }) => {
 };
 
 export const PUT: RequestHandler = async ({ params, request, locals }) => {
+	requirePermission(locals.user, 'holiday:view');
 	const { cuid } = params;
 	let body: unknown;
 

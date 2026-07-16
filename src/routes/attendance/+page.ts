@@ -7,27 +7,14 @@ export const load: PageLoad = async ({ fetch }) => {
 	const d = String(today.getDate()).padStart(2, '0');
 	const todayStr = `${y}-${m}-${d}`;
 
-	const [employeesRes, sourcesRes, holidaysRes] = await Promise.all([
-		fetch('/api/employees/attendance-view'),
+	const [sourcesRes, holidaysRes] = await Promise.all([
 		fetch('/api/master-data/attendance-sources'),
 		fetch('/api/holidays')
 	]);
 
-	let employees: any[] = [];
 	let sources: any[] = [];
 	let holidays: any[] = [];
 
-	if (employeesRes.ok) {
-		const json = await employeesRes.json();
-		const rawEmployees = json.data || [];
-		employees = rawEmployees.map((emp: any) => {
-			return {
-				...emp,
-				uuid: emp.cuid,
-				name: `${emp.first_name} ${emp.last_name}`
-			};
-		});
-	}
 	if (sourcesRes.ok) {
 		const json = await sourcesRes.json();
 		sources = json.data || [];
@@ -38,7 +25,6 @@ export const load: PageLoad = async ({ fetch }) => {
 	}
 
 	return {
-		employees,
 		sources,
 		holidays,
 		todayStr

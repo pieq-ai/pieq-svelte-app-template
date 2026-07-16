@@ -72,7 +72,7 @@
 
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
-		submissionAttempted = true;
+		validationState.markAttempted();
 
 		// Rebuild validation error state from scratch on Save
 		errors = {};
@@ -212,68 +212,7 @@
 		return false;
 	});
 
-	let isDiscardModalOpen = $state(false);
-	let pendingNavigation = $state<import('@sveltejs/kit').Navigation | null>(null);
-	let isNavigatingProgrammatically = $state(false);
 
-	function handleCloseRequest() {
-		if (hasUnsavedChanges) {
-			isDiscardModalOpen = true;
-		} else {
-			isFormModalOpen = false;
-		}
-	}
-
-	async function confirmDiscard() {
-		isDiscardModalOpen = false;
-		isNavigatingProgrammatically = true;
-		
-		leaveName = '';
-		leaveCode = '';
-		description = '';
-		isPaid = true;
-		requiresApproval = true;
-		status = true;
-		isFormModalOpen = false;
-		
-		if (pendingNavigation) {
-			const target = pendingNavigation.to?.url;
-			pendingNavigation = null;
-			if (target) {
-				await goto(target.pathname + target.search);
-			}
-		}
-		
-		isNavigatingProgrammatically = false;
-	}
-
-	beforeNavigate((navigation) => {
-		if (!isFormModalOpen || !hasUnsavedChanges) {
-			return;
-		}
-
-		if (isNavigatingProgrammatically) {
-			return;
-		}
-
-		navigation.cancel();
-		pendingNavigation = navigation;
-		isDiscardModalOpen = true;
-	});
-
-	$effect(() => {
-		const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-			if (isFormModalOpen && hasUnsavedChanges) {
-				e.preventDefault();
-				e.returnValue = '';
-				return '';
-			}
-		};
-		window.addEventListener('beforeunload', handleBeforeUnload);
-		return () => {
-			window.removeEventListener('beforeunload', handleBeforeUnload);
-		};
-	});
 
 	let hasSynchronized = $state(false);
 
@@ -281,7 +220,7 @@
 		if (isFormModalOpen) {
 			hasSynchronized = false;
 			errors = {};
-			submissionAttempted = false;
+			validationState.reset();
 		}
 	});
 
@@ -321,9 +260,8 @@
 			requiresApproval = true;
 			status = true;
 			errors = {};
-			submissionAttempted = false;
+			validationState.reset();
 			hasSynchronized = false;
-			isDiscardModalOpen = false;
 			editCuid = null;
 		}
 	});
@@ -331,7 +269,9 @@
 	let formError = $derived(form && 'error' in form ? form.error : null);
 
 	let errors = $state<Record<string, string>>({});
-	let submissionAttempted = $state(false);
+	
+	import { createValidationState } from '$lib/utils';
+	const validationState = createValidationState();
 
 	function getNameClientError(name: string): string {
 		if (!name || name.trim() === '') {
@@ -365,6 +305,9 @@
 		}
 		return '';
 	}
+
+	let nameValidationError = $derived(getNameClientError(leaveName));
+	let codeValidationError = $derived(getCodeClientError(leaveCode));
 
 	// Derived list
 	let filteredTypes = $derived.by(() => {
@@ -603,8 +546,8 @@
 <CrudModal
 	open={isFormModalOpen}
 	title={editCuid ? 'Edit Leave Type' : 'Create Leave Type'}
-	onClose={handleCloseRequest}
-	preventOutsideClickClose={true}
+	hasUnsavedChanges={hasUnsavedChanges}
+	onClose={() => (isFormModalOpen = false)}
 >
 	{#snippet children({ cancel })}
 		<form method="POST" action="" onsubmit={handleSubmit} class="space-y-4" novalidate>
@@ -613,11 +556,12 @@
 			{/if}
 
 			<div class="space-y-2">
-				<Label for="modal_leave_name" class={errors.name ? 'text-destructive' : ''}>Leave Name <span class="text-destructive">*</span></Label>
+				<Label for="modal_leave_name" class={validationState.shouldShowError('name', nameValidationError) ? 'text-destructive font-medium' : ''}>Leave Name <span class="text-destructive">*</span></Label>
 				<Input
 					id="modal_leave_name"
 					name="name"
 					bind:value={leaveName}
+					onblur={() => validationState.markTouched('name')}
 					oninput={() => {
 						if (form && form.field === 'name') form = null;
 						errors.name = '';
@@ -626,30 +570,26 @@
 					required
 					minlength={6}
 					pattern="^[a-zA-Z\s]+$"
-					class={errors.name ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+					error={validationState.shouldShowError('name', nameValidationError) ? (nameValidationError || errors.name) : errors.name}
 				/>
-				{#if errors.name}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.name}</p>
-				{/if}
 			</div>
 
 			<div class="space-y-2">
-				<Label for="modal_leave_code" class={errors.code ? 'text-destructive' : ''}>Leave Code <span class="text-destructive">*</span></Label>
+				<Label for="modal_leave_code" class={validationState.shouldShowError('code', codeValidationError) ? 'text-destructive font-medium' : ''}>Leave Code <span class="text-destructive">*</span></Label>
 				<Input
 					id="modal_leave_code"
 					name="code"
 					bind:value={leaveCode}
+					onblur={() => validationState.markTouched('code')}
 					oninput={() => {
 						if (form && form.field === 'code') form = null;
 						errors.code = '';
 					}}
 					placeholder="e.g. SL"
 					required
-					class="uppercase {errors.code ? 'border-destructive focus-visible:ring-destructive/30' : ''}"
+					class="uppercase"
+					error={validationState.shouldShowError('code', codeValidationError) ? (codeValidationError || errors.code) : errors.code}
 				/>
-				{#if errors.code}
-					<p class="text-xs font-medium text-destructive mt-1">{errors.code}</p>
-				{/if}
 			</div>
 
 			<div class="space-y-2">
@@ -684,15 +624,14 @@
 					id="modal_status"
 					name="status"
 					value={status}
+					onBlur={() => validationState.markTouched('status')}
+					error={validationState.shouldShowError('status', errors.status) ? errors.status : (form && form.field === 'status' ? form.error : '')}
 					onChange={(val) => {
 						status = val;
 						if (form && form.field === 'status') form = null;
 						errors.status = '';
 					}}
 				/>
-				{#if form && 'field' in form && form.field === 'status'}
-					<p class="text-xs font-medium text-destructive mt-1">{form.error}</p>
-				{/if}
 			</div>
 
 			{#if formError && (!form || !('field' in form) || !form.field)}
@@ -729,16 +668,5 @@
 		</form>
 	{/snippet}
 </CrudModal>
-
-<ConfirmModal
-	open={isDiscardModalOpen}
-	title="Cancel Changes"
-	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Cancel"
-	cancelLabel="Keep Editing"
-	onConfirm={confirmDiscard}
-	onCancel={() => (isDiscardModalOpen = false)}
-	preventOutsideClickClose={true}
-/>
 
 

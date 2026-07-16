@@ -6,27 +6,20 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 
 export async function POST(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'leave:view');
 		const cuid = event.params.cuid || '';
 
 		const body = await event.request.json();
 		const { action } = body;
 
-		// Prefer managerEmployeeCuid from body (employee dropdown pattern, same as Attendance page).
-		// Fall back to resolving via the logged-in user's email for backwards compatibility.
-		const managerEmployeeCuid = body.managerEmployeeCuid || '';
-
-		let manager;
-		if (managerEmployeeCuid) {
-			// Use the selected manager employee's cuid directly
-			manager = { emp_code: managerEmployeeCuid, cuid: managerEmployeeCuid };
-		} else {
-			const email = event.locals.user?.email || '';
-			const resolved = await leaveService.resolveEmployee(email);
-			manager = resolved.employee;
-			if (!manager) {
-				throw new Error('Manager record not found.');
-			}
+		const email = event.locals.user?.email || '';
+		if (!email) {
+			return json({ error: 'Unauthorized' }, { status: 401 });
+		}
+		const resolved = await leaveService.resolveEmployee(email);
+		const manager = resolved.employee;
+		if (!manager) {
+			throw new Error('Manager record not found.');
 		}
 
 		let result;

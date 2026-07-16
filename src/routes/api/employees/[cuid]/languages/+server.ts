@@ -5,7 +5,7 @@ import { sendList, sendUpdated, handleError } from '$lib/server/utils/response.j
 
 export async function GET(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'employee:view');
 		const employee_cuid = event.params.cuid;
 		if (!employee_cuid) throw new Error('CUID2 parameter is missing');
 
@@ -18,7 +18,7 @@ export async function GET(event: RequestEvent) {
 
 export async function PUT(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'employee:view');
 		const employee_cuid = event.params.cuid;
 		if (!employee_cuid) throw new Error('CUID2 parameter is missing');
 

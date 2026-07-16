@@ -13,7 +13,7 @@ function getStatus(message: string) {
 
 export async function GET(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'system_role:view');
 		const systemRoles = await systemRoleService.getSystemRoles();
 		return json({ data: systemRoles.map(toSystemRoleDTO) });
 	} catch (error) {
@@ -27,7 +27,7 @@ export async function GET(event: RequestEvent) {
 
 export async function POST(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'system_role:view');
 		let body = await event.request.json();
 		body = mapToDb(body);
 		body.created_by = event.locals.user?.id;

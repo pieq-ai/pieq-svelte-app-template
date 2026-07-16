@@ -1,3 +1,4 @@
+import { requirePermission } from '$lib/server/guards/permission.guard';
 import type { RequestEvent } from '@sveltejs/kit';
 // src/routes/api/roles/[cuid]/+server.ts
 import { json } from '@sveltejs/kit';
@@ -27,7 +28,9 @@ function parseCuid(param: string | undefined): string {
  */
 export async function PUT({ request, params, locals }: RequestEvent) {
   try {
-    const cuid = parseCuid(params.cuid);
+    
+		requirePermission(locals.user, 'role:view');
+const cuid = parseCuid(params.cuid);
     if (request.headers.get('content-type')?.includes('application/json') === false) {
       return json({ error: 'Content-Type must be application/json' }, { status: 415 });
     }
@@ -37,7 +40,7 @@ export async function PUT({ request, params, locals }: RequestEvent) {
     return sendUpdated('Role', role.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }
 
@@ -47,11 +50,13 @@ export async function PUT({ request, params, locals }: RequestEvent) {
  */
 export async function DELETE({ params, locals }: RequestEvent) {
   try {
-    const cuid = parseCuid(params.cuid);
+    
+		requirePermission(locals.user, 'role:view');
+const cuid = parseCuid(params.cuid);
     const result = await roleService.deleteRole(cuid, locals?.user?.id);
     return sendDeleted('Role', result.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }

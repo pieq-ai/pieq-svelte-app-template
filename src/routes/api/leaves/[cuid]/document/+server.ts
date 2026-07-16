@@ -4,7 +4,7 @@ import type { RequestEvent } from '@sveltejs/kit';
 
 export async function GET(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'leave:view');
 		
 		const { cuid } = event.params;
 		if (!cuid) {

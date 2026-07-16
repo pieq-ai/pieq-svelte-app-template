@@ -1,5 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { canAccess } from '$lib/authz/index.js';
 import { resolveEmployee, getEmployeeLeaveDetails } from '$lib/server/services/leave.service.js';
 import * as departmentDao from '$lib/server/dao/department.dao.js';
 import * as designationDao from '$lib/server/dao/designation.dao.js';
@@ -11,6 +12,9 @@ import { db } from '$lib/server/db.js';
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
 		redirect(302, '/');
+	}
+	if (!canAccess(locals.user, 'dashboard:employee')) {
+		throw error(403, 'Unauthorized: You do not have permission to access the employee dashboard.');
 	}
 
 	const email = locals.user.email;

@@ -2,6 +2,7 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
+import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
 import { employmentSchema } from '$lib/schemas/employee.schema.js';
 
 export interface UpsertEmploymentDto {
@@ -17,6 +18,8 @@ export interface UpsertEmploymentDto {
     confirmation_date?: string | Date | null;
     relieving_date?: string | Date | null;
     official_email?: string | null;
+    keycloak_sub?: string | null;
+    system_role_cuid?: string | null;
     updated_by?: string;
 }
 
@@ -69,11 +72,14 @@ export async function upsertEmployment(employee_cuid: string, dto: UpsertEmploym
         confirmation_date: validated.confirmation_date,
         relieving_date: validated.relieving_date,
         official_email: validated.official_email,
+        keycloak_sub: validated.keycloak_sub,
+        system_role_cuid: validated.system_role_cuid,
         created_by: dto.updated_by,
         updated_by: dto.updated_by
     };
 
-    const result = await employmentDao.upsert(employee_cuid, payload);
-    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
-    return toPublicEmployment(result);
+    await employmentDao.upsert(employee_cuid, payload);
+    await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
+    const updatedEmployment = await employmentDao.findByEmployeeCuid(employee_cuid);
+    return toPublicEmployment(updatedEmployment);
 }

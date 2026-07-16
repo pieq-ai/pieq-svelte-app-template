@@ -26,7 +26,7 @@ function parseCuid(param: string | undefined): string {
  */
 export async function GET({ params, locals }: RequestEvent) {
   try {
-    permissionGuard.requireAuth(locals.user);
+    permissionGuard.requirePermission(locals.user, 'shift_assignment:view');
     const email = locals.user?.email || '';
     const cuid = parseCuid(params.cuid);
 
@@ -36,7 +36,7 @@ export async function GET({ params, locals }: RequestEvent) {
     return successResponse(formatted);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }
 
@@ -46,7 +46,7 @@ export async function GET({ params, locals }: RequestEvent) {
  */
 export async function PUT({ request, params, locals }: RequestEvent) {
   try {
-    permissionGuard.requireAuth(locals.user);
+    permissionGuard.requirePermission(locals.user, 'shift_assignment:view');
     const email = locals.user?.email || '';
     const cuid = parseCuid(params.cuid);
 
@@ -77,7 +77,7 @@ export async function PUT({ request, params, locals }: RequestEvent) {
     return updateSuccessResponse('ShiftAssignment', assignment.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }
 
@@ -87,7 +87,7 @@ export async function PUT({ request, params, locals }: RequestEvent) {
  */
 export async function DELETE({ params, locals }: RequestEvent) {
   try {
-    permissionGuard.requireAuth(locals.user);
+    permissionGuard.requirePermission(locals.user, 'shift_assignment:view');
     const email = locals.user?.email || '';
     const cuid = parseCuid(params.cuid);
 
@@ -96,6 +96,6 @@ export async function DELETE({ params, locals }: RequestEvent) {
     return deleteSuccessResponse('ShiftAssignment', cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }

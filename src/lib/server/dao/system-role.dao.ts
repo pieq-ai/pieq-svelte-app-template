@@ -60,3 +60,9 @@ export async function update(id: bigint, data: UpdateSystemRoleInput) {
 		data
 	});
 }
+
+export async function deleteHard(id: bigint) {
+	return db.systemRoles.delete({
+		where: { id }
+	});
+}

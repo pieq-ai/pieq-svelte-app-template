@@ -63,12 +63,14 @@
 	let isModalOpen = $state(false);
 	let isSubmitting = $state(false);
 	let editingRole = $state<SystemRole | null>(null);
+	let formMode = $state<'create' | 'edit'>('create');
 	let roleName = $state('');
 	let roleStatus = $state<boolean>(true);
-	let isNameTouched = $state(false);
 	let backendError = $state('');
 	let roleNameInput = $state<HTMLInputElement | null>(null);
-	let showConfirmClose = $state(false);
+
+	import { createValidationState } from '$lib/utils';
+	const validationState = createValidationState();
 
 	const dirtyChecker = createDirtyChecker<{ name: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ name: roleName.trim(), status: roleStatus }));
@@ -85,7 +87,10 @@
 		return '';
 	}
 
-	let nameValidationError = $derived(isNameTouched ? getValidationError(roleName) : '');
+	let nameValidationError = $derived(getValidationError(roleName));
+	let hasErrors = $derived(!!nameValidationError);
+	let isSaveDisabled = $derived(isSubmitting || hasErrors || (formMode === 'edit' && !isDirty));
+	
 	let filteredRoles = $derived.by(() => {
 		let result = [...roles];
 		if (searchQuery.trim()) {
@@ -149,45 +154,41 @@
 	onMount(loadRoles);
 
 	function openCreateModal() {
+		formMode = 'create';
 		editingRole = null;
 		roleName = '';
 		roleStatus = true;
-		isNameTouched = false;
+		roleStatus = true;
+		validationState.reset();
 		backendError = '';
 		dirtyChecker.snapshot({ name: '', status: true });
 		isModalOpen = true;
 	}
 
 	function openEditModal(role: SystemRole) {
+		formMode = 'edit';
 		editingRole = role;
 		roleName = role.name;
 		roleStatus = role.status;
-		isNameTouched = false;
+		roleStatus = role.status;
+		validationState.reset();
 		backendError = '';
 		dirtyChecker.snapshot({ name: role.name, status: role.status });
 		isModalOpen = true;
 	}
 
 	function handleClose() {
-		if (isDirty) {
-			showConfirmClose = true;
-		} else {
-			isModalOpen = false;
-			$globalIsDirty = false;
-		}
+		isModalOpen = false;
+		$globalIsDirty = false;
 	}
 
 	async function saveRole(event: Event) {
 		event.preventDefault();
-		if (editingRole && !isDirty) return;
-		isNameTouched = true;
-		const validationError = getValidationError(roleName);
-		if (validationError) {
-			roleNameInput?.focus();
-			return;
-		}
+		validationState.markAttempted();
+		if (isSaveDisabled) return;
 
 		isSubmitting = true;
+		backendError = '';
 		try {
 			const response = await fetch(
 				editingRole ? `/api/system-roles/${editingRole.cuid}` : '/api/system-roles',
@@ -199,10 +200,11 @@
 			);
 			const body = await response.json();
 			if (response.ok) {
+				dirtyChecker.snapshot({ name: roleName.trim(), status: roleStatus });
 				await loadRoles();
 				toast.success(editingRole ? 'System role updated successfully.' : 'System role created successfully.');
 				isModalOpen = false;
-		$globalIsDirty = false;
+				$globalIsDirty = false;
 			} else if (response.status === 409 && body.field === 'name') {
 				backendError = body.error;
 				roleNameInput?.focus();
@@ -350,7 +352,8 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingRole ? 'Edit System Role' : 'Create System Role'}
-	isSubmitting={isSubmitting}
+	{isSubmitting}
+	hasUnsavedChanges={isDirty}
 	onClose={handleClose}
 >
 	{#snippet children({ cancel })}
@@ -362,20 +365,18 @@
 					name="name"
 					bind:ref={roleNameInput}
 					bind:value={roleName}
-					class={nameValidationError || backendError ? 'border-destructive' : ''}
+					error={validationState.shouldShowError('name', nameValidationError) ? (nameValidationError || backendError) : backendError}
+					onblur={() => validationState.markTouched('name')}
 					placeholder="e.g. HR Manager"
 					oninput={() => { backendError = ''; }}
 				/>
-				{#if nameValidationError || backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{nameValidationError || backendError}</p>
-				{/if}
 			</div>
 			{#if editingRole}
 				<StatusDropdown id="role_status" name="role_status" value={roleStatus} onChange={(val) => (roleStatus = val)} />
 			{/if}
 			<div class="flex items-center justify-end gap-3 pt-4">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSubmitting || (!!editingRole && !isDirty)}>
+				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSaveDisabled}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingRole ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>
 			</div>
@@ -393,18 +394,4 @@
 	onConfirm={confirmDelete}
 />
 
-<ConfirmModal
-	open={showConfirmClose}
-	title="Cancel Changes"
-	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Cancel"
-	cancelLabel="Keep Editing"
-	onConfirm={() => {
-		showConfirmClose = false;
-		isModalOpen = false;
-		$globalIsDirty = false;
-	}}
-	onCancel={() => {
-		showConfirmClose = false;
-	}}
-/>
+

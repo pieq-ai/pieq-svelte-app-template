@@ -1,7 +1,7 @@
 import { sequence } from '@sveltejs/kit/hooks';
-import { redirect } from '@sveltejs/kit';
+import { redirect, error } from '@sveltejs/kit';
 import { handle as authHandle } from '$lib/server/auth.js';
-
+import * as authUserService from '$lib/server/services/auth-user.service.js';
 
 if (typeof BigInt !== 'undefined') {
 	BigInt.prototype.toJSON = function () {
@@ -12,14 +12,37 @@ if (typeof BigInt !== 'undefined') {
 /** @type {import('@sveltejs/kit').Handle} */
 const injectLocals = async ({ event, resolve }) => {
 	const session = await event.locals.auth?.();
+    console.log("[DIAG-3] hooks.server.js session:", { userId: session?.user?.id, email: session?.user?.email });
 
 	if (session?.user?.id) {
+		let hrmsContext = null;
+		/** @type {string[]} */
+		let permissions = [];
+
+		try {
+			hrmsContext = await authUserService.syncAuthenticatedUser(session.user.id, session.user.email ?? undefined);
+			if (hrmsContext) {
+				permissions = hrmsContext.permissions || [];
+			}
+		} catch (err) {
+			console.error('[HOOKS] Error fetching HRMS context/permissions:', err);
+			event.locals.user = null;
+			event.locals.roles = [];
+			throw error(403, 'Authorization failed: Could not sync user context');
+		}
+
 		event.locals.user = {
 			id: session.user.id,
 			email: session.user.email ?? '',
-			name: session.user.name ?? null
+			name: session.user.name ?? null,
+			...hrmsContext,
+			permissions,
+			idToken: session.oidcUser?.id_token
 		};
 		event.locals.roles = session.roles ?? [];
+        console.log("[AUTHZ DIAGNOSTIC - HOOKS]", {
+            localsUser: event.locals.user
+        });
 	} else {
 		event.locals.user = null;
 		event.locals.roles = [];
@@ -62,6 +85,17 @@ const routeGuard = async ({ event, resolve }) => {
 	if (isProtectedRoute && !event.locals.user) {
 		const callbackUrl = encodeURIComponent(event.url.pathname + event.url.search);
 		redirect(303, `/?callbackUrl=${callbackUrl}`);
+	}
+
+	const isApiRoute = event.url.pathname.startsWith('/api/');
+	const publicApiRoutes = ['/api/notifications/cron'];
+	const isPublicApi = publicApiRoutes.some(path => event.url.pathname === path || event.url.pathname.startsWith(`${path}/`));
+
+	if (isApiRoute && !isPublicApi && !event.locals.user) {
+		return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+			status: 401,
+			headers: { 'Content-Type': 'application/json' }
+		});
 	}
 
 	if (event.url.pathname === '/' && event.locals.user) {

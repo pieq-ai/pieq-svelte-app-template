@@ -1,8 +1,13 @@
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
+import { KeycloakService } from '$lib/server/services/keycloak/keycloak.service.js';
+import * as systemRoleDao from '$lib/server/dao/system-role.dao.js';
 import * as locationDao from '$lib/server/dao/organization_location.dao.js';
 import * as addressDao from '$lib/server/dao/address.dao.js';
+
+const keycloakService = new KeycloakService();
+import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
 import * as bankDetailDao from '$lib/server/dao/bank-detail.dao.js';
 import * as educationDao from '$lib/server/dao/education.dao.js';
 import * as experienceDao from '$lib/server/dao/experience.dao.js';
@@ -232,44 +237,15 @@ export async function updateEmployee(cuid: string, dto: UpdateEmployeeDto) {
         }
     }
 
-    return toPublicEmployee(await employeeDao.update(cuid, {
+    const result = toPublicEmployee(await employeeDao.update(cuid, {
         ...validated,
         updated_by: dto.updated_by
     } as employeeDao.UpdateEmployeeInput));
+
+    await employeeLifecycleService.syncEmployeeLifecycle(cuid);
+    return result;
 }
 
-export async function checkAndSetProfileCompletionStatus(employee_cuid: string) {
-    if (!employee_cuid) return;
-
-    try {
-        const [
-            emp,
-            employment,
-            addresses,
-            banks
-        ] = await Promise.all([
-            employeeDao.findByCuid2(employee_cuid),
-            employmentDao.findByEmployeeCuid(employee_cuid),
-            addressDao.findByEmployeeCuid(employee_cuid),
-            bankDetailDao.findByEmployeeCuid(employee_cuid)
-        ]);
-
-        if (!emp) return;
-
-        const isCompleted = 
-            employment !== null &&
-            addresses.length > 0 &&
-            banks.length > 0;
-
-        const newStatus = isCompleted ? 'completed' : 'pending';
-
-        if (emp.profile_completion_status !== newStatus) {
-            await employeeDao.update(employee_cuid, { profile_completion_status: newStatus } as employeeDao.UpdateEmployeeInput);
-        }
-    } catch (error) {
-        console.error('Failed to calculate profile completion status', error);
-    }
-}
 
 export async function deleteEmployee(cuid: string) {
     if (!cuid) throw new Error("Employee CUID2 is required");

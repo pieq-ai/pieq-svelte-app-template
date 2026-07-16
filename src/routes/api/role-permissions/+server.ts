@@ -15,7 +15,7 @@ export async function GET(event: RequestEvent) {
 		'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate'
 	});
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'role_permission:view');
 		const matrix = await rolePermissionService.getRolePermissionMatrix();
 		return json({
 			data: {
@@ -38,7 +38,7 @@ export async function GET(event: RequestEvent) {
 
 export async function POST(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'role_permission:view');
 		let body = await event.request.json();
 		body = mapToDb(body);
 		body.created_by = event.locals.user?.id;

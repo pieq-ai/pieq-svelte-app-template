@@ -140,3 +140,4 @@ export async function removePermissionFromRoleByCuid2(system_role_cuid: string, 
 
 	return rolePermissionDao.removeByRoleAndPermission(role.cuid, permission.cuid);
 }
+

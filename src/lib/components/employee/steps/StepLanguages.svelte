@@ -9,7 +9,8 @@
   import { goto } from "$app/navigation";
   import { globalIsDirty } from "$lib/stores/navigationGuard";
   import { parseBackendErrors } from "$lib/utils/errors.js";
-  import { onMount } from "svelte";
+  import { onMount, getContext } from "svelte";
+  import { EMPLOYEE_API_CONTEXT, type EmployeeApiClient } from '../context';
 
   let { mode, cuid, onNext, onPrev, onDirtyChange, onCancel } = $props<{
     mode: "create" | "edit";
@@ -19,6 +20,8 @@
     onDirtyChange?: (dirty: boolean) => void;
     onCancel: () => void;
   }>();
+
+  let apiClient = getContext<() => EmployeeApiClient>(EMPLOYEE_API_CONTEXT)();
 
   let isSubmitting = $state(false);
   let isTouched = $state(false);
@@ -60,9 +63,9 @@
   }
 
   onMount(async () => {
-    if (cuid) {
+    if (cuid || apiClient.mode === 'self') {
       try {
-        const res = await fetch(`/api/employees/${cuid}/languages`, {
+        const res = await fetch(apiClient.getBaseUrl('languages'), {
           headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
         });
         const body = await res.json();
@@ -82,7 +85,7 @@
   let isDirty = $derived(
     JSON.stringify(normalizeLanguages(languages)) !== originalData,
   );
-
+  
   $effect(() => {
     onDirtyChange?.(isDirty);
   });
@@ -100,17 +103,19 @@
     ),
   );
 
-  async function saveOnly(): Promise<{ success: boolean }> {
+  let isSaveDisabled = $derived(isSubmitting || hasErrors || (mode === 'edit' && !isDirty));
+	async function saveOnly(): Promise<{ success: boolean }> {
     isTouched = true;
     backendErrors = {};
     if (hasErrors) {
       return { success: false };
     }
     if (!cuid) return { success: false };
+    if (mode === 'edit' && !isDirty) return { success: true };
 
     try {
       isSubmitting = true;
-      const res = await fetch(`/api/employees/${cuid}/languages`, {
+      const res = await fetch(apiClient.getBaseUrl('languages'), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(languages),
@@ -244,7 +249,7 @@
         <Button
           class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
           onclick={() => save()}
-          disabled={isSubmitting}
+          disabled={isSaveDisabled}
         >
           Save
         </Button>

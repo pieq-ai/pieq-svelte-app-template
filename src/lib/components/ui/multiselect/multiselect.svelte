@@ -17,7 +17,9 @@
 		searchQuery = $bindable(''),
 		onAdd,
 		addLabel = 'Add option',
-		showAddIcon = true
+		showAddIcon = true,
+		onBlur,
+		error
 	}: {
 		options: Option[];
 		selectedIds: (string | number)[];
@@ -27,6 +29,8 @@
 		onAdd?: () => void;
 		addLabel?: string;
 		showAddIcon?: boolean;
+		onBlur?: () => void;
+		error?: string | boolean | null;
 	} = $props();
 	let isOpen = $state(false);
 	let container: HTMLDivElement | null = $state(null);
@@ -53,7 +57,10 @@
 	$effect(() => {
 		function handleClickOutside(event: MouseEvent) {
 			if (container && !container.contains(event.target as Node)) {
-				isOpen = false;
+				if (isOpen) {
+					isOpen = false;
+					if (onBlur) onBlur();
+				}
 			}
 		}
 
@@ -106,7 +113,8 @@
 		}}
 		class={cn(
 			"flex items-center justify-between w-full h-9 rounded-md border border-input bg-card px-3 text-sm shadow-xs transition-[color,box-shadow] hover:bg-accent/30 focus:border-ring focus:ring-ring/50 focus:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 outline-none cursor-pointer select-none text-left",
-			isOpen && "border-ring ring-ring/50 ring-3"
+			isOpen && "border-ring ring-ring/50 ring-3",
+			!!error && "border-destructive focus:border-destructive focus:ring-destructive/30 focus-visible:border-destructive focus-visible:ring-destructive/30 ring-destructive/30"
 		)}
 	>
 		<div class="flex items-center gap-1.5 overflow-hidden flex-1 min-w-0 pr-2">

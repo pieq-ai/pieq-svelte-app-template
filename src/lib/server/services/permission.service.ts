@@ -54,8 +54,8 @@ function validatePermissionKey(permissionKey: string | null | undefined) {
 	if (normalized.length > 100) {
 		throw new Error('Permission key cannot exceed 100 characters');
 	}
-	if (!/^[a-z][a-z0-9_]*$/.test(normalized)) {
-		throw new Error('Permission key must use lowercase snake_case');
+	if (!/^[a-z][a-z0-9_:]*$/.test(normalized)) {
+		throw new Error('Permission key must use lowercase snake_case and can contain colons');
 	}
 
 	return normalized;

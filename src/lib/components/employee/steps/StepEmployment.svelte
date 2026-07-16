@@ -10,6 +10,9 @@
 	import { onMount } from 'svelte';
 	import { parseBackendErrors } from '$lib/utils/errors.js';
 	import { normalizeText } from '$lib/utils/employeeValidationHelper';
+	import { getContext } from 'svelte';
+	import { EMPLOYEE_API_CONTEXT, type EmployeeApiClient } from '../context';
+	import { isFieldEditable } from '$lib/config/profile.config';
 
 	let { mode, cuid, data, onNext, onPrev, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit';
@@ -26,6 +29,8 @@
 		onCancel: () => void;
 	}>();
 
+	let apiClient = getContext<() => EmployeeApiClient>(EMPLOYEE_API_CONTEXT)();
+
 	let isSubmitting = $state(false);
 	let isTouched = $state(false);
 	let backendErrors = $state<Record<string, string>>({});
@@ -33,12 +38,14 @@
 	let isDeptModalOpen = $state(false);
 	let isDesignationModalOpen = $state(false);
 	let isRoleModalOpen = $state(false);
+	let isSystemRoleModalOpen = $state(false);
 	let isLocationModalOpen = $state(false);
 	
 	let deptDropdown = $state<ReturnType<typeof AsyncDropdown>>();
 	let desigDropdown = $state<ReturnType<typeof AsyncDropdown>>();
 	let roleDropdown = $state<ReturnType<typeof AsyncDropdown>>();
 	let locationDropdown = $state<ReturnType<typeof AsyncDropdown>>();
+	let systemRoleDropdown = $state<ReturnType<typeof AsyncDropdown>>();
 
 	const defaultEmployment = {
 		department_cuid: '',
@@ -52,7 +59,8 @@
 		confirmation_date: '',
 		relieving_date: '',
 		official_email: '',
-		employment_status: 'onboarding'
+		employment_status: 'onboarding',
+		system_role_cuid: ''
 	};
 
 	let employment = $state({ ...defaultEmployment });
@@ -93,9 +101,9 @@
 				}
 			}
 			employment = { ...defaultEmployment, ...serverEmp } as typeof employment;
-		} else if (cuid) {
+		} else if (cuid || apiClient.mode === 'self') {
 			try {
-				const res = await fetch(`/api/employees/${cuid}/employment`, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
+				const res = await fetch(apiClient.getBaseUrl('employment'), { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
 				const body = await res.json();
 				if (res.ok && body.data) {
 					employment = { ...defaultEmployment, ...body.data };
@@ -108,7 +116,7 @@
 	});
 
 	let isDirty = $derived(JSON.stringify(normalizeEmployment(employment)) !== originalData);
-
+	
 	$effect(() => {
 		onDirtyChange?.(isDirty);
 	});
@@ -154,6 +162,7 @@
 		pay_grade_cuid: backendErrors.pay_grade_cuid || '', // optional
 		employment_type_cuid: backendErrors.employment_type_cuid || validateDropdown(employment.employment_type_cuid),
 		location_cuid: backendErrors.location_cuid || validateDropdown(employment.location_cuid),
+		system_role_cuid: backendErrors.system_role_cuid || validateDropdown(employment.system_role_cuid),
 		employment_status: backendErrors.employment_status || validateDropdown(employment.employment_status),
 		official_email: backendErrors.official_email || validateEmail(employment.official_email),
 		date_of_joining: backendErrors.date_of_joining || validateDoj(employment.date_of_joining),
@@ -165,7 +174,8 @@
 		Object.values(errors).some(err => !!err) || Object.values(dateErrors).some(err => !!err)
 	);
 
-	// Core save (no navigation) — registered with wizard
+	// Core save (no navigation) - registered with wizard
+	let isSaveDisabled = $derived(isSubmitting || hasErrors || (mode === 'edit' && !isDirty));
 	async function saveOnly(): Promise<{ success: boolean }> {
 		isTouched = true;
 		backendErrors = {};
@@ -176,11 +186,12 @@
 			toast.error('Employee record missing. Please complete Personal Details first.');
 			return { success: false };
 		}
+		if (mode === 'edit' && !isDirty) return { success: true };
 
 		try {
 			isSubmitting = true;
 			const payload = { ...employment, official_email: employment.official_email.toLowerCase() };
-			const res = await fetch(`/api/employees/${cuid}/employment`, {
+			const res = await fetch(apiClient.getBaseUrl('employment'), {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(payload)
@@ -229,6 +240,7 @@
 				value={employment.department_cuid}
 				loadingText="Loading departments..."
 				errorText="Unable to load departments."
+				disabled={!isFieldEditable(apiClient.mode, 'department_cuid')}
 				onSelect={(val) => employment.department_cuid = val as string}
 				onAdd={() => isDeptModalOpen = true}
 				class={(isTouched && errors.department_cuid) ? 'border-destructive' : ''}
@@ -245,6 +257,7 @@
 				value={employment.designation_cuid}
 				loadingText="Loading designations..."
 				errorText="Unable to load designations."
+				disabled={!isFieldEditable(apiClient.mode, 'designation_cuid')}
 				onSelect={(val) => employment.designation_cuid = val as string}
 				onAdd={() => isDesignationModalOpen = true}
 				class={(isTouched && errors.designation_cuid) ? 'border-destructive' : ''}
@@ -261,6 +274,7 @@
 				value={employment.role_cuid}
 				loadingText="Loading roles..."
 				errorText="Unable to load roles."
+				disabled={!isFieldEditable(apiClient.mode, 'role_cuid')}
 				onSelect={(val) => employment.role_cuid = val as string}
 				onAdd={() => isRoleModalOpen = true}
 				class={(isTouched && errors.role_cuid) ? 'border-destructive' : ''}
@@ -270,10 +284,28 @@
 			{/if}
 		</div>
 		<div class="space-y-2">
+			<AsyncDropdown
+				bind:this={systemRoleDropdown}
+				apiEndpoint="/api/system-roles"
+				label="System Role *"
+				value={employment.system_role_cuid}
+				loadingText="Loading system roles..."
+				errorText="Unable to load system roles."
+				disabled={!isFieldEditable(apiClient.mode, 'system_role_cuid')}
+				onSelect={(val) => employment.system_role_cuid = val as string}
+				onAdd={() => isSystemRoleModalOpen = true}
+				class={(isTouched && errors.system_role_cuid) ? 'border-destructive' : ''}
+			/>
+			{#if isTouched && errors.system_role_cuid}
+				<p class="text-xs text-destructive">{errors.system_role_cuid}</p>
+			{/if}
+		</div>
+		<div class="space-y-2">
 			<MasterDataDropdown
 				master="pay-grades"
 				label="Pay Grade"
 				value={employment.pay_grade_cuid}
+				disabled={!isFieldEditable(apiClient.mode, 'pay_grade_cuid')}
 				onSelect={(val) => employment.pay_grade_cuid = val as string}
 				class={(isTouched && errors.pay_grade_cuid) ? 'border-destructive' : ''}
 			/>
@@ -286,6 +318,7 @@
 				master="employment-types"
 				label="Employment Type *"
 				value={employment.employment_type_cuid}
+				disabled={!isFieldEditable(apiClient.mode, 'employment_type_cuid')}
 				onSelect={(val) => employment.employment_type_cuid = val as string}
 				class={(isTouched && errors.employment_type_cuid) ? 'border-destructive' : ''}
 			/>
@@ -305,6 +338,7 @@
 					{ id: 'terminated', label: 'Terminated' },
 					{ id: 'resigned', label: 'Resigned' }
 				]}
+				disabled={!isFieldEditable(apiClient.mode, 'employment_status')}
 				onSelect={(val) => employment.employment_status = val as string}
 				class={(isTouched && errors.employment_status) ? 'border-destructive' : ''}
 			/>
@@ -320,6 +354,7 @@
 				value={employment.location_cuid}
 				loadingText="Loading locations..."
 				errorText="Unable to load locations."
+				disabled={!isFieldEditable(apiClient.mode, 'location_cuid')}
 				onSelect={(val) => employment.location_cuid = val as string}
 				onAdd={() => isLocationModalOpen = true}
 				class={(isTouched && errors.location_cuid) ? 'border-destructive' : ''}
@@ -333,12 +368,13 @@
 				label="Reporting Manager"
 				value={employment.reporting_manager_cuid}
 				options={Array.isArray(data?.employees) ? data.employees.filter((e: any) => e.cuid !== cuid).map((e: { cuid: string, first_name: string, last_name: string }) => ({id: e.cuid, label: e.first_name + ' ' + e.last_name})) : []}
+				disabled={!isFieldEditable(apiClient.mode, 'reporting_manager_cuid')}
 				onSelect={(val) => employment.reporting_manager_cuid = val as string}
 			/>
 		</div>
 		<div class="space-y-2">
 			<Label>Date of Joining <span class="text-destructive">*</span></Label>
-			<DatePicker bind:value={employment.date_of_joining} bind:isError={dateErrors.doj} class={(isTouched && errors.date_of_joining) || dateErrors.doj ? 'border-destructive' : ''} />
+			<DatePicker disabled={!isFieldEditable(apiClient.mode, 'date_of_joining')} bind:value={employment.date_of_joining} bind:isError={dateErrors.doj} class={(isTouched && errors.date_of_joining) || dateErrors.doj ? 'border-destructive' : ''} />
 			{#if isTouched && errors.date_of_joining}
 				<p class="text-xs text-destructive">{errors.date_of_joining}</p>
 			{:else if isTouched && dateErrors.doj}
@@ -347,7 +383,7 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Confirmation Date</Label>
-			<DatePicker bind:value={employment.confirmation_date} bind:isError={dateErrors.conf} class={(isTouched && errors.confirmation_date) || dateErrors.conf ? 'border-destructive' : ''} />
+			<DatePicker disabled={!isFieldEditable(apiClient.mode, 'confirmation_date')} bind:value={employment.confirmation_date} bind:isError={dateErrors.conf} class={(isTouched && errors.confirmation_date) || dateErrors.conf ? 'border-destructive' : ''} />
 			{#if isTouched && errors.confirmation_date}
 				<p class="text-xs text-destructive">{errors.confirmation_date}</p>
 			{:else if isTouched && dateErrors.conf}
@@ -356,7 +392,7 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Relieving Date</Label>
-			<DatePicker bind:value={employment.relieving_date} bind:isError={dateErrors.rel} class={(isTouched && errors.relieving_date) || dateErrors.rel ? 'border-destructive' : ''} />
+			<DatePicker disabled={!isFieldEditable(apiClient.mode, 'relieving_date')} bind:value={employment.relieving_date} bind:isError={dateErrors.rel} class={(isTouched && errors.relieving_date) || dateErrors.rel ? 'border-destructive' : ''} />
 			{#if isTouched && errors.relieving_date}
 				<p class="text-xs text-destructive">{errors.relieving_date}</p>
 			{:else if isTouched && dateErrors.rel}
@@ -365,7 +401,7 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Official Email <span class="text-destructive">*</span></Label>
-			<Input type="email" bind:value={employment.official_email} oninput={() => clearBackendError('official_email')} onblur={() => employment.official_email = normalizeText(employment.official_email).toLowerCase()} placeholder="john.doe@company.com" class={(backendErrors.official_email || (isTouched && errors.official_email)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
+			<Input disabled={!isFieldEditable(apiClient.mode, 'official_email')} type="email" bind:value={employment.official_email} oninput={() => clearBackendError('official_email')} onblur={() => employment.official_email = normalizeText(employment.official_email).toLowerCase()} placeholder="john.doe@company.com" class={(backendErrors.official_email || (isTouched && errors.official_email)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} />
 			{#if backendErrors.official_email}<p class="text-xs text-destructive">{backendErrors.official_email}</p>{:else if isTouched && errors.official_email}<p class="text-xs text-destructive">{errors.official_email}</p>{/if}
 		</div>
 	</div>
@@ -378,7 +414,7 @@
 			<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
 				Cancel
 			</Button>
-			<Button class="bg-hrms-primary text-white hover:bg-hrms-primary/90" onclick={() => save()} disabled={isSubmitting}>
+			<Button class="bg-hrms-primary text-white hover:bg-hrms-primary/90" onclick={() => save()} disabled={isSaveDisabled}>
 				Save
 			</Button>
 		</div>
@@ -412,6 +448,16 @@
 	onSuccess={async (role) => {
 		if (roleDropdown) await roleDropdown.loadOptions();
 		employment.role_cuid = role.cuid;
+	}}
+/>
+
+<SimpleMasterModal
+	bind:open={isSystemRoleModalOpen}
+	entityName="System Role"
+	apiEndpoint="/api/system-roles"
+	onSuccess={async (role) => {
+		if (systemRoleDropdown) await systemRoleDropdown.loadOptions();
+		employment.system_role_cuid = role.cuid;
 	}}
 />
 

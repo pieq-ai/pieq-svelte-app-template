@@ -7,6 +7,9 @@
 	import { globalIsDirty } from '$lib/stores/navigationGuard';
 	import { parseBackendErrors } from '$lib/utils/errors.js';
 	import { normalizeText } from '$lib/utils/employeeValidationHelper';
+	import { getContext } from 'svelte';
+	import { EMPLOYEE_API_CONTEXT, type EmployeeApiClient } from '../context';
+	import { isFieldEditable } from '$lib/config/profile.config';
 
 	let { mode, cuid, onNext, data, onDirtyChange , onCancel} = $props<{
 		mode: 'create' | 'edit';
@@ -16,6 +19,8 @@
 		onDirtyChange?: (dirty: boolean) => void;
 		onCancel: () => void;
 	}>();
+
+	let apiClient = getContext<() => EmployeeApiClient>(EMPLOYEE_API_CONTEXT)();
 
 	let isSubmitting = $state(false);
 	let isTouched = $state(false);
@@ -97,9 +102,9 @@
 			} catch (e) {
 				console.error('Failed to fetch next employee code', e);
 			}
-		} else if (cuid) {
+		} else if (cuid || apiClient.mode === 'self') {
 			try {
-				const res = await fetch(`/api/employees/${cuid}`, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
+				const res = await fetch(apiClient.getBaseUrl('personal'), { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
 				const body = await res.json();
 				if (res.ok && body.data) {
 					emp = { ...defaultEmp, ...body.data };
@@ -112,7 +117,7 @@
 	});
 
 	let isDirty = $derived(JSON.stringify(normalizePersonal(emp)) !== originalData);
-
+	
 	$effect(() => {
 		onDirtyChange?.(isDirty);
 	});
@@ -225,6 +230,7 @@
 		}
 	}
 
+	let isSaveDisabled = $derived(isSubmitting || hasErrors || (mode === 'edit' && !isDirty));
 	async function saveOnly(): Promise<{ success: boolean; cuid?: string }> {
 		isTouched = true;
 		backendErrors = {};
@@ -232,11 +238,12 @@
 		if (hasErrors) {
 			return { success: false };
 		}
+		if (mode === 'edit' && !isDirty) return { success: true, cuid: cuid ?? undefined };
 
 		try {
 			isSubmitting = true;
-			const method = cuid ? 'PUT' : 'POST';
-			const url = cuid ? `/api/employees/${cuid}` : '/api/employees';
+			const method = cuid || apiClient.mode === 'self' ? 'PUT' : 'POST';
+			const url = apiClient.mode === 'self' ? apiClient.getBaseUrl('personal') : apiClient.getBaseUrl('personal');
 			const payload = { ...emp, personal_email: emp.personal_email.toLowerCase().trim() };
 
 			const res = await fetch(url, {
@@ -405,7 +412,7 @@
 			<Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
 				Cancel
 			</Button>
-			<Button class="bg-hrms-primary text-white hover:bg-hrms-primary/90" onclick={() => save()} disabled={isSubmitting}>
+			<Button class="bg-hrms-primary text-white hover:bg-hrms-primary/90" onclick={() => save()} disabled={isSaveDisabled}>
 				Save
 			</Button>
 		</div>

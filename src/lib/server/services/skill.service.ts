@@ -2,6 +2,7 @@ import { ValidationError } from '$lib/server/utils/errors.js';
 import * as skillDao from '$lib/server/dao/skill.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
+import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
 import { z } from 'zod';
 import { skillSchema } from '$lib/schemas/employee.schema.js';
 
@@ -47,6 +48,6 @@ export async function replaceSkills(employee_cuid: string, dtos: UpsertSkillDto[
     }));
 
     const results = await skillDao.replaceSkills(employee_cuid, payload);
-    await employeeService.checkAndSetProfileCompletionStatus(employee_cuid).catch(console.error);
+    await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
     return results.map(toPublicSkill);
 }

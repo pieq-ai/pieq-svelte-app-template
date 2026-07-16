@@ -6,7 +6,7 @@ import { sendItem, sendUpdated, sendDeleted, handleError } from '$lib/server/uti
 
 export async function GET(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'employee:view');
 		const cuid = event.params.cuid;
 		if (!cuid) throw new Error('CUID2 parameter is missing');
 
@@ -19,7 +19,7 @@ export async function GET(event: RequestEvent) {
 
 export async function PUT(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'employee:view');
 		const cuid = event.params.cuid;
 		if (!cuid) throw new Error('CUID2 parameter is missing');
 
@@ -36,7 +36,7 @@ export async function PUT(event: RequestEvent) {
 
 export async function DELETE(event: RequestEvent) {
 	try {
-		permissionGuard.requireAuth(event.locals.user);
+		permissionGuard.requirePermission(event.locals.user, 'employee:view');
 		const cuid = event.params.cuid;
 		if (!cuid) throw new Error('CUID2 parameter is missing');
 

@@ -19,6 +19,8 @@
 		triggerClass?: string;
 		Icon?: Component<any> | any;
 		allLabel?: string;
+		error?: string;
+		onBlur?: () => void;
 	}
 
 	let { 
@@ -29,6 +31,8 @@
 		triggerClass = "w-[180px]", 
 		Icon = FilterIcon,
 		allLabel = 'All Status',
+		error = "",
+		onBlur,
 		options = [
 			{ label: allLabel, value: 'all' },
 			{ label: 'Active', value: true },
@@ -58,14 +62,15 @@
 	}
 </script>
 
-<DropdownMenu.Root>
+<div>
+<DropdownMenu.Root onOpenChange={(v) => { if (!v && onBlur) onBlur(); }}>
 	<DropdownMenu.Trigger>
 		{#snippet child({ props })}
 			<Button 
 				{id}
 				{name}
 				variant="outline" 
-				class="h-9 {triggerClass} justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none" 
+				class="h-9 {triggerClass} justify-between border-input bg-background px-3 text-sm font-normal shadow-xs hover:bg-accent focus:border-ring focus:ring-ring/50 focus:ring-3 data-[state=open]:border-ring data-[state=open]:ring-ring/50 data-[state=open]:ring-3 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 transition-[color,box-shadow] outline-none {error ? 'border-destructive focus-visible:ring-destructive/30' : ''}" 
 				{...props}
 			>
 				<span class="truncate pr-2">{displayValue}</span>
@@ -100,3 +105,7 @@
 		</DropdownMenu.Group>
 	</DropdownMenu.Content>
 </DropdownMenu.Root>
+{#if error}
+	<p class="text-xs font-medium text-destructive mt-1">{error}</p>
+{/if}
+</div>

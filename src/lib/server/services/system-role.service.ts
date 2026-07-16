@@ -1,160 +1,206 @@
-import * as systemRoleDao from '$lib/server/dao/system-role.dao.js';
-import { ValidationError } from '$lib/server/utils/errors.js';
+import * as systemRoleDao from "$lib/server/dao/system-role.dao.js";
+import { ValidationError } from "$lib/server/utils/errors.js";
+import { KeycloakRoleSyncService } from "./keycloak/keycloak-role-sync.service.js";
 
 export interface CreateSystemRoleDto {
-	name: string;
-	status?: boolean;
-	created_by?: string;
-	created_at?: Date | string | null;
-	updated_at?: Date | string | null;
+  name: string;
+  status?: boolean;
+  created_by?: string;
+  created_at?: Date | string | null;
+  updated_at?: Date | string | null;
 }
 
 export interface UpdateSystemRoleDto {
-	name?: string;
-	status?: boolean;
-	updated_by?: string;
-	updated_at?: Date | string | null;
+  name?: string;
+  status?: boolean;
+  updated_by?: string;
+  updated_at?: Date | string | null;
 }
 
 function toPublicSystemRole(role: {
-	cuid: string;
-	name: string;
-	status: boolean;
-	created_at: Date; created_by: string | null; updated_at: Date; updated_by: string | null; }) {
-	return {
-		cuid: role.cuid,
-		name: role.name,
-		status: role.status
-	,
-		created_at: role.created_at,
-		created_by: role.created_by,
-		updated_at: role.updated_at,
-		updated_by: role.updated_by
-	};
+  cuid: string;
+  name: string;
+  status: boolean;
+  created_at: Date;
+  created_by: string | null;
+  updated_at: Date;
+  updated_by: string | null;
+}) {
+  return {
+    cuid: role.cuid,
+    name: role.name,
+    status: role.status,
+    created_at: role.created_at,
+    created_by: role.created_by,
+    updated_at: role.updated_at,
+    updated_by: role.updated_by,
+  };
 }
 
 function validateStatus(status: boolean | undefined) {
-	if (status !== undefined && status !== true && status !== false) {
-		throw new Error('Status must be a boolean');
-	}
+  if (status !== undefined && status !== true && status !== false) {
+    throw new Error("Status must be a boolean");
+  }
 }
 
 function validateRoleName(name: string | null | undefined) {
-	if (name === undefined || name === null) {
-		throw new Error('Role name is required');
-	}
+  if (name === undefined || name === null) {
+    throw new Error("Role name is required");
+  }
 
-	const trimmed = name.trim().replace(/\s+/g, ' ');
-	if (!trimmed) {
-		throw new Error('Role name is required');
-	}
-	if (trimmed.length < 2) {
-		throw new Error('Role name must be at least 2 characters long');
-	}
-	if (trimmed.length > 100) {
-		throw new Error('Role name cannot exceed 100 characters');
-	}
-	if (!/^[A-Za-z ]+$/.test(trimmed)) {
-		throw new Error('Role name must contain only letters and spaces');
-	}
+  const trimmed = name.trim().replace(/\s+/g, " ");
+  if (!trimmed) {
+    throw new Error("Role name is required");
+  }
+  if (trimmed.length < 2) {
+    throw new Error("Role name must be at least 2 characters long");
+  }
+  if (trimmed.length > 100) {
+    throw new Error("Role name cannot exceed 100 characters");
+  }
+  if (!/^[A-Za-z ]+$/.test(trimmed)) {
+    throw new Error("Role name must contain only letters and spaces");
+  }
 
-	return trimmed;
+  return trimmed;
 }
 
 async function ensureRoleNameIsUnique(name: string, currentId?: bigint) {
-	const normalizedName = name.trim().toLowerCase();
-	const roles = await systemRoleDao.list();
-	const duplicate = roles.find(
-		(role) =>
-			role.id !== currentId &&
-			role.name.trim().toLowerCase() === normalizedName
-	);
+  const normalizedName = name.trim().toLowerCase();
+  const roles = await systemRoleDao.list();
+  const duplicate = roles.find(
+    (role) =>
+      role.id !== currentId &&
+      role.name.trim().toLowerCase() === normalizedName,
+  );
 
-	if (duplicate) {
-		throw new ValidationError('name', 'System role already exists');
-	}
+  if (duplicate) {
+    throw new ValidationError("name", "System role already exists");
+  }
 }
 
 export async function getSystemRoles() {
-	return (await systemRoleDao.list()).map(toPublicSystemRole);
+  return (await systemRoleDao.list()).map(toPublicSystemRole);
 }
 
 export async function getSystemRoleById(id: bigint) {
-	if (typeof id !== 'bigint' || id <= 0n) {
-		throw new Error('System role ID must be a positive integer');
-	}
+  if (typeof id !== "bigint" || id <= 0n) {
+    throw new Error("System role ID must be a positive integer");
+  }
 
-	const role = await systemRoleDao.findById(id);
-	if (!role) {
-		throw new Error(`System role with ID "${id}" not found`);
-	}
+  const role = await systemRoleDao.findById(id);
+  if (!role) {
+    throw new Error(`System role with ID "${id}" not found`);
+  }
 
-	return toPublicSystemRole(role);
+  return toPublicSystemRole(role);
 }
 
 export async function getSystemRoleByCuid2(cuid: string) {
-	if (!cuid) {
-		throw new Error('System role CUID2 is required');
-	}
+  if (!cuid) {
+    throw new Error("System role CUID2 is required");
+  }
 
-	const role = await systemRoleDao.findByCuid2(cuid);
-	if (!role) {
-		throw new Error(`System role with CUID2 "${cuid}" not found`);
-	}
+  const role = await systemRoleDao.findByCuid2(cuid);
+  if (!role) {
+    throw new Error(`System role with CUID2 "${cuid}" not found`);
+  }
 
-	return toPublicSystemRole(role);
+  return toPublicSystemRole(role);
 }
 
 export async function createSystemRole(dto: CreateSystemRoleDto) {
-	const name = validateRoleName(dto.name);
-	validateStatus(dto.status);
-	await ensureRoleNameIsUnique(name);
+  const name = validateRoleName(dto.name);
+  validateStatus(dto.status);
+  await ensureRoleNameIsUnique(name);
 
-	return toPublicSystemRole(await systemRoleDao.create({
-		name,
-		status: dto.status ?? true,
-		created_by: dto.created_by ?? undefined,
-		created_at: dto.created_at ?? undefined,
-		updated_at: dto.updated_at ?? undefined
-	}));
+  const createdRole = await systemRoleDao.create({
+    name,
+    status: dto.status ?? true,
+    created_by: dto.created_by ?? undefined,
+    created_at: dto.created_at ?? undefined,
+    updated_at: dto.updated_at ?? undefined,
+  });
+
+  try {
+    await KeycloakRoleSyncService.syncRoleCreated(name);
+  } catch (e) {
+    // Keycloak synchronization failed, rollback the database insert
+    await systemRoleDao.deleteHard(createdRole.id);
+    throw e;
+  }
+
+  return toPublicSystemRole(createdRole);
 }
 
 export async function updateSystemRole(cuid: string, dto: UpdateSystemRoleDto) {
-	const existing = await systemRoleDao.findByCuid2(cuid);
-	if (!existing) {
-		throw new Error(`System role with CUID2 "${cuid}" not found`);
-	}
-	const updateData: systemRoleDao.UpdateSystemRoleInput = {};
+  const existing = await systemRoleDao.findByCuid2(cuid);
+  if (!existing) {
+    throw new Error(`System role with CUID2 "${cuid}" not found`);
+  }
+  const updateData: systemRoleDao.UpdateSystemRoleInput = {};
 
-	if (dto.updated_at !== undefined) {
-		updateData.updated_at = dto.updated_at ?? undefined;
-	}
+  if (dto.updated_at !== undefined) {
+    updateData.updated_at = dto.updated_at ?? undefined;
+  }
 
-	if (dto.updated_by !== undefined) {
-		updateData.updated_by = dto.updated_by;
-	}
+  if (dto.updated_by !== undefined) {
+    updateData.updated_by = dto.updated_by;
+  }
 
-	if (dto.name !== undefined) {
-		const name = validateRoleName(dto.name);
-		await ensureRoleNameIsUnique(name, existing.id);
-		updateData.name = name;
-	}
+  let nameChanged = false;
+  const oldName = existing.name;
 
-	if (dto.status !== undefined) {
-		validateStatus(dto.status);
-		updateData.status = dto.status;
-	}
+  if (dto.name !== undefined) {
+    const name = validateRoleName(dto.name);
+    await ensureRoleNameIsUnique(name, existing.id);
+    updateData.name = name;
+    if (name !== oldName) {
+      nameChanged = true;
+    }
+  }
 
-	return toPublicSystemRole(await systemRoleDao.update(existing.id, updateData));
+  if (dto.status !== undefined) {
+    validateStatus(dto.status);
+    updateData.status = dto.status;
+  }
+
+  const updatedRole = await systemRoleDao.update(existing.id, updateData);
+
+  if (nameChanged && updateData.name) {
+    try {
+      await KeycloakRoleSyncService.syncRoleUpdated(oldName, updateData.name);
+    } catch (e) {
+      // Keycloak synchronization failed, revert the database name update
+      await systemRoleDao.update(existing.id, { name: oldName });
+      throw e;
+    }
+  }
+
+  return toPublicSystemRole(updatedRole);
 }
 
 export async function deleteSystemRole(cuid: string, deletedBy?: string) {
-	const existing = await systemRoleDao.findByCuid2(cuid);
-	if (!existing) {
-		throw new Error(`System role with CUID2 "${cuid}" not found`);
-	}
-	return toPublicSystemRole(await systemRoleDao.update(existing.id, {
-		status: false,
-		updated_by: deletedBy
-	}));
+  const existing = await systemRoleDao.findByCuid2(cuid);
+  if (!existing) {
+    throw new Error(`System role with CUID2 "${cuid}" not found`);
+  }
+
+  const updatedRole = await systemRoleDao.update(existing.id, {
+    status: false,
+    updated_by: deletedBy,
+  });
+
+  try {
+    await KeycloakRoleSyncService.syncRoleDeleted(existing.name);
+  } catch (e) {
+    // Keycloak synchronization failed, revert the soft delete
+    await systemRoleDao.update(existing.id, {
+      status: true,
+      updated_by: existing.updated_by ?? undefined,
+    });
+    throw e;
+  }
+
+  return toPublicSystemRole(updatedRole);
 }

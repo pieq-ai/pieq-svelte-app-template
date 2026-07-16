@@ -57,12 +57,14 @@
 	let isModalOpen = $state(false);
 	let isSubmitting = $state(false);
 	let editingPermission = $state<Permission | null>(null);
+	let formMode = $state<'create' | 'edit'>('create');
 	let permissionKey = $state('');
 	let permissionStatus = $state<boolean>(true);
-	let isKeyTouched = $state(false);
 	let backendError = $state('');
 	let permissionKeyInput = $state<HTMLInputElement | null>(null);
-	let showConfirmClose = $state(false);
+
+	import { createValidationState } from '$lib/utils';
+	const validationState = createValidationState();
 
 	const dirtyChecker = createDirtyChecker<{ permission_key: string; status: boolean }>();
 	let isDirty = $derived(isModalOpen && dirtyChecker.isDirty({ permission_key: permissionKey.trim(), status: permissionStatus }));
@@ -75,11 +77,14 @@
 		const normalized = key.trim().toLowerCase();
 		if (!normalized) return 'Permission key is required';
 		if (normalized.length < 3) return 'Minimum 3 characters required';
-		if (!/^[a-z][a-z0-9_]*$/.test(normalized)) return 'Use lowercase snake_case';
+		if (!/^[a-z][a-z0-9_:]*$/.test(normalized)) return 'Use lowercase snake_case and colons';
 		return '';
 	}
 
-	let keyValidationError = $derived(isKeyTouched ? getValidationError(permissionKey) : '');
+	let keyValidationError = $derived(getValidationError(permissionKey));
+	let hasErrors = $derived(!!keyValidationError);
+	let isSaveDisabled = $derived(isSubmitting || hasErrors || (formMode === 'edit' && !isDirty));
+
 	let filteredPermissions = $derived.by(() => {
 		let result = [...permissions];
 		if (searchQuery.trim()) {
@@ -147,47 +152,41 @@
 	onMount(loadPermissions);
 
 	function openCreateModal() {
+		formMode = 'create';
 		editingPermission = null;
 		permissionKey = '';
 		permissionStatus = true;
-		isKeyTouched = false;
+		validationState.reset();
 		backendError = '';
 		dirtyChecker.snapshot({ permission_key: '', status: true });
 		isModalOpen = true;
 	}
 
 	function openEditModal(permission: Permission) {
+		formMode = 'edit';
 		editingPermission = permission;
 		permissionKey = permission.permission_key;
 		permissionStatus = permission.status;
-		isKeyTouched = false;
+		validationState.reset();
 		backendError = '';
 		dirtyChecker.snapshot({ permission_key: permission.permission_key, status: permission.status });
 		isModalOpen = true;
 	}
 
 	function handleClose() {
-		if (isDirty) {
-			showConfirmClose = true;
-		} else {
-			isModalOpen = false;
-			$globalIsDirty = false;
-		}
+		isModalOpen = false;
+		$globalIsDirty = false;
 	}
 
 	async function savePermission(event: Event) {
 		event.preventDefault();
-		if (editingPermission && !isDirty) return;
-		isKeyTouched = true;
-		const validationError = getValidationError(permissionKey);
-		if (validationError) {
-			permissionKeyInput?.focus();
-			return;
-		}
+		validationState.markAttempted();
+		if (isSaveDisabled) return;
 
 		isSubmitting = true;
+		backendError = '';
 		try {
-			const response = await fetch(
+			const res = await fetch(
 				editingPermission
 					? `/api/permissions/${editingPermission.cuid}`
 					: '/api/permissions',
@@ -197,13 +196,24 @@
 					body: JSON.stringify({ permission_key: permissionKey.trim(), status: permissionStatus })
 				}
 			);
-			const body = await response.json();
-			if (response.ok) {
+			const body = await res.json();
+
+			if (res.ok) {
+				const data = body.data;
+				// Update baseline with server response
+				if (data) {
+					dirtyChecker.snapshot({ permission_key: data.permission_key, status: data.status });
+					if (formMode === 'create') formMode = 'edit';
+					editingPermission = data;
+				} else {
+					dirtyChecker.snapshot({ permission_key: permissionKey.trim(), status: permissionStatus });
+				}
+				
 				await loadPermissions();
-				toast.success(editingPermission ? 'Permission updated successfully.' : 'Permission created successfully.');
+				toast.success(`Permission ${editingPermission ? 'updated' : 'created'} successfully`);
 				isModalOpen = false;
-		$globalIsDirty = false;
-			} else if (response.status === 409 && body.field === 'permission_key') {
+				$globalIsDirty = false;
+			} else if (res.status === 409 && body.field === 'permission_key') {
 				backendError = body.error;
 				permissionKeyInput?.focus();
 			} else {
@@ -350,7 +360,8 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingPermission ? 'Edit Permission' : 'Create Permission'}
-	isSubmitting={isSubmitting}
+	{isSubmitting}
+	hasUnsavedChanges={isDirty}
 	onClose={handleClose}
 >
 	{#snippet children({ cancel })}
@@ -362,20 +373,18 @@
 					name="permission_key"
 					bind:ref={permissionKeyInput}
 					bind:value={permissionKey}
-					class={keyValidationError || backendError ? 'border-destructive' : ''}
+					error={validationState.shouldShowError('permissionKey', keyValidationError) ? (keyValidationError || backendError) : backendError}
+					onblur={() => validationState.markTouched('permissionKey')}
 					placeholder="employee_view"
 					oninput={() => { backendError = ''; }}
 				/>
-				{#if keyValidationError || backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{keyValidationError || backendError}</p>
-				{/if}
 			</div>
 			{#if editingPermission}
 				<StatusDropdown id="permission_status" name="permission_status" value={permissionStatus} onChange={(val) => (permissionStatus = val)} />
 			{/if}
 			<div class="flex items-center justify-end gap-3 pt-4">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSubmitting || (!!editingPermission && !isDirty)}>
+				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSaveDisabled}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : (editingPermission ? UI_CONSTANTS.BUTTON_UPDATE : UI_CONSTANTS.BUTTON_SAVE)}
 				</Button>
 			</div>
@@ -391,20 +400,4 @@
 	isSubmitting={isDeleting}
 	onCancel={() => (itemToDelete = null)}
 	onConfirm={confirmDelete}
-/>
-
-<ConfirmModal
-	open={showConfirmClose}
-	title="Cancel Changes"
-	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Cancel"
-	cancelLabel="Keep Editing"
-	onConfirm={() => {
-		showConfirmClose = false;
-		isModalOpen = false;
-		$globalIsDirty = false;
-	}}
-	onCancel={() => {
-		showConfirmClose = false;
-	}}
 />

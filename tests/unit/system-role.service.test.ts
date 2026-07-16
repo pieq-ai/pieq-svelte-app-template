@@ -11,6 +11,14 @@ vi.mock('$lib/server/dao/system-role.dao.js', () => ({
 	update: vi.fn() 
 }));
 
+vi.mock('$lib/server/services/keycloak/keycloak-role-sync.service.js', () => ({
+	KeycloakRoleSyncService: {
+		syncRoleCreated: vi.fn(),
+		syncRoleUpdated: vi.fn(),
+		syncRoleDeleted: vi.fn()
+	}
+}));
+
 describe('System Role Service', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();

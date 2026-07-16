@@ -22,6 +22,7 @@ export interface UpdateAttendanceInput {
 	attendance_source_cuid?: string | null;
 	check_out_time?: Date | null;
 	work_duration_minutes?: number | null;
+	status?: string;
 	updated_by?: string | null;
 	updated_at?: Date;
 	check_out_latitude?: number | null;

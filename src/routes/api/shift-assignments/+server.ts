@@ -40,7 +40,7 @@ export function _mapShiftAssignment(sa: any) {
  */
 export async function GET({ locals }: RequestEvent) {
   try {
-    permissionGuard.requireAuth(locals.user);
+    permissionGuard.requirePermission(locals.user, 'shift_assignment:view');
     const email = locals.user?.email || '';
 
     const list = await shiftAssignmentService.listAssignments(email);
@@ -49,7 +49,7 @@ export async function GET({ locals }: RequestEvent) {
     return successResponse(formatted);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }
 
@@ -59,7 +59,7 @@ export async function GET({ locals }: RequestEvent) {
  */
 export async function POST({ request, locals }: RequestEvent) {
   try {
-    permissionGuard.requireAuth(locals.user);
+    permissionGuard.requirePermission(locals.user, 'shift_assignment:view');
     const email = locals.user?.email || '';
 
     const contentType = request.headers.get('content-type');
@@ -90,6 +90,6 @@ export async function POST({ request, locals }: RequestEvent) {
     return createSuccessResponse('ShiftAssignment', assignment.cuid);
   } catch (err: any) {
     const status = err.status ?? 500;
-    return json({ error: err.message }, { status });
+    return json({ error: err.body?.message || err.message }, { status });
   }
 }

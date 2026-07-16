@@ -16,8 +16,10 @@
 	import { page } from '$app/stores';
 	import { untrack, onMount } from 'svelte';
 	import ConfirmModal from '$lib/components/common/ConfirmModal.svelte';
+	import { setContext } from 'svelte';
+	import { EMPLOYEE_API_CONTEXT, type EmployeeApiClient } from './context';
 
-	let { mode = 'create', employeeCuid = null, data } = $props<{ mode?: 'create' | 'edit'; employeeCuid?: string | null; data?: Record<string, any> }>();
+	let { mode = 'create', employeeCuid = null, data } = $props<{ mode?: 'create' | 'edit' | 'self'; employeeCuid?: string | null; data?: Record<string, any> }>();
 
 	let currentStep = $state(1);
 	let cuid = $state(untrack(() => employeeCuid));
@@ -34,6 +36,22 @@
 			internalMode = 'create';
 		}
 	});
+
+	let apiClient = $derived<EmployeeApiClient>({
+		mode: internalMode as 'create' | 'edit' | 'self',
+		getBaseUrl: (module?: string) => {
+			if (internalMode === 'self') {
+				return module ? `/api/profile/${module}` : `/api/profile`;
+			} else {
+				if (module === 'personal') {
+					return cuid ? `/api/employees/${cuid}` : `/api/employees`;
+				}
+				return module ? `/api/employees/${cuid}/${module}` : (cuid ? `/api/employees/${cuid}` : `/api/employees`);
+			}
+		}
+	});
+
+	setContext(EMPLOYEE_API_CONTEXT, () => apiClient);
 
 	const steps = [
 		'Personal Details',
@@ -210,15 +228,19 @@
 <div class="w-full px-1 py-0">
 	<div class="w-full space-y-4">
 		<div class="flex flex-col space-y-2">
-			<div class="flex items-center justify-between">
-				<Button variant="ghost" class="pl-0 text-muted-foreground hover:text-foreground" onclick={requestExit}>
-					<ArrowLeftIcon class="mr-2 size-4" />
-					Back to Employees
-				</Button>
-			</div>
+			{#if internalMode !== 'self'}
+				<div class="flex items-center justify-between">
+					<Button variant="ghost" class="pl-0 text-muted-foreground hover:text-foreground" onclick={requestExit}>
+						<ArrowLeftIcon class="mr-2 size-4" />
+						Back to Employees
+					</Button>
+				</div>
+			{/if}
 			
 			<h1 class="text-2xl font-bold tracking-tight">
-				{#if internalMode === 'create' && !cuid}
+				{#if internalMode === 'self'}
+					My Profile
+				{:else if internalMode === 'create' && !cuid}
 					Add New Employee
 				{:else}
 					{#if data?.employee}{data.employee.emp_code} — {data.employee.first_name} {data.employee.last_name || ''}{/if}

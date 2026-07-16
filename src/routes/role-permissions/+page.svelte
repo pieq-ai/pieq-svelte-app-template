@@ -77,11 +77,9 @@
 	);
 
 	let filteredRoles = $derived.by(() => {
-		const query = searchQuery.trim().toLowerCase();
-		if (!query) return activeRoles;
-		return activeRoles.filter((role) =>
-			role.name.toLowerCase().includes(query)
-		);
+		if (!debouncedSearchQuery.trim()) return activeRoles;
+		if (matchedRoles.length === 0 && matchedPermissions.length > 0) return activeRoles;
+		return matchedRoles;
 	});
 
 	let filteredPermissions = $derived.by(() => {
@@ -199,9 +197,9 @@
 		</Card>
 	{:else}
 		<div class="rounded-md border border-border bg-background">
-			<div class="max-h-[70vh] overflow-auto">
-				<table class="min-w-max border-collapse text-sm">
-					<thead class="sticky top-0 z-20 bg-hrms-secondary text-white shadow-sm">
+			<div class="overflow-x-auto">
+				<table class="w-full border-collapse text-sm">
+					<thead class="sticky top-0 z-20 bg-[#262626] text-white shadow-sm">
 						<tr>
 							<th class="sticky left-0 z-30 min-w-64 bg-hrms-secondary px-4 py-3 text-left font-semibold">
 								Permission

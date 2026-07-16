@@ -66,6 +66,7 @@
 
   // Shared Form State
   let editingAssignment = $state<ShiftAssignment | null>(null);
+  let formMode = $state<'create' | 'edit' | 'view'>('create');
   let formEmployeeCuid = $state("");
   let formShiftCuid = $state("");
   let formEffectiveFrom = $state("");
@@ -76,22 +77,13 @@
   let isViewOnly = $state(false);
   let showConfirmClose = $state(false);
 
-  // Touch States
-  let isEmployeeTouched = $state(false);
-  let isShiftTouched = $state(false);
-  let isEffectiveFromTouched = $state(false);
-  let isEffectiveToTouched = $state(false);
+  import { createValidationState } from '$lib/utils';
+  const validationState = createValidationState();
 
   // Validation Errors
   let backendError = $state("");
-  let employeeError = $derived(
-    isEmployeeTouched && !formEmployeeCuid
-      ? "Employee selection is required"
-      : "",
-  );
-  let shiftError = $derived(
-    isShiftTouched && !formShiftCuid ? "Shift selection is required" : "",
-  );
+  let employeeError = $derived(!formEmployeeCuid ? "Employee selection is required" : "");
+  let shiftError = $derived(!formShiftCuid ? "Shift selection is required" : "");
 
   function formatDateForDisplay(dateStr: string): string {
     if (!dateStr) return "";
@@ -103,7 +95,6 @@
   }
 
   let effectiveFromError = $derived.by(() => {
-    if (!isEffectiveFromTouched) return "";
     if (!formEffectiveFrom) return "Effective from date is required";
     
     if (formEmployeeCuid) {
@@ -121,7 +112,6 @@
   });
 
   let effectiveToError = $derived.by(() => {
-    if (!isEffectiveToTouched) return "";
     if (!formEffectiveTo) return "";
     if (formEffectiveFrom && formEffectiveTo < formEffectiveFrom) {
       return "Effective to date must be greater than or equal to Effective from date";
@@ -223,6 +213,9 @@
         status: formStatus,
       }),
   );
+
+  let hasErrors = $derived(!!employeeError || !!shiftError || !!effectiveFromError || !!effectiveToError);
+  let isSaveDisabled = $derived(isSubmitting || hasErrors || (formMode === 'edit' && !isDirty));
 
   function handleClose() {
     if (isDirty) {
@@ -338,19 +331,17 @@
   }
 
   function openCreateModal() {
+    formMode = 'create';
     editingAssignment = null;
     isViewOnly = false;
+    validationState.reset();
+    backendError = "";
+    formStatus = true;
+
     formEmployeeCuid = "";
     formShiftCuid = "";
     formEffectiveFrom = "";
     formEffectiveTo = "";
-    formStatus = true;
-
-    isEmployeeTouched = false;
-    isShiftTouched = false;
-    isEffectiveFromTouched = false;
-    isEffectiveToTouched = false;
-    backendError = "";
 
     dirtyChecker.snapshot({
       employee_cuid: "",
@@ -363,6 +354,7 @@
   }
 
   function openEditModal(assignment: ShiftAssignment) {
+    formMode = 'edit';
     editingAssignment = assignment;
     isViewOnly = false;
     formEmployeeCuid = assignment.employee_cuid;
@@ -371,10 +363,10 @@
     formEffectiveTo = assignment.effective_to ? String(assignment.effective_to) : "";
     formStatus = assignment.status;
 
-    isEmployeeTouched = false;
-    isShiftTouched = false;
-    isEffectiveFromTouched = false;
-    isEffectiveToTouched = false;
+    
+    
+    
+    
     backendError = "";
 
     dirtyChecker.snapshot({
@@ -388,6 +380,7 @@
   }
 
   function openViewModal(assignment: ShiftAssignment) {
+    formMode = 'view';
     editingAssignment = assignment;
     isViewOnly = true;
     formEmployeeCuid = assignment.employee_cuid;
@@ -396,10 +389,10 @@
     formEffectiveTo = assignment.effective_to ? String(assignment.effective_to) : "";
     formStatus = assignment.status;
 
-    isEmployeeTouched = false;
-    isShiftTouched = false;
-    isEffectiveFromTouched = false;
-    isEffectiveToTouched = false;
+    
+    
+    
+    
     backendError = "";
 
     isModalOpen = true;
@@ -407,39 +400,52 @@
 
   async function handleSaveAssignment(e: Event) {
     e.preventDefault();
-    if (isViewOnly) return;
-    if (editingAssignment && !isDirty) return;
-
-    isEmployeeTouched = true;
-    isShiftTouched = true;
-    isEffectiveFromTouched = true;
-    isEffectiveToTouched = true;
-
-    if (employeeError || shiftError || effectiveFromError || effectiveToError) {
-      return;
-    }
+    validationState.markAttempted();
+    if (isSaveDisabled) return;
+    if (isSaveDisabled) return;
 
     isSubmitting = true;
     backendError = "";
 
     try {
       if (editingAssignment) {
-        await updateShiftAssignment(editingAssignment.cuid, {
+        const updatedAssignment = await updateShiftAssignment(editingAssignment.cuid, {
           employee_cuid: formEmployeeCuid,
           shift_cuid: formShiftCuid,
           effective_from: formEffectiveFrom,
           effective_to: formEffectiveTo || null,
           status: formStatus,
         });
+        if (updatedAssignment) {
+          dirtyChecker.snapshot({
+            employee_cuid: updatedAssignment.employee_cuid,
+            shift_cuid: updatedAssignment.shift_cuid,
+            effective_from: String(updatedAssignment.effective_from),
+            effective_to: updatedAssignment.effective_to ? String(updatedAssignment.effective_to) : "",
+            status: updatedAssignment.status,
+          });
+          editingAssignment = updatedAssignment;
+        }
         toast.success("Shift assignment updated successfully");
       } else {
-        await createShiftAssignment({
+        const createdAssignment = await createShiftAssignment({
           employee_cuid: formEmployeeCuid,
           shift_cuid: formShiftCuid,
           effective_from: formEffectiveFrom,
           effective_to: formEffectiveTo || null,
           status: formStatus,
         });
+        if (createdAssignment) {
+          dirtyChecker.snapshot({
+            employee_cuid: createdAssignment.employee_cuid,
+            shift_cuid: createdAssignment.shift_cuid,
+            effective_from: String(createdAssignment.effective_from),
+            effective_to: createdAssignment.effective_to ? String(createdAssignment.effective_to) : "",
+            status: createdAssignment.status ?? true,
+          });
+          formMode = 'edit';
+          editingAssignment = createdAssignment;
+        }
         toast.success("Shift assignment created successfully");
       }
       await loadAssignments();
@@ -735,29 +741,15 @@
           options={data.employeeOptions}
           value={formEmployeeCuid}
           placeholder="Select employee..."
+          error={validationState.shouldShowError('employee', employeeError) ? (employeeError || backendEmployeeError) : backendEmployeeError}
+          onBlur={() => validationState.markTouched('employee')}
           onSelect={(val) => {
             formEmployeeCuid = String(val);
-            isEmployeeTouched = true;
-            if (formEffectiveFrom) isEffectiveFromTouched = true;
-            if (formEffectiveTo) isEffectiveToTouched = true;
+            if (formEffectiveFrom) 
+            if (formEffectiveTo) 
             backendError = "";
           }}
         />
-        {#if employeeError}
-          <p
-            class="text-xs"
-            style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}"
-          >
-            {employeeError}
-          </p>
-        {:else if backendEmployeeError}
-          <p
-            class="text-xs"
-            style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}"
-          >
-            {backendEmployeeError}
-          </p>
-        {/if}
       </div>
 
       <!-- Shift Dropdown -->
@@ -767,27 +759,13 @@
           options={data.shiftOptions}
           value={formShiftCuid}
           placeholder="Select shift..."
+          error={validationState.shouldShowError('shift', shiftError) ? (shiftError || backendShiftError) : backendShiftError}
+          onBlur={() => validationState.markTouched('shift')}
           onSelect={(val) => {
             formShiftCuid = String(val);
-            isShiftTouched = true;
             backendError = "";
           }}
         />
-        {#if shiftError}
-          <p
-            class="text-xs"
-            style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}"
-          >
-            {shiftError}
-          </p>
-        {:else if backendShiftError}
-          <p
-            class="text-xs"
-            style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}"
-          >
-            {backendShiftError}
-          </p>
-        {/if}
       </div>
 
       <!-- Date Range -->
@@ -800,13 +778,13 @@
             id="effective_from"
             name="effective_from"
             bind:value={formEffectiveFrom}
-            isError={isEffectiveFromTouched && (!!effectiveFromError || !!backendEffectiveFromError)}
+            isError={validationState.shouldShowError('effectiveFrom', effectiveFromError) ? !!(effectiveFromError || backendEffectiveFromError) : !!backendEffectiveFromError}
+            onBlur={() => validationState.markTouched('effectiveFrom')}
             onchange={() => {
-              isEffectiveFromTouched = true;
               backendError = "";
             }}
           />
-          {#if effectiveFromError}
+          {#if validationState.shouldShowError('effectiveFrom', effectiveFromError) && effectiveFromError}
             <p
               class="text-xs"
               style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}"
@@ -830,13 +808,13 @@
             id="effective_to"
             name="effective_to"
             bind:value={formEffectiveTo}
-            isError={isEffectiveToTouched && (!!effectiveToError || !!backendEffectiveToError)}
+            isError={validationState.shouldShowError('effectiveTo', effectiveToError) ? !!(effectiveToError || backendEffectiveToError) : !!backendEffectiveToError}
+            onBlur={() => validationState.markTouched('effectiveTo')}
             onchange={() => {
-              isEffectiveToTouched = true;
               backendError = "";
             }}
           />
-          {#if effectiveToError}
+          {#if validationState.shouldShowError('effectiveTo', effectiveToError) && effectiveToError}
             <p
               class="text-xs"
               style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}"
@@ -887,7 +865,7 @@
           <Button
             type="submit"
             class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
-            disabled={isSubmitting || (!!editingAssignment && !isDirty)}
+            disabled={isSaveDisabled}
           >
             {isSubmitting
               ? UI_CONSTANTS.BUTTON_SAVING

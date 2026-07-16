@@ -283,7 +283,7 @@
 
 	// ─── Client-side form validation ──────────────────────────────────────────────
 
-	function validateForm(): boolean {
+	function validateForm(updateErrors = true): Record<string, string> {
 		const errors: Record<string, string> = {};
 
 		if (!formEmployeeCuid) {
@@ -313,15 +313,22 @@
 			}
 		});
 
-		fieldErrors = errors;
-		return Object.keys(errors).length === 0;
+		if (updateErrors) {
+			fieldErrors = errors;
+		}
+		return errors;
 	}
+
+	let hasErrors = $derived(Object.keys(validateForm(false)).length > 0);
+	let isCreateSaveDisabled = $derived(isSubmitting || hasErrors);
 
 	// ─── Submit handler ───────────────────────────────────────────────────────────
 
 	async function handleSave(e: Event) {
 		e.preventDefault();
-		if (!validateForm()) return;
+		const errors = validateForm(true);
+		if (Object.keys(errors).length > 0) return;
+		if (isCreateSaveDisabled) return;
 
 		isSubmitting = true;
 		backendError = '';
@@ -412,6 +419,7 @@
 			editEffectiveTo !== editingStructureForDates.effective_to
 		);
 	});
+	let isEditSaveDisabled = $derived(isSubmitting || !isEditDatesDirty);
 
 	function openEditDatesModal(s: SalaryStructure) {
 		editingStructureForDates = s;
@@ -433,6 +441,9 @@
 
 	async function handleSaveDates(e: Event) {
 		e.preventDefault();
+		if (isEditSaveDisabled) return;
+
+		isSubmitting = true;
 		const targetStructure = editingStructureForDates;
 		if (!targetStructure) return;
 
@@ -686,7 +697,7 @@
 
 			<!-- Employee dropdown — only employees without an Active structure -->
 			<div class="space-y-2">
-				<Label for="employee_cuid">Employee</Label>
+				<Label for="employee_cuid">Employee <span class="text-destructive">*</span></Label>
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
@@ -736,7 +747,7 @@
 			<!-- Effective dates -->
 			<div class="grid grid-cols-2 gap-4">
 				<div class="space-y-2">
-					<Label for="effective_from">Effective From</Label>
+					<Label for="effective_from">Effective From <span class="text-destructive">*</span></Label>
 					<DatePicker
 						id="effective_from"
 						name="effective_from"
@@ -776,7 +787,7 @@
 			<!-- Component items -->
 			<div class="space-y-2">
 				<div class="flex items-center justify-between">
-					<Label>Salary Components</Label>
+					<Label>Salary Components <span class="text-destructive">*</span></Label>
 					<Button
 						type="button"
 						variant="outline"
@@ -887,7 +898,7 @@
 				<Button
 					type="submit"
 					class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
-					disabled={isSubmitting}
+					disabled={isCreateSaveDisabled}
 				>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : UI_CONSTANTS.BUTTON_SAVE}
 				</Button>
@@ -910,7 +921,7 @@
 
 		<div class="grid grid-cols-2 gap-4">
 			<div class="space-y-2">
-				<Label for="edit_effective_from">Effective From</Label>
+				<Label for="edit_effective_from">Effective From <span class="text-destructive">*</span></Label>
 				<DatePicker
 					id="edit_effective_from"
 					name="effective_from"

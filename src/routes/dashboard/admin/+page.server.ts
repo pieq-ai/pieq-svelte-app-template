@@ -1,5 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { canAccess } from '$lib/authz/index.js';
 import { resolveEmployee } from '$lib/server/services/leave.service.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as departmentDao from '$lib/server/dao/department.dao.js';
@@ -11,6 +12,9 @@ import { db } from '$lib/server/db.js';
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) {
 		redirect(302, '/');
+	}
+	if (!canAccess(locals.user, 'dashboard:admin')) {
+		redirect(302, '/dashboard');
 	}
 
 	const email = locals.user.email;
@@ -25,9 +29,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		console.error('Failed to resolve employee session details:', err);
 	}
 
-	if (!employee) {
-		throw error(401, 'Unauthorized: Employee record not found');
-	}
+
 
 	// Always retrieve the employment details if we have an employee
 	if (employee && !employment) {

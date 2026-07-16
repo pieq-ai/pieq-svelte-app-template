@@ -2,6 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as leaveTypeService from '$lib/server/services/leave-type.service.js';
 import * as typesApi from '../../src/routes/api/leave/types/+server.js';
 import * as typesCuidApi from '../../src/routes/api/leave/types/[cuid]/+server.js';
+import * as permissionGuard from '$lib/server/guards/permission.guard.js';
+
+vi.mock('$lib/server/guards/permission.guard.js', () => ({
+	requirePermission: vi.fn()
+}));
 
 vi.mock('$lib/server/services/leave-type.service.js', () => ({
 	listLeaveTypes: vi.fn(),
@@ -50,7 +55,7 @@ describe('leave-types API', () => {
 			];
 			vi.mocked(leaveTypeService.listLeaveTypes).mockResolvedValue(mockList as any);
 
-			const res = await typesApi.GET({} as any);
+			const res = await typesApi.GET({ locals: mockLocals } as any);
 			expect(res.status).toBe(200);
 			const body = await res.json();
 			expect(body.data).toEqual([
@@ -69,7 +74,7 @@ describe('leave-types API', () => {
 		it('should handle internal errors gracefully', async () => {
 			vi.mocked(leaveTypeService.listLeaveTypes).mockRejectedValue(new Error('Internal server error'));
 
-			const res = await typesApi.GET({} as any);
+			const res = await typesApi.GET({ locals: mockLocals } as any);
 			expect(res.status).toBe(500);
 		});
 	});
@@ -199,7 +204,7 @@ describe('leave-types API', () => {
 		it('should return 404 if not found', async () => {
 			vi.mocked(leaveTypeService.getLeaveTypeByCuid).mockResolvedValue(null);
 
-			const res = await typesCuidApi.GET({ params: { cuid: 'c1' } } as any);
+			const res = await typesCuidApi.GET({ params: { cuid: 'c1' }, locals: mockLocals } as any);
 			expect(res.status).toBe(404);
 		});
 
@@ -215,7 +220,7 @@ describe('leave-types API', () => {
 			};
 			vi.mocked(leaveTypeService.getLeaveTypeByCuid).mockResolvedValue(mockResult as any);
 
-			const res = await typesCuidApi.GET({ params: { cuid: 'c1' } } as any);
+			const res = await typesCuidApi.GET({ params: { cuid: 'c1' }, locals: mockLocals } as any);
 			expect(res.status).toBe(200);
 			const body = await res.json();
 			expect(body.data).toEqual({

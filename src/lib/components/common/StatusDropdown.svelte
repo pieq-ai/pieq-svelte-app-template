@@ -8,9 +8,11 @@
 		onChange: (val: boolean) => void;
 		id?: string;
 		name?: string;
+		error?: string;
+		onBlur?: () => void;
 	}
 
-	let { value, onChange, id = 'status', name = 'status' }: Props = $props();
+	let { value, onChange, id = 'status', name = 'status', error = "", onBlur }: Props = $props();
 
 	const statusOptions = [
 		{ label: 'Active', value: true },
@@ -19,7 +21,7 @@
 </script>
 
 <div class="space-y-2">
-	<Label for={id}>Status</Label>
+	<Label for={id} class={error ? "text-destructive" : ""}>Status</Label>
 	<FilterDropdown
 		{value}
 		options={statusOptions}
@@ -28,5 +30,7 @@
 		{name}
 		triggerClass="w-full"
 		Icon={ChevronDownIcon}
+		{error}
+		{onBlur}
 	/>
 </div>

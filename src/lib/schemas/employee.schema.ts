@@ -5,11 +5,11 @@ const digits = (len: number) => z.string().regex(/^\d+$/, `Must contain only dig
 
 // Helper to convert empty strings from frontend to null before validation
 export const optionalString = <T extends z.ZodTypeAny>(schema: T) =>
-  z.unknown().transform((val) => (val === '' ? null : val)).pipe(schema.optional().nullable());
+  z.unknown().transform((val) => (val === '' ? null : val)).pipe(schema.optional().nullable()).optional();
 
 // Helper to convert empty string dates from frontend to null before validation
 export const optionalDate = <T extends z.ZodTypeAny>(schema: T) =>
-  z.unknown().transform((val) => (val === '' ? null : val)).pipe(schema);
+  z.unknown().transform((val) => (val === '' ? null : val)).pipe(schema).optional();
 
 export const personalSchema = z.object({
   emp_code: optionalString(z.string().regex(/^PQ\d+$/, "Employee code must be in format PQ followed by digits (e.g. PQ001)")),
@@ -58,7 +58,9 @@ export const employmentSchema = z.object({
   date_of_joining: optionalDate(z.coerce.date().max(new Date(), "Cannot be a future date").optional().nullable()),
   confirmation_date: optionalDate(z.coerce.date().optional().nullable()),
   relieving_date: optionalDate(z.coerce.date().optional().nullable()),
-  official_email: optionalString(z.string().email("Invalid email format"))
+  official_email: optionalString(z.string().email("Invalid email format")),
+  keycloak_sub: optionalString(z.string()),
+  system_role_cuid: z.string().min(1, "Required")
 }).refine(data => {
   if (data.date_of_joining && data.confirmation_date) {
     return data.confirmation_date >= data.date_of_joining;

@@ -1,13 +1,17 @@
+import { requirePermission } from '$lib/server/guards/permission.guard';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types.js';
 import {
 	checkOut,
 	AttendanceValidationError
 } from '$lib/server/services/attendance.service.js';
+import { resolveEmployee } from '$lib/server/services/leave.service.js';
 import { validatePayloadKeys, trimStringFields } from '$lib/server/validation.js';
 import { errorResponse, successResponse } from '$lib/server/response.js';
 
+
 export const PUT: RequestHandler = async ({ request, locals }) => {
+	requirePermission(locals.user, 'dashboard:view');
 	let body: unknown;
 
 	try {
@@ -16,13 +20,40 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
 		return json({ error: { general: 'Request body must be valid JSON' } }, { status: 400 });
 	}
 
-	const allowedKeys = ['employee_cuid', 'latitude', 'longitude', 'attendance_record_cuid', 'check_out_time'];
+	const allowedKeys = ['latitude', 'longitude', 'attendance_record_cuid', 'check_out_time'];
 	const validation = validatePayloadKeys(body, allowedKeys);
 	if (validation) {
 		return json({ error: { general: validation.error } }, { status: 400 });
 	}
 
-	const { employee_cuid, latitude, longitude, attendance_record_cuid, check_out_time } = trimStringFields(body) as any;
+	const { latitude, longitude, attendance_record_cuid, check_out_time } = trimStringFields(body) as any;
+
+	const lat = Number(latitude);
+	const lng = Number(longitude);
+
+	if (
+		latitude === null || latitude === undefined ||
+		longitude === null || longitude === undefined ||
+		Number.isNaN(lat) || Number.isNaN(lng) ||
+		!Number.isFinite(lat) || !Number.isFinite(lng) ||
+		lat < -90 || lat > 90 ||
+		lng < -180 || lng > 180 ||
+		(lat === 0 && lng === 0)
+	) {
+		return json({ error: { general: 'Invalid GPS coordinates provided.' } }, { status: 400 });
+	}
+
+	if (!locals.user?.email) {
+		return json({ error: { general: 'Employee email not found' } }, { status: 403 });
+	}
+
+	let employee_cuid: string;
+	try {
+		const { employee } = await resolveEmployee(locals.user.email);
+		employee_cuid = employee.cuid;
+	} catch (e) {
+		return json({ error: { general: 'Employee record not found for the authenticated user.' } }, { status: 403 });
+	}
 
 	try {
 		let userId: string | null = null;
@@ -37,8 +68,8 @@ export const PUT: RequestHandler = async ({ request, locals }) => {
 			employee_cuid,
 			userId,
 			{
-				latitude: Number(latitude),
-				longitude: Number(longitude)
+				latitude: lat,
+				longitude: lng
 			},
 			attendance_record_cuid,
 			check_out_time

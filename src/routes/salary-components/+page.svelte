@@ -47,12 +47,8 @@
 	let showConfirmClose = $state(false);
 
 	function handleClose() {
-		if (isDirty) {
-			showConfirmClose = true;
-		} else {
-			isModalOpen = false;
-			$globalIsDirty = false;
-		}
+		isModalOpen = false;
+		$globalIsDirty = false;
 	}
 
 	let componentsList = $state<SalaryComponent[]>([]);
@@ -70,6 +66,7 @@
 
 	// Shared Form State
 	let editingComp = $state<SalaryComponent | null>(null);
+	let formMode = $state<'create' | 'edit'>('create');
 	let formName = $state('');
 	let formType = $state<SalaryComponentType>('earning');
 	let formIsTaxable = $state(false);
@@ -78,6 +75,9 @@
 	let isModalOpen = $state(false);
 	let backendError = $state('');
 	let nameInput = $state<HTMLInputElement | null>(null);
+
+	import { createValidationState } from '$lib/utils';
+	const validationState = createValidationState();
 
 	const dirtyChecker = createDirtyChecker<{
 		name: string;
@@ -95,6 +95,10 @@
 		})
 	);
 	$effect(() => { $globalIsDirty = isDirty; });
+
+	let nameValidationError = $derived(validateComponentName(formName));
+	let hasErrors = $derived(!!nameValidationError);
+	let isSaveDisabled = $derived(isSubmitting || hasErrors || (formMode === 'edit' && !isDirty));
 
 	let filteredComponents = $derived.by(() => {
 		let result = [...componentsList];
@@ -176,11 +180,13 @@
 	}
 
 	function openCreateModal() {
+		formMode = 'create';
 		editingComp = null;
 		formName = '';
 		formType = 'earning';
 		formIsTaxable = false;
 		formIsActive = true;
+		validationState.reset();
 		backendError = '';
 		dirtyChecker.snapshot({
 			name: '',
@@ -192,11 +198,13 @@
 	}
 
 	function openEditModal(comp: SalaryComponent) {
+		formMode = 'edit';
 		editingComp = comp;
 		formName = comp.name;
 		formType = comp.type;
 		formIsTaxable = comp.is_taxable;
 		formIsActive = comp.status;
+		validationState.reset();
 		backendError = '';
 		dirtyChecker.snapshot({
 			name: comp.name,
@@ -209,14 +217,8 @@
 
 	async function handleSaveComponent(e: Event) {
 		e.preventDefault();
-		if (editingComp && !isDirty) return;
-
-		const validationError = validateComponentName(formName);
-		if (validationError) {
-			backendError = validationError;
-			nameInput?.focus();
-			return;
-		}
+		validationState.markAttempted();
+		if (isSaveDisabled) return;
 
 		isSubmitting = true;
 		backendError = '';
@@ -242,6 +244,25 @@
 			const resData = await response.json();
 
 			if (response.ok && resData.data && !resData.data.error) {
+				const data = resData.data;
+				if (data) {
+					dirtyChecker.snapshot({
+						name: data.name,
+						type: data.type,
+						is_taxable: data.is_taxable,
+						status: data.status
+					});
+					if (formMode === 'create') formMode = 'edit';
+					editingComp = data;
+				} else {
+					dirtyChecker.snapshot({
+						name: formName.trim(),
+						type: formType,
+						is_taxable: formIsTaxable,
+						status: formIsActive
+					});
+				}
+				
 				await loadComponents();
 				toast.success(editingComp ? 'Salary Component updated successfully' : 'Salary Component created successfully');
 				isModalOpen = false;
@@ -435,30 +456,29 @@
 <CrudModal
 	open={isModalOpen}
 	title={editingComp ? 'Edit Salary Component' : 'Create Salary Component'}
-	isSubmitting={isSubmitting}
+	{isSubmitting}
+	hasUnsavedChanges={isDirty}
 	onClose={handleClose}
 >
 	{#snippet children({ cancel })}
 		<form class="space-y-4" onsubmit={handleSaveComponent}>
 			<div class="space-y-2">
-				<Label for="name">Component Name</Label>
+				<Label for="name">Component Name <span class="text-destructive">*</span></Label>
 				<Input
 					id="name"
 					name="name"
 					bind:ref={nameInput}
 					bind:value={formName}
-					class={backendError ? 'border-destructive focus-visible:ring-destructive/30' : ''}
+					error={validationState.shouldShowError('name', nameValidationError) ? (nameValidationError || backendError) : backendError}
+					onblur={() => validationState.markTouched('name')}
 					placeholder="e.g. Basic Pay, HRA"
 					oninput={() => { backendError = ''; }}
 				/>
-				{#if backendError}
-					<p class="text-xs" style="color: {UI_CONSTANTS.VALIDATION_ERROR_COLOR}">{backendError}</p>
-				{/if}
 			</div>
 
 			<div class="grid grid-cols-2 gap-4">
 				<div class="space-y-2">
-					<Label for="component_type">Component Type</Label>
+					<Label for="component_type">Component Type <span class="text-destructive">*</span></Label>
 					<DropdownMenu.Root>
 						<DropdownMenu.Trigger>
 							{#snippet child({ props })}
@@ -502,7 +522,7 @@
 
 			<div class="flex items-center justify-end gap-3 pt-4">
 				<Button type="button" variant="outline" onclick={cancel} disabled={isSubmitting}>{UI_CONSTANTS.BUTTON_CANCEL}</Button>
-				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSubmitting || (!!editingComp && !isDirty)}>
+				<Button type="submit" class="bg-hrms-primary text-white hover:bg-hrms-primary/90" disabled={isSaveDisabled}>
 					{isSubmitting ? UI_CONSTANTS.BUTTON_SAVING : UI_CONSTANTS.BUTTON_SAVE}
 				</Button>
 			</div>
@@ -510,18 +530,3 @@
 	{/snippet}
 </CrudModal>
 
-<ConfirmModal
-	open={showConfirmClose}
-	title="Cancel Changes"
-	description="Are you sure you want to cancel? All unsaved changes will be lost."
-	confirmLabel="Cancel"
-	cancelLabel="Keep Editing"
-	onConfirm={() => {
-		showConfirmClose = false;
-		isModalOpen = false;
-		$globalIsDirty = false;
-	}}
-	onCancel={() => {
-		showConfirmClose = false;
-	}}
-/>
