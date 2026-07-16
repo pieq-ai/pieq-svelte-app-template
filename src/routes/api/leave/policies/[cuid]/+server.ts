@@ -15,7 +15,7 @@ import {
 } from '$lib/server/response.js';
 
 export const GET: RequestHandler = async ({ params, locals }) => {
-	requirePermission(locals.user, 'leave_policies:view');
+	requirePermission(locals.user, 'leave_policy:view');
 	const { cuid } = params;
 
 	try {
@@ -32,7 +32,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 };
 
 export const PUT: RequestHandler = async ({ params, request, locals }) => {
-	requirePermission(locals.user, 'leave_policies:update');
+	requirePermission(locals.user, 'leave_policy:view');
 	const { cuid } = params;
 	let body: unknown;
 

@@ -16,7 +16,7 @@ import {
 } from '$lib/server/response.js';
 
 export const GET: RequestHandler = async ({ locals }) => {
-	requirePermission(locals.user, 'leave_types:view');
+	requirePermission(locals.user, 'leave_type:view');
 	try {
 		const types = await listLeaveTypes();
 		const formattedTypes = types.map(formatLeaveType);
@@ -28,7 +28,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 };
 
 export const POST: RequestHandler = async ({ request, locals }) => {
-	requirePermission(locals.user, 'leave_types:create');
+	requirePermission(locals.user, 'leave_type:view');
 	let body: unknown;
 
 	try {

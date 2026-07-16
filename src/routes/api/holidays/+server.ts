@@ -16,7 +16,7 @@ import {
 } from '$lib/server/response.js';
 
 export const GET: RequestHandler = async ({ locals }) => {
-	requirePermission(locals.user, 'holidays:view');
+	requirePermission(locals.user, 'holiday:view');
 	try {
 		const holidays = await listHolidays();
 		const formattedHolidays = holidays.map(formatHoliday);
@@ -28,7 +28,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 };
 
 export const POST: RequestHandler = async ({ request, locals }) => {
-	requirePermission(locals.user, 'holidays:create');
+	requirePermission(locals.user, 'holiday:view');
 	let body: unknown;
 
 	try {

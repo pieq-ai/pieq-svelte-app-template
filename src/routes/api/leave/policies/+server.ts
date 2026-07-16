@@ -15,7 +15,7 @@ import {
 } from '$lib/server/response.js';
 
 export const GET: RequestHandler = async ({ locals }) => {
-	requirePermission(locals.user, 'leave_policies:view');
+	requirePermission(locals.user, 'leave_policy:view');
 	try {
 		const policies = await listLeavePolicies();
 		const formattedPolicies = policies.map(formatLeavePolicy);
@@ -27,7 +27,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 };
 
 export const POST: RequestHandler = async ({ request, locals }) => {
-	requirePermission(locals.user, 'leave_policies:create');
+	requirePermission(locals.user, 'leave_policy:view');
 	let body: unknown;
 
 	try {

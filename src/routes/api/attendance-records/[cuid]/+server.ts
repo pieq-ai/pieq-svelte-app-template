@@ -15,7 +15,7 @@ import {
 } from '$lib/server/response.js';
 
 export const GET: RequestHandler = async ({ params, locals }) => {
-	requirePermission(locals.user, 'attendance:view');
+	requirePermission(locals.user, 'attendance_record:view');
 	const { cuid } = params;
 
 	try {
@@ -42,7 +42,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 };
 
 export const PUT: RequestHandler = async ({ params, request, locals }) => {
-	requirePermission(locals.user, 'attendance:update');
+	requirePermission(locals.user, 'attendance_record:view');
 	const { cuid } = params;
 
 	try {
