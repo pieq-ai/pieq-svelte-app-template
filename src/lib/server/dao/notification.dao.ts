@@ -236,3 +236,37 @@ export async function archive(employeeCuid: string, recipientCuid: string) {
 		}
 	});
 }
+
+/**
+ * Checks if a reminder notification has already been sent to an employee for a specific attendance record.
+ */
+export async function hasReminderForAttendanceRecord(employeeCuid: string, attendanceRecordCuid: string): Promise<boolean> {
+	const matchingNotifications = await db.notification.findMany({
+		where: {
+			category: 'attendance',
+			metadata: {
+				path: ['entityCuid'],
+				equals: attendanceRecordCuid
+			}
+		},
+		select: {
+			cuid: true
+		}
+	});
+
+	if (matchingNotifications.length === 0) {
+		return false;
+	}
+
+	const cuids = matchingNotifications.map((n: any) => n.cuid);
+
+	const count = await db.notificationRecipient.count({
+		where: {
+			employee_cuid: employeeCuid,
+			notification_cuid: { in: cuids }
+		}
+	});
+
+	return count > 0;
+}
+

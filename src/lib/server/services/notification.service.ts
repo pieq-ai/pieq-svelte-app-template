@@ -12,10 +12,12 @@ export interface CreateNotificationDto {
 	metadata?: any;
 	created_by?: string | null;
 	target: {
-		type: 'broadcast' | 'employee' | 'role' | 'department' | 'manager';
+		type: 'broadcast' | 'employee' | 'role' | 'department' | 'custom';
 		employeeCuid?: string;
 		roleCuid?: string;
 		departmentCuid?: string;
+		/** Used with type === 'custom'. Pre-resolved list of employee CUIDs. */
+		employeeCuids?: string[];
 	};
 }
 

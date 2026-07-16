@@ -15,7 +15,7 @@ const injectLocals = async ({ event, resolve }) => {
     console.log("[DIAG-3] hooks.server.js session:", { userId: session?.user?.id, email: session?.user?.email });
 
 	if (session?.user?.id) {
-		let hrmsContext = null;
+		let hrmsContext;
 		/** @type {string[]} */
 		let permissions = [];
 

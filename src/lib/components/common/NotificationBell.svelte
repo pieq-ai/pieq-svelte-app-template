@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import { SvelteSet } from 'svelte/reactivity';
 	import { goto, afterNavigate } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import BellIcon from '@lucide/svelte/icons/bell';
@@ -31,15 +32,180 @@
 	let pollingInterval: any = null;
 	let dropdownElement = $state<HTMLElement | null>(null);
 
-	async function fetchUnreadCount() {
+	// Session seen tracker for popup detection
+	const seenCuids = new SvelteSet<string>();
+	let isInitialLoad = true;
+
+	// Popup queue and animation states
+	let popupQueue = $state<NotificationItem[]>([]);
+	let currentPopup = $state<NotificationItem | null>(null);
+	let isPopupVisible = $state(false);
+	let activeTimeout: any = null;
+	let popupTimerStart = 0;
+	let popupTimerRemaining = 5000;
+	let isHovered = $state(false);
+
+	async function pollNotifications() {
 		try {
-			const res = await fetch(resolve('/api/notifications/unread-count'));
-			const json = await res.json();
-			if (json.data) {
-				unreadCount = json.data.unreadCount;
+			// 1. Fetch unread count
+			const countRes = await fetch(resolve('/api/notifications/unread-count'));
+			const countJson = await countRes.json();
+			if (countJson.data) {
+				unreadCount = countJson.data.unreadCount;
+			}
+
+			// 2. Fetch latest notifications
+			const listRes = await fetch(resolve('/api/notifications?limit=10'));
+			const listJson = await listRes.json();
+			if (listJson.data?.items) {
+				const items = listJson.data.items;
+
+				// Keep dropdown items in sync (up to 5)
+				notifications = items.slice(0, 5);
+
+				// Diff to find unseen notifications
+				const newNotifications: NotificationItem[] = [];
+				for (const item of items) {
+					if (!seenCuids.has(item.cuid)) {
+						seenCuids.add(item.cuid);
+						if (!isInitialLoad) {
+							newNotifications.push(item);
+						}
+					}
+				}
+
+				if (isInitialLoad) {
+					isInitialLoad = false;
+				} else if (newNotifications.length > 0) {
+					// API returns latest first. Reverse so we queue oldest-first.
+					newNotifications.reverse();
+					for (const item of newNotifications) {
+						queueNotification(item);
+					}
+				}
 			}
 		} catch (err) {
-			console.error('Failed to fetch unread count:', err);
+			console.error('Failed to poll notifications:', err);
+		}
+	}
+
+	function queueNotification(item: NotificationItem) {
+		// Prevent duplicate popups for the same notification in this session
+		if (popupQueue.some(q => q.cuid === item.cuid) || currentPopup?.cuid === item.cuid) {
+			return;
+		}
+		popupQueue.push(item);
+		processQueue();
+	}
+
+	function processQueue() {
+		// Do not process next if a popup is currently visible or transitioning
+		if (currentPopup) return;
+		if (popupQueue.length === 0) return;
+
+		const next = popupQueue.shift();
+		if (next) {
+			currentPopup = next;
+			isPopupVisible = true;
+			isHovered = false;
+			popupTimerRemaining = 5000;
+			startPopupTimer();
+		}
+	}
+
+	function startPopupTimer() {
+		if (activeTimeout) clearTimeout(activeTimeout);
+		popupTimerStart = Date.now();
+		activeTimeout = setTimeout(() => {
+			dismissPopup();
+		}, popupTimerRemaining);
+	}
+
+	function pausePopupTimer() {
+		if (activeTimeout) {
+			clearTimeout(activeTimeout);
+			activeTimeout = null;
+			const elapsed = Date.now() - popupTimerStart;
+			popupTimerRemaining = Math.max(0, popupTimerRemaining - elapsed);
+		}
+	}
+
+	function dismissPopup() {
+		if (activeTimeout) {
+			clearTimeout(activeTimeout);
+			activeTimeout = null;
+		}
+		isPopupVisible = false;
+		
+		// Allow 300ms for retract slide-back animation to finish
+		setTimeout(() => {
+			currentPopup = null;
+			processQueue();
+		}, 300);
+	}
+
+	function handleMouseEnter() {
+		isHovered = true;
+		pausePopupTimer();
+	}
+
+	function handleMouseLeave() {
+		isHovered = false;
+		popupTimerStart = Date.now();
+		startPopupTimer();
+	}
+
+	async function handlePopupClick(item: NotificationItem) {
+		// Mark as read if not already read
+		if (!item.is_read) {
+			try {
+				const res = await fetch(resolve(`/api/notifications/${item.cuid}/read`), {
+					method: 'PATCH'
+				});
+				const json = await res.json();
+				if (json.data?.success) {
+					notifications = notifications.map((n) =>
+						n.cuid === item.cuid ? { ...n, is_read: true } : n
+					);
+					unreadCount = Math.max(0, unreadCount - 1);
+				}
+			} catch (err) {
+				console.error('Failed to mark popup notification as read:', err);
+			}
+		}
+
+		// Navigate if a link is present
+		if (item.metadata?.link) {
+			goto(resolve(item.metadata.link));
+		}
+
+		dismissPopup();
+	}
+
+	function startPolling() {
+		pollNotifications();
+		pollingInterval = setInterval(() => {
+			pollNotifications();
+		}, 5000);
+	}
+
+	function stopPolling() {
+		if (pollingInterval) {
+			clearInterval(pollingInterval);
+		}
+		if (activeTimeout) {
+			clearTimeout(activeTimeout);
+		}
+	}
+
+	function toggleDropdown() {
+		isOpen = !isOpen;
+		if (isOpen) {
+			// Dismiss any active popup preview when dropdown is opened to avoid overlap
+			if (currentPopup) {
+				dismissPopup();
+			}
+			fetchLatestNotifications();
 		}
 	}
 
@@ -49,32 +215,13 @@
 			const json = await res.json();
 			if (json.data?.items) {
 				notifications = json.data.items;
+				// Sync seen Cuids with fetched items to prevent future duplicate triggers
+				for (const item of notifications) {
+					seenCuids.add(item.cuid);
+				}
 			}
 		} catch (err) {
 			console.error('Failed to fetch latest notifications:', err);
-		}
-	}
-
-	function startPolling() {
-		fetchUnreadCount();
-		if (isOpen) fetchLatestNotifications();
-
-		pollingInterval = setInterval(() => {
-			fetchUnreadCount();
-			if (isOpen) fetchLatestNotifications();
-		}, 30000);
-	}
-
-	function stopPolling() {
-		if (pollingInterval) {
-			clearInterval(pollingInterval);
-		}
-	}
-
-	function toggleDropdown() {
-		isOpen = !isOpen;
-		if (isOpen) {
-			fetchLatestNotifications();
 		}
 	}
 
@@ -134,7 +281,7 @@
 			const json = await res.json();
 			if (json.data?.success) {
 				notifications = notifications.filter((n) => n.cuid !== item.cuid);
-				fetchUnreadCount();
+				pollNotifications();
 			}
 		} catch (err) {
 			console.error('Failed to archive notification:', err);
@@ -177,6 +324,25 @@
 				return 'bg-purple-500/10 text-purple-500';
 			default:
 				return 'bg-neutral-500/10 text-neutral-500';
+		}
+	}
+
+	function getLeftAccentClass(category: string) {
+		switch (category) {
+			case 'birthday':
+				return 'bg-pink-500';
+			case 'holiday':
+				return 'bg-emerald-500';
+			case 'announcement':
+				return 'bg-blue-500';
+			case 'payroll':
+				return 'bg-amber-500';
+			case 'leave':
+				return 'bg-indigo-500';
+			case 'attendance':
+				return 'bg-purple-500';
+			default:
+				return 'bg-neutral-500';
 		}
 	}
 
@@ -231,7 +397,7 @@
 
 	{#if isOpen}
 		<div
-			class="absolute right-0 mt-3 w-80 sm:w-96 bg-card border border-border shadow-[0_10px_40px_rgba(0,0,0,0.08)] rounded-xl z-50 overflow-hidden divide-y divide-border transform origin-top-right transition-all"
+			class="absolute right-0 mt-3 w-80 sm:w-96 bg-card border border-border shadow-[0_10px_40px_rgba(0,0,0,0.08)] rounded-xl z-50 overflow-hidden divide-y divide-border transform origin-top-right transition-all animate-in fade-in slide-in-from-top-2 duration-200"
 			role="menu"
 		>
 			<!-- Header -->
@@ -326,4 +492,69 @@
 			</div>
 		</div>
 	{/if}
+
+	<!-- Animated Notification Popup Preview (Anchored below Bell Icon) -->
+	{#if currentPopup && !isOpen}
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div
+			class="notification-popup absolute right-0 top-full mt-3 w-80 sm:w-96 bg-card border border-border shadow-[0_12px_45px_rgba(0,0,0,0.12)] rounded-xl z-[60] overflow-hidden cursor-pointer"
+			class:popup-visible={isPopupVisible}
+			class:popup-hidden={!isPopupVisible}
+			onmouseenter={handleMouseEnter}
+			onmouseleave={handleMouseLeave}
+			onclick={() => currentPopup && handlePopupClick(currentPopup)}
+		>
+			<div class="flex items-start gap-3 p-3.5 relative">
+				<!-- Left Accent Strip -->
+				<div class={`absolute left-0 top-0 bottom-0 w-1 ${getLeftAccentClass(currentPopup.category)}`}></div>
+
+				<!-- Icon -->
+				<div class={`p-2 rounded-lg shrink-0 ${getCategoryColor(currentPopup.category)}`}>
+					{#each [getCategoryIcon(currentPopup.category)] as Icon}
+						<Icon class="size-4" />
+					{/each}
+				</div>
+
+				<!-- Content -->
+				<div class="flex-1 min-w-0 pr-4">
+					<div class="flex items-center justify-between gap-2">
+						<p class="text-xs font-bold leading-tight text-foreground truncate">
+							{currentPopup.title}
+						</p>
+						{#if currentPopup.priority === 'high' || currentPopup.priority === 'urgent'}
+							<span class="px-1.5 py-0.5 text-[9px] font-semibold bg-red-100 text-red-600 rounded shrink-0">
+								{currentPopup.priority.toUpperCase()}
+							</span>
+						{/if}
+					</div>
+					<p class="text-[11px] text-muted-foreground mt-1 line-clamp-2 leading-normal">
+						{currentPopup.body}
+					</p>
+				</div>
+			</div>
+		</div>
+	{/if}
 </div>
+
+<style>
+	.notification-popup {
+		transform-origin: top right;
+		opacity: 0;
+		transform: scale(0.8) translateY(-12px);
+		transition: opacity 300ms cubic-bezier(0.16, 1, 0.3, 1), transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+		pointer-events: none;
+	}
+
+	.notification-popup.popup-visible {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+		pointer-events: auto;
+	}
+
+	.notification-popup.popup-hidden {
+		opacity: 0;
+		transform: scale(0.8) translateY(-12px);
+		pointer-events: none;
+	}
+</style>

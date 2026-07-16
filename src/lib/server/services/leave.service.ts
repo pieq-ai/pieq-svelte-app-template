@@ -891,9 +891,18 @@ export async function withdrawLeaveByCuid(employeeCuid: string, requestCuid: str
 		updated_by: actorCuid || employee.cuid
 	});
 
+	// Fetch employment to get the reporting manager for notification targeting
+	const employment = await leaveDao.getEmploymentByEmployeeCuid(employeeCuid);
+
 	// Trigger leave withdrawn notification
-	notificationFactory.leaveWithdrawn(employee.first_name, employee.last_name, actorCuid || employee.cuid, requestCuid)
-		.catch(err => console.error("Failed to send leave withdrawn notification:", err));
+	notificationFactory.leaveWithdrawn(
+		employee.first_name,
+		employee.last_name,
+		actorCuid || employee.cuid,
+		requestCuid,
+		employee.cuid,
+		employment?.reporting_manager_cuid ?? null
+	).catch(err => console.error("Failed to send leave withdrawn notification:", err));
 
 	return result;
 }
@@ -1289,15 +1298,23 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 
 	// Trigger leave applied notification
 	if (request) {
-		notificationFactory.leaveApplied(employee.first_name, employee.last_name, totalDays, startDate, creatorCuid || employee.cuid, request.cuid)
-			.catch(err => console.error("Failed to send leave applied notification:", err));
+		notificationFactory.leaveApplied(
+			employee.first_name,
+			employee.last_name,
+			totalDays,
+			startDate,
+			creatorCuid || employee.cuid,
+			request.cuid,
+			employee.cuid,
+			employment?.reporting_manager_cuid ?? null
+		).catch(err => console.error("Failed to send leave applied notification:", err));
 	}
 
 	return request;
 }
 
 export async function withdrawLeave(email: string, requestCuid: string, actorCuid?: string) {
-	const { employee } = await resolveEmployee(email);
+	const { employee, employment } = await resolveEmployee(email);
 	if (!employee) {
 		throw new Error('Employee record not found.');
 	}
@@ -1322,8 +1339,14 @@ export async function withdrawLeave(email: string, requestCuid: string, actorCui
 	});
 
 	// Trigger leave withdrawn notification
-	notificationFactory.leaveWithdrawn(employee.first_name, employee.last_name, actorCuid || employee.cuid, requestCuid)
-		.catch(err => console.error("Failed to send leave withdrawn notification:", err));
+	notificationFactory.leaveWithdrawn(
+		employee.first_name,
+		employee.last_name,
+		actorCuid || employee.cuid,
+		requestCuid,
+		employee.cuid,
+		employment?.reporting_manager_cuid ?? null
+	).catch(err => console.error("Failed to send leave withdrawn notification:", err));
 
 	return result;
 }

@@ -27,5 +27,10 @@ export enum NotificationTargetType {
 	EMPLOYEE = 'employee',
 	ROLE = 'role',
 	DEPARTMENT = 'department',
-	MANAGER = 'manager'
+	/**
+	 * Caller-supplied list of employee CUIDs.
+	 * The Factory is responsible for building this list from business context.
+	 * Use this instead of adding business-specific target types (e.g. EMPLOYEE_AND_MANAGER).
+	 */
+	CUSTOM = 'custom'
 }

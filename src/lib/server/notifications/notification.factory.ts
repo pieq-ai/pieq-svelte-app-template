@@ -25,12 +25,22 @@ export const notificationFactory = {
 		totalDays: number,
 		startDate: any,
 		createdBy: string | null | undefined,
-		requestCuid: string
+		requestCuid: string,
+		/** The applicant's employee CUID — always present. */
+		employeeCuid: string,
+		/** The applicant's reporting manager CUID, or null if unset. */
+		managerCuid: string | null | undefined
 	) {
 		const payload = templates.leaveApplied(firstName, lastName, totalDays, startDate, requestCuid);
+
+		// Build a deduplicated recipient list: applicant always included, manager only if set.
+		// This keeps business-specific recipient logic in the Factory, not the Template or Resolver.
+		const employeeCuids = [...new Set([employeeCuid, ...(managerCuid ? [managerCuid] : [])])];
+
 		return notificationService.send({
 			...payload,
-			created_by: createdBy ?? null
+			created_by: createdBy ?? null,
+			target: { type: 'custom', employeeCuids }
 		});
 	},
 
@@ -66,12 +76,21 @@ export const notificationFactory = {
 		firstName: string,
 		lastName: string,
 		actorCuid: string | null | undefined,
-		requestCuid: string
+		requestCuid: string,
+		/** The applicant's employee CUID — always present. */
+		employeeCuid: string,
+		/** The applicant's reporting manager CUID, or null if unset. */
+		managerCuid: string | null | undefined
 	) {
 		const payload = templates.leaveWithdrawn(firstName, lastName, requestCuid);
+
+		// Build a deduplicated recipient list: applicant always included, manager only if set.
+		const employeeCuids = [...new Set([employeeCuid, ...(managerCuid ? [managerCuid] : [])])];
+
 		return notificationService.send({
 			...payload,
-			created_by: actorCuid ?? null
+			created_by: actorCuid ?? null,
+			target: { type: 'custom', employeeCuids }
 		});
 	},
 
@@ -129,6 +148,19 @@ export const notificationFactory = {
 
 	async shiftReassigned(shiftName: string, startDate: Date, employeeCuid: string, createdBy: string | null | undefined) {
 		const payload = templates.shiftReassigned(shiftName, startDate, employeeCuid);
+		return notificationService.send({
+			...payload,
+			created_by: createdBy ?? null
+		});
+	},
+
+	async missingCheckoutReminder(
+		employeeCuid: string,
+		date: Date,
+		attendanceRecordCuid: string,
+		createdBy: string | null | undefined
+	) {
+		const payload = templates.missingCheckoutReminder(employeeCuid, date, attendanceRecordCuid);
 		return notificationService.send({
 			...payload,
 			created_by: createdBy ?? null
