@@ -2,6 +2,7 @@
 import type { ShiftCreateDTO, ShiftUpdateDTO, Shift } from '$lib/types/shift';
 import * as shiftDao from '$lib/server/dao/shift.dao.js';
 import { validateCreatePayload, validateUpdatePayload, validatePaginationParams } from '$lib/server/validators/shift.validator.js';
+import * as auditService from '$lib/server/services/audit.service.js';
 
 export function parseTimeToDate(timeVal: Date | string | undefined, defaultTimeIso: string): Date {
   if (!timeVal) return new Date(defaultTimeIso);
@@ -108,7 +109,17 @@ export async function createShift(payload: unknown): Promise<Shift> {
     }
   }
   
-  return shiftDao.createShift(valid);
+  const created = await shiftDao.createShift(valid);
+
+  await auditService.log({
+    entity_name: 'Shift',
+    entity_cuid: created.cuid,
+    action_type: 'create',
+    status: 'SUCCESS',
+    remarks: `Shift "${created.name}" created.`
+  });
+
+  return created;
 }
 
 /** Update existing shift. */
@@ -172,7 +183,16 @@ export async function updateShift(cuid: string, payload: unknown): Promise<Shift
     }
   }
   
-  return shiftDao.updateShift(cuid, valid);
+  const updated = await shiftDao.updateShift(cuid, valid);
+
+  await auditService.logUpdate({
+    entityName: 'Shift',
+    entityCuid: cuid,
+    oldRecord: shift,
+    newRecord: updated
+  });
+
+  return updated;
 }
 
 /** Soft delete / deactivate a shift. */
@@ -184,7 +204,17 @@ export async function deleteShift(cuid: string, updatedBy?: string): Promise<Shi
     throw err;
   }
   
-  return shiftDao.deactivateShift(cuid, updatedBy);
+  const deactivated = await shiftDao.deactivateShift(cuid, updatedBy);
+
+  await auditService.log({
+    entity_name: 'Shift',
+    entity_cuid: cuid,
+    action_type: 'delete',
+    status: 'SUCCESS',
+    remarks: `Shift "${shift.name}" soft-deleted (deactivated).`
+  });
+
+  return deactivated;
 }
 
 /** Activate a shift. */
@@ -211,5 +241,15 @@ export async function activateShift(cuid: string, updatedBy?: string): Promise<S
     throw err;
   }
   
-  return shiftDao.activateShift(cuid, updatedBy);
+  const activated = await shiftDao.activateShift(cuid, updatedBy);
+
+  await auditService.log({
+    entity_name: 'Shift',
+    entity_cuid: cuid,
+    action_type: 'update',
+    status: 'SUCCESS',
+    remarks: `Shift "${shift.name}" activated.`
+  });
+
+  return activated;
 }

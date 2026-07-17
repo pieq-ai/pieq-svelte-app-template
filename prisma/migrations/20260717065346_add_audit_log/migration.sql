@@ -15,7 +15,6 @@ CREATE TABLE "audit_logs" (
     "user_agent" TEXT,
     "remarks" TEXT,
     "request_id" TEXT NOT NULL,
-    "correlation_id" TEXT,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "audit_logs_pkey" PRIMARY KEY ("id")
@@ -32,9 +31,6 @@ CREATE INDEX "audit_logs_performed_by_idx" ON "audit_logs"("performed_by");
 
 -- CreateIndex
 CREATE INDEX "audit_logs_request_id_idx" ON "audit_logs"("request_id");
-
--- CreateIndex
-CREATE INDEX "audit_logs_correlation_id_idx" ON "audit_logs"("correlation_id");
 
 -- CreateIndex
 CREATE INDEX "audit_logs_created_at_idx" ON "audit_logs"("created_at");

@@ -1,7 +1,7 @@
-// src/lib/server/services/role.service.ts
 import type { RoleCreateDTO, RoleUpdateDTO, Role } from '$lib/types/role';
 import * as roleDao from '$lib/server/dao/role.dao.js';
 import { validateCreatePayload, validateUpdatePayload, validatePaginationParams } from '$lib/server/validators/role.validator.js';
+import * as auditService from '$lib/server/services/audit.service.js';
 
 /** List only active roles. */
 export async function listRoles(query?: Record<string, unknown>): Promise<{ data: Role[] }> {
@@ -27,7 +27,17 @@ export async function createRole(payload: unknown): Promise<Role> {
     err.status = 409;
     throw err;
   }
-  return roleDao.createRole(valid);
+  const created = await roleDao.createRole(valid);
+
+  await auditService.log({
+    entity_name: 'Role',
+    entity_cuid: created.cuid,
+    action_type: 'create',
+    status: 'SUCCESS',
+    remarks: `Role "${created.name}" created.`
+  });
+
+  return created;
 }
 
 /** Update existing role. */
@@ -49,7 +59,16 @@ export async function updateRole(cuid: string, payload: unknown): Promise<Role> 
       throw err;
     }
   }
-  return roleDao.updateRole(cuid, valid);
+  const updated = await roleDao.updateRole(cuid, valid);
+
+  await auditService.logUpdate({
+    entityName: 'Role',
+    entityCuid: cuid,
+    oldRecord: role,
+    newRecord: updated
+  });
+
+  return updated;
 }
 
 /** Soft delete a role. */
@@ -60,5 +79,15 @@ export async function deleteRole(cuid: string, updatedBy?: string): Promise<Role
     err.status = 404;
     throw err;
   }
-  return roleDao.deactivateRole(cuid, updatedBy);
+  const deactivated = await roleDao.deactivateRole(cuid, updatedBy);
+
+  await auditService.log({
+    entity_name: 'Role',
+    entity_cuid: cuid,
+    action_type: 'delete',
+    status: 'SUCCESS',
+    remarks: `Role "${role.name}" soft-deleted (deactivated).`
+  });
+
+  return deactivated;
 }

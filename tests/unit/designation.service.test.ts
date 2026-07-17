@@ -10,6 +10,11 @@ vi.mock('$lib/server/dao/designation.dao.js', () => ({
 	update: vi.fn()
 }));
 
+vi.mock('$lib/server/services/audit.service.js', () => ({
+	log: vi.fn().mockResolvedValue(undefined),
+	logUpdate: vi.fn().mockResolvedValue(undefined)
+}));
+
 describe('Designation Service', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();

@@ -14,7 +14,6 @@ export interface AuditLogCreateInput {
   user_agent?: string | null;
   remarks?: string | null;
   request_id: string;
-  correlation_id?: string | null;
 }
 
 export interface ListAuditLogsFilters {
@@ -25,7 +24,6 @@ export interface ListAuditLogsFilters {
   action_type?: string;
   status?: string;
   request_id?: string;
-  correlation_id?: string;
   search?: string; // searches in remarks
   fromDate?: Date;
   toDate?: Date;
@@ -69,9 +67,7 @@ export async function listAuditLogs(filters: ListAuditLogsFilters, tx?: any) {
   if (filters.request_id) {
     where.request_id = filters.request_id;
   }
-  if (filters.correlation_id) {
-    where.correlation_id = filters.correlation_id;
-  }
+
   if (filters.search) {
     where.remarks = {
       contains: filters.search,

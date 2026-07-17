@@ -6,7 +6,6 @@ export interface RequestContext {
   ipAddress?: string;
   userAgent?: string;
   requestId: string;
-  correlationId?: string;
 }
 
 export const requestContextStorage = new AsyncLocalStorage<RequestContext>();
@@ -29,10 +28,6 @@ export function getClientIPAddress(): string | undefined {
 
 export function getUserAgent(): string | undefined {
   return requestContextStorage.getStore()?.userAgent;
-}
-
-export function getCorrelationId(): string | undefined {
-  return requestContextStorage.getStore()?.correlationId;
 }
 
 export function runWithContext<T>(context: RequestContext, callback: () => T): T {

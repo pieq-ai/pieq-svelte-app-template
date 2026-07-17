@@ -42,8 +42,7 @@ describe('Audit Logging Service', () => {
         performedByType: 'USER' as const,
         ipAddress: '192.168.1.50',
         userAgent: 'Mozilla/5.0',
-        requestId: 'req_xyz789',
-        correlationId: 'corr_456'
+        requestId: 'req_xyz789'
       };
 
       await runWithContext(mockContext, async () => {
@@ -64,7 +63,6 @@ describe('Audit Logging Service', () => {
             ip_address: '192.168.1.50',
             user_agent: 'Mozilla/5.0',
             request_id: 'req_xyz789',
-            correlation_id: 'corr_456',
             remarks: 'Testing context'
           })
         ],

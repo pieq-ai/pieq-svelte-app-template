@@ -1,6 +1,7 @@
 import * as systemRoleDao from "$lib/server/dao/system-role.dao.js";
 import { ValidationError } from "$lib/server/utils/errors.js";
 import { KeycloakRoleSyncService } from "./keycloak/keycloak-role-sync.service.js";
+import * as auditService from '$lib/server/services/audit.service.js';
 
 export interface CreateSystemRoleDto {
   name: string;
@@ -130,6 +131,14 @@ export async function createSystemRole(dto: CreateSystemRoleDto) {
     throw e;
   }
 
+  await auditService.log({
+    entity_name: 'SystemRole',
+    entity_cuid: createdRole.cuid,
+    action_type: 'create',
+    status: 'SUCCESS',
+    remarks: `System role "${createdRole.name}" created.`
+  });
+
   return toPublicSystemRole(createdRole);
 }
 
@@ -177,6 +186,13 @@ export async function updateSystemRole(cuid: string, dto: UpdateSystemRoleDto) {
     }
   }
 
+  await auditService.logUpdate({
+    entityName: 'SystemRole',
+    entityCuid: cuid,
+    oldRecord: existing,
+    newRecord: updatedRole
+  });
+
   return toPublicSystemRole(updatedRole);
 }
 
@@ -201,6 +217,14 @@ export async function deleteSystemRole(cuid: string, deletedBy?: string) {
     });
     throw e;
   }
+
+  await auditService.log({
+    entity_name: 'SystemRole',
+    entity_cuid: cuid,
+    action_type: 'delete',
+    status: 'SUCCESS',
+    remarks: `System role "${existing.name}" soft-deleted (deactivated).`
+  });
 
   return toPublicSystemRole(updatedRole);
 }

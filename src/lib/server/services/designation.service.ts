@@ -1,5 +1,6 @@
 import * as designationDao from '$lib/server/dao/designation.dao.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
+import * as auditService from '$lib/server/services/audit.service.js';
 
 export interface CreateDesignationDto {
 	name: string;
@@ -82,13 +83,23 @@ export async function createDesignation(dto: CreateDesignationDto) {
 
 	await ensureDesignationNameIsUnique(name);
 
-	return toPublicDesignation(await designationDao.create({
+	const designation = await designationDao.create({
 		name,
 		status: dto.status ?? true,
 		created_by: dto.created_by ?? undefined,
 		created_at: dto.created_at ?? undefined,
 		updated_at: dto.updated_at ?? undefined
-	}));
+	});
+
+	await auditService.log({
+		entity_name: 'Designation',
+		entity_cuid: designation.cuid,
+		action_type: 'create',
+		status: 'SUCCESS',
+		remarks: `Designation "${designation.name}" created.`
+	});
+
+	return toPublicDesignation(designation);
 }
 
 /**
@@ -123,13 +134,32 @@ export async function updateDesignation(cuid: string, dto: UpdateDesignationDto)
 		updateData.updated_at = dto.updated_at ?? new Date();
 	}
 
-	return toPublicDesignation(await designationDao.update(cuid, updateData));
+	const updated = await designationDao.update(cuid, updateData);
+
+	await auditService.logUpdate({
+		entityName: 'Designation',
+		entityCuid: cuid,
+		oldRecord: existing,
+		newRecord: updated
+	});
+
+	return toPublicDesignation(updated);
 }
 
 /**
  * Soft deletes a designation.
  */
 export async function deleteDesignation(cuid: string) {
-	await getDesignationByCuid(cuid); // ensure it exists
-	return designationDao.update(cuid, { status: false, updated_at: new Date() });
+	const existing = await getDesignationByCuid(cuid); // ensure it exists
+	const updated = await designationDao.update(cuid, { status: false, updated_at: new Date() });
+
+	await auditService.log({
+		entity_name: 'Designation',
+		entity_cuid: cuid,
+		action_type: 'delete',
+		status: 'SUCCESS',
+		remarks: `Designation "${existing.name}" soft-deleted.`
+	});
+
+	return updated;
 }

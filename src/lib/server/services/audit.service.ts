@@ -37,6 +37,12 @@ function maskValue(fieldName: string, value: any): any {
       // It's a Date, don't try to loop keys
       return value;
     }
+    if (
+      (value.constructor && (value.constructor.name === 'Decimal' || value.constructor.name === 'd')) ||
+      (value.s !== undefined && value.e !== undefined && Array.isArray(value.d))
+    ) {
+      return value.toString();
+    }
     const masked: Record<string, any> = {};
     for (const key of Object.keys(value)) {
       if (SENSITIVE_FIELDS.has(key.toLowerCase())) {
@@ -92,7 +98,6 @@ export interface LogParams {
   old_value?: any | null;
   new_value?: any | null;
   remarks?: string | null;
-  correlation_id?: string | null;
 }
 
 /**
@@ -105,7 +110,7 @@ export async function log(params: LogParams, tx?: any) {
   const ipAddress = context?.ipAddress || null;
   const userAgent = context?.userAgent || null;
   const requestId = context?.requestId || crypto.randomUUID();
-  const correlationId = params.correlation_id || context?.correlationId || null;
+
 
   const old_value = params.old_value !== undefined ? maskValue(params.field_name || '', params.old_value) : null;
   const new_value = params.new_value !== undefined ? maskValue(params.field_name || '', params.new_value) : null;
@@ -123,7 +128,6 @@ export async function log(params: LogParams, tx?: any) {
     ip_address: ipAddress,
     user_agent: userAgent,
     request_id: requestId,
-    correlation_id: correlationId,
     remarks: params.remarks || null
   };
 
@@ -136,7 +140,6 @@ export interface LogUpdateParams {
   oldRecord: Record<string, any>;
   newRecord: Record<string, any>;
   remarks?: string | null;
-  correlationId?: string | null;
 }
 
 /**
@@ -149,7 +152,7 @@ export async function logUpdate(params: LogUpdateParams, tx?: any) {
   const ipAddress = context?.ipAddress || null;
   const userAgent = context?.userAgent || null;
   const requestId = context?.requestId || crypto.randomUUID();
-  const correlationId = params.correlationId || context?.correlationId || null;
+
 
   const allKeys = new Set([...Object.keys(params.oldRecord), ...Object.keys(params.newRecord)]);
   const logs: auditDao.AuditLogCreateInput[] = [];
@@ -179,7 +182,6 @@ export async function logUpdate(params: LogUpdateParams, tx?: any) {
         ip_address: ipAddress,
         user_agent: userAgent,
         request_id: requestId,
-        correlation_id: correlationId,
         remarks: params.remarks || null
       });
     }

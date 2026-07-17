@@ -143,8 +143,7 @@ export async function uploadPayroll(
 			entity_cuid: uploadRecord.cuid,
 			action_type: 'bulk_upload_start',
 			status: 'SUCCESS',
-			remarks: `Payroll upload started for ${year}-${String(month).padStart(2, '0')} (File: ${file_name || 'unknown'}).`,
-			correlation_id: uploadRecord.cuid
+			remarks: `Payroll upload started for ${year}-${String(month).padStart(2, '0')} (File: ${file_name || 'unknown'}).`
 		}, tx);
 
 		// Check upload-level fail-fast validations
@@ -400,8 +399,7 @@ export async function uploadPayroll(
 		entity_cuid: uploadRecord.cuid,
 		action_type: 'bulk_upload_complete',
 		status: status === 'failed' ? 'FAILED' : status === 'partial' ? 'PARTIAL' : 'SUCCESS',
-		remarks: `Payroll upload completed. Created: ${created}, Skipped: ${skipped}, Total Errors: ${errors.length}. Status: ${status.toUpperCase()}.`,
-		correlation_id: uploadRecord.cuid
+		remarks: `Payroll upload completed. Created: ${created}, Skipped: ${skipped}, Total Errors: ${errors.length}. Status: ${status.toUpperCase()}.`
 	}, tx);
 
 	// Trigger payroll notification

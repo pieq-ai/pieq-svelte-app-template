@@ -1,6 +1,7 @@
 import * as departmentDao from '$lib/server/dao/department.dao.js';
 import { validateDepartmentName } from '$lib/server/validators/department.validator.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
+import * as auditService from '$lib/server/services/audit.service.js';
 
 export interface CreateDepartmentDto {
 	name: string;
@@ -63,13 +64,23 @@ export async function createDepartment(dto: CreateDepartmentDto) {
 		throw new ValidationError('name', `Department name "${name}" already exists`);
 	}
 
-	return toPublicDepartment(await departmentDao.create({
+	const department = await departmentDao.create({
 		name,
 		status: dto.status ?? true,
 		created_by: dto.created_by ?? undefined,
 		created_at: dto.created_at ?? undefined,
 		updated_at: dto.updated_at ?? undefined
-	}));
+	});
+
+	await auditService.log({
+		entity_name: 'Department',
+		entity_cuid: department.cuid,
+		action_type: 'create',
+		status: 'SUCCESS',
+		remarks: `Department "${department.name}" created.`
+	});
+
+	return toPublicDepartment(department);
 }
 
 /**
@@ -116,7 +127,16 @@ export async function updateDepartment(cuid: string, dto: UpdateDepartmentDto) {
 		updateData.status = dto.status;
 	}
 
-	return toPublicDepartment(await departmentDao.update(cuid, updateData));
+	const updated = await departmentDao.update(cuid, updateData);
+
+	await auditService.logUpdate({
+		entityName: 'Department',
+		entityCuid: cuid,
+		oldRecord: existing,
+		newRecord: updated
+	});
+
+	return toPublicDepartment(updated);
 }
 
 /**
@@ -132,8 +152,18 @@ export async function deleteDepartment(cuid: string, deletedBy?: string) {
 		throw new Error(`Department with CUID2 "${cuid}" not found`);
 	}
 
-	return toPublicDepartment(await departmentDao.update(cuid, {
+	const updated = await departmentDao.update(cuid, {
 		status: false,
 		updated_by: deletedBy
-	}));
+	});
+
+	await auditService.log({
+		entity_name: 'Department',
+		entity_cuid: cuid,
+		action_type: 'delete',
+		status: 'SUCCESS',
+		remarks: `Department "${existing.name}" soft-deleted.`
+	});
+
+	return toPublicDepartment(updated);
 }

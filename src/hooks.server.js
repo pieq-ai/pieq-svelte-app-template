@@ -11,16 +11,13 @@ const auditContextHandle = async ({ event, resolve }) => {
 	const ipAddress = event.getClientAddress ? event.getClientAddress() : undefined;
 	const userAgent = event.request.headers.get('user-agent') || undefined;
 	const requestId = crypto.randomUUID();
-	const correlationId = event.request.headers.get('x-correlation-id') || undefined;
-
 	/** @type {import('$lib/server/utils/request-context').RequestContext} */
 	const context = {
 		performedBy: undefined,
 		performedByType: event.url.pathname.includes('/cron') ? 'CRON' : 'USER',
 		ipAddress,
 		userAgent,
-		requestId,
-		correlationId
+		requestId
 	};
 
 	if (context.performedByType === 'CRON') {
