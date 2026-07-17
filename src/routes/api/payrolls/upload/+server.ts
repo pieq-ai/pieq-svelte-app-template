@@ -11,6 +11,7 @@ import {
   validateExcelExtension,
   validateExcelMimeType,
 } from "$lib/server/validators/payroll.validator.js";
+import { resolveEmployee } from "$lib/server/services/leave.service.js";
 
 /**
  * POST /api/payrolls/upload
@@ -109,13 +110,23 @@ export async function POST({ locals, request }: RequestEvent) {
         (error as Error).message || "Failed to parse Excel file";
     }
 
+    // Resolve employee CUID from email
+    const email = locals.user?.email || '';
+    let employeeCuid: string | null = null;
+    try {
+      const resolved = await resolveEmployee(email);
+      employeeCuid = resolved.employee?.cuid || null;
+    } catch (err) {
+      // Ignore if employee record doesn't exist
+    }
+
     // Process rows through service — creates upload batch + individual payroll records
     const result = await uploadPayroll(
       rows,
       defaultMonth,
       defaultYear,
       file.name,
-      null, // created_by
+      employeeCuid, // created_by
       {
         unreadable,
         unreadableError,

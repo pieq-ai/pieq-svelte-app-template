@@ -124,7 +124,8 @@ export const notificationFactory = {
 		const payload = templates.birthday(firstName, lastName);
 		payload.metadata = {
 			...payload.metadata,
-			employeeCuid
+			employeeCuid,
+			subType: 'birthday'
 		};
 		return notificationService.send(payload);
 	},
@@ -133,7 +134,8 @@ export const notificationFactory = {
 		const payload = templates.workAnniversary(firstName, lastName, years);
 		payload.metadata = {
 			...payload.metadata,
-			employeeCuid
+			employeeCuid,
+			subType: 'work_anniversary'
 		};
 		return notificationService.send(payload);
 	},

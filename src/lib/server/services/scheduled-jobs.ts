@@ -14,19 +14,29 @@ export async function processDailyNotifications() {
 	const todayStart = new Date(Date.UTC(todayYear, todayMonth, todayDate, 0, 0, 0, 0));
 	const todayEnd = new Date(Date.UTC(todayYear, todayMonth, todayDate, 23, 59, 59, 999));
 
-	// Fetch all sent birthday/anniversary notifications for today in UTC
+	// Fetch all sent birthday/anniversary notifications for today in UTC using precise subType filters
 	const existingNotifications = await db.notification.findMany({
 		where: {
-			category: {
-				in: [NotificationCategory.BIRTHDAY, NotificationCategory.ANNOUNCEMENT]
-			},
 			created_at: {
 				gte: todayStart,
 				lte: todayEnd
-			}
+			},
+			OR: [
+				{
+					metadata: {
+						path: ['subType'],
+						equals: 'birthday'
+					}
+				},
+				{
+					metadata: {
+						path: ['subType'],
+						equals: 'work_anniversary'
+					}
+				}
+			]
 		},
 		select: {
-			category: true,
 			metadata: true
 		}
 	});
@@ -36,10 +46,10 @@ export async function processDailyNotifications() {
 
 	for (const notif of existingNotifications) {
 		const meta = notif.metadata as any;
-		if (meta && typeof meta === 'object' && meta.employeeCuid) {
-			if (notif.category === NotificationCategory.BIRTHDAY) {
+		if (meta && typeof meta === 'object' && meta.employeeCuid && meta.subType) {
+			if (meta.subType === 'birthday') {
 				sentBirthdays.add(meta.employeeCuid);
-			} else if (notif.category === NotificationCategory.ANNOUNCEMENT) {
+			} else if (meta.subType === 'work_anniversary') {
 				sentAnniversaries.add(meta.employeeCuid);
 			}
 		}

@@ -82,7 +82,7 @@ describe('scheduled notifications daily jobs', () => {
 		const mockExisting = [
 			{
 				category: NotificationCategory.BIRTHDAY,
-				metadata: { employeeCuid: 'emp1' }
+				metadata: { employeeCuid: 'emp1', subType: 'birthday' }
 			}
 		];
 		vi.mocked(db.notification.findMany).mockResolvedValue(mockExisting as any);

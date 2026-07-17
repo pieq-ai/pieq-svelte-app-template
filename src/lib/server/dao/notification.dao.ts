@@ -1,4 +1,5 @@
 import { db } from '$lib/server/db.js';
+import { Prisma } from '$lib/generated/prisma/client.js';
 
 export interface CreateNotificationInput {
 	title: string;
@@ -18,30 +19,7 @@ export interface ListNotificationsOptions {
 	search?: string;
 }
 
-/**
- * Helper to fetch notification CUIDs that match category or search criteria.
- */
-async function getMatchingNotificationCuids(category?: string, search?: string) {
-	if (!category && !search) return null;
 
-	const where: any = {};
-	if (category) {
-		where.category = category;
-	}
-	if (search) {
-		where.OR = [
-			{ title: { contains: search, mode: 'insensitive' } },
-			{ body: { contains: search, mode: 'insensitive' } }
-		];
-	}
-
-	const notifications = await db.notification.findMany({
-		where,
-		select: { cuid: true }
-	});
-
-	return notifications.map((n) => n.cuid);
-}
 
 /**
  * Creates a notification record.
@@ -83,96 +61,82 @@ export async function createRecipients(notificationCuid: string, employeeCuids: 
  * Lists active (unarchived) notifications for an employee.
  * Includes the linked Notification details.
  */
+/**
+ * Builds the parameterized SQL WHERE clause conditions for active notifications.
+ */
+function buildConditions(employeeCuid: string, options: ListNotificationsOptions) {
+	const conditions: Prisma.Sql[] = [
+		Prisma.sql`nr.employee_cuid = ${employeeCuid}`,
+		Prisma.sql`nr.archived_at IS NULL`
+	];
+
+	if (options.unreadOnly) {
+		conditions.push(Prisma.sql`nr.read_at IS NULL`);
+	}
+
+	if (options.category) {
+		conditions.push(Prisma.sql`n.category = ${options.category}`);
+	}
+
+	if (options.search) {
+		const searchPattern = `%${options.search}%`;
+		conditions.push(Prisma.sql`(n.title ILIKE ${searchPattern} OR n.body ILIKE ${searchPattern})`);
+	}
+
+	return Prisma.join(conditions, ' AND ');
+}
+
+/**
+ * Lists active (unarchived) notifications for an employee.
+ * Includes the linked Notification details.
+ */
 export async function listForEmployee(employeeCuid: string, options: ListNotificationsOptions = {}) {
 	const page = options.page ?? 1;
 	const limit = options.limit ?? 10;
 	const skip = (page - 1) * limit;
 
-	const where: any = {
-		employee_cuid: employeeCuid,
-		archived_at: null
-	};
+	const whereClause = buildConditions(employeeCuid, options);
 
-	if (options.unreadOnly) {
-		where.read_at = null;
-	}
+	const recipients = await db.$queryRaw`
+		SELECT nr.cuid, nr.notification_cuid, nr.employee_cuid, nr.read_at, nr.created_at,
+		       n.title, n.body, n.category, n.priority, n.type, n.metadata, n.created_by
+		FROM notification_recipients nr
+		JOIN notifications n ON nr.notification_cuid = n.cuid
+		WHERE ${whereClause}
+		ORDER BY nr.created_at DESC, nr.id DESC
+		LIMIT ${limit} OFFSET ${skip}
+	`;
 
-	const matchingCuids = await getMatchingNotificationCuids(options.category, options.search);
-	if (matchingCuids !== null) {
-		// If filters are applied but no notifications match, we must return empty
-		if (matchingCuids.length === 0) {
-			return [];
-		}
-		where.notification_cuid = { in: matchingCuids };
-	}
-
-	// We resolve details in the application layer. First query matching recipients.
-	const recipients = await db.notificationRecipient.findMany({
-		where,
-		orderBy: {
-			created_at: 'desc'
-		},
-		skip,
-		take: limit
-	});
-
-	if (recipients.length === 0) {
-		return [];
-	}
-
-	const notificationCuids = recipients.map((r: any) => r.notification_cuid);
-
-	// Fetch notifications matching those CUIDs
-	const notifications = await db.notification.findMany({
-		where: {
-			cuid: { in: notificationCuids }
-		}
-	});
-
-	// Map them together, keeping the descending recipient order
-	const notificationsMap = new Map<string, any>(notifications.map((n: any) => [n.cuid, n]));
-
-	return recipients.map((r: any) => {
-		const n = notificationsMap.get(r.notification_cuid);
-		return {
-			cuid: r.cuid,
-			notification_cuid: r.notification_cuid,
-			employee_cuid: r.employee_cuid,
-			read_at: r.read_at,
-			created_at: r.created_at,
-			title: n?.title ?? '',
-			body: n?.body ?? '',
-			category: n?.category ?? 'system',
-			priority: n?.priority ?? 'medium',
-			type: n?.type ?? 'info',
-			metadata: n?.metadata ?? null,
-			created_by: n?.created_by ?? null
-		};
-	});
+	return (recipients as any[]).map((r) => ({
+		cuid: r.cuid,
+		notification_cuid: r.notification_cuid,
+		employee_cuid: r.employee_cuid,
+		read_at: r.read_at,
+		created_at: r.created_at,
+		title: r.title ?? '',
+		body: r.body ?? '',
+		category: r.category ?? 'system',
+		priority: r.priority ?? 'medium',
+		type: r.type ?? 'info',
+		metadata: r.metadata ?? null,
+		created_by: r.created_by ?? null
+	}));
 }
 
 /**
  * Counts active notifications for an employee.
  */
 export async function countForEmployee(employeeCuid: string, options: ListNotificationsOptions = {}) {
-	const where: any = {
-		employee_cuid: employeeCuid,
-		archived_at: null
-	};
+	const whereClause = buildConditions(employeeCuid, options);
 
-	if (options.unreadOnly) {
-		where.read_at = null;
-	}
+	const countResult = await db.$queryRaw`
+		SELECT COUNT(*)::int as count
+		FROM notification_recipients nr
+		JOIN notifications n ON nr.notification_cuid = n.cuid
+		WHERE ${whereClause}
+	`;
 
-	const matchingCuids = await getMatchingNotificationCuids(options.category, options.search);
-	if (matchingCuids !== null) {
-		if (matchingCuids.length === 0) {
-			return 0;
-		}
-		where.notification_cuid = { in: matchingCuids };
-	}
-
-	return db.notificationRecipient.count({ where });
+	return Number((countResult as any[])[0]?.count ?? 0);
 }
 
 

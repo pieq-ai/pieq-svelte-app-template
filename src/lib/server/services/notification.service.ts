@@ -43,7 +43,7 @@ export async function send(dto: CreateNotificationDto) {
 	}
 
 	// 2. Resolve target recipients (Employee CUIDs)
-	const recipientCuids = await resolveRecipients(dto.target);
+	const recipientCuids = await resolveRecipients(dto);
 	if (recipientCuids.length === 0) {
 		throw new Error(
 			`[NotificationService] Failed to send notification: No active recipients resolved for target ${JSON.stringify(dto.target)}.`

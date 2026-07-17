@@ -182,17 +182,40 @@
 		dismissPopup();
 	}
 
+	let isTabActive = true;
+
+	function handleVisibilityChange() {
+		if (typeof document === 'undefined') return;
+		const active = document.visibilityState === 'visible';
+		if (active !== isTabActive) {
+			isTabActive = active;
+			if (isTabActive) {
+				startPolling();
+			} else {
+				pausePolling();
+			}
+		}
+	}
+
 	function startPolling() {
+		if (pollingInterval) {
+			clearInterval(pollingInterval);
+		}
 		pollNotifications();
 		pollingInterval = setInterval(() => {
 			pollNotifications();
 		}, 5000);
 	}
 
-	function stopPolling() {
+	function pausePolling() {
 		if (pollingInterval) {
 			clearInterval(pollingInterval);
+			pollingInterval = null;
 		}
+	}
+
+	function stopPolling() {
+		pausePolling();
 		if (activeTimeout) {
 			clearTimeout(activeTimeout);
 		}
@@ -364,12 +387,16 @@
 	onMount(() => {
 		startPolling();
 		window.addEventListener('click', handleClickOutside);
+		document.addEventListener('visibilitychange', handleVisibilityChange);
 	});
 
 	onDestroy(() => {
 		stopPolling();
 		if (typeof window !== 'undefined') {
 			window.removeEventListener('click', handleClickOutside);
+		}
+		if (typeof document !== 'undefined') {
+			document.removeEventListener('visibilitychange', handleVisibilityChange);
 		}
 	});
 
@@ -539,22 +566,69 @@
 
 <style>
 	.notification-popup {
-		transform-origin: top right;
+		transform-origin: calc(100% - 18px) -30px;
 		opacity: 0;
-		transform: scale(0.8) translateY(-12px);
-		transition: opacity 300ms cubic-bezier(0.16, 1, 0.3, 1), transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
 		pointer-events: none;
 	}
 
 	.notification-popup.popup-visible {
-		opacity: 1;
-		transform: scale(1) translateY(0);
+		animation: genie-in 320ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 		pointer-events: auto;
 	}
 
 	.notification-popup.popup-hidden {
-		opacity: 0;
-		transform: scale(0.8) translateY(-12px);
+		animation: genie-out 300ms cubic-bezier(0.25, 1, 0.5, 1) forwards;
 		pointer-events: none;
+	}
+
+	@keyframes genie-in {
+		0% {
+			opacity: 0;
+			transform: scale3d(0.15, 0.05, 1);
+		}
+		60% {
+			opacity: 1;
+			transform: scale3d(1.04, 1.08, 1);
+		}
+		80% {
+			transform: scale3d(0.98, 0.96, 1);
+		}
+		100% {
+			opacity: 1;
+			transform: scale3d(1, 1, 1);
+		}
+	}
+
+	@keyframes genie-out {
+		0% {
+			opacity: 1;
+			transform: scale3d(1, 1, 1);
+		}
+		30% {
+			opacity: 1;
+			transform: scale3d(1.02, 0.9, 1);
+		}
+		100% {
+			opacity: 0;
+			transform: scale3d(0.15, 0.02, 1);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.notification-popup {
+			transform-origin: center center;
+			animation: none !important;
+			transition: opacity 150ms ease-in-out !important;
+		}
+		.notification-popup.popup-visible {
+			animation: none !important;
+			transform: scale(1) !important;
+			opacity: 1 !important;
+		}
+		.notification-popup.popup-hidden {
+			animation: none !important;
+			transform: scale(1) !important;
+			opacity: 0 !important;
+		}
 	}
 </style>

@@ -1,4 +1,5 @@
 import { db } from '$lib/server/db.js';
+import type { CreateNotificationDto } from './notification.service.js';
 
 export interface TargetDescriptor {
 	type: 'broadcast' | 'employee' | 'role' | 'department' | 'custom';
@@ -23,7 +24,29 @@ export interface TargetDescriptor {
  *   - 'role' / 'department' → fall back to broadcast for Phase 1;
  *                             will be narrowed when RBAC is implemented in Phase 2
  */
-export async function resolveRecipients(target: TargetDescriptor): Promise<string[]> {
+export async function resolveRecipients(dto: CreateNotificationDto): Promise<string[]> {
+	const target = dto.target;
+
+	// Phase 1 Payroll Failure Override:
+	// If it is a failed payroll notification (category === 'payroll' and type === 'error')
+	// and target is broadcast, route only to the creator of the payroll upload.
+	// In Phase 2, this rule can easily be updated here to target HR/Admin roles without changing templates/factory.
+	if (dto.category === 'payroll' && dto.type === 'error' && target.type === 'broadcast') {
+		if (dto.created_by) {
+			const emp = await db.employee.findFirst({
+				where: {
+					cuid: dto.created_by,
+					is_deleted: false
+				},
+				select: {
+					cuid: true
+				}
+			});
+			return emp ? [emp.cuid] : [];
+		}
+		return [];
+	}
+
 	// Single employee — direct lookup
 	if (target.type === 'employee' && target.employeeCuid) {
 		const emp = await db.employee.findFirst({
