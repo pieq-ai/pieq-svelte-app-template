@@ -18,11 +18,11 @@ export async function findByEmployeeCuid(employee_cuid: string) {
     });
 }
 
-export async function replaceDocuments(employee_cuid: string, documents: UpsertDocumentInput[]) {
-    return db.$transaction(async (tx) => {
+export async function replaceDocuments(employee_cuid: string, documents: UpsertDocumentInput[], tx?: any) {
+    const run = async (t: any) => {
         const providedCuids = documents.map(d => d.cuid).filter(c => c) as string[];
         
-        await tx.employeeDocument.deleteMany({
+        await t.employeeDocument.deleteMany({
             where: {
                 employee_cuid,
                 cuid: { notIn: providedCuids }
@@ -42,12 +42,12 @@ export async function replaceDocuments(employee_cuid: string, documents: UpsertD
                 if (doc.document !== undefined) {
                     data.document = doc.document ? new Uint8Array(doc.document) : null;
                 }
-                results.push(await tx.employeeDocument.update({
+                results.push(await t.employeeDocument.update({
                     where: { cuid: doc.cuid },
                     data
                 }));
             } else {
-                results.push(await tx.employeeDocument.create({
+                results.push(await t.employeeDocument.create({
                     data: {
                         employee_cuid,
                         document_type_cuid: doc.document_type_cuid,
@@ -62,7 +62,13 @@ export async function replaceDocuments(employee_cuid: string, documents: UpsertD
             }
         }
         return results;
-    });
+    };
+
+    if (tx) {
+        return run(tx);
+    } else {
+        return db.$transaction(run);
+    }
 }
 
 export async function findByCuid(cuid: string) {

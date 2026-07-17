@@ -54,6 +54,11 @@ vi.mock('$lib/server/dao/salary-component.dao.js', () => ({
 	findByCuid: vi.fn()
 }));
 
+vi.mock('$lib/server/services/audit.service.js', () => ({
+	log: vi.fn().mockResolvedValue(undefined),
+	logUpdate: vi.fn().mockResolvedValue(undefined)
+}));
+
 vi.mock('$lib/server/providers/employee.provider.js', () => ({
 	findEmployeeByCuid: vi.fn()
 }));

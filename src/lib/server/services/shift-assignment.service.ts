@@ -8,6 +8,8 @@ import { resolveEmployee } from '$lib/server/services/leave.service.js';
 import { validateCreatePayload, validateUpdatePayload } from '$lib/server/validators/shift-assignment.validator.js';
 import type { ShiftAssignment, ShiftAssignmentCreateDTO, ShiftAssignmentUpdateDTO } from '$lib/types/shift-assignment';
 import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
+import { db } from '$lib/server/db.js';
+import * as auditService from '$lib/server/services/audit.service.js';
 
 /**
  * Parses a date string (YYYY-MM-DD) or Date object into a UTC Date.
@@ -142,10 +144,28 @@ export async function createAssignment(payload: unknown, managerEmail: string): 
     }
   }
 
-  const created = await shiftAssignmentDao.create({
-    ...validated,
-    effective_from: fromUTC,
-    effective_to: toUTC
+  const created = await db.$transaction(async (tx) => {
+    const res = (tx && Object.keys(tx).length > 0)
+      ? await shiftAssignmentDao.create({
+          ...validated,
+          effective_from: fromUTC,
+          effective_to: toUTC
+        }, tx)
+      : await shiftAssignmentDao.create({
+          ...validated,
+          effective_from: fromUTC,
+          effective_to: toUTC
+        });
+
+    await auditService.log({
+      entity_name: 'ShiftAssignment',
+      entity_cuid: res.cuid,
+      action_type: 'create',
+      status: 'SUCCESS',
+      remarks: `Shift assignment created for employee CUID ${validated.employee_cuid} (Shift: ${shift.name}).`
+    }, tx);
+
+    return res;
   });
 
   // Trigger shift assigned notification
@@ -258,13 +278,33 @@ export async function updateAssignment(
     }
   }
 
-  const updated = await shiftAssignmentDao.update(cuid, {
-    employee_cuid: targetEmployeeCuid,
-    shift_cuid: targetShiftCuid,
-    effective_from: fromUTC,
-    effective_to: toUTC,
-    status: targetStatus,
-    updated_by: validated.updated_by
+  const updated = await db.$transaction(async (tx) => {
+    const res = (tx && Object.keys(tx).length > 0)
+      ? await shiftAssignmentDao.update(cuid, {
+          employee_cuid: targetEmployeeCuid,
+          shift_cuid: targetShiftCuid,
+          effective_from: fromUTC,
+          effective_to: toUTC,
+          status: targetStatus,
+          updated_by: validated.updated_by
+        }, tx)
+      : await shiftAssignmentDao.update(cuid, {
+          employee_cuid: targetEmployeeCuid,
+          shift_cuid: targetShiftCuid,
+          effective_from: fromUTC,
+          effective_to: toUTC,
+          status: targetStatus,
+          updated_by: validated.updated_by
+        });
+
+    await auditService.logUpdate({
+      entityName: 'ShiftAssignment',
+      entityCuid: cuid,
+      oldRecord: existing,
+      newRecord: res
+    }, tx);
+
+    return res;
   });
 
   const shiftChanged = targetShiftCuid !== existing.shift_cuid;
@@ -309,5 +349,18 @@ export async function deleteAssignment(cuid: string, managerEmail: string): Prom
     throw err;
   }
 
-  await shiftAssignmentDao.deleteAssignment(cuid);
+  await db.$transaction(async (tx) => {
+    if (tx && Object.keys(tx).length > 0) {
+      await shiftAssignmentDao.deleteAssignment(cuid, tx);
+    } else {
+      await shiftAssignmentDao.deleteAssignment(cuid);
+    }
+    await auditService.log({
+      entity_name: 'ShiftAssignment',
+      entity_cuid: cuid,
+      action_type: 'delete',
+      status: 'SUCCESS',
+      remarks: `Shift assignment deleted (Employee: ${existing.employee_cuid}, Shift: ${existing.shift_cuid}).`
+    }, tx);
+  });
 }

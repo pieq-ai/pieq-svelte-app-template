@@ -24,8 +24,9 @@ export async function findById(id: bigint) {
 	});
 }
 
-export async function findByRoleAndPermission(system_role_cuid: string, permission_cuid: string) {
-	return db.rolePermission.findUnique({
+export async function findByRoleAndPermission(system_role_cuid: string, permission_cuid: string, tx?: any) {
+	const client = tx || db;
+	return client.rolePermission.findUnique({
 		where: {
 			system_role_cuid_permission_cuid: {
 				system_role_cuid,
@@ -34,8 +35,9 @@ export async function findByRoleAndPermission(system_role_cuid: string, permissi
 	});
 }
 
-export async function create(data: CreateRolePermissionInput) {
-	return db.rolePermission.create({
+export async function create(data: CreateRolePermissionInput, tx?: any) {
+	const client = tx || db;
+	return client.rolePermission.create({
 		data
 	});
 }
@@ -48,8 +50,9 @@ export async function remove(id: bigint) {
 	});
 }
 
-export async function removeByRoleAndPermission(system_role_cuid: string, permission_cuid: string) {
-	return db.rolePermission.delete({
+export async function removeByRoleAndPermission(system_role_cuid: string, permission_cuid: string, tx?: any) {
+	const client = tx || db;
+	return client.rolePermission.delete({
 		where: {
 			system_role_cuid_permission_cuid: {
 				system_role_cuid,

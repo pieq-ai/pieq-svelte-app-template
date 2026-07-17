@@ -16,6 +16,12 @@ vi.mock('../../src/lib/server/notifications/notification.factory.js', () => ({
   }
 }));
 
+vi.mock('../../src/lib/server/db.js', () => ({
+  db: {
+    $transaction: vi.fn((cb) => cb({}))
+  }
+}));
+
 vi.mock('../../src/lib/server/dao/shift-assignment.dao.js', () => ({
   listForSubordinates: vi.fn(),
   findByCuid: vi.fn(),

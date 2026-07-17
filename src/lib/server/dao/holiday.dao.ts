@@ -20,8 +20,9 @@ export async function list() {
 	});
 }
 
-export async function create(data: CreateHolidayData) {
-	return db.holidayCalendar.create({
+export async function create(data: CreateHolidayData, tx?: any) {
+	const client = tx || db;
+	return client.holidayCalendar.create({
 		data: {
 			name: data.name,
 			date: data.date,
@@ -32,7 +33,8 @@ export async function create(data: CreateHolidayData) {
 	});
 }
 
-export async function update(cuid: string, data: Partial<CreateHolidayData>) {
+export async function update(cuid: string, data: Partial<CreateHolidayData>, tx?: any) {
+	const client = tx || db;
 	const updateData: any = {};
 	if (data.name !== undefined) updateData.name = data.name;
 	if (data.date !== undefined) updateData.date = data.date;
@@ -40,14 +42,15 @@ export async function update(cuid: string, data: Partial<CreateHolidayData>) {
 	if (data.created_by !== undefined) updateData.created_by = data.created_by;
 	if (data.updated_by !== undefined) updateData.updated_by = data.updated_by;
 
-	return db.holidayCalendar.update({
+	return client.holidayCalendar.update({
 		where: { cuid },
 		data: updateData
 	});
 }
 
-export async function findByCuid(cuid: string) {
-	return db.holidayCalendar.findUnique({
+export async function findByCuid(cuid: string, tx?: any) {
+	const client = tx || db;
+	return client.holidayCalendar.findUnique({
 		where: { cuid },
 		select: {
 			cuid: true,

@@ -2,6 +2,7 @@ import { SvelteKitAuth } from '@auth/sveltekit';
 import { appendFileSync } from 'fs';
 import Keycloak from '@auth/sveltekit/providers/keycloak';
 import { getAuthConfig } from '$lib/server/config.js';
+import * as auditService from '$lib/server/services/audit.service.js';
 // Removed HRMS sync imports to separate auth and authz
 
 /** @param {Record<string, unknown> | undefined} profile */
@@ -80,6 +81,32 @@ function createAuth() {
 				}
 				
 				return session;
+			}
+		},
+		events: {
+			async signIn({ user, account, profile }) {
+				const email = user?.email || profile?.email || '';
+				const keycloakSub = user?.id || profile?.sub || '';
+				await auditService.log({
+					entity_name: 'Authentication',
+					entity_cuid: keycloakSub,
+					action_type: 'login',
+					status: 'SUCCESS',
+					remarks: `User ${email} logged in successfully.`
+				});
+			},
+			async signOut(params) {
+				const token = ('token' in params) ? params.token : null;
+				const session = /** @type {any} */ (('session' in params) ? params.session : null);
+				const keycloakSub = token?.sub || session?.user?.id || '';
+				const email = token?.email || session?.user?.email || '';
+				await auditService.log({
+					entity_name: 'Authentication',
+					entity_cuid: keycloakSub,
+					action_type: 'logout',
+					status: 'SUCCESS',
+					remarks: `User ${email} logged out.`
+				});
 			}
 		},
 		pages: {

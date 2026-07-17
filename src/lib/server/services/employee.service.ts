@@ -16,6 +16,8 @@ import * as languageDao from '$lib/server/dao/language.dao.js';
 import * as shiftAssignmentDao from '$lib/server/dao/shift-assignment.dao.js';
 import { personalSchema } from '$lib/schemas/employee.schema.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
+import { db } from '$lib/server/db.js';
+import * as auditService from '$lib/server/services/audit.service.js';
 
 export interface CreateEmployeeDto {
     emp_code: string;
@@ -149,11 +151,23 @@ export async function createEmployee(dto: CreateEmployeeDto) {
         const emp_code = await generateNextEmployeeCode();
         
         try {
-            const result = await employeeDao.create({
-                ...validated,
-                created_by: dto.created_by,
-                emp_code,
-                profile_completion_status: 'pending'
+            const result = await db.$transaction(async (tx) => {
+                const res = await employeeDao.create({
+                    ...validated,
+                    created_by: dto.created_by,
+                    emp_code,
+                    profile_completion_status: 'pending'
+                }, tx);
+
+                await auditService.log({
+                    entity_name: 'Employee',
+                    entity_cuid: res.cuid,
+                    action_type: 'create',
+                    status: 'SUCCESS',
+                    remarks: `Employee ${res.first_name} ${res.last_name} (${emp_code}) created.`
+                }, tx);
+
+                return res;
             });
 
             // Trigger employee joined notification
@@ -237,13 +251,24 @@ export async function updateEmployee(cuid: string, dto: UpdateEmployeeDto) {
         }
     }
 
-    const result = toPublicEmployee(await employeeDao.update(cuid, {
-        ...validated,
-        updated_by: dto.updated_by
-    } as employeeDao.UpdateEmployeeInput));
+    const result = await db.$transaction(async (tx) => {
+        const updated = await employeeDao.update(cuid, {
+            ...validated,
+            updated_by: dto.updated_by
+        } as employeeDao.UpdateEmployeeInput, tx);
+
+        await auditService.logUpdate({
+            entityName: 'Employee',
+            entityCuid: cuid,
+            oldRecord: emp,
+            newRecord: updated
+        }, tx);
+
+        return updated;
+    });
 
     await employeeLifecycleService.syncEmployeeLifecycle(cuid);
-    return result;
+    return toPublicEmployee(result);
 }
 
 
@@ -251,7 +276,22 @@ export async function deleteEmployee(cuid: string) {
     if (!cuid) throw new Error("Employee CUID2 is required");
     const existing = await employeeDao.findByCuid2(cuid);
     if (!existing) throw new Error(`Employee with CUID2 "${cuid}" not found`);
-    return toPublicEmployee(await employeeDao.remove(cuid));
+
+    const result = await db.$transaction(async (tx) => {
+        const res = (tx && Object.keys(tx).length > 0)
+            ? await employeeDao.remove(cuid, tx)
+            : await employeeDao.remove(cuid);
+        await auditService.log({
+            entity_name: 'Employee',
+            entity_cuid: cuid,
+            action_type: 'delete',
+            status: 'SUCCESS',
+            remarks: `Employee ${existing.first_name} ${existing.last_name} soft-deleted.`
+        }, tx);
+        return res;
+    });
+
+    return toPublicEmployee(result);
 }
 
 export async function getMinimalEmployeesForAttendance() {

@@ -5,6 +5,12 @@ import * as permissionDao from '../../src/lib/server/dao/permission.dao.js';
 import * as rolePermissionDao from '../../src/lib/server/dao/role-permission.dao.js';
 import * as systemRoleDao from '../../src/lib/server/dao/system-role.dao.js';
 
+vi.mock('../../src/lib/server/db.js', () => ({
+  db: {
+    $transaction: vi.fn((cb) => cb({}))
+  }
+}));
+
 vi.mock('$lib/server/dao/permission.dao.js', () => ({
 	list: vi.fn(),
 	findByCuid2: vi.fn()
@@ -20,6 +26,11 @@ vi.mock('$lib/server/dao/role-permission.dao.js', () => ({
 vi.mock('$lib/server/dao/system-role.dao.js', () => ({
 	list: vi.fn(),
 	findByCuid2: vi.fn()
+}));
+
+vi.mock('$lib/server/services/audit.service.js', () => ({
+	log: vi.fn().mockResolvedValue(undefined),
+	logUpdate: vi.fn().mockResolvedValue(undefined)
 }));
 
 describe('Role Permission Service', () => {

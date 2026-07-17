@@ -45,6 +45,17 @@ vi.mock('$lib/server/dao/attendance-record.dao.js', () => {
 	};
 });
 
+vi.mock('$lib/server/services/audit.service.js', () => ({
+	log: vi.fn().mockResolvedValue(undefined),
+	logUpdate: vi.fn().mockResolvedValue(undefined)
+}));
+
+vi.mock('$lib/server/db.js', () => ({
+	db: {
+		$transaction: vi.fn((cb) => cb({}))
+	}
+}));
+
 describe('attendance-record service', () => {
 	const employeeCuid = 'emp-123';
 	const validRecordInput = {

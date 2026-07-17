@@ -9,6 +9,7 @@ import type {
 	CreateRevisionDto
 } from '$lib/types/salary-structure.js';
 import { db } from '$lib/server/db.js';
+import * as auditService from '$lib/server/services/audit.service.js';
 
 export class ConfirmationRequiredError extends Error {
 	constructor() {
@@ -406,6 +407,14 @@ export async function createStructure(dto: CreateSalaryStructureDto) {
 			)
 		);
 
+		await auditService.log({
+			entity_name: 'SalaryStructure',
+			entity_cuid: structure.cuid,
+			action_type: 'create',
+			status: 'SUCCESS',
+			remarks: `Salary structure created for employee CUID ${dto.employee_cuid}.`
+		}, tx);
+
 		return serializeSalaryStructure(structure, createdItems);
 	});
 }
@@ -444,34 +453,44 @@ export async function createRevision(sourceCuid: string, dto: CreateRevisionDto)
 	// Validate all components and capture name snapshots
 	const nameMap = await assertComponentsValid(dto.components);
 
-	// Close the previous Active structure
-	await dao.update(sourceCuid, {
-		status: false,
-		effective_to: previousEffectiveTo(dto.effective_from),
-		updated_by: dto.created_by ?? null
-	});
+	return db.$transaction(async (tx) => {
+		// Close the previous Active structure
+		await dao.update(sourceCuid, {
+			status: false,
+			effective_to: previousEffectiveTo(dto.effective_from),
+			updated_by: dto.created_by ?? null
+		});
 
-	// Create the new (revision) structure
-	const newStructure = await dao.create({
-		employee_cuid: source.employee_cuid,
-		effective_from: dto.effective_from,
-		effective_to: null,
-		status: true,
-		created_by: dto.created_by ?? null
-	});
-
-	// Create items with snapshots
-	const items = await dao.createItems(
-		newStructure.cuid,
-		dto.components.map((item) => ({
-			salary_component_cuid: item.salary_component_cuid,
-			component_name_snapshot: nameMap.get(item.salary_component_cuid) ?? '',
-			amount: item.amount,
+		// Create the new (revision) structure
+		const newStructure = await dao.create({
+			employee_cuid: source.employee_cuid,
+			effective_from: dto.effective_from,
+			effective_to: null,
+			status: true,
 			created_by: dto.created_by ?? null
-		}))
-	);
+		});
 
-	return serializeSalaryStructure(newStructure, items);
+		// Create items with snapshots
+		const items = await dao.createItems(
+			newStructure.cuid,
+			dto.components.map((item) => ({
+				salary_component_cuid: item.salary_component_cuid,
+				component_name_snapshot: nameMap.get(item.salary_component_cuid) ?? '',
+				amount: item.amount,
+				created_by: dto.created_by ?? null
+			}))
+		);
+
+		await auditService.log({
+			entity_name: 'SalaryStructure',
+			entity_cuid: newStructure.cuid,
+			action_type: 'revision',
+			status: 'SUCCESS',
+			remarks: `Salary revision created from source structure CUID ${sourceCuid}.`
+		});
+
+		return serializeSalaryStructure(newStructure, items);
+	});
 }
 
 /**
@@ -571,6 +590,13 @@ export async function updateStructure(cuid: string, dto: UpdateSalaryStructureDt
 				updated_by: structureFields.updated_by ?? null
 			}
 		});
+
+		await auditService.logUpdate({
+			entityName: 'SalaryStructure',
+			entityCuid: cuid,
+			oldRecord: current,
+			newRecord: updated
+		}, tx);
 
 		if (dto.components !== undefined && nameMap) {
 			await tx.salaryStructureItem.deleteMany({

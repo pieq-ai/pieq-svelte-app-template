@@ -8,6 +8,8 @@ import * as locationDao from '$lib/server/dao/organization_location.dao.js';
 import * as leaveDao from '$lib/server/dao/leave.dao.js';
 import * as notificationDao from '$lib/server/dao/notification.dao.js';
 import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
+import { db } from '$lib/server/db.js';
+import * as auditService from '$lib/server/services/audit.service.js';
 
 export async function getLeaveStatusOnDate(employeeCuid: string, date: Date, tx?: any) {
 	const dateUTC = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
@@ -178,27 +180,61 @@ export async function checkIn(
 		}
 	}
 
-	const record = existing
-		? await attendanceDao.update(existing.cuid, {
-				check_in_time: today,
-				check_in_latitude: latitude,
-				check_in_longitude: longitude,
-				attendance_source_cuid: sourceCuid,
-				status: existing.status === 'Half Day' ? 'Half Day' : 'Present',
-				updated_by: createdBy,
-				updated_at: today
-			})
-		: await attendanceDao.create({
-				employee_cuid: employeeCuid,
-				date: todayUTC,
-				check_in_time: today,
-				status: 'Present',
-				attendance_source_cuid: sourceCuid,
-				created_by: createdBy,
-				updated_by: createdBy,
-				check_in_latitude: latitude,
-				check_in_longitude: longitude
-			});
+	const record = await db.$transaction(async (tx) => {
+		const rec = existing
+			? ((tx && Object.keys(tx).length > 0)
+				? await attendanceDao.update(existing.cuid, {
+						check_in_time: today,
+						check_in_latitude: latitude,
+						check_in_longitude: longitude,
+						attendance_source_cuid: sourceCuid,
+						status: existing.status === 'Half Day' ? 'Half Day' : 'Present',
+						updated_by: createdBy,
+						updated_at: today
+					}, tx)
+				: await attendanceDao.update(existing.cuid, {
+						check_in_time: today,
+						check_in_latitude: latitude,
+						check_in_longitude: longitude,
+						attendance_source_cuid: sourceCuid,
+						status: existing.status === 'Half Day' ? 'Half Day' : 'Present',
+						updated_by: createdBy,
+						updated_at: today
+					}))
+			: ((tx && Object.keys(tx).length > 0)
+				? await attendanceDao.create({
+						employee_cuid: employeeCuid,
+						date: todayUTC,
+						check_in_time: today,
+						status: 'Present',
+						attendance_source_cuid: sourceCuid,
+						created_by: createdBy,
+						updated_by: createdBy,
+						check_in_latitude: latitude,
+						check_in_longitude: longitude
+					}, tx)
+				: await attendanceDao.create({
+						employee_cuid: employeeCuid,
+						date: todayUTC,
+						check_in_time: today,
+						status: 'Present',
+						attendance_source_cuid: sourceCuid,
+						created_by: createdBy,
+						updated_by: createdBy,
+						check_in_latitude: latitude,
+						check_in_longitude: longitude
+					}));
+
+		await auditService.log({
+			entity_name: 'AttendanceRecord',
+			entity_cuid: rec.cuid,
+			action_type: 'check_in',
+			status: 'SUCCESS',
+			remarks: `Checked in at ${today.toISOString()} (lat: ${latitude}, lon: ${longitude}).`
+		}, tx);
+
+		return rec;
+	});
 
 	// Fire missing checkout reminder asynchronously so it does not block the API response
 	triggerMissingCheckoutReminders(employeeCuid, createdBy).catch((err) => {
@@ -376,13 +412,34 @@ export async function checkOut(
 	const diffMs = checkOutTime.getTime() - checkInTime.getTime();
 	const minutes = Math.round(diffMs / 1000 / 60);
 
-	return attendanceDao.update(existing.cuid, {
-		check_out_time: checkOutTime,
-		work_duration_minutes: Math.max(0, minutes),
-		updated_by: updatedBy,
-		updated_at: new Date(),
-		check_out_latitude: latitude,
-		check_out_longitude: longitude
+	return db.$transaction(async (tx) => {
+		const rec = (tx && Object.keys(tx).length > 0)
+			? await attendanceDao.update(existing.cuid, {
+					check_out_time: checkOutTime,
+					work_duration_minutes: Math.max(0, minutes),
+					updated_by: updatedBy,
+					updated_at: new Date(),
+					check_out_latitude: latitude,
+					check_out_longitude: longitude
+				}, tx)
+			: await attendanceDao.update(existing.cuid, {
+					check_out_time: checkOutTime,
+					work_duration_minutes: Math.max(0, minutes),
+					updated_by: updatedBy,
+					updated_at: new Date(),
+					check_out_latitude: latitude,
+					check_out_longitude: longitude
+				});
+
+		await auditService.log({
+			entity_name: 'AttendanceRecord',
+			entity_cuid: rec.cuid,
+			action_type: 'check_out',
+			status: 'SUCCESS',
+			remarks: `Checked out at ${checkOutTime.toISOString()} (lat: ${latitude}, lon: ${longitude}). Work duration: ${minutes} mins.`
+		}, tx);
+
+		return rec;
 	});
 }
 

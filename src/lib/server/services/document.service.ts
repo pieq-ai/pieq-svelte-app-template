@@ -4,6 +4,8 @@ import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
 import { z } from 'zod';
+import { db } from '$lib/server/db.js';
+import * as auditService from '$lib/server/services/audit.service.js';
 import { documentSchema } from '$lib/schemas/employee.schema.js';
 
 export interface UpsertDocumentDto {
@@ -90,7 +92,19 @@ export async function replaceDocuments(employee_cuid: string, dtos: UpsertDocume
         };
     });
 
-    const results = await documentDao.replaceDocuments(employee_cuid, payload);
+    const results = await db.$transaction(async (tx) => {
+        const res = (tx && Object.keys(tx).length > 0)
+            ? await documentDao.replaceDocuments(employee_cuid, payload, tx)
+            : await documentDao.replaceDocuments(employee_cuid, payload);
+        await auditService.log({
+            entity_name: 'EmployeeDocument',
+            entity_cuid: employee_cuid,
+            action_type: 'replace_documents',
+            status: 'SUCCESS',
+            remarks: `Replaced employee documents. Count: ${res.length}.`
+        }, tx);
+        return res;
+    });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
     return results.map(toPublicDocument);
 }

@@ -18,6 +18,17 @@ vi.mock('$lib/server/dao/employment.dao.js', () => ({
 	findByEmployeeCuid: vi.fn()
 }));
 
+vi.mock('$lib/server/services/audit.service.js', () => ({
+	log: vi.fn().mockResolvedValue(undefined),
+	logUpdate: vi.fn().mockResolvedValue(undefined)
+}));
+
+vi.mock('$lib/server/db.js', () => ({
+	db: {
+		$transaction: vi.fn((cb) => cb({}))
+	}
+}));
+
 describe('Employee Service', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();

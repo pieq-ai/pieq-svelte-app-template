@@ -61,8 +61,9 @@ export async function list(filters: AttendanceRecordFilters = {}) {
 	});
 }
 
-export async function findByCuid(cuid: string) {
-	return db.attendanceRecord.findUnique({
+export async function findByCuid(cuid: string, tx?: any) {
+	const client = tx || db;
+	return client.attendanceRecord.findUnique({
 		where: { cuid }
 	});
 }
@@ -76,8 +77,9 @@ export async function findByEmployeeAndDate(employee_cuid: string, date: Date) {
 	});
 }
 
-export async function create(data: CreateAttendanceRecordInput) {
-	return db.attendanceRecord.create({
+export async function create(data: CreateAttendanceRecordInput, tx?: any) {
+	const client = tx || db;
+	return client.attendanceRecord.create({
 		data: {
 			employee_cuid: data.employee_cuid,
 			date: data.date,
@@ -93,8 +95,9 @@ export async function create(data: CreateAttendanceRecordInput) {
 	});
 }
 
-export async function update(cuid: string, data: UpdateAttendanceRecordInput) {
-	return db.attendanceRecord.update({
+export async function update(cuid: string, data: UpdateAttendanceRecordInput, tx?: any) {
+	const client = tx || db;
+	return client.attendanceRecord.update({
 		where: { cuid },
 		data
 	});

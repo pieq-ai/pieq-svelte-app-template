@@ -8,6 +8,7 @@ import * as bankDetailDao from '$lib/server/dao/bank-detail.dao.js';
 import * as designationDao from '$lib/server/dao/designation.dao.js';
 import * as locationDao from '$lib/server/dao/organization_location.dao.js';
 import { db } from '$lib/server/db.js';
+import * as auditService from '$lib/server/services/audit.service.js';
 import { findEmployeeByCode } from '$lib/server/providers/employee.provider.js';
 import { serializePayroll, serializePayrollList } from '$lib/server/serializers/payroll.serializer.js';
 import type { ParsedPayrollRow } from '$lib/server/utils/excel-parser.js';
@@ -134,6 +135,16 @@ export async function uploadPayroll(
 			status: 'processed',
 			file_name: file_name ?? null,
 			created_by: created_by ?? null
+		}, tx);
+
+		// Log start of payroll upload bulk operation
+		await auditService.log({
+			entity_name: 'PayrollUpload',
+			entity_cuid: uploadRecord.cuid,
+			action_type: 'bulk_upload_start',
+			status: 'SUCCESS',
+			remarks: `Payroll upload started for ${year}-${String(month).padStart(2, '0')} (File: ${file_name || 'unknown'}).`,
+			correlation_id: uploadRecord.cuid
 		}, tx);
 
 		// Check upload-level fail-fast validations
@@ -382,6 +393,16 @@ export async function uploadPayroll(
 	// Step 3: Update upload batch with final count and status
 	const status = skipped > 0 && created === 0 ? 'failed' : skipped > 0 ? 'partial' : 'processed';
 	await uploadDao.updateEmployeeCount(uploadRecord.cuid, created, status, null, tx);
+
+	// Log completion and final summary of the bulk upload
+	await auditService.log({
+		entity_name: 'PayrollUpload',
+		entity_cuid: uploadRecord.cuid,
+		action_type: 'bulk_upload_complete',
+		status: status === 'failed' ? 'FAILED' : status === 'partial' ? 'PARTIAL' : 'SUCCESS',
+		remarks: `Payroll upload completed. Created: ${created}, Skipped: ${skipped}, Total Errors: ${errors.length}. Status: ${status.toUpperCase()}.`,
+		correlation_id: uploadRecord.cuid
+	}, tx);
 
 	// Trigger payroll notification
 	if (status === 'failed') {
