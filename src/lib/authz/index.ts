@@ -36,15 +36,5 @@ export function canAccess(user: AuthzUser | null | undefined, permission: string
     }
 
     // Support wildcard permission for bootstrap admin
-    const result = user.permissions.includes('*') || user.permissions.includes(permission);
-    
-    console.log("[AUTHZ DIAGNOSTIC]", {
-        currentUser: user?.email || user?.id || "Unknown",
-        system_role_cuid: user?.system_role_cuid,
-        system_role_name: user?.system_role_name,
-        permission,
-        finalResult: result
-    });
-    
-    return result;
+    return user.permissions.includes('*') || user.permissions.includes(permission);
 }

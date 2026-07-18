@@ -191,3 +191,17 @@ export async function logUpdate(params: LogUpdateParams, tx?: any) {
     return auditDao.createAuditLogs(logs, tx);
   }
 }
+
+/**
+ * Query paginated, filtered list of audit logs.
+ */
+export async function getAuditLogs(filters: auditDao.ListAuditLogsFilters) {
+  return auditDao.listAuditLogs(filters);
+}
+
+/**
+ * Fetch a single audit log entry by CUID, including full old_value/new_value details.
+ */
+export async function getAuditLogByCuid(cuid: string) {
+  return auditDao.findByCuid2(cuid);
+}

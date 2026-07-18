@@ -39,15 +39,13 @@ if (typeof BigInt !== 'undefined') {
 /** @type {import('@sveltejs/kit').Handle} */
 const injectLocals = async ({ event, resolve }) => {
 	const session = await event.locals.auth?.();
-    console.log("[DIAG-3] hooks.server.js session:", { userId: session?.user?.id, email: session?.user?.email });
-
 	if (session?.user?.id) {
 		let hrmsContext;
 		/** @type {string[]} */
 		let permissions = [];
 
 		try {
-			hrmsContext = await authUserService.syncAuthenticatedUser(session.user.id, session.user.email ?? undefined);
+			hrmsContext = await authUserService.syncAuthenticatedUser(session.user.id, session.user.email ?? undefined, session.user.name ?? undefined);
 			if (hrmsContext) {
 				permissions = hrmsContext.permissions || [];
 			}
@@ -77,10 +75,7 @@ const injectLocals = async ({ event, resolve }) => {
 			idToken: session.oidcUser?.id_token
 		};
 		event.locals.roles = session.roles ?? [];
-        console.log("[AUTHZ DIAGNOSTIC - HOOKS]", {
-            localsUser: event.locals.user
-        });
-		
+
 		const reqContext = requestContextStorage.getStore();
 		if (reqContext) {
 			reqContext.performedBy = event.locals.user.employee_cuid || event.locals.user.id || session.user.id;

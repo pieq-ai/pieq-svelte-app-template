@@ -5,7 +5,9 @@ import { runWithContext } from '$lib/server/utils/request-context.js';
 
 vi.mock('$lib/server/dao/audit.dao.js', () => {
   return {
-    createAuditLogs: vi.fn()
+    createAuditLogs: vi.fn(),
+    listAuditLogs: vi.fn(),
+    findByCuid2: vi.fn()
   };
 });
 
@@ -240,6 +242,26 @@ describe('Audit Logging Service', () => {
         ],
         undefined
       );
+    });
+  });
+
+  describe('getAuditLogs method', () => {
+    it('should delegate to auditDao.listAuditLogs', async () => {
+      const mockFilters = { search: 'test' };
+      vi.mocked(auditDao.listAuditLogs).mockResolvedValue({ total: 10, items: [] });
+      const result = await auditService.getAuditLogs(mockFilters);
+      expect(auditDao.listAuditLogs).toHaveBeenCalledWith(mockFilters);
+      expect(result).toEqual({ total: 10, items: [] });
+    });
+  });
+
+  describe('getAuditLogByCuid method', () => {
+    it('should delegate to auditDao.findByCuid2', async () => {
+      const mockLog = { cuid: 'cuid123', remarks: 'test log' };
+      vi.mocked(auditDao.findByCuid2).mockResolvedValue(mockLog as any);
+      const result = await auditService.getAuditLogByCuid('cuid123');
+      expect(auditDao.findByCuid2).toHaveBeenCalledWith('cuid123');
+      expect(result).toEqual(mockLog);
     });
   });
 });

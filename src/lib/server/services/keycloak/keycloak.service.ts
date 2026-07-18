@@ -155,7 +155,8 @@ export class KeycloakService {
       return this.tokenCache.token;
     }
 
-    const path = `/realms/${this.config.realm}/protocol/openid-connect/token`;
+    const tokenRealm = this.config.clientSecret ? this.config.realm : (this.config.adminRealm || "master");
+    const path = `/realms/${tokenRealm}/protocol/openid-connect/token`;
     const params = new URLSearchParams();
 
     if (this.config.clientSecret) {

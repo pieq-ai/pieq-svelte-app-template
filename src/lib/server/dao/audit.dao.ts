@@ -29,6 +29,8 @@ export interface ListAuditLogsFilters {
   toDate?: Date;
   skip?: number;
   take?: number;
+  sortColumn?: string;
+  sortDirection?: 'asc' | 'desc' | null;
 }
 
 export async function createAuditLogs(logs: AuditLogCreateInput[], tx?: any) {
@@ -84,15 +86,50 @@ export async function listAuditLogs(filters: ListAuditLogsFilters, tx?: any) {
     }
   }
 
+  let orderBy: any = { created_at: 'desc' };
+  if (filters.sortColumn) {
+    const dir = filters.sortDirection || 'asc';
+    if (filters.sortColumn === 'timestamp' || filters.sortColumn === 'created_at') {
+      orderBy = { created_at: dir };
+    } else if (filters.sortColumn === 'entity' || filters.sortColumn === 'entity_name') {
+      orderBy = { entity_name: dir };
+    } else if (filters.sortColumn === 'performer' || filters.sortColumn === 'performed_by') {
+      orderBy = { performed_by: dir };
+    }
+  }
+
   const [total, items] = await Promise.all([
     client.auditLog.count({ where }),
     client.auditLog.findMany({
       where,
-      orderBy: { created_at: 'desc' },
+      select: {
+        id: true,
+        cuid: true,
+        entity_name: true,
+        entity_cuid: true,
+        action_type: true,
+        status: true,
+        field_name: true,
+        performed_by: true,
+        performed_by_type: true,
+        ip_address: true,
+        user_agent: true,
+        remarks: true,
+        request_id: true,
+        created_at: true
+      },
+      orderBy,
       skip: filters.skip ?? 0,
       take: filters.take ?? 50
     })
   ]);
 
   return { total, items };
+}
+
+export async function findByCuid2(cuid: string, tx?: any) {
+  const client = tx || db;
+  return client.auditLog.findUnique({
+    where: { cuid }
+  });
 }
