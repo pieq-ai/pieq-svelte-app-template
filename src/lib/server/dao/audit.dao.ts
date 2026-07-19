@@ -71,10 +71,20 @@ export async function listAuditLogs(filters: ListAuditLogsFilters, tx?: any) {
   }
 
   if (filters.search) {
-    where.remarks = {
-      contains: filters.search,
-      mode: 'insensitive'
-    };
+    where.OR = [
+      {
+        remarks: {
+          contains: filters.search,
+          mode: 'insensitive'
+        }
+      },
+      {
+        request_id: {
+          contains: filters.search,
+          mode: 'insensitive'
+        }
+      }
+    ];
   }
   if (filters.fromDate || filters.toDate) {
     where.created_at = {};

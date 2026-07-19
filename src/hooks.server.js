@@ -6,15 +6,66 @@ import { requestContextStorage } from '$lib/server/utils/request-context.js';
 import * as auditService from '$lib/server/services/audit.service.js';
 import crypto from 'node:crypto';
 
+/**
+ * Determines if a SvelteKit request is a direct API call from an external client.
+ * @param {import('@sveltejs/kit').RequestEvent} event
+ * @returns {boolean}
+ */
+function isApiRequest(event) {
+	const pathname = event.url.pathname;
+	if (!pathname.startsWith('/api/')) return false;
+	if (pathname.includes('/cron')) return false;
+
+	const userAgent = event.request.headers.get('user-agent') || '';
+	const hasAuthHeader = event.request.headers.has('authorization');
+
+	// Explicit authorization header always denotes API request
+	if (hasAuthHeader) return true;
+
+	// Detect standard programmatic API clients
+	const lowerUA = userAgent.toLowerCase();
+	if (
+		lowerUA.includes('postman') ||
+		lowerUA.includes('curl') ||
+		lowerUA.includes('insomnia') ||
+		lowerUA.includes('axios') ||
+		lowerUA.includes('node-fetch') ||
+		lowerUA.includes('python-requests')
+	) {
+		return true;
+	}
+
+	// Browser Svelte app fetches typically send referer/origin or sec-fetch-site headers.
+	// If these are missing on an API endpoint, classify it as direct API client access.
+	const secFetchSite = event.request.headers.get('sec-fetch-site');
+	const referer = event.request.headers.get('referer');
+	const origin = event.request.headers.get('origin');
+
+	if (!secFetchSite && !referer && !origin) {
+		return true;
+	}
+
+	return false;
+}
+
 /** @type {import('@sveltejs/kit').Handle} */
 const auditContextHandle = async ({ event, resolve }) => {
 	const ipAddress = event.getClientAddress ? event.getClientAddress() : undefined;
 	const userAgent = event.request.headers.get('user-agent') || undefined;
 	const requestId = crypto.randomUUID();
+
+	/** @type {'USER' | 'SYSTEM' | 'CRON' | 'API'} */
+	let performedByType = 'USER';
+	if (event.url.pathname.includes('/cron')) {
+		performedByType = 'CRON';
+	} else if (isApiRequest(event)) {
+		performedByType = 'API';
+	}
+
 	/** @type {import('$lib/server/utils/request-context').RequestContext} */
 	const context = {
 		performedBy: undefined,
-		performedByType: event.url.pathname.includes('/cron') ? 'CRON' : 'USER',
+		performedByType,
 		ipAddress,
 		userAgent,
 		requestId
@@ -22,6 +73,8 @@ const auditContextHandle = async ({ event, resolve }) => {
 
 	if (context.performedByType === 'CRON') {
 		context.performedBy = 'Scheduled Cron Job';
+	} else if (context.performedByType === 'API') {
+		context.performedBy = 'API Client';
 	}
 
 	return requestContextStorage.run(context, async () => {
@@ -79,7 +132,9 @@ const injectLocals = async ({ event, resolve }) => {
 		const reqContext = requestContextStorage.getStore();
 		if (reqContext) {
 			reqContext.performedBy = event.locals.user.employee_cuid || event.locals.user.id || session.user.id;
-			reqContext.performedByType = 'USER';
+			if (reqContext.performedByType !== 'API' && reqContext.performedByType !== 'CRON') {
+				reqContext.performedByType = 'USER';
+			}
 		}
 	} else {
 		event.locals.user = null;

@@ -3,6 +3,7 @@ import * as addressDao from '$lib/server/dao/address.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
+import * as auditService from '$lib/server/services/audit.service.js';
 import { z } from 'zod';
 import { addressSchema } from '$lib/schemas/employee.schema.js';
 
@@ -45,6 +46,13 @@ export async function replaceAddresses(employee_cuid: string, dtos: UpsertAddres
     }));
 
     const results = await addressDao.replaceAddresses(employee_cuid, payload);
+    await auditService.log({
+        entity_name: 'Employee',
+        entity_cuid: employee_cuid,
+        action_type: 'update',
+        status: 'SUCCESS',
+        remarks: 'Employee addresses updated.'
+    });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
     return results.map(toPublicAddress);
 }

@@ -4,6 +4,13 @@ import { db } from '$lib/server/db.js';
 import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import { NotificationCategory } from '$lib/server/notifications/notification.enums.js';
 
+vi.mock('$lib/server/services/audit.service.js', () => {
+	return {
+		log: vi.fn().mockResolvedValue({} as any),
+		logUpdate: vi.fn().mockResolvedValue({} as any)
+	};
+});
+
 vi.mock('$lib/server/db.js', () => {
 	return {
 		db: {

@@ -1,6 +1,7 @@
 import { getMasterConfig, isMasterKey, type MasterKey } from '$lib/master-data/master-config.js';
 import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
+import * as auditService from '$lib/server/services/audit.service.js';
 
 export interface MasterDataDto {
 	name: string;
@@ -154,6 +155,14 @@ export async function createMasterData(masterKey: string, dto: MasterDataDto) {
 		country_cuid: dto.country_cuid
 	})) as Record<string, unknown>;
 
+	await auditService.log({
+		entity_name: `Master_${master}`,
+		entity_cuid: created.cuid as string,
+		action_type: 'create',
+		status: 'SUCCESS',
+		remarks: `Master data entry "${created.name}" created for category "${master}".`
+	});
+
 	return toOption(created, master);
 }
 
@@ -185,6 +194,13 @@ export async function updateMasterData(masterKey: string, cuid: string, dto: Mas
 		name,
 		country_cuid: dto.country_cuid
 	})) as Record<string, unknown>;
+
+	await auditService.logUpdate({
+		entityName: `Master_${master}`,
+		entityCuid: cuid,
+		oldRecord: existing,
+		newRecord: updated
+	});
 
 	return toOption(updated, master);
 }
