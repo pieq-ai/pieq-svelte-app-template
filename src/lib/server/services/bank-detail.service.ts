@@ -40,6 +40,9 @@ export async function replaceBankDetails(employee_cuid: string, dtos: UpsertBank
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
+    const oldRecords = await bankDetailDao.findByEmployeeCuid(employee_cuid);
+    const oldBankDTOs = oldRecords.map(toPublicBankDetail);
+
     const validatedDtos = z.array(bankDetailSchema)
         .refine(items => {
             const accountNumbers = items.map(i => i.account_number);
@@ -63,13 +66,17 @@ export async function replaceBankDetails(employee_cuid: string, dtos: UpsertBank
     }));
 
     const results = await bankDetailDao.replaceBankDetails(employee_cuid, payload);
-    await auditService.log({
-        entity_name: 'Employee',
-        entity_cuid: employee_cuid,
-        action_type: 'update',
-        status: 'SUCCESS',
+    const newBankDTOs = results.map(toPublicBankDetail);
+
+    await auditService.logListUpdate({
+        entityName: 'Employee',
+        entityCuid: employee_cuid,
+        category: 'bank_details',
+        oldList: oldBankDTOs,
+        newList: newBankDTOs,
+        getItemLabel: (item) => `${item.bank_name} (${item.account_number ? '...' + item.account_number.slice(-4) : ''})`,
         remarks: 'Employee bank details updated.'
     });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
-    return results.map(toPublicBankDetail);
+    return newBankDTOs;
 }

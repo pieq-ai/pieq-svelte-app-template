@@ -37,6 +37,9 @@ export async function replaceAddresses(employee_cuid: string, dtos: UpsertAddres
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
+    const oldRecords = await addressDao.findByEmployeeCuid(employee_cuid);
+    const oldAddressDTOs = oldRecords.map(toPublicAddress);
+
     const validatedDtos = z.array(addressSchema).parse(dtos);
 
     const payload = validatedDtos.map((dto: any) => ({
@@ -46,13 +49,17 @@ export async function replaceAddresses(employee_cuid: string, dtos: UpsertAddres
     }));
 
     const results = await addressDao.replaceAddresses(employee_cuid, payload);
-    await auditService.log({
-        entity_name: 'Employee',
-        entity_cuid: employee_cuid,
-        action_type: 'update',
-        status: 'SUCCESS',
+    const newAddressDTOs = results.map(toPublicAddress);
+
+    await auditService.logListUpdate({
+        entityName: 'Employee',
+        entityCuid: employee_cuid,
+        category: 'addresses',
+        oldList: oldAddressDTOs,
+        newList: newAddressDTOs,
+        getItemLabel: (item) => item.address_type,
         remarks: 'Employee addresses updated.'
     });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
-    return results.map(toPublicAddress);
+    return newAddressDTOs;
 }

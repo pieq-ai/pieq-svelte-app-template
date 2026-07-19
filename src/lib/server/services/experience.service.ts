@@ -34,6 +34,9 @@ export async function replaceExperiences(employee_cuid: string, dtos: UpsertExpe
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
+    const oldRecords = await experienceDao.findByEmployeeCuid(employee_cuid);
+    const oldExperienceDTOs = oldRecords.map(toPublicExperience);
+
     const validatedDtos = z.array(experienceSchema)
         .refine(items => {
             const keys = items.map(i => `${i.company_name}|${i.role}`);
@@ -53,13 +56,17 @@ export async function replaceExperiences(employee_cuid: string, dtos: UpsertExpe
     }));
 
     const results = await experienceDao.replaceExperiences(employee_cuid, payload);
-    await auditService.log({
-        entity_name: 'Employee',
-        entity_cuid: employee_cuid,
-        action_type: 'update',
-        status: 'SUCCESS',
+    const newExperienceDTOs = results.map(toPublicExperience);
+
+    await auditService.logListUpdate({
+        entityName: 'Employee',
+        entityCuid: employee_cuid,
+        category: 'experiences',
+        oldList: oldExperienceDTOs,
+        newList: newExperienceDTOs,
+        getItemLabel: (item) => item.company_name,
         remarks: 'Employee work experience history updated.'
     });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
-    return results.map(toPublicExperience);
+    return newExperienceDTOs;
 }

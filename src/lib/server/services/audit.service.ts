@@ -192,6 +192,110 @@ export async function logUpdate(params: LogUpdateParams, tx?: any) {
   }
 }
 
+export interface LogListUpdateParams {
+  entityName: string;
+  entityCuid: string;
+  category: string;
+  oldList: Record<string, any>[];
+  newList: Record<string, any>[];
+  getItemLabel: (item: any) => string;
+  remarks?: string | null;
+}
+
+/**
+ * Diff old and new lists of child records, logging only the actual differences.
+ */
+export async function logListUpdate(params: LogListUpdateParams, tx?: any) {
+  const context = getRequestContext();
+  const performedBy = context?.performedBy || 'SYSTEM';
+  const performedByType = context?.performedByType || 'SYSTEM';
+  const ipAddress = context?.ipAddress || null;
+  const userAgent = context?.userAgent || null;
+  const requestId = context?.requestId || crypto.randomUUID();
+
+  const oldMap = new Map(params.oldList.map((item) => [item.cuid, item]));
+  const newMap = new Map(params.newList.map((item) => [item.cuid, item]));
+
+  const logs: auditDao.AuditLogCreateInput[] = [];
+
+  // 1. Check for deleted items
+  for (const [cuid, oldItem] of oldMap.entries()) {
+    if (!newMap.has(cuid)) {
+      const itemLabel = params.getItemLabel(oldItem);
+      logs.push({
+        entity_name: params.entityName,
+        entity_cuid: params.entityCuid,
+        action_type: 'update',
+        status: 'SUCCESS',
+        field_name: `${params.category} - ${itemLabel} - status`,
+        old_value: { value: oldItem },
+        new_value: { value: 'removed' },
+        performed_by: performedBy,
+        performed_by_type: performedByType,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        request_id: requestId,
+        remarks: params.remarks || `${params.category} item removed`
+      });
+    }
+  }
+
+  // 2. Check for added and modified items
+  for (const [cuid, newItem] of newMap.entries()) {
+    const itemLabel = params.getItemLabel(newItem);
+    if (!oldMap.has(cuid)) {
+      // Added
+      logs.push({
+        entity_name: params.entityName,
+        entity_cuid: params.entityCuid,
+        action_type: 'update',
+        status: 'SUCCESS',
+        field_name: `${params.category} - ${itemLabel} - status`,
+        old_value: { value: 'none' },
+        new_value: { value: newItem },
+        performed_by: performedBy,
+        performed_by_type: performedByType,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        request_id: requestId,
+        remarks: params.remarks || `${params.category} item added`
+      });
+    } else {
+      // Modified: compare properties
+      const oldItem = oldMap.get(cuid)!;
+      const allKeys = new Set([...Object.keys(oldItem), ...Object.keys(newItem)]);
+      for (const key of allKeys) {
+        if (key === 'cuid') continue;
+        const oldVal = oldItem[key];
+        const newVal = newItem[key];
+        if (!isEqual(oldVal, newVal)) {
+          const maskedOld = maskValue(key, oldVal);
+          const maskedNew = maskValue(key, newVal);
+          logs.push({
+            entity_name: params.entityName,
+            entity_cuid: params.entityCuid,
+            action_type: 'update',
+            status: 'SUCCESS',
+            field_name: `${params.category} - ${itemLabel} - ${key}`,
+            old_value: maskedOld !== undefined ? { value: maskedOld } : null,
+            new_value: maskedNew !== undefined ? { value: maskedNew } : null,
+            performed_by: performedBy,
+            performed_by_type: performedByType,
+            ip_address: ipAddress,
+            user_agent: userAgent,
+            request_id: requestId,
+            remarks: params.remarks || `${params.category} field updated`
+          });
+        }
+      }
+    }
+  }
+
+  if (logs.length > 0) {
+    return auditDao.createAuditLogs(logs, tx);
+  }
+}
+
 /**
  * Query paginated, filtered list of audit logs.
  */

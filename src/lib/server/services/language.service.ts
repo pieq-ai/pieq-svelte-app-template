@@ -40,6 +40,9 @@ export async function replaceLanguages(employee_cuid: string, dtos: UpsertLangua
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
+    const oldRecords = await languageDao.findByEmployeeCuid(employee_cuid);
+    const oldLanguageDTOs = oldRecords.map(toPublicLanguage);
+
     const validatedDtos = z.array(languageSchema)
         .refine((items: any[]) => {
             const languageCuids = items.map((i: any) => i.language_cuid);
@@ -59,13 +62,17 @@ export async function replaceLanguages(employee_cuid: string, dtos: UpsertLangua
     }));
 
     const results = await languageDao.replaceLanguages(employee_cuid, payload);
-    await auditService.log({
-        entity_name: 'Employee',
-        entity_cuid: employee_cuid,
-        action_type: 'update',
-        status: 'SUCCESS',
+    const newLanguageDTOs = results.map(toPublicLanguage);
+
+    await auditService.logListUpdate({
+        entityName: 'Employee',
+        entityCuid: employee_cuid,
+        category: 'languages',
+        oldList: oldLanguageDTOs,
+        newList: newLanguageDTOs,
+        getItemLabel: (item) => item.language_cuid,
         remarks: 'Employee languages updated.'
     });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
-    return results.map(toPublicLanguage);
+    return newLanguageDTOs;
 }

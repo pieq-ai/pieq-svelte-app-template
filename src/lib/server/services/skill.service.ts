@@ -32,6 +32,9 @@ export async function replaceSkills(employee_cuid: string, dtos: UpsertSkillDto[
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
+    const oldRecords = await skillDao.findByEmployeeCuid(employee_cuid);
+    const oldSkillDTOs = oldRecords.map(toPublicSkill);
+
     const validatedDtos = z.array(skillSchema)
         .refine((items: any[]) => {
             const skillCuids = items.map((i: any) => i.skill_cuid);
@@ -49,13 +52,17 @@ export async function replaceSkills(employee_cuid: string, dtos: UpsertSkillDto[
     }));
 
     const results = await skillDao.replaceSkills(employee_cuid, payload);
-    await auditService.log({
-        entity_name: 'Employee',
-        entity_cuid: employee_cuid,
-        action_type: 'update',
-        status: 'SUCCESS',
+    const newSkillDTOs = results.map(toPublicSkill);
+
+    await auditService.logListUpdate({
+        entityName: 'Employee',
+        entityCuid: employee_cuid,
+        category: 'skills',
+        oldList: oldSkillDTOs,
+        newList: newSkillDTOs,
+        getItemLabel: (item) => item.skill_cuid,
         remarks: 'Employee skills updated.'
     });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
-    return results.map(toPublicSkill);
+    return newSkillDTOs;
 }

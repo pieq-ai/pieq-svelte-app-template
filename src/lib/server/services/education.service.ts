@@ -35,6 +35,9 @@ export async function replaceEducations(employee_cuid: string, dtos: UpsertEduca
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
+    const oldRecords = await educationDao.findByEmployeeCuid(employee_cuid);
+    const oldEducationDTOs = oldRecords.map(toPublicEducation);
+
     const validatedDtos = z.array(educationSchema)
         .refine(items => {
             const keys = items.map(i => `${i.education_level}|${i.specialization}|${i.institution}`);
@@ -55,13 +58,17 @@ export async function replaceEducations(employee_cuid: string, dtos: UpsertEduca
     }));
 
     const results = await educationDao.replaceEducations(employee_cuid, payload);
-    await auditService.log({
-        entity_name: 'Employee',
-        entity_cuid: employee_cuid,
-        action_type: 'update',
-        status: 'SUCCESS',
+    const newEducationDTOs = results.map(toPublicEducation);
+
+    await auditService.logListUpdate({
+        entityName: 'Employee',
+        entityCuid: employee_cuid,
+        category: 'educations',
+        oldList: oldEducationDTOs,
+        newList: newEducationDTOs,
+        getItemLabel: (item) => item.education_level,
         remarks: 'Employee education history updated.'
     });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
-    return results.map(toPublicEducation);
+    return newEducationDTOs;
 }
