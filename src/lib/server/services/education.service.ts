@@ -3,7 +3,7 @@ import * as educationDao from '$lib/server/dao/education.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
-import * as auditService from '$lib/server/services/audit.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { z } from 'zod';
 import { educationSchema } from '$lib/schemas/employee.schema.js';
 
@@ -60,14 +60,10 @@ export async function replaceEducations(employee_cuid: string, dtos: UpsertEduca
     const results = await educationDao.replaceEducations(employee_cuid, payload);
     const newEducationDTOs = results.map(toPublicEducation);
 
-    await auditService.logListUpdate({
-        entityName: 'Employee',
-        entityCuid: employee_cuid,
-        category: 'educations',
+    await auditFactory.educationUpdated({
+        employeeCuid: employee_cuid,
         oldList: oldEducationDTOs,
-        newList: newEducationDTOs,
-        getItemLabel: (item) => item.education_level,
-        remarks: 'Employee education history updated.'
+        newList: newEducationDTOs
     });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
     return newEducationDTOs;

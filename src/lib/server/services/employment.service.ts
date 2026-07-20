@@ -5,7 +5,7 @@ import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
 import { employmentSchema } from '$lib/schemas/employee.schema.js';
 import { db } from '$lib/server/db.js';
-import * as auditService from '$lib/server/services/audit.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 
 export interface UpsertEmploymentDto {
     department_cuid: string;
@@ -87,16 +87,12 @@ export async function upsertEmployment(employee_cuid: string, dto: UpsertEmploym
         const newEmployment = await employmentDao.findByEmployeeCuid(employee_cuid, tx);
 
         if (!oldEmployment) {
-            await auditService.log({
-                entity_name: 'Employment',
-                entity_cuid: newEmployment.cuid,
-                action_type: 'create',
-                status: 'SUCCESS',
+            await auditFactory.employmentCreated({
+                entityCuid: newEmployment.cuid,
                 remarks: `Employment record created for employee CUID ${employee_cuid}.`
             }, tx);
         } else {
-            await auditService.logUpdate({
-                entityName: 'Employment',
+            await auditFactory.employmentUpdated({
                 entityCuid: newEmployment.cuid,
                 oldRecord: oldEmployment,
                 newRecord: newEmployment

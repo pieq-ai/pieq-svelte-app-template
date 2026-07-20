@@ -3,7 +3,7 @@ import { redirect, error } from '@sveltejs/kit';
 import { handle as authHandle } from '$lib/server/auth.js';
 import * as authUserService from '$lib/server/services/auth-user.service.js';
 import { requestContextStorage } from '$lib/server/utils/request-context.js';
-import * as auditService from '$lib/server/services/audit.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { createId } from '@paralleldrive/cuid2';
 
 /**
@@ -108,13 +108,8 @@ const injectLocals = async ({ event, resolve }) => {
 			event.locals.roles = [];
 			
 			const errMsg = err instanceof Error ? err.message : String(err);
-			await auditService.log({
-				entity_name: 'Authentication',
-				entity_cuid: session.user.id,
-				action_type: 'login_sync',
-				status: 'FAILED',
-				remarks: `Authorization failed during user synchronization: ${errMsg}`
-			}).catch(e => console.error('[HOOKS] Failed to write failed audit log:', e));
+			await auditFactory.loginFailed(session.user.id, `Authorization failed during user synchronization: ${errMsg}`)
+				.catch(e => console.error('[HOOKS] Failed to write failed audit log:', e));
 
 			throw error(403, 'Authorization failed: Could not sync user context');
 		}

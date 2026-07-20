@@ -3,7 +3,7 @@ import * as skillDao from '$lib/server/dao/skill.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
-import * as auditService from '$lib/server/services/audit.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { z } from 'zod';
 import { skillSchema } from '$lib/schemas/employee.schema.js';
 
@@ -54,14 +54,10 @@ export async function replaceSkills(employee_cuid: string, dtos: UpsertSkillDto[
     const results = await skillDao.replaceSkills(employee_cuid, payload);
     const newSkillDTOs = results.map(toPublicSkill);
 
-    await auditService.logListUpdate({
-        entityName: 'Employee',
-        entityCuid: employee_cuid,
-        category: 'skills',
+    await auditFactory.skillUpdated({
+        employeeCuid: employee_cuid,
         oldList: oldSkillDTOs,
-        newList: newSkillDTOs,
-        getItemLabel: (item) => item.skill_cuid,
-        remarks: 'Employee skills updated.'
+        newList: newSkillDTOs
     });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
     return newSkillDTOs;

@@ -1,6 +1,6 @@
 import * as designationDao from '$lib/server/dao/designation.dao.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
-import * as auditService from '$lib/server/services/audit.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 
 export interface CreateDesignationDto {
 	name: string;
@@ -91,11 +91,8 @@ export async function createDesignation(dto: CreateDesignationDto) {
 		updated_at: dto.updated_at ?? undefined
 	});
 
-	await auditService.log({
-		entity_name: 'Designation',
-		entity_cuid: designation.cuid,
-		action_type: 'create',
-		status: 'SUCCESS',
+	await auditFactory.designationCreated({
+		entityCuid: designation.cuid,
 		remarks: `Designation "${designation.name}" created.`
 	});
 
@@ -136,8 +133,7 @@ export async function updateDesignation(cuid: string, dto: UpdateDesignationDto)
 
 	const updated = await designationDao.update(cuid, updateData);
 
-	await auditService.logUpdate({
-		entityName: 'Designation',
+	await auditFactory.designationUpdated({
 		entityCuid: cuid,
 		oldRecord: existing,
 		newRecord: updated
@@ -153,11 +149,8 @@ export async function deleteDesignation(cuid: string) {
 	const existing = await getDesignationByCuid(cuid); // ensure it exists
 	const updated = await designationDao.update(cuid, { status: false, updated_at: new Date() });
 
-	await auditService.log({
-		entity_name: 'Designation',
-		entity_cuid: cuid,
-		action_type: 'delete',
-		status: 'SUCCESS',
+	await auditFactory.designationDeleted({
+		entityCuid: cuid,
 		remarks: `Designation "${existing.name}" soft-deleted.`
 	});
 

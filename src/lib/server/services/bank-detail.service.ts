@@ -2,7 +2,7 @@ import * as bankDetailDao from '$lib/server/dao/bank-detail.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
-import * as auditService from '$lib/server/services/audit.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { z } from 'zod';
 import { bankDetailSchema } from '$lib/schemas/employee.schema.js';
 
@@ -68,14 +68,10 @@ export async function replaceBankDetails(employee_cuid: string, dtos: UpsertBank
     const results = await bankDetailDao.replaceBankDetails(employee_cuid, payload);
     const newBankDTOs = results.map(toPublicBankDetail);
 
-    await auditService.logListUpdate({
-        entityName: 'Employee',
-        entityCuid: employee_cuid,
-        category: 'bank_details',
+    await auditFactory.bankDetailUpdated({
+        employeeCuid: employee_cuid,
         oldList: oldBankDTOs,
-        newList: newBankDTOs,
-        getItemLabel: (item) => `${item.bank_name} (${item.account_number ? '...' + item.account_number.slice(-4) : ''})`,
-        remarks: 'Employee bank details updated.'
+        newList: newBankDTOs
     });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
     return newBankDTOs;

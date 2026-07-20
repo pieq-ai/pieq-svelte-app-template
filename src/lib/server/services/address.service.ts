@@ -3,7 +3,7 @@ import * as addressDao from '$lib/server/dao/address.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
-import * as auditService from '$lib/server/services/audit.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { z } from 'zod';
 import { addressSchema } from '$lib/schemas/employee.schema.js';
 
@@ -51,14 +51,10 @@ export async function replaceAddresses(employee_cuid: string, dtos: UpsertAddres
     const results = await addressDao.replaceAddresses(employee_cuid, payload);
     const newAddressDTOs = results.map(toPublicAddress);
 
-    await auditService.logListUpdate({
-        entityName: 'Employee',
-        entityCuid: employee_cuid,
-        category: 'addresses',
+    await auditFactory.addressUpdated({
+        employeeCuid: employee_cuid,
         oldList: oldAddressDTOs,
-        newList: newAddressDTOs,
-        getItemLabel: (item) => item.address_type,
-        remarks: 'Employee addresses updated.'
+        newList: newAddressDTOs
     });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
     return newAddressDTOs;

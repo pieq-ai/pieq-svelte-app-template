@@ -2,7 +2,7 @@ import * as holidayDao from '$lib/server/dao/holiday.dao.js';
 import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import { invalidateHolidayCache } from '$lib/server/config/leave.config.js';
 import { db } from '$lib/server/db.js';
-import * as auditService from '$lib/server/services/audit.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 
 export const HOLIDAY_NAME_MAX_LENGTH = 200;
 const VALID_HOLIDAY_TYPES = new Set<string>(['National', 'Regional', 'Restricted']);
@@ -186,12 +186,9 @@ export async function createHoliday(input: CreateHolidayInput) {
 		const res = (tx && Object.keys(tx).length > 0)
 			? await holidayDao.create({ name: holiday_name, date: holiday_date, type: holiday_type, created_by: input.created_by, updated_by: input.updated_by }, tx)
 			: await holidayDao.create({ name: holiday_name, date: holiday_date, type: holiday_type, created_by: input.created_by, updated_by: input.updated_by });
-		await auditService.log({
-			entity_name: 'Holiday',
-			entity_cuid: res.cuid,
-			action_type: 'create',
-			status: 'SUCCESS',
-			remarks: `Holiday "${holiday_name}" created for date ${holiday_date.toISOString().split('T')[0]}.`
+		await auditFactory.holidayCreated({
+			entityCuid: res.cuid,
+			holidayName: holiday_name
 		}, tx);
 		return res;
 	});
@@ -243,8 +240,7 @@ export async function updateHoliday(cuid: string, input: UpdateHolidayInput) {
 		const res = (tx && Object.keys(tx).length > 0)
 			? await holidayDao.update(cuid, { name: holiday_name, date: holiday_date, type: holiday_type, updated_by: input.updated_by }, tx)
 			: await holidayDao.update(cuid, { name: holiday_name, date: holiday_date, type: holiday_type, updated_by: input.updated_by });
-		await auditService.logUpdate({
-			entityName: 'Holiday',
+		await auditFactory.holidayUpdated({
 			entityCuid: cuid,
 			oldRecord: existingHoliday,
 			newRecord: res

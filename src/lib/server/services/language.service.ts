@@ -3,7 +3,7 @@ import * as languageDao from '$lib/server/dao/language.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
-import * as auditService from '$lib/server/services/audit.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { z } from 'zod';
 import { languageSchema } from '$lib/schemas/employee.schema.js';
 
@@ -64,14 +64,10 @@ export async function replaceLanguages(employee_cuid: string, dtos: UpsertLangua
     const results = await languageDao.replaceLanguages(employee_cuid, payload);
     const newLanguageDTOs = results.map(toPublicLanguage);
 
-    await auditService.logListUpdate({
-        entityName: 'Employee',
-        entityCuid: employee_cuid,
-        category: 'languages',
+    await auditFactory.languageUpdated({
+        employeeCuid: employee_cuid,
         oldList: oldLanguageDTOs,
-        newList: newLanguageDTOs,
-        getItemLabel: (item) => item.language_cuid,
-        remarks: 'Employee languages updated.'
+        newList: newLanguageDTOs
     });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
     return newLanguageDTOs;

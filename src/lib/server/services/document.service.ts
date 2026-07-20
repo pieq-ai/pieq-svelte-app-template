@@ -5,7 +5,7 @@ import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
 import { z } from 'zod';
 import { db } from '$lib/server/db.js';
-import * as auditService from '$lib/server/services/audit.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { documentSchema } from '$lib/schemas/employee.schema.js';
 
 export interface UpsertDocumentDto {
@@ -96,11 +96,8 @@ export async function replaceDocuments(employee_cuid: string, dtos: UpsertDocume
         const res = (tx && Object.keys(tx).length > 0)
             ? await documentDao.replaceDocuments(employee_cuid, payload, tx)
             : await documentDao.replaceDocuments(employee_cuid, payload);
-        await auditService.log({
-            entity_name: 'EmployeeDocument',
-            entity_cuid: employee_cuid,
-            action_type: 'replace_documents',
-            status: 'SUCCESS',
+        await auditFactory.documentUploaded({
+            entityCuid: employee_cuid,
             remarks: `Replaced employee documents. Count: ${res.length}.`
         }, tx);
         return res;

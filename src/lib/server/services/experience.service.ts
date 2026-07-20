@@ -3,7 +3,7 @@ import * as experienceDao from '$lib/server/dao/experience.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
-import * as auditService from '$lib/server/services/audit.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { z } from 'zod';
 import { experienceSchema } from '$lib/schemas/employee.schema.js';
 
@@ -58,14 +58,10 @@ export async function replaceExperiences(employee_cuid: string, dtos: UpsertExpe
     const results = await experienceDao.replaceExperiences(employee_cuid, payload);
     const newExperienceDTOs = results.map(toPublicExperience);
 
-    await auditService.logListUpdate({
-        entityName: 'Employee',
-        entityCuid: employee_cuid,
-        category: 'experiences',
+    await auditFactory.experienceUpdated({
+        employeeCuid: employee_cuid,
         oldList: oldExperienceDTOs,
-        newList: newExperienceDTOs,
-        getItemLabel: (item) => item.company_name,
-        remarks: 'Employee work experience history updated.'
+        newList: newExperienceDTOs
     });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
     return newExperienceDTOs;

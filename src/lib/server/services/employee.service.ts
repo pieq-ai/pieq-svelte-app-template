@@ -17,7 +17,7 @@ import * as shiftAssignmentDao from '$lib/server/dao/shift-assignment.dao.js';
 import { personalSchema } from '$lib/schemas/employee.schema.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
 import { db } from '$lib/server/db.js';
-import * as auditService from '$lib/server/services/audit.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 
 export interface CreateEmployeeDto {
     emp_code: string;
@@ -159,12 +159,11 @@ export async function createEmployee(dto: CreateEmployeeDto) {
                     profile_completion_status: 'pending'
                 }, tx);
 
-                await auditService.log({
-                    entity_name: 'Employee',
-                    entity_cuid: res.cuid,
-                    action_type: 'create',
-                    status: 'SUCCESS',
-                    remarks: `Employee ${res.first_name} ${res.last_name} (${emp_code}) created.`
+                await auditFactory.employeeCreated({
+                    entityCuid: res.cuid,
+                    firstName: res.first_name,
+                    lastName: res.last_name,
+                    empCode: emp_code
                 }, tx);
 
                 return res;
@@ -257,8 +256,7 @@ export async function updateEmployee(cuid: string, dto: UpdateEmployeeDto) {
             updated_by: dto.updated_by
         } as employeeDao.UpdateEmployeeInput, tx);
 
-        await auditService.logUpdate({
-            entityName: 'Employee',
+        await auditFactory.employeeUpdated({
             entityCuid: cuid,
             oldRecord: emp,
             newRecord: updated
@@ -281,12 +279,10 @@ export async function deleteEmployee(cuid: string) {
         const res = (tx && Object.keys(tx).length > 0)
             ? await employeeDao.remove(cuid, tx)
             : await employeeDao.remove(cuid);
-        await auditService.log({
-            entity_name: 'Employee',
-            entity_cuid: cuid,
-            action_type: 'delete',
-            status: 'SUCCESS',
-            remarks: `Employee ${existing.first_name} ${existing.last_name} soft-deleted.`
+        await auditFactory.employeeDeleted({
+            entityCuid: cuid,
+            firstName: existing.first_name,
+            lastName: existing.last_name
         }, tx);
         return res;
     });

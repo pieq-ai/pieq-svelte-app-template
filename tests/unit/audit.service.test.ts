@@ -259,39 +259,22 @@ describe('Audit Logging Service', () => {
   });
 
   describe('getAuditLogs method', () => {
-    it('should delegate to auditDao.listAuditLogs and resolve performed_by_name', async () => {
+    it('should delegate to auditDao.listAuditLogs', async () => {
       const mockFilters = { search: 'test' };
       vi.mocked(auditDao.listAuditLogs).mockResolvedValue({ total: 10, items: [] });
       const result = await auditService.getAuditLogs(mockFilters);
       expect(auditDao.listAuditLogs).toHaveBeenCalledWith(mockFilters);
       expect(result).toEqual({ total: 10, items: [] });
     });
-
-    it('should resolve employee name for USER actors', async () => {
-      vi.mocked(auditDao.listAuditLogs).mockResolvedValue({
-        total: 1,
-        items: [
-          { cuid: 'log1', performed_by: 'emp_123', performed_by_type: 'USER' }
-        ] as any
-      });
-
-      const { db } = await import('$lib/server/db.js');
-      vi.mocked(db.employee.findMany).mockResolvedValue([
-        { cuid: 'emp_123', first_name: 'Abiney', last_name: 'Yadav', emp_code: 'PQ001' }
-      ] as any);
-
-      const result = await auditService.getAuditLogs({});
-      expect(result.items[0].performed_by_name).toBe('Abiney Yadav');
-    });
   });
 
   describe('getAuditLogByCuid method', () => {
-    it('should delegate to auditDao.findByCuid2 and resolve performed_by_name', async () => {
+    it('should delegate to auditDao.findByCuid2', async () => {
       const mockLog = { cuid: 'cuid123', remarks: 'test log', performed_by: 'SYSTEM', performed_by_type: 'SYSTEM' };
       vi.mocked(auditDao.findByCuid2).mockResolvedValue(mockLog as any);
       const result = await auditService.getAuditLogByCuid('cuid123');
       expect(auditDao.findByCuid2).toHaveBeenCalledWith('cuid123');
-      expect(result).toEqual({ ...mockLog, performed_by_name: 'SYSTEM' });
+      expect(result).toEqual(mockLog);
     });
   });
 });

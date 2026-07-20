@@ -1,7 +1,7 @@
 import * as departmentDao from '$lib/server/dao/department.dao.js';
 import { validateDepartmentName } from '$lib/server/validators/department.validator.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
-import * as auditService from '$lib/server/services/audit.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 
 export interface CreateDepartmentDto {
 	name: string;
@@ -72,11 +72,8 @@ export async function createDepartment(dto: CreateDepartmentDto) {
 		updated_at: dto.updated_at ?? undefined
 	});
 
-	await auditService.log({
-		entity_name: 'Department',
-		entity_cuid: department.cuid,
-		action_type: 'create',
-		status: 'SUCCESS',
+	await auditFactory.departmentCreated({
+		entityCuid: department.cuid,
 		remarks: `Department "${department.name}" created.`
 	});
 
@@ -129,8 +126,7 @@ export async function updateDepartment(cuid: string, dto: UpdateDepartmentDto) {
 
 	const updated = await departmentDao.update(cuid, updateData);
 
-	await auditService.logUpdate({
-		entityName: 'Department',
+	await auditFactory.departmentUpdated({
 		entityCuid: cuid,
 		oldRecord: existing,
 		newRecord: updated
@@ -157,11 +153,8 @@ export async function deleteDepartment(cuid: string, deletedBy?: string) {
 		updated_by: deletedBy
 	});
 
-	await auditService.log({
-		entity_name: 'Department',
-		entity_cuid: cuid,
-		action_type: 'delete',
-		status: 'SUCCESS',
+	await auditFactory.departmentDeleted({
+		entityCuid: cuid,
 		remarks: `Department "${existing.name}" soft-deleted.`
 	});
 

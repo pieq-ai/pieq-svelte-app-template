@@ -4,7 +4,7 @@ import { notificationFactory } from '$lib/server/notifications/notification.fact
 import * as settingsDao from '$lib/server/dao/settings.dao.js';
 import { db } from '$lib/server/db.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
-import * as auditService from '$lib/server/services/audit.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { calculateLeaveDays, isWeekend, isHoliday, getHolidaysCached } from '$lib/server/config/leave.config.js';
 
 
@@ -893,11 +893,8 @@ export async function withdrawLeaveByCuid(employeeCuid: string, requestCuid: str
 			updated_by: actorCuid || employee.cuid
 		});
 
-		await auditService.log({
-			entity_name: 'LeaveRequest',
-			entity_cuid: requestCuid,
-			action_type: 'withdraw',
-			status: 'SUCCESS',
+		await auditFactory.leaveWithdrawn({
+			entityCuid: requestCuid,
 			remarks: `Leave request withdrawn by CUID ${actorCuid || employee.cuid}.`
 		});
 
@@ -1310,11 +1307,8 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 			created_by: creatorCuid || employee.cuid
 		});
 
-		await auditService.log({
-			entity_name: 'LeaveRequest',
-			entity_cuid: req?.cuid || '',
-			action_type: 'apply',
-			status: 'SUCCESS',
+		await auditFactory.leaveApplied({
+			entityCuid: req?.cuid || '',
 			remarks: `Leave request applied for ${totalDays} days from ${input.startDate} to ${input.endDate}.`
 		});
 
@@ -1364,11 +1358,8 @@ export async function withdrawLeave(email: string, requestCuid: string, actorCui
 			updated_by: actorCuid || employee.cuid
 		});
 
-		await auditService.log({
-			entity_name: 'LeaveRequest',
-			entity_cuid: requestCuid,
-			action_type: 'withdraw',
-			status: 'SUCCESS',
+		await auditFactory.leaveWithdrawn({
+			entityCuid: requestCuid,
 			remarks: `Leave request withdrawn by CUID ${actorCuid || employee.cuid}.`
 		});
 
@@ -1491,11 +1482,8 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 			updated_by: approverUserCuid
 		});
 
-		await auditService.log({
-			entity_name: 'LeaveRequest',
-			entity_cuid: requestCuid,
-			action_type: 'approve',
-			status: 'SUCCESS',
+		await auditFactory.leaveApproved({
+			entityCuid: requestCuid,
 			remarks: `Leave request approved by CUID ${approverUserCuid}.`
 		});
 
@@ -1624,11 +1612,8 @@ export async function rejectLeaveRequest(requestCuid: string, rejectorUserCuid: 
 			updated_by: rejectorUserCuid
 		});
 
-		await auditService.log({
-			entity_name: 'LeaveRequest',
-			entity_cuid: requestCuid,
-			action_type: 'reject',
-			status: 'SUCCESS',
+		await auditFactory.leaveRejected({
+			entityCuid: requestCuid,
 			remarks: `Leave request rejected by CUID ${rejectorUserCuid}.`
 		});
 

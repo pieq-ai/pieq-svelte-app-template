@@ -5,7 +5,7 @@ import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import { getLeaveStatusOnDate } from './attendance.service.js';
 import { db } from '$lib/server/db.js';
-import * as auditService from '$lib/server/services/audit.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 
 export class AttendanceValidationError extends Error {
 	readonly field: string;
@@ -361,11 +361,8 @@ export async function createAttendanceRecord(dto: CreateAttendanceRecordDto) {
 					updated_by: dto.updated_by
 				});
 
-		await auditService.log({
-			entity_name: 'AttendanceRecord',
-			entity_cuid: rec.cuid,
-			action_type: 'create_correction',
-			status: 'SUCCESS',
+		await auditFactory.attendanceRecordCreated({
+			entityCuid: rec.cuid,
 			remarks: `Manual attendance record created for date ${validated.date.toISOString().split('T')[0]}.`
 		}, tx);
 
@@ -398,12 +395,10 @@ export async function updateAttendanceRecord(cuid: string, dto: UpdateAttendance
 			? await attendanceRecordDao.update(cuid, updateData, tx)
 			: await attendanceRecordDao.update(cuid, updateData);
 
-		await auditService.logUpdate({
-			entityName: 'AttendanceRecord',
+		await auditFactory.attendanceRecordUpdated({
 			entityCuid: cuid,
 			oldRecord,
-			newRecord: updated,
-			remarks: 'Manual attendance correction updated.'
+			newRecord: updated
 		}, tx);
 
 		return updated;

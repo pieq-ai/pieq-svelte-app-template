@@ -9,7 +9,7 @@ import * as leaveDao from '$lib/server/dao/leave.dao.js';
 import * as notificationDao from '$lib/server/dao/notification.dao.js';
 import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import { db } from '$lib/server/db.js';
-import * as auditService from '$lib/server/services/audit.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 
 export async function getLeaveStatusOnDate(employeeCuid: string, date: Date, tx?: any) {
 	const dateUTC = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
@@ -225,11 +225,8 @@ export async function checkIn(
 						check_in_longitude: longitude
 					}));
 
-		await auditService.log({
-			entity_name: 'AttendanceRecord',
-			entity_cuid: rec.cuid,
-			action_type: 'check_in',
-			status: 'SUCCESS',
+		await auditFactory.attendanceCheckedIn({
+			entityCuid: rec.cuid,
 			remarks: `Checked in at ${today.toISOString()} (lat: ${latitude}, lon: ${longitude}).`
 		}, tx);
 
@@ -431,11 +428,8 @@ export async function checkOut(
 					check_out_longitude: longitude
 				});
 
-		await auditService.log({
-			entity_name: 'AttendanceRecord',
-			entity_cuid: rec.cuid,
-			action_type: 'check_out',
-			status: 'SUCCESS',
+		await auditFactory.attendanceCheckedOut({
+			entityCuid: rec.cuid,
 			remarks: `Checked out at ${checkOutTime.toISOString()} (lat: ${latitude}, lon: ${longitude}). Work duration: ${minutes} mins.`
 		}, tx);
 
