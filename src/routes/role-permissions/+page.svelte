@@ -219,7 +219,7 @@
 										{permission.permission_key}
 									</div>
 									<div class="mt-1 text-[11px] uppercase text-hrms-neutral">
-										{permission.permission_key.split('_')[0] || 'general'}
+										{permission.permission_key.split(/[:_]/)[0] || 'general'}
 									</div>
 								</td>
 								{#each filteredRoles as role (role.cuid)}

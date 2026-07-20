@@ -1,6 +1,6 @@
 import * as auditDao from '$lib/server/dao/audit.dao.js';
 import { getRequestContext } from '$lib/server/utils/request-context.js';
-import crypto from 'node:crypto';
+import { createId } from '@paralleldrive/cuid2';
 
 const SENSITIVE_FIELDS = new Set([
   'password',
@@ -109,7 +109,7 @@ export async function log(params: LogParams, tx?: any) {
   const performedByType = context?.performedByType || 'SYSTEM';
   const ipAddress = context?.ipAddress || null;
   const userAgent = context?.userAgent || null;
-  const requestId = context?.requestId || crypto.randomUUID();
+  const requestId = context?.requestId || createId();
 
 
   const old_value = params.old_value !== undefined ? maskValue(params.field_name || '', params.old_value) : null;
@@ -151,7 +151,7 @@ export async function logUpdate(params: LogUpdateParams, tx?: any) {
   const performedByType = context?.performedByType || 'SYSTEM';
   const ipAddress = context?.ipAddress || null;
   const userAgent = context?.userAgent || null;
-  const requestId = context?.requestId || crypto.randomUUID();
+  const requestId = context?.requestId || createId();
 
 
   const allKeys = new Set([...Object.keys(params.oldRecord), ...Object.keys(params.newRecord)]);

@@ -14,6 +14,10 @@ export const load: PageServerLoad = async ({ locals }) => {
         throw redirect(302, '/dashboard/finance');
     }
 
+    if (canAccess(locals.user, 'dashboard:manager')) {
+        throw redirect(302, '/dashboard/manager');
+    }
+
     if (canAccess(locals.user, 'dashboard:employee')) {
         throw redirect(302, '/dashboard/employee');
     }

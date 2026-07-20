@@ -16,7 +16,7 @@ function validateCuid2(value: string | undefined, label: string) {
 }
 
 function getPermissionModule(permissionKey: string) {
-	return permissionKey.split('_')[0] || 'general';
+	return permissionKey.split(/[:_]/)[0] || 'general';
 }
 
 function toPublicPermission(permission: {

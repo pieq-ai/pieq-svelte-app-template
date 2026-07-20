@@ -4,7 +4,7 @@ import { handle as authHandle } from '$lib/server/auth.js';
 import * as authUserService from '$lib/server/services/auth-user.service.js';
 import { requestContextStorage } from '$lib/server/utils/request-context.js';
 import * as auditService from '$lib/server/services/audit.service.js';
-import crypto from 'node:crypto';
+import { createId } from '@paralleldrive/cuid2';
 
 /**
  * Determines if a SvelteKit request is a direct API call from an external client.
@@ -52,7 +52,7 @@ function isApiRequest(event) {
 const auditContextHandle = async ({ event, resolve }) => {
 	const ipAddress = event.getClientAddress ? event.getClientAddress() : undefined;
 	const userAgent = event.request.headers.get('user-agent') || undefined;
-	const requestId = crypto.randomUUID();
+	const requestId = createId();
 
 	/** @type {'USER' | 'SYSTEM' | 'CRON' | 'API'} */
 	let performedByType = 'USER';
