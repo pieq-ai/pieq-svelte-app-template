@@ -1,40 +1,63 @@
+import pg from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '$lib/generated/prisma/client.js';
 
 const SCHEMA_VERSION = 'standardized-audit-fields-leave-mgmt';
-let prisma: PrismaClient | undefined;
 
-function createClient(): PrismaClient {
-	const connectionString = process.env.DATABASE_URL;
+declare global {
+	var __db: PrismaClient | undefined;
+	var __pgPool: pg.Pool | undefined;
+	var __dbSchemaVersion: string | undefined;
+}
 
-	if (!connectionString) {
-		throw new Error('DATABASE_URL is not set');
+function getPool(): pg.Pool {
+	if (!globalThis.__pgPool) {
+		const connectionString = process.env.DATABASE_URL;
+		if (!connectionString) {
+			throw new Error('DATABASE_URL is not set');
+		}
+
+		const pool = new pg.Pool({
+			connectionString,
+			max: parseInt(process.env.DB_POOL_MAX || '10', 10),
+			idleTimeoutMillis: 30000,
+			connectionTimeoutMillis: 10000
+		});
+
+		pool.on('error', (err) => {
+			console.error('[PG Pool Error]', err);
+		});
+
+		globalThis.__pgPool = pool;
 	}
 
-	const adapter = new PrismaPg({ connectionString });
+	return globalThis.__pgPool;
+}
+
+function createClient(): PrismaClient {
+	const pool = getPool();
+	const adapter = new PrismaPg(pool);
 	return new PrismaClient({ adapter });
 }
 
 function isValidClient(client: PrismaClient | undefined): client is PrismaClient {
-	return Boolean(client?.employee && globalThis.__dbSchemaVersion === SCHEMA_VERSION);
+	if (!client) return false;
+	if (process.env.NODE_ENV === 'production') return true;
+	return globalThis.__dbSchemaVersion === SCHEMA_VERSION;
 }
 
 function getDb(): PrismaClient {
-	const cached = prisma ?? globalThis.__db;
+	const cached = globalThis.__db;
 
 	if (isValidClient(cached)) {
-		prisma = cached;
 		return cached;
 	}
 
-	prisma = createClient();
+	const client = createClient();
+	globalThis.__db = client;
+	globalThis.__dbSchemaVersion = SCHEMA_VERSION;
 
-	if (process.env.NODE_ENV !== 'production') {
-		globalThis.__db = prisma;
-		globalThis.__dbSchemaVersion = SCHEMA_VERSION;
-	}
-
-	return prisma;
+	return client;
 }
 
 export const db = new Proxy({} as PrismaClient, {
@@ -45,3 +68,18 @@ export const db = new Proxy({} as PrismaClient, {
 		return typeof value === 'function' ? value.bind(client) : value;
 	}
 });
+
+// Graceful shutdown for AWS ECS Fargate container lifecycle
+if (process.env.NODE_ENV === 'production') {
+	const cleanup = async () => {
+		if (globalThis.__db) {
+			await globalThis.__db.$disconnect();
+		}
+		if (globalThis.__pgPool) {
+			await globalThis.__pgPool.end();
+		}
+	};
+
+	process.once('SIGINT', cleanup);
+	process.once('SIGTERM', cleanup);
+}
