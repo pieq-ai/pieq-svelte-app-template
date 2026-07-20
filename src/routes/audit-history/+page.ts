@@ -8,12 +8,8 @@ export const load: PageLoad = async ({ fetch, url }) => {
 	const action = url.searchParams.get('action_type') || '';
 	const status = url.searchParams.get('status') || '';
 	const performer = url.searchParams.get('performed_by') || '';
-	const actorType = url.searchParams.get('performed_by_type') || '';
 	const fromDate = url.searchParams.get('fromDate') || '';
 	const toDate = url.searchParams.get('toDate') || '';
-
-	const sortColumn = url.searchParams.get('sortColumn') || 'created_at';
-	const sortDirection = url.searchParams.get('sortDirection') || 'desc';
 
 	const params = new URLSearchParams();
 	params.set('page', page);
@@ -23,11 +19,8 @@ export const load: PageLoad = async ({ fetch, url }) => {
 	if (action) params.set('action_type', action);
 	if (status) params.set('status', status);
 	if (performer) params.set('performed_by', performer);
-	if (actorType) params.set('performed_by_type', actorType);
 	if (fromDate) params.set('fromDate', fromDate);
 	if (toDate) params.set('toDate', toDate);
-	if (sortColumn) params.set('sortColumn', sortColumn);
-	if (sortDirection) params.set('sortDirection', sortDirection);
 
 	const response = await fetch(`/api/audit-logs?${params.toString()}`);
 	let auditLogs = [];
@@ -49,10 +42,7 @@ export const load: PageLoad = async ({ fetch, url }) => {
 		action,
 		status,
 		performer,
-		actorType,
 		fromDate,
-		toDate,
-		sortColumn,
-		sortDirection
+		toDate
 	};
 };

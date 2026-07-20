@@ -73,13 +73,25 @@ export async function listAuditLogs(filters: ListAuditLogsFilters, tx?: any) {
   if (filters.search) {
     where.OR = [
       {
-        remarks: {
+        entity_name: {
           contains: filters.search,
           mode: 'insensitive'
         }
       },
       {
-        request_id: {
+        entity_cuid: {
+          contains: filters.search,
+          mode: 'insensitive'
+        }
+      },
+      {
+        field_name: {
+          contains: filters.search,
+          mode: 'insensitive'
+        }
+      },
+      {
+        performed_by: {
           contains: filters.search,
           mode: 'insensitive'
         }
@@ -121,11 +133,6 @@ export async function listAuditLogs(filters: ListAuditLogsFilters, tx?: any) {
         status: true,
         field_name: true,
         performed_by: true,
-        performed_by_type: true,
-        ip_address: true,
-        user_agent: true,
-        remarks: true,
-        request_id: true,
         created_at: true
       },
       orderBy,
@@ -140,6 +147,19 @@ export async function listAuditLogs(filters: ListAuditLogsFilters, tx?: any) {
 export async function findByCuid2(cuid: string, tx?: any) {
   const client = tx || db;
   return client.auditLog.findUnique({
-    where: { cuid }
+    where: { cuid },
+    select: {
+      id: true,
+      cuid: true,
+      entity_name: true,
+      entity_cuid: true,
+      action_type: true,
+      status: true,
+      field_name: true,
+      old_value: true,
+      new_value: true,
+      performed_by: true,
+      created_at: true
+    }
   });
 }

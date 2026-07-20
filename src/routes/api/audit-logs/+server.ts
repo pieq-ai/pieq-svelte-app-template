@@ -15,12 +15,8 @@ export async function GET(event: RequestEvent) {
 		const action_type = url.searchParams.get('action_type') || undefined;
 		const status = url.searchParams.get('status') || undefined;
 		const performed_by = url.searchParams.get('performed_by') || undefined;
-		const performed_by_type = url.searchParams.get('performed_by_type') || undefined;
 		const fromDateStr = url.searchParams.get('fromDate') || undefined;
 		const toDateStr = url.searchParams.get('toDate') || undefined;
-
-		const sortColumn = url.searchParams.get('sortColumn') || undefined;
-		const sortDirection = (url.searchParams.get('sortDirection') as 'asc' | 'desc') || undefined;
 
 		const fromDate = fromDateStr ? new Date(fromDateStr) : undefined;
 		const toDate = toDateStr ? new Date(toDateStr) : undefined;
@@ -36,11 +32,8 @@ export async function GET(event: RequestEvent) {
 			action_type,
 			status,
 			performed_by,
-			performed_by_type,
 			fromDate,
-			toDate,
-			sortColumn,
-			sortDirection
+			toDate
 		};
 
 		const result = await auditService.getAuditLogs(filters);

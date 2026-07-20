@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
-	import EyeIcon from '@lucide/svelte/icons/eye';
 	import {
 		Badge,
 		Button,
@@ -23,11 +21,10 @@
 		SearchInput,
 		FilterDropdown,
 		CrudModal,
-		DatePicker
+		DatePicker,
+		TableActions
 	} from '$lib/components';
 	import { UI_CONSTANTS } from '$lib/constants';
-	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
 
 	interface AuditLog {
 		cuid: string;
@@ -37,11 +34,6 @@
 		status: string;
 		field_name: string | null;
 		performed_by: string | null;
-		performed_by_type: string;
-		ip_address: string | null;
-		user_agent: string | null;
-		remarks: string | null;
-		request_id: string;
 		created_at: string;
 	}
 
@@ -49,18 +41,6 @@
 		data: {
 			auditLogs: AuditLog[];
 			total: number;
-			currentPage: number;
-			pageSize: number;
-			search: string;
-			entity: string;
-			action: string;
-			status: string;
-			performer: string;
-			actorType: string;
-			fromDate: string;
-			toDate: string;
-			sortColumn: string;
-			sortDirection: 'asc' | 'desc' | null;
 		};
 	}>();
 
@@ -68,72 +48,116 @@
 	let selectedEntity = $state('all');
 	let selectedAction = $state('all');
 	let selectedStatus = $state('all');
-	let selectedActorType = $state('all');
 	let fromDate = $state('');
 	let toDate = $state('');
 
 	let currentPage = $state(1);
 	let pageSize = $state(10);
-	let sortColumn = $state('created_at');
-	let sortDirection = $state<'asc' | 'desc' | null>('desc');
+	let sortColumn = $state<string | null>(null);
+	let sortDirection = $state<'asc' | 'desc' | null>(null);
 
 	// Slide drawer state
 	let isDrawerOpen = $state(false);
 	let selectedLogDetails = $state<any>(null);
 	let isDetailLoading = $state(false);
 
-	$effect(() => {
-		searchQuery = data.search;
-		selectedEntity = data.entity || 'all';
-		selectedAction = data.action || 'all';
-		selectedStatus = data.status || 'all';
-		selectedActorType = data.actorType || 'all';
-		fromDate = data.fromDate;
-		toDate = data.toDate;
-		currentPage = data.currentPage;
-		pageSize = data.pageSize;
-		sortColumn = data.sortColumn;
-		sortDirection = data.sortDirection;
-	});
-
-	$effect(() => {
-		if (currentPage !== data.currentPage) {
-			updateQueryParams({ page: currentPage });
-		}
-	});
-
-	function updateQueryParams(newParams: Record<string, string | number | undefined | null>) {
-		const query = new SvelteURLSearchParams($page.url.searchParams);
-		for (const [key, val] of Object.entries(newParams)) {
-			if (val === undefined || val === null || val === '' || val === 'all') {
-				query.delete(key);
-			} else {
-				query.set(key, String(val));
-			}
-		}
-		if (!('page' in newParams)) {
-			query.set('page', '1');
-		}
-		goto(`?${query.toString()}`, { keepFocus: true, noScroll: true });
-	}
-
-	let searchTimer: ReturnType<typeof setTimeout>;
-	function handleSearchInput(e: Event) {
-		const val = (e.target as HTMLInputElement).value;
-		clearTimeout(searchTimer);
-		searchTimer = setTimeout(() => {
-			updateQueryParams({ search: val });
-		}, 400);
+	function resetFilters() {
+		searchQuery = '';
+		selectedEntity = 'all';
+		selectedAction = 'all';
+		selectedStatus = 'all';
+		fromDate = '';
+		toDate = '';
+		currentPage = 1;
 	}
 
 	function handleSort(column: string) {
-		let direction: 'asc' | 'desc' | null = 'asc';
 		if (sortColumn === column) {
-			if (sortDirection === 'asc') direction = 'desc';
-			else if (sortDirection === 'desc') direction = null;
+			if (sortDirection === 'asc') {
+				sortDirection = 'desc';
+			} else if (sortDirection === 'desc') {
+				sortColumn = null;
+				sortDirection = null;
+			} else {
+				sortDirection = 'asc';
+			}
+		} else {
+			sortColumn = column;
+			sortDirection = 'asc';
 		}
-		updateQueryParams({ sortColumn: column, sortDirection: direction });
 	}
+
+	let filteredAuditLogs = $derived.by(() => {
+		let result = [...data.auditLogs];
+
+		// 1. Search Query
+		if (searchQuery.trim()) {
+			const q = searchQuery.toLowerCase().trim();
+			result = result.filter(
+				(log) =>
+					log.entity_name?.toLowerCase().includes(q) ||
+					log.entity_cuid?.toLowerCase().includes(q) ||
+					log.field_name?.toLowerCase().includes(q) ||
+					log.performed_by?.toLowerCase().includes(q)
+			);
+		}
+
+		// 2. Entity Filter
+		if (selectedEntity !== 'all') {
+			result = result.filter((log) => log.entity_name === selectedEntity);
+		}
+
+		// 3. Action Filter
+		if (selectedAction !== 'all') {
+			result = result.filter((log) => log.action_type === selectedAction);
+		}
+
+		// 4. Status Filter
+		if (selectedStatus !== 'all') {
+			result = result.filter((log) => log.status === selectedStatus);
+		}
+
+		// 5. Date Range Filters
+		if (fromDate) {
+			const fromTime = new Date(fromDate).getTime();
+			result = result.filter((log) => new Date(log.created_at).getTime() >= fromTime);
+		}
+		if (toDate) {
+			const toTime = new Date(toDate).getTime() + 86400000;
+			result = result.filter((log) => new Date(log.created_at).getTime() <= toTime);
+		}
+
+		// 6. Sorting
+		if (sortColumn && sortDirection) {
+			result.sort((a, b) => {
+				const valA = a[sortColumn as keyof AuditLog];
+				const valB = b[sortColumn as keyof AuditLog];
+
+				if (valA === null || valA === undefined) return sortDirection === 'asc' ? 1 : -1;
+				if (valB === null || valB === undefined) return sortDirection === 'asc' ? -1 : 1;
+
+				if (sortColumn === 'created_at') {
+					const timeA = new Date(valA as string).getTime();
+					const timeB = new Date(valB as string).getTime();
+					return sortDirection === 'asc' ? timeA - timeB : timeB - timeA;
+				}
+
+				if (typeof valA === 'string' && typeof valB === 'string') {
+					return sortDirection === 'asc'
+						? valA.localeCompare(valB)
+						: valB.localeCompare(valA);
+				}
+
+				return 0;
+			});
+		}
+
+		return result;
+	});
+
+	let paginatedAuditLogs = $derived(
+		filteredAuditLogs.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+	);
 
 	async function handleRowClick(cuid: string) {
 		isDrawerOpen = true;
@@ -189,14 +213,6 @@
 		{ label: 'PARTIAL', value: 'PARTIAL' }
 	];
 
-	const actorTypeOptions = [
-		{ label: 'All Actor Types', value: 'all' },
-		{ label: 'USER', value: 'USER' },
-		{ label: 'SYSTEM', value: 'SYSTEM' },
-		{ label: 'CRON', value: 'CRON' },
-		{ label: 'API', value: 'API' }
-	];
-
 	function isInteractive(target: HTMLElement | null, rowElement: HTMLElement): boolean {
 		let curr = target;
 		while (curr && curr !== rowElement) {
@@ -237,77 +253,77 @@
 	</div>
 
 	<!-- Filters & Searching -->
-	<div class="space-y-3">
-		<div class="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 items-end">
-			<div class="col-span-1 sm:col-span-2">
+	<div class="rounded-lg border border-border bg-card p-3.5 shadow-2xs space-y-3">
+		<div class="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-6 xl:grid-cols-7 items-center">
+			<div class="col-span-1 sm:col-span-2 md:col-span-2 xl:col-span-2">
 				<SearchInput
 					id="search_audits"
 					name="search_audits"
-					value={searchQuery}
-					oninput={handleSearchInput}
-					placeholder="Search remarks, request ID..."
+					bind:value={searchQuery}
+					oninput={() => (currentPage = 1)}
+					placeholder="Search entity name, CUID..."
 				/>
 			</div>
 
-			<FilterDropdown
-				value={selectedEntity}
-				onChange={(val) => updateQueryParams({ entity_name: val })}
-				options={entityOptions}
-			/>
+			<div class="col-span-1 sm:col-span-1 md:col-span-2 xl:col-span-1">
+				<FilterDropdown
+					value={selectedEntity}
+					onChange={(val) => { selectedEntity = val; currentPage = 1; }}
+					options={entityOptions}
+					triggerClass="w-full"
+				/>
+			</div>
 
-			<FilterDropdown
-				value={selectedAction}
-				onChange={(val) => updateQueryParams({ action_type: val })}
-				options={actionOptions}
-			/>
+			<div class="col-span-1 sm:col-span-1 md:col-span-2 xl:col-span-1">
+				<FilterDropdown
+					value={selectedAction}
+					onChange={(val) => { selectedAction = val; currentPage = 1; }}
+					options={actionOptions}
+					triggerClass="w-full"
+				/>
+			</div>
 
-			<FilterDropdown
-				value={selectedStatus}
-				onChange={(val) => updateQueryParams({ status: val })}
-				options={statusOptions}
-			/>
+			<div class="col-span-1 sm:col-span-1 md:col-span-2 xl:col-span-1">
+				<FilterDropdown
+					value={selectedStatus}
+					onChange={(val) => { selectedStatus = val; currentPage = 1; }}
+					options={statusOptions}
+					triggerClass="w-full"
+				/>
+			</div>
 
-			<FilterDropdown
-				value={selectedActorType}
-				onChange={(val) => updateQueryParams({ performed_by_type: val })}
-				options={actorTypeOptions}
-			/>
+			<div class="col-span-1 sm:col-span-1 md:col-span-2 xl:col-span-1">
+				<DatePicker
+					placeholder="From Date"
+					bind:value={fromDate}
+					isFilter={true}
+					onchange={() => (currentPage = 1)}
+				/>
+			</div>
+
+			<div class="col-span-1 sm:col-span-1 md:col-span-2 xl:col-span-1">
+				<DatePicker
+					placeholder="To Date"
+					bind:value={toDate}
+					isFilter={true}
+					onchange={() => (currentPage = 1)}
+				/>
+			</div>
 		</div>
 
-		<div class="flex flex-wrap items-center gap-4 bg-muted/40 p-3 rounded-lg border border-border">
-			<div class="flex items-center gap-2">
-				<span class="text-xs font-semibold text-muted-foreground whitespace-nowrap">From Date:</span>
-				<div class="w-40">
-					<DatePicker
-						placeholder="From Date"
-						bind:value={fromDate}
-						isFilter={true}
-						onchange={() => updateQueryParams({ fromDate })}
-					/>
-				</div>
-			</div>
-			<div class="flex items-center gap-2">
-				<span class="text-xs font-semibold text-muted-foreground whitespace-nowrap">To Date:</span>
-				<div class="w-40">
-					<DatePicker
-						placeholder="To Date"
-						bind:value={toDate}
-						isFilter={true}
-						onchange={() => updateQueryParams({ toDate })}
-					/>
-				</div>
-			</div>
-			{#if fromDate || toDate || searchQuery || selectedEntity !== 'all' || selectedAction !== 'all' || selectedStatus !== 'all' || selectedActorType !== 'all'}
+		{#if fromDate || toDate || searchQuery || selectedEntity !== 'all' || selectedAction !== 'all' || selectedStatus !== 'all'}
+			<div class="flex items-center justify-end pt-2 border-t border-border/60">
 				<Button
 					variant="ghost"
 					size="sm"
-					class="text-xs text-hrms-destructive font-medium hover:bg-hrms-destructive/5"
-					onclick={() => goto('?')}
+					class="text-xs text-hrms-destructive font-medium hover:bg-hrms-destructive/5 h-7"
+					onclick={resetFilters}
 				>
 					Clear Filters
 				</Button>
-			{/if}
-		</div>
+			</div>
+		{/if}
+	</div>
 
 		<Card class="py-0 overflow-x-auto">
 			<Table>
@@ -342,7 +358,7 @@
 						<TableHead class="font-bold text-foreground text-[15px]">Status</TableHead>
 						<TableHead class="font-bold text-foreground text-[15px]">
 							<Button variant="ghost" size="sm" class="-ml-2.5 h-8 font-bold text-foreground text-[15px]" onclick={() => handleSort('performed_by')}>
-								Performed By
+								Updated By
 								{#if sortColumn === 'performed_by' && sortDirection === 'asc'}
 									<ArrowUpIcon class="ml-2 size-4" />
 								{:else if sortColumn === 'performed_by' && sortDirection === 'desc'}
@@ -352,22 +368,19 @@
 								{/if}
 							</Button>
 						</TableHead>
-						<TableHead class="font-bold text-foreground text-[15px]">Actor Type</TableHead>
 						<TableHead class="font-bold text-foreground text-[15px]">Field</TableHead>
-						<TableHead class="font-bold text-foreground text-[15px]">IP Address</TableHead>
-						<TableHead class="font-bold text-foreground text-[15px]">Remarks</TableHead>
 						<TableHead class="text-right font-bold text-foreground text-[15px] whitespace-nowrap">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{#if data.auditLogs.length === 0}
+					{#if filteredAuditLogs.length === 0}
 						<TableRow>
-							<TableCell colspan={11} class="py-8 text-center text-muted-foreground">
+							<TableCell colspan={8} class="py-8 text-center text-muted-foreground">
 								{UI_CONSTANTS.EMPTY_STATE_MESSAGE}
 							</TableCell>
 						</TableRow>
 					{:else}
-						{#each data.auditLogs as log (log.cuid)}
+						{#each paginatedAuditLogs as log (log.cuid)}
 							<TableRow onclick={(e) => onTableClick(log.cuid, e)} class="cursor-pointer hover:bg-muted/50">
 								<TableCell class="font-medium text-xs whitespace-nowrap">
 									{new Date(log.created_at).toLocaleString()}
@@ -396,25 +409,18 @@
 										</span>
 									{/if}
 								</TableCell>
-								<TableCell class="font-medium max-w-[160px] truncate" title={log.performed_by_name || log.performed_by || 'SYSTEM'}>
-									{log.performed_by_name || log.performed_by || 'SYSTEM'}
-								</TableCell>
-								<TableCell>
-									<Badge variant="secondary" class="font-mono text-[10px]">
-										{log.performed_by_type}
-									</Badge>
+								<TableCell class="font-mono text-xs max-w-[160px] truncate" title={log.performed_by || '-'}>
+									{log.performed_by || '-'}
 								</TableCell>
 								<TableCell class="font-mono text-[11px] max-w-[120px] truncate">
 									{log.field_name || '-'}
 								</TableCell>
-								<TableCell class="font-mono text-xs">{log.ip_address || '-'}</TableCell>
-								<TableCell class="max-w-[200px] truncate text-muted-foreground" title={log.remarks || ''}>
-									{log.remarks || '-'}
-								</TableCell>
 								<TableCell class="text-right">
-									<Button variant="ghost" size="icon-sm" onclick={() => handleRowClick(log.cuid)} title="View Details">
-										<EyeIcon class="size-4" />
-									</Button>
+									<TableActions
+										canView={true}
+										viewLabel="View Details"
+										onView={() => handleRowClick(log.cuid)}
+									/>
 								</TableCell>
 							</TableRow>
 						{/each}
@@ -426,9 +432,8 @@
 		<Pagination
 			bind:currentPage={currentPage}
 			pageSize={pageSize}
-			totalItems={data.total}
+			totalItems={filteredAuditLogs.length}
 		/>
-	</div>
 </div>
 
 <!-- Row Details Drawer -->
@@ -451,17 +456,8 @@
 					<span class="text-muted-foreground">Timestamp:</span>
 					<span class="font-semibold">{new Date(selectedLogDetails.created_at).toLocaleString()}</span>
 
-					<span class="text-muted-foreground">Request ID:</span>
-					<span class="font-semibold text-[11px] break-all">{selectedLogDetails.request_id}</span>
-
-					<span class="text-muted-foreground">Actor:</span>
-					<span class="font-semibold break-all">{selectedLogDetails.performed_by_name || selectedLogDetails.performed_by || 'SYSTEM'} ({selectedLogDetails.performed_by_type})</span>
-
-					<span class="text-muted-foreground">IP Address:</span>
-					<span class="font-semibold">{selectedLogDetails.ip_address || '-'}</span>
-
-					<span class="text-muted-foreground">User Agent:</span>
-					<span class="font-semibold break-all text-[11px] font-sans leading-relaxed">{selectedLogDetails.user_agent || '-'}</span>
+					<span class="text-muted-foreground">Updated By:</span>
+					<span class="font-semibold break-all">{selectedLogDetails.performed_by || '-'}</span>
 				</div>
 			</div>
 
@@ -510,15 +506,6 @@
 							</div>
 						</div>
 					</div>
-				</div>
-			{/if}
-
-			{#if selectedLogDetails.remarks}
-				<div>
-					<h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Remarks</h3>
-					<p class="bg-muted/30 p-3 rounded-lg border border-border leading-relaxed text-foreground/90">
-						{selectedLogDetails.remarks}
-					</p>
 				</div>
 			{/if}
 		</div>

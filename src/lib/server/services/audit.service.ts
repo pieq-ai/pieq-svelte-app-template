@@ -1,7 +1,6 @@
 import * as auditDao from '$lib/server/dao/audit.dao.js';
 import { getRequestContext } from '$lib/server/utils/request-context.js';
 import { createId } from '@paralleldrive/cuid2';
-import { db } from '$lib/server/db.js';
 
 const SENSITIVE_FIELDS = new Set([
   'password',
@@ -298,90 +297,15 @@ export async function logListUpdate(params: LogListUpdateParams, tx?: any) {
 }
 
 /**
- * Helper to batch-resolve actor names for audit logs.
- */
-async function resolveActorNames(items: any[]) {
-  const userCuids = new Set<string>();
-  for (const item of items) {
-    if (item.performed_by_type === 'USER' && item.performed_by) {
-      userCuids.add(item.performed_by);
-    }
-  }
-
-  if (userCuids.size === 0) {
-    return items.map((item) => ({
-      ...item,
-      performed_by_name: item.performed_by || item.performed_by_type
-    }));
-  }
-
-  const cuids = Array.from(userCuids);
-  const nameMap = new Map<string, string>();
-
-  // 1. Direct lookup by employee.cuid
-  const employees = await db.employee.findMany({
-    where: { cuid: { in: cuids }, is_deleted: false },
-    select: { cuid: true, first_name: true, last_name: true, emp_code: true }
-  });
-
-  for (const emp of employees) {
-    const fullName = `${emp.first_name || ''} ${emp.last_name || ''}`.trim() || emp.emp_code;
-    nameMap.set(emp.cuid, fullName);
-  }
-
-  // 2. Lookup remaining via employment.keycloak_sub if any
-  const missingCuids = cuids.filter((c) => !nameMap.has(c));
-  if (missingCuids.length > 0) {
-    const employments = await db.employment.findMany({
-      where: { keycloak_sub: { in: missingCuids } },
-      select: { keycloak_sub: true, employee_cuid: true }
-    });
-
-    const missingEmpCuids = employments.map((e) => e.employee_cuid).filter(Boolean);
-    if (missingEmpCuids.length > 0) {
-      const extraEmployees = await db.employee.findMany({
-        where: { cuid: { in: missingEmpCuids }, is_deleted: false },
-        select: { cuid: true, first_name: true, last_name: true, emp_code: true }
-      });
-      const extraEmpMap = new Map(
-        extraEmployees.map((e) => [e.cuid, `${e.first_name || ''} ${e.last_name || ''}`.trim() || e.emp_code])
-      );
-
-      for (const emp of employments) {
-        if (emp.keycloak_sub && extraEmpMap.has(emp.employee_cuid)) {
-          nameMap.set(emp.keycloak_sub, extraEmpMap.get(emp.employee_cuid)!);
-        }
-      }
-    }
-  }
-
-  return items.map((item) => ({
-    ...item,
-    performed_by_name:
-      item.performed_by_type === 'USER' && item.performed_by
-        ? nameMap.get(item.performed_by) || item.performed_by
-        : item.performed_by || item.performed_by_type
-  }));
-}
-
-/**
- * Query paginated, filtered list of audit logs with resolved actor names.
+ * Query paginated, filtered list of audit logs.
  */
 export async function getAuditLogs(filters: auditDao.ListAuditLogsFilters) {
-  const result = await auditDao.listAuditLogs(filters);
-  const enrichedItems = await resolveActorNames(result.items);
-  return {
-    ...result,
-    items: enrichedItems
-  };
+  return auditDao.listAuditLogs(filters);
 }
 
 /**
- * Fetch a single audit log entry by CUID, including full old_value/new_value details and resolved actor name.
+ * Fetch a single audit log entry by CUID.
  */
 export async function getAuditLogByCuid(cuid: string) {
-  const logEntry = await auditDao.findByCuid2(cuid);
-  if (!logEntry) return null;
-  const [enriched] = await resolveActorNames([logEntry]);
-  return enriched;
+  return auditDao.findByCuid2(cuid);
 }
