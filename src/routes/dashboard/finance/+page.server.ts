@@ -159,36 +159,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		}
 	});
 
-	// 4. Payroll Totals
-	const sumCurrent = await db.payroll.aggregate({
-		_sum: { gross_earnings: true, net_salary: true },
-		where: { month: targetMonth, year: targetYear }
-	});
-
-	const totalPayroll = Number(sumCurrent._sum.gross_earnings) || 0;
-	const netPayroll = Number(sumCurrent._sum.net_salary) || 0;
-
-	// Previous month calculations for trends
-	const prevMonth = targetMonth === 1 ? 12 : targetMonth - 1;
-	const prevYear = targetMonth === 1 ? targetYear - 1 : targetYear;
-
-	const sumPrev = await db.payroll.aggregate({
-		_sum: { gross_earnings: true, net_salary: true },
-		where: { month: prevMonth, year: prevYear }
-	});
-
-	const prevTotalPayroll = Number(sumPrev._sum.gross_earnings) || 0;
-	const prevNetPayroll = Number(sumPrev._sum.net_salary) || 0;
-
-	const totalPayrollTrend = prevTotalPayroll > 0
-		? ((totalPayroll - prevTotalPayroll) / prevTotalPayroll) * 100
-		: 0;
-
-	const netPayrollTrend = prevNetPayroll > 0
-		? ((netPayroll - prevNetPayroll) / prevNetPayroll) * 100
-		: 0;
-
-	// 5. Component breakdown calculations from JSON field
+	// 4. Component breakdown calculations from JSON field & Payroll Totals
 	const payrolls = await db.payroll.findMany({
 		where: { month: targetMonth, year: targetYear }
 	});
@@ -197,10 +168,12 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	let allowances = 0;
 	let deductions = 0;
 	let bonuses = 0;
+	let others = 0;
 
 	const deductionKeys = ['pf', 'provident', 'tax', 'deduction', 'esi', 'lwf', 'pt', 'insurance', 'loan', 'advance'];
 	const basicKeys = ['basic', 'base'];
 	const bonusKeys = ['bonus', 'incentive', 'commission', 'gratuity', 'ex-gratia', 'variable'];
+	const otherKeys = ['other', 'misc', 'reimbursement', 'meal', 'food', 'conveyance'];
 
 	for (const p of payrolls) {
 		const breakdown = p.breakdown as Record<string, number>;
@@ -215,6 +188,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 					basicSalary += absoluteVal;
 				} else if (bonusKeys.some(bk => lowerKey.includes(bk))) {
 					bonuses += absoluteVal;
+				} else if (otherKeys.some(ok => lowerKey.includes(ok))) {
+					others += absoluteVal;
 				} else {
 					allowances += absoluteVal;
 				}
@@ -222,13 +197,68 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		}
 	}
 
-	const totalComponents = basicSalary + allowances + deductions + bonuses;
+	const sumCurrent = await db.payroll.aggregate({
+		_sum: { gross_earnings: true, net_salary: true },
+		where: { month: targetMonth, year: targetYear }
+	});
+
+	const grossFromBreakdown = basicSalary + allowances + bonuses + others;
+	const dbGross = Number(sumCurrent._sum.gross_earnings) || 0;
+	const totalPayroll = grossFromBreakdown > 0 ? grossFromBreakdown : dbGross;
+	const netPayroll = Number(sumCurrent._sum.net_salary) || (totalPayroll - deductions);
+
+	// Previous month calculations for trends
+	const prevMonth = targetMonth === 1 ? 12 : targetMonth - 1;
+	const prevYear = targetMonth === 1 ? targetYear - 1 : targetYear;
+
+	const sumPrev = await db.payroll.aggregate({
+		_sum: { gross_earnings: true, net_salary: true },
+		where: { month: prevMonth, year: prevYear }
+	});
+
+	const prevPayrolls = await db.payroll.findMany({
+		where: { month: prevMonth, year: prevYear }
+	});
+
+	let prevGrossFromBreakdown = 0;
+	let prevNetFromBreakdown = 0;
+	let prevDeductions = 0;
+
+	for (const p of prevPayrolls) {
+		const breakdown = p.breakdown as Record<string, number>;
+		if (breakdown && typeof breakdown === 'object') {
+			for (const [key, value] of Object.entries(breakdown)) {
+				const lowerKey = key.toLowerCase();
+				const absoluteVal = Math.abs(Number(value)) || 0;
+				if (deductionKeys.some(dk => lowerKey.includes(dk)) || value < 0) {
+					prevDeductions += absoluteVal;
+				} else {
+					prevGrossFromBreakdown += absoluteVal;
+				}
+			}
+		}
+	}
+
+	const prevDbGross = Number(sumPrev._sum.gross_earnings) || 0;
+	const prevTotalPayroll = prevGrossFromBreakdown > 0 ? prevGrossFromBreakdown : prevDbGross;
+	const prevNetPayroll = Number(sumPrev._sum.net_salary) || (prevTotalPayroll - prevDeductions);
+
+	const totalPayrollTrend = prevTotalPayroll > 0
+		? ((totalPayroll - prevTotalPayroll) / prevTotalPayroll) * 100
+		: 0;
+
+	const netPayrollTrend = prevNetPayroll > 0
+		? ((netPayroll - prevNetPayroll) / prevNetPayroll) * 100
+		: 0;
+
+	const totalComponents = basicSalary + allowances + deductions + bonuses + others;
 	const basicPercent = totalComponents > 0 ? (basicSalary / totalComponents) * 100 : 0;
 	const allowancesPercent = totalComponents > 0 ? (allowances / totalComponents) * 100 : 0;
 	const deductionsPercent = totalComponents > 0 ? (deductions / totalComponents) * 100 : 0;
 	const bonusesPercent = totalComponents > 0 ? (bonuses / totalComponents) * 100 : 0;
+	const othersPercent = totalComponents > 0 ? (others / totalComponents) * 100 : 0;
 
-	// 6. Recent Reports/Uploads
+	// 5. Recent Reports/Uploads
 	const recentUploadsRaw = await db.payrollUpload.findMany({
 		orderBy: { uploaded_at: 'desc' },
 		take: 5
@@ -278,7 +308,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			deductions,
 			deductionsPercent,
 			bonuses,
-			bonusesPercent
+			bonusesPercent,
+			others,
+			othersPercent
 		},
 		recentReports
 	};

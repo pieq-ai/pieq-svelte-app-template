@@ -50,7 +50,8 @@
 			{ label: 'Basic Salary', val: breakdown.basicSalary ?? 0, pct: breakdown.basicPercent ?? 0, color: '#2563EB' },
 			{ label: 'Allowances', val: breakdown.allowances ?? 0, pct: breakdown.allowancesPercent ?? 0, color: '#10B981' },
 			{ label: 'Deductions', val: breakdown.deductions ?? 0, pct: breakdown.deductionsPercent ?? 0, color: '#F59E0B' },
-			{ label: 'Bonuses', val: breakdown.bonuses ?? 0, pct: breakdown.bonusesPercent ?? 0, color: '#8B5CF6' }
+			{ label: 'Bonuses', val: breakdown.bonuses ?? 0, pct: breakdown.bonusesPercent ?? 0, color: '#8B5CF6' },
+			{ label: 'Others', val: breakdown.others ?? 0, pct: breakdown.othersPercent ?? 0, color: '#06B6D4' }
 		];
 
 		// Calculate dashArray and dashOffset for SVG circle drawing

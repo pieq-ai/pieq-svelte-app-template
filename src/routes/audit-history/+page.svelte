@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
@@ -102,7 +103,7 @@
 	});
 
 	function updateQueryParams(newParams: Record<string, string | number | undefined | null>) {
-		const query = new URLSearchParams($page.url.searchParams);
+		const query = new SvelteURLSearchParams($page.url.searchParams);
 		for (const [key, val] of Object.entries(newParams)) {
 			if (val === undefined || val === null || val === '' || val === 'all') {
 				query.delete(key);
