@@ -1723,9 +1723,7 @@
               >Leave Balance Summary</CardTitle
             >
             <CardDescription class="text-xs"
-              >Your available leave quotas for the current year. (Maternity
-              Leave, Paternity Leave, Leave Without Pay, and Loss of Pay
-              balances are excluded from this summary)</CardDescription
+              >Your available leave quotas for the current year.</CardDescription
             >
           </CardHeader>
           <CardContent class="pt-4 px-4 pb-4">

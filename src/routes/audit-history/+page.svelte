@@ -396,8 +396,8 @@
 										</span>
 									{/if}
 								</TableCell>
-								<TableCell class="font-medium max-w-[140px] truncate" title={log.performed_by || 'SYSTEM'}>
-									{log.performed_by || 'SYSTEM'}
+								<TableCell class="font-medium max-w-[160px] truncate" title={log.performed_by_name || log.performed_by || 'SYSTEM'}>
+									{log.performed_by_name || log.performed_by || 'SYSTEM'}
 								</TableCell>
 								<TableCell>
 									<Badge variant="secondary" class="font-mono text-[10px]">
@@ -455,7 +455,7 @@
 					<span class="font-semibold text-[11px] break-all">{selectedLogDetails.request_id}</span>
 
 					<span class="text-muted-foreground">Actor:</span>
-					<span class="font-semibold break-all">{selectedLogDetails.performed_by || 'SYSTEM'} ({selectedLogDetails.performed_by_type})</span>
+					<span class="font-semibold break-all">{selectedLogDetails.performed_by_name || selectedLogDetails.performed_by || 'SYSTEM'} ({selectedLogDetails.performed_by_type})</span>
 
 					<span class="text-muted-foreground">IP Address:</span>
 					<span class="font-semibold">{selectedLogDetails.ip_address || '-'}</span>
