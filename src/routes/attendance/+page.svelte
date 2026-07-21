@@ -307,7 +307,7 @@
 		'January', 'February', 'March', 'April', 'May', 'June',
 		'July', 'August', 'September', 'October', 'November', 'December'
 	];
-	const weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+	const weekdays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
 	let currentMonth = $state(new Date().getMonth());
 	let currentYear = $state(new Date().getFullYear());
@@ -331,7 +331,7 @@
 	}
 
 	let calendarMonthDays = $derived.by(() => {
-		const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+		const firstDayIndex = (new Date(currentYear, currentMonth, 1).getDay() + 6) % 7;
 		const totalDaysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 		const totalDaysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
 
