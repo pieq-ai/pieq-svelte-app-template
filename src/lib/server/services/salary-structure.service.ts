@@ -634,10 +634,10 @@ export async function updateStructure(cuid: string, dto: UpdateSalaryStructureDt
 async function getComponentTypeMap(componentCuids: string[]): Promise<Map<string, string>> {
 	if (componentCuids.length === 0) return new Map();
 	const uniqueCuids = Array.from(new Set(componentCuids));
-	const components = await db.salaryComponent.findMany({
+	const components = (await db.salaryComponent?.findMany({
 		where: { cuid: { in: uniqueCuids } },
 		select: { cuid: true, type: true }
-	});
+	})) || [];
 	return new Map(components.map((c) => [c.cuid, c.type]));
 }
 

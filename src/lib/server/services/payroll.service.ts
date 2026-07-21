@@ -10,6 +10,8 @@ import * as locationDao from '$lib/server/dao/organization_location.dao.js';
 import { db } from '$lib/server/db.js';
 import * as auditService from '$lib/server/services/audit.service.js';
 import { findEmployeeByCode } from '$lib/server/providers/employee.provider.js';
+import { getEarningsAndDeductions, numberToWords } from '$lib/utils/payroll.js';
+import { getMonthlyUsedDays } from '$lib/server/services/leave.service.js';
 import { serializePayroll, serializePayrollList } from '$lib/server/serializers/payroll.serializer.js';
 import type { ParsedPayrollRow } from '$lib/server/utils/excel-parser.js';
 import type { PayrollUploadResult } from '$lib/types/payroll.js';
@@ -457,21 +459,35 @@ export async function getPayrolls() {
 	return serializePayrollList(enriched);
 }
 
-// ─── Paid Days extraction ─────────────────────────────────────────────────────
+// ─── Paid & LOP Days extraction & calculation ────────────────────────────────
 
 /**
- * Paid days is not a dedicated DB column.
- * It may appear in the payroll breakdown JSON under a recognisable key name.
- * Returns the value as a string, or null if not present.
+ * Paid days & LOP days are not dedicated DB columns.
+ * They may appear in the payroll breakdown JSON under recognisable key names,
+ * or be dynamically calculated from attendance/leave records and month length.
  */
 const PAID_DAYS_KEYS = new Set([
 	'paid days', 'working days', 'days paid', 'days worked',
 	'payable days', 'actual days', 'pay days'
 ]);
 
+const LOP_DAYS_KEYS = new Set([
+	'lop days', 'lop', 'loss of pay', 'loss of pay days',
+	'unpaid days', 'lwp days', 'lwp', 'absent days'
+]);
+
 function extractPaidDays(breakdown: Record<string, number>): string | null {
 	for (const [key, value] of Object.entries(breakdown)) {
 		if (PAID_DAYS_KEYS.has(key.toLowerCase().trim())) {
+			return String(value);
+		}
+	}
+	return null;
+}
+
+function extractLopDays(breakdown: Record<string, number>): string | null {
+	for (const [key, value] of Object.entries(breakdown)) {
+		if (LOP_DAYS_KEYS.has(key.toLowerCase().trim())) {
 			return String(value);
 		}
 	}
@@ -486,8 +502,33 @@ function extractPaidDays(breakdown: Record<string, number>): string | null {
  */
 async function fetchEmployeeDetails(
 	employeeCuid: string,
-	breakdown: Record<string, number>
+	breakdown: Record<string, number>,
+	month?: number,
+	year?: number
 ): Promise<PayrollEmployeeDetails> {
+	// Extract or calculate LOP days
+	let lopDaysStr = extractLopDays(breakdown);
+	let lopDaysNum = lopDaysStr !== null ? Number(lopDaysStr) : null;
+
+	if (lopDaysStr === null && month && year) {
+		try {
+			const usedLop = await getMonthlyUsedDays(employeeCuid, month, year, 'LOP');
+			lopDaysNum = usedLop;
+			lopDaysStr = String(usedLop);
+		} catch (e) {
+			console.error('Error calculating monthly LOP days:', e);
+		}
+	}
+
+	// Extract or calculate Paid days
+	let paidDaysStr = extractPaidDays(breakdown);
+	if (paidDaysStr === null && month && year) {
+		const totalDaysInMonth = new Date(year, month, 0).getDate();
+		const lopCount = lopDaysNum ?? 0;
+		const calculatedPaidDays = Math.max(0, totalDaysInMonth - lopCount);
+		paidDaysStr = String(calculatedPaidDays);
+	}
+
 	// Step 1 — find employee by CUID
 	const employee = await employeeDao.findByCuid2(employeeCuid);
 
@@ -501,7 +542,8 @@ async function fetchEmployeeDetails(
 			pan: null,
 			pf_account_number: null,
 			uan: null,
-			paid_days: extractPaidDays(breakdown)
+			paid_days: paidDaysStr,
+			lop_days: lopDaysStr ?? '0'
 		};
 	}
 
@@ -536,7 +578,8 @@ async function fetchEmployeeDetails(
 		pan: employee.pan_no ?? null,
 		pf_account_number: employee.pf_account_no ?? null,
 		uan: employee.uan_no ?? null,
-		paid_days: extractPaidDays(breakdown)
+		paid_days: paidDaysStr,
+		lop_days: lopDaysStr ?? '0'
 	};
 }
 
@@ -554,7 +597,7 @@ export async function getPayrollByCuid(cuid: string) {
 	const employeeCode = employee?.emp_code ?? '(unknown)';
 	const employeeName = employee ? `${employee.first_name} ${employee.last_name}` : '(unknown)';
 	const breakdown = record.breakdown as Record<string, number>;
-	const employeeDetails = await fetchEmployeeDetails(record.employee_cuid, breakdown);
+	const employeeDetails = await fetchEmployeeDetails(record.employee_cuid, breakdown, record.month, record.year);
 	return serializePayroll(
 		{
 			...record,

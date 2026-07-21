@@ -31,7 +31,10 @@ const mockTx = {
 
 vi.mock('$lib/server/db.js', () => ({
 	db: {
-		$transaction: vi.fn((callback) => callback(mockTx))
+		$transaction: vi.fn((callback) => callback(mockTx)),
+		salaryComponent: {
+			findMany: vi.fn().mockResolvedValue([])
+		}
 	}
 }));
 

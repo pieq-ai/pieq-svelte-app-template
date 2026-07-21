@@ -84,7 +84,7 @@
 			const width = 515.28; // 595.28 (A4 width) - 80 (margins of 40 on each side)
 
 			const headerH = 60;
-			const empH = 120;
+			const empH = 136;
 			const tableHeaderH = 24;
 			const rowCount = Math.max(earnings.length, deductions.length);
 			const tableRowsH = Math.max(rowCount, 1) * 18;
@@ -128,21 +128,23 @@
 				{ label: 'Employee Number', value: payroll.employee_code },
 				{ label: 'Designation', value: ed?.designation ?? '—' },
 				{ label: 'Location', value: ed?.location ?? '—' },
-				{ label: 'Date Of Joining', value: ed?.date_of_joining ?? '—' }
+				{ label: 'Date Of Joining', value: ed?.date_of_joining ?? '—' },
+				{ label: 'Bank Name', value: ed?.bank_name ?? '—' }
 			];
 			const col2Fields = [
-				{ label: 'Bank Name', value: ed?.bank_name ?? '—' },
 				{ label: 'Bank Account No.', value: ed?.bank_account_number ?? '—' },
 				{ label: 'PAN', value: ed?.pan ?? '—' },
 				{ label: 'PF Account No.', value: ed?.pf_account_number ?? '—' },
 				{ label: 'UAN', value: ed?.uan ?? '—' },
-				{ label: 'Paid Days', value: ed?.paid_days ?? '—' }
+				{ label: 'Paid Days', value: ed?.paid_days ?? '—' },
+				{ label: 'LOP Days', value: ed?.lop_days ?? '0' }
 			];
 
 			pdf.setFontSize(9);
 			const lineH = 17;
+			const maxEmpRows = Math.max(col1Fields.length, col2Fields.length);
 
-			for (let i = 0; i < 6; i++) {
+			for (let i = 0; i < maxEmpRows; i++) {
 				const y = empStartY + 12 + i * lineH;
 
 				// Left Column
@@ -407,14 +409,14 @@
 					<span class="payslip-colon">:</span>
 					<span class={payroll.employee_details?.date_of_joining ? 'payslip-value' : 'payslip-value payslip-empty'}>{payroll.employee_details?.date_of_joining ?? '—'}</span>
 				</div>
-			</div>
-			<div class="payslip-emp-divider"></div>
-			<div class="payslip-emp-col">
 				<div class="payslip-field">
 					<span class="payslip-label">Bank Name</span>
 					<span class="payslip-colon">:</span>
 					<span class={payroll.employee_details?.bank_name ? 'payslip-value' : 'payslip-value payslip-empty'}>{payroll.employee_details?.bank_name ?? '—'}</span>
 				</div>
+			</div>
+			<div class="payslip-emp-divider"></div>
+			<div class="payslip-emp-col">
 				<div class="payslip-field">
 					<span class="payslip-label">Bank Account No.</span>
 					<span class="payslip-colon">:</span>
@@ -439,6 +441,11 @@
 					<span class="payslip-label">Paid Days</span>
 					<span class="payslip-colon">:</span>
 					<span class={payroll.employee_details?.paid_days ? 'payslip-value' : 'payslip-value payslip-empty'}>{payroll.employee_details?.paid_days ?? '—'}</span>
+				</div>
+				<div class="payslip-field">
+					<span class="payslip-label">LOP Days</span>
+					<span class="payslip-colon">:</span>
+					<span class={payroll.employee_details?.lop_days !== null && payroll.employee_details?.lop_days !== undefined ? 'payslip-value' : 'payslip-value payslip-empty'}>{payroll.employee_details?.lop_days ?? '0'}</span>
 				</div>
 			</div>
 		</div>
