@@ -415,7 +415,8 @@ export async function createStructure(dto: CreateSalaryStructureDto) {
 			remarks: `Salary structure created for employee CUID ${dto.employee_cuid}.`
 		}, tx);
 
-		return serializeSalaryStructure(structure, createdItems);
+		const typeMap = await getComponentTypeMap(createdItems.map((i: { salary_component_cuid: string }) => i.salary_component_cuid));
+		return serializeSalaryStructure(structure, createdItems, typeMap);
 	});
 }
 
@@ -489,7 +490,8 @@ export async function createRevision(sourceCuid: string, dto: CreateRevisionDto)
 			remarks: `Salary revision created from source structure CUID ${sourceCuid}.`
 		});
 
-		return serializeSalaryStructure(newStructure, items);
+		const typeMap = await getComponentTypeMap(items.map((i: { salary_component_cuid: string }) => i.salary_component_cuid));
+		return serializeSalaryStructure(newStructure, items, typeMap);
 	});
 }
 
@@ -615,15 +617,28 @@ export async function updateStructure(cuid: string, dto: UpdateSalaryStructureDt
 					})
 				)
 			);
-			return serializeSalaryStructure(updated, createdItems);
+			const typeMap = await getComponentTypeMap(createdItems.map((i: { salary_component_cuid: string }) => i.salary_component_cuid));
+			return serializeSalaryStructure(updated, createdItems, typeMap);
 		}
 
 		const existingItems = await tx.salaryStructureItem.findMany({
 			where: { salary_structure_cuid: cuid },
 			orderBy: { cuid: 'asc' }
 		});
-		return serializeSalaryStructure(updated, existingItems);
+		const typeMap = await getComponentTypeMap(existingItems.map((i: { salary_component_cuid: string }) => i.salary_component_cuid));
+		return serializeSalaryStructure(updated, existingItems, typeMap);
 	});
+}
+
+/** Fetch component types for a set of component CUIDs for serialization. */
+async function getComponentTypeMap(componentCuids: string[]): Promise<Map<string, string>> {
+	if (componentCuids.length === 0) return new Map();
+	const uniqueCuids = Array.from(new Set(componentCuids));
+	const components = await db.salaryComponent.findMany({
+		where: { cuid: { in: uniqueCuids } },
+		select: { cuid: true, type: true }
+	});
+	return new Map(components.map((c) => [c.cuid, c.type]));
 }
 
 /**
@@ -635,7 +650,8 @@ export async function getStructureByCuid(cuid: string) {
 		throw new SalaryStructureNotFoundError(cuid);
 	}
 	const items = await dao.findItemsByStructureCuid(cuid);
-	return serializeSalaryStructure(structure, items);
+	const typeMap = await getComponentTypeMap(items.map((i: { salary_component_cuid: string }) => i.salary_component_cuid));
+	return serializeSalaryStructure(structure, items, typeMap);
 }
 
 /**
@@ -652,6 +668,7 @@ export async function getStructures() {
 	// Batch-fetch all items in one query (avoids N+1)
 	const allCuids = structures.map((s) => s.cuid);
 	const allItems = await dao.findItemsByStructureCuids(allCuids);
+	const typeMap = await getComponentTypeMap(allItems.map((i: { salary_component_cuid: string }) => i.salary_component_cuid));
 
 	// Group items by structure cuid
 	const itemsByStructure = new Map<string, typeof allItems>();
@@ -662,7 +679,7 @@ export async function getStructures() {
 	}
 
 	return structures.map((structure) =>
-		serializeSalaryStructure(structure, itemsByStructure.get(structure.cuid) ?? [])
+		serializeSalaryStructure(structure, itemsByStructure.get(structure.cuid) ?? [], typeMap)
 	);
 }
 
@@ -677,5 +694,6 @@ export async function deactivateStructure(cuid: string, updated_by?: string | nu
 
 	const updated = await dao.update(cuid, { status: false, updated_by });
 	const items = await dao.findItemsByStructureCuid(cuid);
-	return serializeSalaryStructure(updated, items);
+	const typeMap = await getComponentTypeMap(items.map((i: { salary_component_cuid: string }) => i.salary_component_cuid));
+	return serializeSalaryStructure(updated, items, typeMap);
 }

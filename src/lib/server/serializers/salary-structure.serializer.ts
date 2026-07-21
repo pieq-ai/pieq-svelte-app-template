@@ -9,14 +9,19 @@ import type { SalaryStructure, SalaryStructureItem } from '$lib/types/salary-str
  * Converts Decimal `amount` to a plain number for JSON transport.
  */
 export function serializeSalaryStructureItem(
-	record: PrismaSalaryStructureItem
+	record: PrismaSalaryStructureItem,
+	componentTypeMap?: Map<string, string>
 ): SalaryStructureItem {
+	const compType = componentTypeMap?.get(record.salary_component_cuid);
 	return {
 		cuid: record.cuid,
 		salary_structure_cuid: record.salary_structure_cuid,
 		salary_component_cuid: record.salary_component_cuid,
 		component_name_snapshot: record.component_name_snapshot,
-		amount: Number(record.amount)
+		amount: Number(record.amount),
+		...(compType === 'earning' || compType === 'deduction'
+			? { type: compType as 'earning' | 'deduction' }
+			: {})
 	};
 }
 
@@ -26,7 +31,8 @@ export function serializeSalaryStructureItem(
  */
 export function serializeSalaryStructure(
 	record: PrismaSalaryStructure,
-	items: PrismaSalaryStructureItem[]
+	items: PrismaSalaryStructureItem[],
+	componentTypeMap?: Map<string, string>
 ): SalaryStructure {
 	const effective_from = record.effective_from.toISOString().split('T')[0];
 	const effective_to = record.effective_to
@@ -51,7 +57,7 @@ export function serializeSalaryStructure(
 		effective_to,
 		status: record.status,
 		is_active,
-		components: items.map(serializeSalaryStructureItem)
+		components: items.map((item) => serializeSalaryStructureItem(item, componentTypeMap))
 	};
 }
 
@@ -59,7 +65,8 @@ export function serializeSalaryStructure(
  * Serialize a list of salary structures with their items.
  */
 export function serializeSalaryStructureList(
-	structures: Array<{ structure: PrismaSalaryStructure; items: PrismaSalaryStructureItem[] }>
+	structures: Array<{ structure: PrismaSalaryStructure; items: PrismaSalaryStructureItem[] }>,
+	componentTypeMap?: Map<string, string>
 ): SalaryStructure[] {
-	return structures.map(({ structure, items }) => serializeSalaryStructure(structure, items));
+	return structures.map(({ structure, items }) => serializeSalaryStructure(structure, items, componentTypeMap));
 }

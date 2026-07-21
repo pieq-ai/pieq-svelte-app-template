@@ -12,7 +12,11 @@ export const HR_CONTROLLED_FIELDS = [
     'date_of_joining',
     'confirmation_date',
     'relieving_date',
-    'official_email'
+    'official_email',
+    'aadhar_no',
+    'pan_no',
+    'uan_no',
+    'bank_details'
 ];
 
 export function isFieldEditable(mode: 'create' | 'edit' | 'self', fieldName: string): boolean {

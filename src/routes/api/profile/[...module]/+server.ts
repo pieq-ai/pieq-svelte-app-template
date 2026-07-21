@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import type { RequestEvent } from './$types';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
-import { extractEditableFields } from '$lib/config/profile.config';
+import { extractEditableFields, isFieldEditable } from '$lib/config/profile.config';
 
 import * as personalRoute from '../../employees/[cuid]/+server.js';
 import * as addressesRoute from '../../employees/[cuid]/addresses/+server.js';
@@ -55,6 +55,10 @@ async function dispatch(event: RequestEvent, method: 'GET' | 'PUT' | 'POST') {
 	let request = event.request;
 
 	if (method === 'PUT' || method === 'POST') {
+		if (moduleName === 'bank-details' && !isFieldEditable('self', 'bank_details')) {
+			throw error(403, 'Bank details cannot be modified by employee');
+		}
+
 		const body = await request.json();
 		let sanitizedBody = body;
 		
