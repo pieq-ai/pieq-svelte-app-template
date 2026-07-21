@@ -120,7 +120,7 @@
 				<div class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]">
 					<MessageSquareMoreIcon class="size-5" />
 				</div>
-				<span class="text-3xl font-extrabold text-neutral-900 mt-3">{String(data.stats.pendingLeave).padStart(2, '0')}</span>
+				<span class="text-3xl font-extrabold text-neutral-900 mt-3">{Number(data.stats.pendingLeave) === 0 ? '0' : String(data.stats.pendingLeave).padStart(2, '0')}</span>
 				<span class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mt-1.5">Pending Leave</span>
 			</div>
 
@@ -157,175 +157,127 @@
 		<!-- Main Workspace Grid -->
 		<section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-			<!-- Team Details widget (Left, occupying 2 columns) -->
-			<div class="lg:col-span-2 bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
-				<div>
-					<div class="flex items-center justify-between mb-5">
-						<h3 class="text-lg font-bold text-neutral-900">Team Details</h3>
+			<!-- Shift Details Widget -->
+			<div class="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs">
+				<div class="flex items-center justify-between mb-4">
+					<h3 class="text-lg font-bold text-neutral-900">Shift Details</h3>
+					<div class="size-9 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]">
+						<ClockIcon class="size-4.5" />
 					</div>
+				</div>
 
-					<div class="overflow-x-auto">
-						<table class="w-full text-left">
-							<thead>
-								<tr class="border-b border-neutral-100 text-xs font-bold text-neutral-400 uppercase tracking-wider">
-									<th class="pb-3 font-semibold">Name</th>
-									<th class="pb-3 font-semibold">Designation</th>
-									<th class="pb-3 font-semibold">Department</th>
-									<th class="pb-3 font-semibold">Role</th>
-								</tr>
-							</thead>
-							<tbody class="divide-y divide-neutral-100 text-sm">
-								{#each data.teamMembers as member}
-									<tr class="hover:bg-neutral-50/50 transition-colors">
-										<td class="py-3.5 font-bold text-neutral-800">
-											{member.name}
-										</td>
-										<td class="py-3.5 text-neutral-600 font-medium">
-											{member.designation}
-										</td>
-										<td class="py-3.5 text-neutral-600 font-medium">
-											{member.department}
-										</td>
-										<td class="py-3.5 text-neutral-600 font-medium">
-											{member.role}
-										</td>
-									</tr>
-								{:else}
-									<tr>
-										<td colspan="4" class="py-8 text-center text-xs text-neutral-400 font-semibold">No team members found.</td>
-									</tr>
-								{/each}
-							</tbody>
-						</table>
+				{#if data.activeShift}
+					<div class="space-y-4 py-2">
+						<div>
+							<span class="text-xs text-neutral-400 font-semibold uppercase tracking-wider block">Shift Name</span>
+							<span class="text-base font-bold text-neutral-800 mt-1 block">{data.activeShift.name}</span>
+						</div>
+						<div>
+							<span class="text-xs text-neutral-400 font-semibold uppercase tracking-wider block">Shift Timing</span>
+							<span class="text-sm font-bold text-neutral-700 mt-1 block">
+								{formatShiftTime12h(data.activeShift.start_time)} - {formatShiftTime12h(data.activeShift.end_time)}
+							</span>
+						</div>
+						<div>
+							<span class="text-xs text-neutral-400 font-semibold uppercase tracking-wider block">Working Days</span>
+							<span class="text-sm font-bold text-neutral-700 mt-1 block">Mon - Fri</span>
+						</div>
 					</div>
+				{:else}
+					<p class="text-xs font-semibold text-neutral-400 text-center py-6">No active shift assigned.</p>
+				{/if}
+			</div>
+
+			<!-- Quick Actions Widget -->
+			<div class="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs">
+				<h3 class="text-lg font-bold text-neutral-900 mb-5">Quick Actions</h3>
+				<div class="grid grid-cols-4 gap-3">
+					<!-- Apply Leave -->
+					<a href="/leaves" class="flex flex-col items-center gap-2 group text-center decoration-none">
+						<div class="size-12 rounded-2xl border border-neutral-100 flex items-center justify-center text-neutral-600 bg-white group-hover:bg-[#FFF4EE] group-hover:border-[#FFE2D3] group-hover:text-[#F45310] transition-colors">
+							<UmbrellaIcon class="size-5.5" />
+						</div>
+						<span class="text-[11px] font-bold text-neutral-500 group-hover:text-[#F45310] transition-colors leading-tight">Apply Leave</span>
+					</a>
+
+					<!-- Payslip -->
+					{#if data.latestPayrollCuid}
+						<a href="/payroll-records/{data.latestPayrollCuid}/payslip" class="flex flex-col items-center gap-2 group text-center decoration-none">
+							<div class="size-12 rounded-2xl border border-neutral-100 flex items-center justify-center text-neutral-600 bg-white group-hover:bg-[#FFF4EE] group-hover:border-[#FFE2D3] group-hover:text-[#F45310] transition-colors">
+								<FileTextIcon class="size-5.5" />
+							</div>
+							<span class="text-[11px] font-bold text-neutral-500 group-hover:text-[#F45310] transition-colors leading-tight">Payslip</span>
+						</a>
+					{:else}
+						<div class="flex flex-col items-center gap-2 group text-center cursor-not-allowed select-none opacity-50">
+							<div class="size-12 rounded-2xl border border-neutral-100 flex items-center justify-center text-neutral-400 bg-white">
+								<FileTextIcon class="size-5.5" />
+							</div>
+							<span class="text-[11px] font-bold text-neutral-400 leading-tight">Payslip</span>
+						</div>
+					{/if}
+
+					<!-- Attendance -->
+					<a href="/attendance" class="flex flex-col items-center gap-2 group text-center decoration-none">
+						<div class="size-12 rounded-2xl border border-neutral-100 flex items-center justify-center text-neutral-600 bg-white group-hover:bg-[#FFF4EE] group-hover:border-[#FFE2D3] group-hover:text-[#F45310] transition-colors">
+							<ClockIcon class="size-5.5" />
+						</div>
+						<span class="text-[11px] font-bold text-neutral-500 group-hover:text-[#F45310] transition-colors leading-tight">Attendance</span>
+					</a>
+
+					<!-- Profile -->
+					<a href="/employees/{data.employee.cuid}" class="flex flex-col items-center gap-2 group text-center decoration-none">
+						<div class="size-12 rounded-2xl border border-neutral-100 flex items-center justify-center text-neutral-600 bg-white group-hover:bg-[#FFF4EE] group-hover:border-[#FFE2D3] group-hover:text-[#F45310] transition-colors">
+							<UserIcon class="size-5.5" />
+						</div>
+						<span class="text-[11px] font-bold text-neutral-500 group-hover:text-[#F45310] transition-colors leading-tight">Profile</span>
+					</a>
 				</div>
 			</div>
 
-			<!-- Widgets Stack (Right sidebar, occupying 1 column) -->
-			<div class="space-y-6">
+			<!-- Holiday Calendar Widget -->
+			<div class="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs">
+				<div class="flex items-center justify-between mb-5">
+					<h3 class="text-lg font-bold text-neutral-900">Holiday Calendar</h3>
+					<a
+						href="/holidays"
+						class="text-xs font-bold text-[#F45310] hover:underline decoration-none"
+					>
+						View Calendar
+					</a>
+				</div>
+				<div class="flex flex-col gap-4">
+					{#each data.upcomingEvents as event}
+						<div class="flex items-center justify-between py-1 first:pt-0 last:pb-0">
+							<div class="flex items-center gap-4">
+								<!-- Left side: Date badge in a soft red background -->
+								<div class="bg-[#FFF0EB] border border-[#FFE2D3] rounded-xl px-2.5 py-1.5 text-center flex flex-col items-center justify-center min-w-[50px]">
+									<span class="text-[9px] font-extrabold text-[#F45310] leading-none uppercase">{getEventMonthName(event.date)}</span>
+									<span class="text-base font-extrabold text-[#F45310] leading-none mt-1">{getEventDay(event.date)}</span>
+								</div>
 
-				<!-- Shift Details Widget -->
-				<div class="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs">
-					<div class="flex items-center justify-between mb-4">
-						<h3 class="text-lg font-bold text-neutral-900">Shift Details</h3>
-						<div class="size-9 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]">
-							<ClockIcon class="size-4.5" />
-						</div>
-					</div>
+								<!-- Middle description details -->
+								<div class="space-y-0.5">
+									<p class="text-sm font-bold text-neutral-800 leading-tight">{event.name}</p>
+									<p class="text-[11px] font-semibold text-neutral-400 tracking-wide">{event.holidayType}</p>
+								</div>
+							</div>
 
-					{#if data.activeShift}
-						<div class="space-y-4 py-2">
-							<div>
-								<span class="text-xs text-neutral-400 font-semibold uppercase tracking-wider block">Shift Name</span>
-								<span class="text-base font-bold text-neutral-800 mt-1 block">{data.activeShift.name}</span>
-							</div>
-							<div>
-								<span class="text-xs text-neutral-400 font-semibold uppercase tracking-wider block">Shift Timing</span>
-								<span class="text-sm font-bold text-neutral-700 mt-1 block">
-									{formatShiftTime12h(data.activeShift.start_time)} - {formatShiftTime12h(data.activeShift.end_time)}
-								</span>
-							</div>
-							<div>
-								<span class="text-xs text-neutral-400 font-semibold uppercase tracking-wider block">Working Days</span>
-								<span class="text-sm font-bold text-neutral-700 mt-1 block">Mon - Fri</span>
+							<!-- Right side icon -->
+							<div class="text-neutral-300">
+								{#if event.type === 'holiday'}
+									<Building2Icon class="size-5 text-[#FFE2D3]" />
+								{:else}
+									<CakeIcon class="size-5 text-[#FFE2D3]" />
+								{/if}
 							</div>
 						</div>
 					{:else}
-						<p class="text-xs font-semibold text-neutral-400 text-center py-6">No active shift assigned.</p>
-					{/if}
+						<p class="text-xs font-semibold text-neutral-400 text-center py-4">No upcoming holidays scheduled.</p>
+					{/each}
 				</div>
-
-				<!-- Quick Actions Widget -->
-				<div class="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs">
-					<h3 class="text-lg font-bold text-neutral-900 mb-5">Quick Actions</h3>
-					<div class="grid grid-cols-4 gap-3">
-						<!-- Apply Leave -->
-						<a href="/leaves" class="flex flex-col items-center gap-2 group text-center decoration-none">
-							<div class="size-12 rounded-2xl border border-neutral-100 flex items-center justify-center text-neutral-600 bg-white group-hover:bg-[#FFF4EE] group-hover:border-[#FFE2D3] group-hover:text-[#F45310] transition-colors">
-								<UmbrellaIcon class="size-5.5" />
-							</div>
-							<span class="text-[11px] font-bold text-neutral-500 group-hover:text-[#F45310] transition-colors leading-tight">Apply Leave</span>
-						</a>
-
-						<!-- Payslip -->
-						{#if data.latestPayrollCuid}
-							<a href="/payroll-records/{data.latestPayrollCuid}/payslip" class="flex flex-col items-center gap-2 group text-center decoration-none">
-								<div class="size-12 rounded-2xl border border-neutral-100 flex items-center justify-center text-neutral-600 bg-white group-hover:bg-[#FFF4EE] group-hover:border-[#FFE2D3] group-hover:text-[#F45310] transition-colors">
-									<FileTextIcon class="size-5.5" />
-								</div>
-								<span class="text-[11px] font-bold text-neutral-500 group-hover:text-[#F45310] transition-colors leading-tight">Payslip</span>
-							</a>
-						{:else}
-							<div class="flex flex-col items-center gap-2 group text-center cursor-not-allowed select-none opacity-50">
-								<div class="size-12 rounded-2xl border border-neutral-100 flex items-center justify-center text-neutral-400 bg-white">
-									<FileTextIcon class="size-5.5" />
-								</div>
-								<span class="text-[11px] font-bold text-neutral-400 leading-tight">Payslip</span>
-							</div>
-						{/if}
-
-						<!-- Attendance -->
-						<a href="/attendance" class="flex flex-col items-center gap-2 group text-center decoration-none">
-							<div class="size-12 rounded-2xl border border-neutral-100 flex items-center justify-center text-neutral-600 bg-white group-hover:bg-[#FFF4EE] group-hover:border-[#FFE2D3] group-hover:text-[#F45310] transition-colors">
-								<ClockIcon class="size-5.5" />
-							</div>
-							<span class="text-[11px] font-bold text-neutral-500 group-hover:text-[#F45310] transition-colors leading-tight">Attendance</span>
-						</a>
-
-						<!-- Profile -->
-						<a href="/employees/{data.employee.cuid}" class="flex flex-col items-center gap-2 group text-center decoration-none">
-							<div class="size-12 rounded-2xl border border-neutral-100 flex items-center justify-center text-neutral-600 bg-white group-hover:bg-[#FFF4EE] group-hover:border-[#FFE2D3] group-hover:text-[#F45310] transition-colors">
-								<UserIcon class="size-5.5" />
-							</div>
-							<span class="text-[11px] font-bold text-neutral-500 group-hover:text-[#F45310] transition-colors leading-tight">Profile</span>
-						</a>
-					</div>
-				</div>
-
-				<!-- Holiday Calendar Widget -->
-				<div class="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs">
-					<div class="flex items-center justify-between mb-5">
-						<h3 class="text-lg font-bold text-neutral-900">Holiday Calendar</h3>
-						<a
-							href="/holidays"
-							class="text-xs font-bold text-[#F45310] hover:underline decoration-none"
-						>
-							View Calendar
-						</a>
-					</div>
-					<div class="flex flex-col gap-4">
-						{#each data.upcomingEvents as event}
-							<div class="flex items-center justify-between py-1 first:pt-0 last:pb-0">
-								<div class="flex items-center gap-4">
-									<!-- Left side: Date badge in a soft red background -->
-									<div class="bg-[#FFF0EB] border border-[#FFE2D3] rounded-xl px-2.5 py-1.5 text-center flex flex-col items-center justify-center min-w-[50px]">
-										<span class="text-[9px] font-extrabold text-[#F45310] leading-none uppercase">{getEventMonthName(event.date)}</span>
-										<span class="text-base font-extrabold text-[#F45310] leading-none mt-1">{getEventDay(event.date)}</span>
-									</div>
-
-									<!-- Middle description details -->
-									<div class="space-y-0.5">
-										<p class="text-sm font-bold text-neutral-800 leading-tight">{event.name}</p>
-										<p class="text-[11px] font-semibold text-neutral-400 tracking-wide">{event.holidayType}</p>
-									</div>
-								</div>
-
-								<!-- Right side icon -->
-								<div class="text-neutral-300">
-									{#if event.type === 'holiday'}
-										<Building2Icon class="size-5 text-[#FFE2D3]" />
-									{:else}
-										<CakeIcon class="size-5 text-[#FFE2D3]" />
-									{/if}
-								</div>
-							</div>
-						{:else}
-							<p class="text-xs font-semibold text-neutral-400 text-center py-4">No upcoming holidays scheduled.</p>
-						{/each}
-					</div>
-				</div>
-
 			</div>
+
 		</section>
 	{:else}
 		<div class="bg-white border border-neutral-200 rounded-2xl p-10 text-center text-neutral-500">

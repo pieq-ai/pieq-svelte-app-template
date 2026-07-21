@@ -52,8 +52,8 @@ export const shiftManagementItems: NavItem[] = [
 ];
 
 export const salaryManagementItems: NavItem[] = [
-	{ label: 'Salary Components', href: '/salary-components', icon: WalletIcon, permission: 'salary_component:view' },
-	{ label: 'Salary Structures', href: '/salary-structures', icon: ReceiptTextIcon, permission: 'salary_structure:view' },
+	{ label: 'Salary Component', href: '/salary-components', icon: WalletIcon, permission: 'salary_component:view' },
+	{ label: 'Salary Structure', href: '/salary-structures', icon: ReceiptTextIcon, permission: 'salary_structure:view' },
 	{ label: 'Payroll', href: '/payrolls', icon: BanknoteIcon, permission: 'payroll:view' }
 ];
 
