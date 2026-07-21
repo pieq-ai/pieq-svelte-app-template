@@ -111,7 +111,7 @@
 				<div class="size-10 rounded-full bg-[#FFF4EE] flex items-center justify-center text-[#F45310]">
 					<UmbrellaIcon class="size-5" />
 				</div>
-				<span class="text-3xl font-extrabold text-neutral-900 mt-3">{data.stats.leaveBalance}</span>
+				<span class="text-3xl font-extrabold text-neutral-900 mt-3">{Number(data.stats.leaveBalance || 0).toFixed(1)}</span>
 				<span class="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mt-1.5">Leave Balance</span>
 			</div>
 
