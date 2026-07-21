@@ -10,7 +10,7 @@ import { db } from '$lib/server/db.js';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
-		redirect(302, '/');
+		throw redirect(302, '/');
 	}
 
 	const email = locals.user.email;
@@ -473,6 +473,21 @@ export const load: PageServerLoad = async ({ locals }) => {
 		};
 	}
 
+	// Fetch latest payroll cuid for payslip quick action
+	let latestPayrollCuid: string | null = null;
+	try {
+		const latestPayroll = await db.payroll.findFirst({
+			where: { employee_cuid: employee.cuid },
+			orderBy: [
+				{ year: 'desc' },
+				{ month: 'desc' }
+			]
+		});
+		latestPayrollCuid = latestPayroll?.cuid ?? null;
+	} catch (err) {
+		console.error('Failed to fetch latest payroll for payslip action:', err);
+	}
+
 	return {
 		context: {
 			user: locals.user,
@@ -495,6 +510,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		activeShift,
 		todayAttendance,
 		isManager,
-		managerContext
+		managerContext,
+		latestPayrollCuid
 	};
 };

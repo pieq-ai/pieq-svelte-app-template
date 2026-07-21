@@ -11,7 +11,7 @@ import { db } from '$lib/server/db.js';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
-		redirect(302, '/');
+		throw redirect(302, '/');
 	}
 	if (!canAccess(locals.user, 'dashboard:employee')) {
 		throw error(403, 'Unauthorized: You do not have permission to access the employee dashboard.');
@@ -264,62 +264,74 @@ export const load: PageServerLoad = async ({ locals }) => {
 		memberSince = doj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 	}
 
-	// 8. Fetch Team Details
+	// 8. Fetch Team Details (Reporting Hierarchy Only)
 	let teamMembers: {
 		cuid: string;
 		name: string;
-		role: string;
-		department: string;
+		emp_code: string;
 		designation: string;
+		memberRole: 'Manager' | 'Employee';
 	}[] = [];
-	if (employment) {
-		const teamEmployments = await db.employment.findMany({
+
+	if (employment?.reporting_manager_cuid) {
+		const managerCuid = employment.reporting_manager_cuid;
+
+		// Fetch Reporting Manager profile
+		const managerProfile = await db.employee.findFirst({
+			where: { cuid: managerCuid, is_deleted: false },
+			select: { cuid: true, first_name: true, last_name: true, emp_code: true }
+		});
+
+		if (managerProfile) {
+			let mgrDesignation = '—';
+			const mgrEmployment = await db.employment.findFirst({
+				where: { employee_cuid: managerCuid, employment_status: { in: ['active', 'onboarding'] } }
+			});
+			if (mgrEmployment?.designation_cuid) {
+				const desig = await designationDao.findByCuid2(mgrEmployment.designation_cuid);
+				if (desig) mgrDesignation = desig.name;
+			}
+			teamMembers.push({
+				cuid: managerProfile.cuid,
+				name: `${managerProfile.first_name} ${managerProfile.last_name}`,
+				emp_code: managerProfile.emp_code,
+				designation: mgrDesignation,
+				memberRole: 'Manager'
+			});
+		}
+
+		// Fetch teammates (employees reporting to the same manager, excluding logged-in employee)
+		const teammateEmployments = await db.employment.findMany({
 			where: {
-				OR: [
-					employment.reporting_manager_cuid
-						? { reporting_manager_cuid: employment.reporting_manager_cuid }
-						: null,
-					{ department_cuid: employment.department_cuid }
-				].filter(Boolean) as any,
+				reporting_manager_cuid: managerCuid,
+				employee_cuid: { not: employee.cuid },
 				employment_status: { in: ['active', 'onboarding'] }
 			}
 		});
 
-		const uniqueTeamEmployeeCuids = [...new Set(teamEmployments.map((e) => e.employee_cuid))];
-		const teamEmployees = await db.employee.findMany({
-			where: {
-				cuid: { in: uniqueTeamEmployeeCuids },
-				is_deleted: false
-			},
-			select: {
-				cuid: true,
-				first_name: true,
-				last_name: true
-			}
-		});
+		if (teammateEmployments.length > 0) {
+			const teammateCuids = teammateEmployments.map((e) => e.employee_cuid);
+			const teammateProfiles = await db.employee.findMany({
+				where: { cuid: { in: teammateCuids }, is_deleted: false },
+				select: { cuid: true, first_name: true, last_name: true, emp_code: true }
+			});
 
-		const [departments, designations, roles] = await Promise.all([
-			db.department.findMany(),
-			db.designation.findMany(),
-			db.role.findMany()
-		]);
-		const deptMap = new Map(departments.map((d) => [d.cuid, d.name]));
-		const desigMap = new Map(designations.map((d) => [d.cuid, d.name]));
-		const roleMap = new Map(roles.map((r) => [r.cuid, r.name]));
-
-		teamMembers = teamEmployees
-			.map((profile) => {
-				const emp = teamEmployments.find((e) => e.employee_cuid === profile.cuid);
-				if (!emp) return null;
-				return {
+			for (const profile of teammateProfiles) {
+				const emp = teammateEmployments.find((e) => e.employee_cuid === profile.cuid);
+				let desigName = '—';
+				if (emp?.designation_cuid) {
+					const desig = await designationDao.findByCuid2(emp.designation_cuid);
+					if (desig) desigName = desig.name;
+				}
+				teamMembers.push({
 					cuid: profile.cuid,
 					name: `${profile.first_name} ${profile.last_name}`,
-					role: emp.role_cuid ? roleMap.get(emp.role_cuid) || '—' : '—',
-					department: deptMap.get(emp.department_cuid) || '—',
-					designation: desigMap.get(emp.designation_cuid) || '—'
-				};
-			})
-			.filter((m): m is Exclude<typeof m, null> => m !== null);
+					emp_code: profile.emp_code,
+					designation: desigName,
+					memberRole: 'Employee'
+				});
+			}
+		}
 	}
 
 	// 9. Determine if this employee is a manager (has active subordinates)

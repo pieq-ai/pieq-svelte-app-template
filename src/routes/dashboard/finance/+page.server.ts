@@ -11,10 +11,10 @@ import { db } from '$lib/server/db.js';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) {
-		redirect(302, '/');
+		throw redirect(302, '/');
 	}
 	if (!canAccess(locals.user, 'dashboard:finance')) {
-		redirect(302, '/dashboard');
+		throw redirect(302, '/dashboard');
 	}
 
 	const email = locals.user.email;
@@ -247,6 +247,30 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 	const upcomingHolidaysCount = upcomingHolidays.length;
 
+	const upcomingEvents = upcomingHolidays.slice(0, 5).map((h) => ({
+		type: 'holiday',
+		name: h.name,
+		date: h.date.toISOString(),
+		holidayType: h.type
+	}));
+
+	// Fetch latest payroll cuid for payslip quick action
+	let latestPayrollCuid: string | null = null;
+	if (employee) {
+		try {
+			const latestPayroll = await db.payroll.findFirst({
+				where: { employee_cuid: employee.cuid },
+				orderBy: [
+					{ year: 'desc' },
+					{ month: 'desc' }
+				]
+			});
+			latestPayrollCuid = latestPayroll?.cuid ?? null;
+		} catch (err) {
+			console.error('Failed to fetch latest payroll for payslip action:', err);
+		}
+	}
+
 	return {
 		employee: employee ? {
 			cuid: employee.cuid,
@@ -261,6 +285,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		todayAttendance,
 		periods,
 		selectedPeriodValue,
+		upcomingEvents,
+		latestPayrollCuid,
 		stats: {
 			totalEmployees,
 			newEmployeesThisMonth,

@@ -11,10 +11,10 @@ import { db } from '$lib/server/db.js';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) {
-		redirect(302, '/');
+		throw redirect(302, '/');
 	}
 	if (!canAccess(locals.user, 'dashboard:admin')) {
-		redirect(302, '/dashboard');
+		throw redirect(302, '/dashboard');
 	}
 
 	const email = locals.user.email;
@@ -287,6 +287,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 	const upcomingHolidaysCount = upcomingHolidays.length;
 
+	const upcomingEvents = upcomingHolidays.slice(0, 5).map((h) => ({
+		type: 'holiday',
+		name: h.name,
+		date: h.date.toISOString(),
+		holidayType: h.type
+	}));
+
 	// Today's Attendance count
 	const presentToday = await db.attendanceRecord.count({
 		where: {
@@ -310,6 +317,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		todayAttendance,
 		periods,
 		selectedPeriodValue,
+		upcomingEvents,
 		stats: {
 			totalEmployees,
 			newEmployeesThisMonth,
