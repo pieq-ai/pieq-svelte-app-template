@@ -4,7 +4,7 @@ import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import * as auditService from '$lib/server/services/audit.service.js';
 
 const DEFAULT_PAGE_SIZE = 50;
-const MAX_PAGE_SIZE = 200;
+const MAX_PAGE_SIZE = 100;
 
 export async function GET(event: RequestEvent) {
 	try {

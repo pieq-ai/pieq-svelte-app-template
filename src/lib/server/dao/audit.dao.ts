@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db.js';
 
-const MAX_PAGE_SIZE = 200;
+const MAX_PAGE_SIZE = 100;
 
 export interface AuditLogCreateInput {
   entity_name: string;
