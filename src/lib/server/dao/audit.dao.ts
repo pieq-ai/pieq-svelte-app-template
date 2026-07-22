@@ -1,5 +1,7 @@
 import { db } from '$lib/server/db.js';
 
+const MAX_PAGE_SIZE = 200;
+
 export interface AuditLogCreateInput {
   entity_name: string;
   entity_cuid: string;
@@ -35,9 +37,11 @@ export interface ListAuditLogsFilters {
 
 export async function createAuditLogs(logs: AuditLogCreateInput[], tx?: any) {
   const client = tx || db;
-  if (!client || !client.auditLog) {
-    console.warn('[AuditDao] client.auditLog is undefined. Skipping audit log write.');
-    return;
+  if (!client?.auditLog) {
+    throw new Error(
+      '[AuditDao] auditLog model is unavailable on the provided client. ' +
+      'Audit write aborted — check Prisma schema and client setup.'
+    );
   }
   return client.auditLog.createMany({
     data: logs
@@ -137,7 +141,7 @@ export async function listAuditLogs(filters: ListAuditLogsFilters, tx?: any) {
       },
       orderBy,
       skip: filters.skip ?? 0,
-      take: filters.take ?? 50
+      take: Math.min(filters.take ?? 50, MAX_PAGE_SIZE)
     })
   ]);
 

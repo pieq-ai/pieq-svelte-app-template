@@ -3,13 +3,24 @@ import type { RequestEvent } from '@sveltejs/kit';
 import * as permissionGuard from '$lib/server/guards/permission.guard.js';
 import * as auditService from '$lib/server/services/audit.service.js';
 
+const DEFAULT_PAGE_SIZE = 50;
+const MAX_PAGE_SIZE = 200;
+
 export async function GET(event: RequestEvent) {
 	try {
 		permissionGuard.requirePermission(event.locals.user, 'audit:view');
 
 		const url = new URL(event.request.url);
-		const page = parseInt(url.searchParams.get('page') || '1', 10);
-		const limit = parseInt(url.searchParams.get('limit') || '50', 10);
+		const rawPage = parseInt(url.searchParams.get('page') || '1', 10);
+		const rawLimit = parseInt(url.searchParams.get('limit') || String(DEFAULT_PAGE_SIZE), 10);
+
+		if (isNaN(rawPage) || isNaN(rawLimit)) {
+			return json({ error: 'page and limit must be valid integers' }, { status: 400 });
+		}
+
+		const page = Math.max(1, rawPage);
+		const limit = Math.min(Math.max(1, rawLimit), MAX_PAGE_SIZE);
+
 		const search = url.searchParams.get('search') || undefined;
 		const entity_name = url.searchParams.get('entity_name') || undefined;
 		const action_type = url.searchParams.get('action_type') || undefined;
