@@ -1,4 +1,4 @@
-// src/lib/server/services/shift-assignment.service.ts
+﻿// src/lib/server/services/shift-assignment.service.ts
 import * as shiftAssignmentDao from '$lib/server/dao/shift-assignment.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as shiftDao from '$lib/server/dao/shift.dao.js';
@@ -162,7 +162,6 @@ export async function createAssignment(payload: unknown, managerEmail: string): 
       entity_cuid: res.cuid,
       action_type: 'create',
       status: 'SUCCESS',
-      remarks: `Shift assignment created for employee CUID ${validated.employee_cuid} (Shift: ${shift.name}).`
     }, tx);
 
     return res;
@@ -360,7 +359,6 @@ export async function deleteAssignment(cuid: string, managerEmail: string): Prom
       entity_cuid: cuid,
       action_type: 'delete',
       status: 'SUCCESS',
-      remarks: `Shift assignment deleted (Employee: ${existing.employee_cuid}, Shift: ${existing.shift_cuid}).`
     }, tx);
   });
 }

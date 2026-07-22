@@ -363,7 +363,6 @@ export async function createAttendanceRecord(dto: CreateAttendanceRecordDto) {
 
 		await auditFactory.attendanceRecordCreated({
 			entityCuid: rec.cuid,
-			remarks: `Manual attendance record created for date ${validated.date.toISOString().split('T')[0]}.`
 		}, tx);
 
 		return rec;

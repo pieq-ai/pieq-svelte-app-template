@@ -108,7 +108,7 @@ const injectLocals = async ({ event, resolve }) => {
 			event.locals.roles = [];
 			
 			const errMsg = err instanceof Error ? err.message : String(err);
-			await auditFactory.loginFailed(session.user.id, `Authorization failed during user synchronization: ${errMsg}`)
+				await auditFactory.loginFailed(session.user.id)
 				.catch(e => console.error('[HOOKS] Failed to write failed audit log:', e));
 
 			throw error(403, 'Authorization failed: Could not sync user context');

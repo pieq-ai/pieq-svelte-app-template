@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
 	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
 	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
@@ -87,9 +87,7 @@
 		});
 	});
 
-	let paginatedLogs = $derived(
-		sortedLogs.slice((currentPage - 1) * pageSize, currentPage * pageSize)
-	);
+	let paginatedLogs = $derived(sortedLogs);
 
 	function isInteractive(target: HTMLElement | null, rowElement: HTMLElement): boolean {
 		let curr = target;
@@ -174,8 +172,6 @@
 				</TableRow>
 			{:else}
 				{#each paginatedLogs as log (log.cuid)}
-					<!-- svelte-ignore a11y_click_events_have_key_events -->
-					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<TableRow onclick={(e) => onTableClick(log.cuid, e)} class="cursor-pointer hover:bg-muted/50">
 						<TableCell class="font-medium text-xs whitespace-nowrap">
 							{new Date(log.created_at).toLocaleString()}
@@ -215,5 +211,5 @@
 <Pagination
 	bind:currentPage={currentPage}
 	pageSize={pageSize}
-	totalItems={logs.length}
+	totalItems={total}
 />

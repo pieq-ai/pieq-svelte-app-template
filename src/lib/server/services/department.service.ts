@@ -1,4 +1,4 @@
-import * as departmentDao from '$lib/server/dao/department.dao.js';
+﻿import * as departmentDao from '$lib/server/dao/department.dao.js';
 import { validateDepartmentName } from '$lib/server/validators/department.validator.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
 import { auditFactory } from '$lib/server/factories/audit.factory.js';
@@ -74,7 +74,6 @@ export async function createDepartment(dto: CreateDepartmentDto) {
 
 	await auditFactory.departmentCreated({
 		entityCuid: department.cuid,
-		remarks: `Department "${department.name}" created.`
 	});
 
 	return toPublicDepartment(department);
@@ -155,7 +154,6 @@ export async function deleteDepartment(cuid: string, deletedBy?: string) {
 
 	await auditFactory.departmentDeleted({
 		entityCuid: cuid,
-		remarks: `Department "${existing.name}" soft-deleted.`
 	});
 
 	return toPublicDepartment(updated);

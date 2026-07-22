@@ -1,4 +1,4 @@
-import { ValidationError } from '$lib/server/utils/errors.js';
+﻿import { ValidationError } from '$lib/server/utils/errors.js';
 import * as documentDao from '$lib/server/dao/document.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
@@ -98,7 +98,6 @@ export async function replaceDocuments(employee_cuid: string, dtos: UpsertDocume
             : await documentDao.replaceDocuments(employee_cuid, payload);
         await auditFactory.documentUploaded({
             entityCuid: employee_cuid,
-            remarks: `Replaced employee documents. Count: ${res.length}.`
         }, tx);
         return res;
     });

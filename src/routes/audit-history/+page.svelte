@@ -1,5 +1,8 @@
-﻿<script lang="ts">
+<script lang="ts">
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import AuditFilters from './AuditFilters.svelte';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import AuditTable from './AuditTable.svelte';
 	import AuditDetailDrawer from './AuditDetailDrawer.svelte';
 
@@ -18,6 +21,15 @@
 		data: {
 			auditLogs: AuditLog[];
 			total: number;
+			currentPage: number;
+			pageSize: number;
+			search: string;
+			entity: string;
+			action: string;
+			status: string;
+			performer: string;
+			fromDate: string;
+			toDate: string;
 		};
 	}>();
 
@@ -46,44 +58,72 @@
 		currentPage = 1;
 	}
 
-	let filteredAuditLogs = $derived.by(() => {
-		let result = [...data.auditLogs];
+	// Keep states in sync with loader data when browser URL changes (e.g. back/forward)
+	$effect(() => {
+		searchQuery = data.search || '';
+		selectedEntity = data.entity || 'all';
+		selectedAction = data.action || 'all';
+		selectedStatus = data.status || 'all';
+		fromDate = data.fromDate || '';
+		toDate = data.toDate || '';
+		currentPage = data.currentPage || 1;
+	});
+
+	// Sync states to URL search parameters reactively
+	$effect(() => {
+		const params = new SvelteURLSearchParams($page.url.searchParams);
+
+		if (currentPage > 1) {
+			params.set('page', String(currentPage));
+		} else {
+			params.delete('page');
+		}
 
 		if (searchQuery.trim()) {
-			const q = searchQuery.toLowerCase().trim();
-			result = result.filter(
-				(log) =>
-					log.entity_name?.toLowerCase().includes(q) ||
-					log.entity_cuid?.toLowerCase().includes(q) ||
-					log.field_name?.toLowerCase().includes(q) ||
-					log.performed_by?.toLowerCase().includes(q)
-			);
+			params.set('search', searchQuery.trim());
+		} else {
+			params.delete('search');
 		}
 
 		if (selectedEntity !== 'all') {
-			result = result.filter((log) => log.entity_name === selectedEntity);
+			params.set('entity_name', selectedEntity);
+		} else {
+			params.delete('entity_name');
 		}
 
 		if (selectedAction !== 'all') {
-			result = result.filter((log) => log.action_type === selectedAction);
+			params.set('action_type', selectedAction);
+		} else {
+			params.delete('action_type');
 		}
 
 		if (selectedStatus !== 'all') {
-			result = result.filter((log) => log.status === selectedStatus);
+			params.set('status', selectedStatus);
+		} else {
+			params.delete('status');
 		}
 
 		if (fromDate) {
-			const fromTime = new Date(fromDate).getTime();
-			result = result.filter((log) => new Date(log.created_at).getTime() >= fromTime);
+			params.set('fromDate', fromDate);
+		} else {
+			params.delete('fromDate');
 		}
 
 		if (toDate) {
-			const toTime = new Date(toDate).getTime() + 86400000;
-			result = result.filter((log) => new Date(log.created_at).getTime() <= toTime);
+			params.set('toDate', toDate);
+		} else {
+			params.delete('toDate');
 		}
 
-		return result;
+		const newQueryString = params.toString();
+		const currentQueryString = $page.url.searchParams.toString();
+
+		if (newQueryString !== currentQueryString) {
+			goto(`?${newQueryString}`, { keepFocus: true, noScroll: true });
+		}
 	});
+
+	let filteredAuditLogs = $derived(data.auditLogs);
 
 	async function handleRowClick(cuid: string) {
 		isDrawerOpen = true;

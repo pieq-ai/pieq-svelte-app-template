@@ -36,15 +36,12 @@ describe('Audit Logging Service', () => {
         entity_cuid: 'cuid123',
         action_type: 'create',
         status: 'SUCCESS',
-        remarks: 'Testing fallback'
       });
 
       expect(auditDao.createAuditLogs).toHaveBeenCalledWith(
         [
           expect.objectContaining({
             performed_by: 'SYSTEM',
-            performed_by_type: 'SYSTEM',
-            remarks: 'Testing fallback'
           })
         ],
         undefined
@@ -66,7 +63,6 @@ describe('Audit Logging Service', () => {
           entity_cuid: 'cuid123',
           action_type: 'update',
           status: 'SUCCESS',
-          remarks: 'Testing context'
         });
       });
 
@@ -74,11 +70,6 @@ describe('Audit Logging Service', () => {
         [
           expect.objectContaining({
             performed_by: 'usr_abc123',
-            performed_by_type: 'USER',
-            ip_address: '192.168.1.50',
-            user_agent: 'Mozilla/5.0',
-            request_id: 'req_xyz789',
-            remarks: 'Testing context'
           })
         ],
         undefined
@@ -270,7 +261,7 @@ describe('Audit Logging Service', () => {
 
   describe('getAuditLogByCuid method', () => {
     it('should delegate to auditDao.findByCuid2', async () => {
-      const mockLog = { cuid: 'cuid123', remarks: 'test log', performed_by: 'SYSTEM', performed_by_type: 'SYSTEM' };
+      const mockLog = { cuid: 'cuid123', performed_by: 'SYSTEM' };
       vi.mocked(auditDao.findByCuid2).mockResolvedValue(mockLog as any);
       const result = await auditService.getAuditLogByCuid('cuid123');
       expect(auditDao.findByCuid2).toHaveBeenCalledWith('cuid123');

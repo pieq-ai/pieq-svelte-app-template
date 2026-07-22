@@ -1,6 +1,5 @@
 import * as auditDao from '$lib/server/dao/audit.dao.js';
 import { getRequestContext } from '$lib/server/utils/request-context.js';
-import { createId } from '@paralleldrive/cuid2';
 
 const SENSITIVE_FIELDS = new Set([
   'password',
@@ -97,7 +96,6 @@ export interface LogParams {
   field_name?: string | null;
   old_value?: any | null;
   new_value?: any | null;
-  remarks?: string | null;
 }
 
 /**
@@ -106,11 +104,6 @@ export interface LogParams {
 export async function log(params: LogParams, tx?: any) {
   const context = getRequestContext();
   const performedBy = context?.performedBy || 'SYSTEM';
-  const performedByType = context?.performedByType || 'SYSTEM';
-  const ipAddress = context?.ipAddress || null;
-  const userAgent = context?.userAgent || null;
-  const requestId = context?.requestId || createId();
-
 
   const old_value = params.old_value !== undefined ? maskValue(params.field_name || '', params.old_value) : null;
   const new_value = params.new_value !== undefined ? maskValue(params.field_name || '', params.new_value) : null;
@@ -123,12 +116,7 @@ export async function log(params: LogParams, tx?: any) {
     field_name: params.field_name || null,
     old_value: old_value ? { value: old_value } : null,
     new_value: new_value ? { value: new_value } : null,
-    performed_by: performedBy,
-    performed_by_type: performedByType,
-    ip_address: ipAddress,
-    user_agent: userAgent,
-    request_id: requestId,
-    remarks: params.remarks || null
+    performed_by: performedBy
   };
 
   return auditDao.createAuditLogs([logEntry], tx);
@@ -139,7 +127,6 @@ export interface LogUpdateParams {
   entityCuid: string;
   oldRecord: Record<string, any>;
   newRecord: Record<string, any>;
-  remarks?: string | null;
 }
 
 /**
@@ -148,11 +135,6 @@ export interface LogUpdateParams {
 export async function logUpdate(params: LogUpdateParams, tx?: any) {
   const context = getRequestContext();
   const performedBy = context?.performedBy || 'SYSTEM';
-  const performedByType = context?.performedByType || 'SYSTEM';
-  const ipAddress = context?.ipAddress || null;
-  const userAgent = context?.userAgent || null;
-  const requestId = context?.requestId || createId();
-
 
   const allKeys = new Set([...Object.keys(params.oldRecord), ...Object.keys(params.newRecord)]);
   const logs: auditDao.AuditLogCreateInput[] = [];
@@ -177,12 +159,7 @@ export async function logUpdate(params: LogUpdateParams, tx?: any) {
         field_name: key,
         old_value: maskedOld !== undefined ? { value: maskedOld } : null,
         new_value: maskedNew !== undefined ? { value: maskedNew } : null,
-        performed_by: performedBy,
-        performed_by_type: performedByType,
-        ip_address: ipAddress,
-        user_agent: userAgent,
-        request_id: requestId,
-        remarks: params.remarks || null
+        performed_by: performedBy
       });
     }
   }
@@ -199,7 +176,6 @@ export interface LogListUpdateParams {
   oldList: Record<string, any>[];
   newList: Record<string, any>[];
   getItemLabel: (item: any) => string;
-  remarks?: string | null;
 }
 
 /**
@@ -208,10 +184,6 @@ export interface LogListUpdateParams {
 export async function logListUpdate(params: LogListUpdateParams, tx?: any) {
   const context = getRequestContext();
   const performedBy = context?.performedBy || 'SYSTEM';
-  const performedByType = context?.performedByType || 'SYSTEM';
-  const ipAddress = context?.ipAddress || null;
-  const userAgent = context?.userAgent || null;
-  const requestId = context?.requestId || crypto.randomUUID();
 
   const oldMap = new Map(params.oldList.map((item) => [item.cuid, item]));
   const newMap = new Map(params.newList.map((item) => [item.cuid, item]));
@@ -230,12 +202,7 @@ export async function logListUpdate(params: LogListUpdateParams, tx?: any) {
         field_name: `${params.category} - ${itemLabel} - status`,
         old_value: { value: oldItem },
         new_value: { value: 'removed' },
-        performed_by: performedBy,
-        performed_by_type: performedByType,
-        ip_address: ipAddress,
-        user_agent: userAgent,
-        request_id: requestId,
-        remarks: params.remarks || `${params.category} item removed`
+        performed_by: performedBy
       });
     }
   }
@@ -253,12 +220,7 @@ export async function logListUpdate(params: LogListUpdateParams, tx?: any) {
         field_name: `${params.category} - ${itemLabel} - status`,
         old_value: { value: 'none' },
         new_value: { value: newItem },
-        performed_by: performedBy,
-        performed_by_type: performedByType,
-        ip_address: ipAddress,
-        user_agent: userAgent,
-        request_id: requestId,
-        remarks: params.remarks || `${params.category} item added`
+        performed_by: performedBy
       });
     } else {
       // Modified: compare properties
@@ -279,12 +241,7 @@ export async function logListUpdate(params: LogListUpdateParams, tx?: any) {
             field_name: `${params.category} - ${itemLabel} - ${key}`,
             old_value: maskedOld !== undefined ? { value: maskedOld } : null,
             new_value: maskedNew !== undefined ? { value: maskedNew } : null,
-            performed_by: performedBy,
-            performed_by_type: performedByType,
-            ip_address: ipAddress,
-            user_agent: userAgent,
-            request_id: requestId,
-            remarks: params.remarks || `${params.category} field updated`
+            performed_by: performedBy
           });
         }
       }

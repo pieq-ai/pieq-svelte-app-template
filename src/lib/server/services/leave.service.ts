@@ -895,7 +895,6 @@ export async function withdrawLeaveByCuid(employeeCuid: string, requestCuid: str
 
 		await auditFactory.leaveWithdrawn({
 			entityCuid: requestCuid,
-			remarks: `Leave request withdrawn by CUID ${actorCuid || employee.cuid}.`
 		});
 
 		return res;
@@ -1309,7 +1308,6 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 
 		await auditFactory.leaveApplied({
 			entityCuid: req?.cuid || '',
-			remarks: `Leave request applied for ${totalDays} days from ${input.startDate} to ${input.endDate}.`
 		});
 
 		return req;
@@ -1360,7 +1358,6 @@ export async function withdrawLeave(email: string, requestCuid: string, actorCui
 
 		await auditFactory.leaveWithdrawn({
 			entityCuid: requestCuid,
-			remarks: `Leave request withdrawn by CUID ${actorCuid || employee.cuid}.`
 		});
 
 		return res;
@@ -1484,7 +1481,6 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 
 		await auditFactory.leaveApproved({
 			entityCuid: requestCuid,
-			remarks: `Leave request approved by CUID ${approverUserCuid}.`
 		});
 
 		// 2. Deduct leave balance
@@ -1614,7 +1610,6 @@ export async function rejectLeaveRequest(requestCuid: string, rejectorUserCuid: 
 
 		await auditFactory.leaveRejected({
 			entityCuid: requestCuid,
-			remarks: `Leave request rejected by CUID ${rejectorUserCuid}.`
 		});
 
 		return res;

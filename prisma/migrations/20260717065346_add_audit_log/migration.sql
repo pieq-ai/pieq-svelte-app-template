@@ -6,15 +6,10 @@ CREATE TABLE "audit_logs" (
     "entity_cuid" TEXT NOT NULL,
     "action_type" VARCHAR(50) NOT NULL,
     "status" VARCHAR(20) NOT NULL,
-    "field_name" VARCHAR(100),
+    "field_name" TEXT,
     "old_value" JSONB,
     "new_value" JSONB,
     "performed_by" TEXT,
-    "performed_by_type" VARCHAR(20) NOT NULL,
-    "ip_address" VARCHAR(45),
-    "user_agent" TEXT,
-    "remarks" TEXT,
-    "request_id" TEXT NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "audit_logs_pkey" PRIMARY KEY ("id")
@@ -28,9 +23,6 @@ CREATE INDEX "audit_logs_entity_name_entity_cuid_idx" ON "audit_logs"("entity_na
 
 -- CreateIndex
 CREATE INDEX "audit_logs_performed_by_idx" ON "audit_logs"("performed_by");
-
--- CreateIndex
-CREATE INDEX "audit_logs_request_id_idx" ON "audit_logs"("request_id");
 
 -- CreateIndex
 CREATE INDEX "audit_logs_created_at_idx" ON "audit_logs"("created_at");

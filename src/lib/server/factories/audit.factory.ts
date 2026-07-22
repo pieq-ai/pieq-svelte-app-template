@@ -1,4 +1,4 @@
-import * as auditService from '$lib/server/services/audit.service.js';
+﻿import * as auditService from '$lib/server/services/audit.service.js';
 
 export const auditFactory = {
 	// ==========================================
@@ -11,20 +11,18 @@ export const auditFactory = {
 				entity_cuid: userCuid,
 				action_type: 'login',
 				status: 'SUCCESS',
-				remarks: 'User logged in'
 			},
 			tx
 		);
 	},
 
-	async loginFailed(userCuid: string, remarks?: string, tx?: any) {
+	async loginFailed(userCuid: string, tx?: any) {
 		return auditService.log(
 			{
 				entity_name: 'Authentication',
 				entity_cuid: userCuid,
 				action_type: 'login_sync',
 				status: 'FAILED',
-				remarks: remarks || 'Authorization failed during user synchronization'
 			},
 			tx
 		);
@@ -37,7 +35,6 @@ export const auditFactory = {
 				entity_cuid: userCuid,
 				action_type: 'logout',
 				status: 'SUCCESS',
-				remarks: 'User logged out'
 			},
 			tx
 		);
@@ -56,7 +53,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: `Employee ${params.firstName} ${params.lastName} (${params.empCode}) created.`
 			},
 			tx
 		);
@@ -87,7 +83,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'delete',
 				status: 'SUCCESS',
-				remarks: `Employee ${params.firstName} ${params.lastName} soft-deleted.`
 			},
 			tx
 		);
@@ -111,7 +106,6 @@ export const auditFactory = {
 					oldList: params.oldList,
 					newList: params.newList,
 					getItemLabel: (item: any) => `${item.address_type} Address`,
-					remarks: 'Addresses updated'
 				},
 				tx
 			);
@@ -142,7 +136,6 @@ export const auditFactory = {
 					oldList: params.oldList,
 					newList: params.newList,
 					getItemLabel: (item: any) => item.degree_diploma || item.qualification,
-					remarks: 'Education history updated'
 				},
 				tx
 			);
@@ -173,7 +166,6 @@ export const auditFactory = {
 					oldList: params.oldList,
 					newList: params.newList,
 					getItemLabel: (item: any) => item.company_name,
-					remarks: 'Work experience updated'
 				},
 				tx
 			);
@@ -190,7 +182,7 @@ export const auditFactory = {
 	},
 
 	async bankDetailCreated(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -199,7 +191,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Bank details created'
 			},
 			tx
 		);
@@ -221,7 +212,6 @@ export const auditFactory = {
 					newList: params.newList,
 					getItemLabel: (item: any) =>
 						`${item.bank_name} (${item.account_number ? '...' + item.account_number.slice(-4) : ''})`,
-					remarks: 'Bank details updated'
 				},
 				tx
 			);
@@ -249,7 +239,6 @@ export const auditFactory = {
 				oldList: params.oldList,
 				newList: params.newList,
 				getItemLabel: (item: any) => item.language_name || item.name,
-				remarks: 'Languages updated'
 			},
 			tx
 		);
@@ -267,7 +256,6 @@ export const auditFactory = {
 				oldList: params.oldList,
 				newList: params.newList,
 				getItemLabel: (item: any) => item.skill_name || item.name,
-				remarks: 'Skills updated'
 			},
 			tx
 		);
@@ -277,7 +265,7 @@ export const auditFactory = {
 	// 4. Employment
 	// ==========================================
 	async employmentCreated(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -286,7 +274,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Employment record created'
 			},
 			tx
 		);
@@ -311,7 +298,7 @@ export const auditFactory = {
 	// 5. Leave & Leave Types
 	// ==========================================
 	async leaveApplied(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -320,14 +307,13 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Leave application submitted'
 			},
 			tx
 		);
 	},
 
 	async leaveApproved(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -336,14 +322,13 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'approve',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Leave application approved'
 			},
 			tx
 		);
 	},
 
 	async leaveRejected(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -352,14 +337,13 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'reject',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Leave application rejected'
 			},
 			tx
 		);
 	},
 
 	async leaveWithdrawn(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -368,14 +352,13 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'update',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Leave application withdrawn'
 			},
 			tx
 		);
 	},
 
 	async leaveTypeCreated(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -384,7 +367,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Leave type created'
 			},
 			tx
 		);
@@ -409,7 +391,7 @@ export const auditFactory = {
 	// 6. Attendance & Attendance Records
 	// ==========================================
 	async attendanceCheckedIn(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -418,14 +400,13 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Checked in'
 			},
 			tx
 		);
 	},
 
 	async attendanceCheckedOut(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -434,14 +415,13 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'update',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Checked out'
 			},
 			tx
 		);
 	},
 
 	async attendanceRecordCreated(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -450,7 +430,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Attendance record created'
 			},
 			tx
 		);
@@ -475,7 +454,7 @@ export const auditFactory = {
 	// 7. Shift & Shift Assignment
 	// ==========================================
 	async shiftCreated(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -484,7 +463,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Shift created'
 			},
 			tx
 		);
@@ -506,7 +484,7 @@ export const auditFactory = {
 	},
 
 	async shiftAssigned(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -515,14 +493,13 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Shift assigned'
 			},
 			tx
 		);
 	},
 
 	async shiftReassigned(
-		params: { entityCuid: string; oldRecord?: any; newRecord?: any; remarks?: string },
+		params: { entityCuid: string; oldRecord?: any; newRecord?: any },
 		tx?: any
 	) {
 		if (params.oldRecord && params.newRecord) {
@@ -542,14 +519,13 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'update',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Shift reassigned'
 			},
 			tx
 		);
 	},
 
 	async shiftRemoved(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -558,7 +534,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'delete',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Shift assignment removed'
 			},
 			tx
 		);
@@ -577,7 +552,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: `Holiday ${params.holidayName} created`
 			},
 			tx
 		);
@@ -608,7 +582,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'delete',
 				status: 'SUCCESS',
-				remarks: `Holiday ${params.holidayName} deleted`
 			},
 			tx
 		);
@@ -618,7 +591,7 @@ export const auditFactory = {
 	// 9. Salary Structure & Component
 	// ==========================================
 	async salaryStructureCreated(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -627,7 +600,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Salary structure created'
 			},
 			tx
 		);
@@ -664,7 +636,7 @@ export const auditFactory = {
 	},
 
 	async salaryComponentCreated(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -673,7 +645,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Salary component created'
 			},
 			tx
 		);
@@ -707,7 +678,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: `Payroll processing started for ${params.month}/${params.year}`
 			},
 			tx
 		);
@@ -723,14 +693,13 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'update',
 				status: 'SUCCESS',
-				remarks: `Payroll processing completed for ${params.month}/${params.year}`
 			},
 			tx
 		);
 	},
 
 	async payrollProcessFailed(
-		params: { entityCuid: string; month: string | number; year: string | number; remarks?: string },
+		params: { entityCuid: string; month: string | number; year: string | number },
 		tx?: any
 	) {
 		return auditService.log(
@@ -739,7 +708,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'update',
 				status: 'FAILED',
-				remarks: params.remarks || `Payroll processing failed for ${params.month}/${params.year}`
 			},
 			tx
 		);
@@ -749,7 +717,7 @@ export const auditFactory = {
 	// 11. Department & Designation
 	// ==========================================
 	async departmentCreated(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -758,7 +726,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Department created'
 			},
 			tx
 		);
@@ -780,7 +747,7 @@ export const auditFactory = {
 	},
 
 	async departmentDeleted(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -789,14 +756,13 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'delete',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Department soft-deleted'
 			},
 			tx
 		);
 	},
 
 	async designationCreated(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -805,7 +771,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Designation created'
 			},
 			tx
 		);
@@ -827,7 +792,7 @@ export const auditFactory = {
 	},
 
 	async designationDeleted(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -836,7 +801,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'delete',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Designation soft-deleted'
 			},
 			tx
 		);
@@ -846,7 +810,7 @@ export const auditFactory = {
 	// 12. Roles & Permissions
 	// ==========================================
 	async roleCreated(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -855,7 +819,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Role created'
 			},
 			tx
 		);
@@ -892,7 +855,7 @@ export const auditFactory = {
 	},
 
 	async systemRoleCreated(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -901,7 +864,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'System role created'
 			},
 			tx
 		);
@@ -926,7 +888,7 @@ export const auditFactory = {
 	// 13. Documents
 	// ==========================================
 	async documentUploaded(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -935,14 +897,13 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Document uploaded'
 			},
 			tx
 		);
 	},
 
 	async documentDeleted(
-		params: { entityCuid: string; remarks?: string },
+		params: { entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -951,7 +912,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'delete',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Document deleted'
 			},
 			tx
 		);
@@ -961,7 +921,7 @@ export const auditFactory = {
 	// 14. Master Data & Scheduled Jobs
 	// ==========================================
 	async masterDataCreated(
-		params: { entityName: string; entityCuid: string; remarks?: string },
+		params: { entityName: string; entityCuid: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -970,7 +930,6 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: 'create',
 				status: 'SUCCESS',
-				remarks: params.remarks || `${params.entityName} created`
 			},
 			tx
 		);
@@ -992,7 +951,7 @@ export const auditFactory = {
 	},
 
 	async scheduledJobExecuted(
-		params: { entityName: string; entityCuid: string; actionType?: string; remarks?: string },
+		params: { entityName: string; entityCuid: string; actionType?: string },
 		tx?: any
 	) {
 		return auditService.log(
@@ -1001,9 +960,9 @@ export const auditFactory = {
 				entity_cuid: params.entityCuid,
 				action_type: params.actionType || 'update',
 				status: 'SUCCESS',
-				remarks: params.remarks || 'Scheduled job executed'
 			},
 			tx
 		);
 	}
 };
+

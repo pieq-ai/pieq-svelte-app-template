@@ -1,4 +1,4 @@
-import * as dao from '$lib/server/dao/salary-structure.dao.js';
+﻿import * as dao from '$lib/server/dao/salary-structure.dao.js';
 import * as salaryComponentDao from '$lib/server/dao/salary-component.dao.js';
 import { findEmployeeByCuid } from '$lib/server/providers/employee.provider.js';
 import { serializeSalaryStructure } from '$lib/server/serializers/salary-structure.serializer.js';
@@ -17,9 +17,6 @@ export class ConfirmationRequiredError extends Error {
 		this.name = 'ConfirmationRequiredError';
 	}
 }
-
-// ─── Custom error classes ─────────────────────────────────────────────────────
-
 export class BusinessValidationError extends Error {
 	constructor(message: string) {
 		super(message);
@@ -70,8 +67,6 @@ export class SourceStructureNotActiveError extends BusinessValidationError {
 		this.name = 'SourceStructureNotActiveError';
 	}
 }
-
-// ─── Internal helpers ─────────────────────────────────────────────────────────
 
 /** Validate that an employee exists in the DB. */
 async function assertEmployeeExists(employee_cuid: string) {
@@ -318,8 +313,6 @@ export async function processTimelineAdjustments(
 	};
 }
 
-// ─── Service operations ───────────────────────────────────────────────────────
-
 /**
  * Create the first Salary Structure for an employee.
  * Validates employee existence and confirms no Active structure already exists.
@@ -412,7 +405,6 @@ export async function createStructure(dto: CreateSalaryStructureDto) {
 			entity_cuid: structure.cuid,
 			action_type: 'create',
 			status: 'SUCCESS',
-			remarks: `Salary structure created for employee CUID ${dto.employee_cuid}.`
 		}, tx);
 
 		const typeMap = await getComponentTypeMap(createdItems.map((i: { salary_component_cuid: string }) => i.salary_component_cuid));
@@ -487,7 +479,6 @@ export async function createRevision(sourceCuid: string, dto: CreateRevisionDto)
 			entity_cuid: newStructure.cuid,
 			action_type: 'revision',
 			status: 'SUCCESS',
-			remarks: `Salary revision created from source structure CUID ${sourceCuid}.`
 		});
 
 		const typeMap = await getComponentTypeMap(items.map((i: { salary_component_cuid: string }) => i.salary_component_cuid));
@@ -497,7 +488,7 @@ export async function createRevision(sourceCuid: string, dto: CreateRevisionDto)
 
 /**
  * Update an existing Salary Structure (internal/administrative use).
- * Does NOT perform the revision flow — use createRevision for salary changes.
+ * Does NOT perform the revision flow â€” use createRevision for salary changes.
  */
 export async function updateStructure(cuid: string, dto: UpdateSalaryStructureDto) {
 	const current = await dao.findByCuid(cuid);
@@ -684,7 +675,7 @@ export async function getStructures() {
 }
 
 /**
- * Deactivate a Salary Structure (soft delete — sets status to false).
+ * Deactivate a Salary Structure (soft delete â€” sets status to false).
  */
 export async function deactivateStructure(cuid: string, updated_by?: string | null) {
 	const current = await dao.findByCuid(cuid);

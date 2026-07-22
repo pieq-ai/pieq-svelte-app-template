@@ -1,4 +1,4 @@
-import { db } from '$lib/server/db.js';
+﻿import { db } from '$lib/server/db.js';
 import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import { NotificationCategory } from '$lib/server/notifications/notification.enums.js';
 import * as auditService from '$lib/server/services/audit.service.js';
@@ -120,7 +120,6 @@ export async function processDailyNotifications() {
 			entity_cuid: 'cron-daily-notifications',
 			action_type: 'execute',
 			status: 'SUCCESS',
-			remarks: `Daily notifications processed successfully: Birthdays sent: ${birthdayCelebrants.length}, Anniversaries sent: ${anniversaryCelebrants.length}.`
 		});
 	} catch (err) {
 		const errMsg = err instanceof Error ? err.message : String(err);
@@ -129,7 +128,6 @@ export async function processDailyNotifications() {
 			entity_cuid: 'cron-daily-notifications',
 			action_type: 'execute',
 			status: 'FAILED',
-			remarks: `Daily notifications processing failed: ${errMsg}`
 		}).catch((auditErr) => console.error('Failed to write failure audit log for scheduled cron:', auditErr));
 		throw err;
 	}

@@ -1,4 +1,4 @@
-import * as dao from '$lib/server/dao/payroll.dao.js';
+﻿import * as dao from '$lib/server/dao/payroll.dao.js';
 import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import * as uploadDao from '$lib/server/dao/payroll-upload.dao.js';
 import * as recordDao from '$lib/server/dao/payroll-upload-record.dao.js';
@@ -19,8 +19,6 @@ import type { PayrollEmployeeDetails } from '$lib/types/payroll.js';
 import { Prisma } from '$lib/generated/prisma/client.js';
 import { validatePayrollRow } from '$lib/server/validators/payroll.validator.js';
 
-// ─── Custom error classes ─────────────────────────────────────────────────────
-
 export class PayrollNotFoundError extends Error {
 	constructor(cuid: string) {
 		super(`Payroll record with ID "${cuid}" not found.`);
@@ -37,14 +35,12 @@ export class DuplicatePayrollError extends Error {
 	}
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 /**
  * Compute gross earnings, total deduction, and net salary from a breakdown.
  *
  * Strategy:
  * 1. If the Excel provides explicit summary columns (gross/total/net), use them.
- * 2. Otherwise, return zeros — the detail page will show the breakdown directly.
+ * 2. Otherwise, return zeros â€” the detail page will show the breakdown directly.
  *
  * Note: We do NOT auto-split components into earnings vs deductions here
  * because the breakdown JSON does not carry component type metadata.
@@ -90,19 +86,17 @@ function computeSummary(
 	return { gross_earnings: total, total_deduction: 0, net_salary: total };
 }
 
-// ─── Service operations ───────────────────────────────────────────────────────
-
 /**
  * Process a batch of parsed payroll rows from an Excel upload.
  *
  * Steps:
  * 1. Create a PayrollUpload batch record.
  * 2. Perform upload-level validations.
- * 3. For each row: check in-file duplicates → validate → match employee → check duplicate → insert.
+ * 3. For each row: check in-file duplicates validate match employee check duplicate insert.
  * 4. Update the upload's employee_count and status.
  * 5. Return upload summary including the upload_cuid for navigation.
  *
- * Errors are collected and returned — a single bad row does NOT abort the upload.
+ * Errors are collected and returned - a single bad row does NOT abort the upload.
  *
  * @param rows - Parsed rows from the Excel parser
  * @param month - Pay period month (1-12) used for the upload batch record
@@ -145,7 +139,6 @@ export async function uploadPayroll(
 			entity_cuid: uploadRecord.cuid,
 			action_type: 'bulk_upload_start',
 			status: 'SUCCESS',
-			remarks: `Payroll upload started for ${year}-${String(month).padStart(2, '0')} (File: ${file_name || 'unknown'}).`
 		}, tx);
 
 		// Check upload-level fail-fast validations
@@ -401,7 +394,6 @@ export async function uploadPayroll(
 		entity_cuid: uploadRecord.cuid,
 		action_type: 'bulk_upload_complete',
 		status: status === 'failed' ? 'FAILED' : status === 'partial' ? 'PARTIAL' : 'SUCCESS',
-		remarks: `Payroll upload completed. Created: ${created}, Skipped: ${skipped}, Total Errors: ${errors.length}. Status: ${status.toUpperCase()}.`
 	}, tx);
 
 	// Trigger payroll notification
@@ -459,8 +451,6 @@ export async function getPayrolls() {
 	return serializePayrollList(enriched);
 }
 
-// ─── Paid & LOP Days extraction & calculation ────────────────────────────────
-
 /**
  * Paid days & LOP days are not dedicated DB columns.
  * They may appear in the payroll breakdown JSON under recognisable key names,
@@ -493,8 +483,6 @@ function extractLopDays(breakdown: Record<string, number>): string | null {
 	}
 	return null;
 }
-
-// ─── Employee detail enrichment ───────────────────────────────────────────────
 
 /**
  * Fetch all Employee Master details required for payslip rendering.
@@ -529,7 +517,7 @@ async function fetchEmployeeDetails(
 		paidDaysStr = String(calculatedPaidDays);
 	}
 
-	// Step 1 — find employee by CUID
+	// Step 1 find employee by CUID
 	const employee = await employeeDao.findByCuid2(employeeCuid);
 
 	if (!employee) {
@@ -547,7 +535,7 @@ async function fetchEmployeeDetails(
 		};
 	}
 
-	// Step 2 — parallel: employment record + bank details
+	// Step 2 â€” parallel: employment record + bank details
 	const [employment, bankDetails] = await Promise.all([
 		employmentDao.findByEmployeeCuid(employee.cuid),
 		bankDetailDao.findByEmployeeCuid(employee.cuid)
@@ -557,7 +545,7 @@ async function fetchEmployeeDetails(
 	const primaryBank =
 		bankDetails.find((b) => b.is_primary) ?? bankDetails[0] ?? null;
 
-	// Step 3 — parallel: resolve CUIDs to names (only if present)
+	// Step 3 parallel: resolve CUIDs to names (only if present)
 	const [designation, location] = await Promise.all([
 		employment?.designation_cuid
 			? designationDao.findByCuid2(employment.designation_cuid)

@@ -1,4 +1,4 @@
-import type { RoleCreateDTO, RoleUpdateDTO, Role } from '$lib/types/role';
+﻿import type { RoleCreateDTO, RoleUpdateDTO, Role } from '$lib/types/role';
 import * as roleDao from '$lib/server/dao/role.dao.js';
 import { validateCreatePayload, validateUpdatePayload, validatePaginationParams } from '$lib/server/validators/role.validator.js';
 import * as auditService from '$lib/server/services/audit.service.js';
@@ -9,7 +9,7 @@ export async function listRoles(query?: Record<string, unknown>): Promise<{ data
   return { data };
 }
 
-/** List ALL roles (active + inactive) — used by UI role management. */
+/** List ALL roles (active + inactive) - used by UI role management. */
 export async function listAllRoles(query?: Record<string, unknown>): Promise<{ data: Role[] }> {
   const data = await roleDao.getAllRoles();
   return { data };
@@ -34,7 +34,6 @@ export async function createRole(payload: unknown): Promise<Role> {
     entity_cuid: created.cuid,
     action_type: 'create',
     status: 'SUCCESS',
-    remarks: `Role "${created.name}" created.`
   });
 
   return created;
@@ -86,7 +85,6 @@ export async function deleteRole(cuid: string, updatedBy?: string): Promise<Role
     entity_cuid: cuid,
     action_type: 'delete',
     status: 'SUCCESS',
-    remarks: `Role "${role.name}" soft-deleted (deactivated).`
   });
 
   return deactivated;

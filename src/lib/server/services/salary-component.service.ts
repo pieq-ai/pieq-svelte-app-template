@@ -1,4 +1,4 @@
-import * as dao from '$lib/server/dao/salary-component.dao.js';
+﻿import * as dao from '$lib/server/dao/salary-component.dao.js';
 import type {
 	CreateSalaryComponentDto,
 	UpdateSalaryComponentDto
@@ -49,7 +49,6 @@ export async function createComponent(dto: CreateSalaryComponentDto) {
 		entity_cuid: newComponent.cuid,
 		action_type: 'create',
 		status: 'SUCCESS',
-		remarks: `Salary component "${newComponent.name}" of type "${newComponent.type}" created.`
 	});
 
 	return newComponent;
@@ -139,7 +138,7 @@ export async function toggleComponentStatus(
 
 /**
  * Returns aggregate counts for the stats dashboard cards.
- * No row data is fetched — backed by three parallel COUNT queries.
+ * No row data is fetched â€” backed by three parallel COUNT queries.
  */
 export async function getStats() {
 	return dao.getStats();

@@ -1,4 +1,4 @@
-import * as designationDao from '$lib/server/dao/designation.dao.js';
+﻿import * as designationDao from '$lib/server/dao/designation.dao.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
 import { auditFactory } from '$lib/server/factories/audit.factory.js';
 
@@ -93,7 +93,6 @@ export async function createDesignation(dto: CreateDesignationDto) {
 
 	await auditFactory.designationCreated({
 		entityCuid: designation.cuid,
-		remarks: `Designation "${designation.name}" created.`
 	});
 
 	return toPublicDesignation(designation);
@@ -151,7 +150,6 @@ export async function deleteDesignation(cuid: string) {
 
 	await auditFactory.designationDeleted({
 		entityCuid: cuid,
-		remarks: `Designation "${existing.name}" soft-deleted.`
 	});
 
 	return updated;

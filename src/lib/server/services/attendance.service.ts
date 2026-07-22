@@ -227,7 +227,6 @@ export async function checkIn(
 
 		await auditFactory.attendanceCheckedIn({
 			entityCuid: rec.cuid,
-			remarks: `Checked in at ${today.toISOString()} (lat: ${latitude}, lon: ${longitude}).`
 		}, tx);
 
 		return rec;
@@ -430,7 +429,6 @@ export async function checkOut(
 
 		await auditFactory.attendanceCheckedOut({
 			entityCuid: rec.cuid,
-			remarks: `Checked out at ${checkOutTime.toISOString()} (lat: ${latitude}, lon: ${longitude}). Work duration: ${minutes} mins.`
 		}, tx);
 
 		return rec;

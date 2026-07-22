@@ -1,4 +1,4 @@
-import { ValidationError } from '$lib/server/utils/errors.js';
+﻿import { ValidationError } from '$lib/server/utils/errors.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
@@ -89,7 +89,6 @@ export async function upsertEmployment(employee_cuid: string, dto: UpsertEmploym
         if (!oldEmployment) {
             await auditFactory.employmentCreated({
                 entityCuid: newEmployment.cuid,
-                remarks: `Employment record created for employee CUID ${employee_cuid}.`
             }, tx);
         } else {
             await auditFactory.employmentUpdated({

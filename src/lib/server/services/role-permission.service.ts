@@ -1,4 +1,4 @@
-import * as permissionDao from '$lib/server/dao/permission.dao.js';
+﻿import * as permissionDao from '$lib/server/dao/permission.dao.js';
 import * as rolePermissionDao from '$lib/server/dao/role-permission.dao.js';
 import * as systemRoleDao from '$lib/server/dao/system-role.dao.js';
 import { db } from '$lib/server/db.js';
@@ -123,7 +123,6 @@ export async function assignPermissionsToRole(dto: AssignRolePermissionsDto) {
 				entity_cuid: role.cuid,
 				action_type: 'assign_permissions',
 				status: 'SUCCESS',
-				remarks: `Assigned ${created.length} permissions to system role "${role.name}".`
 			});
 		}
 
@@ -161,7 +160,6 @@ export async function removePermissionFromRoleByCuid2(system_role_cuid: string, 
 			entity_cuid: role.cuid,
 			action_type: 'remove_permission',
 			status: 'SUCCESS',
-			remarks: `Removed permission "${permission.permission_key}" from system role "${role.name}".`
 		});
 
 		return res;
