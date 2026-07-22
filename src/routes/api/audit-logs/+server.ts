@@ -50,8 +50,8 @@ export async function GET(event: RequestEvent) {
 			page,
 			limit
 		});
-	} catch (error) {
-		const message = (error as Error).message;
-		return json({ error: message }, { status: 400 });
+	} catch (err: any) {
+		const status = err.status ?? 500;
+		return json({ error: err.body?.message || err.message }, { status });
 	}
 }
