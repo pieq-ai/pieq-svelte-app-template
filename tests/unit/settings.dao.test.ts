@@ -18,10 +18,13 @@ describe('Settings DAO Unit Tests', () => {
 		vi.clearAllMocks();
 	});
 
-	it('should getSettings - throw error if none exists', async () => {
+	it('should getSettings - initialize if none exists', async () => {
 		vi.mocked(db.settings.findFirst).mockResolvedValue(null);
+		const mockCreated = { id: 1n, cuid: 's1', name: 'payroll_cutoff', configuration: { payroll_cut_off_date: 25 }, created_at: new Date(), updated_at: new Date() };
+		vi.mocked(db.settings.create).mockResolvedValue(mockCreated as any);
 
-		await expect(settingsDao.getSettings()).rejects.toThrow('Settings record for payroll_cutoff not found');
+		const result = await settingsDao.getSettings();
+		expect(result).toEqual(mockCreated);
 		
 		// Assert getSettings tries finding with name first, then falls back without name filter
 		expect(db.settings.findFirst).toHaveBeenNthCalledWith(1, {
@@ -37,7 +40,12 @@ describe('Settings DAO Unit Tests', () => {
 				{ id: 'desc' }
 			]
 		});
-		expect(db.settings.create).not.toHaveBeenCalled();
+		expect(db.settings.create).toHaveBeenCalledWith({
+			data: {
+				name: 'payroll_cutoff',
+				configuration: { payroll_cut_off_date: 25 }
+			}
+		});
 	});
 
 	it('should getSettings - return existing latest setting if exists', async () => {

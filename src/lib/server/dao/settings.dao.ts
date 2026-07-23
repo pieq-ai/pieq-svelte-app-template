@@ -25,7 +25,12 @@ export async function getSettings(tx?: any) {
 	}
 
 	if (!settings) {
-		throw new Error('Settings record for payroll_cutoff not found');
+		settings = await client.settings.create({
+			data: {
+				name: 'payroll_cutoff',
+				configuration: { payroll_cut_off_date: 25 }
+			}
+		});
 	}
 	return settings;
 }
