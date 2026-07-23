@@ -97,8 +97,9 @@ export async function findByPan(pan_no: string) {
 	});
 }
 
-export async function create(data: CreateEmployeeInput) {
-	return db.employee.create({
+export async function create(data: CreateEmployeeInput, tx?: any) {
+	const client = tx || db;
+	return client.employee.create({
 		data: {
 			...data,
 			profile_completion_status: data.profile_completion_status ?? 'pending'
@@ -106,18 +107,20 @@ export async function create(data: CreateEmployeeInput) {
 	});
 }
 
-export async function update(cuid: string, data: UpdateEmployeeInput) {
-	return db.employee.update({
+export async function update(cuid: string, data: UpdateEmployeeInput, tx?: any) {
+	const client = tx || db;
+	return client.employee.update({
 		where: { cuid },
 		data
 	});
 }
 
-export async function remove(cuid: string) {
-    return db.employee.update({
-        where: { cuid },
-        data: { is_deleted: true }
-    });
+export async function remove(cuid: string, tx?: any) {
+	const client = tx || db;
+	return client.employee.update({
+		where: { cuid },
+		data: { is_deleted: true }
+	});
 }
 
 export async function getEmployeesByCuids(cuids: string[], tx?: any): Promise<any[]> {

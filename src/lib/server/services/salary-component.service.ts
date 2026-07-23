@@ -1,8 +1,9 @@
-import * as dao from '$lib/server/dao/salary-component.dao.js';
+﻿import * as dao from '$lib/server/dao/salary-component.dao.js';
 import type {
 	CreateSalaryComponentDto,
 	UpdateSalaryComponentDto
 } from '$lib/types/salary-component.js';
+import * as auditService from '$lib/server/services/audit.service.js';
 
 export class BusinessValidationError extends Error {
 	constructor(message: string) {
@@ -38,10 +39,19 @@ export async function createComponent(dto: CreateSalaryComponentDto) {
 		throw new DuplicateComponentError(trimmedName);
 	}
 
-	return dao.create({
+	const newComponent = await dao.create({
 		...dto,
 		name: trimmedName
 	});
+
+	await auditService.log({
+		entity_name: 'SalaryComponent',
+		entity_cuid: newComponent.cuid,
+		action_type: 'create',
+		status: 'SUCCESS',
+	});
+
+	return newComponent;
 }
 
 /**
@@ -67,10 +77,19 @@ export async function updateComponent(cuid: string, dto: UpdateSalaryComponentDt
 		}
 	}
 
-	return dao.update(cuid, {
+	const updated = await dao.update(cuid, {
 		...dto,
 		name: dto.name !== undefined ? updatedName : undefined
 	});
+
+	await auditService.logUpdate({
+		entityName: 'SalaryComponent',
+		entityCuid: cuid,
+		oldRecord: current,
+		newRecord: updated
+	});
+
+	return updated;
 }
 
 /**
@@ -105,12 +124,21 @@ export async function toggleComponentStatus(
 		throw new ComponentNotFoundError(cuid);
 	}
 
-	return dao.update(cuid, { status, updated_by });
+	const updated = await dao.update(cuid, { status, updated_by });
+
+	await auditService.logUpdate({
+		entityName: 'SalaryComponent',
+		entityCuid: cuid,
+		oldRecord: current,
+		newRecord: updated
+	});
+
+	return updated;
 }
 
 /**
  * Returns aggregate counts for the stats dashboard cards.
- * No row data is fetched — backed by three parallel COUNT queries.
+ * No row data is fetched â€” backed by three parallel COUNT queries.
  */
 export async function getStats() {
 	return dao.getStats();

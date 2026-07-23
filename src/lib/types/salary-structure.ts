@@ -13,6 +13,7 @@ export interface SalaryStructureItem {
 	component_name_snapshot: string;
 	/** Stored as Decimal in DB; serialised as number for JSON transport */
 	amount: number;
+	type?: 'earning' | 'deduction';
 }
 
 // ─── Structure-level types ────────────────────────────────────────────────────

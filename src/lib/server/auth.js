@@ -2,6 +2,7 @@ import { SvelteKitAuth } from '@auth/sveltekit';
 import { appendFileSync } from 'fs';
 import Keycloak from '@auth/sveltekit/providers/keycloak';
 import { getAuthConfig } from '$lib/server/config.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 // Removed HRMS sync imports to separate auth and authz
 
 /** @param {Record<string, unknown> | undefined} profile */
@@ -80,6 +81,18 @@ function createAuth() {
 				}
 				
 				return session;
+			}
+		},
+		events: {
+			async signIn({ user, account, profile }) {
+				const keycloakSub = user?.id || profile?.sub || '';
+				await auditFactory.login(keycloakSub);
+			},
+			async signOut(params) {
+				const token = ('token' in params) ? params.token : null;
+				const session = /** @type {any} */ (('session' in params) ? params.session : null);
+				const keycloakSub = token?.sub || session?.user?.id || '';
+				await auditFactory.logout(keycloakSub);
 			}
 		},
 		pages: {

@@ -7,8 +7,9 @@ import type {
 // ─── Structure queries ────────────────────────────────────────────────────────
 
 /** Create a new salary structure record (without items). */
-export async function create(data: Omit<CreateSalaryStructureDto, 'components'>) {
-	return db.salaryStructure.create({
+export async function create(data: Omit<CreateSalaryStructureDto, 'components'>, tx?: any) {
+	const client = tx || db;
+	return client.salaryStructure.create({
 		data: {
 			employee_cuid: data.employee_cuid,
 			effective_from: new Date(data.effective_from),
@@ -20,8 +21,9 @@ export async function create(data: Omit<CreateSalaryStructureDto, 'components'>)
 }
 
 /** Update a salary structure by its external cuid. */
-export async function update(cuid: string, data: Omit<UpdateSalaryStructureDto, 'components'>) {
-	return db.salaryStructure.update({
+export async function update(cuid: string, data: Omit<UpdateSalaryStructureDto, 'components'>, tx?: any) {
+	const client = tx || db;
+	return client.salaryStructure.update({
 		where: { cuid },
 		data: {
 			...(data.employee_cuid !== undefined && { employee_cuid: data.employee_cuid }),
@@ -36,8 +38,9 @@ export async function update(cuid: string, data: Omit<UpdateSalaryStructureDto, 
 }
 
 /** Find a salary structure by its external cuid. */
-export async function findByCuid(cuid: string) {
-	return db.salaryStructure.findUnique({ where: { cuid } });
+export async function findByCuid(cuid: string, tx?: any) {
+	const client = tx || db;
+	return client.salaryStructure.findUnique({ where: { cuid } });
 }
 
 /** Find ALL salary structures for a given employee (may have multiple — one per revision). */
@@ -75,12 +78,14 @@ export async function createItems(
 		component_name_snapshot: string;
 		amount: number;
 		created_by?: string | null;
-	}>
+	}>,
+	tx?: any
 ) {
+	const client = tx || db;
 	// createMany is not supported with Prisma Postgres adapter, so we batch individually
 	return Promise.all(
 		items.map((item) =>
-			db.salaryStructureItem.create({
+			client.salaryStructureItem.create({
 				data: {
 					salary_structure_cuid,
 					salary_component_cuid: item.salary_component_cuid,
@@ -94,15 +99,17 @@ export async function createItems(
 }
 
 /** Delete all items belonging to a salary structure (used during update). */
-export async function deleteItemsByStructureCuid(salary_structure_cuid: string) {
-	return db.salaryStructureItem.deleteMany({
+export async function deleteItemsByStructureCuid(salary_structure_cuid: string, tx?: any) {
+	const client = tx || db;
+	return client.salaryStructureItem.deleteMany({
 		where: { salary_structure_cuid }
 	});
 }
 
 /** Fetch all items for a given salary structure cuid. */
-export async function findItemsByStructureCuid(salary_structure_cuid: string) {
-	return db.salaryStructureItem.findMany({
+export async function findItemsByStructureCuid(salary_structure_cuid: string, tx?: any) {
+	const client = tx || db;
+	return client.salaryStructureItem.findMany({
 		where: { salary_structure_cuid },
 		orderBy: { cuid: 'asc' }
 	});

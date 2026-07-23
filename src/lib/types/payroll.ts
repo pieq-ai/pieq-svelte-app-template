@@ -43,8 +43,10 @@ export interface PayrollEmployeeDetails {
 	pf_account_number: string | null;
 	/** UAN from employees table */
 	uan: string | null;
-	/** Paid days extracted from the breakdown JSON, or null if not present */
+	/** Paid days extracted from breakdown JSON or calculated, or null if not present */
 	paid_days: string | null;
+	/** LOP days extracted from breakdown JSON or calculated from leave/attendance, or null */
+	lop_days: string | null;
 }
 
 export interface Payroll {

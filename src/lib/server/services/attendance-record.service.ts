@@ -4,6 +4,8 @@ import * as holidayDao from '$lib/server/dao/holiday.dao.js';
 import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import { getLeaveStatusOnDate } from './attendance.service.js';
+import { db } from '$lib/server/db.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 
 export class AttendanceValidationError extends Error {
 	readonly field: string;
@@ -332,17 +334,38 @@ export async function getAttendanceRecordByCuid(cuid: string) {
 
 export async function createAttendanceRecord(dto: CreateAttendanceRecordDto) {
 	const validated = await validateRecordFields(dto, false);
-	return attendanceRecordDao.create({
-		employee_cuid: validated.employee_cuid,
-		date: validated.date,
-		check_in_time: validated.check_in_time,
-		check_out_time: validated.check_out_time,
-		work_duration_minutes: validated.work_duration_minutes,
-		status: validated.status,
-		attendance_source_cuid: validated.attendance_source_cuid,
-		remarks: validated.remarks,
-		created_by: dto.created_by,
-		updated_by: dto.updated_by
+	return db.$transaction(async (tx) => {
+		const rec = (tx && Object.keys(tx).length > 0)
+			? await attendanceRecordDao.create({
+					employee_cuid: validated.employee_cuid,
+					date: validated.date,
+					check_in_time: validated.check_in_time,
+					check_out_time: validated.check_out_time,
+					work_duration_minutes: validated.work_duration_minutes,
+					status: validated.status,
+					attendance_source_cuid: validated.attendance_source_cuid,
+					remarks: validated.remarks,
+					created_by: dto.created_by,
+					updated_by: dto.updated_by
+				}, tx)
+			: await attendanceRecordDao.create({
+					employee_cuid: validated.employee_cuid,
+					date: validated.date,
+					check_in_time: validated.check_in_time,
+					check_out_time: validated.check_out_time,
+					work_duration_minutes: validated.work_duration_minutes,
+					status: validated.status,
+					attendance_source_cuid: validated.attendance_source_cuid,
+					remarks: validated.remarks,
+					created_by: dto.created_by,
+					updated_by: dto.updated_by
+				});
+
+		await auditFactory.attendanceRecordCreated({
+			entityCuid: rec.cuid,
+		}, tx);
+
+		return rec;
 	});
 }
 
@@ -351,6 +374,8 @@ export async function updateAttendanceRecord(cuid: string, dto: UpdateAttendance
 		throw new Error('Attendance Record CUID is required for updates');
 	}
 	const validated = await validateRecordFields(dto, true, cuid);
+	const oldRecord = await attendanceRecordDao.findByCuid(cuid);
+	if (!oldRecord) throw new Error('Attendance record not found');
 
 	const updateData: any = {};
 	if (dto.employee_cuid !== undefined) updateData.employee_cuid = validated.employee_cuid;
@@ -364,5 +389,17 @@ export async function updateAttendanceRecord(cuid: string, dto: UpdateAttendance
 	updateData.updated_by = dto.updated_by;
 	updateData.updated_at = new Date();
 
-	return attendanceRecordDao.update(cuid, updateData);
+	return db.$transaction(async (tx) => {
+		const updated = (tx && Object.keys(tx).length > 0)
+			? await attendanceRecordDao.update(cuid, updateData, tx)
+			: await attendanceRecordDao.update(cuid, updateData);
+
+		await auditFactory.attendanceRecordUpdated({
+			entityCuid: cuid,
+			oldRecord,
+			newRecord: updated
+		}, tx);
+
+		return updated;
+	});
 }

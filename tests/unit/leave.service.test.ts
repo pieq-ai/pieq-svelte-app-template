@@ -81,6 +81,11 @@ vi.mock('$lib/server/dao/leave.dao.js', () => {
 	};
 });
 
+vi.mock('$lib/server/services/audit.service.js', () => ({
+	log: vi.fn().mockResolvedValue(undefined),
+	logUpdate: vi.fn().mockResolvedValue(undefined)
+}));
+
 describe('Leave Service Unit Tests', () => {
 	const mockEmployee = {
 		id: 1n,

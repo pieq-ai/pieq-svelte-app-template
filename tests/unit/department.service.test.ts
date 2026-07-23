@@ -16,6 +16,11 @@ vi.mock('$lib/server/validators/department.validator.js', () => ({
 	validateDepartmentName: vi.fn((name) => name)
 }));
 
+vi.mock('$lib/server/services/audit.service.js', () => ({
+	log: vi.fn().mockResolvedValue(undefined),
+	logUpdate: vi.fn().mockResolvedValue(undefined)
+}));
+
 describe('Department Service', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();

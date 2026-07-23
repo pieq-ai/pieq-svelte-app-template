@@ -234,7 +234,6 @@
       <div
         class="flex items-center gap-0.5 text-[10px] font-bold text-neutral-400 mt-2"
       >
-        <span>— No change</span>
       </div>
     </div>
 

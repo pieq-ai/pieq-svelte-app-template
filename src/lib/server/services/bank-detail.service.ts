@@ -2,6 +2,7 @@ import * as bankDetailDao from '$lib/server/dao/bank-detail.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { z } from 'zod';
 import { bankDetailSchema } from '$lib/schemas/employee.schema.js';
 
@@ -39,6 +40,9 @@ export async function replaceBankDetails(employee_cuid: string, dtos: UpsertBank
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
+    const oldRecords = await bankDetailDao.findByEmployeeCuid(employee_cuid);
+    const oldBankDTOs = oldRecords.map(toPublicBankDetail);
+
     const validatedDtos = z.array(bankDetailSchema)
         .refine(items => {
             const accountNumbers = items.map(i => i.account_number);
@@ -62,6 +66,13 @@ export async function replaceBankDetails(employee_cuid: string, dtos: UpsertBank
     }));
 
     const results = await bankDetailDao.replaceBankDetails(employee_cuid, payload);
+    const newBankDTOs = results.map(toPublicBankDetail);
+
+    await auditFactory.bankDetailUpdated({
+        employeeCuid: employee_cuid,
+        oldList: oldBankDTOs,
+        newList: newBankDTOs
+    });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
-    return results.map(toPublicBankDetail);
+    return newBankDTOs;
 }

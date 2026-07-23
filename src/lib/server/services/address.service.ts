@@ -3,6 +3,7 @@ import * as addressDao from '$lib/server/dao/address.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { z } from 'zod';
 import { addressSchema } from '$lib/schemas/employee.schema.js';
 
@@ -36,6 +37,9 @@ export async function replaceAddresses(employee_cuid: string, dtos: UpsertAddres
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
+    const oldRecords = await addressDao.findByEmployeeCuid(employee_cuid);
+    const oldAddressDTOs = oldRecords.map(toPublicAddress);
+
     const validatedDtos = z.array(addressSchema).parse(dtos);
 
     const payload = validatedDtos.map((dto: any) => ({
@@ -45,6 +49,13 @@ export async function replaceAddresses(employee_cuid: string, dtos: UpsertAddres
     }));
 
     const results = await addressDao.replaceAddresses(employee_cuid, payload);
+    const newAddressDTOs = results.map(toPublicAddress);
+
+    await auditFactory.addressUpdated({
+        employeeCuid: employee_cuid,
+        oldList: oldAddressDTOs,
+        newList: newAddressDTOs
+    });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
-    return results.map(toPublicAddress);
+    return newAddressDTOs;
 }

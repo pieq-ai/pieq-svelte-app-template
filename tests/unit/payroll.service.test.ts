@@ -69,6 +69,10 @@ vi.mock('$lib/server/providers/employee.provider.js', () => ({
 	findEmployeeByCode: vi.fn()
 }));
 
+vi.mock('$lib/server/services/leave.service.js', () => ({
+	getMonthlyUsedDays: vi.fn().mockResolvedValue(0)
+}));
+
 // ─── Import mocked modules ────────────────────────────────────────────────────
 
 import { db } from '$lib/server/db.js';
@@ -559,7 +563,8 @@ describe('Payroll Service', () => {
 				pan: 'PAN12345',
 				pf_account_number: 'PF00012345',
 				uan: 'UAN12345',
-				paid_days: null
+				paid_days: '30',
+				lop_days: '0'
 			});
 		});
 

@@ -80,5 +80,13 @@ describe('Permission Guard', () => {
 			const mockUser = { id: '1', name: 'Test User', permissions: ['some_permission'] } as any;
 			expect(() => permissionGuard.requirePermission(mockUser, 'some_permission')).not.toThrow();
 		});
+
+		it('should validate dashboard:manager permission correctly', () => {
+			const managerUser = { id: '2', name: 'Manager User', permissions: ['dashboard:manager'] } as any;
+			const regularUser = { id: '3', name: 'Regular User', permissions: ['dashboard:employee'] } as any;
+
+			expect(() => permissionGuard.requirePermission(managerUser, 'dashboard:manager')).not.toThrow();
+			expect(() => permissionGuard.requirePermission(regularUser, 'dashboard:manager')).toThrow();
+		});
 	});
 });

@@ -3,6 +3,7 @@ import * as experienceDao from '$lib/server/dao/experience.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { z } from 'zod';
 import { experienceSchema } from '$lib/schemas/employee.schema.js';
 
@@ -33,6 +34,9 @@ export async function replaceExperiences(employee_cuid: string, dtos: UpsertExpe
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
+    const oldRecords = await experienceDao.findByEmployeeCuid(employee_cuid);
+    const oldExperienceDTOs = oldRecords.map(toPublicExperience);
+
     const validatedDtos = z.array(experienceSchema)
         .refine(items => {
             const keys = items.map(i => `${i.company_name}|${i.role}`);
@@ -52,6 +56,13 @@ export async function replaceExperiences(employee_cuid: string, dtos: UpsertExpe
     }));
 
     const results = await experienceDao.replaceExperiences(employee_cuid, payload);
+    const newExperienceDTOs = results.map(toPublicExperience);
+
+    await auditFactory.experienceUpdated({
+        employeeCuid: employee_cuid,
+        oldList: oldExperienceDTOs,
+        newList: newExperienceDTOs
+    });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
-    return results.map(toPublicExperience);
+    return newExperienceDTOs;
 }

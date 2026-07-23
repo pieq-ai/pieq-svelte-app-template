@@ -19,8 +19,9 @@ export interface UpsertEmploymentInput {
     updated_by?: string;
 }
 
-export async function findByEmployeeCuid(employee_cuid: string) {
-    return db.employment.findFirst({
+export async function findByEmployeeCuid(employee_cuid: string, tx?: any) {
+    const client = tx || db;
+    return client.employment.findFirst({
         where: { employee_cuid },
         orderBy: { created_at: 'desc' }
     });
@@ -37,10 +38,11 @@ export async function list() {
     return db.employment.findMany();
 }
 
-export async function upsert(employee_cuid: string, data: UpsertEmploymentInput) {
-    const existing = await findByEmployeeCuid(employee_cuid);
+export async function upsert(employee_cuid: string, data: UpsertEmploymentInput, tx?: any) {
+    const client = tx || db;
+    const existing = await findByEmployeeCuid(employee_cuid, client);
     if (existing) {
-        return db.employment.update({
+        return client.employment.update({
             where: { cuid: existing.cuid },
             data: {
                 ...data,
@@ -48,7 +50,7 @@ export async function upsert(employee_cuid: string, data: UpsertEmploymentInput)
             }
         });
     } else {
-        return db.employment.create({
+        return client.employment.create({
             data: {
                 ...data,
                 employee_cuid,

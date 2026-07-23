@@ -57,6 +57,17 @@ vi.mock('$lib/server/dao/attendance.dao.js', () => {
 	};
 });
 
+vi.mock('$lib/server/services/audit.service.js', () => ({
+	log: vi.fn().mockResolvedValue(undefined),
+	logUpdate: vi.fn().mockResolvedValue(undefined)
+}));
+
+vi.mock('$lib/server/db.js', () => ({
+	db: {
+		$transaction: vi.fn((cb) => cb({}))
+	}
+}));
+
 describe('attendance service', () => {
 	const employeeCuid = 'emp-uuid-123';
 	const validGps = { latitude: 13.038734, longitude: 80.234665 }; // Very close to office coordinates

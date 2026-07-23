@@ -3,6 +3,7 @@ import * as skillDao from '$lib/server/dao/skill.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { z } from 'zod';
 import { skillSchema } from '$lib/schemas/employee.schema.js';
 
@@ -31,6 +32,9 @@ export async function replaceSkills(employee_cuid: string, dtos: UpsertSkillDto[
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
+    const oldRecords = await skillDao.findByEmployeeCuid(employee_cuid);
+    const oldSkillDTOs = oldRecords.map(toPublicSkill);
+
     const validatedDtos = z.array(skillSchema)
         .refine((items: any[]) => {
             const skillCuids = items.map((i: any) => i.skill_cuid);
@@ -48,6 +52,13 @@ export async function replaceSkills(employee_cuid: string, dtos: UpsertSkillDto[
     }));
 
     const results = await skillDao.replaceSkills(employee_cuid, payload);
+    const newSkillDTOs = results.map(toPublicSkill);
+
+    await auditFactory.skillUpdated({
+        employeeCuid: employee_cuid,
+        oldList: oldSkillDTOs,
+        newList: newSkillDTOs
+    });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
-    return results.map(toPublicSkill);
+    return newSkillDTOs;
 }

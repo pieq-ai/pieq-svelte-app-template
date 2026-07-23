@@ -1,6 +1,8 @@
-import * as permissionDao from '$lib/server/dao/permission.dao.js';
+﻿import * as permissionDao from '$lib/server/dao/permission.dao.js';
 import * as rolePermissionDao from '$lib/server/dao/role-permission.dao.js';
 import * as systemRoleDao from '$lib/server/dao/system-role.dao.js';
+import { db } from '$lib/server/db.js';
+import * as auditService from '$lib/server/services/audit.service.js';
 
 export interface AssignRolePermissionsDto {
 	system_role_cuid: string;
@@ -14,7 +16,7 @@ function validateCuid2(value: string | undefined, label: string) {
 }
 
 function getPermissionModule(permissionKey: string) {
-	return permissionKey.split('_')[0] || 'general';
+	return permissionKey.split(/[:_]/)[0] || 'general';
 }
 
 function toPublicPermission(permission: {
@@ -85,38 +87,50 @@ export async function assignPermissionsToRole(dto: AssignRolePermissionsDto) {
 	}
 
 	const uniquePermissionCuid2s = [...new Set(dto.permission_cuids)];
-	const created = [];
-	const skipped = [];
 
-	for (const permission_cuid of uniquePermissionCuid2s) {
-		validateCuid2(permission_cuid, 'Permission');
+	return db.$transaction(async () => {
+		const created = [];
+		const skipped = [];
 
-		const permission = await permissionDao.findByCuid2(permission_cuid);
-		if (!permission) {
-			throw new Error(`Permission with CUID2 "${permission_cuid}" not found`);
-		}
+		for (const permission_cuid of uniquePermissionCuid2s) {
+			validateCuid2(permission_cuid, 'Permission');
 
-		const existing = await rolePermissionDao.findByRoleAndPermission(
-			role.cuid,
-			permission.cuid
-		);
-		if (existing) {
-			skipped.push(existing);
-			continue;
-		}
+			const permission = await permissionDao.findByCuid2(permission_cuid);
+			if (!permission) {
+				throw new Error(`Permission with CUID2 "${permission_cuid}" not found`);
+			}
 
-		created.push(
-			await rolePermissionDao.create({
+			const existing = await rolePermissionDao.findByRoleAndPermission(
+				role.cuid,
+				permission.cuid
+			);
+			if (existing) {
+				skipped.push(existing);
+				continue;
+			}
+
+			const res = await rolePermissionDao.create({
 				system_role_cuid: role.cuid,
 				permission_cuid: permission.cuid
-			})
-		);
-	}
+			});
 
-	return {
-		created,
-		skipped
-	};
+			created.push(res);
+		}
+
+		if (created.length > 0) {
+			await auditService.log({
+				entity_name: 'RolePermission',
+				entity_cuid: role.cuid,
+				action_type: 'assign_permissions',
+				status: 'SUCCESS',
+			});
+		}
+
+		return {
+			created,
+			skipped
+		};
+	});
 }
 
 export async function removePermissionFromRoleByCuid2(system_role_cuid: string, permission_cuid: string) {
@@ -133,11 +147,22 @@ export async function removePermissionFromRoleByCuid2(system_role_cuid: string, 
 		throw new Error('Permission not found');
 	}
 
-	const existing = await rolePermissionDao.findByRoleAndPermission(role.cuid, permission.cuid);
-	if (!existing) {
-		throw new Error('Role permission mapping not found');
-	}
+	return db.$transaction(async () => {
+		const existing = await rolePermissionDao.findByRoleAndPermission(role.cuid, permission.cuid);
+		if (!existing) {
+			throw new Error('Role permission mapping not found');
+		}
 
-	return rolePermissionDao.removeByRoleAndPermission(role.cuid, permission.cuid);
+		const res = await rolePermissionDao.removeByRoleAndPermission(role.cuid, permission.cuid);
+
+		await auditService.log({
+			entity_name: 'RolePermission',
+			entity_cuid: role.cuid,
+			action_type: 'remove_permission',
+			status: 'SUCCESS',
+		});
+
+		return res;
+	});
 }
 

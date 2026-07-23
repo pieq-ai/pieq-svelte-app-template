@@ -22,6 +22,7 @@
   } from "$lib/utils/employeeValidationHelper";
   import { getContext } from 'svelte';
   import { EMPLOYEE_API_CONTEXT, type EmployeeApiClient } from '../context';
+  import { isFieldEditable } from '$lib/config/profile.config';
 
   let { mode, cuid, onPrev, onDirtyChange, onCancel } = $props<{
     mode: "create" | "edit";
@@ -32,6 +33,7 @@
   }>();
 
   let apiClient = getContext<() => EmployeeApiClient>(EMPLOYEE_API_CONTEXT)();
+  let canEdit = $derived(isFieldEditable(apiClient.mode, 'bank_details'));
 
   let isSubmitting = $state(false);
   let isTouched = $state(false);
@@ -94,7 +96,7 @@
         console.error("Failed to fetch bank details", e);
       }
     }
-    if (bankDetails.length === 0) {
+    if (bankDetails.length === 0 && canEdit) {
       addBank();
     }
     originalData = JSON.stringify(normalizeBankDetails(bankDetails));
@@ -139,11 +141,11 @@
     ),
   );
 
-  let isSaveDisabled = $derived(isSubmitting || hasErrors || (mode === 'edit' && !isDirty));
+  let isSaveDisabled = $derived(isSubmitting || hasErrors || !canEdit || (mode === 'edit' && !isDirty));
 	async function saveOnly(): Promise<{ success: boolean }> {
     isTouched = true;
     backendErrors = {};
-    if (hasErrors) {
+    if (hasErrors || !canEdit) {
       return { success: false };
     }
     if (!cuid) return { success: false };
@@ -198,7 +200,7 @@
 </script>
 
 <div class="space-y-4 -mt-6">
-  {#if mode !== "view"}
+  {#if mode !== "view" && canEdit}
     <div class="flex justify-end">
       <Button
         class="bg-hrms-primary text-white hover:bg-hrms-primary/90"
@@ -210,7 +212,7 @@
     </div>
   {/if}
 
-  {#if bankDetails.length === 0 && mode === "view"}
+  {#if bankDetails.length === 0 && (mode === "view" || !canEdit)}
     <p class="text-sm text-muted-foreground text-center py-4">
       No bank details recorded.
     </p>
@@ -219,7 +221,7 @@
   <div class="space-y-4">
     {#each bankDetails as bank, index (index)}
       <div class="rounded-lg border border-border p-4 pt-10 relative">
-        {#if mode !== "view"}
+        {#if mode !== "view" && canEdit}
           <Button
             variant="ghost"
             size="sm"
@@ -234,6 +236,7 @@
           <div class="space-y-2">
             <Label>Bank Name <span class="text-destructive">*</span></Label>
             <Input
+              disabled={!canEdit}
               bind:value={bank.bank_name}
               placeholder="e.g. State Bank of India"
               onblur={() => (bank.bank_name = normalizeText(bank.bank_name))}
@@ -251,6 +254,7 @@
           <div class="space-y-2">
             <Label>Branch Name</Label>
             <Input
+              disabled={!canEdit}
               bind:value={bank.branch_name}
               placeholder="e.g. MG Road Branch"
               onblur={() => (bank.branch_name = normalizeText(bank.branch_name))}
@@ -268,6 +272,7 @@
               ></Label
             >
             <Input
+              disabled={!canEdit}
               bind:value={bank.account_holder_name}
               placeholder="John Doe"
               onblur={() => (bank.account_holder_name = normalizeText(bank.account_holder_name))}
@@ -286,6 +291,7 @@
             <Label>Account Number <span class="text-destructive">*</span></Label
             >
             <Input
+              disabled={!canEdit}
               bind:value={bank.account_number}
               placeholder="000123456789"
               oninput={(e) => (bank.account_number = e.currentTarget.value.replace(/\D/g, ''))}
@@ -306,6 +312,7 @@
               ></Label
             >
             <Input
+              disabled={!canEdit}
               bind:value={bank.ifsc_code}
               oninput={(e) =>
                 (bank.ifsc_code = e.currentTarget.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase())}
@@ -327,8 +334,10 @@
           <div class="space-y-2 flex items-end pb-2">
             <label class="flex items-center gap-2 text-sm cursor-pointer">
               <Checkbox
+                disabled={!canEdit}
                 checked={bank.is_primary}
                 onCheckedChange={(v) => {
+                  if (!canEdit) return;
                   if (v) {
                     bankDetails = bankDetails.map((b, i) =>
                       i === index
@@ -356,7 +365,7 @@
       Previous
     </Button>
     <div class="space-x-2">
-      {#if mode !== "view"}
+      {#if mode !== "view" && canEdit}
         <Button variant="outline" onclick={onCancel} disabled={isSubmitting}>
           Cancel
         </Button>
@@ -368,7 +377,9 @@
           Save
         </Button>
       {:else}
-        <!-- View mode buttons if needed -->
+        <Button variant="outline" onclick={onCancel}>
+          Cancel
+        </Button>
       {/if}
     </div>
   </div>

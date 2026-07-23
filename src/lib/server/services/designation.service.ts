@@ -1,5 +1,6 @@
-import * as designationDao from '$lib/server/dao/designation.dao.js';
+﻿import * as designationDao from '$lib/server/dao/designation.dao.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 
 export interface CreateDesignationDto {
 	name: string;
@@ -82,13 +83,19 @@ export async function createDesignation(dto: CreateDesignationDto) {
 
 	await ensureDesignationNameIsUnique(name);
 
-	return toPublicDesignation(await designationDao.create({
+	const designation = await designationDao.create({
 		name,
 		status: dto.status ?? true,
 		created_by: dto.created_by ?? undefined,
 		created_at: dto.created_at ?? undefined,
 		updated_at: dto.updated_at ?? undefined
-	}));
+	});
+
+	await auditFactory.designationCreated({
+		entityCuid: designation.cuid,
+	});
+
+	return toPublicDesignation(designation);
 }
 
 /**
@@ -123,13 +130,27 @@ export async function updateDesignation(cuid: string, dto: UpdateDesignationDto)
 		updateData.updated_at = dto.updated_at ?? new Date();
 	}
 
-	return toPublicDesignation(await designationDao.update(cuid, updateData));
+	const updated = await designationDao.update(cuid, updateData);
+
+	await auditFactory.designationUpdated({
+		entityCuid: cuid,
+		oldRecord: existing,
+		newRecord: updated
+	});
+
+	return toPublicDesignation(updated);
 }
 
 /**
  * Soft deletes a designation.
  */
 export async function deleteDesignation(cuid: string) {
-	await getDesignationByCuid(cuid); // ensure it exists
-	return designationDao.update(cuid, { status: false, updated_at: new Date() });
+	const existing = await getDesignationByCuid(cuid); // ensure it exists
+	const updated = await designationDao.update(cuid, { status: false, updated_at: new Date() });
+
+	await auditFactory.designationDeleted({
+		entityCuid: cuid,
+	});
+
+	return updated;
 }

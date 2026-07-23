@@ -12,10 +12,12 @@ export interface CreateNotificationDto {
 	metadata?: any;
 	created_by?: string | null;
 	target: {
-		type: 'broadcast' | 'employee' | 'role' | 'department' | 'manager';
+		type: 'broadcast' | 'employee' | 'role' | 'department' | 'custom';
 		employeeCuid?: string;
 		roleCuid?: string;
 		departmentCuid?: string;
+		/** Used with type === 'custom'. Pre-resolved list of employee CUIDs. */
+		employeeCuids?: string[];
 	};
 }
 
@@ -41,7 +43,7 @@ export async function send(dto: CreateNotificationDto) {
 	}
 
 	// 2. Resolve target recipients (Employee CUIDs)
-	const recipientCuids = await resolveRecipients(dto.target);
+	const recipientCuids = await resolveRecipients(dto);
 	if (recipientCuids.length === 0) {
 		throw new Error(
 			`[NotificationService] Failed to send notification: No active recipients resolved for target ${JSON.stringify(dto.target)}.`

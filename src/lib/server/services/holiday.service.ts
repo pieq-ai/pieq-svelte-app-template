@@ -1,6 +1,8 @@
 import * as holidayDao from '$lib/server/dao/holiday.dao.js';
 import { notificationFactory } from '$lib/server/notifications/notification.factory.js';
 import { invalidateHolidayCache } from '$lib/server/config/leave.config.js';
+import { db } from '$lib/server/db.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 
 export const HOLIDAY_NAME_MAX_LENGTH = 200;
 const VALID_HOLIDAY_TYPES = new Set<string>(['National', 'Regional', 'Restricted']);
@@ -180,7 +182,16 @@ export async function createHoliday(input: CreateHolidayInput) {
 		throw new HolidayMultiValidationError(errors);
 	}
 
-	const result = await holidayDao.create({ name: holiday_name, date: holiday_date, type: holiday_type, created_by: input.created_by, updated_by: input.updated_by });
+	const result = await db.$transaction(async (tx) => {
+		const res = (tx && Object.keys(tx).length > 0)
+			? await holidayDao.create({ name: holiday_name, date: holiday_date, type: holiday_type, created_by: input.created_by, updated_by: input.updated_by }, tx)
+			: await holidayDao.create({ name: holiday_name, date: holiday_date, type: holiday_type, created_by: input.created_by, updated_by: input.updated_by });
+		await auditFactory.holidayCreated({
+			entityCuid: res.cuid,
+			holidayName: holiday_name
+		}, tx);
+		return res;
+	});
 	invalidateHolidayCache();
 
 	// Trigger holiday added notification
@@ -225,7 +236,17 @@ export async function updateHoliday(cuid: string, input: UpdateHolidayInput) {
 		throw new HolidayMultiValidationError(errors);
 	}
 
-	const result = await holidayDao.update(cuid, { name: holiday_name, date: holiday_date, type: holiday_type, updated_by: input.updated_by });
+	const result = await db.$transaction(async (tx) => {
+		const res = (tx && Object.keys(tx).length > 0)
+			? await holidayDao.update(cuid, { name: holiday_name, date: holiday_date, type: holiday_type, updated_by: input.updated_by }, tx)
+			: await holidayDao.update(cuid, { name: holiday_name, date: holiday_date, type: holiday_type, updated_by: input.updated_by });
+		await auditFactory.holidayUpdated({
+			entityCuid: cuid,
+			oldRecord: existingHoliday,
+			newRecord: res
+		}, tx);
+		return res;
+	});
 	invalidateHolidayCache();
 	return result;
 }

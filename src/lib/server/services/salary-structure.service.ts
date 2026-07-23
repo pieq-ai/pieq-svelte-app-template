@@ -1,4 +1,4 @@
-import * as dao from '$lib/server/dao/salary-structure.dao.js';
+﻿import * as dao from '$lib/server/dao/salary-structure.dao.js';
 import * as salaryComponentDao from '$lib/server/dao/salary-component.dao.js';
 import { findEmployeeByCuid } from '$lib/server/providers/employee.provider.js';
 import { serializeSalaryStructure } from '$lib/server/serializers/salary-structure.serializer.js';
@@ -9,6 +9,7 @@ import type {
 	CreateRevisionDto
 } from '$lib/types/salary-structure.js';
 import { db } from '$lib/server/db.js';
+import * as auditService from '$lib/server/services/audit.service.js';
 
 export class ConfirmationRequiredError extends Error {
 	constructor() {
@@ -16,9 +17,6 @@ export class ConfirmationRequiredError extends Error {
 		this.name = 'ConfirmationRequiredError';
 	}
 }
-
-// ─── Custom error classes ─────────────────────────────────────────────────────
-
 export class BusinessValidationError extends Error {
 	constructor(message: string) {
 		super(message);
@@ -69,8 +67,6 @@ export class SourceStructureNotActiveError extends BusinessValidationError {
 		this.name = 'SourceStructureNotActiveError';
 	}
 }
-
-// ─── Internal helpers ─────────────────────────────────────────────────────────
 
 /** Validate that an employee exists in the DB. */
 async function assertEmployeeExists(employee_cuid: string) {
@@ -317,8 +313,6 @@ export async function processTimelineAdjustments(
 	};
 }
 
-// ─── Service operations ───────────────────────────────────────────────────────
-
 /**
  * Create the first Salary Structure for an employee.
  * Validates employee existence and confirms no Active structure already exists.
@@ -406,7 +400,15 @@ export async function createStructure(dto: CreateSalaryStructureDto) {
 			)
 		);
 
-		return serializeSalaryStructure(structure, createdItems);
+		await auditService.log({
+			entity_name: 'SalaryStructure',
+			entity_cuid: structure.cuid,
+			action_type: 'create',
+			status: 'SUCCESS',
+		}, tx);
+
+		const typeMap = await getComponentTypeMap(createdItems.map((i: { salary_component_cuid: string }) => i.salary_component_cuid));
+		return serializeSalaryStructure(structure, createdItems, typeMap);
 	});
 }
 
@@ -444,39 +446,49 @@ export async function createRevision(sourceCuid: string, dto: CreateRevisionDto)
 	// Validate all components and capture name snapshots
 	const nameMap = await assertComponentsValid(dto.components);
 
-	// Close the previous Active structure
-	await dao.update(sourceCuid, {
-		status: false,
-		effective_to: previousEffectiveTo(dto.effective_from),
-		updated_by: dto.created_by ?? null
-	});
+	return db.$transaction(async (tx) => {
+		// Close the previous Active structure
+		await dao.update(sourceCuid, {
+			status: false,
+			effective_to: previousEffectiveTo(dto.effective_from),
+			updated_by: dto.created_by ?? null
+		});
 
-	// Create the new (revision) structure
-	const newStructure = await dao.create({
-		employee_cuid: source.employee_cuid,
-		effective_from: dto.effective_from,
-		effective_to: null,
-		status: true,
-		created_by: dto.created_by ?? null
-	});
-
-	// Create items with snapshots
-	const items = await dao.createItems(
-		newStructure.cuid,
-		dto.components.map((item) => ({
-			salary_component_cuid: item.salary_component_cuid,
-			component_name_snapshot: nameMap.get(item.salary_component_cuid) ?? '',
-			amount: item.amount,
+		// Create the new (revision) structure
+		const newStructure = await dao.create({
+			employee_cuid: source.employee_cuid,
+			effective_from: dto.effective_from,
+			effective_to: null,
+			status: true,
 			created_by: dto.created_by ?? null
-		}))
-	);
+		});
 
-	return serializeSalaryStructure(newStructure, items);
+		// Create items with snapshots
+		const items = await dao.createItems(
+			newStructure.cuid,
+			dto.components.map((item) => ({
+				salary_component_cuid: item.salary_component_cuid,
+				component_name_snapshot: nameMap.get(item.salary_component_cuid) ?? '',
+				amount: item.amount,
+				created_by: dto.created_by ?? null
+			}))
+		);
+
+		await auditService.log({
+			entity_name: 'SalaryStructure',
+			entity_cuid: newStructure.cuid,
+			action_type: 'revision',
+			status: 'SUCCESS',
+		});
+
+		const typeMap = await getComponentTypeMap(items.map((i: { salary_component_cuid: string }) => i.salary_component_cuid));
+		return serializeSalaryStructure(newStructure, items, typeMap);
+	});
 }
 
 /**
  * Update an existing Salary Structure (internal/administrative use).
- * Does NOT perform the revision flow — use createRevision for salary changes.
+ * Does NOT perform the revision flow â€” use createRevision for salary changes.
  */
 export async function updateStructure(cuid: string, dto: UpdateSalaryStructureDto) {
 	const current = await dao.findByCuid(cuid);
@@ -572,6 +584,13 @@ export async function updateStructure(cuid: string, dto: UpdateSalaryStructureDt
 			}
 		});
 
+		await auditService.logUpdate({
+			entityName: 'SalaryStructure',
+			entityCuid: cuid,
+			oldRecord: current,
+			newRecord: updated
+		}, tx);
+
 		if (dto.components !== undefined && nameMap) {
 			await tx.salaryStructureItem.deleteMany({
 				where: { salary_structure_cuid: cuid }
@@ -589,15 +608,28 @@ export async function updateStructure(cuid: string, dto: UpdateSalaryStructureDt
 					})
 				)
 			);
-			return serializeSalaryStructure(updated, createdItems);
+			const typeMap = await getComponentTypeMap(createdItems.map((i: { salary_component_cuid: string }) => i.salary_component_cuid));
+			return serializeSalaryStructure(updated, createdItems, typeMap);
 		}
 
 		const existingItems = await tx.salaryStructureItem.findMany({
 			where: { salary_structure_cuid: cuid },
 			orderBy: { cuid: 'asc' }
 		});
-		return serializeSalaryStructure(updated, existingItems);
+		const typeMap = await getComponentTypeMap(existingItems.map((i: { salary_component_cuid: string }) => i.salary_component_cuid));
+		return serializeSalaryStructure(updated, existingItems, typeMap);
 	});
+}
+
+/** Fetch component types for a set of component CUIDs for serialization. */
+async function getComponentTypeMap(componentCuids: string[]): Promise<Map<string, string>> {
+	if (componentCuids.length === 0) return new Map();
+	const uniqueCuids = Array.from(new Set(componentCuids));
+	const components = (await db.salaryComponent?.findMany({
+		where: { cuid: { in: uniqueCuids } },
+		select: { cuid: true, type: true }
+	})) || [];
+	return new Map(components.map((c) => [c.cuid, c.type]));
 }
 
 /**
@@ -609,7 +641,8 @@ export async function getStructureByCuid(cuid: string) {
 		throw new SalaryStructureNotFoundError(cuid);
 	}
 	const items = await dao.findItemsByStructureCuid(cuid);
-	return serializeSalaryStructure(structure, items);
+	const typeMap = await getComponentTypeMap(items.map((i: { salary_component_cuid: string }) => i.salary_component_cuid));
+	return serializeSalaryStructure(structure, items, typeMap);
 }
 
 /**
@@ -626,6 +659,7 @@ export async function getStructures() {
 	// Batch-fetch all items in one query (avoids N+1)
 	const allCuids = structures.map((s) => s.cuid);
 	const allItems = await dao.findItemsByStructureCuids(allCuids);
+	const typeMap = await getComponentTypeMap(allItems.map((i: { salary_component_cuid: string }) => i.salary_component_cuid));
 
 	// Group items by structure cuid
 	const itemsByStructure = new Map<string, typeof allItems>();
@@ -636,12 +670,12 @@ export async function getStructures() {
 	}
 
 	return structures.map((structure) =>
-		serializeSalaryStructure(structure, itemsByStructure.get(structure.cuid) ?? [])
+		serializeSalaryStructure(structure, itemsByStructure.get(structure.cuid) ?? [], typeMap)
 	);
 }
 
 /**
- * Deactivate a Salary Structure (soft delete — sets status to false).
+ * Deactivate a Salary Structure (soft delete â€” sets status to false).
  */
 export async function deactivateStructure(cuid: string, updated_by?: string | null) {
 	const current = await dao.findByCuid(cuid);
@@ -651,5 +685,6 @@ export async function deactivateStructure(cuid: string, updated_by?: string | nu
 
 	const updated = await dao.update(cuid, { status: false, updated_by });
 	const items = await dao.findItemsByStructureCuid(cuid);
-	return serializeSalaryStructure(updated, items);
+	const typeMap = await getComponentTypeMap(items.map((i: { salary_component_cuid: string }) => i.salary_component_cuid));
+	return serializeSalaryStructure(updated, items, typeMap);
 }

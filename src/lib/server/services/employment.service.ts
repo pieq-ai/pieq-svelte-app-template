@@ -1,9 +1,11 @@
-import { ValidationError } from '$lib/server/utils/errors.js';
+﻿import { ValidationError } from '$lib/server/utils/errors.js';
 import * as employmentDao from '$lib/server/dao/employment.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
 import { employmentSchema } from '$lib/schemas/employee.schema.js';
+import { db } from '$lib/server/db.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 
 export interface UpsertEmploymentDto {
     department_cuid: string;
@@ -78,8 +80,27 @@ export async function upsertEmployment(employee_cuid: string, dto: UpsertEmploym
         updated_by: dto.updated_by
     };
 
-    await employmentDao.upsert(employee_cuid, payload);
+    const oldEmployment = await employmentDao.findByEmployeeCuid(employee_cuid);
+
+    const updatedEmployment = await db.$transaction(async (tx) => {
+        await employmentDao.upsert(employee_cuid, payload, tx);
+        const newEmployment = await employmentDao.findByEmployeeCuid(employee_cuid, tx);
+
+        if (!oldEmployment) {
+            await auditFactory.employmentCreated({
+                entityCuid: newEmployment.cuid,
+            }, tx);
+        } else {
+            await auditFactory.employmentUpdated({
+                entityCuid: newEmployment.cuid,
+                oldRecord: oldEmployment,
+                newRecord: newEmployment
+            }, tx);
+        }
+
+        return newEmployment;
+    });
+
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
-    const updatedEmployment = await employmentDao.findByEmployeeCuid(employee_cuid);
     return toPublicEmployment(updatedEmployment);
 }

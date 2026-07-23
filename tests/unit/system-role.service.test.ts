@@ -19,6 +19,11 @@ vi.mock('$lib/server/services/keycloak/keycloak-role-sync.service.js', () => ({
 	}
 }));
 
+vi.mock('$lib/server/services/audit.service.js', () => ({
+	log: vi.fn().mockResolvedValue(undefined),
+	logUpdate: vi.fn().mockResolvedValue(undefined)
+}));
+
 describe('System Role Service', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();

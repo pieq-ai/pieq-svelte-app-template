@@ -1,6 +1,7 @@
-import { getMasterConfig, isMasterKey, type MasterKey } from '$lib/master-data/master-config.js';
+﻿import { getMasterConfig, isMasterKey, type MasterKey } from '$lib/master-data/master-config.js';
 import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 
 export interface MasterDataDto {
 	name: string;
@@ -154,6 +155,11 @@ export async function createMasterData(masterKey: string, dto: MasterDataDto) {
 		country_cuid: dto.country_cuid
 	})) as Record<string, unknown>;
 
+	await auditFactory.masterDataCreated({
+		entityName: `Master_${master}`,
+		entityCuid: created.cuid as string,
+	});
+
 	return toOption(created, master);
 }
 
@@ -185,6 +191,13 @@ export async function updateMasterData(masterKey: string, cuid: string, dto: Mas
 		name,
 		country_cuid: dto.country_cuid
 	})) as Record<string, unknown>;
+
+	await auditFactory.masterDataUpdated({
+		entityName: `Master_${master}`,
+		entityCuid: cuid,
+		oldRecord: existing,
+		newRecord: updated
+	});
 
 	return toOption(updated, master);
 }

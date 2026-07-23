@@ -1,7 +1,6 @@
 import { db } from '$lib/server/db.js';
 
 export async function findAuthUserByKeycloakSub(keycloak_sub: string) {
-    console.log("[DIAG-4] Prisma Query for Keycloak Sub:", keycloak_sub);
     const rows = await db.$queryRaw`
         SELECT 
             emp.cuid as employee_cuid,
@@ -28,7 +27,6 @@ export async function findAuthUserByKeycloakSub(keycloak_sub: string) {
     `;
     
     const data = rows as any[];
-    console.log("[DIAG-5] Database Raw Return:", data.length > 0 ? data[0] : null);
     if (data.length === 0) return null;
     return data[0];
 }

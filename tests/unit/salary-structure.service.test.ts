@@ -31,7 +31,10 @@ const mockTx = {
 
 vi.mock('$lib/server/db.js', () => ({
 	db: {
-		$transaction: vi.fn((callback) => callback(mockTx))
+		$transaction: vi.fn((callback) => callback(mockTx)),
+		salaryComponent: {
+			findMany: vi.fn().mockResolvedValue([])
+		}
 	}
 }));
 
@@ -52,6 +55,11 @@ vi.mock('$lib/server/dao/salary-structure.dao.js', () => ({
 
 vi.mock('$lib/server/dao/salary-component.dao.js', () => ({
 	findByCuid: vi.fn()
+}));
+
+vi.mock('$lib/server/services/audit.service.js', () => ({
+	log: vi.fn().mockResolvedValue(undefined),
+	logUpdate: vi.fn().mockResolvedValue(undefined)
 }));
 
 vi.mock('$lib/server/providers/employee.provider.js', () => ({

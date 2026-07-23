@@ -3,6 +3,7 @@ import * as languageDao from '$lib/server/dao/language.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { z } from 'zod';
 import { languageSchema } from '$lib/schemas/employee.schema.js';
 
@@ -39,6 +40,9 @@ export async function replaceLanguages(employee_cuid: string, dtos: UpsertLangua
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
+    const oldRecords = await languageDao.findByEmployeeCuid(employee_cuid);
+    const oldLanguageDTOs = oldRecords.map(toPublicLanguage);
+
     const validatedDtos = z.array(languageSchema)
         .refine((items: any[]) => {
             const languageCuids = items.map((i: any) => i.language_cuid);
@@ -58,6 +62,13 @@ export async function replaceLanguages(employee_cuid: string, dtos: UpsertLangua
     }));
 
     const results = await languageDao.replaceLanguages(employee_cuid, payload);
+    const newLanguageDTOs = results.map(toPublicLanguage);
+
+    await auditFactory.languageUpdated({
+        employeeCuid: employee_cuid,
+        oldList: oldLanguageDTOs,
+        newList: newLanguageDTOs
+    });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
-    return results.map(toPublicLanguage);
+    return newLanguageDTOs;
 }

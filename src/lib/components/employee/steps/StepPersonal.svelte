@@ -362,17 +362,17 @@
 		</div>
 		<div class="space-y-2">
 			<Label>Aadhar Number <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.aadhar_no} oninput={(e) => { emp.aadhar_no = formatAadharUan(e.currentTarget.value); clearBackendError('aadhar_no'); }} placeholder="0000 0000 0000" class={(backendErrors.aadhar_no || (isTouched && errors.aadhar_no)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
+			<Input disabled={!isFieldEditable(apiClient.mode, 'aadhar_no')} bind:value={emp.aadhar_no} oninput={(e) => { emp.aadhar_no = formatAadharUan(e.currentTarget.value); clearBackendError('aadhar_no'); }} placeholder="0000 0000 0000" class={(backendErrors.aadhar_no || (isTouched && errors.aadhar_no)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
 			{#if backendErrors.aadhar_no}<p class="text-xs text-destructive">{backendErrors.aadhar_no}</p>{:else if isTouched && errors.aadhar_no}<p class="text-xs text-destructive">{errors.aadhar_no}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>PAN Number <span class="text-destructive">*</span></Label>
-			<Input bind:value={emp.pan_no} oninput={(e) => { emp.pan_no = formatPan(e.currentTarget.value); clearBackendError('pan_no'); }} placeholder="ABCDE1234F" class={(backendErrors.pan_no || (isTouched && errors.pan_no)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
+			<Input disabled={!isFieldEditable(apiClient.mode, 'pan_no')} bind:value={emp.pan_no} oninput={(e) => { emp.pan_no = formatPan(e.currentTarget.value); clearBackendError('pan_no'); }} placeholder="ABCDE1234F" class={(backendErrors.pan_no || (isTouched && errors.pan_no)) ? 'border-destructive focus-visible:ring-destructive/50' : ''} required />
 			{#if backendErrors.pan_no}<p class="text-xs text-destructive">{backendErrors.pan_no}</p>{:else if isTouched && errors.pan_no}<p class="text-xs text-destructive">{errors.pan_no}</p>{/if}
 		</div>
 		<div class="space-y-2">
 			<Label>UAN Number</Label>
-			<Input bind:value={emp.uan_no} oninput={(e) => emp.uan_no = formatAadharUan(e.currentTarget.value)} placeholder="1234 5678 9012" />
+			<Input disabled={!isFieldEditable(apiClient.mode, 'uan_no')} bind:value={emp.uan_no} oninput={(e) => emp.uan_no = formatAadharUan(e.currentTarget.value)} placeholder="1234 5678 9012" />
 		</div>
 		<div class="space-y-2">
 			<Label>ESI Number</Label>

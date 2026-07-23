@@ -5,7 +5,7 @@ CREATE TABLE "shift_assignments" (
     "employee_cuid" VARCHAR(100) NOT NULL,
     "shift_cuid" VARCHAR(100) NOT NULL,
     "effective_from" DATE NOT NULL,
-    "effective_to" DATE NOT NULL,
+    "effective_to" DATE,
     "status" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_by" VARCHAR(100),

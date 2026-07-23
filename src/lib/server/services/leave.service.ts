@@ -4,6 +4,7 @@ import { notificationFactory } from '$lib/server/notifications/notification.fact
 import * as settingsDao from '$lib/server/dao/settings.dao.js';
 import { db } from '$lib/server/db.js';
 import { ValidationError } from '$lib/server/utils/errors.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { calculateLeaveDays, isWeekend, isHoliday, getHolidaysCached } from '$lib/server/config/leave.config.js';
 
 
@@ -93,7 +94,7 @@ export async function getPayrollCutoffDay(tx?: any): Promise<number> {
 }
 
 export async function setPayrollCutoffDay(value: number, userId?: string | null, tx?: any) {
-	await settingsDao.updateSettings(value, userId, tx);
+	await settingsDao.updateSettings(value, userId);
 }
 
 export async function getMonthlyUsedDays(employeeCuid: string, month: number, year: number, leaveCode: 'LOP' | 'LWP', tx?: any) {
@@ -110,7 +111,7 @@ export async function getMonthlyUsedDays(employeeCuid: string, month: number, ye
 	}
 
 	const holidaysSet = await getHolidaysCached();
-	const requests = await leaveDao.getApprovedRequestsInPeriod(employeeCuid, cycleStart, cycleEnd, tx);
+	const requests = await leaveDao.getApprovedRequestsInPeriod(employeeCuid, cycleStart, cycleEnd);
 
 	let total = 0;
 	for (const req of requests) {
@@ -137,7 +138,7 @@ export async function getMonthlyUsedDays(employeeCuid: string, month: number, ye
 		}
 
 		// Cache leaveType lookup outside the date loop to avoid N+1 queries
-		const leaveType = await leaveDao.getLeaveTypeByCuid(req.leave_type_cuid, tx);
+		const leaveType = await leaveDao.getLeaveTypeByCuid(req.leave_type_cuid);
 		const reqLeaveCode = leaveType?.code || '';
 
 		// Build list of working dates for this request
@@ -385,19 +386,19 @@ export async function getAvailableBalanceForMonth(
 	targetMonth: number,
 	tx?: any
 ) {
-	const leaveType = await leaveDao.getLeaveTypeByCuid(leaveTypeCuid, tx);
+	const leaveType = await leaveDao.getLeaveTypeByCuid(leaveTypeCuid);
 	if (!leaveType) {
 		return 0;
 	}
 
-	const balanceRow = await leaveDao.getLeaveBalance(employeeCuid, leaveTypeCuid, year, tx);
+	const balanceRow = await leaveDao.getLeaveBalance(employeeCuid, leaveTypeCuid, year);
 
 	if (leaveType.code !== 'CL' && leaveType.code !== 'SL') {
 		return balanceRow ? Number(balanceRow.remaining_days) : 0;
 	}
 
 	// Dynamic calculation for CL and SL
-	const employment = await leaveDao.getEmploymentByEmployeeCuid(employeeCuid, tx);
+	const employment = await leaveDao.getEmploymentByEmployeeCuid(employeeCuid);
 	if (!employment) return 0;
 
 	const joinDate = employment.date_of_joining ? new Date(employment.date_of_joining) : new Date();
@@ -885,15 +886,32 @@ export async function withdrawLeaveByCuid(employeeCuid: string, requestCuid: str
 		throw new Error('Only pending leave requests can be withdrawn.');
 	}
 
-	const result = await leaveDao.updateLeaveRequest(requestCuid, {
-		request_status: 'withdrawn',
-		withdrawn_at: new Date(),
-		updated_by: actorCuid || employee.cuid
+	const result = await db.$transaction(async () => {
+		const res = await leaveDao.updateLeaveRequest(requestCuid, {
+			request_status: 'withdrawn',
+			withdrawn_at: new Date(),
+			updated_by: actorCuid || employee.cuid
+		});
+
+		await auditFactory.leaveWithdrawn({
+			entityCuid: requestCuid,
+		});
+
+		return res;
 	});
 
+	// Fetch employment to get the reporting manager for notification targeting
+	const employment = await leaveDao.getEmploymentByEmployeeCuid(employeeCuid);
+
 	// Trigger leave withdrawn notification
-	notificationFactory.leaveWithdrawn(employee.first_name, employee.last_name, actorCuid || employee.cuid, requestCuid)
-		.catch(err => console.error("Failed to send leave withdrawn notification:", err));
+	notificationFactory.leaveWithdrawn(
+		employee.first_name,
+		employee.last_name,
+		actorCuid || employee.cuid,
+		requestCuid,
+		employee.cuid,
+		employment?.reporting_manager_cuid ?? null
+	).catch(err => console.error("Failed to send leave withdrawn notification:", err));
 
 	return result;
 }
@@ -1267,37 +1285,53 @@ async function _applyLeaveCore(employee: any, employment: any, input: ApplyLeave
 	}
 
 	// Create request
-	const request = await leaveDao.createLeaveRequest({
-		employee_cuid: employee.cuid,
-		leave_type_cuid: leaveType.cuid,
-		start_date: startDate,
-		end_date: endDate,
-		total_days: totalDays,
-		is_half_day: input.isHalfDay,
-		half_day_session: input.isHalfDay ? input.halfDaySession : null,
-		reason: finalReason,
-		file_name,
-		mime_type,
-		file_size,
-		document_data,
-		request_status: 'pending',
-		days_from_primary: daysFromPrimary,
-		days_from_lwp: daysFromLwp,
-		days_from_lop: daysFromLop,
-		created_by: creatorCuid || employee.cuid
+	const request = await db.$transaction(async (tx) => {
+		const req = await leaveDao.createLeaveRequest({
+			employee_cuid: employee.cuid,
+			leave_type_cuid: leaveType.cuid,
+			start_date: startDate,
+			end_date: endDate,
+			total_days: totalDays,
+			is_half_day: input.isHalfDay,
+			half_day_session: input.isHalfDay ? input.halfDaySession : null,
+			reason: finalReason,
+			file_name,
+			mime_type,
+			file_size,
+			document_data,
+			request_status: 'pending',
+			days_from_primary: daysFromPrimary,
+			days_from_lwp: daysFromLwp,
+			days_from_lop: daysFromLop,
+			created_by: creatorCuid || employee.cuid
+		});
+
+		await auditFactory.leaveApplied({
+			entityCuid: req?.cuid || '',
+		});
+
+		return req;
 	});
 
 	// Trigger leave applied notification
 	if (request) {
-		notificationFactory.leaveApplied(employee.first_name, employee.last_name, totalDays, startDate, creatorCuid || employee.cuid, request.cuid)
-			.catch(err => console.error("Failed to send leave applied notification:", err));
+		notificationFactory.leaveApplied(
+			employee.first_name,
+			employee.last_name,
+			totalDays,
+			startDate,
+			creatorCuid || employee.cuid,
+			request.cuid,
+			employee.cuid,
+			employment?.reporting_manager_cuid ?? null
+		).catch(err => console.error("Failed to send leave applied notification:", err));
 	}
 
 	return request;
 }
 
 export async function withdrawLeave(email: string, requestCuid: string, actorCuid?: string) {
-	const { employee } = await resolveEmployee(email);
+	const { employee, employment } = await resolveEmployee(email);
 	if (!employee) {
 		throw new Error('Employee record not found.');
 	}
@@ -1315,15 +1349,29 @@ export async function withdrawLeave(email: string, requestCuid: string, actorCui
 		throw new Error('Only pending leave requests can be withdrawn.');
 	}
 
-	const result = await leaveDao.updateLeaveRequest(requestCuid, {
-		request_status: 'withdrawn',
-		withdrawn_at: new Date(),
-		updated_by: actorCuid || employee.cuid
+	const result = await db.$transaction(async () => {
+		const res = await leaveDao.updateLeaveRequest(requestCuid, {
+			request_status: 'withdrawn',
+			withdrawn_at: new Date(),
+			updated_by: actorCuid || employee.cuid
+		});
+
+		await auditFactory.leaveWithdrawn({
+			entityCuid: requestCuid,
+		});
+
+		return res;
 	});
 
 	// Trigger leave withdrawn notification
-	notificationFactory.leaveWithdrawn(employee.first_name, employee.last_name, actorCuid || employee.cuid, requestCuid)
-		.catch(err => console.error("Failed to send leave withdrawn notification:", err));
+	notificationFactory.leaveWithdrawn(
+		employee.first_name,
+		employee.last_name,
+		actorCuid || employee.cuid,
+		requestCuid,
+		employee.cuid,
+		employment?.reporting_manager_cuid ?? null
+	).catch(err => console.error("Failed to send leave withdrawn notification:", err));
 
 	return result;
 }
@@ -1335,7 +1383,7 @@ export async function withdrawLeave(email: string, requestCuid: string, actorCui
 export async function approveLeaveRequest(requestCuid: string, approverUserCuid: string) {
 	return leaveDao.runTransaction(async (tx) => {
 		const holidaysSet = await getHolidaysCached();
-		const request = await leaveDao.getLeaveRequestByCuid(requestCuid, tx);
+		const request = await leaveDao.getLeaveRequestByCuid(requestCuid);
 
 		if (!request) {
 			throw new Error('Leave request not found.');
@@ -1345,17 +1393,17 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 			throw new Error('Leave request is not in pending status.');
 		}
 
-		const leaveType = await leaveDao.getLeaveTypeByCuid(request.leave_type_cuid, tx);
+		const leaveType = await leaveDao.getLeaveTypeByCuid(request.leave_type_cuid);
 
 		if (!leaveType) {
 			throw new Error('Leave type not found.');
 		}
 
 		// Verify subordinate relationship
-		const targetEmployment = await leaveDao.getEmploymentByEmployeeCuid(request.employee_cuid, tx);
-		let approver = await employeeDao.getEmployeeByCuid(approverUserCuid, tx);
+		const targetEmployment = await leaveDao.getEmploymentByEmployeeCuid(request.employee_cuid);
+		let approver = await employeeDao.getEmployeeByCuid(approverUserCuid);
 		if (!approver) {
-			approver = await employeeDao.getEmployeeByEmpCode(approverUserCuid, tx);
+			approver = await employeeDao.getEmployeeByEmpCode(approverUserCuid);
 		}
 		if (!approver) {
 			throw new Error('Approver employee record not found.');
@@ -1365,12 +1413,12 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 		}
 
 		// Validate all leave rules already implemented
-		const employee = await employeeDao.getEmployeeByCuid(request.employee_cuid, tx);
+		const employee = await employeeDao.getEmployeeByCuid(request.employee_cuid);
 		if (!employee) {
 			throw new Error('Employee record not found.');
 		}
 
-		const policy = await leaveDao.getLeavePolicyByLeaveType(request.leave_type_cuid, tx);
+		const policy = await leaveDao.getLeavePolicyByLeaveType(request.leave_type_cuid);
 
 		if (policy) {
 			// Gender check
@@ -1393,9 +1441,9 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 			let remainingBalance: number;
 			if (leaveType.code === 'CL' || leaveType.code === 'SL') {
 				const targetMonth = request.start_date.getMonth();
-				remainingBalance = await getAvailableBalanceForMonth(request.employee_cuid, request.leave_type_cuid, year, targetMonth, tx);
+				remainingBalance = await getAvailableBalanceForMonth(request.employee_cuid, request.leave_type_cuid, year, targetMonth);
 			} else {
-				const primaryBalance = await leaveDao.getLeaveBalance(request.employee_cuid, request.leave_type_cuid, year, tx);
+				const primaryBalance = await leaveDao.getLeaveBalance(request.employee_cuid, request.leave_type_cuid, year);
 				remainingBalance = primaryBalance ? Number(primaryBalance.remaining_days) : 0;
 			}
 
@@ -1405,17 +1453,17 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 		}
 
 		if (request.days_from_lwp && Number(request.days_from_lwp) > 0) {
-			const lwpType = await leaveDao.getLeaveTypeByCode('LWP', tx);
+			const lwpType = await leaveDao.getLeaveTypeByCode('LWP');
 			if (!lwpType) {
 				throw new Error('LWP Leave Type not configured.');
 			}
-			const lwpPolicy = await leaveDao.getLeavePolicyByLeaveType(lwpType.cuid, tx);
+			const lwpPolicy = await leaveDao.getLeavePolicyByLeaveType(lwpType.cuid);
 			const lwpAllocated = lwpPolicy ? Number(lwpPolicy.annual_limit) : 365.0;
 
 			const targetMonth = request.start_date.getMonth();
 			const targetYearForLwp = request.start_date.getFullYear();
 
-			const lwpUsed = await getMonthlyUsedDays(request.employee_cuid, targetMonth, targetYearForLwp, 'LWP', tx);
+			const lwpUsed = await getMonthlyUsedDays(request.employee_cuid, targetMonth, targetYearForLwp, 'LWP');
 			const lwpRemaining = Math.max(0.0, lwpAllocated - lwpUsed);
 
 			if (lwpRemaining < Number(request.days_from_lwp)) {
@@ -1429,16 +1477,20 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 			approved_by: approverUserCuid,
 			approved_at: new Date(),
 			updated_by: approverUserCuid
-		}, tx);
+		});
+
+		await auditFactory.leaveApproved({
+			entityCuid: requestCuid,
+		});
 
 		// 2. Deduct leave balance
 		if (request.days_from_primary && Number(request.days_from_primary) > 0) {
-			const primaryBalance = await leaveDao.getLeaveBalance(request.employee_cuid, request.leave_type_cuid, year, tx);
+			const primaryBalance = await leaveDao.getLeaveBalance(request.employee_cuid, request.leave_type_cuid, year);
 			if (primaryBalance) {
 				await leaveDao.updateLeaveBalance(primaryBalance.cuid, {
 					used_days: { increment: request.days_from_primary },
 					remaining_days: { decrement: request.days_from_primary }
-				}, tx);
+				});
 			}
 		}
 
@@ -1495,7 +1547,7 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 				}
 			}
 
-			const existing = await leaveDao.getAttendanceRecord(request.employee_cuid, d, tx);
+			const existing = await leaveDao.getAttendanceRecord(request.employee_cuid, d);
 
 			if (existing) {
 				const status = existing.attendance_status;
@@ -1510,7 +1562,7 @@ export async function approveLeaveRequest(requestCuid: string, approverUserCuid:
 				attendance_status: dayStatus,
 				remarks: attendanceRemark,
 				created_by: approverUserCuid
-			}, tx);
+			});
 		}
 
 		// Trigger leave approved notification
@@ -1548,11 +1600,19 @@ export async function rejectLeaveRequest(requestCuid: string, rejectorUserCuid: 
 		throw new Error('Unauthorized: You can only approve/reject requests from your direct reports.');
 	}
 
-	const result = await leaveDao.updateLeaveRequest(requestCuid, {
-		request_status: 'rejected',
-		rejected_by: rejectorUserCuid,
-		rejected_at: new Date(),
-		updated_by: rejectorUserCuid
+	const result = await db.$transaction(async () => {
+		const res = await leaveDao.updateLeaveRequest(requestCuid, {
+			request_status: 'rejected',
+			rejected_by: rejectorUserCuid,
+			rejected_at: new Date(),
+			updated_by: rejectorUserCuid
+		});
+
+		await auditFactory.leaveRejected({
+			entityCuid: requestCuid,
+		});
+
+		return res;
 	});
 
 	// Trigger leave rejected notification

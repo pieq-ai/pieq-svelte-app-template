@@ -185,5 +185,21 @@ export const templates = {
 			metadata: { link: '/shift-assignments' },
 			target: { type: NotificationTargetType.EMPLOYEE, employeeCuid }
 		};
+	},
+
+	missingCheckoutReminder(
+		employeeCuid: string,
+		date: Date,
+		attendanceRecordCuid: string
+	): NotificationTemplatePayload {
+		const formattedDate = formatShiftDate(date);
+		return {
+			title: 'Previous Day Checkout Missing',
+			body: `You haven't checked out for your attendance on ${formattedDate}. Please complete the missing checkout.`,
+			category: NotificationCategory.ATTENDANCE,
+			type: NotificationType.WARNING,
+			metadata: { link: '/attendance', entityCuid: attendanceRecordCuid },
+			target: { type: NotificationTargetType.EMPLOYEE, employeeCuid }
+		};
 	}
 };

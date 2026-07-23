@@ -22,6 +22,17 @@ vi.mock('$lib/server/dao/holiday.dao.js', () => {
 	};
 });
 
+vi.mock('$lib/server/services/audit.service.js', () => ({
+	log: vi.fn().mockResolvedValue(undefined),
+	logUpdate: vi.fn().mockResolvedValue(undefined)
+}));
+
+vi.mock('$lib/server/db.js', () => ({
+	db: {
+		$transaction: vi.fn((cb) => cb({}))
+	}
+}));
+
 const auditFields = { created_at: new Date(), updated_at: new Date(), created_by: null, updated_by: null };
 
 describe('holiday service', () => {

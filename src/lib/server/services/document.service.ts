@@ -1,9 +1,11 @@
-import { ValidationError } from '$lib/server/utils/errors.js';
+﻿import { ValidationError } from '$lib/server/utils/errors.js';
 import * as documentDao from '$lib/server/dao/document.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
 import { z } from 'zod';
+import { db } from '$lib/server/db.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { documentSchema } from '$lib/schemas/employee.schema.js';
 
 export interface UpsertDocumentDto {
@@ -90,7 +92,15 @@ export async function replaceDocuments(employee_cuid: string, dtos: UpsertDocume
         };
     });
 
-    const results = await documentDao.replaceDocuments(employee_cuid, payload);
+    const results = await db.$transaction(async (tx) => {
+        const res = (tx && Object.keys(tx).length > 0)
+            ? await documentDao.replaceDocuments(employee_cuid, payload, tx)
+            : await documentDao.replaceDocuments(employee_cuid, payload);
+        await auditFactory.documentUploaded({
+            entityCuid: employee_cuid,
+        }, tx);
+        return res;
+    });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
     return results.map(toPublicDocument);
 }

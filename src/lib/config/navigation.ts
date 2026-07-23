@@ -16,6 +16,7 @@ import CalendarIcon from '@lucide/svelte/icons/calendar';
 import CalendarCogIcon from '@lucide/svelte/icons/calendar-cog';
 import FingerprintIcon from '@lucide/svelte/icons/fingerprint';
 import CalendarClockIcon from '@lucide/svelte/icons/calendar-clock';
+import HistoryIcon from '@lucide/svelte/icons/history';
 
 export type NavItem = {
 	label: string;
@@ -60,5 +61,6 @@ export const salaryManagementItems: NavItem[] = [
 export const systemNavItems: NavItem[] = [
 	{ label: 'System Roles', href: '/system-roles', icon: ShieldCheckIcon, permission: 'system_role:view' },
 	{ label: 'Permissions', href: '/permissions', icon: KeyRoundIcon, permission: 'permission:view' },
-	{ label: 'Role Permissions', href: '/role-permissions', icon: LinkIcon, permission: 'role_permission:view' }
+	{ label: 'Role Permissions', href: '/role-permissions', icon: LinkIcon, permission: 'role_permission:view' },
+	{ label: 'Audit History', href: '/audit-history', icon: HistoryIcon, permission: 'audit:view' }
 ];

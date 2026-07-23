@@ -43,8 +43,14 @@
 		name: string;
 	}
 
+	interface SalaryComponentRef {
+		cuid: string;
+		type: string;
+	}
+
 	let employeesList = $state<MockEmployee[]>([]);
 	let employee = $derived(employeesList.find((e) => e.cuid === structure.employee_cuid) ?? null);
+	let componentsList = $state<SalaryComponentRef[]>([]);
 
 	// ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -61,12 +67,41 @@
 		return amount.toLocaleString('en-IN', { minimumFractionDigits: 2 });
 	}
 
+	function getComponentType(item: { salary_component_cuid: string; type?: string }): 'earning' | 'deduction' {
+		if (item.type === 'deduction' || item.type === 'earning') {
+			return item.type;
+		}
+		const comp = componentsList.find((c) => c.cuid === item.salary_component_cuid);
+		if (comp && (comp.type === 'deduction' || comp.type === 'earning')) {
+			return comp.type as 'earning' | 'deduction';
+		}
+		return 'earning';
+	}
+
+	let totalEarnings = $derived(
+		structure.components
+			.filter((item) => getComponentType(item) === 'earning')
+			.reduce((sum, item) => sum + item.amount, 0)
+	);
+
+	let totalDeductions = $derived(
+		structure.components
+			.filter((item) => getComponentType(item) === 'deduction')
+			.reduce((sum, item) => sum + item.amount, 0)
+	);
+
+	let totalSalary = $derived(totalEarnings - totalDeductions);
+
 	// ─── Data loading ─────────────────────────────────────────────────────────────
 
 	onMount(async () => {
 		try {
-			const empRes = await fetch('/api/salary-structures/employees');
+			const [empRes, compRes] = await Promise.all([
+				fetch('/api/salary-structures/employees'),
+				fetch('/api/salary-components')
+			]);
 			if (empRes.ok) employeesList = (await empRes.json()).data ?? [];
+			if (compRes.ok) componentsList = (await compRes.json()).data ?? [];
 		} catch (err) {
 			console.error('Failed to load reference data', err);
 		}
@@ -167,7 +202,7 @@
 						<TableRow class="border-t-2 bg-muted/40">
 							<TableCell class="font-bold text-foreground">Total</TableCell>
 							<TableCell class="text-right font-mono font-bold text-foreground">
-								{formatAmount(structure.components.reduce((sum, c) => sum + c.amount, 0))}
+								{formatAmount(totalSalary)}
 							</TableCell>
 						</TableRow>
 					{/if}

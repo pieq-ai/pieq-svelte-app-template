@@ -7,6 +7,7 @@ export interface KeycloakConfig {
     clientSecret?: string;
     adminUsername?: string;
     adminPassword?: string;
+    adminRealm?: string;
 }
 
 export function getKeycloakConfig(): KeycloakConfig {
@@ -21,6 +22,7 @@ export function getKeycloakConfig(): KeycloakConfig {
     const clientSecret = env.KEYCLOAK_CLIENT_SECRET || process.env.KEYCLOAK_CLIENT_SECRET;
     const adminUsername = env.KEYCLOAK_ADMIN_USERNAME || process.env.KEYCLOAK_ADMIN_USERNAME;
     const adminPassword = env.KEYCLOAK_ADMIN_PASSWORD || process.env.KEYCLOAK_ADMIN_PASSWORD;
+    const adminRealm = env.KEYCLOAK_ADMIN_REALM || process.env.KEYCLOAK_ADMIN_REALM || 'master';
 
     const hasClientAuth = !!clientSecret;
     const hasPasswordAuth = !!(adminUsername && adminPassword);
@@ -35,6 +37,7 @@ export function getKeycloakConfig(): KeycloakConfig {
         clientId,
         clientSecret,
         adminUsername,
-        adminPassword
+        adminPassword,
+        adminRealm
     };
 }

@@ -10,11 +10,29 @@ vi.mock('$lib/server/dao/document.dao.js', () => ({
 }));
 
 vi.mock('$lib/server/dao/employee.dao.js', () => ({
-	findByCuid2: vi.fn()
+	findByCuid2: vi.fn(),
+	update: vi.fn().mockResolvedValue({})
 }));
 
 vi.mock('$lib/server/services/employee.service.js', () => ({
 	checkAndSetProfileCompletionStatus: vi.fn().mockResolvedValue({})
+}));
+
+vi.mock('$lib/server/factories/audit.factory.js', () => ({
+	auditFactory: {
+		documentUploaded: vi.fn().mockResolvedValue(undefined)
+	}
+}));
+
+vi.mock('$lib/server/services/audit.service.js', () => ({
+	log: vi.fn().mockResolvedValue(undefined),
+	logUpdate: vi.fn().mockResolvedValue(undefined)
+}));
+
+vi.mock('$lib/server/db.js', () => ({
+	db: {
+		$transaction: vi.fn((cb) => cb({}))
+	}
 }));
 
 describe('Document Service', () => {

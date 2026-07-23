@@ -1,7 +1,11 @@
- 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as masterDataService from '$lib/server/services/master-data.service.js';
 import * as masterDataDao from '$lib/server/dao/master-data.dao.js';
+
+vi.mock('$lib/server/services/audit.service.js', () => ({
+	log: vi.fn().mockResolvedValue({} as any),
+	logUpdate: vi.fn().mockResolvedValue({} as any)
+}));
 
 vi.mock('$lib/server/dao/master-data.dao.js', () => ({
 	list: vi.fn(),

@@ -3,6 +3,7 @@ import * as educationDao from '$lib/server/dao/education.dao.js';
 import * as employeeDao from '$lib/server/dao/employee.dao.js';
 import * as employeeService from '$lib/server/services/employee.service.js';
 import * as employeeLifecycleService from '$lib/server/services/employee-lifecycle.service.js';
+import { auditFactory } from '$lib/server/factories/audit.factory.js';
 import { z } from 'zod';
 import { educationSchema } from '$lib/schemas/employee.schema.js';
 
@@ -34,6 +35,9 @@ export async function replaceEducations(employee_cuid: string, dtos: UpsertEduca
     const employee = await employeeDao.findByCuid2(employee_cuid);
     if (!employee) throw new Error(`Employee with CUID2 "${employee_cuid}" not found`);
 
+    const oldRecords = await educationDao.findByEmployeeCuid(employee_cuid);
+    const oldEducationDTOs = oldRecords.map(toPublicEducation);
+
     const validatedDtos = z.array(educationSchema)
         .refine(items => {
             const keys = items.map(i => `${i.education_level}|${i.specialization}|${i.institution}`);
@@ -54,6 +58,13 @@ export async function replaceEducations(employee_cuid: string, dtos: UpsertEduca
     }));
 
     const results = await educationDao.replaceEducations(employee_cuid, payload);
+    const newEducationDTOs = results.map(toPublicEducation);
+
+    await auditFactory.educationUpdated({
+        employeeCuid: employee_cuid,
+        oldList: oldEducationDTOs,
+        newList: newEducationDTOs
+    });
     await employeeLifecycleService.syncEmployeeLifecycle(employee_cuid);
-    return results.map(toPublicEducation);
+    return newEducationDTOs;
 }
